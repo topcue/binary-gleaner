@@ -1,0 +1,60 @@
+{
+  "sha": "f2ae8bc88390f91cca8531823db51a8e35f0a0a0",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZjJhZThiYzg4MzkwZjkxY2NhODUzMTgyM2RiNTFhOGUzNWYwYTBhMA==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-04-13T08:22:41Z"
+    },
+    "committer": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-04-20T13:37:45Z"
+    },
+    "message": "Fix GDB crash when registers cannot be modified.\n\nThis crash was detected when using GDB with the valgrind gdbserver.\nTo reproduce:\n\nvalgrind sleep 10000\n\nIn another window:\ngdb\ntarget remote | vgdb\np printf(\"make sleep print something\\n\")\n=>\nterminate called after throwing an instance of 'gdb_exception_error'\nAborted\n\nThe problem is that the valgrind gdbserver does not allow to change\nregisters when the inferior is blocked in a system call.\nGDB then raises an exception.  The exception causes the destructor\nof\n typedef std::unique_ptr<infcall_suspend_state, infcall_suspend_state_deleter>\n    infcall_suspend_state_up;\nto be called.  This destructor itself tries to restore the value of\nthe registers, and fails similarly.  We must catch the exception in\nthe destructor to avoid crashing GDB.\nIf the destructor encounters a problem, no warning is produced if\nthere is an uncaught exception, as in this case, the user will already\nbe informed of a problem via this exception.\n\nWith this change, no crash anymore, and all the valgrind 3.15 tests\npass succesfully.\n\ngdb/ChangeLog\n2019-04-19  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n\n\t* inferior.h (struct infcall_suspend_state_deleter):\n\tCatch exception in destructor to avoid crash.",
+    "tree": {
+      "sha": "594a7dd4f714827d016216bb852dbf8a7208ba14",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/594a7dd4f714827d016216bb852dbf8a7208ba14"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/f2ae8bc88390f91cca8531823db51a8e35f0a0a0",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f2ae8bc88390f91cca8531823db51a8e35f0a0a0",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/f2ae8bc88390f91cca8531823db51a8e35f0a0a0",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f2ae8bc88390f91cca8531823db51a8e35f0a0a0/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "4884b57f24fca3d3abf73515e09a3917ed4f356c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4884b57f24fca3d3abf73515e09a3917ed4f356c",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/4884b57f24fca3d3abf73515e09a3917ed4f356c"
+    }
+  ],
+  "stats": {
+    "total": 5,
+    "additions": 5,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "0bd363ef57c9cf02e850a712fb109d5d24c8f0ea",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f2ae8bc88390f91cca8531823db51a8e35f0a0a0/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f2ae8bc88390f91cca8531823db51a8e35f0a0a0/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=f2ae8bc88390f91cca8531823db51a8e35f0a0a0",
+      "patch": "@@ -77,6 +77,11 @@\n \t* source.c (print_source_lines_base): Advance \"iter\" when a\n \tcontrol character is seen.\n \n+2019-04-19  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n+\n+\t* inferior.h (struct infcall_suspend_state_deleter):\n+\tCatch exception in destructor to avoid crash.\n+\n 2019-04-19  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n \n \t* cli/cli-cmds.c (_initialize_cli_cmds): Move \"shell\" \"!\" alias"
+    }
+  ]
+}

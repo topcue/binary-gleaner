@@ -1,0 +1,110 @@
+{
+  "sha": "eff4f69db422b77e8bb1f3d4eb8ce96228502a43",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZWZmNGY2OWRiNDIyYjc3ZThiYjFmM2Q0ZWI4Y2U5NjIyODUwMmE0Mw==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2021-02-13T16:25:26Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2021-03-25T22:10:36Z"
+    },
+    "message": "Fix bkpt-other-inferior.exp race\n\nWhen testing with \"maint set target-non-stop on\",\ngdb.server/bkpt-other-inferior.exp sometimes fails like so:\n\n (gdb) inferior 2\n [Switching to inferior 2 [process 368191] (<noexec>)]\n [Switching to thread 2.1 (Thread 368191.368191)]\n [remote] Sending packet: $m7ffff7fd0100,1#5b\n [remote] Packet received: 48\n [remote] Sending packet: $m7ffff7fd0100,1#5b\n [remote] Packet received: 48\n [remote] Sending packet: $m7ffff7fd0100,9#63\n [remote] Packet received: 4889e7e8e80c000049\n #0  0x00007ffff7fd0100 in ?? ()\n (gdb) PASS: gdb.server/bkpt-other-inferior.exp: inf 2: switch to inferior\n break -q main\n Breakpoint 2 at 0x1138: file /home/pedro/gdb/binutils-gdb/src/gdb/testsuite/gdb.server/server.c, line 21.\n (gdb) PASS: gdb.server/bkpt-other-inferior.exp: inf 2: set breakpoint\n delete breakpoints\n Delete all breakpoints? (y or n) y\n (gdb) [remote] wait: enter\n [remote] wait: exit\n FAIL: gdb.server/bkpt-other-inferior.exp: inf 2: delete all breakpoints in delete_breakpoints (timeout)\n ERROR: breakpoints not deleted\n Remote debugging from host ::1, port 55876\n monitor exit\n\nThe problem is here:\n\n (gdb) [remote] wait: enter\n\nThe testcase isn't expecting any output after the prompt.\n\nWhy is that \"[remote] wait\" output?  What happens is that \"delete\nbreakpoints\" queries the user, and `query` disables/reenables target\nasync, which results in the remote target's async event handler ending\nup marked:\n\n (top-gdb) bt\n #0  mark_async_event_handler (async_handler_ptr=0x556bffffffff) at ../../src/gdb/async-event.c:295\n #1  0x0000556bf71b711f in infrun_async (enable=1) at ../../src/gdb/infrun.c:119\n #2  0x0000556bf7471387 in target_async (enable=1) at ../../src/gdb/target.c:3684\n #3  0x0000556bf748a0bd in gdb_readline_wrapper_cleanup::~gdb_readline_wrapper_cleanup (this=0x7ffe3cf30eb0, __in_chrg=<optimized out>) at ../../src/gdb/top.c:1074\n #4  0x0000556bf74874e2 in gdb_readline_wrapper (prompt=0x556bfa17da60 \"Delete all breakpoints? (y or n) \") at ../../src/gdb/top.c:1096\n #5  0x0000556bf75111c5 in defaulted_query(const char *, char, typedef __va_list_tag __va_list_tag *) (ctlstr=0x556bf7717f34 \"Delete all breakpoints? \", defchar=0 '\\000', args=0x7ffe3cf31020) at ../../src/gdb/utils.c:893\n #6  0x0000556bf751166f in query (ctlstr=0x556bf7717f34 \"Delete all breakpoints? \") at ../../src/gdb/utils.c:985\n #7  0x0000556bf6f11404 in delete_command (arg=0x0, from_tty=1) at ../../src/gdb/breakpoint.c:13500\n ...\n\n... which then later results in a target_wait call:\n\n (top-gdb) bt\n #0  remote_target::wait_ns (this=0x7ffe3cf30f80, ptid=..., status=0xde530314f0802800, options=...) at ../../src/gdb/remote.c:7937\n #1  0x0000556bf7369dcb in remote_target::wait (this=0x556bfa0b2180, ptid=..., status=0x7ffe3cf31568, options=...) at ../../src/gdb/remote.c:8173\n #2  0x0000556bf745e527 in target_wait (ptid=..., status=0x7ffe3cf31568, options=...) at ../../src/gdb/target.c:2000\n #3  0x0000556bf71be686 in do_target_wait_1 (inf=0x556bfa1573d0, ptid=..., status=0x7ffe3cf31568, options=...) at ../../src/gdb/infrun.c:3463\n #4  0x0000556bf71be88b in <lambda(inferior*)>::operator()(inferior *) const (__closure=0x7ffe3cf31320, inf=0x556bfa1573d0) at ../../src/gdb/infrun.c:3526\n #5  0x0000556bf71bebcd in do_target_wait (wait_ptid=..., ecs=0x7ffe3cf31540, options=...) at ../../src/gdb/infrun.c:3539\n #6  0x0000556bf71bf97b in fetch_inferior_event () at ../../src/gdb/infrun.c:3879\n #7  0x0000556bf71a27f8 in inferior_event_handler (event_type=INF_REG_EVENT) at ../../src/gdb/inf-loop.c:42\n #8  0x0000556bf71cc8b7 in infrun_async_inferior_event_handler (data=0x0) at ../../src/gdb/infrun.c:9220\n #9  0x0000556bf6ecb80f in check_async_event_handlers () at ../../src/gdb/async-event.c:327\n #10 0x0000556bf76b011a in gdb_do_one_event () at ../../src/gdbsupport/event-loop.cc:216\n ...\n\n... which returns TARGET_WAITKIND_IGNORE.\n\nFix this by only enabling remote output around setting the breakpoint.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.server/bkpt-other-inferior.exp: Only enable remote output\n\taround setting the breakpoint.\n\nChange-Id: I2fd152fd9c46b1c5e7fa678cc4d4054dac0b2bd4",
+    "tree": {
+      "sha": "c869a90621564a89592474df151c94f00972d7a2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c869a90621564a89592474df151c94f00972d7a2"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/eff4f69db422b77e8bb1f3d4eb8ce96228502a43",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/eff4f69db422b77e8bb1f3d4eb8ce96228502a43",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/eff4f69db422b77e8bb1f3d4eb8ce96228502a43",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/eff4f69db422b77e8bb1f3d4eb8ce96228502a43/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "323fd5b9f9f1b6cf425155de41c5d4627eaa3174",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/323fd5b9f9f1b6cf425155de41c5d4627eaa3174",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/323fd5b9f9f1b6cf425155de41c5d4627eaa3174"
+    }
+  ],
+  "stats": {
+    "total": 11,
+    "additions": 9,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "173b08bf04b50eee5b477c2aaddee3dc55b14bdf",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/eff4f69db422b77e8bb1f3d4eb8ce96228502a43/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/eff4f69db422b77e8bb1f3d4eb8ce96228502a43/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=eff4f69db422b77e8bb1f3d4eb8ce96228502a43",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-03-25  Pedro Alves  <pedro@palves.net>\n+\n+\t* gdb.server/bkpt-other-inferior.exp: Only enable remote output\n+\taround setting the breakpoint.\n+\n 2021-03-25  Pedro Alves  <pedro@palves.net>\n \n \t* remote.c"
+    },
+    {
+      "sha": "5afe621de7174644d3bbf85d6823ec928705dd6d",
+      "filename": "gdb/testsuite/gdb.server/bkpt-other-inferior.exp",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/eff4f69db422b77e8bb1f3d4eb8ce96228502a43/gdb/testsuite/gdb.server/bkpt-other-inferior.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/eff4f69db422b77e8bb1f3d4eb8ce96228502a43/gdb/testsuite/gdb.server/bkpt-other-inferior.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.server/bkpt-other-inferior.exp?ref=eff4f69db422b77e8bb1f3d4eb8ce96228502a43",
+      "patch": "@@ -71,13 +71,13 @@ gdb_test_multiple \"file\" $test {\n # breakpoint on inferior 1, since it has symbols, and should not\n # result in any access to inferior 2's remote target.\n \n-gdb_test_no_output \"set debug remote 1\"\n-\n foreach inf_sel {1 2} {\n     with_test_prefix \"inf $inf_sel\" {\n \tgdb_test \"inferior $inf_sel\" \"Switching to inferior $inf_sel.*\" \\\n \t    \"switch to inferior\"\n \n+\tgdb_test_no_output \"set debug remote 1\"\n+\n \tset test \"set breakpoint\"\n \tgdb_test_multiple \"break -q main\" $test {\n \t    -re \"Sending packet.*$gdb_prompt $\" {\n@@ -88,6 +88,8 @@ foreach inf_sel {1 2} {\n \t    }\n \t}\n \n+\tgdb_test_no_output \"set debug remote 0\"\n+\n \tdelete_breakpoints\n     }\n }"
+    }
+  ]
+}

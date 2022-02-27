@@ -1,0 +1,110 @@
+{
+  "sha": "7e9cf1fe361dda0d6f06daeaa95eb98234f50764",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6N2U5Y2YxZmUzNjFkZGEwZDZmMDZkYWVhYTk1ZWI5ODIzNGY1MDc2NA==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2021-01-11T11:42:38Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2021-02-03T01:14:53Z"
+    },
+    "message": "gdbserver: spurious SIGTRAP w/ detach while step-over in progress\n\nA following patch will add a new testcase that has two processes, each\nwith a number of threads constantly tripping a breakpoint and stepping\nover it, because the breakpoint has a condition that evals false.\nThen GDB detaches from one of the processes, while both processes are\nrunning.  And then the testcase sends a SIGUSR1 to the other process.\n\nWhen run against gdbserver, that would occasionaly fail like this:\n\n (gdb) PASS: gdb.threads/detach-step-over.exp: iter 1: detach\n Executing on target: kill -SIGUSR1 208303    (timeout = 300)\n spawn -ignore SIGHUP kill -SIGUSR1 208303\n\n Thread 2.5 \"detach-step-ove\" received signal SIGTRAP, Trace/breakpoint trap.\n [Switching to Thread 208303.208305]\n 0x000055555555522a in thread_func (arg=0x0) at /home/pedro/gdb/binutils-gdb/src/gdb/testsuite/gdb.threads/detach-step-over.c:54\n 54            counter++; /* Set breakpoint here.  */\n\nWhat happened was that GDBserver is doing a step-over for process A\nwhen a detach request for process B arrives.  And that generates a\nspurious SIGTRAP report for process A, as seen above.\n\nThe GDBserver logs reveal what happened:\n\n - GDB manages to detach while a step over is in progress.  That reaches\n   linux_process_target::complete_ongoing_step_over(), which does:\n\n      /* Passing NULL_PTID as filter indicates we want all events to\n\t be left pending.  Eventually this returns when there are no\n\t unwaited-for children left.  */\n      ret = wait_for_event_filtered (minus_one_ptid, null_ptid, &wstat,\n\t\t\t\t     __WALL);\n\n   As the comment say, this leaves all events pending, _including_ the\n   just finished step SIGTRAP.  We never discard that SIGTRAP.  So\n   GDBserver reports the SIGTRAP to GDB.  GDB can't explain the\n   SIGTRAP, so it reports it to the user.\n\nThe GDBserver log looks like this.  The LWP of interest is 208305:\n\n Need step over [LWP 208305]? yes, found breakpoint at 0x555555555227\n proceed_all_lwps: found thread 208305 needing a step-over\n Starting step-over on LWP 208305.  Stopping all threads\n\n208305 starts a step-over.\n\n >>>> entering void linux_process_target::stop_all_lwps(int, lwp_info*)\n stop_all_lwps (stop-and-suspend, except=LWP 208303.208305)\n Sending sigstop to lwp 208303\n Sending sigstop to lwp 207755\n wait_for_sigstop: pulling events\n LWFE: waitpid(-1, ...) returned 207755, ERRNO-OK\n LLW: waitpid 207755 received Stopped (signal) (stopped)\n pc is 0x7f7e045593bf\n Expected stop.\n LLW: SIGSTOP caught for LWP 207755.207755 while stopping threads.\n LWFE: waitpid(-1, ...) returned 208303, ERRNO-OK\n LLW: waitpid 208303 received Stopped (signal) (stopped)\n pc is 0x7ffff7e743bf\n Expected stop.\n LLW: SIGSTOP caught for LWP 208303.208303 while stopping threads.\n LWFE: waitpid(-1, ...) returned 0, ERRNO-OK\n leader_pid=208303, leader_lp!=NULL=1, num_lwps=11, zombie=0\n leader_pid=207755, leader_lp!=NULL=1, num_lwps=11, zombie=0\n LLW: exit (no unwaited-for LWP)\n stop_all_lwps done, setting stopping_threads back to !stopping\n <<<< exiting void linux_process_target::stop_all_lwps(int, lwp_info*)\n Done stopping all threads for step-over.\n pc is 0x555555555227\n Writing 8b to 0x555555555227 in process 208305\n Could not findsigchld_handler\n  fast tracepoint jump at 0x555555555227 in list (uninserting).\n   pending reinsert at 0x555555555227\n   step from pc 0x555555555227\n Resuming lwp 208305 (step, signal 0, stop expected)\n <<<< exiting ptid_t linux_process_target::wait_1(ptid_t, target_waitstatus*, target_wait_flags)\n handling possible serial event\n getpkt (\"D;32b8b\");  [no ack sent]\n\nThe detach request arrives.\n\n sigchld_handler\n Tracing is already off, ignoring\n detach: step over in progress, finish it first\n\nGDBserver realizes a step over for 208305 was in progress, let's it\nfinish.\n\n LWFE: waitpid(-1, ...) returned 208305, ERRNO-OK\n LLW: waitpid 208305 received Stopped (signal) (stopped)\n pc is 0x555555555227\n Expected stop.\n LLW: step LWP 208303.208305, 0, 0 (discard delayed SIGSTOP)\n   pending reinsert at 0x555555555227\n   step from pc 0x555555555227\n Resuming lwp 208305 (step, signal 0, stop not expected)\n LWFE: waitpid(-1, ...) returned 0, ERRNO-OK\n leader_pid=208303, leader_lp!=NULL=1, num_lwps=11, zombie=0\n leader_pid=207755, leader_lp!=NULL=1, num_lwps=11, zombie=0\n sigsuspend'ing\n LWFE: waitpid(-1, ...) returned 208305, ERRNO-OK\n LLW: waitpid 208305 received Trace/breakpoint trap (stopped)\n pc is 0x55555555522a\n CSBB: LWP 208303.208305 stopped by trace\n LWFE: waitpid(-1, ...) returned 0, ERRNO-OK\n leader_pid=208303, leader_lp!=NULL=1, num_lwps=11, zombie=0\n leader_pid=207755, leader_lp!=NULL=1, num_lwps=11, zombie=0\n LLW: exit (no unwaited-for LWP)\n Finished step over.\n\nThe step-over for 208305 finishes.\n\n Writing cc to 0x555555555227 in process 208305\n Could not find fast tracepoint jump at 0x555555555227 in list (reinserting).\n >>>> entering void linux_process_target::stop_all_lwps(int, lwp_info*)\n stop_all_lwps (stop, except=none)\n wait_for_sigstop: pulling events\n\nThe detach proceeds (snipped).\n\n...\n\n proceed_one_lwp: lwp 208305\n    LWP 208305 has pending status, leaving stopped\n\nLater on, 208305 has a pending status (the step SIGTRAP from the\nstep-over), so GDBserver starts the process of reporting it.\n\n...\n\n wait_1 ret = LWP 208303.208305, 1, 5\n <<<< exiting ptid_t linux_process_target::wait_1(ptid_t, target_waitstatus*, target_wait_flags)\n\n...\n\nand eventually GDB receives the stop notification (T05 == SIGTRAP):\n\n getpkt (\"vStopped\");  [no ack sent]\n sigchld_handler\n vStopped: acking 3\n Writing resume reply for LWP 208303.208305:1\n putpkt (\"$T0506:f0ee58f7ff7f0* ;07:f0ee58f7ff7f0* ;10:2a525*\"550* ;thread:p32daf.32db1;core:c;#37\"); [noack mode]\n\nFrom the GDB side, we see:\n\n [infrun] fetch_inferior_event: enter\n   [infrun] fetch_inferior_event: fetch_inferior_event enter\n   [infrun] do_target_wait: Found 2 inferiors, starting at #1\n   [infrun] print_target_wait_results: target_wait (-1.0.0 [process -1], status) =\n   [infrun] print_target_wait_results:   208303.208305.0 [Thread 208303.208305],\n   [infrun] print_target_wait_results:   status->kind = stopped, signal = GDB_SIGNAL_TRAP\n   [infrun] handle_inferior_event: status->kind = stopped, signal = GDB_SIGNAL_TRAP\n   [infrun] start_step_over: enter\n     [infrun] start_step_over: stealing global queue of threads to step, length = 6\n     [infrun] operator(): putting back 6 threads to step in global queue\n   [infrun] start_step_over: exit\n   [infrun] handle_signal_stop: context switch\n   [infrun] context_switch: Switching context from process 0 to Thread 208303.208305\n   [infrun] handle_signal_stop: stop_pc=0x55555555522a\n   [infrun] handle_signal_stop: random signal (GDB_SIGNAL_TRAP)\n   [infrun] stop_waiting: stop_waiting\n   [infrun] stop_all_threads: starting\n\nThe fix is to discard the step SIGTRAP, unless GDB wanted the thread\nto step.\n\ngdbserver/ChangeLog:\n\n\t* linux-low.cc (linux_process_target::complete_ongoing_step_over):\n\tDiscard step SIGTRAP, unless GDB wanted the thread to step.",
+    "tree": {
+      "sha": "034c2cccaa1ce27694a371013def46a17e7da36a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/034c2cccaa1ce27694a371013def46a17e7da36a"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/7e9cf1fe361dda0d6f06daeaa95eb98234f50764",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7e9cf1fe361dda0d6f06daeaa95eb98234f50764",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/7e9cf1fe361dda0d6f06daeaa95eb98234f50764",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7e9cf1fe361dda0d6f06daeaa95eb98234f50764/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa"
+    }
+  ],
+  "stats": {
+    "total": 34,
+    "additions": 33,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "3f940831a1db7eaf125212f31c3bf10be25fa61d",
+      "filename": "gdbserver/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7e9cf1fe361dda0d6f06daeaa95eb98234f50764/gdbserver/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7e9cf1fe361dda0d6f06daeaa95eb98234f50764/gdbserver/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/ChangeLog?ref=7e9cf1fe361dda0d6f06daeaa95eb98234f50764",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-02-03  Pedro Alves  <pedro@palves.net>\n+\n+\t* linux-low.cc (linux_process_target::complete_ongoing_step_over):\n+\tDiscard step SIGTRAP, unless GDB wanted the thread to step.\n+\n 2021-02-03  Pedro Alves  <pedro@palves.net>\n \n \t* server.cc (discard_queued_stop_replies): Don't ever discard the"
+    },
+    {
+      "sha": "cc19581c53d015322fc66070b4a6559d3970aea2",
+      "filename": "gdbserver/linux-low.cc",
+      "status": "modified",
+      "additions": 28,
+      "deletions": 1,
+      "changes": 29,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7e9cf1fe361dda0d6f06daeaa95eb98234f50764/gdbserver/linux-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7e9cf1fe361dda0d6f06daeaa95eb98234f50764/gdbserver/linux-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-low.cc?ref=7e9cf1fe361dda0d6f06daeaa95eb98234f50764",
+      "patch": "@@ -4695,7 +4695,34 @@ linux_process_target::complete_ongoing_step_over ()\n \n       lwp = find_lwp_pid (step_over_bkpt);\n       if (lwp != NULL)\n-\tfinish_step_over (lwp);\n+\t{\n+\t  finish_step_over (lwp);\n+\n+\t  /* If we got our step SIGTRAP, don't leave it pending,\n+\t     otherwise we would report it to GDB as a spurious\n+\t     SIGTRAP.  */\n+\t  gdb_assert (lwp->status_pending_p);\n+\t  if (WIFSTOPPED (lwp->status_pending)\n+\t      && WSTOPSIG (lwp->status_pending) == SIGTRAP)\n+\t    {\n+\t      thread_info *thread = get_lwp_thread (lwp);\n+\t      if (thread->last_resume_kind != resume_step)\n+\t\t{\n+\t\t  if (debug_threads)\n+\t\t    debug_printf (\"detach: discard step-over SIGTRAP\\n\");\n+\n+\t\t  lwp->status_pending_p = 0;\n+\t\t  lwp->status_pending = 0;\n+\t\t  resume_one_lwp (lwp, lwp->stepping, 0, NULL);\n+\t\t}\n+\t      else\n+\t\t{\n+\t\t  if (debug_threads)\n+\t\t    debug_printf (\"detach: resume_step, \"\n+\t\t\t\t  \"not discarding step-over SIGTRAP\\n\");\n+\t\t}\n+\t    }\n+\t}\n       step_over_bkpt = null_ptid;\n       unsuspend_all_lwps (lwp);\n     }"
+    }
+  ]
+}

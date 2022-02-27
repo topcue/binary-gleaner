@@ -1,0 +1,110 @@
+{
+  "sha": "6bafc8451e070be83664e4b4c19ae4f85ccd863b",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NmJhZmM4NDUxZTA3MGJlODM2NjRlNGI0YzE5YWU0Zjg1Y2NkODYzYg==",
+  "commit": {
+    "author": {
+      "name": "Hannes Domani",
+      "email": "ssbssa@yahoo.de",
+      "date": "2020-01-17T14:50:58Z"
+    },
+    "committer": {
+      "name": "Hannes Domani",
+      "email": "ssbssa@yahoo.de",
+      "date": "2020-02-09T11:15:50Z"
+    },
+    "message": "Use enums for human-readable exception information.\n\nChanges to $_siginfo type to this:\n\n(gdb) pt $_siginfo\ntype = struct EXCEPTION_RECORD {\n    enum ExceptionCode ExceptionCode;\n    DWORD ExceptionFlags;\n    struct EXCEPTION_RECORD *ExceptionRecord;\n    PVOID ExceptionAddress;\n    DWORD NumberParameters;\n    union {\n        ULONG_PTR ExceptionInformation[15];\n        struct {...} AccessViolationInformation;\n    };\n}\n(gdb) pt $_siginfo.ExceptionCode\ntype = enum ExceptionCode {FATAL_APP_EXIT = 1073741845,\n    DBG_CONTROL_C = 1073807365, DBG_CONTROL_BREAK = 1073807368,\n    DATATYPE_MISALIGNMENT = 2147483650, BREAKPOINT, SINGLE_STEP,\n    ACCESS_VIOLATION = 3221225477, IN_PAGE_ERROR,\n    ILLEGAL_INSTRUCTION = 3221225501, NONCONTINUABLE_EXCEPTION = 3221225509,\n    INVALID_DISPOSITION, ARRAY_BOUNDS_EXCEEDED = 3221225612,\n    FLOAT_DENORMAL_OPERAND, FLOAT_DIVIDE_BY_ZERO, FLOAT_INEXACT_RESULT,\n    FLOAT_INVALID_OPERATION, FLOAT_OVERFLOW, FLOAT_STACK_CHECK,\n    FLOAT_UNDERFLOW, INTEGER_DIVIDE_BY_ZERO, INTEGER_OVERFLOW,\n    PRIV_INSTRUCTION, STACK_OVERFLOW = 3221225725, FAST_FAIL = 3221226505}\n(gdb) pt $_siginfo.AccessViolationInformation\ntype = struct {\n    enum ViolationType Type;\n    PVOID Address;\n}\n(gdb) pt $_siginfo.AccessViolationInformation.Type\ntype = enum ViolationType {READ_ACCESS_VIOLATION, WRITE_ACCESS_VIOLATION,\n    DATA_EXECUTION_PREVENTION_VIOLATION = 8}\n\nWhich makes it easier to understand the reason of the exception:\n\n(gdb) p $_siginfo\n$1 = {\n  ExceptionCode = ACCESS_VIOLATION,\n  ExceptionFlags = 0,\n  ExceptionRecord = 0x0,\n  ExceptionAddress = 0x401632 <main+18>,\n  NumberParameters = 2,\n  {\n    ExceptionInformation = {1, 291, 0 <repeats 13 times>},\n    AccessViolationInformation = {\n      Type = WRITE_ACCESS_VIOLATION,\n      Address = 0x123\n    }\n  }\n}\n\ngdb/ChangeLog:\n\n2020-02-09  Hannes Domani  <ssbssa@yahoo.de>\n\n\t* windows-tdep.c (struct enum_value_name): New struct.\n\t(create_enum): New function.\n\t(windows_get_siginfo_type): Create and use enum types.",
+    "tree": {
+      "sha": "f749b63dbaa8479bb61f56a6cc58e138e1517dee",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f749b63dbaa8479bb61f56a6cc58e138e1517dee"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/6bafc8451e070be83664e4b4c19ae4f85ccd863b",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6bafc8451e070be83664e4b4c19ae4f85ccd863b",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/6bafc8451e070be83664e4b4c19ae4f85ccd863b",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6bafc8451e070be83664e4b4c19ae4f85ccd863b/comments",
+  "author": {
+    "login": "ssbssa",
+    "id": 40947,
+    "node_id": "MDQ6VXNlcjQwOTQ3",
+    "avatar_url": "https://avatars.githubusercontent.com/u/40947?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/ssbssa",
+    "html_url": "https://github.com/ssbssa",
+    "followers_url": "https://api.github.com/users/ssbssa/followers",
+    "following_url": "https://api.github.com/users/ssbssa/following{/other_user}",
+    "gists_url": "https://api.github.com/users/ssbssa/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/ssbssa/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/ssbssa/subscriptions",
+    "organizations_url": "https://api.github.com/users/ssbssa/orgs",
+    "repos_url": "https://api.github.com/users/ssbssa/repos",
+    "events_url": "https://api.github.com/users/ssbssa/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/ssbssa/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "ssbssa",
+    "id": 40947,
+    "node_id": "MDQ6VXNlcjQwOTQ3",
+    "avatar_url": "https://avatars.githubusercontent.com/u/40947?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/ssbssa",
+    "html_url": "https://github.com/ssbssa",
+    "followers_url": "https://api.github.com/users/ssbssa/followers",
+    "following_url": "https://api.github.com/users/ssbssa/following{/other_user}",
+    "gists_url": "https://api.github.com/users/ssbssa/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/ssbssa/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/ssbssa/subscriptions",
+    "organizations_url": "https://api.github.com/users/ssbssa/orgs",
+    "repos_url": "https://api.github.com/users/ssbssa/repos",
+    "events_url": "https://api.github.com/users/ssbssa/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/ssbssa/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "7928d571c5f742a10d98b0de0ef85284c5959845",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7928d571c5f742a10d98b0de0ef85284c5959845",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/7928d571c5f742a10d98b0de0ef85284c5959845"
+    }
+  ],
+  "stats": {
+    "total": 108,
+    "additions": 102,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "5f40634e2652c338d3a1e852849511671143f570",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6bafc8451e070be83664e4b4c19ae4f85ccd863b/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6bafc8451e070be83664e4b4c19ae4f85ccd863b/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=6bafc8451e070be83664e4b4c19ae4f85ccd863b",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-02-09  Hannes Domani  <ssbssa@yahoo.de>\n+\n+\t* windows-tdep.c (struct enum_value_name): New struct.\n+\t(create_enum): New function.\n+\t(windows_get_siginfo_type): Create and use enum types.\n+\n 2020-02-09  Hannes Domani  <ssbssa@yahoo.de>\n \n \t* NEWS: Mention $_siginfo support for Windows."
+    },
+    {
+      "sha": "e9787887a4af87c0faf547b916ecf71feea72dec",
+      "filename": "gdb/windows-tdep.c",
+      "status": "modified",
+      "additions": 96,
+      "deletions": 6,
+      "changes": 102,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6bafc8451e070be83664e4b4c19ae4f85ccd863b/gdb/windows-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6bafc8451e070be83664e4b4c19ae4f85ccd863b/gdb/windows-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/windows-tdep.c?ref=6bafc8451e070be83664e4b4c19ae4f85ccd863b",
+      "patch": "@@ -680,14 +680,80 @@ windows_gdb_signal_to_target (struct gdbarch *gdbarch, enum gdb_signal signal)\n   return -1;\n }\n \n+struct enum_value_name\n+{\n+  uint32_t value;\n+  const char *name;\n+};\n+\n+/* Allocate a TYPE_CODE_ENUM type structure with its named values.  */\n+\n+static struct type *\n+create_enum (struct gdbarch *gdbarch, int bit, const char *name,\n+\t     const struct enum_value_name *values, int count)\n+{\n+  struct type *type;\n+  int i;\n+\n+  type = arch_type (gdbarch, TYPE_CODE_ENUM, bit, name);\n+  TYPE_NFIELDS (type) = count;\n+  TYPE_FIELDS (type) = (struct field *)\n+    TYPE_ZALLOC (type, sizeof (struct field) * count);\n+  TYPE_UNSIGNED (type) = 1;\n+\n+  for (i = 0; i < count; i++)\n+  {\n+    TYPE_FIELD_NAME (type, i) = values[i].name;\n+    SET_FIELD_ENUMVAL (TYPE_FIELD (type, i), values[i].value);\n+  }\n+\n+  return type;\n+}\n+\n+static const struct enum_value_name exception_values[] =\n+{\n+  { 0x40000015, \"FATAL_APP_EXIT\" },\n+  { 0x40010005, \"DBG_CONTROL_C\" },\n+  { 0x40010008, \"DBG_CONTROL_BREAK\" },\n+  { 0x80000002, \"DATATYPE_MISALIGNMENT\" },\n+  { 0x80000003, \"BREAKPOINT\" },\n+  { 0x80000004, \"SINGLE_STEP\" },\n+  { 0xC0000005, \"ACCESS_VIOLATION\" },\n+  { 0xC0000006, \"IN_PAGE_ERROR\" },\n+  { 0xC000001D, \"ILLEGAL_INSTRUCTION\" },\n+  { 0xC0000025, \"NONCONTINUABLE_EXCEPTION\" },\n+  { 0xC0000026, \"INVALID_DISPOSITION\" },\n+  { 0xC000008C, \"ARRAY_BOUNDS_EXCEEDED\" },\n+  { 0xC000008D, \"FLOAT_DENORMAL_OPERAND\" },\n+  { 0xC000008E, \"FLOAT_DIVIDE_BY_ZERO\" },\n+  { 0xC000008F, \"FLOAT_INEXACT_RESULT\" },\n+  { 0xC0000090, \"FLOAT_INVALID_OPERATION\" },\n+  { 0xC0000091, \"FLOAT_OVERFLOW\" },\n+  { 0xC0000092, \"FLOAT_STACK_CHECK\" },\n+  { 0xC0000093, \"FLOAT_UNDERFLOW\" },\n+  { 0xC0000094, \"INTEGER_DIVIDE_BY_ZERO\" },\n+  { 0xC0000095, \"INTEGER_OVERFLOW\" },\n+  { 0xC0000096, \"PRIV_INSTRUCTION\" },\n+  { 0xC00000FD, \"STACK_OVERFLOW\" },\n+  { 0xC0000409, \"FAST_FAIL\" },\n+};\n+\n+static const struct enum_value_name violation_values[] =\n+{\n+  { 0, \"READ_ACCESS_VIOLATION\" },\n+  { 1, \"WRITE_ACCESS_VIOLATION\" },\n+  { 8, \"DATA_EXECUTION_PREVENTION_VIOLATION\" },\n+};\n+\n /* Implement the \"get_siginfo_type\" gdbarch method.  */\n \n static struct type *\n windows_get_siginfo_type (struct gdbarch *gdbarch)\n {\n   struct windows_gdbarch_data *windows_gdbarch_data;\n   struct type *dword_type, *pvoid_type, *ulongptr_type;\n-  struct type *siginfo_ptr_type, *siginfo_type;\n+  struct type *code_enum, *violation_enum;\n+  struct type *violation_type, *para_type, *siginfo_ptr_type, *siginfo_type;\n \n   windows_gdbarch_data = get_windows_gdbarch_data (gdbarch);\n   if (windows_gdbarch_data->siginfo_type != NULL)\n@@ -700,23 +766,47 @@ windows_get_siginfo_type (struct gdbarch *gdbarch)\n   ulongptr_type = arch_integer_type (gdbarch, gdbarch_ptr_bit (gdbarch),\n \t\t\t\t     1, \"ULONG_PTR\");\n \n+  /* ExceptionCode value names */\n+  code_enum = create_enum (gdbarch, gdbarch_int_bit (gdbarch),\n+\t\t\t   \"ExceptionCode\", exception_values,\n+\t\t\t   ARRAY_SIZE (exception_values));\n+\n+  /* ACCESS_VIOLATION type names */\n+  violation_enum = create_enum (gdbarch, gdbarch_ptr_bit (gdbarch),\n+\t\t\t\t\"ViolationType\", violation_values,\n+\t\t\t\tARRAY_SIZE (violation_values));\n+\n+  /* ACCESS_VIOLATION information */\n+  violation_type = arch_composite_type (gdbarch, NULL, TYPE_CODE_STRUCT);\n+  append_composite_type_field (violation_type, \"Type\", violation_enum);\n+  append_composite_type_field (violation_type, \"Address\", pvoid_type);\n+\n+  /* Unnamed union of the documented field ExceptionInformation,\n+     and the alternative AccessViolationInformation (which displays\n+     human-readable values for ExceptionCode ACCESS_VIOLATION).  */\n+  para_type = arch_composite_type (gdbarch, NULL, TYPE_CODE_UNION);\n+  append_composite_type_field (para_type, \"ExceptionInformation\",\n+\t\t\t       lookup_array_range_type (ulongptr_type, 0, 14));\n+  append_composite_type_field (para_type, \"AccessViolationInformation\",\n+\t\t\t       violation_type);\n+\n   siginfo_type = arch_composite_type (gdbarch, \"EXCEPTION_RECORD\",\n \t\t\t\t      TYPE_CODE_STRUCT);\n   siginfo_ptr_type = arch_pointer_type (gdbarch, gdbarch_ptr_bit (gdbarch),\n \t\t\t\t\tNULL, siginfo_type);\n \n-  append_composite_type_field (siginfo_type, \"ExceptionCode\", dword_type);\n+  /* ExceptionCode is documented as type DWORD, but here a helper\n+     enum type is used instead to display a human-readable value.  */\n+  append_composite_type_field (siginfo_type, \"ExceptionCode\", code_enum);\n   append_composite_type_field (siginfo_type, \"ExceptionFlags\", dword_type);\n   append_composite_type_field (siginfo_type, \"ExceptionRecord\",\n \t\t\t       siginfo_ptr_type);\n   append_composite_type_field (siginfo_type, \"ExceptionAddress\",\n \t\t\t       pvoid_type);\n   append_composite_type_field (siginfo_type, \"NumberParameters\", dword_type);\n   /* The 64-bit variant needs some padding.  */\n-  append_composite_type_field_aligned (siginfo_type, \"ExceptionInformation\",\n-\t\t\t\t       lookup_array_range_type (ulongptr_type,\n-\t\t\t\t\t\t\t\t0, 14),\n-\t\t\t\t       TYPE_LENGTH (ulongptr_type));\n+  append_composite_type_field_aligned (siginfo_type, \"\",\n+\t\t\t\t       para_type, TYPE_LENGTH (ulongptr_type));\n \n   windows_gdbarch_data->siginfo_type = siginfo_type;\n "
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "sha": "c90d28ac8903c5781b1a82e487072081383fd7b9",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YzkwZDI4YWM4OTAzYzU3ODFiMWE4MmU0ODcwNzIwODEzODNmZDdiOQ==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-03-23T12:40:24Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-04-02T16:44:03Z"
+    },
+    "message": "gdb: Don't remove duplicate entries from the line table\n\nIn this commit:\n\n  commit 8c95582da858ac981f689a6f599acacb8c5c490f\n  Date:   Mon Dec 30 21:04:51 2019 +0000\n\n      gdb: Add support for tracking the DWARF line table is-stmt field\n\nA change was made in buildsym_compunit::record_line to remove\nduplicate line table entries in some cases.  This was an invalid\nchange, as these duplicate line table entries are used in _some_ cases\nas part of prologue detection (see skip_prologue_using_sal).\n\nIt might be possible to identify those line table entries that are\nrequired by skip_prologue_using_sal and only keep those duplicates\naround, however, I have not done this here.  The original duplicate\nremoval was done because (a) it was easy to implement, and (b) it\nseemed obviously harmless.\n\nAs (b) is now known to be false, and implementation would be more\ncomplex, and so (a) is also false.  As such, it seems better to keep\nall duplicates until an actual reason presents itself for why we\nshould remove any.\n\nThe original regression was spotted on RISC-V, which makes use of\nskip_prologue_using_sal as part of riscv_skip_prologue.  Originally I\ncreated the test gdb.dwarf2/dw2-inline-small-func.exp, however, this\ntest will not compile on RISC-V as this target doesn't support\n.uleb128 or .sleb128 assembler directives containing complex\nexpressions.  As a result I added the gdb.opt/inline-small-func.exp\ntest, which exposes the bug on RISC-V, but obviously depends on the\ncompiler to produce specific DWARF information in order to expose the\nbug.  Still this test does ensure we always get the desired result,\neven if the DWARF changes.\n\nOriginally the gdb.dwarf2/dw2-inline-small-func.exp test passed on\nx86-64 even with the duplicate line table entries incorrectly\nremoved.  The reason for this is that when a compilation unit doesn't\nhave a 'producer' string then skip_prologue_using_sal is not used,\ninstead the prologue is always skipped using analysis of the assembler\ncode.\n\nHowever, for Clang on x86-64 skip_prologue_using_sal is used, so I\nmodified the gdb.dwarf2/dw2-inline-small-func.exp test to include a\n'producer' string that names the Clang compiler.  With this done the\ntest would fail on x86-64.\n\nOne thing to note is that the gdb.opt/inline-small-func.exp test might\nfail on some targets.  For example, if we compare sparc to risc-v by\nlooking at sparc32_skip_prologue we see that this function doesn't use\nskip_prologue_using_sal, but instead uses find_pc_partial_function\ndirectly.  I don't know the full history behind why the code is like\nit is, but it feels like sparc32_skip_prologue is an attempt to\nduplicate some of the functionality of skip_prologue_using_sal, but\nwithout all of the special cases.  If this is true then the new test\ncould easily fail on this target, this would suggest that sparc should\nconsider switching to use skip_prologue_using_sal like risc-v does.\n\ngdb/ChangeLog:\n\n\t* buildsym.c (buildsym_compunit::record_line): Remove\n\tdeduplication code.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.dwarf2/dw2-inline-small-func-lbls.c: New file.\n\t* gdb.dwarf2/dw2-inline-small-func.c: New file.\n\t* gdb.dwarf2/dw2-inline-small-func.exp: New file.\n\t* gdb.dwarf2/dw2-inline-small-func.h: New file.\n\t* gdb.opt/inline-small-func.c: New file.\n\t* gdb.opt/inline-small-func.exp: New file.\n\t* gdb.opt/inline-small-func.h: New file.",
+    "tree": {
+      "sha": "c736279b1f48a4eb01c1f43d866d84fbfb4ee3b5",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c736279b1f48a4eb01c1f43d866d84fbfb4ee3b5"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/c90d28ac8903c5781b1a82e487072081383fd7b9",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c90d28ac8903c5781b1a82e487072081383fd7b9",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/c90d28ac8903c5781b1a82e487072081383fd7b9",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c90d28ac8903c5781b1a82e487072081383fd7b9/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "34e9a9fa0a18fc544bc8ec3dc9e02096be1e4335",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/34e9a9fa0a18fc544bc8ec3dc9e02096be1e4335",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/34e9a9fa0a18fc544bc8ec3dc9e02096be1e4335"
+    }
+  ],
+  "stats": {
+    "total": 372,
+    "additions": 358,
+    "deletions": 14
+  },
+  "files": [
+    {
+      "sha": "d8019713cdb52026e9d53c8436832b80f6237f00",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=c90d28ac8903c5781b1a82e487072081383fd7b9",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-04-02  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\t    Bernd Edlinger <bernd.edlinger@hotmail.de>\n+\t    Tom Tromey  <tromey@adacore.com>\n+\n+\t* buildsym.c (buildsym_compunit::record_line): Remove\n+\tdeduplication code.\n+\n 2020-04-02  Tom de Vries  <tdevries@suse.de>\n \n \tPR ada/24671"
+    },
+    {
+      "sha": "fe071035542fd79d46338e25a6421734ab527185",
+      "filename": "gdb/buildsym.c",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 14,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/buildsym.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/buildsym.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/buildsym.c?ref=c90d28ac8903c5781b1a82e487072081383fd7b9",
+      "patch": "@@ -681,20 +681,6 @@ buildsym_compunit::record_line (struct subfile *subfile, int line,\n       m_have_line_numbers = true;\n     }\n \n-  if (subfile->line_vector->nitems > 0)\n-    {\n-      /* If we have a duplicate for the previous entry then ignore the new\n-\t entry, except, if the new entry is setting the is_stmt flag, then\n-\t ensure the previous entry respects the new setting.  */\n-      e = subfile->line_vector->item + subfile->line_vector->nitems - 1;\n-      if (e->line == line && e->pc == pc)\n-\t{\n-\t  if (is_stmt && !e->is_stmt)\n-\t    e->is_stmt = 1;\n-\t  return;\n-\t}\n-    }\n-\n   if (subfile->line_vector->nitems >= subfile->line_vector_length)\n     {\n       subfile->line_vector_length *= 2;"
+    },
+    {
+      "sha": "f794bbd0d3c3e13c61338b4913277d4ed19ece4a",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=c90d28ac8903c5781b1a82e487072081383fd7b9",
+      "patch": "@@ -1,3 +1,13 @@\n+2020-04-02  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.dwarf2/dw2-inline-small-func-lbls.c: New file.\n+\t* gdb.dwarf2/dw2-inline-small-func.c: New file.\n+\t* gdb.dwarf2/dw2-inline-small-func.exp: New file.\n+\t* gdb.dwarf2/dw2-inline-small-func.h: New file.\n+\t* gdb.opt/inline-small-func.c: New file.\n+\t* gdb.opt/inline-small-func.exp: New file.\n+\t* gdb.opt/inline-small-func.h: New file.\n+\n 2020-04-02  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* lib/dwarf.exp (Dwarf::lines::program::DW_LNS_set_file): New"
+    },
+    {
+      "sha": "5772131569c83551c67bef5016a3a82658e9fd04",
+      "filename": "gdb/testsuite/gdb.dwarf2/dw2-inline-small-func-lbls.c",
+      "status": "added",
+      "additions": 37,
+      "deletions": 0,
+      "changes": 37,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/testsuite/gdb.dwarf2/dw2-inline-small-func-lbls.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/testsuite/gdb.dwarf2/dw2-inline-small-func-lbls.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/dw2-inline-small-func-lbls.c?ref=c90d28ac8903c5781b1a82e487072081383fd7b9",
+      "patch": "@@ -0,0 +1,37 @@\n+/* Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+/* Used to insert labels with which we can build a fake line table.  */\n+#define LL(N) asm (\"line_label_\" #N \": .globl line_label_\" #N)\n+\n+volatile int var;\n+volatile int bar;\n+\n+/* Generate some code to take up some space.  */\n+#define FILLER do { \\\n+    var = 99;\t    \\\n+} while (0)\n+\n+int\n+main ()\n+{\t\t\t\t\t/* main prologue */\n+  asm (\"main_label: .globl main_label\");\n+  LL (1);\n+  FILLER;\n+  LL (2);\n+  FILLER;\n+  LL (3);\n+  return 0;\t\t\t\t/* main end */\n+}"
+    },
+    {
+      "sha": "e2095e3662538b7208ccbb7c78f9eac1f2285349",
+      "filename": "gdb/testsuite/gdb.dwarf2/dw2-inline-small-func.c",
+      "status": "added",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/testsuite/gdb.dwarf2/dw2-inline-small-func.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/testsuite/gdb.dwarf2/dw2-inline-small-func.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/dw2-inline-small-func.c?ref=c90d28ac8903c5781b1a82e487072081383fd7b9",
+      "patch": "@@ -0,0 +1,22 @@\n+/* Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#include \"dw2-inline-small-func.h\"\n+\n+int\n+main ()\n+{\t\t/* caller: before call.  */\n+  callee ();\t/* caller: the call.  */\n+}\t\t/* caller: after call.  */"
+    },
+    {
+      "sha": "777db062b37ebd97a2bc613af0d52582742656f5",
+      "filename": "gdb/testsuite/gdb.dwarf2/dw2-inline-small-func.exp",
+      "status": "added",
+      "additions": 158,
+      "deletions": 0,
+      "changes": 158,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/testsuite/gdb.dwarf2/dw2-inline-small-func.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/testsuite/gdb.dwarf2/dw2-inline-small-func.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/dw2-inline-small-func.exp?ref=c90d28ac8903c5781b1a82e487072081383fd7b9",
+      "patch": "@@ -0,0 +1,158 @@\n+# Copyright 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Check for an issue in GDB where buildsym_compunit::record_line was\n+# removing duplicate line table entries, but skip_prologue_using_sal\n+# depends on these duplicates to spot the end of the prologue.\n+#\n+# When the de-duplication was added this regression was not spotted as\n+# it requires a particular combination of a (very) small function\n+# being inlined into an also very small outer function.\n+#\n+# This test recreates the exact combination of line table entries that\n+# were seen in the original test using the Dejagnu DWARF compiler.\n+\n+load_lib dwarf.exp\n+\n+# This test can only be run on targets which support DWARF-2 and use gas.\n+if {![dwarf2_support]} {\n+    return 0\n+}\n+\n+# The .c files use __attribute__.\n+if [get_compiler_info] {\n+    return -1\n+}\n+if !$gcc_compiled {\n+    return 0\n+}\n+\n+standard_testfile dw2-inline-small-func-lbls.c dw2-inline-small-func.S \\\n+    dw2-inline-small-func.c dw2-inline-small-func.h\n+\n+# Extract the start, length, and end for function called NAME and\n+# create suitable variables in the callers scope.\n+proc get_func_info { name } {\n+    global srcdir subdir srcfile\n+\n+    upvar 1 \"${name}_start\" func_start\n+    upvar 1 \"${name}_len\" func_len\n+    upvar 1 \"${name}_end\" func_end\n+\n+    lassign [function_range ${name} [list ${srcdir}/${subdir}/$srcfile] {debug optimize=-O1}] \\\n+\tfunc_start func_len\n+    set func_end \"$func_start + $func_len\"\n+}\n+\n+set asm_file [standard_output_file $srcfile2]\n+Dwarf::assemble $asm_file {\n+    global srcdir subdir srcfile srcfile3 srcfile4\n+    declare_labels lines_label callee_subprog_label\n+\n+    get_func_info main\n+\n+    cu {} {\n+\t# It is important that the producer here be 'clang' as, at the\n+\t# time of writing this, GCC for x86-64 doesn't make use of\n+\t# skip_prologue_using_sal, while clang does.\n+\tcompile_unit {\n+\t    {producer \"clang xxxx\" }\n+\t    {language @DW_LANG_C}\n+\t    {name ${srcfile3}}\n+\t    {low_pc 0 addr}\n+\t    {stmt_list ${lines_label} DW_FORM_sec_offset}\n+\t} {\n+\t    callee_subprog_label: subprogram {\n+\t\t{external 1 flag}\n+\t\t{name callee}\n+\t\t{inline 3 data1}\n+\t    }\n+\t    subprogram {\n+\t\t{external 1 flag}\n+\t\t{name main}\n+\t\t{low_pc $main_start addr}\n+\t\t{high_pc \"$main_start + $main_len\" addr}\n+\t    } {\n+\t\tinlined_subroutine {\n+\t\t    {abstract_origin %$callee_subprog_label}\n+\t\t    {low_pc line_label_1 addr}\n+\t\t    {high_pc line_label_2 addr}\n+\t\t    {call_file 1 data1}\n+\t\t    {call_line 21 data1}\n+\t\t}\n+\t    }\n+\t}\n+    }\n+\n+    lines {version 2 default_is_stmt 1} lines_label {\n+\tinclude_dir \"${srcdir}/${subdir}\"\n+\tfile_name \"$srcfile3\" 1\n+\tfile_name \"$srcfile4\" 1\n+\n+\tset f1_l1 [gdb_get_line_number \"caller: before call\" $srcfile3]\n+\tset f1_l2 [gdb_get_line_number \"caller: the call\" $srcfile3]\n+\tset f1_l3 [gdb_get_line_number \"caller: after call\" $srcfile3]\n+\n+\tset f2_l1 [gdb_get_line_number \"callee: body\" $srcfile4]\n+\n+\tprogram {\n+\t    {DW_LNE_set_address line_label_1}\n+\t    {DW_LNS_advance_line [expr $f1_l1 - 1]}\n+\t    {DW_LNS_copy}\n+\n+\t    {DW_LNS_advance_line [expr ${f1_l2} - ${f1_l1}]}\n+\t    {DW_LNS_copy}\n+\n+\t    {DW_LNS_set_file 2}\n+\t    {DW_LNS_advance_line [expr ${f2_l1} - ${f1_l2}]}\n+\t    {DW_LNS_copy}\n+\n+\t    {DW_LNS_negate_stmt}\n+\t    {DW_LNS_copy}\n+\n+\t    {DW_LNS_set_file 1}\n+\t    {DW_LNE_set_address line_label_2}\n+\t    {DW_LNS_advance_line [expr ${f1_l3} - ${f2_l1}]}\n+\t    {DW_LNS_copy}\n+\n+\t    {DW_LNE_set_address line_label_3}\n+\t    {DW_LNS_copy}\n+\t    {DW_LNE_end_sequence}\n+\t}\n+    }\n+}\n+\n+if { [prepare_for_testing \"failed to prepare\" ${testfile} \\\n+\t  [list $srcfile $asm_file] {nodebug optimize=-O1}] } {\n+    return -1\n+}\n+\n+if ![runto_main] {\n+    return -1\n+}\n+\n+# Delete all breakpoints so that the output of \"info breakpoints\"\n+# below will only contain a single breakpoint.\n+delete_breakpoints\n+\n+# Place a breakpoint within the function in the header file.\n+set linenum [gdb_get_line_number \"callee: body\" $srcfile4]\n+gdb_breakpoint \"${srcfile4}:${linenum}\"\n+\n+# Check that the breakpoint was placed where we expected.  It should\n+# appear at the requested line.  When the bug in GDB was present the\n+# breakpoint would be placed on one of the following lines instead.\n+gdb_test \"info breakpoints\" \\\n+    \".* in callee at \\[^\\r\\n\\]+${srcfile4}:${linenum}\\\\y.*\""
+    },
+    {
+      "sha": "69c67af6011e6cd61a5bfdcf4702c014288237a8",
+      "filename": "gdb/testsuite/gdb.dwarf2/dw2-inline-small-func.h",
+      "status": "added",
+      "additions": 21,
+      "deletions": 0,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/testsuite/gdb.dwarf2/dw2-inline-small-func.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/testsuite/gdb.dwarf2/dw2-inline-small-func.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/dw2-inline-small-func.h?ref=c90d28ac8903c5781b1a82e487072081383fd7b9",
+      "patch": "@@ -0,0 +1,21 @@\n+/* Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+int counter = 42;\n+\n+inline void\n+callee () {\n+  counter = 0;\t/* callee: body.  */\n+}"
+    },
+    {
+      "sha": "902674e8773656e1db6b176f565262aa24df1310",
+      "filename": "gdb/testsuite/gdb.opt/inline-small-func.c",
+      "status": "added",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/testsuite/gdb.opt/inline-small-func.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/testsuite/gdb.opt/inline-small-func.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.opt/inline-small-func.c?ref=c90d28ac8903c5781b1a82e487072081383fd7b9",
+      "patch": "@@ -0,0 +1,22 @@\n+/* Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#include \"inline-small-func.h\"\n+\n+int\n+main ()\n+{\t\t/* caller: before call.  */\n+  callee ();\t/* caller: the call.  */\n+}\t\t/* caller: after call.  */"
+    },
+    {
+      "sha": "dfe046ad72378a3290ecbe5dd61004abc4301f1f",
+      "filename": "gdb/testsuite/gdb.opt/inline-small-func.exp",
+      "status": "added",
+      "additions": 60,
+      "deletions": 0,
+      "changes": 60,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/testsuite/gdb.opt/inline-small-func.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/testsuite/gdb.opt/inline-small-func.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.opt/inline-small-func.exp?ref=c90d28ac8903c5781b1a82e487072081383fd7b9",
+      "patch": "@@ -0,0 +1,60 @@\n+# Copyright 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Check for an issue in GDB where buildsym_compunit::record_line was\n+# removing duplicate line table entries, but skip_prologue_using_sal\n+# depends on these duplicates to spot the end of the prologue.\n+#\n+# When the de-duplication was added this regression was not spotted as\n+# it requires a particular combination of a (very) small function\n+# being inlined into an also very small outer function.\n+#\n+# See also gdb.dwarf/dw2-inline-small-func.exp for a version of this\n+# test that makes use of the Dejagnu DWARF compiler.\n+#\n+# This test simply compiles with optimization and checks that GDB can\n+# do something suitable with the compiled binary.  Problems with this\n+# test are most likely to occur when GDB asks the target specific code\n+# to skip the prologue (gdbarch_skip_prologue).  Some targets make use\n+# of skip_prologue_using_sal, which should be fine, however, some\n+# targets make a poor attempt to duplicate parts of\n+# skip_prologue_using_sal, these targets could easily fail this test.\n+# This is not (necessarily) a problem with this test, but could\n+# indicate a weakness with the target in question.\n+\n+standard_testfile inline-small-func.c inline-small-func.h\n+\n+if { [prepare_for_testing \"failed to prepare\" ${testfile} \\\n+\t  [list $srcfile] {debug optimize=-O1}] } {\n+    return -1\n+}\n+\n+if ![runto_main] {\n+    return -1\n+}\n+\n+# Delete all breakpoints so that the output of \"info breakpoints\"\n+# below will only contain a single breakpoint.\n+delete_breakpoints\n+\n+# Place a breakpoint within the function in the header file.\n+set linenum [gdb_get_line_number \"callee: body\" $srcfile2]\n+gdb_breakpoint \"${srcfile2}:${linenum}\"\n+\n+# Check that the breakpoint was placed where we expected.  It should\n+# appear at the requested line.  When the bug in GDB was present the\n+# breakpoint would be placed on one of the following lines instead.\n+gdb_test \"info breakpoints\" \\\n+    \".* in callee at \\[^\\r\\n\\]+${srcfile2}:${linenum}\\\\y.*\""
+    },
+    {
+      "sha": "69c67af6011e6cd61a5bfdcf4702c014288237a8",
+      "filename": "gdb/testsuite/gdb.opt/inline-small-func.h",
+      "status": "added",
+      "additions": 21,
+      "deletions": 0,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/testsuite/gdb.opt/inline-small-func.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c90d28ac8903c5781b1a82e487072081383fd7b9/gdb/testsuite/gdb.opt/inline-small-func.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.opt/inline-small-func.h?ref=c90d28ac8903c5781b1a82e487072081383fd7b9",
+      "patch": "@@ -0,0 +1,21 @@\n+/* Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+int counter = 42;\n+\n+inline void\n+callee () {\n+  counter = 0;\t/* callee: body.  */\n+}"
+    }
+  ]
+}

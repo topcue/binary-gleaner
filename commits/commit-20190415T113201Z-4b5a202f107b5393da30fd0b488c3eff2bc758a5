@@ -1,0 +1,194 @@
+{
+  "sha": "4b5a202f107b5393da30fd0b488c3eff2bc758a5",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NGI1YTIwMmYxMDdiNTM5M2RhMzBmZDBiNDg4YzNlZmYyYmM3NThhNQ==",
+  "commit": {
+    "author": {
+      "name": "Andre Vieira",
+      "email": "andre.simoesdiasvieira@arm.com",
+      "date": "2019-04-15T11:07:20Z"
+    },
+    "committer": {
+      "name": "Andre Vieira",
+      "email": "andre.simoesdiasvieira@arm.com",
+      "date": "2019-04-15T11:32:01Z"
+    },
+    "message": "[binutils, ARM, 13/16] Add support for CLRM\n\nGiven the similarity between LDM/STM and CLRM register lists, most of the changes in this patch aim at sharing code between those two sets of instruction. Sharing is achieved both in parsing and encoding of those instructions.\n\nIn terms of parsing, parse_reg_list () is extended to take a type that describe what type of instruction is being parsed. The reg_list_els used for parse_vfp_reg_list () is reused for the type and that function is added an assert for the new REGLIST_CLRM and REGLIST_RN enumerators.\nparse_reg_list () is then taught to accept APSR and reject SP and PC when parsing for a CLRM instruction. At last, caller of parse_reg_list () is updated accordingly and logic is added for the new OP_CLRMLST operand.\n\nEncoding-wise, encode_thumb2_ldmstm () is reused to encode the variable bits of CLRM and is thus renamed encode_thumb2_multi (). A new do_io parameter is added to distinguish between LDM/STM and CLRM which guard all the LDM/STM specific code of the function.\n\nFinally objdump is told how to disassemble CLRM, again reusing the logic to print the LDM/STM register list (format specifier 'm'). Tests are also added in the form of negative tests to check parsing and encoding/disassembling tests.\n\nChangeLog entries are as follows:\n\n*** gas/ChangeLog ***\n\n2019-04-15  Thomas Preud'homme  <thomas.preudhomme@arm.com>\n\n\t* config/tc-arm.c (enum reg_list_els): Define earlier and add\n\tREGLIST_RN and REGLIST_CLRM enumerators.\n\t(parse_reg_list): Add etype parameter to distinguish between regular\n\tcore register list and CLRM register list.  Add logic to\n\trecognize CLRM register list.\n\t(parse_vfp_reg_list): Assert type is not for core register list.\n\t(s_arm_unwind_save_core): Update call to parse_reg_list to new\n\tprototype.\n\t(enum operand_parse_code): Declare OP_CLRMLST enumerator.\n\t(parse_operands): Update call to parse_reg_list to new prototype.  Add\n\tlogic for OP_CLRMLST.\n\t(encode_thumb2_ldmstm): Rename into ...\n\t(encode_thumb2_multi): This.  Add do_io parameter.  Add logic to\n\tencode CLRM and guard LDM/STM only code by do_io.\n\t(do_t_ldmstm): Adapt to use encode_thumb2_multi.\n\t(do_t_push_pop): Likewise.\n\t(do_t_clrm): New function.\n\t(insns): Define CLRM.\n\t* testsuite/gas/arm/archv8m_1m-cmse-main-bad.d: New file.\n\t* testsuite/gas/arm/archv8m_1m-cmse-main-bad.l: Likewise.\n\t* testsuite/gas/arm/archv8m_1m-cmse-main-bad.s: Likewise.\n\t* testsuite/gas/arm/archv8m_1m-cmse-main.d: Likewise.\n\t* testsuite/gas/arm/archv8m_1m-cmse-main.s: Likewise.\n\n*** opcodes/ChangeLog ***\n\n2019-04-15  Thomas Preud'homme  <thomas.preudhomme@arm.com>\n\n\t* arm-dis.c (thumb_opcodes): Document %n control code.  Add entry for\n\tCLRM.\n\t(print_insn_thumb32): Add logic to print %n CLRM register list.",
+    "tree": {
+      "sha": "0064af5b36c2d2ef8aeaebd63c882327adad6b4e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/0064af5b36c2d2ef8aeaebd63c882327adad6b4e"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/4b5a202f107b5393da30fd0b488c3eff2bc758a5",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4b5a202f107b5393da30fd0b488c3eff2bc758a5",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/4b5a202f107b5393da30fd0b488c3eff2bc758a5",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4b5a202f107b5393da30fd0b488c3eff2bc758a5/comments",
+  "author": {
+    "login": "avieira-arm",
+    "id": 68072104,
+    "node_id": "MDQ6VXNlcjY4MDcyMTA0",
+    "avatar_url": "https://avatars.githubusercontent.com/u/68072104?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/avieira-arm",
+    "html_url": "https://github.com/avieira-arm",
+    "followers_url": "https://api.github.com/users/avieira-arm/followers",
+    "following_url": "https://api.github.com/users/avieira-arm/following{/other_user}",
+    "gists_url": "https://api.github.com/users/avieira-arm/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/avieira-arm/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/avieira-arm/subscriptions",
+    "organizations_url": "https://api.github.com/users/avieira-arm/orgs",
+    "repos_url": "https://api.github.com/users/avieira-arm/repos",
+    "events_url": "https://api.github.com/users/avieira-arm/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/avieira-arm/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "avieira-arm",
+    "id": 68072104,
+    "node_id": "MDQ6VXNlcjY4MDcyMTA0",
+    "avatar_url": "https://avatars.githubusercontent.com/u/68072104?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/avieira-arm",
+    "html_url": "https://github.com/avieira-arm",
+    "followers_url": "https://api.github.com/users/avieira-arm/followers",
+    "following_url": "https://api.github.com/users/avieira-arm/following{/other_user}",
+    "gists_url": "https://api.github.com/users/avieira-arm/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/avieira-arm/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/avieira-arm/subscriptions",
+    "organizations_url": "https://api.github.com/users/avieira-arm/orgs",
+    "repos_url": "https://api.github.com/users/avieira-arm/repos",
+    "events_url": "https://api.github.com/users/avieira-arm/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/avieira-arm/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "60f993ce170b91876ad41e8f7339c24afd63fac2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/60f993ce170b91876ad41e8f7339c24afd63fac2",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/60f993ce170b91876ad41e8f7339c24afd63fac2"
+    }
+  ],
+  "stats": {
+    "total": 202,
+    "additions": 171,
+    "deletions": 31
+  },
+  "files": [
+    {
+      "sha": "a84bca5f527b017240b0668dd66c9cc61197be7d",
+      "filename": "gas/ChangeLog",
+      "status": "modified",
+      "additions": 26,
+      "deletions": 0,
+      "changes": 26,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4b5a202f107b5393da30fd0b488c3eff2bc758a5/gas/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4b5a202f107b5393da30fd0b488c3eff2bc758a5/gas/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/ChangeLog?ref=4b5a202f107b5393da30fd0b488c3eff2bc758a5",
+      "patch": "@@ -1,3 +1,29 @@\n+2019-04-15  Thomas Preud'homme  <thomas.preudhomme@arm.com>\n+\n+\t* config/tc-arm.c (enum reg_list_els): Define earlier and add\n+\tREGLIST_RN and REGLIST_CLRM enumerators.\n+\t(parse_reg_list): Add etype parameter to distinguish between regular\n+\tcore register list and CLRM register list.  Add logic to\n+\trecognize CLRM register list.\n+\t(parse_vfp_reg_list): Assert type is not for core register list.\n+\t(s_arm_unwind_save_core): Update call to parse_reg_list to new\n+\tprototype.\n+\t(enum operand_parse_code): Declare OP_CLRMLST enumerator.\n+\t(parse_operands): Update call to parse_reg_list to new prototype.  Add\n+\tlogic for OP_CLRMLST.\n+\t(encode_thumb2_ldmstm): Rename into ...\n+\t(encode_thumb2_multi): This.  Add do_io parameter.  Add logic to\n+\tencode CLRM and guard LDM/STM only code by do_io.\n+\t(do_t_ldmstm): Adapt to use encode_thumb2_multi.\n+\t(do_t_push_pop): Likewise.\n+\t(do_t_clrm): New function.\n+\t(insns): Define CLRM.\n+\t* testsuite/gas/arm/archv8m_1m-cmse-main-bad.d: New file.\n+\t* testsuite/gas/arm/archv8m_1m-cmse-main-bad.l: Likewise.\n+\t* testsuite/gas/arm/archv8m_1m-cmse-main-bad.s: Likewise.\n+\t* testsuite/gas/arm/archv8m_1m-cmse-main.d: Likewise.\n+\t* testsuite/gas/arm/archv8m_1m-cmse-main.s: Likewise.\n+\n 2019-04-15  Sudakshina Das  <sudi.das@arm.com>\n             Andre Vieira  <andre.simoesdiasvieira@arm.com>\n "
+    },
+    {
+      "sha": "e5fe65b5f2ee971e065c7b0e626f63cc83619ce8",
+      "filename": "gas/config/tc-arm.c",
+      "status": "modified",
+      "additions": 85,
+      "deletions": 29,
+      "changes": 114,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4b5a202f107b5393da30fd0b488c3eff2bc758a5/gas/config/tc-arm.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4b5a202f107b5393da30fd0b488c3eff2bc758a5/gas/config/tc-arm.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-arm.c?ref=4b5a202f107b5393da30fd0b488c3eff2bc758a5",
+      "patch": "@@ -1688,14 +1688,27 @@ parse_scalar (char **ccp, int elsize, struct neon_type_el *type)\n   return reg * 16 + atype.index;\n }\n \n+/* Types of registers in a list.  */\n+\n+enum reg_list_els\n+{\n+  REGLIST_RN,\n+  REGLIST_CLRM,\n+  REGLIST_VFP_S,\n+  REGLIST_VFP_D,\n+  REGLIST_NEON_D\n+};\n+\n /* Parse an ARM register list.  Returns the bitmask, or FAIL.  */\n \n static long\n-parse_reg_list (char ** strp)\n+parse_reg_list (char ** strp, enum reg_list_els etype)\n {\n-  char * str = * strp;\n-  long\t range = 0;\n-  int\t another_range;\n+  char *str = *strp;\n+  long range = 0;\n+  int another_range;\n+\n+  gas_assert (etype == REGLIST_RN || etype == REGLIST_CLRM);\n \n   /* We come back here if we get ranges concatenated by '+' or '|'.  */\n   do\n@@ -1713,11 +1726,35 @@ parse_reg_list (char ** strp)\n \t  do\n \t    {\n \t      int reg;\n+\t      const char apsr_str[] = \"apsr\";\n+\t      int apsr_str_len = strlen (apsr_str);\n \n-\t      if ((reg = arm_reg_parse (&str, REG_TYPE_RN)) == FAIL)\n+\t      reg = arm_reg_parse (&str, REGLIST_RN);\n+\t      if (etype == REGLIST_CLRM)\n \t\t{\n-\t\t  first_error (_(reg_expected_msgs[REG_TYPE_RN]));\n-\t\t  return FAIL;\n+\t\t  if (reg == REG_SP || reg == REG_PC)\n+\t\t    reg = FAIL;\n+\t\t  else if (reg == FAIL\n+\t\t\t   && !strncasecmp (str, apsr_str, apsr_str_len)\n+\t\t\t   && !ISALPHA (*(str + apsr_str_len)))\n+\t\t    {\n+\t\t      reg = 15;\n+\t\t      str += apsr_str_len;\n+\t\t    }\n+\n+\t\t  if (reg == FAIL)\n+\t\t    {\n+\t\t      first_error (_(\"r0-r12, lr or APSR expected\"));\n+\t\t      return FAIL;\n+\t\t    }\n+\t\t}\n+\t      else /* etype == REGLIST_RN.  */\n+\t\t{\n+\t\t  if (reg == FAIL)\n+\t\t    {\n+\t\t      first_error (_(reg_expected_msgs[REGLIST_RN]));\n+\t\t      return FAIL;\n+\t\t    }\n \t\t}\n \n \t      if (in_range)\n@@ -1761,7 +1798,7 @@ parse_reg_list (char ** strp)\n \t      return FAIL;\n \t    }\n \t}\n-      else\n+      else if (etype == REGLIST_RN)\n \t{\n \t  expressionS exp;\n \n@@ -1816,15 +1853,6 @@ parse_reg_list (char ** strp)\n   return range;\n }\n \n-/* Types of registers in a list.  */\n-\n-enum reg_list_els\n-{\n-  REGLIST_VFP_S,\n-  REGLIST_VFP_D,\n-  REGLIST_NEON_D\n-};\n-\n /* Parse a VFP register list.  If the string is invalid return FAIL.\n    Otherwise return the number of registers, and set PBASE to the first\n    register.  Parses registers of type ETYPE.\n@@ -1873,6 +1901,9 @@ parse_vfp_reg_list (char **ccp, unsigned int *pbase, enum reg_list_els etype)\n     case REGLIST_NEON_D:\n       regtype = REG_TYPE_NDQ;\n       break;\n+\n+    default:\n+      gas_assert (0);\n     }\n \n   if (etype != REGLIST_VFP_S)\n@@ -3988,7 +4019,7 @@ s_arm_unwind_save_core (void)\n   long range;\n   int n;\n \n-  range = parse_reg_list (&input_line_pointer);\n+  range = parse_reg_list (&input_line_pointer, REGLIST_RN);\n   if (range == FAIL)\n     {\n       as_bad (_(\"expected register list\"));\n@@ -6548,6 +6579,7 @@ enum operand_parse_code\n   OP_RRnpcsp_I32, /* ARM register (no BadReg) or literal 1 .. 32 */\n \n   OP_REGLST,\t/* ARM register list */\n+  OP_CLRMLST,\t/* CLRM register list */\n   OP_VRSLST,\t/* VFP single-precision register list */\n   OP_VRDLST,\t/* VFP double-precision register list */\n   OP_VRSDLST,   /* VFP single or double-precision register list (& quad) */\n@@ -7173,14 +7205,18 @@ parse_operands (char *str, const unsigned int *pattern, bfd_boolean thumb)\n \n \t  /* Register lists.  */\n \tcase OP_REGLST:\n-\t  val = parse_reg_list (&str);\n+\t  val = parse_reg_list (&str, REGLIST_RN);\n \t  if (*str == '^')\n \t    {\n \t      inst.operands[i].writeback = 1;\n \t      str++;\n \t    }\n \t  break;\n \n+\tcase OP_CLRMLST:\n+\t  val = parse_reg_list (&str, REGLIST_CLRM);\n+\t  break;\n+\n \tcase OP_VRSLST:\n \t  val = parse_vfp_reg_list (&str, &inst.operands[i].reg, REGLIST_VFP_S);\n \t  break;\n@@ -7304,6 +7340,7 @@ parse_operands (char *str, const unsigned int *pattern, bfd_boolean thumb)\n \tcase OP_COND:\n \tcase OP_oBARRIER_I15:\n \tcase OP_REGLST:\n+\tcase OP_CLRMLST:\n \tcase OP_VRSLST:\n \tcase OP_VRDLST:\n \tcase OP_VRSDLST:\n@@ -11489,16 +11526,19 @@ do_t_it (void)\n \n /* Helper function used for both push/pop and ldm/stm.  */\n static void\n-encode_thumb2_ldmstm (int base, unsigned mask, bfd_boolean writeback)\n+encode_thumb2_multi (bfd_boolean do_io, int base, unsigned mask,\n+\t\t     bfd_boolean writeback)\n {\n-  bfd_boolean load;\n+  bfd_boolean load, store;\n \n-  load = (inst.instruction & (1 << 20)) != 0;\n+  gas_assert (base != -1 || !do_io);\n+  load = do_io && ((inst.instruction & (1 << 20)) != 0);\n+  store = do_io && !load;\n \n   if (mask & (1 << 13))\n     inst.error =  _(\"SP not allowed in register list\");\n \n-  if ((mask & (1 << base)) != 0\n+  if (do_io && (mask & (1 << base)) != 0\n       && writeback)\n     inst.error = _(\"having the base register in the register list when \"\n \t\t   \"using write back is UNPREDICTABLE\");\n@@ -11513,13 +11553,13 @@ encode_thumb2_ldmstm (int base, unsigned mask, bfd_boolean writeback)\n \t    set_it_insn_type_last ();\n \t}\n     }\n-  else\n+  else if (store)\n     {\n       if (mask & (1 << 15))\n \tinst.error = _(\"PC not allowed in register list\");\n     }\n \n-  if ((mask & (mask - 1)) == 0)\n+  if (do_io && ((mask & (mask - 1)) == 0))\n     {\n       /* Single register transfers implemented as str/ldr.  */\n       if (writeback)\n@@ -11548,7 +11588,8 @@ encode_thumb2_ldmstm (int base, unsigned mask, bfd_boolean writeback)\n     inst.instruction |= WRITE_BACK;\n \n   inst.instruction |= mask;\n-  inst.instruction |= base << 16;\n+  if (do_io)\n+    inst.instruction |= base << 16;\n }\n \n static void\n@@ -11643,8 +11684,9 @@ do_t_ldmstm (void)\n \t  if (inst.instruction < 0xffff)\n \t    inst.instruction = THUMB_OP32 (inst.instruction);\n \n-\t  encode_thumb2_ldmstm (inst.operands[0].reg, inst.operands[1].imm,\n-\t\t\t\tinst.operands[0].writeback);\n+\t  encode_thumb2_multi (TRUE /* do_io */, inst.operands[0].reg,\n+\t\t\t       inst.operands[1].imm,\n+\t\t\t       inst.operands[0].writeback);\n \t}\n     }\n   else\n@@ -12751,8 +12793,20 @@ do_t_push_pop (void)\n   else if (unified_syntax)\n     {\n       inst.instruction = THUMB_OP32 (inst.instruction);\n-      encode_thumb2_ldmstm (13, mask, TRUE);\n+      encode_thumb2_multi (TRUE /* do_io */, 13, mask, TRUE);\n+    }\n+  else\n+    {\n+      inst.error = _(\"invalid register list to push/pop instruction\");\n+      return;\n     }\n+}\n+\n+static void\n+do_t_clrm (void)\n+{\n+  if (unified_syntax)\n+    encode_thumb2_multi (FALSE /* do_io */, -1, inst.operands[0].imm, FALSE);\n   else\n     {\n       inst.error = _(\"invalid register list to push/pop instruction\");\n@@ -21834,6 +21888,8 @@ static const struct asm_opcode insns[] =\n  toU(\"dls\", _dls, 2, (LR, RRnpcsp),\t t_loloop),\n  toU(\"wls\", _wls, 3, (LR, RRnpcsp, EXP), t_loloop),\n  toU(\"le\",  _le,  2, (oLR, EXP),\t t_loloop),\n+\n+ ToC(\"clrm\",\te89f0000, 1, (CLRMLST),  t_clrm)\n };\n #undef ARM_VARIANT\n #undef THUMB_VARIANT"
+    },
+    {
+      "sha": "a5c755804dd9bd4cd50b4a5cd9d48d7bf417016f",
+      "filename": "gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.d",
+      "status": "added",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4b5a202f107b5393da30fd0b488c3eff2bc758a5/gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4b5a202f107b5393da30fd0b488c3eff2bc758a5/gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.d?ref=4b5a202f107b5393da30fd0b488c3eff2bc758a5",
+      "patch": "@@ -0,0 +1,4 @@\n+#name: Invalid Armv8.1-M Mainline Security Extensions instructions\n+#source: archv8m_1m-cmse-main-bad.s\n+#as: -march=armv8.1-m.main\n+#error_output: archv8m_1m-cmse-main-bad.l"
+    },
+    {
+      "sha": "ed440bf2baa36e0f60cccff417d8148a17749f44",
+      "filename": "gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.l",
+      "status": "added",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4b5a202f107b5393da30fd0b488c3eff2bc758a5/gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4b5a202f107b5393da30fd0b488c3eff2bc758a5/gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.l?ref=4b5a202f107b5393da30fd0b488c3eff2bc758a5",
+      "patch": "@@ -0,0 +1,4 @@\n+[^:]*: Assembler messages:\n+[^:]*:6: Error: r0-r12, lr or APSR expected -- `clrm {}'\n+[^:]*:7: Error: r0-r12, lr or APSR expected -- `clrm {sp}'\n+[^:]*:8: Error: r0-r12, lr or APSR expected -- `clrm {pc}'"
+    },
+    {
+      "sha": "c991a559093fd5da79f8eb54c02fde13208a8071",
+      "filename": "gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.s",
+      "status": "added",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4b5a202f107b5393da30fd0b488c3eff2bc758a5/gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4b5a202f107b5393da30fd0b488c3eff2bc758a5/gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.s?ref=4b5a202f107b5393da30fd0b488c3eff2bc758a5",
+      "patch": "@@ -0,0 +1,8 @@\n+.thumb\n+.syntax unified\n+\n+T:\n+\n+clrm {} @ Rejects empty list\n+clrm {sp} @ Rejects SP in list\n+clrm {pc} @ Reject PC in list"
+    },
+    {
+      "sha": "b082ff7e6451186763dd55cf96f9205d2f5ce4d8",
+      "filename": "gas/testsuite/gas/arm/archv8m_1m-cmse-main.d",
+      "status": "added",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4b5a202f107b5393da30fd0b488c3eff2bc758a5/gas/testsuite/gas/arm/archv8m_1m-cmse-main.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4b5a202f107b5393da30fd0b488c3eff2bc758a5/gas/testsuite/gas/arm/archv8m_1m-cmse-main.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/archv8m_1m-cmse-main.d?ref=4b5a202f107b5393da30fd0b488c3eff2bc758a5",
+      "patch": "@@ -0,0 +1,14 @@\n+#name: Armv8.1-M Mainline Security Extensions instructions\n+#source: archv8m_1m-cmse-main.s\n+#as: -march=armv8.1-m.main -mimplicit-it=always\n+#objdump: -dr --prefix-addresses --show-raw-insn -marmv8.1-m.main\n+\n+.*: +file format .*arm.*\n+\n+Disassembly of section .text:\n+0+.* <[^>]*> e89f 0005 \tclrm\t{r0, r2}\n+0+.* <[^>]*> e89f 8000 \tclrm\t{APSR}\n+0+.* <[^>]*> e89f 8008 \tclrm\t{r3, APSR}\n+0+.* <[^>]*> bf08      \tit\teq\n+0+.* <[^>]*> e89f 0010 \tclrmeq\t{r4}\n+#..."
+    },
+    {
+      "sha": "084d83b88b63bb4f55fd9ab2388b80b91696f763",
+      "filename": "gas/testsuite/gas/arm/archv8m_1m-cmse-main.s",
+      "status": "added",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4b5a202f107b5393da30fd0b488c3eff2bc758a5/gas/testsuite/gas/arm/archv8m_1m-cmse-main.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4b5a202f107b5393da30fd0b488c3eff2bc758a5/gas/testsuite/gas/arm/archv8m_1m-cmse-main.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/archv8m_1m-cmse-main.s?ref=4b5a202f107b5393da30fd0b488c3eff2bc758a5",
+      "patch": "@@ -0,0 +1,9 @@\n+.thumb\n+.syntax unified\n+\n+T:\n+\n+clrm {r0, r2} @ Accepts list without APSR\n+clrm {APSR} @ Accepts APSR alone\n+clrm {r3, APSR} @ Accepts core register and APSR together\n+clrmeq {r4} @ Accepts conditional execution"
+    },
+    {
+      "sha": "a01e494185047a29a9e6fe457f1cd5bc5cdff036",
+      "filename": "opcodes/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4b5a202f107b5393da30fd0b488c3eff2bc758a5/opcodes/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4b5a202f107b5393da30fd0b488c3eff2bc758a5/opcodes/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/ChangeLog?ref=4b5a202f107b5393da30fd0b488c3eff2bc758a5",
+      "patch": "@@ -1,3 +1,9 @@\n+2019-04-15  Thomas Preud'homme  <thomas.preudhomme@arm.com>\n+\n+\t* arm-dis.c (thumb_opcodes): Document %n control code.  Add entry for\n+\tCLRM.\n+\t(print_insn_thumb32): Add logic to print %n CLRM register list.\n+\n 2019-04-15  Sudakshina Das  <sudi.das@arm.com>\n \n \t* arm-dis.c (print_insn_thumb32): Updated to accept new %P"
+    },
+    {
+      "sha": "e70641c2e2f34423591808170b134c61bd291355",
+      "filename": "opcodes/arm-dis.c",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 2,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4b5a202f107b5393da30fd0b488c3eff2bc758a5/opcodes/arm-dis.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4b5a202f107b5393da30fd0b488c3eff2bc758a5/opcodes/arm-dis.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/arm-dis.c?ref=4b5a202f107b5393da30fd0b488c3eff2bc758a5",
+      "patch": "@@ -2710,6 +2710,7 @@ static const struct opcode16 thumb_opcodes[] =\n        %a\t\tprint the address of a plain load/store\n        %w\t\tprint the width and signedness of a core load/store\n        %m\t\tprint register mask for ldm/stm\n+       %n\t\tprint register mask for clrm\n \n        %E\t\tprint the lsb and width fields of a bfc/bfi instruction\n        %F\t\tprint the lsb and width fields of a sbfx/ubfx instruction\n@@ -2751,7 +2752,8 @@ static const struct opcode16 thumb_opcodes[] =\n    makes heavy use of special-case bit patterns.  */\n static const struct opcode32 thumb32_opcodes[] =\n {\n-  /* Armv8.1-M Mainline instructions.  */\n+  /* Armv8.1-M Mainline and Armv8.1-M Mainline Security Extensions\n+     instructions.  */\n   {ARM_FEATURE_CORE_HIGH (ARM_EXT2_V8_1M_MAIN),\n     0xf040c001, 0xfff0f001, \"wls\\tlr, %16-19S, %Q\"},\n   {ARM_FEATURE_CORE_HIGH (ARM_EXT2_V8_1M_MAIN),\n@@ -2772,6 +2774,8 @@ static const struct opcode32 thumb32_opcodes[] =\n   {ARM_FEATURE_CORE_HIGH (ARM_EXT2_V8_1M_MAIN),\n     0xf000e001, 0xf840f001, \"bfcsel\\t%G, %Z, %18-21c\"},\n \n+  {ARM_FEATURE_CORE_HIGH (ARM_EXT2_V8_1M_MAIN),\n+    0xe89f0000, 0xffff2000, \"clrm%c\\t%n\"},\n \n   /* ARMv8-M and ARMv8-M Security Extensions instructions.  */\n   {ARM_FEATURE_CORE_HIGH (ARM_EXT2_V8M), 0xe97fe97f, 0xffffffff, \"sg\"},\n@@ -5556,6 +5560,7 @@ print_insn_thumb32 (bfd_vma pc, struct disassemble_info *info, long given)\n   for (insn = thumb32_opcodes; insn->assembler; insn++)\n     if ((given & insn->mask) == insn->value)\n       {\n+\tbfd_boolean is_clrm = FALSE;\n \tbfd_boolean is_unpredictable = FALSE;\n \tsigned long value_in_comment = 0;\n \tconst char *c = insn->assembler;\n@@ -5851,6 +5856,9 @@ print_insn_thumb32 (bfd_vma pc, struct disassemble_info *info, long given)\n \t\t}\n \t\tbreak;\n \n+\t      case 'n':\n+\t\tis_clrm = TRUE;\n+\t\t/* Fall through.  */\n \t      case 'm':\n \t\t{\n \t\t  int started = 0;\n@@ -5863,7 +5871,12 @@ print_insn_thumb32 (bfd_vma pc, struct disassemble_info *info, long given)\n \t\t\tif (started)\n \t\t\t  func (stream, \", \");\n \t\t\tstarted = 1;\n-\t\t\tfunc (stream, \"%s\", arm_regnames[reg]);\n+\t\t\tif (is_clrm && reg == 13)\n+\t\t\t  func (stream, \"(invalid: %s)\", arm_regnames[reg]);\n+\t\t\telse if (is_clrm && reg == 15)\n+\t\t\t  func (stream, \"%s\", \"APSR\");\n+\t\t\telse\n+\t\t\t  func (stream, \"%s\", arm_regnames[reg]);\n \t\t      }\n \t\t  func (stream, \"}\");\n \t\t}"
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "sha": "6b66b5a5a29e18e1c1ddd29ea0749050d532de65",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NmI2NmI1YTVhMjllMThlMWMxZGRkMjllYTA3NDkwNTBkNTMyZGU2NQ==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-07-13T13:56:49Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-07-13T13:56:49Z"
+    },
+    "message": "[gdb/testsuite] Fix check-libthread-db.exp FAILs with glibc 2.33\n\nWhen running test-case gdb.threads/check-libthread-db.exp on openSUSE\nTumbleweed with glibc 2.33, I get:\n...\n(gdb) maint check libthread-db^M\nRunning libthread_db integrity checks:^M\n  Got thread 0x7ffff7c79b80 => 9354 => 0x7ffff7c79b80; errno = 0 ... OK^M\nlibthread_db integrity checks passed.^M\n(gdb) FAIL: gdb.threads/check-libthread-db.exp: user-initiated check: \\\n  libpthread.so not initialized (pattern 2)\n...\n\nThe test-case expects instead:\n...\n  Got thread 0x0 => 9354 => 0x0 ... OK^M\n...\nwhich is what I get on openSUSE Leap 15.2 with glibc 2.26, and what is\ndescribed in the test-case like this:\n...\n    # libthread_db should fake a single thread with th_unique == NULL.\n...\n\nUsing a breakpoint on check_thread_db_callback we can compare the two\nscenarios, and find that in the latter case we hit this code in glibc function\niterate_thread_list in nptl_db/td_ta_thr_iter.c:\n...\n  if (next == 0 && fake_empty)\n    {\n      /* __pthread_initialize_minimal has not run.  There is just the main\n         thread to return.  We cannot rely on its thread register.  They\n         sometimes contain garbage that would confuse us, left by the\n         kernel at exec.  So if it looks like initialization is incomplete,\n         we only fake a special descriptor for the initial thread.  */\n      td_thrhandle_t th = { ta, 0 };\n      return callback (&th, cbdata_p) != 0 ? TD_DBERR : TD_OK;\n    }\n...\nwhile in the former case we don't because this preceding statement doesn't\nresult in next == 0:\n...\n  err = DB_GET_FIELD (next, ta, head, list_t, next, 0);\n...\n\nNote that the comment mentions __pthread_initialize_minimal, but in both cases\nit has already run before we hit the callback, so it's possible the comment is\nno longer accurate.\n\nThe change in behaviour bisect to glibc commit 1daccf403b \"nptl: Move stack\nlist variables into _rtld_global\", which moves the initialization of stack\nlist variables such as __stack_user to an earlier moment, which explains well\nenough the observed difference.\n\nFix this by updating the regexp patterns to agree with what libthread-db is\ntelling us.\n\nTested on x86_64-linux, both with glibc 2.33 and 2.26.\n\ngdb/testsuite/ChangeLog:\n\n2021-07-07  Tom de Vries  <tdevries@suse.de>\n\n\tPR testsuite/27690\n\t* gdb.threads/check-libthread-db.exp: Update patterns for glibc 2.33.",
+    "tree": {
+      "sha": "09e1b43921568e3aba26a13bd252db51e3e18057",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/09e1b43921568e3aba26a13bd252db51e3e18057"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/6b66b5a5a29e18e1c1ddd29ea0749050d532de65",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6b66b5a5a29e18e1c1ddd29ea0749050d532de65",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/6b66b5a5a29e18e1c1ddd29ea0749050d532de65",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6b66b5a5a29e18e1c1ddd29ea0749050d532de65/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "81e33ce2894678a60ed4d5e4471cd6eb968056c2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/81e33ce2894678a60ed4d5e4471cd6eb968056c2",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/81e33ce2894678a60ed4d5e4471cd6eb968056c2"
+    }
+  ],
+  "stats": {
+    "total": 37,
+    "additions": 21,
+    "deletions": 16
+  },
+  "files": [
+    {
+      "sha": "6ecf40db6a973bc5e9fc71882679caac508038ea",
+      "filename": "gdb/testsuite/gdb.threads/check-libthread-db.exp",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 16,
+      "changes": 37,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6b66b5a5a29e18e1c1ddd29ea0749050d532de65/gdb/testsuite/gdb.threads/check-libthread-db.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6b66b5a5a29e18e1c1ddd29ea0749050d532de65/gdb/testsuite/gdb.threads/check-libthread-db.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/check-libthread-db.exp?ref=6b66b5a5a29e18e1c1ddd29ea0749050d532de65",
+      "patch": "@@ -32,6 +32,13 @@ if {[gdb_compile_pthreads \"${srcdir}/${subdir}/${srcfile}\" \"${binfile}\" \\\n     return -1\n }\n \n+# Case 1: libthread_db fakes a single thread with th_unique == NULL.\n+set thread_re1 \"0 => $decimal => 0\"\n+# Case 2: libthread_db already initialized.\n+set thread_re2 \"$hex => $decimal => ${hex}(; errno = 0)?\"\n+# Match either of the two cases.\n+set initial_thread_re \"($thread_re1|$thread_re2)\"\n+\n with_test_prefix \"user-initiated check\" {\n \n     # User-initiated check with libthread_db not loaded.\n@@ -49,18 +56,16 @@ with_test_prefix \"user-initiated check\" {\n \t\"No libthread_db loaded\" \\\n \t\"no libpthread.so loaded\"\n \n-\n-    # User-initiated check with NPTL uninitialized.\n-    # libthread_db should fake a single thread with th_unique == NULL.\n+    # User-initiated check with NPTL possibly uninitialized.\n     gdb_test \"continue\" \\\n \t\".*Stopped due to shared library event.*Inferior loaded .*libpthread.*\"\n \n     gdb_test_sequence \"maint check libthread-db\" \\\n-\t\"libpthread.so not initialized\" {\n-\t    \"\\[\\r\\n\\]+Running libthread_db integrity checks:\"\n-\t    \"\\[\\r\\n\\]+\\[ \\]+Got thread 0x0 => \\[0-9\\]+ => 0x0 ... OK\"\n-\t    \"\\[\\r\\n\\]+libthread_db integrity checks passed.\"\n-\t}\n+\t\"libpthread.so possibly not initialized\" \\\n+\t[list \\\n+\t     \"\\[\\r\\n\\]+Running libthread_db integrity checks:\" \\\n+\t     \"\\[\\r\\n\\]+\\[ \\]+Got thread $initial_thread_re ... OK\" \\\n+\t     \"\\[\\r\\n\\]+libthread_db integrity checks passed.\"]\n \n     # User-initiated check with NPTL fully operational.\n     gdb_test_no_output \"set stop-on-solib-events 0\"\n@@ -78,8 +83,8 @@ with_test_prefix \"user-initiated check\" {\n \n with_test_prefix \"automated load-time check\" {\n \n-    # Automated load-time check with NPTL uninitialized.\n-    with_test_prefix \"libpthread.so not initialized\" {\n+    # Automated load-time check with NPTL possibly uninitialized.\n+    with_test_prefix \"libpthread.so possibly not initialized\" {\n \tclean_restart ${binfile}\n \n \tgdb_test_no_output \"maint set check-libthread-db 1\"\n@@ -88,12 +93,12 @@ with_test_prefix \"automated load-time check\" {\n \tgdb_run_cmd\n \n \tgdb_test_sequence \"\" \\\n-\t    \"check debug libthread-db output\" {\n-\t\t\"\\[\\r\\n\\]+Running libthread_db integrity checks:\"\n-\t\t\"\\[\\r\\n\\]+\\[ \\]+Got thread 0x0 => \\[0-9\\]+ => 0x0 ... OK\"\n-\t\t\"\\[\\r\\n\\]+libthread_db integrity checks passed.\"\n-\t\t\"\\[\\r\\n\\]+[Thread debugging using libthread_db enabled]\"\n-\t    }\n+\t    \"check debug libthread-db output\" \\\n+\t    [list \\\n+\t\t \"\\[\\r\\n\\]+Running libthread_db integrity checks:\" \\\n+\t\t \"\\[\\r\\n\\]+\\[ \\]+Got thread $initial_thread_re ... OK\" \\\n+\t\t \"\\[\\r\\n\\]+libthread_db integrity checks passed.\" \\\n+\t\t \"\\[\\r\\n\\]+\\\\\\[Thread debugging using libthread_db enabled\\\\\\]\"]\n     }\n \n     # Automated load-time check with NPTL fully operational."
+    }
+  ]
+}

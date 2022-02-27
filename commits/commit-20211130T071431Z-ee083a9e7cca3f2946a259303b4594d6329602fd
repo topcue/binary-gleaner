@@ -1,0 +1,96 @@
+{
+  "sha": "ee083a9e7cca3f2946a259303b4594d6329602fd",
+  "node_id": "C_kwDOANOeidoAKGVlMDgzYTllN2NjYTNmMjk0NmEyNTkzMDNiNDU5NGQ2MzI5NjAyZmQ",
+  "commit": {
+    "author": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2021-11-30T05:25:05Z"
+    },
+    "committer": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2021-11-30T07:14:31Z"
+    },
+    "message": "RISC-V: Dump vset[i]vli immediate as numbers once vsew or vlmul is reserved.\n\nConsider the following case,\n\nvsetvli  a0, a1,  0x4           # unrecognized vlmul\nvsetvli  a0, a1,  0x20          # unrecognized vsew\nvsetivli a0, 0xb, 0x4           # unrecognized vlmul\nvsetivli a0, 0xb, 0x20          # unrecognized vsew\n\nFor the current dis-assembler, we get the result,\n\n0000000000000000 <.text>:\n   0:   0045f557                vsetvli a0,a1,e8,(null),tu,mu\n   4:   0205f557                vsetvli a0,a1,e128,m1,tu,mu\n   8:   c045f557                vsetivli        a0,11,e8,(null),tu,mu\n   c:   c205f557                vsetivli        a0,11,e128,m1,tu,mu\n\nThe vsew e128 and vlmul (null) are preserved according to the spec,\nso dump these fields looks wrong.  Consider that we are used to dump\nthe unrecognized csr as csr numbers directly, we should also dump\nthe whole vset[i]vli immediates as numbers, once the vsew or vlmul\nis reserved.  Therefore, following is what I expected,\n\n0000000000000000 <.text>:\n   0:   0045f557                vsetvli a0,a1,4\n   4:   0205f557                vsetvli a0,a1,32\n   8:   c045f557                vsetivli        a0,11,4\n   c:   c205f557                vsetivli        a0,11,32\n\ngas/\n\t* testsuite/gas/riscv/vector-insns.d: Rewrite the vset[i]vli\n\ttestcases since we should dump the immediate as numbers once\n\tthe vsew or vlmul is reserved.\n\t* testsuite/gas/riscv/vector-insns.s: Likewise.\nopcodes/\n\t* riscv-dis.c (print_insn_args): The reserved vsew and vlmul\n\tare NULL string in the riscv_vsew and riscv_vlmul, so dump the\n\twhole imm as numbers once one of them is NULL.\n\t* riscv-opc.c (riscv_vsew): Set the reserved vsew to NULL.\n\t(riscv_vlmul): Set the reserved vlmul to NULL.",
+    "tree": {
+      "sha": "221b5a5f47d3d9db8cce1b4ba43c8d36fcaed1e5",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/221b5a5f47d3d9db8cce1b4ba43c8d36fcaed1e5"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ee083a9e7cca3f2946a259303b4594d6329602fd",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ee083a9e7cca3f2946a259303b4594d6329602fd",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ee083a9e7cca3f2946a259303b4594d6329602fd",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ee083a9e7cca3f2946a259303b4594d6329602fd/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "ae8e528122be3e0344b2ee533b4b050389e8dcad",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ae8e528122be3e0344b2ee533b4b050389e8dcad",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/ae8e528122be3e0344b2ee533b4b050389e8dcad"
+    }
+  ],
+  "stats": {
+    "total": 104,
+    "additions": 33,
+    "deletions": 71
+  },
+  "files": [
+    {
+      "sha": "6325c7489aaebb8076991d2922b34e9fb8802cd4",
+      "filename": "gas/testsuite/gas/riscv/vector-insns.d",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 33,
+      "changes": 46,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ee083a9e7cca3f2946a259303b4594d6329602fd/gas/testsuite/gas/riscv/vector-insns.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ee083a9e7cca3f2946a259303b4594d6329602fd/gas/testsuite/gas/riscv/vector-insns.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/vector-insns.d?ref=ee083a9e7cca3f2946a259303b4594d6329602fd",
+      "patch": "@@ -10,40 +10,20 @@ Disassembly of section .text:\n [ \t]+[0-9a-f]+:[ \t]+80c5f557[ \t]+vsetvl[ \t]+a0,a1,a2\n [ \t]+[0-9a-f]+:[ \t]+0005f557[ \t]+vsetvli[ \t]+a0,a1,e8,m1,tu,mu\n [ \t]+[0-9a-f]+:[ \t]+7ff5f557[ \t]+vsetvli[ \t]+a0,a1,2047\n-[ \t]+[0-9a-f]+:[ \t]+0095f557[ \t]+vsetvli[ \t]+a0,a1,e16,m2,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+02b5f557[ \t]+vsetvli[ \t]+a0,a1,e256,m8,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+0335f557[ \t]+vsetvli[ \t]+a0,a1,e512,m8,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+03b5f557[ \t]+vsetvli[ \t]+a0,a1,e1024,m8,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+0385f557[ \t]+vsetvli[ \t]+a0,a1,e1024,m1,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+03f5f557[ \t]+vsetvli[ \t]+a0,a1,e1024,mf2,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+0365f557[ \t]+vsetvli[ \t]+a0,a1,e512,mf4,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+02d5f557[ \t]+vsetvli[ \t]+a0,a1,e256,mf8,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+0695f557[ \t]+vsetvli[ \t]+a0,a1,e256,m2,ta,mu\n-[ \t]+[0-9a-f]+:[ \t]+0a95f557[ \t]+vsetvli[ \t]+a0,a1,e256,m2,tu,ma\n-[ \t]+[0-9a-f]+:[ \t]+0295f557[ \t]+vsetvli[ \t]+a0,a1,e256,m2,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+0295f557[ \t]+vsetvli[ \t]+a0,a1,e256,m2,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+0e95f557[ \t]+vsetvli[ \t]+a0,a1,e256,m2,ta,ma\n-[ \t]+[0-9a-f]+:[ \t]+0a95f557[ \t]+vsetvli[ \t]+a0,a1,e256,m2,tu,ma\n-[ \t]+[0-9a-f]+:[ \t]+0695f557[ \t]+vsetvli[ \t]+a0,a1,e256,m2,ta,mu\n-[ \t]+[0-9a-f]+:[ \t]+0295f557[ \t]+vsetvli[ \t]+a0,a1,e256,m2,tu,mu\n+[ \t]+[0-9a-f]+:[ \t]+0045f557[ \t]+vsetvli[ \t]+a0,a1,4\n+[ \t]+[0-9a-f]+:[ \t]+0205f557[ \t]+vsetvli[ \t]+a0,a1,32\n+[ \t]+[0-9a-f]+:[ \t]+0015f557[ \t]+vsetvli[ \t]+a0,a1,e8,m2,tu,mu\n+[ \t]+[0-9a-f]+:[ \t]+04a5f557[ \t]+vsetvli[ \t]+a0,a1,e16,m4,ta,mu\n+[ \t]+[0-9a-f]+:[ \t]+0165f557[ \t]+vsetvli[ \t]+a0,a1,e32,mf4,tu,mu\n+[ \t]+[0-9a-f]+:[ \t]+09d5f557[ \t]+vsetvli[ \t]+a0,a1,e64,mf8,tu,ma\n [ \t]+[0-9a-f]+:[ \t]+c005f557[ \t]+vsetivli[ \t]+a0,11,e8,m1,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+fff5f557[ \t]+vsetivli[ \t]+a0,11,e1024,mf2,ta,ma\n-[ \t]+[0-9a-f]+:[ \t]+c095f557[ \t]+vsetivli[ \t]+a0,11,e16,m2,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+c2b5f557[ \t]+vsetivli[ \t]+a0,11,e256,m8,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+c335f557[ \t]+vsetivli[ \t]+a0,11,e512,m8,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+c3b5f557[ \t]+vsetivli[ \t]+a0,11,e1024,m8,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+c385f557[ \t]+vsetivli[ \t]+a0,11,e1024,m1,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+c3f5f557[ \t]+vsetivli[ \t]+a0,11,e1024,mf2,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+c365f557[ \t]+vsetivli[ \t]+a0,11,e512,mf4,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+c2d5f557[ \t]+vsetivli[ \t]+a0,11,e256,mf8,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+c695f557[ \t]+vsetivli[ \t]+a0,11,e256,m2,ta,mu\n-[ \t]+[0-9a-f]+:[ \t]+ca95f557[ \t]+vsetivli[ \t]+a0,11,e256,m2,tu,ma\n-[ \t]+[0-9a-f]+:[ \t]+c295f557[ \t]+vsetivli[ \t]+a0,11,e256,m2,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+c295f557[ \t]+vsetivli[ \t]+a0,11,e256,m2,tu,mu\n-[ \t]+[0-9a-f]+:[ \t]+ce95f557[ \t]+vsetivli[ \t]+a0,11,e256,m2,ta,ma\n-[ \t]+[0-9a-f]+:[ \t]+ca95f557[ \t]+vsetivli[ \t]+a0,11,e256,m2,tu,ma\n-[ \t]+[0-9a-f]+:[ \t]+c695f557[ \t]+vsetivli[ \t]+a0,11,e256,m2,ta,mu\n-[ \t]+[0-9a-f]+:[ \t]+c295f557[ \t]+vsetivli[ \t]+a0,11,e256,m2,tu,mu\n+[ \t]+[0-9a-f]+:[ \t]+fff5f557[ \t]+vsetivli[ \t]+a0,11,1023\n+[ \t]+[0-9a-f]+:[ \t]+c045f557[ \t]+vsetivli[ \t]+a0,11,4\n+[ \t]+[0-9a-f]+:[ \t]+c205f557[ \t]+vsetivli[ \t]+a0,11,32\n+[ \t]+[0-9a-f]+:[ \t]+c015f557[ \t]+vsetivli[ \t]+a0,11,e8,m2,tu,mu\n+[ \t]+[0-9a-f]+:[ \t]+c4a5f557[ \t]+vsetivli[ \t]+a0,11,e16,m4,ta,mu\n+[ \t]+[0-9a-f]+:[ \t]+c165f557[ \t]+vsetivli[ \t]+a0,11,e32,mf4,tu,mu\n+[ \t]+[0-9a-f]+:[ \t]+c9d5f557[ \t]+vsetivli[ \t]+a0,11,e64,mf8,tu,ma\n [ \t]+[0-9a-f]+:[ \t]+02b50207[ \t]+vlm.v[ \t]+v4,\\(a0\\)\n [ \t]+[0-9a-f]+:[ \t]+02b50207[ \t]+vlm.v[ \t]+v4,\\(a0\\)\n [ \t]+[0-9a-f]+:[ \t]+02b50207[ \t]+vlm.v[ \t]+v4,\\(a0\\)"
+    },
+    {
+      "sha": "837026443fb540275ddd2b70acb79e71f26056d0",
+      "filename": "gas/testsuite/gas/riscv/vector-insns.s",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 35,
+      "changes": 50,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ee083a9e7cca3f2946a259303b4594d6329602fd/gas/testsuite/gas/riscv/vector-insns.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ee083a9e7cca3f2946a259303b4594d6329602fd/gas/testsuite/gas/riscv/vector-insns.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/vector-insns.s?ref=ee083a9e7cca3f2946a259303b4594d6329602fd",
+      "patch": "@@ -1,40 +1,20 @@\n-\tvsetvl a0, a1, a2\n-\tvsetvli a0, a1, 0\n-\tvsetvli a0, a1, 0x7ff\n-\tvsetvli a0, a1, e16, m2\n-\tvsetvli a0, a1, e256, m8\n-\tvsetvli a0, a1, e512, m8\n-\tvsetvli a0, a1, e1024, m8\n-\tvsetvli a0, a1, e1024, m1\n-\tvsetvli a0, a1, e1024, mf2\n-\tvsetvli a0, a1, e512, mf4\n-\tvsetvli a0, a1, e256, mf8\n-\tvsetvli a0, a1, e256, m2, ta\n-\tvsetvli a0, a1, e256, m2, ma\n-\tvsetvli a0, a1, e256, m2, tu\n-\tvsetvli a0, a1, e256, m2, mu\n-\tvsetvli a0, a1, e256, m2, ta, ma\n-\tvsetvli a0, a1, e256, m2, tu, ma\n-\tvsetvli a0, a1, e256, m2, ta, mu\n-\tvsetvli a0, a1, e256, m2, tu, mu\n+\tvsetvl   a0, a1,  a2\n+\tvsetvli  a0, a1,  0\n+\tvsetvli  a0, a1,  0x7ff\n+\tvsetvli  a0, a1,  0x4\t\t# unrecognized vlmul\n+\tvsetvli  a0, a1,  0x20\t\t# unrecognized vsew\n+\tvsetvli  a0, a1,  e8,  m2\n+\tvsetvli  a0, a1,  e16, m4, ta\n+\tvsetvli  a0, a1,  e32, mf4, mu\n+\tvsetvli  a0, a1,  e64, mf8, tu, ma\n \tvsetivli a0, 0xb, 0\n \tvsetivli a0, 0xb, 0x3ff\n-\tvsetivli a0, 0xb, e16, m2\n-\tvsetivli a0, 0xb, e256, m8\n-\tvsetivli a0, 0xb, e512, m8\n-\tvsetivli a0, 0xb, e1024, m8\n-\tvsetivli a0, 0xb, e1024, m1\n-\tvsetivli a0, 0xb, e1024, mf2\n-\tvsetivli a0, 0xb, e512, mf4\n-\tvsetivli a0, 0xb, e256, mf8\n-\tvsetivli a0, 0xb, e256, m2, ta\n-\tvsetivli a0, 0xb, e256, m2, ma\n-\tvsetivli a0, 0xb, e256, m2, tu\n-\tvsetivli a0, 0xb, e256, m2, mu\n-\tvsetivli a0, 0xb, e256, m2, ta, ma\n-\tvsetivli a0, 0xb, e256, m2, tu, ma\n-\tvsetivli a0, 0xb, e256, m2, ta, mu\n-\tvsetivli a0, 0xb, e256, m2, tu, mu\n+\tvsetivli a0, 0xb, 0x4\t\t# unrecognized vlmul\n+\tvsetivli a0, 0xb, 0x20\t\t# unrecognized vsew\n+\tvsetivli a0, 0xb, e8,  m2\n+\tvsetivli a0, 0xb, e16, m4, ta\n+\tvsetivli a0, 0xb, e32, mf4, mu\n+\tvsetivli a0, 0xb, e64, mf8, tu, ma\n \n \tvlm.v v4, (a0)\n \tvlm.v v4, 0(a0)"
+    },
+    {
+      "sha": "a3c85067530950876b4a8537f21640ca5526be0e",
+      "filename": "opcodes/riscv-dis.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ee083a9e7cca3f2946a259303b4594d6329602fd/opcodes/riscv-dis.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ee083a9e7cca3f2946a259303b4594d6329602fd/opcodes/riscv-dis.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/riscv-dis.c?ref=ee083a9e7cca3f2946a259303b4594d6329602fd",
+      "patch": "@@ -334,7 +334,9 @@ print_insn_args (const char *oparg, insn_t l, bfd_vma pc, disassemble_info *info\n \t\t    && imm_vlmul < ARRAY_SIZE (riscv_vlmul)\n \t\t    && imm_vta < ARRAY_SIZE (riscv_vta)\n \t\t    && imm_vma < ARRAY_SIZE (riscv_vma)\n-\t\t    && !imm_vtype_res)\n+\t\t    && !imm_vtype_res\n+\t\t    && riscv_vsew[imm_vsew] != NULL\n+\t\t    && riscv_vlmul[imm_vlmul] != NULL)\n \t\t  print (info->stream, \"%s,%s,%s,%s\", riscv_vsew[imm_vsew],\n \t\t\t riscv_vlmul[imm_vlmul], riscv_vta[imm_vta],\n \t\t\t riscv_vma[imm_vma]);"
+    },
+    {
+      "sha": "40037db83c05f435071d82f7cf2e741f9a9715d6",
+      "filename": "opcodes/riscv-opc.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ee083a9e7cca3f2946a259303b4594d6329602fd/opcodes/riscv-opc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ee083a9e7cca3f2946a259303b4594d6329602fd/opcodes/riscv-opc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/riscv-opc.c?ref=ee083a9e7cca3f2946a259303b4594d6329602fd",
+      "patch": "@@ -76,13 +76,13 @@ const char * const riscv_vecm_names_numeric[NVECM] =\n /* The vsetvli vsew constants.  */\n const char * const riscv_vsew[8] =\n {\n-  \"e8\", \"e16\", \"e32\", \"e64\", \"e128\", \"e256\", \"e512\", \"e1024\"\n+  \"e8\", \"e16\", \"e32\", \"e64\", NULL, NULL, NULL, NULL\n };\n \n /* The vsetvli vlmul constants.  */\n const char * const riscv_vlmul[8] =\n {\n-  \"m1\", \"m2\", \"m4\", \"m8\", 0, \"mf8\", \"mf4\", \"mf2\"\n+  \"m1\", \"m2\", \"m4\", \"m8\", NULL, \"mf8\", \"mf4\", \"mf2\"\n };\n \n /* The vsetvli vta constants.  */"
+    }
+  ]
+}

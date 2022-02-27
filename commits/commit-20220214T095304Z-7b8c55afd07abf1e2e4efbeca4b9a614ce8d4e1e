@@ -1,0 +1,115 @@
+{
+  "sha": "7b8c55afd07abf1e2e4efbeca4b9a614ce8d4e1e",
+  "node_id": "C_kwDOANOeidoAKDdiOGM1NWFmZDA3YWJmMWUyZTRlZmJlY2E0YjlhNjE0Y2U4ZDRlMWU",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-10-25T23:08:46Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-02-14T09:53:04Z"
+    },
+    "message": "gdb/python: move styling support to gdb.styling\n\nThis commit moves the two Python functions that are used for styling\ninto a new module, gdb.styling, there's then a small update in\npython.c so GDB can find the functions in their new location.\n\nThe motivation for this change is purely to try and reduce the clutter\nin the top-level gdb module, and encapsulate related functions into\nmodules.  I did ponder documenting these functions as part of the\nPython API, however, doing so would effectively \"fix\" the API, and I'm\nstill wondering if there's improvements that could be made, also, the\ncolorize function is only called in some cases now that GDB prefers\nlibsource-highlight, so it's not entirely sure how this would work as\npart of a user facing API.\n\nStill, despite these functions never having been part of a documented\nAPI, it is possible that a user out there has overridden these to, in\nsome way, customize how GDB performs styling.  Moving the function as\nI propose in this patch could break things for that user, however,\nfixing this breakage is trivial, and, as these functions were never\ndocumented, I don't think we should be obliged to not break user code\nthat relies on them.",
+    "tree": {
+      "sha": "894941d444cc0c4167f48dd18ed1c688e6a9b6b6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/894941d444cc0c4167f48dd18ed1c688e6a9b6b6"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/7b8c55afd07abf1e2e4efbeca4b9a614ce8d4e1e",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7b8c55afd07abf1e2e4efbeca4b9a614ce8d4e1e",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/7b8c55afd07abf1e2e4efbeca4b9a614ce8d4e1e",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7b8c55afd07abf1e2e4efbeca4b9a614ce8d4e1e/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": null,
+  "parents": [
+    {
+      "sha": "e867795e8bcd6571c785e5e1d872fff0a5c7b290",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e867795e8bcd6571c785e5e1d872fff0a5c7b290",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/e867795e8bcd6571c785e5e1d872fff0a5c7b290"
+    }
+  ],
+  "stats": {
+    "total": 108,
+    "additions": 69,
+    "deletions": 39
+  },
+  "files": [
+    {
+      "sha": "b606fc654b59e95f7e4a5d1e06e9bb47de90d286",
+      "filename": "gdb/data-directory/Makefile.in",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7b8c55afd07abf1e2e4efbeca4b9a614ce8d4e1e/gdb/data-directory/Makefile.in",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7b8c55afd07abf1e2e4efbeca4b9a614ce8d4e1e/gdb/data-directory/Makefile.in",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/data-directory/Makefile.in?ref=7b8c55afd07abf1e2e4efbeca4b9a614ce8d4e1e",
+      "patch": "@@ -74,6 +74,7 @@ PYTHON_FILE_LIST = \\\n \tgdb/frames.py \\\n \tgdb/printing.py \\\n \tgdb/prompt.py \\\n+\tgdb/styling.py \\\n \tgdb/types.py \\\n \tgdb/unwinder.py \\\n \tgdb/xmethod.py \\"
+    },
+    {
+      "sha": "5f63bced32081e584c9731e4157025e5e8e76859",
+      "filename": "gdb/python/lib/gdb/__init__.py",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 33,
+      "changes": 33,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7b8c55afd07abf1e2e4efbeca4b9a614ce8d4e1e/gdb/python/lib/gdb/__init__.py",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7b8c55afd07abf1e2e4efbeca4b9a614ce8d4e1e/gdb/python/lib/gdb/__init__.py",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/lib/gdb/__init__.py?ref=7b8c55afd07abf1e2e4efbeca4b9a614ce8d4e1e",
+      "patch": "@@ -248,36 +248,3 @@ def with_parameter(name, value):\n         yield None\n     finally:\n         set_parameter(name, old_value)\n-\n-\n-try:\n-    from pygments import formatters, lexers, highlight\n-\n-    def colorize(filename, contents):\n-        # Don't want any errors.\n-        try:\n-            lexer = lexers.get_lexer_for_filename(filename, stripnl=False)\n-            formatter = formatters.TerminalFormatter()\n-            return highlight(contents, lexer, formatter).encode(\n-                host_charset(), \"backslashreplace\"\n-            )\n-        except:\n-            return None\n-\n-    def colorize_disasm(content, gdbarch):\n-        # Don't want any errors.\n-        try:\n-            lexer = lexers.get_lexer_by_name(\"asm\")\n-            formatter = formatters.TerminalFormatter()\n-            return highlight(content, lexer, formatter).rstrip().encode()\n-        except:\n-            return None\n-\n-\n-except:\n-\n-    def colorize(filename, contents):\n-        return None\n-\n-    def colorize_disasm(content, gdbarch):\n-        return None"
+    },
+    {
+      "sha": "aef39c6857ce4da52e793c6c42c1a2c764b937c3",
+      "filename": "gdb/python/lib/gdb/styling.py",
+      "status": "added",
+      "additions": 50,
+      "deletions": 0,
+      "changes": 50,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7b8c55afd07abf1e2e4efbeca4b9a614ce8d4e1e/gdb/python/lib/gdb/styling.py",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7b8c55afd07abf1e2e4efbeca4b9a614ce8d4e1e/gdb/python/lib/gdb/styling.py",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/lib/gdb/styling.py?ref=7b8c55afd07abf1e2e4efbeca4b9a614ce8d4e1e",
+      "patch": "@@ -0,0 +1,50 @@\n+# Styling related hooks.\n+# Copyright (C) 2010-2022 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+\"\"\"Utilities for styling.\"\"\"\n+\n+import gdb\n+\n+try:\n+    from pygments import formatters, lexers, highlight\n+\n+    def colorize(filename, contents):\n+        # Don't want any errors.\n+        try:\n+            lexer = lexers.get_lexer_for_filename(filename, stripnl=False)\n+            formatter = formatters.TerminalFormatter()\n+            return highlight(contents, lexer, formatter).encode(\n+                gdb.host_charset(), \"backslashreplace\"\n+            )\n+        except:\n+            return None\n+\n+    def colorize_disasm(content, gdbarch):\n+        # Don't want any errors.\n+        try:\n+            lexer = lexers.get_lexer_by_name(\"asm\")\n+            formatter = formatters.TerminalFormatter()\n+            return highlight(content, lexer, formatter).rstrip().encode()\n+        except:\n+            return None\n+\n+except:\n+\n+    def colorize(filename, contents):\n+        return None\n+\n+    def colorize_disasm(content, gdbarch):\n+        return None"
+    },
+    {
+      "sha": "79f9826365acbb2f74fadc590c06fdaedcf2172a",
+      "filename": "gdb/python/python.c",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 6,
+      "changes": 24,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7b8c55afd07abf1e2e4efbeca4b9a614ce8d4e1e/gdb/python/python.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7b8c55afd07abf1e2e4efbeca4b9a614ce8d4e1e/gdb/python/python.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/python.c?ref=7b8c55afd07abf1e2e4efbeca4b9a614ce8d4e1e",
+      "patch": "@@ -1156,11 +1156,17 @@ gdbpy_colorize (const std::string &filename, const std::string &contents)\n \n   gdbpy_enter enter_py;\n \n-  if (gdb_python_module == nullptr\n-      || !PyObject_HasAttrString (gdb_python_module, \"colorize\"))\n+  gdbpy_ref<> module (PyImport_ImportModule (\"gdb.styling\"));\n+  if (module == nullptr)\n+    {\n+      gdbpy_print_stack ();\n+      return {};\n+    }\n+\n+  if (!PyObject_HasAttrString (module.get (), \"colorize\"))\n     return {};\n \n-  gdbpy_ref<> hook (PyObject_GetAttrString (gdb_python_module, \"colorize\"));\n+  gdbpy_ref<> hook (PyObject_GetAttrString (module.get (), \"colorize\"));\n   if (hook == nullptr)\n     {\n       gdbpy_print_stack ();\n@@ -1227,11 +1233,17 @@ gdbpy_colorize_disasm (const std::string &content, gdbarch *gdbarch)\n \n   gdbpy_enter enter_py;\n \n-  if (gdb_python_module == nullptr\n-      || !PyObject_HasAttrString (gdb_python_module, \"colorize_disasm\"))\n+  gdbpy_ref<> module (PyImport_ImportModule (\"gdb.styling\"));\n+  if (module == nullptr)\n+    {\n+      gdbpy_print_stack ();\n+      return {};\n+    }\n+\n+  if (!PyObject_HasAttrString (module.get (), \"colorize_disasm\"))\n     return {};\n \n-  gdbpy_ref<> hook (PyObject_GetAttrString (gdb_python_module,\n+  gdbpy_ref<> hook (PyObject_GetAttrString (module.get (),\n \t\t\t\t\t    \"colorize_disasm\"));\n   if (hook == nullptr)\n     {"
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "sha": "5d71c60df5e6e7bd4ca70bd363dd462e8e865b38",
+  "node_id": "C_kwDOANOeidoAKDVkNzFjNjBkZjVlNmU3YmQ0Y2E3MGJkMzYzZGQ0NjJlOGU4NjViMzg",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-10-22T15:46:43Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-10-22T15:46:43Z"
+    },
+    "message": "[gdb/testsuite] Fix gdb.threads/linux-dp.exp\n\nOn openSUSE Tumbleweed with glibc-debuginfo installed I get:\n...\n (gdb) PASS: gdb.threads/linux-dp.exp: continue to breakpoint: thread 5's print\n where^M\n #0  print_philosopher (n=3, left=33 '!', right=33 '!') at linux-dp.c:105^M\n #1  0x0000000000401628 in philosopher (data=0x40537c) at linux-dp.c:148^M\n #2  0x00007ffff7d56b37 in start_thread (arg=<optimized out>) \\\n                          at pthread_create.c:435^M\n #3  0x00007ffff7ddb640 in clone3 () \\\n                          at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:81^M\n (gdb) PASS: gdb.threads/linux-dp.exp: first thread-specific breakpoint hit\n...\nwhile without debuginfo installed I get instead:\n...\n (gdb) PASS: gdb.threads/linux-dp.exp: continue to breakpoint: thread 5's print\n where^M\n #0  print_philosopher (n=3, left=33 '!', right=33 '!') at linux-dp.c:105^M\n #1  0x0000000000401628 in philosopher (data=0x40537c) at linux-dp.c:148^M\n #2  0x00007ffff7d56b37 in start_thread () from /lib64/libc.so.6^M\n #3  0x00007ffff7ddb640 in clone3 () from /lib64/libc.so.6^M\n (gdb) FAIL: gdb.threads/linux-dp.exp: first thread-specific breakpoint hit\n...\n\nThe problem is that the regexp used:\n...\n  \"\\(from .*libpthread\\|at pthread_create\\|in pthread_create\\)\"\n...\nexpects the 'from' part to match libpthread, but in glibc 2.34 libpthread has\nbeen merged into libc.\n\nFix this by updating the regexp.\n\nTested on x86_64-linux.",
+    "tree": {
+      "sha": "7b7e4bd645e095bbc118ffa92a42800cf260f062",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/7b7e4bd645e095bbc118ffa92a42800cf260f062"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/5d71c60df5e6e7bd4ca70bd363dd462e8e865b38",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5d71c60df5e6e7bd4ca70bd363dd462e8e865b38",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/5d71c60df5e6e7bd4ca70bd363dd462e8e865b38",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5d71c60df5e6e7bd4ca70bd363dd462e8e865b38/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "d5684c961f52597152b386ef2d6de3d53b0df9c6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d5684c961f52597152b386ef2d6de3d53b0df9c6",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/d5684c961f52597152b386ef2d6de3d53b0df9c6"
+    }
+  ],
+  "stats": {
+    "total": 2,
+    "additions": 1,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "b01e87fa9ead18a1118b97d48cfe9de4cad4e71c",
+      "filename": "gdb/testsuite/gdb.threads/linux-dp.exp",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5d71c60df5e6e7bd4ca70bd363dd462e8e865b38/gdb/testsuite/gdb.threads/linux-dp.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5d71c60df5e6e7bd4ca70bd363dd462e8e865b38/gdb/testsuite/gdb.threads/linux-dp.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/linux-dp.exp?ref=5d71c60df5e6e7bd4ca70bd363dd462e8e865b38",
+      "patch": "@@ -226,7 +226,7 @@ gdb_continue_to_breakpoint \"thread 5's print\"\n # If you do have debug info, the output obviously depends more on the\n # exact library in use; under NPTL, you get:\n #    #2  0x0012b7fc in start_thread (arg=0x21) at pthread_create.c:264\n-gdb_test \"where\" \"print_philosopher.*philosopher.* \\(from .*libpthread\\|at pthread_create\\|in pthread_create\\).*\" \\\n+gdb_test \"where\" \"print_philosopher.*philosopher.* \\(from .*libpthread\\|at pthread_create\\|in pthread_create|from .*libc\\\\.\\).*\" \\\n \t\"first thread-specific breakpoint hit\"\n \n # Make sure it's catching the right thread.  Try hitting the"
+    }
+  ]
+}

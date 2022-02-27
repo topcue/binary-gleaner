@@ -1,0 +1,122 @@
+{
+  "sha": "6cade9185cc55478830559d91593ba510bef1b17",
+  "node_id": "C_kwDOANOeidoAKDZjYWRlOTE4NWNjNTU0Nzg4MzA1NTlkOTE1OTNiYTUxMGJlZjFiMTc",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-12-02T13:23:12Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-12-02T13:24:25Z"
+    },
+    "message": "gdb, include: replace pragmas with DIAGNOSTIC macros, fix build with g++ 4.8\n\nWhen introducing this code, I forgot that we had some macros for this.\nReplace some \"manual\" pragma diagnostic with some DIAGNOSTIC_* macros,\nprovided by include/diagnostics.h.\n\nIn diagnostics.h:\n\n - Add DIAGNOSTIC_ERROR, to enable a diagnostic at error level.\n - Add DIAGNOSTIC_ERROR_SWITCH, to enable -Wswitch at error level, for\n   both gcc and clang.\n\nAdditionally, using DIAGNOSTIC_PUSH, DIAGNOSTIC_ERROR_SWITCH and\nDIAGNOSTIC_POP seems to misbehave with g++ 4.8, where we see these\nerrors:\n\n      CXX    ada-tasks.o\n    /home/smarchi/src/binutils-gdb/gdb/ada-tasks.c: In function void read_known_tasks():\n    /home/smarchi/src/binutils-gdb/gdb/ada-tasks.c:998:10: error: enumeration value ADA_TASKS_UNKNOWN not handled in switch [-Werror=switch]\n       switch (data->known_tasks_kind)\n              ^\n\nBecause of the POP, the diagnostic should go back to being disabled,\nsince it was disabled in the beginning, but that's not what we see\nhere.  Versions of GCC >= 5 compile correctly.\n\nWork around this by making DIAGNOSTIC_ERROR_SWITCH a no-op for GCC < 5.\n\nNote that this code (already as it exists in master today) enables\n-Wswitch at the error level even if --disable-werror is passed.  It\nshouldn't be a problem, as it's not like a new enumerator will appear\nout of nowhere and cause a build error if building with future\ncompilers.  Still, for correctness, we would ideally want to ask the\ncompiler to enable -Wswitch at its default level (as if the user had\npassed -Wswitch on the command-line).  There doesn't seem to be a way to\ndo this.\n\nChange-Id: Id33ebec3de39bd449409ea0bab59831289ffe82d",
+    "tree": {
+      "sha": "58c0950a7b559e2e65f03993dbbad3aaa2b9c7cd",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/58c0950a7b559e2e65f03993dbbad3aaa2b9c7cd"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/6cade9185cc55478830559d91593ba510bef1b17",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6cade9185cc55478830559d91593ba510bef1b17",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/6cade9185cc55478830559d91593ba510bef1b17",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6cade9185cc55478830559d91593ba510bef1b17/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "1075011adebffc855319569549ce88e389e149c6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1075011adebffc855319569549ce88e389e149c6",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/1075011adebffc855319569549ce88e389e149c6"
+    }
+  ],
+  "stats": {
+    "total": 29,
+    "additions": 23,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "0fbcec5b7c8a4d15081695f3fc883bc19ebee439",
+      "filename": "gdb/target/waitstatus.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6cade9185cc55478830559d91593ba510bef1b17/gdb/target/waitstatus.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6cade9185cc55478830559d91593ba510bef1b17/gdb/target/waitstatus.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/target/waitstatus.c?ref=6cade9185cc55478830559d91593ba510bef1b17",
+      "patch": "@@ -30,8 +30,8 @@ target_waitstatus::to_string () const\n \n /* Make sure the compiler warns if a new TARGET_WAITKIND enumerator is added\n    but not handled here.  */\n-#pragma GCC diagnostic push\n-#pragma GCC diagnostic error \"-Wswitch\"\n+DIAGNOSTIC_PUSH\n+DIAGNOSTIC_ERROR_SWITCH\n   switch (this->kind ())\n     {\n     case TARGET_WAITKIND_EXITED:\n@@ -63,7 +63,7 @@ target_waitstatus::to_string () const\n     case TARGET_WAITKIND_THREAD_CREATED:\n       return str;\n     }\n-#pragma GCC diagnostic pop\n+DIAGNOSTIC_POP\n \n   gdb_assert_not_reached (\"invalid target_waitkind value: %d\",\n \t\t\t  (int) this->kind ());"
+    },
+    {
+      "sha": "5b53735418486e65b7e9aa5f5b8f7b4bb8813ac6",
+      "filename": "gdb/target/waitstatus.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 3,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6cade9185cc55478830559d91593ba510bef1b17/gdb/target/waitstatus.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6cade9185cc55478830559d91593ba510bef1b17/gdb/target/waitstatus.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/target/waitstatus.h?ref=6cade9185cc55478830559d91593ba510bef1b17",
+      "patch": "@@ -20,6 +20,7 @@\n #ifndef TARGET_WAITSTATUS_H\n #define TARGET_WAITSTATUS_H\n \n+#include \"diagnostics.h\"\n #include \"gdbsupport/gdb_signals.h\"\n \n /* Stuff for target_wait.  */\n@@ -108,8 +109,8 @@ target_waitkind_str (target_waitkind kind)\n {\n /* Make sure the compiler warns if a new TARGET_WAITKIND enumerator is added\n    but not handled here.  */\n-#pragma GCC diagnostic push\n-#pragma GCC diagnostic error \"-Wswitch\"\n+DIAGNOSTIC_PUSH\n+DIAGNOSTIC_ERROR_SWITCH\n   switch (kind)\n   {\n     case TARGET_WAITKIND_EXITED:\n@@ -145,7 +146,7 @@ target_waitkind_str (target_waitkind kind)\n     case TARGET_WAITKIND_THREAD_EXITED:\n       return \"THREAD_EXITED\";\n   };\n-#pragma GCC diagnostic pop\n+DIAGNOSTIC_POP\n \n   gdb_assert_not_reached (\"invalid target_waitkind value: %d\\n\", (int) kind);\n }"
+    },
+    {
+      "sha": "7b3f6db9ff37144e60de1744e6eb7d0c21636eb4",
+      "filename": "include/diagnostics.h",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 0,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6cade9185cc55478830559d91593ba510bef1b17/include/diagnostics.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6cade9185cc55478830559d91593ba510bef1b17/include/diagnostics.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/diagnostics.h?ref=6cade9185cc55478830559d91593ba510bef1b17",
+      "patch": "@@ -40,6 +40,8 @@\n \n # define DIAGNOSTIC_IGNORE(option) \\\n   _Pragma (DIAGNOSTIC_STRINGIFY (GCC diagnostic ignored option))\n+# define DIAGNOSTIC_ERROR(option) \\\n+  _Pragma (DIAGNOSTIC_STRINGIFY (GCC diagnostic error option))\n #else\n # define DIAGNOSTIC_PUSH\n # define DIAGNOSTIC_POP\n@@ -61,6 +63,9 @@\n # define DIAGNOSTIC_IGNORE_FORMAT_NONLITERAL \\\n   DIAGNOSTIC_IGNORE (\"-Wformat-nonliteral\")\n \n+# define DIAGNOSTIC_ERROR_SWITCH \\\n+  DIAGNOSTIC_ERROR (\"-Wswitch\")\n+\n #elif defined (__GNUC__) /* GCC */\n \n # if __GNUC__ >= 7\n@@ -74,6 +79,13 @@\n # define DIAGNOSTIC_IGNORE_FORMAT_NONLITERAL \\\n   DIAGNOSTIC_IGNORE (\"-Wformat-nonliteral\")\n \n+/* GCC 4.8's \"diagnostic push/pop\" seems broken when using this, -Wswitch\n+   remains enabled at the error level even after a pop.  Therefore, don't\n+   use it for GCC < 5.  */\n+# if __GNUC__ >= 5\n+#  define DIAGNOSTIC_ERROR_SWITCH DIAGNOSTIC_ERROR (\"-Wswitch\")\n+# endif\n+\n #endif\n \n #ifndef DIAGNOSTIC_IGNORE_SELF_MOVE\n@@ -100,4 +112,8 @@\n # define DIAGNOSTIC_IGNORE_FORMAT_NONLITERAL\n #endif\n \n+#ifndef DIAGNOSTIC_ERROR_SWITCH\n+# define DIAGNOSTIC_ERROR_SWITCH\n+#endif\n+\n #endif /* DIAGNOSTICS_H */"
+    }
+  ]
+}

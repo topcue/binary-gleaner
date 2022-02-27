@@ -1,0 +1,158 @@
+{
+  "sha": "3d9be6f531db395a5ad940ef06e56d849f4de646",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6M2Q5YmU2ZjUzMWRiMzk1YTVhZDk0MGVmMDZlNTZkODQ5ZjRkZTY0Ng==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "palves@redhat.com",
+      "date": "2019-07-03T15:57:49Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "palves@redhat.com",
+      "date": "2019-07-03T15:59:24Z"
+    },
+    "message": "Teach gdb::option about string options\n\nA following patch will make the \"pipe\" command use the gdb::option\nframework for option processing.  However, \"pipe\"'s only option today\nis a string option, \"-d DELIM\", and gdb::option does not support\nstring options yet.\n\nThis commit adds support for string options, mapped to var_string.\nFor now, a string is parsed up until the first whitespace.  I imagine\nthat we'll need to add support for quoting so that we could do:\n\n (gdb) cmd -option 'some -string'\n\nwithout gdb confusing the \"-string\" for an option.\n\nThis doesn't seem important for pipe, so I'm leaving it for another\nday.\n\nOne thing I'm not happy with, is that the string data is managed as a\nraw malloc-allocated char *, which means that we need to xfree it\nmanually.  This is because var_string settings work that way too.\nAlthough with var_string settings we're leaking the strings at gdb\nexit, that was never really a problem.  For options though, leaking is\nundesirable.\n\nI think we should tackle that for both settings and options at the\nsame time, so for now I'm just managing the malloced data manually.\nIt's a bit ugly in option_def_and_value, but at least that's hidden\nfrom view.\n\nFor testing, this adds a new \"-string\" option to \"maint\ntest-settings\", and then tweaks gdb.base/options.exp to exercise it.\n\ngdb/ChangeLog:\n2019-07-03  Pedro Alves  <palves@redhat.com>\n\n\t* cli/cli-option.c (union option_value) <string>: New field.\n\t(struct option_def_and_value): Add ctor, move ctor, dtor and\n\tuse DISABLE_COPY_AND_ASSIGN.\n\t(option_def_and_value::clear_value): New.\n\t(parse_option, save_option_value_in_ctx, get_val_type_str)\n\t(add_setshow_cmds_for_options): Handle var_string.\n\t* cli-option.h (union option_def::var_address) <string>: New\n\tfield.\n\t(struct string_option_def): New.\n\t* maint-test-options.c (struct test_options_opts): Add default\n\tctor and use DISABLE_COPY_AND_ASSIGN.\n\t<string_opt>: New field.\n\t(test_options_opts::~test_options_opts): New.\n\t(test_options_opts::dump): Also dump \"-string\".\n\t(test_options_option_defs): Install \"string.\n\ngdb/testsuite/ChangeLog:\n2019-07-03  Pedro Alves  <palves@redhat.com>\n\n\t* gdb.base/options.exp (expect_none, expect_flag, expect_bool)\n\t(expect_integer): Adjust to expect \"-string\".\n\t(expect_string): New.\n\t(all_options): Expect \"-string\".\n\t(test-flag, test-boolean): Adjust to expect \"-string\".\n\t(test-string): New proc.\n\t(top level): Call it.",
+    "tree": {
+      "sha": "bfb290fae432f5dcc6186dba817d093ba5b872d6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/bfb290fae432f5dcc6186dba817d093ba5b872d6"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/3d9be6f531db395a5ad940ef06e56d849f4de646",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3d9be6f531db395a5ad940ef06e56d849f4de646",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/3d9be6f531db395a5ad940ef06e56d849f4de646",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3d9be6f531db395a5ad940ef06e56d849f4de646/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "41fc454c915057d9c5536617370c5eb2a5f71323",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/41fc454c915057d9c5536617370c5eb2a5f71323",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/41fc454c915057d9c5536617370c5eb2a5f71323"
+    }
+  ],
+  "stats": {
+    "total": 244,
+    "additions": 224,
+    "deletions": 20
+  },
+  "files": [
+    {
+      "sha": "b08686beb2f6209fba010f2c8859374d4450b5e3",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 0,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3d9be6f531db395a5ad940ef06e56d849f4de646/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3d9be6f531db395a5ad940ef06e56d849f4de646/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=3d9be6f531db395a5ad940ef06e56d849f4de646",
+      "patch": "@@ -1,3 +1,21 @@\n+2019-07-03  Pedro Alves  <palves@redhat.com>\n+\n+\t* cli/cli-option.c (union option_value) <string>: New field.\n+\t(struct option_def_and_value): Add ctor, move ctor, dtor and\n+\tuse DISABLE_COPY_AND_ASSIGN.\n+\t(option_def_and_value::clear_value): New.\n+\t(parse_option, save_option_value_in_ctx, get_val_type_str)\n+\t(add_setshow_cmds_for_options): Handle var_string.\n+\t* cli-option.h (union option_def::var_address) <string>: New\n+\tfield.\n+\t(struct string_option_def): New.\n+\t* maint-test-options.c (struct test_options_opts): Add default\n+\tctor and use DISABLE_COPY_AND_ASSIGN.\n+\t<string_opt>: New field.\n+\t(test_options_opts::~test_options_opts): New.\n+\t(test_options_opts::dump): Also dump \"-string\".\n+\t(test_options_option_defs): Install \"string.\n+\n 2019-07-03  Pedro Alves  <palves@redhat.com>\n \n \t* cli/cli-option.c (parse_option) <var_enum>: Don't return an"
+    },
+    {
+      "sha": "07d552b7f5bbdaff7bc6f11a4e5c0ba999879ef6",
+      "filename": "gdb/cli/cli-option.c",
+      "status": "modified",
+      "additions": 86,
+      "deletions": 0,
+      "changes": 86,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3d9be6f531db395a5ad940ef06e56d849f4de646/gdb/cli/cli-option.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3d9be6f531db395a5ad940ef06e56d849f4de646/gdb/cli/cli-option.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cli/cli-option.c?ref=3d9be6f531db395a5ad940ef06e56d849f4de646",
+      "patch": "@@ -43,6 +43,9 @@ union option_value\n \n   /* For var_enum options.  */\n   const char *enumeration;\n+\n+  /* For var_string options.  This is malloc-allocated.  */\n+  char *string;\n };\n \n /* Holds an options definition and its value.  */\n@@ -56,6 +59,54 @@ struct option_def_and_value\n \n   /* The option's value, if any.  */\n   gdb::optional<option_value> value;\n+\n+  /* Constructor.  */\n+  option_def_and_value (const option_def &option_, void *ctx_,\n+\t\t\tgdb::optional<option_value> &&value_ = {})\n+    : option (option_),\n+      ctx (ctx_),\n+      value (std::move (value_))\n+  {\n+    clear_value (option_, value_);\n+  }\n+\n+  /* Move constructor.  Need this because for some types the values\n+     are allocated on the heap.  */\n+  option_def_and_value (option_def_and_value &&rval)\n+    : option (rval.option),\n+      ctx (rval.ctx),\n+      value (std::move (rval.value))\n+  {\n+    clear_value (rval.option, rval.value);\n+  }\n+\n+  DISABLE_COPY_AND_ASSIGN (option_def_and_value);\n+\n+  ~option_def_and_value ()\n+  {\n+    if (value.has_value ())\n+      {\n+\tif (option.type == var_string)\n+\t  xfree (value->string);\n+      }\n+  }\n+\n+private:\n+\n+  /* Clear the option_value, without releasing it.  This is used after\n+     the value has been moved to some other option_def_and_value\n+     instance.  This is needed because for some types the value is\n+     allocated on the heap, so we must clear the pointer in the\n+     source, to avoid a double free.  */\n+  static void clear_value (const option_def &option,\n+\t\t\t   gdb::optional<option_value> &value)\n+  {\n+    if (value.has_value ())\n+      {\n+\tif (option.type == var_string)\n+\t  value->string = nullptr;\n+      }\n+  }\n };\n \n static void save_option_value_in_ctx (gdb::optional<option_def_and_value> &ov);\n@@ -373,6 +424,25 @@ parse_option (gdb::array_view<const option_def_group> options_group,\n \tval.enumeration = parse_cli_var_enum (args, match->enums);\n \treturn option_def_and_value {*match, match_ctx, val};\n       }\n+    case var_string:\n+      {\n+\tif (check_for_argument (args, \"--\"))\n+\t  {\n+\t    /* Treat e.g., \"maint test-options -string --\" as if there\n+\t       was no argument after \"-string\".  */\n+\t    error (_(\"-%s requires an argument\"), match->name);\n+\t  }\n+\n+\tconst char *arg_start = *args;\n+\t*args = skip_to_space (*args);\n+\n+\tif (*args == arg_start)\n+\t  error (_(\"-%s requires an argument\"), match->name);\n+\n+\toption_value val;\n+\tval.string = savestring (arg_start, *args - arg_start);\n+\treturn option_def_and_value {*match, match_ctx, val};\n+      }\n \n     default:\n       /* Not yet.  */\n@@ -532,6 +602,11 @@ save_option_value_in_ctx (gdb::optional<option_def_and_value> &ov)\n       *ov->option.var_address.enumeration (ov->option, ov->ctx)\n \t= ov->value->enumeration;\n       break;\n+    case var_string:\n+      *ov->option.var_address.string (ov->option, ov->ctx)\n+\t= ov->value->string;\n+      ov->value->string = nullptr;\n+      break;\n     default:\n       gdb_assert_not_reached (\"unhandled option type\");\n     }\n@@ -604,6 +679,8 @@ get_val_type_str (const option_def &opt, std::string &buffer)\n \t  }\n \treturn buffer.c_str ();\n       }\n+    case var_string:\n+      return \"STRING\";\n     default:\n       return nullptr;\n     }\n@@ -731,6 +808,15 @@ add_setshow_cmds_for_options (command_class cmd_class,\n \t\t\t\tnullptr, option.show_cmd_cb,\n \t\t\t\tset_list, show_list);\n \t}\n+      else if (option.type == var_string)\n+\t{\n+\t  add_setshow_string_cmd (option.name, cmd_class,\n+\t\t\t\t  option.var_address.string (option, data),\n+\t\t\t\t  option.set_doc, option.show_doc,\n+\t\t\t\t  option.help_doc,\n+\t\t\t\t  nullptr, option.show_cmd_cb,\n+\t\t\t\t  set_list, show_list);\n+\t}\n       else\n \tgdb_assert_not_reached (_(\"option type not handled\"));\n     }"
+    },
+    {
+      "sha": "a26b52f7f29c92fb21bd7deab49442d99a2a5034",
+      "filename": "gdb/cli/cli-option.h",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 0,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3d9be6f531db395a5ad940ef06e56d849f4de646/gdb/cli/cli-option.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3d9be6f531db395a5ad940ef06e56d849f4de646/gdb/cli/cli-option.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cli/cli-option.h?ref=3d9be6f531db395a5ad940ef06e56d849f4de646",
+      "patch": "@@ -86,6 +86,7 @@ struct option_def\n       unsigned int *(*uinteger) (const option_def &, void *ctx);\n       int *(*integer) (const option_def &, void *ctx);\n       const char **(*enumeration) (const option_def &, void *ctx);\n+      char **(*string) (const option_def &, void *ctx);\n     }\n   var_address;\n \n@@ -261,6 +262,26 @@ struct enum_option_def : option_def\n   }\n };\n \n+/* A var_string command line option.  */\n+\n+template<typename Context>\n+struct string_option_def : option_def\n+{\n+  string_option_def (const char *long_option_,\n+\t\t     char **(*get_var_address_cb_) (Context *),\n+\t\t     show_value_ftype *show_cmd_cb_,\n+\t\t     const char *set_doc_,\n+\t\t     const char *show_doc_ = nullptr,\n+\t\t     const char *help_doc_ = nullptr)\n+    : option_def (long_option_, var_string,\n+\t\t  (erased_get_var_address_ftype *) get_var_address_cb_,\n+\t\t  show_cmd_cb_,\n+\t\t  set_doc_, show_doc_, help_doc_)\n+  {\n+    var_address.enumeration = detail::get_var_address<const char *, Context>;\n+  }\n+};\n+\n /* A group of options that all share the same context pointer to pass\n    to the options' get-current-value callbacks.  */\n struct option_def_group"
+    },
+    {
+      "sha": "4caa865ae432f4edac1dea0a8fabf860f093ebc0",
+      "filename": "gdb/maint-test-options.c",
+      "status": "modified",
+      "additions": 24,
+      "deletions": 3,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3d9be6f531db395a5ad940ef06e56d849f4de646/gdb/maint-test-options.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3d9be6f531db395a5ad940ef06e56d849f4de646/gdb/maint-test-options.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/maint-test-options.c?ref=3d9be6f531db395a5ad940ef06e56d849f4de646",
+      "patch": "@@ -58,10 +58,10 @@\n    readline, for proper testing of TAB completion.\n \n    These maintenance commands support options of all the different\n-   available kinds of commands (boolean, enum, flag, uinteger):\n+   available kinds of commands (boolean, enum, flag, string, uinteger):\n \n     (gdb) maint test-options require-delimiter -[TAB]\n-    -bool      -enum      -flag      -uinteger   -xx1       -xx2\n+    -bool      -enum      -flag      -string     -uinteger   -xx1       -xx2\n \n     (gdb) maint test-options require-delimiter -bool o[TAB]\n     off  on\n@@ -133,14 +133,24 @@ struct test_options_opts\n   const char *enum_opt = test_options_enum_values_xxx;\n   unsigned int uint_opt = 0;\n   int zuint_unl_opt = 0;\n+  char *string_opt = nullptr;\n+\n+  test_options_opts () = default;\n+\n+  DISABLE_COPY_AND_ASSIGN (test_options_opts);\n+\n+  ~test_options_opts ()\n+  {\n+    xfree (string_opt);\n+  }\n \n   /* Dump the options to FILE.  ARGS is the remainder unprocessed\n      arguments.  */\n   void dump (ui_file *file, const char *args) const\n   {\n     fprintf_unfiltered (file,\n \t\t\t_(\"-flag %d -xx1 %d -xx2 %d -bool %d \"\n-\t\t\t  \"-enum %s -uint %s -zuint-unl %s -- %s\\n\"),\n+\t\t\t  \"-enum %s -uint %s -zuint-unl %s -string '%s' -- %s\\n\"),\n \t\t\tflag_opt,\n \t\t\txx1_opt,\n \t\t\txx2_opt,\n@@ -152,6 +162,9 @@ struct test_options_opts\n \t\t\t(zuint_unl_opt == -1\n \t\t\t ? \"unlimited\"\n \t\t\t : plongest (zuint_unl_opt)),\n+\t\t\t(string_opt != nullptr\n+\t\t\t ? string_opt\n+\t\t\t : \"\"),\n \t\t\targs);\n   }\n };\n@@ -216,6 +229,14 @@ static const gdb::option::option_def test_options_option_defs[] = {\n     nullptr, /* show_doc */\n     nullptr, /* help_doc */\n   },\n+\n+  /* A string option.  */\n+  gdb::option::string_option_def<test_options_opts> {\n+    \"string\",\n+    [] (test_options_opts *opts) { return &opts->string_opt; },\n+    nullptr, /* show_cmd_cb */\n+    N_(\"A string option.\"),\n+  },\n };\n \n /* Create an option_def_group for the test_options_opts options, with"
+    },
+    {
+      "sha": "8a426ffc87714956d3e9c0130c6d2fce2431bed2",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3d9be6f531db395a5ad940ef06e56d849f4de646/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3d9be6f531db395a5ad940ef06e56d849f4de646/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=3d9be6f531db395a5ad940ef06e56d849f4de646",
+      "patch": "@@ -1,3 +1,13 @@\n+2019-07-03  Pedro Alves  <palves@redhat.com>\n+\n+\t* gdb.base/options.exp (expect_none, expect_flag, expect_bool)\n+\t(expect_integer): Adjust to expect \"-string\".\n+\t(expect_string): New.\n+\t(all_options): Expect \"-string\".\n+\t(test-flag, test-boolean): Adjust to expect \"-string\".\n+\t(test-string): New proc.\n+\t(top level): Call it.\n+\n 2019-07-03  Pedro Alves  <palves@redhat.com>\n \n \t* gdb.base/options.exp (test-misc, test-flag, test-boolean)"
+    },
+    {
+      "sha": "e8f571d9ba9a712537d1d97123ca754cc731a986",
+      "filename": "gdb/testsuite/gdb.base/options.exp",
+      "status": "modified",
+      "additions": 65,
+      "deletions": 17,
+      "changes": 82,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3d9be6f531db395a5ad940ef06e56d849f4de646/gdb/testsuite/gdb.base/options.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3d9be6f531db395a5ad940ef06e56d849f4de646/gdb/testsuite/gdb.base/options.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/options.exp?ref=3d9be6f531db395a5ad940ef06e56d849f4de646",
+      "patch": "@@ -95,19 +95,19 @@ proc make_cmd {variant} {\n # test-options xxx\", with no flag/option set.  OPERAND is the expected\n # operand.\n proc expect_none {operand} {\n-    return \"-flag 0 -xx1 0 -xx2 0 -bool 0 -enum xxx -uint 0 -zuint-unl 0 -- $operand\"\n+    return \"-flag 0 -xx1 0 -xx2 0 -bool 0 -enum xxx -uint 0 -zuint-unl 0 -string '' -- $operand\"\n }\n \n # Return a string for the expected result of running \"maint\n # test-options xxx\", with -flag set.  OPERAND is the expected operand.\n proc expect_flag {operand} {\n-    return \"-flag 1 -xx1 0 -xx2 0 -bool 0 -enum xxx -uint 0 -zuint-unl 0 -- $operand\"\n+    return \"-flag 1 -xx1 0 -xx2 0 -bool 0 -enum xxx -uint 0 -zuint-unl 0 -string '' -- $operand\"\n }\n \n # Return a string for the expected result of running \"maint\n # test-options xxx\", with -bool set.  OPERAND is the expected operand.\n proc expect_bool {operand} {\n-    return \"-flag 0 -xx1 0 -xx2 0 -bool 1 -enum xxx -uint 0 -zuint-unl 0 -- $operand\"\n+    return \"-flag 0 -xx1 0 -xx2 0 -bool 1 -enum xxx -uint 0 -zuint-unl 0 -string '' -- $operand\"\n }\n \n # Return a string for the expected result of running \"maint\n@@ -116,18 +116,26 @@ proc expect_bool {operand} {\n # expected operand.\n proc expect_integer {option val operand} {\n     if {$option == \"uinteger\"} {\n-\treturn \"-flag 0 -xx1 0 -xx2 0 -bool 0 -enum xxx -uint $val -zuint-unl 0 -- $operand\"\n+\treturn \"-flag 0 -xx1 0 -xx2 0 -bool 0 -enum xxx -uint $val -zuint-unl 0 -string '' -- $operand\"\n     } elseif {$option == \"zuinteger-unlimited\"} {\n-\treturn \"-flag 0 -xx1 0 -xx2 0 -bool 0 -enum xxx -uint 0 -zuint-unl $val -- $operand\"\n+\treturn \"-flag 0 -xx1 0 -xx2 0 -bool 0 -enum xxx -uint 0 -zuint-unl $val -string '' -- $operand\"\n     } else {\n \terror \"unsupported option: $option\"\n     }\n }\n \n+# Return a string for the expected result of running \"maint\n+# test-options xxx\", with -string set to $STR.  OPERAND is the\n+# expected operand.\n+proc expect_string {str operand} {\n+    return \"-flag 0 -xx1 0 -xx2 0 -bool 0 -enum xxx -uint 0 -zuint-unl 0 -string '$str' -- $operand\"\n+}\n+\n set all_options {\n     \"-bool\"\n     \"-enum\"\n     \"-flag\"\n+    \"-string\"\n     \"-uinteger\"\n     \"-xx1\"\n     \"-xx2\"\n@@ -577,7 +585,7 @@ proc_with_prefix test-flag {variant} {\n \n     # Extract twice the same flag, separated by one space.\n     gdb_test \"$cmd -xx1     -xx2 -xx1  -xx2 -xx1    -- non flags args\" \\\n-\t\"-flag 0 -xx1 1 -xx2 1 -bool 0 -enum xxx -uint 0 -zuint-unl 0 -- non flags args\"\n+\t\"-flag 0 -xx1 1 -xx2 1 -bool 0 -enum xxx -uint 0 -zuint-unl 0 -string '' -- non flags args\"\n \n     # Extract 2 known flags in front of unknown flags.\n     gdb_test \"$cmd -xx1 -xx2 -a -b -c -xx1 --\" \\\n@@ -624,19 +632,11 @@ proc_with_prefix test-boolean {variant} {\n     #   E.g., \"frame apply all -past-main COMMAND\".\n \n     if {$variant == \"require-delimiter\"} {\n+\tset match_list $all_options\n+\tlappend match_list \"off\" \"on\"\n \tres_test_gdb_complete_multiple \\\n \t    \"1 [expect_none \"\"]\" \\\n-\t    \"$cmd -bool \" \"\" \"\" {\n-\t    \"-bool\"\n-\t    \"-enum\"\n-\t    \"-flag\"\n-\t    \"-uinteger\"\n-\t    \"-xx1\"\n-\t    \"-xx2\"\n-\t    \"-zuinteger-unlimited\"\n-\t    \"off\"\n-\t    \"on\"\n-\t}\n+\t    \"$cmd -bool \" \"\" \"\" $match_list\n     } else {\n \tres_test_gdb_complete_none \"0 \" \"$cmd -bool \"\n     }\n@@ -942,6 +942,53 @@ proc_with_prefix test-enum {variant} {\n     gdb_test \"$cmd -enum www --\" \"Undefined item: \\\"www\\\".\"\n }\n \n+# String option tests.\n+proc_with_prefix test-string {variant} {\n+    global all_options\n+\n+    set cmd [make_cmd $variant]\n+\n+    res_test_gdb_complete_none \\\n+\t\"1 [expect_none \"\"]\" \\\n+\t\"$cmd -string \"\n+\n+    # Check that \"-\" where a value is expected does not show the\n+    # command's options.  I.e., a string's value is not optional.\n+    # Check both completion and running the command.\n+    res_test_gdb_complete_none \\\n+\t\"1 [expect_none \"\"]\" \\\n+\t\"$cmd -string -\"\n+    gdb_test \"$cmd -string --\"\\\n+\t\"-string requires an argument\"\n+    if {$variant == \"require-delimiter\"} {\n+\tgdb_test \"$cmd -string\" [expect_none \"-string\"]\n+    } else {\n+\tgdb_test \"$cmd -string\"\\\n+\t    \"-string requires an argument\"\n+    }\n+\n+    res_test_gdb_complete_none \\\n+\t\"1 [expect_none \"\"]\" \\\n+\t\"$cmd -string STR\"\n+    gdb_test \"$cmd -string STR --\" [expect_string \"STR\" \"\"]\n+\n+    # Completing at \"-\" after parsing STR should list all options.\n+    res_test_gdb_complete_multiple \\\n+\t\"1 [expect_string \"STR\" \"-\"]\" \\\n+\t\"$cmd -string STR \" \"-\" \"\" $all_options\n+\n+    # Check that only FOO is considered part of the string's value.\n+    # I.e., that we stop parsing the string at the first whitespace.\n+    if {$variant == \"require-delimiter\"} {\n+\tres_test_gdb_complete_none \\\n+\t    \"1 [expect_string \"FOO\" \"BAR\"]\" \\\n+\t    \"$cmd -string FOO BAR\"\n+    } else {\n+\tres_test_gdb_complete_none \"0 BAR\" \"$cmd -string FOO BAR\"\n+    }\n+    gdb_test \"$cmd -string FOO BAR --\" \"Unrecognized option at: BAR --\"\n+}\n+\n # Run the options framework tests first.\n foreach_with_prefix cmd {\n     \"require-delimiter\"\n@@ -955,6 +1002,7 @@ foreach_with_prefix cmd {\n \ttest-uinteger $cmd $subcmd\n     }\n     test-enum $cmd\n+    test-string $cmd\n }\n \n # Run the print integration tests, both as \"standalone\", and under"
+    }
+  ]
+}

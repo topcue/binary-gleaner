@@ -1,0 +1,194 @@
+{
+  "sha": "9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OWZjNTAxZmRmZTVkYzgyYjVlNTM4OGNkZTRhYzJhYjcwZWQ2OWQ3NQ==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-06-08T10:36:13Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-07-06T14:06:07Z"
+    },
+    "message": "gdb: Python unwinders, inline frames, and tail-call frames\n\nThis started with me running into the bug described in python/22748,\nin summary, if the frame sniffing code accessed any registers within\nan inline frame then GDB would crash with this error:\n\n  gdb/frame.c:579: internal-error: frame_id get_frame_id(frame_info*): Assertion `fi->level == 0' failed.\n\nThe problem is that, when in the Python unwinder I write this:\n\n  pending_frame.read_register (\"register-name\")\n\nThis is translated internally into a call to `value_of_register',\nwhich in turn becomes a call to `value_of_register_lazy'.\n\nUsually this isn't a problem, `value_of_register_lazy' requires the\nnext frame (more inner) to have a valid frame_id, which will be the\ncase (if we're sniffing frame #1, then frame #0 will have had its\nframe-id figured out).\n\nUnfortunately if frame #0 is inline within frame #1, then the frame-id\nfor frame #0 can't be computed until we have the frame-id for #1.  As\na result we can't create a lazy register for frame #1 when frame #0 is\ninline.\n\nInitially I proposed a solution inline with that proposed in bugzilla,\nchanging value_of_register to avoid creating a lazy register value.\nHowever, when this was discussed on the mailing list I got this reply:\n\n  https://sourceware.org/pipermail/gdb-patches/2020-June/169633.html\n\nWhich led me to look at these two patches:\n\n  [1] https://sourceware.org/pipermail/gdb-patches/2020-April/167612.html\n  [2] https://sourceware.org/pipermail/gdb-patches/2020-April/167930.html\n\nWhen I considered patches [1] and [2] I saw that all of the issues\nbeing addressed here were related, and that there was a single\nsolution that could address all of these issues.\n\nFirst I wrote the new test gdb.opt/inline-frame-tailcall.exp, which\nshows that [1] and [2] regress the inline tail-call unwinder, the\nreason for this is that these two patches replace a call to\ngdbarch_unwind_pc with a call to get_frame_register, however, this is\nnot correct.  The previous call to gdbarch_unwind_pc takes THIS_FRAME\nand returns the $pc value in the previous frame.  In contrast\nget_frame_register takes THIS_FRAME and returns the value of the $pc\nin THIS_FRAME; these calls are not equivalent.\n\nThe reason these patches appear (or do) fix the regressions listed in\n[1] is that the tail call sniffer depends on identifying the address\nof a caller and a callee, GDB then looks for a tail-call sequence that\ntakes us from the caller address to the callee, if such a series is\nfound then tail-call frames are added.\n\nThe bug that was being hit, and which was address in patch [1] is that\nin order to find the address of the caller, GDB ended up creating a\nlazy register value for an inline frame with to frame-id.  The\nsolution in patch [1] is to instead take the address of the callee and\ntreat this as the address of the caller.  Getting the address of the\ncallee works, but we then end up looking for a tail-call series from\nthe callee to the callee, which obviously doesn't return any sane\nresults, so we don't insert any tail call frames.\n\nThe original patch [1] did cause some breakage, so patch [2] undid\npatch [1] in all cases except those where we had an inline frame with\nno frame-id.  It just so happens that there were no tests that fitted\nthis description _and_ which required tail-call frames to be\nsuccessfully spotted, as a result patch [2] appeared to work.\n\nThe new test inline-frame-tailcall.exp, exposes the flaw in patch [2].\n\nThis commit undoes patch [1] and [2], and replaces them with a new\nsolution, which is also different to the solution proposed in the\npython/22748 bug report.\n\nIn this solution I propose that we introduce some special case logic\nto value_of_register_lazy.  To understand what this logic is we must\nfirst look at how inline frames unwind registers, this is very simple,\nthey do this:\n\n  static struct value *\n  inline_frame_prev_register (struct frame_info *this_frame,\n                              void **this_cache, int regnum)\n  {\n    return get_frame_register_value (this_frame, regnum);\n  }\n\nAnd remember:\n\n  struct value *\n  get_frame_register_value (struct frame_info *frame, int regnum)\n  {\n    return frame_unwind_register_value (frame->next, regnum);\n  }\n\nSo in all cases, unwinding a register in an inline frame just asks the\nnext frame to unwind the register, this makes sense, as an inline\nframe doesn't really exist, when we unwind a register in an inline\nframe, we're really just asking the next frame for the value of the\nregister in the previous, non-inline frame.\n\nSo, if we assume that we only get into the missing frame-id situation\nwhen we try to unwind a register from an inline frame during the frame\nsniffing process, then we can change value_of_register_lazy to not\ncreate lazy register values for an inline frame.\n\nImagine this stack setup, where #1 is inline within #2.\n\n  #3 -> #2 -> #1 -> #0\n        \\______/\n         inline\n\nNow when trying to figure out the frame-id for #1, we need to compute\nthe frame-id for #2.  If the frame sniffer for #2 causes a lazy\nregister read in #2, either due to a Python Unwinder, or for the\ntail-call sniffer, then we call value_of_register_lazy passing in\nframe #2.\n\nIn value_of_register_lazy, we grab the next frame, which is #1, and we\nused to then ask for the frame-id of #1, which was not computed, and\nthis was our bug.\n\nNow, I propose we spot that #1 is an inline frame, and so lookup the\nnext frame of #1, which is #0.  As #0 is not inline it will have a\nvalid frame-id, and so we create a lazy register value using #0 as the\nnext-frame-id.  This will give us the exact same result we had\npreviously (thanks to the code we inspected above).\n\nEncoding into value_of_register_lazy the knowledge that reading an\ninline frame register will always just forward to the next frame\nfeels.... not ideal, but this seems like the cleanest solution to this\nrecursive frame-id computation/sniffing issue that appears to crop\nup.\n\nThe following two commits are fully reverted with this commit, these\ncorrespond to patches [1] and [2] respectively:\n\n  commit 5939967b355ba6a940887d19847b7893a4506067\n  Date:   Tue Apr 14 17:26:22 2020 -0300\n\n      Fix inline frame unwinding breakage\n\n  commit 991a3e2e9944a4b3a27bd989ac03c18285bd545d\n  Date:   Sat Apr 25 00:32:44 2020 -0300\n\n      Fix remaining inline/tailcall unwinding breakage for x86_64\n\ngdb/ChangeLog:\n\n\tPR python/22748\n\t* dwarf2/frame-tailcall.c (dwarf2_tailcall_sniffer_first): Remove\n\tspecial handling for inline frames.\n\t* findvar.c (value_of_register_lazy): Skip inline frames when\n\tcreating lazy register values.\n\t* frame.c (frame_id_computed_p): Delete definition.\n\t* frame.h (frame_id_computed_p): Delete declaration.\n\ngdb/testsuite/ChangeLog:\n\n\tPR python/22748\n\t* gdb.opt/inline-frame-tailcall.c: New file.\n\t* gdb.opt/inline-frame-tailcall.exp: New file.\n\t* gdb.python/py-unwind-inline.c: New file.\n\t* gdb.python/py-unwind-inline.exp: New file.\n\t* gdb.python/py-unwind-inline.py: New file.",
+    "tree": {
+      "sha": "fc0f9ad89c42b0f2e04ea1ce3438eb4e92ffaf6e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/fc0f9ad89c42b0f2e04ea1ce3438eb4e92ffaf6e"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "64cb3757a9df273b990adf4f28333324edc3cae8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/64cb3757a9df273b990adf4f28333324edc3cae8",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/64cb3757a9df273b990adf4f28333324edc3cae8"
+    }
+  ],
+  "stats": {
+    "total": 233,
+    "additions": 185,
+    "deletions": 48
+  },
+  "files": [
+    {
+      "sha": "c86d7e4647e45eb23919d3d3b5f37258f0d8ed0a",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75",
+      "patch": "@@ -1,3 +1,13 @@\n+2020-07-06  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\tPR python/22748\n+\t* dwarf2/frame-tailcall.c (dwarf2_tailcall_sniffer_first): Remove\n+\tspecial handling for inline frames.\n+\t* findvar.c (value_of_register_lazy): Skip inline frames when\n+\tcreating lazy register values.\n+\t* frame.c (frame_id_computed_p): Delete definition.\n+\t* frame.h (frame_id_computed_p): Delete declaration.\n+\n 2020-07-06  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* NEWS: Mention additions to Python API."
+    },
+    {
+      "sha": "2d219f13f9dddabd7b247de214b3e3a600202e99",
+      "filename": "gdb/dwarf2/frame-tailcall.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 36,
+      "changes": 37,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75/gdb/dwarf2/frame-tailcall.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75/gdb/dwarf2/frame-tailcall.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/frame-tailcall.c?ref=9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75",
+      "patch": "@@ -384,43 +384,8 @@ dwarf2_tailcall_sniffer_first (struct frame_info *this_frame,\n \n       prev_gdbarch = frame_unwind_arch (this_frame);\n \n-      /* The dwarf2 tailcall sniffer runs early, at the end of populating the\n-\t dwarf2 frame cache for the current frame.  If there exists inline\n-\t frames inner (next) to the current frame, there is a good possibility\n-\t of that inline frame not having a computed frame id yet.\n-\n-\t This is because computing such a frame id requires us to walk through\n-\t the frame chain until we find the first normal frame after the inline\n-\t frame and then compute the normal frame's id first.\n-\n-\t Some architectures' compilers generate enough register location\n-\t information for a dwarf unwinder to fetch PC without relying on inner\n-\t frames (x86_64 for example).  In this case the PC is retrieved\n-\t according to dwarf rules.\n-\n-\t But others generate less strict dwarf data for which assumptions are\n-\t made (like interpreting DWARF2_FRAME_REG_UNSPECIFIED as\n-\t DWARF2_FRAME_REG_SAME_VALUE).  For such cases, GDB may attempt to\n-\t create lazy values for registers, and those lazy values must be\n-\t created with a valid frame id, but we potentially have no valid id.\n-\n-\t So, to avoid breakage, if we see a dangerous situation with inline\n-\t frames without a computed id, use safer functions to retrieve the\n-\t current frame's PC.  Otherwise use the provided dwarf rules.  */\n-      frame_info *next_frame = get_next_frame (this_frame);\n-\n       /* Simulate frame_unwind_pc without setting this_frame->prev_pc.p.  */\n-      if (next_frame != nullptr && get_frame_type (next_frame) == INLINE_FRAME\n-\t  && !frame_id_computed_p (next_frame))\n-\t{\n-\t  /* The next frame is an inline frame and its frame id has not been\n-\t     computed yet.  */\n-\t  get_frame_register (this_frame, gdbarch_pc_regnum (prev_gdbarch),\n-\t\t\t      (gdb_byte *) &prev_pc);\n-\t  prev_pc = gdbarch_addr_bits_remove (prev_gdbarch, prev_pc);\n-\t}\n-      else\n-\tprev_pc = gdbarch_unwind_pc (prev_gdbarch, this_frame);\n+      prev_pc = gdbarch_unwind_pc (prev_gdbarch, this_frame);\n \n       /* call_site_find_chain can throw an exception.  */\n       chain = call_site_find_chain (prev_gdbarch, prev_pc, this_pc);"
+    },
+    {
+      "sha": "7e9dab567f64ea0bcf809f3f2e7efb10d8578e0e",
+      "filename": "gdb/findvar.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75/gdb/findvar.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75/gdb/findvar.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/findvar.c?ref=9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75",
+      "patch": "@@ -292,6 +292,14 @@ value_of_register_lazy (struct frame_info *frame, int regnum)\n \n   next_frame = get_next_frame_sentinel_okay (frame);\n \n+  /* In some cases NEXT_FRAME may not have a valid frame-id yet.  This can\n+     happen if we end up trying to unwind a register as part of the frame\n+     sniffer.  The only time that we get here without a valid frame-id is\n+     if NEXT_FRAME is an inline frame.  If this is the case then we can\n+     avoid getting into trouble here by skipping past the inline frames.  */\n+  while (get_frame_type (next_frame) == INLINE_FRAME)\n+    next_frame = get_next_frame_sentinel_okay (next_frame);\n+\n   /* We should have a valid next frame.  */\n   gdb_assert (frame_id_p (get_frame_id (next_frame)));\n "
+    },
+    {
+      "sha": "ac1016b083fc17a51373d51b875cb03bf5bc2b56",
+      "filename": "gdb/frame.c",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 8,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75/gdb/frame.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75/gdb/frame.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/frame.c?ref=9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75",
+      "patch": "@@ -687,14 +687,6 @@ frame_id_build_wild (CORE_ADDR stack_addr)\n   return id;\n }\n \n-bool\n-frame_id_computed_p (struct frame_info *frame)\n-{\n-  gdb_assert (frame != nullptr);\n-\n-  return frame->this_id.p != 0;\n-}\n-\n int\n frame_id_p (struct frame_id l)\n {"
+    },
+    {
+      "sha": "cfc15022ed5b0da93c853b372a53d68c2a8dc17e",
+      "filename": "gdb/frame.h",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 4,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75/gdb/frame.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75/gdb/frame.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/frame.h?ref=9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75",
+      "patch": "@@ -236,10 +236,6 @@ extern struct frame_id\n    as the special identifier address are set to indicate wild cards.  */\n extern struct frame_id frame_id_build_wild (CORE_ADDR stack_addr);\n \n-/* Returns true if FRAME's id has been computed.\n-   Returns false otherwise.  */\n-extern bool frame_id_computed_p (struct frame_info *frame);\n-\n /* Returns non-zero when L is a valid frame (a valid frame has a\n    non-zero .base).  The outermost frame is valid even without an\n    ID.  */"
+    },
+    {
+      "sha": "8eae1ab782add2eebda79611d5937c318878157a",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75",
+      "patch": "@@ -1,3 +1,12 @@\n+2020-07-06  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\tPR python/22748\n+\t* gdb.opt/inline-frame-tailcall.c: New file.\n+\t* gdb.opt/inline-frame-tailcall.exp: New file.\n+\t* gdb.python/py-unwind-inline.c: New file.\n+\t* gdb.python/py-unwind-inline.exp: New file.\n+\t* gdb.python/py-unwind-inline.py: New file.\n+\n 2020-07-06  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.python/py-arch-reg-groups.exp: New file."
+    },
+    {
+      "sha": "0cfe06dd2731599934a49289bd84265dbed4f906",
+      "filename": "gdb/testsuite/gdb.python/py-unwind-inline.c",
+      "status": "added",
+      "additions": 37,
+      "deletions": 0,
+      "changes": 37,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75/gdb/testsuite/gdb.python/py-unwind-inline.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75/gdb/testsuite/gdb.python/py-unwind-inline.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.python/py-unwind-inline.c?ref=9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75",
+      "patch": "@@ -0,0 +1,37 @@\n+/* Copyright 2019-2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+volatile int global_var;\n+\n+int  __attribute__ ((noinline))\n+bar ()\n+{\n+  return global_var;\n+}\n+\n+static inline int __attribute__ ((always_inline))\n+foo ()\n+{\n+  return bar ();\n+}\n+\n+int\n+main ()\n+{\n+  int ans;\n+  global_var = 0;\n+  ans = foo ();\n+  return ans;\n+}"
+    },
+    {
+      "sha": "f7c65f6afc83ef1c94be80808f2bbe5fe947701d",
+      "filename": "gdb/testsuite/gdb.python/py-unwind-inline.exp",
+      "status": "added",
+      "additions": 49,
+      "deletions": 0,
+      "changes": 49,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75/gdb/testsuite/gdb.python/py-unwind-inline.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75/gdb/testsuite/gdb.python/py-unwind-inline.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.python/py-unwind-inline.exp?ref=9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75",
+      "patch": "@@ -0,0 +1,49 @@\n+# Copyright (C) 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# This script tests GDB's handling of using a Python unwinder in the\n+# presence of inlined frames.\n+\n+load_lib gdb-python.exp\n+\n+standard_testfile\n+\n+if { [prepare_for_testing \"failed to prepare\" ${testfile} ${srcfile} \\\n+\t  debug] } {\n+    return -1\n+}\n+\n+# Skip all tests if Python scripting is not enabled.\n+if { [skip_python_tests] } { continue }\n+\n+# The following tests require execution.\n+if ![runto_main] then {\n+    fail \"can't run to main\"\n+    return 0\n+}\n+\n+set pyfile [gdb_remote_download host ${srcdir}/${subdir}/${testfile}.py]\n+\n+gdb_breakpoint \"foo\"\n+\n+gdb_test \"source ${pyfile}\" \"Python script imported\" \\\n+        \"import python scripts\"\n+\n+gdb_continue_to_breakpoint \"foo\"\n+\n+gdb_test_sequence \"backtrace\"  \"backtrace with dummy unwinder\" {\n+    \"\\\\r\\\\n#0  foo \\\\(\\\\)\"\n+    \"\\\\r\\\\n#1  main \\\\(\\\\)\"\n+}"
+    },
+    {
+      "sha": "7206a0b2830bdd09bc4ba1456799b3ba1ddda2c9",
+      "filename": "gdb/testsuite/gdb.python/py-unwind-inline.py",
+      "status": "added",
+      "additions": 71,
+      "deletions": 0,
+      "changes": 71,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75/gdb/testsuite/gdb.python/py-unwind-inline.py",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75/gdb/testsuite/gdb.python/py-unwind-inline.py",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.python/py-unwind-inline.py?ref=9fc501fdfe5dc82b5e5388cde4ac2ab70ed69d75",
+      "patch": "@@ -0,0 +1,71 @@\n+# Copyright (C) 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# A dummy stack unwinder used for testing the Python unwinders when we\n+# have inline frames.  This unwinder will never claim any frames,\n+# instead, all it does it try to read all registers possible target\n+# registers as part of the frame sniffing process..\n+\n+import gdb\n+from gdb.unwinder import Unwinder\n+\n+apb_global = None\n+\n+class dummy_unwinder (Unwinder):\n+    \"\"\" A dummy unwinder that looks at a bunch of registers as part of\n+    the unwinding process.\"\"\"\n+\n+    class frame_id (object):\n+        \"\"\" Basic frame id.\"\"\"\n+\n+        def __init__ (self, sp, pc):\n+            \"\"\" Create the frame id.\"\"\"\n+            self.sp = sp\n+            self.pc = pc\n+\n+    def __init__ (self):\n+        \"\"\"Create the unwinder.\"\"\"\n+        Unwinder.__init__ (self, \"dummy stack unwinder\")\n+        self.void_ptr_t = gdb.lookup_type(\"void\").pointer()\n+        self.regs = None\n+\n+    def get_regs (self, pending_frame):\n+        \"\"\"Return a list of register names that should be read.  Only\n+        gathers the list once, then caches the result.\"\"\"\n+        if (self.regs != None):\n+            return self.regs\n+\n+        # Collect the names of all registers to read.\n+        self.regs = list (pending_frame.architecture ()\n+                          .register_names ())\n+\n+        return self.regs\n+\n+    def __call__ (self, pending_frame):\n+        \"\"\"Actually performs the unwind, or at least sniffs this frame\n+        to see if the unwinder should claim it, which is never does.\"\"\"\n+        try:\n+            for r in (self.get_regs (pending_frame)):\n+                v = pending_frame.read_register (r).cast (self.void_ptr_t)\n+        except:\n+            print (\"Dummy unwinder, exception\")\n+            raise\n+\n+        return None\n+\n+# Register the ComRV stack unwinder.\n+gdb.unwinder.register_unwinder (None, dummy_unwinder (), True)\n+\n+print (\"Python script imported\")"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "sha": "8152e0407c25612c6a8079cc8e1a5c1fe14afdbf",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ODE1MmUwNDA3YzI1NjEyYzZhODA3OWNjOGUxYTVjMWZlMTRhZmRiZg==",
+  "commit": {
+    "author": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2020-12-08T06:39:01Z"
+    },
+    "committer": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2020-12-10T02:43:18Z"
+    },
+    "message": "RISC-V: Dump CSR according to the elf privileged spec attributes.\n\nopcodes/\n    * disassemble.h (riscv_get_disassembler): Declare.\n    * disassemble.c (disassembler): Changed to riscv_get_disassembler.\n    * riscv-dis.c (riscv_get_disassembler): Check the elf privileged spec\n    attributes before calling print_insn_riscv.\n    (parse_riscv_dis_option): Same as the assembler, the priority of elf\n    attributes are higher than the options.  If we find the privileged\n    attributes, but the -Mpriv-spec= is different, then output error/warning\n    and still use the elf attributes set.",
+    "tree": {
+      "sha": "daa8aa52a6cb7ed7f284c8ea31019af9d502badf",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/daa8aa52a6cb7ed7f284c8ea31019af9d502badf"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/8152e0407c25612c6a8079cc8e1a5c1fe14afdbf",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8152e0407c25612c6a8079cc8e1a5c1fe14afdbf",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/8152e0407c25612c6a8079cc8e1a5c1fe14afdbf",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8152e0407c25612c6a8079cc8e1a5c1fe14afdbf/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "729a53530e86972d1143553a415db34e6e01d5d2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/729a53530e86972d1143553a415db34e6e01d5d2",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/729a53530e86972d1143553a415db34e6e01d5d2"
+    }
+  ],
+  "stats": {
+    "total": 51,
+    "additions": 47,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "b3801196591a40876107635195bf586d823c9098",
+      "filename": "opcodes/ChangeLog",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8152e0407c25612c6a8079cc8e1a5c1fe14afdbf/opcodes/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8152e0407c25612c6a8079cc8e1a5c1fe14afdbf/opcodes/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/ChangeLog?ref=8152e0407c25612c6a8079cc8e1a5c1fe14afdbf",
+      "patch": "@@ -1,3 +1,14 @@\n+2020-12-10  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* disassemble.h (riscv_get_disassembler): Declare.\n+\t* disassemble.c (disassembler): Changed to riscv_get_disassembler.\n+\t* riscv-dis.c (riscv_get_disassembler): Check the elf privileged spec\n+\tattributes before calling print_insn_riscv.\n+\t(parse_riscv_dis_option): Same as the assembler, the priority of elf\n+\tattributes are higher than the options.  If we find the privileged\n+\tattributes, but the -Mpriv-spec= is different, then output error/warning\n+\tand still use the elf attributes set.\n+\n 2020-12-10  Nelson Chu  <nelson.chu@sifive.com>\n \n \t* riscv-opc.c (riscv_opcodes): Control fence.i and csr instructions by"
+    },
+    {
+      "sha": "48bc558fe0212ba7fb4f0536431e5df9c84eb0eb",
+      "filename": "opcodes/disassemble.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8152e0407c25612c6a8079cc8e1a5c1fe14afdbf/opcodes/disassemble.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8152e0407c25612c6a8079cc8e1a5c1fe14afdbf/opcodes/disassemble.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/disassemble.c?ref=8152e0407c25612c6a8079cc8e1a5c1fe14afdbf",
+      "patch": "@@ -402,7 +402,7 @@ disassembler (enum bfd_architecture a,\n #endif\n #ifdef ARCH_riscv\n     case bfd_arch_riscv:\n-      disassemble = print_insn_riscv;\n+      disassemble = riscv_get_disassembler (abfd);\n       break;\n #endif\n #ifdef ARCH_rl78"
+    },
+    {
+      "sha": "a47071fc587152061604b7034a42c5b42171f3e1",
+      "filename": "opcodes/disassemble.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8152e0407c25612c6a8079cc8e1a5c1fe14afdbf/opcodes/disassemble.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8152e0407c25612c6a8079cc8e1a5c1fe14afdbf/opcodes/disassemble.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/disassemble.h?ref=8152e0407c25612c6a8079cc8e1a5c1fe14afdbf",
+      "patch": "@@ -103,6 +103,7 @@ extern int print_insn_z8002\t\t(bfd_vma, disassemble_info *);\n \n extern disassembler_ftype csky_get_disassembler (bfd *);\n extern disassembler_ftype rl78_get_disassembler (bfd *);\n+extern disassembler_ftype riscv_get_disassembler (bfd *);\n \n extern void ATTRIBUTE_NORETURN opcodes_assert (const char *, int);\n "
+    },
+    {
+      "sha": "ca3b110a027cd78ac96d3b6f659c877777d146a1",
+      "filename": "opcodes/riscv-dis.c",
+      "status": "modified",
+      "additions": 34,
+      "deletions": 3,
+      "changes": 37,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8152e0407c25612c6a8079cc8e1a5c1fe14afdbf/opcodes/riscv-dis.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8152e0407c25612c6a8079cc8e1a5c1fe14afdbf/opcodes/riscv-dis.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/riscv-dis.c?ref=8152e0407c25612c6a8079cc8e1a5c1fe14afdbf",
+      "patch": "@@ -99,9 +99,17 @@ parse_riscv_dis_option (const char *option)\n   value = equal + 1;\n   if (strcmp (option, \"priv-spec\") == 0)\n     {\n-      if (!riscv_get_priv_spec_class (value, &default_priv_spec))\n-       opcodes_error_handler (_(\"unknown privilege spec set by %s=%s\"),\n-                              option, value);\n+      enum riscv_priv_spec_class priv_spec = PRIV_SPEC_CLASS_NONE;\n+      if (!riscv_get_priv_spec_class (value, &priv_spec))\n+\topcodes_error_handler (_(\"unknown privilege spec set by %s=%s\"),\n+\t\t\t       option, value);\n+      else if (default_priv_spec == PRIV_SPEC_CLASS_NONE)\n+\tdefault_priv_spec = priv_spec;\n+      else if (default_priv_spec != priv_spec)\n+\topcodes_error_handler (_(\"mis-matched privilege spec set by %s=%s, \"\n+\t\t\t\t \"the elf privilege attribute is %s\"),\n+\t\t\t       option, value,\n+\t\t\t       riscv_get_priv_spec_name (default_priv_spec));\n     }\n   else\n     {\n@@ -582,6 +590,29 @@ print_insn_riscv (bfd_vma memaddr, struct disassemble_info *info)\n   return riscv_disassemble_insn (memaddr, insn, info);\n }\n \n+disassembler_ftype\n+riscv_get_disassembler (bfd *abfd)\n+{\n+  /* If -Mpriv-spec= isn't set, then try to set it by checking the elf\n+     privileged attributes.  */\n+  if (abfd)\n+    {\n+      const char *sec_name = get_elf_backend_data (abfd)->obj_attrs_section;\n+      if (bfd_get_section_by_name (abfd, sec_name) != NULL)\n+        {\n+\t  obj_attribute *attr = elf_known_obj_attributes_proc (abfd);\n+\t  unsigned int Tag_a = Tag_RISCV_priv_spec;\n+\t  unsigned int Tag_b = Tag_RISCV_priv_spec_minor;\n+\t  unsigned int Tag_c = Tag_RISCV_priv_spec_revision;\n+\t  riscv_get_priv_spec_class_from_numbers (attr[Tag_a].i,\n+\t\t\t\t\t\t  attr[Tag_b].i,\n+\t\t\t\t\t\t  attr[Tag_c].i,\n+\t\t\t\t\t\t  &default_priv_spec);\n+        }\n+    }\n+   return print_insn_riscv;\n+}\n+\n /* Prevent use of the fake labels that are generated as part of the DWARF\n    and for relaxable relocations in the assembler.  */\n "
+    }
+  ]
+}

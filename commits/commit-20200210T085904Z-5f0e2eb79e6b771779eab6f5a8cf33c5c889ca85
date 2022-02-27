@@ -1,0 +1,72 @@
+{
+  "sha": "5f0e2eb79e6b771779eab6f5a8cf33c5c889ca85",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NWYwZTJlYjc5ZTZiNzcxNzc5ZWFiNmY1YThjZjMzYzVjODg5Y2E4NQ==",
+  "commit": {
+    "author": {
+      "name": "Maciej W. Rozycki",
+      "email": "macro@wdc.com",
+      "date": "2020-02-10T08:59:04Z"
+    },
+    "committer": {
+      "name": "Maciej W. Rozycki",
+      "email": "macro@wdc.com",
+      "date": "2020-02-10T08:59:04Z"
+    },
+    "message": "GDB/testsuite: Fix a catastrophic step-over-no-symbols.exp failure\n\nFix a catastrophic failure in gdb.base/step-over-no-symbols.exp where\nremote target communication issues cause the value of the PC retrieved\nto be empty:\n\n(gdb) FAIL: gdb.base/step-over-no-symbols.exp: displaced=off: stepi\np /x $pc\nRemote 'g' packet reply is too long (expected 264 bytes, got 532 bytes): 00000000000000002a6f61551500000080faffff3f0000000028010000000000b03857551500000060ad5f5515000000906e615515000000802401000000000090faffff3f00000000000000000000000100000000000000e8fbffff3f000000f8fbffff3f0000000000000000000000b8faffff3f0000008a05010000000000589c6f551500000056424d40435c2f7c1809575515000000f0e0baaa2a0000000000000000000000f0ffbaaa2a000000f0e0baaa2a0000006804baaa2a000000000000000000000000000000000000007053baaa2a0000008252b2aa2a00000090fe01000000000048e056551500000004000000000000004000000000000000920501000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000xxxxxxxxxxxxxxxx00000000\n(gdb) FAIL: gdb.base/step-over-no-symbols.exp: displaced=off: get after PC\nERROR: tcl error sourcing .../gdb/testsuite/gdb.base/step-over-no-symbols.exp.\nERROR: missing operand at _@_\nin expression \" _@_!= \"\n    (parsing expression \" != \")\n    invoked from within\n\"expr $before_addr != $after_addr\"\n    (\"uplevel\" body line 1)\n    invoked from within\n\"uplevel 1 expr $condition\"\n    (procedure \"gdb_assert\" line 6)\n    invoked from within\n\"gdb_assert {$before_addr != $after_addr} \"advanced\"\"\n    (procedure \"test_step_over\" line 36)\n    invoked from within\n\"test_step_over $displaced\"\n    (\"uplevel\" body line 2)\n    invoked from within\n\"uplevel 1 $body\"\n    invoked from within\n\"with_test_prefix \"displaced=$displaced\" {\n\ttest_step_over $displaced\n    }\"\n    (\"foreach\" body line 6)\n    invoked from within\n\"foreach displaced { \"off\" \"on\" \"auto\" } {\n    if { $displaced != \"off\" && ![support_displaced_stepping] } {\n\tcontinue\n    }\n\n    with_test_prefix \"dis...\"\n    (file \".../gdb/testsuite/gdb.base/step-over-no-symbols.exp\" line 84)\n    invoked from within\n\"source .../gdb/testsuite/gdb.base/step-over-no-symbols.exp\"\n    (\"uplevel\" body line 1)\n    invoked from within\n\"uplevel #0 source .../gdb/testsuite/gdb.base/step-over-no-symbols.exp\"\n    invoked from within\n\"catch \"uplevel #0 source $test_file_name\"\"\nRemote debugging from host xxx.xxx.xxx.xxx, port 47130\nmonitor exit\nKilling process(es): 1092\nRemote communication error.  Target disconnected.: Connection reset by peer.\n(gdb)\n\nTo do so verify first, before making an arithmetic comparison, that the\nvalues to compare are actually integers (using a string comparison would\nresult in a false PASS if both operands were empty, as in this case),\nmaking the test script proceed normally:\n\n(gdb) FAIL: gdb.base/step-over-no-symbols.exp: displaced=off: stepi\np /x $pc\nRemote 'g' packet reply is too long (expected 264 bytes, got 532 bytes): 00000000000000002a6f61551500000080faffff3f0000000028010000000000b03857551500000060ad5f5515000000906e615515000000802401000000000090faffff3f00000000000000000000000100000000000000e8fbffff3f000000f8fbffff3f0000000000000000000000b8faffff3f0000008a05010000000000589c6f5515000000424d40435c2f7c7c1809575515000000f0e0baaa2a0000000000000000000000f0ffbaaa2a000000f0e0baaa2a0000006804baaa2a000000000000000000000000000000000000007053baaa2a0000008252b2aa2a00000090fe01000000000048e056551500000004000000000000004000000000000000920501000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000xxxxxxxxxxxxxxxx00000000\n(gdb) FAIL: gdb.base/step-over-no-symbols.exp: displaced=off: get after PC\nFAIL: gdb.base/step-over-no-symbols.exp: displaced=off: advanced\nRemote debugging from host xxx.xxx.xxx.xxx, port 48404\nmonitor exit\nKilling process(es): 1795\nRemote communication error.  Target disconnected.: Connection reset by peer.\n(gdb)\n\nNote the double curly braces, to take advantage of `&&' operator's lazy\nevaluation.\n\n\tgdb/testsuite/\n\t* gdb.base/step-over-no-symbols.exp: Verify that $before_addr\n\tand $after_addr are both integers before making a comparison.",
+    "tree": {
+      "sha": "c1389c72a2187e9be219898256c3b3585dbbc2e7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c1389c72a2187e9be219898256c3b3585dbbc2e7"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/5f0e2eb79e6b771779eab6f5a8cf33c5c889ca85",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5f0e2eb79e6b771779eab6f5a8cf33c5c889ca85",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/5f0e2eb79e6b771779eab6f5a8cf33c5c889ca85",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5f0e2eb79e6b771779eab6f5a8cf33c5c889ca85/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "33176d912add7680277ad5e18af0e6303d9a7af8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/33176d912add7680277ad5e18af0e6303d9a7af8",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/33176d912add7680277ad5e18af0e6303d9a7af8"
+    }
+  ],
+  "stats": {
+    "total": 9,
+    "additions": 8,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "ef439953052791695c8ccdd0b8fd7d295590e2bc",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5f0e2eb79e6b771779eab6f5a8cf33c5c889ca85/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5f0e2eb79e6b771779eab6f5a8cf33c5c889ca85/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=5f0e2eb79e6b771779eab6f5a8cf33c5c889ca85",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-02-10  Maciej W. Rozycki  <macro@wdc.com>\n+\n+\t* gdb.base/step-over-no-symbols.exp: Verify that $before_addr\n+\tand $after_addr are both integers before making a comparison.\n+\n 2020-02-09  Tom de Vries  <tdevries@suse.de>\n \n \t* gdb.base/many-headers.exp: Echo gdb command to gdb.log.  Capture gdb"
+    },
+    {
+      "sha": "bc715d7afed15926526374905daaf81973cc8191",
+      "filename": "gdb/testsuite/gdb.base/step-over-no-symbols.exp",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5f0e2eb79e6b771779eab6f5a8cf33c5c889ca85/gdb/testsuite/gdb.base/step-over-no-symbols.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5f0e2eb79e6b771779eab6f5a8cf33c5c889ca85/gdb/testsuite/gdb.base/step-over-no-symbols.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/step-over-no-symbols.exp?ref=5f0e2eb79e6b771779eab6f5a8cf33c5c889ca85",
+      "patch": "@@ -78,7 +78,9 @@ proc test_step_over { displaced } {\n \n     set after_addr [get_pc \"get after PC\"]\n \n-    gdb_assert {$before_addr != $after_addr} \"advanced\"\n+    gdb_assert {{[string is integer -strict $before_addr] \\\n+\t\t && [string is integer -strict $after_addr] \\\n+\t\t && $before_addr != $after_addr}} \"advanced\"\n }\n \n foreach displaced { \"off\" \"on\" \"auto\" } {"
+    }
+  ]
+}

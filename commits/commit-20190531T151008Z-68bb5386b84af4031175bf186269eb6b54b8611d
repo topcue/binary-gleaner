@@ -1,0 +1,120 @@
+{
+  "sha": "68bb5386b84af4031175bf186269eb6b54b8611d",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NjhiYjUzODZiODRhZjQwMzExNzViZjE4NjI2OWViNmI1NGI4NjExZA==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-04-20T12:02:29Z"
+    },
+    "committer": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-05-31T15:10:08Z"
+    },
+    "message": "Add previous_saved_command_line to allow a command to repeat a previous command.\n\nCurrently, a previous command can be repeated when the user types an\nempty line.  This is implemented in handle_line_of_input by\nreturning saved_command_line in case an empty line has been input.\n\nIf we want a command to repeat the previous command, we need to save\nthe previous saved_command_line, as when a command runs, the saved_command_line\nalready contains the current command line of the command being executed.\n\nAs suggested by Tom, the previous_saved_command_line is made static.\nAt the same time, saved_command_line is also made static.\nThe support functions/variables for the repeat command logic are now all\nlocated inside top.c.\n\ngdb/ChangeLog\n2019-05-31  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n\n\t* top.h (saved_command_line): Remove declaration.\n\t* top.c (previous_saved_command_line, previous_repeat_arguments):\n\tNew variables.\n\t(saved_command_line): Make static, define together with other\n\t'repeat variables'.\n\t(dont_repeat): Clear repeat_arguments.\n\t(repeat_previous, get_saved_command_line, save_command_line):\n\tNew functions.\n\t(gdb_init): Initialize saved_command_line\n\tand previous_saved_command_line.\n\t* main.c (captured_main_1): Remove saved_command_line initialization.\n\t* event-top.c (handle_line_of_input): Update to use\n\tthe new 'repeat' related functions instead of direct access to\n\tsaved_command_line.\n\t* command.h (repeat_previous, get_saved_command_line,\n\tsave_command_line): New declarations.\n\t(dont_repeat): Add comment.",
+    "tree": {
+      "sha": "b3b9b003d4b9f692f2437a7afb86cd4f7efd1869",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/b3b9b003d4b9f692f2437a7afb86cd4f7efd1869"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/68bb5386b84af4031175bf186269eb6b54b8611d",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/68bb5386b84af4031175bf186269eb6b54b8611d",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/68bb5386b84af4031175bf186269eb6b54b8611d",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/68bb5386b84af4031175bf186269eb6b54b8611d/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "a0486bac41d6ce47f27795a5abbca5cc53ddba00",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a0486bac41d6ce47f27795a5abbca5cc53ddba00",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/a0486bac41d6ce47f27795a5abbca5cc53ddba00"
+    }
+  ],
+  "stats": {
+    "total": 149,
+    "additions": 125,
+    "deletions": 24
+  },
+  "files": [
+    {
+      "sha": "eb2d0f41ce4d11da89f9d5f1ab6bbde018921440",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 0,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/68bb5386b84af4031175bf186269eb6b54b8611d/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/68bb5386b84af4031175bf186269eb6b54b8611d/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=68bb5386b84af4031175bf186269eb6b54b8611d",
+      "patch": "@@ -1,3 +1,23 @@\n+2019-05-31  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n+\n+\t* top.h (saved_command_line): Remove declaration.\n+\t* top.c (previous_saved_command_line, previous_repeat_arguments):\n+\tNew variables.\n+\t(saved_command_line): Make static, define together with other\n+\t'repeat variables'.\n+\t(dont_repeat): Clear repeat_arguments.\n+\t(repeat_previous, get_saved_command_line, save_command_line):\n+\tNew functions.\n+\t(gdb_init): Initialize saved_command_line\n+\tand previous_saved_command_line.\n+\t* main.c (captured_main_1): Remove saved_command_line initialization.\n+\t* event-top.c (handle_line_of_input): Update to use\n+\tthe new 'repeat' related functions instead of direct access to\n+\tsaved_command_line.\n+\t* command.h (repeat_previous, get_saved_command_line,\n+\tsave_command_line): New declarations.\n+\t(dont_repeat): Add comment.\n+\n 2019-05-30  Tom Tromey  <tromey@adacore.com>\n \n \t* gdbtypes.h (struct range_bounds) <flag_upper_bound_is_count>:"
+    },
+    {
+      "sha": "26e402900892fa5a855bb20ba7ac51ce98de2681",
+      "filename": "gdb/command.h",
+      "status": "modified",
+      "additions": 35,
+      "deletions": 1,
+      "changes": 36,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/68bb5386b84af4031175bf186269eb6b54b8611d/gdb/command.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/68bb5386b84af4031175bf186269eb6b54b8611d/gdb/command.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/command.h?ref=68bb5386b84af4031175bf186269eb6b54b8611d",
+      "patch": "@@ -448,7 +448,29 @@ extern void cmd_show_list (struct cmd_list_element *, int, const char *);\n \n extern void error_no_arg (const char *) ATTRIBUTE_NORETURN;\n \n-extern void dont_repeat (void);\n+\n+/* Command line saving and repetition.\n+   Each input line executed is saved to possibly be repeated either\n+   when the user types an empty line, or be repeated by a command\n+   that wants to repeat the previously executed command.  The below\n+   functions control command repetition.  */\n+\n+/* Commands call dont_repeat if they do not want to be repeated by null\n+   lines or by repeat_previous ().  */\n+\n+extern void dont_repeat ();\n+\n+/* Commands call repeat_previous if they want to repeat the previous command.\n+   Such commands that repeat the previous command must indicate\n+   to not repeat themselves, to avoid recursive repeat.\n+   repeat_previous will mark the current command as not repeating,\n+   and will ensure get_saved_command_line returns the previous command,\n+   so that the currently executing command can repeat it.  */\n+\n+extern void repeat_previous ();\n+\n+/* Prevent dont_repeat from working, and return a cleanup that\n+   restores the previous state.  */\n \n extern scoped_restore_tmpl<int> prevent_dont_repeat (void);\n \n@@ -457,6 +479,18 @@ extern scoped_restore_tmpl<int> prevent_dont_repeat (void);\n \n extern void set_repeat_arguments (const char *args);\n \n+/* Returns the saved command line to repeat.\n+   When a command is being executed, this is the currently executing\n+   command line, unless the currently executing command has called\n+   repeat_previous (): in this case, get_saved_command_line returns\n+   the previously saved command line.  */\n+\n+extern char *get_saved_command_line ();\n+\n+/* Takes a copy of CMD, for possible repetition.  */\n+\n+extern void save_command_line (const char *cmd);\n+\n /* Used to mark commands that don't do anything.  If we just leave the\n    function field NULL, the command is interpreted as a help topic, or\n    as a class of commands.  */"
+    },
+    {
+      "sha": "3facb38aae8282acf160d45301eaef525f7e98cf",
+      "filename": "gdb/event-top.c",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 9,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/68bb5386b84af4031175bf186269eb6b54b8611d/gdb/event-top.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/68bb5386b84af4031175bf186269eb6b54b8611d/gdb/event-top.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/event-top.c?ref=68bb5386b84af4031175bf186269eb6b54b8611d",
+      "patch": "@@ -634,11 +634,10 @@ command_line_append_input_line (struct buffer *cmd_line_buffer, const char *rl)\n    If REPEAT, handle command repetitions:\n \n      - If the input command line is NOT empty, the command returned is\n-       copied into the global 'saved_command_line' var so that it can\n-       be repeated later.\n+       saved using save_command_line () so that it can be repeated later.\n \n-     - OTOH, if the input command line IS empty, return the previously\n-       saved command instead of the empty input line.\n+     - OTOH, if the input command line IS empty, return the saved\n+       command instead of the empty input line.\n */\n \n char *\n@@ -673,7 +672,7 @@ handle_line_of_input (struct buffer *cmd_line_buffer,\n   server_command = startswith (cmd, SERVER_COMMAND_PREFIX);\n   if (server_command)\n     {\n-      /* Note that we don't set `saved_command_line'.  Between this\n+      /* Note that we don't call `save_command_line'.  Between this\n          and the check in dont_repeat, this insures that repeating\n          will still do the right thing.  */\n       return cmd + strlen (SERVER_COMMAND_PREFIX);\n@@ -713,7 +712,7 @@ handle_line_of_input (struct buffer *cmd_line_buffer,\n   for (p1 = cmd; *p1 == ' ' || *p1 == '\\t'; p1++)\n     ;\n   if (repeat && *p1 == '\\0')\n-    return saved_command_line;\n+    return get_saved_command_line ();\n \n   /* Add command to history if appropriate.  Note: lines consisting\n      solely of comments are also added to the command history.  This\n@@ -728,9 +727,8 @@ handle_line_of_input (struct buffer *cmd_line_buffer,\n   /* Save into global buffer if appropriate.  */\n   if (repeat)\n     {\n-      xfree (saved_command_line);\n-      saved_command_line = xstrdup (cmd);\n-      return saved_command_line;\n+      save_command_line (cmd);\n+      return get_saved_command_line ();\n     }\n   else\n     return cmd;"
+    },
+    {
+      "sha": "ef9bfe8fc6925c49725b70804544e43e8cbe0a62",
+      "filename": "gdb/main.c",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/68bb5386b84af4031175bf186269eb6b54b8611d/gdb/main.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/68bb5386b84af4031175bf186269eb6b54b8611d/gdb/main.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/main.c?ref=68bb5386b84af4031175bf186269eb6b54b8611d",
+      "patch": "@@ -499,8 +499,6 @@ captured_main_1 (struct captured_main_args *context)\n \n   notice_open_fds ();\n \n-  saved_command_line = (char *) xstrdup (\"\");\n-\n #ifdef __MINGW32__\n   /* Ensure stderr is unbuffered.  A Cygwin pty or pipe is implemented\n      as a Windows pipe, and Windows buffers on pipes.  */"
+    },
+    {
+      "sha": "518c5ebb5f0dd5088f9463c2e13a4795d71bef0b",
+      "filename": "gdb/top.c",
+      "status": "modified",
+      "additions": 63,
+      "deletions": 11,
+      "changes": 74,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/68bb5386b84af4031175bf186269eb6b54b8611d/gdb/top.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/68bb5386b84af4031175bf186269eb6b54b8611d/gdb/top.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/top.c?ref=68bb5386b84af4031175bf186269eb6b54b8611d",
+      "patch": "@@ -134,8 +134,26 @@ show_confirm (struct ui_file *file, int from_tty,\n char *current_directory;\n \n /* The last command line executed on the console.  Used for command\n-   repetitions.  */\n-char *saved_command_line;\n+   repetitions when the user enters an empty line.  */\n+\n+static char *saved_command_line;\n+\n+/* If not NULL, the arguments that should be passed if\n+   saved_command_line is repeated.  */\n+\n+static const char *repeat_arguments;\n+\n+/* The previous last command line executed on the console.  Used for command\n+   repetitions when a command wants to relaunch the previously launched\n+   command.  We need this as when a command is running, saved_command_line\n+   already contains the line of the currently executing command.  */\n+\n+char *previous_saved_command_line;\n+\n+/* If not NULL, the arguments that should be passed if the\n+   previous_saved_command_line is repeated.  */\n+\n+static const char *previous_repeat_arguments;\n \n /* Nonzero if the current command is modified by \"server \".  This\n    affects things like recording into the command history, commands\n@@ -521,11 +539,6 @@ maybe_wait_sync_command_done (int was_sync)\n     wait_sync_command_done ();\n }\n \n-/* If not NULL, the arguments that should be passed if the current\n-   command is repeated.  */\n-\n-static const char *repeat_arguments;\n-\n /* See command.h.  */\n \n void\n@@ -695,7 +708,7 @@ execute_command_to_string (const char *p, int from_tty,\n \n static int suppress_dont_repeat = 0;\n \n-/* Commands call this if they do not want to be repeated by null lines.  */\n+/* See command.h  */\n \n void\n dont_repeat (void)\n@@ -709,18 +722,54 @@ dont_repeat (void)\n      thing read from stdin in line and don't want to delete it.  Null\n      lines won't repeat here in any case.  */\n   if (ui->instream == ui->stdin_stream)\n-    *saved_command_line = 0;\n+    {\n+      *saved_command_line = 0;\n+      repeat_arguments = NULL;\n+    }\n+}\n+\n+/* See command.h  */\n+\n+void\n+repeat_previous ()\n+{\n+  /* Do not repeat this command, as this command is a repeating command.  */\n+  dont_repeat ();\n+\n+  /* We cannot free saved_command_line, as this line is being executed,\n+     so swap it with previous_saved_command_line.  */\n+  std::swap (previous_saved_command_line, saved_command_line);\n+  std::swap (previous_repeat_arguments, repeat_arguments);\n }\n \n-/* Prevent dont_repeat from working, and return a cleanup that\n-   restores the previous state.  */\n+/* See command.h.  */\n \n scoped_restore_tmpl<int>\n prevent_dont_repeat (void)\n {\n   return make_scoped_restore (&suppress_dont_repeat, 1);\n }\n \n+/* See command.h.  */\n+\n+char *\n+get_saved_command_line ()\n+{\n+  return saved_command_line;\n+}\n+\n+/* See command.h.  */\n+\n+void\n+save_command_line (const char *cmd)\n+{\n+  xfree (previous_saved_command_line);\n+  previous_saved_command_line = saved_command_line;\n+  previous_repeat_arguments = repeat_arguments;\n+  saved_command_line = xstrdup (cmd);\n+  repeat_arguments = NULL;\n+}\n+\n \f\n /* Read a line from the stream \"instream\" without command line editing.\n \n@@ -2179,6 +2228,9 @@ The second argument is the terminal the UI runs on.\\n\"), &cmdlist);\n void\n gdb_init (char *argv0)\n {\n+  saved_command_line = xstrdup (\"\");\n+  previous_saved_command_line = xstrdup (\"\");\n+\n   if (pre_init_ui_hook)\n     pre_init_ui_hook ();\n "
+    },
+    {
+      "sha": "aab03c13d69b08460d37e46aae9ff30d5a1d20ac",
+      "filename": "gdb/top.h",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/68bb5386b84af4031175bf186269eb6b54b8611d/gdb/top.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/68bb5386b84af4031175bf186269eb6b54b8611d/gdb/top.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/top.h?ref=68bb5386b84af4031175bf186269eb6b54b8611d",
+      "patch": "@@ -217,7 +217,6 @@ extern void ui_register_input_event_handler (struct ui *ui);\n extern void ui_unregister_input_event_handler (struct ui *ui);\n \n /* From top.c.  */\n-extern char *saved_command_line;\n extern int confirm;\n extern int inhibit_gdbinit;\n extern const char gdbinit[];"
+    }
+  ]
+}

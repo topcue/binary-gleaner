@@ -1,0 +1,110 @@
+{
+  "sha": "4838e44c8fcb2ce2316294a6f30b8d40343c36af",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NDgzOGU0NGM4ZmNiMmNlMjMxNjI5NGE2ZjMwYjhkNDAzNDNjMzZhZg==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2019-06-25T18:22:30Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2019-06-25T18:22:30Z"
+    },
+    "message": "arm-tdep: sort mapping symbols after parsing all minimal symbols\n\nSomebody on IRC reported a while ago that loading a big ARM program in\nGDB was very slow.  Their profiling pointed out that a big amount of\ntime was spent in\n\n    VEC_safe_insert (arm_mapping_symbol_s, *map_p, idx, &new_map_sym);\n\nI was able to verify this as well.\n\nARM mapping symbols are special ELF symbols named $a, $d and $t\nindicating that symbols starting at this address up to the next mapping\nsymbol (in terms of address) are of type \"ARM code\", \"data\" and \"Thumb\ncode\", respectively.  GDB records these symbols in vectors (one for each\nsection) in arm-tdep.c.  These vectors are sorted by symbol address, to\nallow for quick lookup.  The current approach is to insert new symbols\nat the right position to keep the vectors sorted at all time.  This is\ndone based on the assumption that mapping symbols come already almost\nsorted from the binary, as explains this comment in\narm_record_special_symbol:\n\n  /* Assume that most mapping symbols appear in order of increasing\n     value.  If they were randomly distributed, it would be faster to\n     always push here and then sort at first use.  */\n\nWell, it turns out this is not the case.  The original reporter\nmentioned that mapping symbols in their binaries are not nearly sorted,\nand this is not my experience either (at least in the binary used in the\nbenchmark below).  So if the values don't come nearly sorted, doing\ninsertions to keep the vectors sorted ends up being of the order of\nnumber_of_mapping_symbols ^ 2.\n\nThis patch changes it just like the comment above says, to just append\nto the vector in arm_record_special_symbol and sort the vector on first\nuse.\n\nBenchmark\n=========\n\nI have done some benchmarks using an --enable-targets=all GDB, compiled\nwith -O2, running on x86-64 and parsing file\ndce18d22e5c2ecb6a3a57372f4e6ef614130bc.debug from this package:\n\n  https://launchpad.net/ubuntu/+source/firefox/66.0.3+build1-0ubuntu1/+build/16608691/+files/firefox-dbg_66.0.3+build1-0ubuntu1_armhf.deb\n\nThis file is the separate debug info for libxul.so (part of firefox) for\nARM.\n\nI have added some traces to measure the execution time of just\nelf_symtab_read and ran GDB like this:\n\n  ./gdb --data-directory=data-directory -nx -batch  .../path/to/usr/lib/debug/.build-id/65/dce18d22e5c2ecb6a3a57372f4e6ef614130bc.debug\n\nSince the new code sorts the vectors on first use, it would be difficult\nto benchmark it as-is and be fair, since the \"before\" version does more\nwork in elf_symtab_read.  So I have actually benchmarked a version of\nthe patch that did sort all the vectors at the end of elf_symtab_read,\nso the sorting would be considered in the measured execution time.\n\nHere's the measured execution time of elf_symtab_read, averaged on 3\nruns:\n\n  insert sorted (before): 28.678s\n  sort after (after):      1.760s\n\nAnd here's the total execution time of the command above (just one run).\nThe time is now mostly spent in reading DWARF.\n\n  insert sorted: 71.12s user 2.71s system 99% cpu 1:14.03 total\n  sort after:    46.42s user 2.60s system 99% cpu  49.147 total\n\nI tried for fun on my Raspberry Pi 3, the run time of\nelf_symtab_read goes from ~259s to ~9s, reading the same file.\n\ngdb/ChangeLog:\n\n\t* arm-tdep.c (struct arm_per_objfile) <section_maps_sorted>: New\n\tfield.\n\t(arm_find_mapping_symbol): Sort mapping symbol vectors on first\n\tuse.\n\t(arm_record_special_symbol): Don't insert new symbol in sorted\n\tposition, push it at the end.",
+    "tree": {
+      "sha": "9a2ae5847ced0c924723edb0fa59d1ec895cc3d2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/9a2ae5847ced0c924723edb0fa59d1ec895cc3d2"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/4838e44c8fcb2ce2316294a6f30b8d40343c36af",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4838e44c8fcb2ce2316294a6f30b8d40343c36af",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/4838e44c8fcb2ce2316294a6f30b8d40343c36af",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4838e44c8fcb2ce2316294a6f30b8d40343c36af/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "54cc7474d4851d0e76df5252478a5ebd76b61508",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/54cc7474d4851d0e76df5252478a5ebd76b61508",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/54cc7474d4851d0e76df5252478a5ebd76b61508"
+    }
+  ],
+  "stats": {
+    "total": 37,
+    "additions": 28,
+    "deletions": 9
+  },
+  "files": [
+    {
+      "sha": "3de4e19a10aafec3f00a835fc299310bd8744047",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4838e44c8fcb2ce2316294a6f30b8d40343c36af/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4838e44c8fcb2ce2316294a6f30b8d40343c36af/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=4838e44c8fcb2ce2316294a6f30b8d40343c36af",
+      "patch": "@@ -1,3 +1,12 @@\n+2019-06-25  Simon Marchi  <simon.marchi@polymtl.ca>\n+\n+\t* arm-tdep.c (struct arm_per_objfile) <section_maps_sorted>: New\n+\tfield.\n+\t(arm_find_mapping_symbol): Sort mapping symbol vectors on first\n+\tuse.\n+\t(arm_record_special_symbol): Don't insert new symbol in sorted\n+\tposition, push it at the end.\n+\n 2019-06-25  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* arm-tdep.c (struct arm_mapping_symbol) (operator <): New."
+    },
+    {
+      "sha": "2ba77e207d350c3d1e8d10d3dc96b18b99459b75",
+      "filename": "gdb/arm-tdep.c",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 9,
+      "changes": 28,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4838e44c8fcb2ce2316294a6f30b8d40343c36af/gdb/arm-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4838e44c8fcb2ce2316294a6f30b8d40343c36af/gdb/arm-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/arm-tdep.c?ref=4838e44c8fcb2ce2316294a6f30b8d40343c36af",
+      "patch": "@@ -105,7 +105,8 @@ typedef std::vector<arm_mapping_symbol> arm_mapping_symbol_vec;\n struct arm_per_objfile\n {\n   explicit arm_per_objfile (size_t num_sections)\n-  : section_maps (new arm_mapping_symbol_vec[num_sections])\n+  : section_maps (new arm_mapping_symbol_vec[num_sections]),\n+    section_maps_sorted (new bool[num_sections] ())\n   {}\n \n   DISABLE_COPY_AND_ASSIGN (arm_per_objfile);\n@@ -119,6 +120,10 @@ struct arm_per_objfile\n      For each section, the vector of arm_mapping_symbol is sorted by\n      symbol value (address).  */\n   std::unique_ptr<arm_mapping_symbol_vec[]> section_maps;\n+\n+  /* For each corresponding element of section_maps above, is this vector\n+     sorted.  */\n+  std::unique_ptr<bool[]> section_maps_sorted;\n };\n \n /* The list of available \"set arm ...\" and \"show arm ...\" commands.  */\n@@ -356,10 +361,19 @@ arm_find_mapping_symbol (CORE_ADDR memaddr, CORE_ADDR *start)\n \t\t\t\t\t\t   arm_objfile_data_key);\n       if (data != NULL)\n \t{\n+\t  unsigned int section_idx = sec->the_bfd_section->index;\n+\t  arm_mapping_symbol_vec &map\n+\t    = data->section_maps[section_idx];\n+\n+\t  /* Sort the vector on first use.  */\n+\t  if (!data->section_maps_sorted[section_idx])\n+\t    {\n+\t      std::sort (map.begin (), map.end ());\n+\t      data->section_maps_sorted[section_idx] = true;\n+\t    }\n+\n \t  struct arm_mapping_symbol map_key\n \t    = { memaddr - obj_section_addr (sec), 0 };\n-\t  const arm_mapping_symbol_vec &map\n-\t    = data->section_maps[sec->the_bfd_section->index];\n \t  arm_mapping_symbol_vec::const_iterator it\n \t    = std::lower_bound (map.begin (), map.end (), map_key);\n \n@@ -8547,12 +8561,8 @@ arm_record_special_symbol (struct gdbarch *gdbarch, struct objfile *objfile,\n   new_map_sym.value = sym->value;\n   new_map_sym.type = name[1];\n \n-  /* Assume that most mapping symbols appear in order of increasing\n-     value.  If they were randomly distributed, it would be faster to\n-     always push here and then sort at first use.  */\n-  arm_mapping_symbol_vec::iterator it\n-    = std::lower_bound (map.begin (), map.end (), new_map_sym);\n-  map.insert (it, new_map_sym);\n+  /* Insert at the end, the vector will be sorted on first use.  */\n+  map.push_back (new_map_sym);\n }\n \n static void"
+    }
+  ]
+}

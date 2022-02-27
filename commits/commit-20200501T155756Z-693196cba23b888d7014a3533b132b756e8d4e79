@@ -1,0 +1,110 @@
+{
+  "sha": "693196cba23b888d7014a3533b132b756e8d4e79",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NjkzMTk2Y2JhMjNiODg4ZDcwMTRhMzUzM2IxMzJiNzU2ZThkNGU3OQ==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-05-01T15:57:56Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-05-01T15:57:56Z"
+    },
+    "message": "[gdb/testsuite] Fix gdb.ada/operator_bp.exp breakpoint location FAILs\n\nWhen running test-case gdb.ada/operator_bp.exp with gcc-10, I run into:\n...\nFAIL: gdb.ada/operator_bp.exp: break \"+\"\nFAIL: gdb.ada/operator_bp.exp: break \"-\"\nFAIL: gdb.ada/operator_bp.exp: break \"<\"\nFAIL: gdb.ada/operator_bp.exp: break \"<=\"\nFAIL: gdb.ada/operator_bp.exp: break \">\"\nFAIL: gdb.ada/operator_bp.exp: break \">=\"\nFAIL: gdb.ada/operator_bp.exp: break \"=\"\nFAIL: gdb.ada/operator_bp.exp: break \"and\"\nFAIL: gdb.ada/operator_bp.exp: break \"or\"\nFAIL: gdb.ada/operator_bp.exp: break \"xor\"\nFAIL: gdb.ada/operator_bp.exp: break \"not\"\n...\n\nThe first FAIL is because two breakpoint locations are expected, but there are\nmore than 2:\n...\n(gdb) break \"+\"\nBreakpoint 2 at 0x402c3c: \"+\". (6 locations)\n(gdb) info break\nNum     Type           Disp Enb Address            What\n2       breakpoint     keep y   <MULTIPLE>\n2.1                         y   0x0000000000402c3c in ops.\"+\"\n                                                   at operator_bp/ops.adb:25\n2.2                         y   0x0000000000402e5b in ops.\"+\"\n                                                   at operator_bp/ops.adb:119\n2.3                         y   0x0000000000414207 in\n  system.storage_elements.\"+\" at s-stoele.adb:82\n2.4                         y   0x0000000000414404 in\n  system.storage_elements.\"+\" at s-stoele.adb:87\n2.5                         y   0x0000000000414413 in\n  system.storage_elements.\"+\" at s-stoele.adb:87\n2.6                         y   0x0000000000414430 in\n  system.storage_elements.\"+\" at s-stoele.adb:81\n...\n\nThis can be traced back to a extra debug info in the executable:\n...\n$ readelf -w ops_test | grep system__storage_elements__Oadd\n    <28104>   DW_AT_name        : system__storage_elements__Oadd__2\n    <2812e>   DW_AT_name        : system__storage_elements__Oadd\n...\n\nFix the FAILs by allowing more than the required amount of breakpoint\nlocations.\n\nTested on x86_64-linux.\n\ngdb/testsuite/ChangeLog:\n\n2020-05-01  Tom de Vries  <tdevries@suse.de>\n\n\t* gdb.ada/operator_bp.exp: Allow more than required amount of\n\tbreakpoint.",
+    "tree": {
+      "sha": "b6e2f9a8adeb6b6acccab6f867516505646ed608",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/b6e2f9a8adeb6b6acccab6f867516505646ed608"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/693196cba23b888d7014a3533b132b756e8d4e79",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/693196cba23b888d7014a3533b132b756e8d4e79",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/693196cba23b888d7014a3533b132b756e8d4e79",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/693196cba23b888d7014a3533b132b756e8d4e79/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "652fc23a30a1c04ff2ec67fa3c08f39bd28ad0d2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/652fc23a30a1c04ff2ec67fa3c08f39bd28ad0d2",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/652fc23a30a1c04ff2ec67fa3c08f39bd28ad0d2"
+    }
+  ],
+  "stats": {
+    "total": 19,
+    "additions": 15,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "737caffa0ea1c463eee22240522f53c699ab34b2",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/693196cba23b888d7014a3533b132b756e8d4e79/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/693196cba23b888d7014a3533b132b756e8d4e79/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=693196cba23b888d7014a3533b132b756e8d4e79",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-05-01  Tom de Vries  <tdevries@suse.de>\n+\n+\t* gdb.ada/operator_bp.exp: Allow more than required amount of\n+\tbreakpoint.\n+\n 2020-05-01  Tom de Vries  <tdevries@suse.de>\n \n \t* gdb.reverse/until-reverse.c (main): Fix Wunused-result warning."
+    },
+    {
+      "sha": "c882c94f12e0408f5773ff62bd63a510fb3b78b2",
+      "filename": "gdb/testsuite/gdb.ada/operator_bp.exp",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 4,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/693196cba23b888d7014a3533b132b756e8d4e79/gdb/testsuite/gdb.ada/operator_bp.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/693196cba23b888d7014a3533b132b756e8d4e79/gdb/testsuite/gdb.ada/operator_bp.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.ada/operator_bp.exp?ref=693196cba23b888d7014a3533b132b756e8d4e79",
+      "patch": "@@ -33,16 +33,22 @@ runto \"ops_test.adb:$bp_location\"\n \n # Set breakpoints for all operators, using just the operator name in quotes.\n \n+set bp_re \"Breakpoint $decimal at $hex\"\n foreach op { \"+\" \"-\" } {\n     set op_re [string_to_regexp $op]\n-    gdb_test \"break \\\"$op\\\"\" \\\n-             \"Breakpoint $decimal at $hex: \\\"$op_re\\\"\\. \\\\(2 locations\\\\)\"\n+    gdb_test \"break \\\"$op\\\"\" \"$bp_re: \\\"$op_re\\\"\\. \\\\($decimal locations\\\\).*\"\n }\n \n foreach op { \"*\" \"/\" \"mod\" \"rem\" \"**\" \"<\" \"<=\" \">\" \">=\" \"=\" \"and\" \"or\" \"xor\" \"&\" \"abs\" \"not\"} {\n     set op_re [string_to_regexp $op]\n-    gdb_test \"break \\\"$op\\\"\" \\\n-             \"Breakpoint $decimal at $hex: file .*ops.adb, line $decimal.\"\n+    gdb_test_multiple \"break \\\"$op\\\"\" \"\" {\n+\t-re -wrap \"$bp_re: file .*ops.adb, line $decimal.\" {\n+\t    pass $gdb_test_name\n+\t}\n+\t-re -wrap \"$bp_re: \\\"$op_re\\\"\\. \\\\($decimal locations\\\\).*\" {\n+\t    pass $gdb_test_name\n+\t}\n+    }\n }\n \n # Make sure we stop correctly in each operator function."
+    }
+  ]
+}

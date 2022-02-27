@@ -1,0 +1,182 @@
+{
+  "sha": "6b36ddeb1edbdc3039075e4e220a108579b82121",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NmIzNmRkZWIxZWRiZGMzMDM5MDc1ZTRlMjIwYTEwODU3OWI4MjEyMQ==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2021-02-04T18:13:30Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-02-04T18:13:30Z"
+    },
+    "message": "gdb: make async event handlers clear themselves\n\nThe `ready` flag of async event handlers is cleared by the async event\nhandler system right before invoking the associated callback, in\ncheck_async_event_handlers.\n\nThis is not ideal with how the infrun subsystem consumes events: all\ntargets' async event handler callbacks essentially just invoke\n`inferior_event_handler`, which eventually calls `fetch_inferior_event`\nand `do_target_wait`.  `do_target_wait` picks an inferior at random,\nand thus a target at random (it could be the target whose `ready` flag\nwas cleared, or not), and pulls one event from it.\n\nSo it's possible that:\n\n- the async event handler for a target A is called\n- we end up consuming an event for target B\n- all threads of target B are stopped, target_async(0) is called on it,\n  so its async event handler is cleared (e.g.\n  record_btrace_target::async)\n\nAs a result, target A still has events to report while its async event\nhandler is left unmarked, so these events are not consumed.  To counter\nthis, at the end of their async event handler callbacks, targets check\nif they still have something to report and re-mark their async event\nhandler (e.g. remote_async_inferior_event_handler).\n\nThe linux_nat target does not suffer from this because it doesn't use an\nasync event handler at the moment.  It only uses a pipe registered with\nthe event loop.  It is written to in the SIGCHLD handler (and in other\nspots that want to get target wait method called) and read from in\nthe target's wait method.  So if linux_nat happened to be target A in\nthe example above, the pipe would just stay readable, and the event loop\nwould wake up again, until linux_nat's wait method is finally called and\nconsumes the contents of the pipe.\n\nI think it would be nicer if targets using async_event_handler worked in\na similar way, where the flag would stay set until the target's wait\nmethod is actually called.  As a first step towards that, this patch\nmoves the responsibility of clearing the ready flags of async event\nhandlers to the invoked callback.\n\nAll async event handler callbacks are modified to clear their ready flag\nbefore doing anything else.  So in practice, nothing changes with this\npatch.  It's only the responsibility of clearing the flag that is\nshifted toward the callee.\n\ngdb/ChangeLog:\n\n\t* async-event.h (async_event_handler_func):  Add documentation.\n\t* async-event.c (check_async_event_handlers): Don't clear\n\tasync_event_handler ready flag.\n\t* infrun.c (infrun_async_inferior_event_handler): Clear ready\n\tflag.\n\t* record-btrace.c (record_btrace_handle_async_inferior_event):\n\tLikewise.\n\t* record-full.c (record_full_async_inferior_event_handler):\n\tLikewise.\n\t* remote-notif.c (remote_async_get_pending_events_handler):\n\tLikewise.\n\t* remote.c (remote_async_inferior_event_handler): Likewise.\n\nChange-Id: I179ef8e99580eae642d332846fd13664dbddc0c1",
+    "tree": {
+      "sha": "2da067b706982abb51c73583e2003546065bd02a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/2da067b706982abb51c73583e2003546065bd02a"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/6b36ddeb1edbdc3039075e4e220a108579b82121",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6b36ddeb1edbdc3039075e4e220a108579b82121",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/6b36ddeb1edbdc3039075e4e220a108579b82121",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6b36ddeb1edbdc3039075e4e220a108579b82121/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "ee87f50b8d2a0599675657a9fd2774c08261b29c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ee87f50b8d2a0599675657a9fd2774c08261b29c",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/ee87f50b8d2a0599675657a9fd2774c08261b29c"
+    }
+  ],
+  "stats": {
+    "total": 37,
+    "additions": 33,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "137f3be6a7c6107c9384de1d4b194993cfe8960a",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6b36ddeb1edbdc3039075e4e220a108579b82121/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6b36ddeb1edbdc3039075e4e220a108579b82121/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=6b36ddeb1edbdc3039075e4e220a108579b82121",
+      "patch": "@@ -1,3 +1,18 @@\n+2021-02-04  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\t* async-event.h (async_event_handler_func):  Add documentation.\n+\t* async-event.c (check_async_event_handlers): Don't clear\n+\tasync_event_handler ready flag.\n+\t* infrun.c (infrun_async_inferior_event_handler): Clear ready\n+\tflag.\n+\t* record-btrace.c (record_btrace_handle_async_inferior_event):\n+\tLikewise.\n+\t* record-full.c (record_full_async_inferior_event_handler):\n+\tLikewise.\n+\t* remote-notif.c (remote_async_get_pending_events_handler):\n+\tLikewise.\n+\t* remote.c (remote_async_inferior_event_handler): Likewise.\n+\n 2021-02-03  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* infrun.c (handle_inferior_event): Move stop_soon variable to"
+    },
+    {
+      "sha": "c4ab7318179e9b3952ec8c26cb20f075f9d1bf5d",
+      "filename": "gdb/async-event.c",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6b36ddeb1edbdc3039075e4e220a108579b82121/gdb/async-event.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6b36ddeb1edbdc3039075e4e220a108579b82121/gdb/async-event.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/async-event.c?ref=6b36ddeb1edbdc3039075e4e220a108579b82121",
+      "patch": "@@ -322,7 +322,6 @@ check_async_event_handlers ()\n     {\n       if (async_handler_ptr->ready)\n \t{\n-\t  async_handler_ptr->ready = 0;\n \t  event_loop_debug_printf (\"invoking async event handler `%s`\",\n \t\t\t\t   async_handler_ptr->name);\n \t  (*async_handler_ptr->proc) (async_handler_ptr->client_data);"
+    },
+    {
+      "sha": "9d96235b38dc967307e46cf7b9db73bcfa8a25f7",
+      "filename": "gdb/async-event.h",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6b36ddeb1edbdc3039075e4e220a108579b82121/gdb/async-event.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6b36ddeb1edbdc3039075e4e220a108579b82121/gdb/async-event.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/async-event.h?ref=6b36ddeb1edbdc3039075e4e220a108579b82121",
+      "patch": "@@ -24,6 +24,15 @@\n struct async_signal_handler;\n struct async_event_handler;\n typedef void (sig_handler_func) (gdb_client_data);\n+\n+/* Type of async event handler callbacks.\n+\n+   DATA is the client data originally passed to create_async_event_handler.\n+\n+   The callback is called when the async event handler is marked.  The callback\n+   is responsible for clearing the async event handler if it no longer needs\n+   to be called.  */\n+\n typedef void (async_event_handler_func) (gdb_client_data);\n \n extern struct async_signal_handler *"
+    },
+    {
+      "sha": "a271220b2616dc8da9f1ee3645a01608afc2c477",
+      "filename": "gdb/infrun.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6b36ddeb1edbdc3039075e4e220a108579b82121/gdb/infrun.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6b36ddeb1edbdc3039075e4e220a108579b82121/gdb/infrun.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infrun.c?ref=6b36ddeb1edbdc3039075e4e220a108579b82121",
+      "patch": "@@ -9212,6 +9212,7 @@ static const struct internalvar_funcs siginfo_funcs =\n static void\n infrun_async_inferior_event_handler (gdb_client_data data)\n {\n+  clear_async_event_handler (infrun_async_inferior_event_token);\n   inferior_event_handler (INF_REG_EVENT);\n }\n "
+    },
+    {
+      "sha": "ea339b865b35f41da68fc1206fdd7003d308c3c7",
+      "filename": "gdb/record-btrace.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6b36ddeb1edbdc3039075e4e220a108579b82121/gdb/record-btrace.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6b36ddeb1edbdc3039075e4e220a108579b82121/gdb/record-btrace.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/record-btrace.c?ref=6b36ddeb1edbdc3039075e4e220a108579b82121",
+      "patch": "@@ -325,6 +325,7 @@ record_btrace_auto_disable (void)\n static void\n record_btrace_handle_async_inferior_event (gdb_client_data data)\n {\n+  clear_async_event_handler (record_btrace_async_inferior_event_handler);\n   inferior_event_handler (INF_REG_EVENT);\n }\n "
+    },
+    {
+      "sha": "247573cc5c6403fe39816506b12df770cd0d5fad",
+      "filename": "gdb/record-full.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6b36ddeb1edbdc3039075e4e220a108579b82121/gdb/record-full.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6b36ddeb1edbdc3039075e4e220a108579b82121/gdb/record-full.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/record-full.c?ref=6b36ddeb1edbdc3039075e4e220a108579b82121",
+      "patch": "@@ -903,6 +903,7 @@ static struct async_event_handler *record_full_async_inferior_event_token;\n static void\n record_full_async_inferior_event_handler (gdb_client_data data)\n {\n+  clear_async_event_handler (record_full_async_inferior_event_token);\n   inferior_event_handler (INF_REG_EVENT);\n }\n "
+    },
+    {
+      "sha": "5a3e1395b76e63df0efd9c20b409a506228e16ed",
+      "filename": "gdb/remote-notif.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6b36ddeb1edbdc3039075e4e220a108579b82121/gdb/remote-notif.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6b36ddeb1edbdc3039075e4e220a108579b82121/gdb/remote-notif.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/remote-notif.c?ref=6b36ddeb1edbdc3039075e4e220a108579b82121",
+      "patch": "@@ -108,8 +108,10 @@ remote_notif_process (struct remote_notif_state *state,\n static void\n remote_async_get_pending_events_handler (gdb_client_data data)\n {\n+  remote_notif_state *notif_state = (remote_notif_state *) data;\n+  clear_async_event_handler (notif_state->get_pending_events_token);\n   gdb_assert (target_is_non_stop_p ());\n-  remote_notif_process ((struct remote_notif_state *) data, NULL);\n+  remote_notif_process (notif_state, NULL);\n }\n \n /* Remote notification handler.  Parse BUF, queue notification and"
+    },
+    {
+      "sha": "47538fce1969845bc10d54b5ea0d7f3dec358e5e",
+      "filename": "gdb/remote.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6b36ddeb1edbdc3039075e4e220a108579b82121/gdb/remote.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6b36ddeb1edbdc3039075e4e220a108579b82121/gdb/remote.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/remote.c?ref=6b36ddeb1edbdc3039075e4e220a108579b82121",
+      "patch": "@@ -14259,10 +14259,11 @@ remote_async_serial_handler (struct serial *scb, void *context)\n static void\n remote_async_inferior_event_handler (gdb_client_data data)\n {\n-  inferior_event_handler (INF_REG_EVENT);\n-\n   remote_target *remote = (remote_target *) data;\n   remote_state *rs = remote->get_remote_state ();\n+  clear_async_event_handler (rs->remote_async_inferior_event_token);\n+\n+  inferior_event_handler (INF_REG_EVENT);\n \n   /* inferior_event_handler may have consumed an event pending on the\n      infrun side without calling target_wait on the REMOTE target, or"
+    }
+  ]
+}

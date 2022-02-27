@@ -1,0 +1,60 @@
+{
+  "sha": "e31cf164b4c78246f59922a9122585dc4e23e860",
+  "node_id": "C_kwDOANOeidoAKGUzMWNmMTY0YjRjNzgyNDZmNTk5MjJhOTEyMjU4NWRjNGUyM2U4NjA",
+  "commit": {
+    "author": {
+      "name": "Tiezhu Yang",
+      "email": "yangtiezhu@loongson.cn",
+      "date": "2022-01-13T03:11:39Z"
+    },
+    "committer": {
+      "name": "Tiezhu Yang",
+      "email": "yangtiezhu@loongson.cn",
+      "date": "2022-01-13T03:12:55Z"
+    },
+    "message": "gdb: testsuite: make string[] type as char in gdb.base/charset.c\n\nThis reverts the commit ff656e2e1cb1 (\"gdb: testsuite: fix failed\ntestcases in gdb.base/charset.exp\").\n\nThe original test code has no problem. On an architecture where\nchar is signed, then both 'A' and ebcdic_us_string[7] will yield\n-63, which makes the equality true. On an architecture where char\nis unsigned, then both 'A' and ebcdic_us_string[7] will yield 193,\nwhich also makes the equality true.\n\nThe test cases only failed on LoongArch. The default type of char\nis signed char on LoongArch, like x86-64. But when use gdb print\ncommand on LoongArch, the default type of char is unsigned char,\nthis is wrong, I will look into it later, sorry for that.\n\nOn LoongArch:\n\n  $ cat test_char.c\n  #include <stdio.h>\n\n  int main()\n  {\n          char c1 = 193;\n          unsigned char c2 = 193;\n\n          printf(\"%d\\n\", c1);\n          printf(\"%d\\n\", c1 == c2);\n\n          return 0;\n  }\n  $ gcc test_char.c -o test_char\n  $ ./test_char\n  -63\n  0\n\n  (gdb) set target-charset EBCDIC-US\n  (gdb) print 'A'\n  $1 = 193 'A'\n  (gdb) print /c 'A'\n  $2 = 193 'A'\n  (gdb) print /u 'A'\n  $3 = 193\n  (gdb) print /d 'A'\n  $4 = -63\n  (gdb) print /x 'A'\n  $5 = 0xc1\n\nSigned-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>",
+    "tree": {
+      "sha": "e15848ba3577d87a677e628688f3067841f73ce6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/e15848ba3577d87a677e628688f3067841f73ce6"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/e31cf164b4c78246f59922a9122585dc4e23e860",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e31cf164b4c78246f59922a9122585dc4e23e860",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/e31cf164b4c78246f59922a9122585dc4e23e860",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e31cf164b4c78246f59922a9122585dc4e23e860/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "cf6059a6ace2ac14fdaf6dbec0235f87476f7842",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cf6059a6ace2ac14fdaf6dbec0235f87476f7842",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/cf6059a6ace2ac14fdaf6dbec0235f87476f7842"
+    }
+  ],
+  "stats": {
+    "total": 12,
+    "additions": 6,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "30c3fb42892ff56b4eba07103004d852812c4c8f",
+      "filename": "gdb/testsuite/gdb.base/charset.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e31cf164b4c78246f59922a9122585dc4e23e860/gdb/testsuite/gdb.base/charset.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e31cf164b4c78246f59922a9122585dc4e23e860/gdb/testsuite/gdb.base/charset.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/charset.c?ref=e31cf164b4c78246f59922a9122585dc4e23e860",
+      "patch": "@@ -44,10 +44,10 @@\n \n #define NUM_CHARS (71)\n \n-unsigned char ascii_string[NUM_CHARS];\n-unsigned char iso_8859_1_string[NUM_CHARS];\n-unsigned char ebcdic_us_string[NUM_CHARS];\n-unsigned char ibm1047_string[NUM_CHARS];\n+char ascii_string[NUM_CHARS];\n+char iso_8859_1_string[NUM_CHARS];\n+char ebcdic_us_string[NUM_CHARS];\n+char ibm1047_string[NUM_CHARS];\n \n #ifndef __cplusplus\n \n@@ -86,7 +86,7 @@ long long_array[3];\n    explicit casts or warnings.  */\n \n void\n-init_string (unsigned char string[],\n+init_string (char string[],\n \t     unsigned char x,\n \t     unsigned char alert,\n \t     unsigned char backspace,\n@@ -115,7 +115,7 @@ init_string (unsigned char string[],\n \n \n void\n-fill_run (unsigned char string[], int start, int len, int first)\n+fill_run (char string[], int start, int len, int first)\n {\n   int i;\n "
+    }
+  ]
+}

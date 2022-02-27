@@ -1,0 +1,134 @@
+{
+  "sha": "3d5afab3393064e563305bc27264fde5a7598635",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6M2Q1YWZhYjMzOTMwNjRlNTYzMzA1YmMyNzI2NGZkZTVhNzU5ODYzNQ==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-04-22T06:09:45Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-04-22T06:09:45Z"
+    },
+    "message": "[gdb/symtab] Don't create duplicate psymtab for forward-imported CU\n\nConsider the executable generated for test-case gdb.dwarf2/imported-unit.exp.\n\nWhen loading the executable using various tracing:\n...\n$ gdb \\\n  outputs/gdb.dwarf2/imported-unit/imported-unit \\\n  -batch \\\n  -iex \"set verbose on\" \\\n  -iex \"set debug symtab-create 1\"\n  ...\nCreated psymtab 0x213f380 for module <artificial>@0xc7.\nCreated psymtab 0x20e7b00 for module imported_unit.c.\nCreated psymtab 0x215da20 for module imported_unit.c.\nCreated psymtab 0x2133630 for module elf-init.c.\nCreated psymtab 0x215b910 for module ../sysdeps/x86_64/crtn.S.\n...\nwe notice that there are two psymtabs generated for imported_unit.c.\n\nThis is due to the following: in dwarf2_build_psymtabs_hard we loop over CUs\nand generate partial symtabs for those, and if we encounter an import of\nanother CU, we also generate a partial symtab for that one, unless already\ncreated.\n\nThis works well with backward import references:\n- the imported CU is read\n- then the importing CU is read\n- the import is encountered, but the imported CU is already read, so\n  we're done.\n\nBut with forward import references, we have instead:\n- the importing CU is read\n- the import is encountered, and the imported CU is read\n- the imported CU is read once more\n\nFix this by skipping already created psymtabs in the loop in\ndwarf2_build_psymtabs_hard.\n\nTested on x86_64-linux, with native and target board\nunix/-flto/-O0/-flto-partition=none/-ffat-lto-objects.\n\nThis causes this regression with the target board:\n...\nFAIL: gdb.ada/dgopt.exp: list x.adb:16, 16\n...\nwhich I consider a seperate PR, filed as PR25801 - \"Filename of shared psymtab\nis ignored\".\n\ngdb/ChangeLog:\n\n2020-04-22  Tom de Vries  <tdevries@suse.de>\n\n\tPR symtab/25700\n\t* dwarf2/read.c (dwarf2_build_psymtabs_hard): Don't create psymtab for\n\tCU if already created.\n\ngdb/testsuite/ChangeLog:\n\n2020-04-22  Tom de Vries  <tdevries@suse.de>\n\n\tPR symtab/25700\n\t* gdb.dwarf2/imported-unit.exp: Verify that there's only one partial\n\tsymtab for imported_unit.c.",
+    "tree": {
+      "sha": "e6ad4f000b619be85cd3a393adb6a4c31373c64d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/e6ad4f000b619be85cd3a393adb6a4c31373c64d"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/3d5afab3393064e563305bc27264fde5a7598635",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3d5afab3393064e563305bc27264fde5a7598635",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/3d5afab3393064e563305bc27264fde5a7598635",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3d5afab3393064e563305bc27264fde5a7598635/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "1d3eb55695b7b9014e07ac1b0c81a2c685d68e20",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1d3eb55695b7b9014e07ac1b0c81a2c685d68e20",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/1d3eb55695b7b9014e07ac1b0c81a2c685d68e20"
+    }
+  ],
+  "stats": {
+    "total": 37,
+    "additions": 36,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "3f1cce59e7d3505061e127838187d46eaed33fcc",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3d5afab3393064e563305bc27264fde5a7598635/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3d5afab3393064e563305bc27264fde5a7598635/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=3d5afab3393064e563305bc27264fde5a7598635",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-04-22  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR symtab/25700\n+\t* dwarf2/read.c (dwarf2_build_psymtabs_hard): Don't create psymtab for\n+\tCU if already created.\n+\n 2020-04-21  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n \n \t* infrun.c (displaced_step_fixup): Switch to the event_thread"
+    },
+    {
+      "sha": "450c53b519643efdf6d21a6b4595ebf172c95e48",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 1,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3d5afab3393064e563305bc27264fde5a7598635/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3d5afab3393064e563305bc27264fde5a7598635/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=3d5afab3393064e563305bc27264fde5a7598635",
+      "patch": "@@ -7779,7 +7779,12 @@ dwarf2_build_psymtabs_hard (struct dwarf2_per_objfile *dwarf2_per_objfile)\n \t\t\t   addrmap_create_mutable (&temp_obstack));\n \n   for (dwarf2_per_cu_data *per_cu : dwarf2_per_objfile->all_comp_units)\n-    process_psymtab_comp_unit (per_cu, false, language_minimal);\n+    {\n+      if (per_cu->v.psymtab != NULL)\n+\t/* In case a forward DW_TAG_imported_unit has read the CU already.  */\n+\tcontinue;\n+      process_psymtab_comp_unit (per_cu, false, language_minimal);\n+    }\n \n   /* This has to wait until we read the CUs, we need the list of DWOs.  */\n   process_skeletonless_type_units (dwarf2_per_objfile);"
+    },
+    {
+      "sha": "f6c52c8e4250de84944ee23af653831b8c148094",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3d5afab3393064e563305bc27264fde5a7598635/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3d5afab3393064e563305bc27264fde5a7598635/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=3d5afab3393064e563305bc27264fde5a7598635",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-04-22  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR symtab/25700\n+\t* gdb.dwarf2/imported-unit.exp: Verify that there's only one partial\n+\tsymtab for imported_unit.c.\n+\n 2020-04-21  Gary Benson <gbenson@redhat.com>\n \n \t* gdb.base/advance.c (func): New argument, to match call site."
+    },
+    {
+      "sha": "d7b3d4c53980cf9c86c2921fe4bb4ddd5df75662",
+      "filename": "gdb/testsuite/gdb.dwarf2/imported-unit.exp",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 0,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3d5afab3393064e563305bc27264fde5a7598635/gdb/testsuite/gdb.dwarf2/imported-unit.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3d5afab3393064e563305bc27264fde5a7598635/gdb/testsuite/gdb.dwarf2/imported-unit.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/imported-unit.exp?ref=3d5afab3393064e563305bc27264fde5a7598635",
+      "patch": "@@ -168,6 +168,24 @@ if { $psymtabs_p } {\n } else {\n     unsupported $test\n }\n+\n+# Verify that there's only one partial symtab for imported_unit.c.  Test-case\n+# for PR25700.\n+set test \"no duplicate psymtab for imported_unit.c\"\n+if { $psymtabs_p } {\n+    set line \"Partial symtab for source file imported_unit.c\"\n+    gdb_test_multiple \"maint print psymbols\" $test {\n+\t-re -wrap \"$line.*$line.*\" {\n+\t    fail $gdb_test_name\n+\t}\n+\t-re -wrap \"$line.*\" {\n+\t    pass $gdb_test_name\n+\t}\n+    }\n+} else {\n+    unsupported $test\n+}\n+\n # Sanity check\n gdb_test \"ptype main\" \"= int \\\\(void\\\\)\"\n "
+    }
+  ]
+}

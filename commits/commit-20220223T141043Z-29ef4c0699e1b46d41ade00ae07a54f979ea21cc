@@ -1,0 +1,98 @@
+{
+  "sha": "29ef4c0699e1b46d41ade00ae07a54f979ea21cc",
+  "node_id": "C_kwDOANOeidoAKDI5ZWY0YzA2OTllMWI0NmQ0MWFkZTAwYWUwN2E1NGY5NzllYTIxY2M",
+  "commit": {
+    "author": {
+      "name": "Dominik 'Disconnect3d' Czarnota",
+      "email": "dominik.b.czarnota@gmail.com",
+      "date": "2022-02-22T23:43:25Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2022-02-23T14:10:43Z"
+    },
+    "message": "gdb/linux-tdep.c: Add Perms to the 'info proc mappings' output\n\nFixes #28914 and so it adds a 'Perms' (permissions) column to the\n'info proc mappings' command output. This will allow users to know\nthe memory pages permissions right away from GDB instead of having\nto fetch them from the /proc/$pid/maps file (which is also what GDB\ndoes internally, but it just did not print that column).\n\nBelow I am also showing how an example output looks like before and\nafter this commit in case someone wonders.\n\nOn i386 targets - before this commit:\n```\n(gdb) info proc mappings\nprocess 3461464\nMapped address spaces:\n\n    Start Addr   End Addr        Size     Offset objfile\n    0x56555000 0x56556000      0x1000        0x0 /home/dc/src/binutils-gdb/build/a.out\n    0x56556000 0x56557000      0x1000     0x1000 /home/dc/src/binutils-gdb/build/a.out\n    0x56557000 0x56558000      0x1000     0x2000 /home/dc/src/binutils-gdb/build/a.out\n    0x56558000 0x5655a000      0x2000     0x2000 /home/dc/src/binutils-gdb/build/a.out\n    0xf7fc4000 0xf7fc8000      0x4000        0x0 [vvar]\n    0xf7fc8000 0xf7fca000      0x2000        0x0 [vdso]\n    0xf7fca000 0xf7fcb000      0x1000        0x0 /usr/lib/i386-linux-gnu/ld-2.33.so\n    0xf7fcb000 0xf7fee000     0x23000     0x1000 /usr/lib/i386-linux-gnu/ld-2.33.so\n    0xf7fee000 0xf7ffb000      0xd000    0x24000 /usr/lib/i386-linux-gnu/ld-2.33.so\n    0xf7ffb000 0xf7ffe000      0x3000    0x30000 /usr/lib/i386-linux-gnu/ld-2.33.so\n    0xfffdc000 0xffffe000     0x22000        0x0 [stack]\n(gdb)\n```\n\nOn i386 targets - after this commit:\n```\n(gdb) info proc mappings\nprocess 3461464\nMapped address spaces:\n\n    Start Addr   End Addr   Perms       Size     Offset objfile\n    0x56555000 0x56556000   r--p      0x1000        0x0 /home/dc/src/binutils-gdb/build/a.out\n    0x56556000 0x56557000   r-xp      0x1000     0x1000 /home/dc/src/binutils-gdb/build/a.out\n    0x56557000 0x56558000   r--p      0x1000     0x2000 /home/dc/src/binutils-gdb/build/a.out\n    0x56558000 0x5655a000   rw-p      0x2000     0x2000 /home/dc/src/binutils-gdb/build/a.out\n    0xf7fc4000 0xf7fc8000   r--p      0x4000        0x0 [vvar]\n    0xf7fc8000 0xf7fca000   r-xp      0x2000        0x0 [vdso]\n    0xf7fca000 0xf7fcb000   r--p      0x1000        0x0 /usr/lib/i386-linux-gnu/ld-2.33.so\n    0xf7fcb000 0xf7fee000   r-xp     0x23000     0x1000 /usr/lib/i386-linux-gnu/ld-2.33.so\n    0xf7fee000 0xf7ffb000   r--p      0xd000    0x24000 /usr/lib/i386-linux-gnu/ld-2.33.so\n    0xf7ffb000 0xf7ffe000   rw-p      0x3000    0x30000 /usr/lib/i386-linux-gnu/ld-2.33.so\n    0xfffdc000 0xffffe000   rw-p     0x22000        0x0 [stack]\n(gdb)\n```\n\nOn amd64 targets - after this commit:\n```\n(gdb) info proc mappings\nprocess 3461869\nMapped address spaces:\n\n          Start Addr           End Addr   Perms       Size     Offset objfile\n      0x555555554000     0x555555555000   r--p      0x1000        0x0 /home/dc/src/binutils-gdb/build/a.out\n      0x555555555000     0x555555556000   r-xp      0x1000     0x1000 /home/dc/src/binutils-gdb/build/a.out\n      0x555555556000     0x555555557000   r--p      0x1000     0x2000 /home/dc/src/binutils-gdb/build/a.out\n      0x555555557000     0x555555559000   rw-p      0x2000     0x2000 /home/dc/src/binutils-gdb/build/a.out\n      0x7ffff7fc3000     0x7ffff7fc7000   r--p      0x4000        0x0 [vvar]\n      0x7ffff7fc7000     0x7ffff7fc9000   r-xp      0x2000        0x0 [vdso]\n      0x7ffff7fc9000     0x7ffff7fca000   r--p      0x1000        0x0 /usr/lib/x86_64-linux-gnu/ld-2.33.so\n      0x7ffff7fca000     0x7ffff7ff1000   r-xp     0x27000     0x1000 /usr/lib/x86_64-linux-gnu/ld-2.33.so\n      0x7ffff7ff1000     0x7ffff7ffb000   r--p      0xa000    0x28000 /usr/lib/x86_64-linux-gnu/ld-2.33.so\n      0x7ffff7ffb000     0x7ffff7fff000   rw-p      0x4000    0x31000 /usr/lib/x86_64-linux-gnu/ld-2.33.so\n      0x7ffffffdd000     0x7ffffffff000   rw-p     0x22000        0x0 [stack]\n  0xffffffffff600000 0xffffffffff601000   --xp      0x1000        0x0 [vsyscall]\n(gdb)\n```\n\nSigned-off-by: Dominik 'Disconnect3d' Czarnota <dominik.b.czarnota@gmail.com>\nChange-Id: I4991f6cc758cd532eae3ae98c29d22e7bd9d9c36",
+    "tree": {
+      "sha": "d658df2d8acdca50335f28c836e5f877fc82769d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/d658df2d8acdca50335f28c836e5f877fc82769d"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/29ef4c0699e1b46d41ade00ae07a54f979ea21cc",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/29ef4c0699e1b46d41ade00ae07a54f979ea21cc",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/29ef4c0699e1b46d41ade00ae07a54f979ea21cc",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/29ef4c0699e1b46d41ade00ae07a54f979ea21cc/comments",
+  "author": {
+    "login": "disconnect3d",
+    "id": 10009354,
+    "node_id": "MDQ6VXNlcjEwMDA5MzU0",
+    "avatar_url": "https://avatars.githubusercontent.com/u/10009354?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/disconnect3d",
+    "html_url": "https://github.com/disconnect3d",
+    "followers_url": "https://api.github.com/users/disconnect3d/followers",
+    "following_url": "https://api.github.com/users/disconnect3d/following{/other_user}",
+    "gists_url": "https://api.github.com/users/disconnect3d/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/disconnect3d/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/disconnect3d/subscriptions",
+    "organizations_url": "https://api.github.com/users/disconnect3d/orgs",
+    "repos_url": "https://api.github.com/users/disconnect3d/repos",
+    "events_url": "https://api.github.com/users/disconnect3d/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/disconnect3d/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "e4028336b19998e74a51dd0918a8b3922e08a537",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e4028336b19998e74a51dd0918a8b3922e08a537",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/e4028336b19998e74a51dd0918a8b3922e08a537"
+    }
+  ],
+  "stats": {
+    "total": 16,
+    "additions": 8,
+    "deletions": 8
+  },
+  "files": [
+    {
+      "sha": "060f60e753a2692ddd542c4919616fbe69f14605",
+      "filename": "gdb/linux-tdep.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 8,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/29ef4c0699e1b46d41ade00ae07a54f979ea21cc/gdb/linux-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/29ef4c0699e1b46d41ade00ae07a54f979ea21cc/gdb/linux-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/linux-tdep.c?ref=29ef4c0699e1b46d41ade00ae07a54f979ea21cc",
+      "patch": "@@ -879,16 +879,14 @@ linux_info_proc (struct gdbarch *gdbarch, const char *args,\n \t  printf_filtered (_(\"Mapped address spaces:\\n\\n\"));\n \t  if (gdbarch_addr_bit (gdbarch) == 32)\n \t    {\n-\t      printf_filtered (\"\\t%10s %10s %10s %10s %s\\n\",\n-\t\t\t   \"Start Addr\",\n-\t\t\t   \"  End Addr\",\n+\t      printf_filtered (\"\\t%10s %10s %7s %10s %10s %s\\n\",\n+\t\t\t   \"Start Addr\", \"  End Addr\", \"Perms\",\n \t\t\t   \"      Size\", \"    Offset\", \"objfile\");\n \t    }\n \t  else\n \t    {\n-\t      printf_filtered (\"  %18s %18s %10s %10s %s\\n\",\n-\t\t\t   \"Start Addr\",\n-\t\t\t   \"  End Addr\",\n+\t      printf_filtered (\"  %18s %18s %7s %10s %10s %s\\n\",\n+\t\t\t   \"Start Addr\", \"  End Addr\", \"Perms\",\n \t\t\t   \"      Size\", \"    Offset\", \"objfile\");\n \t    }\n \n@@ -908,18 +906,20 @@ linux_info_proc (struct gdbarch *gdbarch, const char *args,\n \n \t      if (gdbarch_addr_bit (gdbarch) == 32)\n \t\t{\n-\t\t  printf_filtered (\"\\t%10s %10s %10s %10s %s\\n\",\n+\t\t  printf_filtered (\"\\t%10s %10s %7.5s %10s %10s %s\\n\",\n \t\t\t\t   paddress (gdbarch, addr),\n \t\t\t\t   paddress (gdbarch, endaddr),\n+\t\t\t\t   permissions,\n \t\t\t\t   hex_string (endaddr - addr),\n \t\t\t\t   hex_string (offset),\n \t\t\t\t   *mapping_filename ? mapping_filename : \"\");\n \t\t}\n \t      else\n \t\t{\n-\t\t  printf_filtered (\"  %18s %18s %10s %10s %s\\n\",\n+\t\t  printf_filtered (\"  %18s %18s %7.5s %10s %10s %s\\n\",\n \t\t\t\t   paddress (gdbarch, addr),\n \t\t\t\t   paddress (gdbarch, endaddr),\n+\t\t\t\t   permissions,\n \t\t\t\t   hex_string (endaddr - addr),\n \t\t\t\t   hex_string (offset),\n \t\t\t\t   *mapping_filename ? mapping_filename : \"\");"
+    }
+  ]
+}

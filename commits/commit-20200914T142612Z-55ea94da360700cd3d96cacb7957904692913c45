@@ -1,0 +1,91 @@
+{
+  "sha": "55ea94da360700cd3d96cacb7957904692913c45",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NTVlYTk0ZGEzNjA3MDBjZDNkOTZjYWNiNzk1NzkwNDY5MjkxM2M0NQ==",
+  "commit": {
+    "author": {
+      "name": "Fredrik Hederstierna",
+      "email": "fredrik.hederstierna@verisure.com",
+      "date": "2020-09-14T13:56:34Z"
+    },
+    "committer": {
+      "name": "Alan Hayward",
+      "email": "alan.hayward@arm.com",
+      "date": "2020-09-14T14:26:12Z"
+    },
+    "message": "Fix exception stack unwinding for ARM Cortex-M\n\nFor Cortex-M targets using floating-point, eg the Cortex-M4F, its not possible\nto get any call-stack backtrace if setting a breakpoint in ISR.\n\nThe exception stack unwinder for Cortex-M does not consider if floating-point\nregisters was stacked or not, further the Cortex-M has two stack pointers: MSP\n(Main Stack Pointer) and PSP (Process Stack Pointer).\nThis is not handled when GDB tries to backtrace in the exception stack\nunwinder.\n\nThis patch fixes this, and gives a correct call-stack backtrace from\nbreakpoints set in a handler or ISR.\n\ngdb/ChangeLog:\n\n        * arm-tdep.c (arm_m_exception_cache): Try use correct stack\n        pointer and stack frame offset when unwinding.",
+    "tree": {
+      "sha": "cb7a2cc77f72bb3e19e58225e2d2c228654f9a4e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/cb7a2cc77f72bb3e19e58225e2d2c228654f9a4e"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/55ea94da360700cd3d96cacb7957904692913c45",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/55ea94da360700cd3d96cacb7957904692913c45",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/55ea94da360700cd3d96cacb7957904692913c45",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/55ea94da360700cd3d96cacb7957904692913c45/comments",
+  "author": null,
+  "committer": {
+    "login": "a74nh",
+    "id": 4146708,
+    "node_id": "MDQ6VXNlcjQxNDY3MDg=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4146708?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/a74nh",
+    "html_url": "https://github.com/a74nh",
+    "followers_url": "https://api.github.com/users/a74nh/followers",
+    "following_url": "https://api.github.com/users/a74nh/following{/other_user}",
+    "gists_url": "https://api.github.com/users/a74nh/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/a74nh/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/a74nh/subscriptions",
+    "organizations_url": "https://api.github.com/users/a74nh/orgs",
+    "repos_url": "https://api.github.com/users/a74nh/repos",
+    "events_url": "https://api.github.com/users/a74nh/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/a74nh/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "74fea55bb7bc24902bbc45f0510a0b68e9bceee4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/74fea55bb7bc24902bbc45f0510a0b68e9bceee4",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/74fea55bb7bc24902bbc45f0510a0b68e9bceee4"
+    }
+  ],
+  "stats": {
+    "total": 131,
+    "additions": 123,
+    "deletions": 8
+  },
+  "files": [
+    {
+      "sha": "dd31d707c8c1f0cb9491c6eee75e19bbca936613",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/55ea94da360700cd3d96cacb7957904692913c45/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/55ea94da360700cd3d96cacb7957904692913c45/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=55ea94da360700cd3d96cacb7957904692913c45",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-09-14  Fredrik Hederstierna  <fredrik.hederstierna@verisure.com>\n+            Adam Renquinha <arenquinha@cimeq.qc.ca>\n+\n+        * arm-tdep.c (arm_m_exception_cache): Try use correct stack\n+        pointer and stack frame offset when unwinding.\n+\n 2020-09-13  Pedro Alves  <pedro@palves.net>\n \n \t* NEWS: Document \"-break-insert --qualified\"."
+    },
+    {
+      "sha": "1a5017495adf9cf2c5e7d2438a455dadefd24710",
+      "filename": "gdb/arm-tdep.c",
+      "status": "modified",
+      "additions": 117,
+      "deletions": 8,
+      "changes": 125,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/55ea94da360700cd3d96cacb7957904692913c45/gdb/arm-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/55ea94da360700cd3d96cacb7957904692913c45/gdb/arm-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/arm-tdep.c?ref=55ea94da360700cd3d96cacb7957904692913c45",
+      "patch": "@@ -469,7 +469,7 @@ arm_pc_is_thumb (struct gdbarch *gdbarch, CORE_ADDR memaddr)\n }\n \n /* Determine if the address specified equals any of these magic return\n-   values, called EXC_RETURN, defined by the ARM v6-M and v7-M\n+   values, called EXC_RETURN, defined by the ARM v6-M, v7-M and v8-M\n    architectures.\n \n    From ARMv6-M Reference Manual B1.5.8\n@@ -500,13 +500,25 @@ arm_pc_is_thumb (struct gdbarch *gdbarch, CORE_ADDR memaddr)\n    0xFFFFFFFD    Thread mode      Process         Basic\n \n    For more details see \"B1.5.8 Exception return behavior\"\n-   in both ARMv6-M and ARMv7-M Architecture Reference Manuals.  */\n+   in both ARMv6-M and ARMv7-M Architecture Reference Manuals.\n+\n+   In the ARMv8-M Architecture Technical Reference also adds\n+   for implementations without the Security Extension:\n+\n+   EXC_RETURN    Condition\n+   0xFFFFFFB0    Return to Handler mode.\n+   0xFFFFFFB8    Return to Thread mode using the main stack.\n+   0xFFFFFFBC    Return to Thread mode using the process stack.  */\n \n static int\n arm_m_addr_is_magic (CORE_ADDR addr)\n {\n   switch (addr)\n     {\n+      /* Values from ARMv8-M Architecture Technical Reference.  */\n+      case 0xffffffb0:\n+      case 0xffffffb8:\n+      case 0xffffffbc:\n       /* Values from Tables in B1.5.8 the EXC_RETURN definitions of\n \t the exception return behavior.  */\n       case 0xffffffe1:\n@@ -2923,14 +2935,64 @@ arm_m_exception_cache (struct frame_info *this_frame)\n   struct gdbarch *gdbarch = get_frame_arch (this_frame);\n   enum bfd_endian byte_order = gdbarch_byte_order (gdbarch);\n   struct arm_prologue_cache *cache;\n+  CORE_ADDR lr;\n+  CORE_ADDR sp;\n   CORE_ADDR unwound_sp;\n   LONGEST xpsr;\n+  uint32_t exc_return;\n+  uint32_t process_stack_used;\n+  uint32_t extended_frame_used;\n+  uint32_t secure_stack_used;\n \n   cache = FRAME_OBSTACK_ZALLOC (struct arm_prologue_cache);\n   cache->saved_regs = trad_frame_alloc_saved_regs (this_frame);\n \n-  unwound_sp = get_frame_register_unsigned (this_frame,\n-\t\t\t\t\t    ARM_SP_REGNUM);\n+  /* ARMv7-M Architecture Reference \"B1.5.6 Exception entry behavior\"\n+     describes which bits in LR that define which stack was used prior\n+     to the exception and if FPU is used (causing extended stack frame).  */\n+\n+  lr = get_frame_register_unsigned (this_frame, ARM_LR_REGNUM);\n+  sp = get_frame_register_unsigned (this_frame, ARM_SP_REGNUM);\n+\n+  /* Check EXC_RETURN indicator bits.  */\n+  exc_return = (((lr >> 28) & 0xf) == 0xf);\n+\n+  /* Check EXC_RETURN bit SPSEL if Main or Thread (process) stack used.  */\n+  process_stack_used = ((lr & (1 << 2)) != 0);\n+  if (exc_return && process_stack_used)\n+    {\n+      /* Thread (process) stack used.\n+         Potentially this could be other register defined by target, but PSP\n+         can be considered a standard name for the \"Process Stack Pointer\".\n+         To be fully aware of system registers like MSP and PSP, these could\n+         be added to a separate XML arm-m-system-profile that is valid for\n+         ARMv6-M and ARMv7-M architectures. Also to be able to debug eg a\n+         corefile off-line, then these registers must be defined by GDB,\n+         and also be included in the corefile regsets.  */\n+\n+      int psp_regnum = user_reg_map_name_to_regnum (gdbarch, \"psp\", -1);\n+      if (psp_regnum == -1)\n+        {\n+          /* Thread (process) stack could not be fetched,\n+             give warning and exit.  */\n+\n+          warning (_(\"no PSP thread stack unwinding supported.\"));\n+\n+          /* Terminate any further stack unwinding by refer to self.  */\n+          cache->prev_sp = sp;\n+          return cache;\n+        }\n+      else\n+        {\n+          /* Thread (process) stack used, use PSP as SP.  */\n+          unwound_sp = get_frame_register_unsigned (this_frame, psp_regnum);\n+        }\n+    }\n+  else\n+    {\n+      /* Main stack used, use MSP as SP.  */\n+      unwound_sp = sp;\n+    }\n \n   /* The hardware saves eight 32-bit words, comprising xPSR,\n      ReturnAddress, LR (R14), R12, R3, R2, R1, R0.  See details in\n@@ -2940,15 +3002,62 @@ arm_m_exception_cache (struct frame_info *this_frame)\n   cache->saved_regs[1].addr = unwound_sp + 4;\n   cache->saved_regs[2].addr = unwound_sp + 8;\n   cache->saved_regs[3].addr = unwound_sp + 12;\n-  cache->saved_regs[12].addr = unwound_sp + 16;\n-  cache->saved_regs[14].addr = unwound_sp + 20;\n-  cache->saved_regs[15].addr = unwound_sp + 24;\n+  cache->saved_regs[ARM_IP_REGNUM].addr = unwound_sp + 16;\n+  cache->saved_regs[ARM_LR_REGNUM].addr = unwound_sp + 20;\n+  cache->saved_regs[ARM_PC_REGNUM].addr = unwound_sp + 24;\n   cache->saved_regs[ARM_PS_REGNUM].addr = unwound_sp + 28;\n \n+  /* Check EXC_RETURN bit FTYPE if extended stack frame (FPU regs stored)\n+     type used.  */\n+  extended_frame_used = ((lr & (1 << 4)) == 0);\n+  if (exc_return && extended_frame_used)\n+    {\n+      int i;\n+      int fpu_regs_stack_offset;\n+\n+      /* This code does not take into account the lazy stacking, see \"Lazy\n+         context save of FP state\", in B1.5.7, also ARM AN298, supported\n+         by Cortex-M4F architecture.\n+         To fully handle this the FPCCR register (Floating-point Context\n+         Control Register) needs to be read out and the bits ASPEN and LSPEN\n+         could be checked to setup correct lazy stacked FP registers.\n+         This register is located at address 0xE000EF34.  */\n+\n+      /* Extended stack frame type used.  */\n+      fpu_regs_stack_offset = unwound_sp + 0x20;\n+      for (i = 0; i < 16; i++)\n+        {\n+          cache->saved_regs[ARM_D0_REGNUM + i].addr = fpu_regs_stack_offset;\n+          fpu_regs_stack_offset += 4;\n+        }\n+      cache->saved_regs[ARM_FPSCR_REGNUM].addr = unwound_sp + 0x60;\n+\n+      /* Offset 0x64 is reserved.  */\n+      cache->prev_sp = unwound_sp + 0x68;\n+    }\n+  else\n+    {\n+      /* Standard stack frame type used.  */\n+      cache->prev_sp = unwound_sp + 0x20;\n+    }\n+\n+  /* Check EXC_RETURN bit S if Secure or Non-secure stack used.  */\n+  secure_stack_used = ((lr & (1 << 6)) != 0);\n+  if (exc_return && secure_stack_used)\n+    {\n+      /* ARMv8-M Exception and interrupt handling is not considered here.\n+\t In the ARMv8-M architecture also EXC_RETURN bit S is controlling if\n+\t the Secure or Non-secure stack was used. To separate Secure and\n+\t Non-secure stacks, processors that are based on the ARMv8-M\n+\t architecture support 4 stack pointers: MSP_S, PSP_S, MSP_NS, PSP_NS.\n+\t In addition, a stack limit feature is provided using stack limit\n+\t registers (accessible using MSR and MRS instructions) in Privileged\n+\t level.  */\n+    }\n+\n   /* If bit 9 of the saved xPSR is set, then there is a four-byte\n      aligner between the top of the 32-byte stack frame and the\n      previous context's stack pointer.  */\n-  cache->prev_sp = unwound_sp + 32;\n   if (safe_read_memory_integer (unwound_sp + 28, 4, byte_order, &xpsr)\n       && (xpsr & (1 << 9)) != 0)\n     cache->prev_sp += 4;"
+    }
+  ]
+}

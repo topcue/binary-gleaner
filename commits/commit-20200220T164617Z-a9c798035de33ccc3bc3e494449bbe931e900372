@@ -1,0 +1,146 @@
+{
+  "sha": "a9c798035de33ccc3bc3e494449bbe931e900372",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YTljNzk4MDM1ZGUzM2NjYzNiYzNlNDk0NDQ5YmJlOTMxZTkwMDM3Mg==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-02-20T16:46:17Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-02-20T16:46:17Z"
+    },
+    "message": "[gdb/testsuite] Fix hello.go xpass\n\nWith gdb.go/hello.go, we run into an xpass:\n...\nThread 1 \"hello\" hit Breakpoint 1, main.main () at hello.go:7^M\n7       func main () {^M\n(gdb) print st^M\n$1 = 0x0 \"\"^M\n(gdb) XPASS: gdb.go/hello.exp: starting string check\n...\n\nThe xfail is setup as follows:\n...\n\\# This used to print \"\", i.e., the local \"st\" initialized as \"\".\nsetup_xfail \"*-*-*\"\n\ngdb_test \"print st\" \\\n    \".* = $hex \\\"\\\"\" \\\n    \"starting string check\"\n...\n\nIt's not clear what gccgo/gc PR this xfail refers to.\n\nIt's also not clear why the empty string is both:\n- listed as reason for xfail, and\n- used in the pass pattern.\n\nFurthermore, there's a comment in the hello.go testcase:\n...\n  st := \"Hello, world!\" // this intentionally shadows the global \"st\"\n...\nwhile there's no global st variable present, only a variable myst:\n...\nvar myst = \"Shall we?\"\n...\n\nFix this by splitting up the test-case in two test-cases, hello.{go,exp} and\nglobal-local-var-shadow.{go,exp}.\n\nIn hello.exp we no longer attempt to print st before its declaration.  In\nhello.go we remove the myst variable as well the comment related to shadowing.\n\nIn global-local-var-shadow.go, we rename myst to st, such that the comment\nrelated to shadowing is correct.  In global-local-var-shadow.exp we attempt to\nprint the value of st before the local definition, which should print the\nvalue of the global definition, and xfail this with reference to GCC PR93844.\n\nTested on x86_64-linux, with gccgo 10.\n\ngdb/testsuite/ChangeLog:\n\n2020-02-20  Tom de Vries  <tdevries@suse.de>\n\n\tPR go/17018\n\t* gdb.go/hello.exp: Copy ...\n\t* gdb.go/global-local-var-shadow.exp: ... here.  New file.  Expect\n\tprint of st to print value of global definition. Add xfail for GCC\n\tPR93844.\n\t* gdb.go/hello.exp: Remove printing of st before definition.\n\t* gdb.go/hello.go: Copy ...\n\t* gdb.go/global-local-var-shadow.go: ... here. New test.  Rename myst\n\tto st.\n\t* gdb.go/hello.go: Remove myst.  Remove comment about shadowing.",
+    "tree": {
+      "sha": "282bd4d976cf45a29095bfb65be48091c58e20ad",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/282bd4d976cf45a29095bfb65be48091c58e20ad"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/a9c798035de33ccc3bc3e494449bbe931e900372",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a9c798035de33ccc3bc3e494449bbe931e900372",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/a9c798035de33ccc3bc3e494449bbe931e900372",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a9c798035de33ccc3bc3e494449bbe931e900372/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "52405d85ec748e4566b7893fa3cb9ff21c8a1bc4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/52405d85ec748e4566b7893fa3cb9ff21c8a1bc4",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/52405d85ec748e4566b7893fa3cb9ff21c8a1bc4"
+    }
+  ],
+  "stats": {
+    "total": 94,
+    "additions": 83,
+    "deletions": 11
+  },
+  "files": [
+    {
+      "sha": "5553782e0a5282463c9b75fa98502c199fd7abb4",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a9c798035de33ccc3bc3e494449bbe931e900372/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a9c798035de33ccc3bc3e494449bbe931e900372/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=a9c798035de33ccc3bc3e494449bbe931e900372",
+      "patch": "@@ -1,3 +1,16 @@\n+2020-02-20  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR go/17018\n+\t* gdb.go/hello.exp: Copy ...\n+\t* gdb.go/global-local-var-shadow.exp: ... here.  New file.  Expect\n+\tprint of st to print value of global definition. Add xfail for GCC\n+\tPR93844.\n+\t* gdb.go/hello.exp: Remove printing of st before definition.\n+\t* gdb.go/hello.go: Copy ...\n+\t* gdb.go/global-local-var-shadow.go: ... here. New test.  Rename myst\n+\tto st.\n+\t* gdb.go/hello.go: Remove myst.  Remove comment about shadowing.\n+\n 2020-02-20  Tom de Vries  <tdevries@suse.de>\n \n \t* lib/gdb.exp (support_go_compile): New gdb_caching_proc."
+    },
+    {
+      "sha": "f7fd4e10075917156259dd0e7c3726f4d36c2d4d",
+      "filename": "gdb/testsuite/gdb.go/global-local-var-shadow.exp",
+      "status": "added",
+      "additions": 58,
+      "deletions": 0,
+      "changes": 58,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a9c798035de33ccc3bc3e494449bbe931e900372/gdb/testsuite/gdb.go/global-local-var-shadow.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a9c798035de33ccc3bc3e494449bbe931e900372/gdb/testsuite/gdb.go/global-local-var-shadow.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.go/global-local-var-shadow.exp?ref=a9c798035de33ccc3bc3e494449bbe931e900372",
+      "patch": "@@ -0,0 +1,58 @@\n+# This testcase is part of GDB, the GNU debugger.\n+\n+# Copyright 2012-2020 Free Software Foundation, Inc.\n+#\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Basic tests.\n+\n+load_lib \"go.exp\"\n+\n+if { [skip_go_tests] } { continue }\n+if { [support_go_compile] == 0 } { continue }\n+\n+standard_testfile .go\n+\n+if { [prepare_for_testing \"failed to prepare\" ${testfile} ${srcfile} {debug go}] } {\n+    return -1\n+}\n+\n+set bp_location1 [gdb_get_line_number \"set breakpoint 1 here\"]\n+\n+if { [go_runto_main] < 0 } {\n+    untested \"could not run to main\"\n+    return -1\n+}\n+\n+gdb_test_multiple \"print st\" \"print global var st\" {\n+    -re -wrap \" = $hex \\\"We shall\\\"\" {\n+       pass $gdb_test_name\n+    }\n+    -re -wrap \" = $hex .*\" {\n+       # GCC PR 93844 (Same problem with google go compiler go1.11.13).\n+       # Due to the PR, gdb prints an uninitialized value, which can manifest\n+       # as '$3 = 0x0 \"\"', but also as printing a wild pointer.\n+       xfail $gdb_test_name\n+    }\n+}\n+\n+if { [gdb_breakpoint ${srcfile}:${bp_location1}] } {\n+    pass \"setting breakpoint 1\"\n+}\n+\n+gdb_test \"cont\" \"Breakpoint .*:${bp_location1}.*\" \"going to first breakpoint\"\n+\n+gdb_test \"print st\" \\\n+    \".* = $hex \\\"Hello, world!\\\"\" \\\n+    \"string after assignment check\""
+    },
+    {
+      "sha": "73f39446ddf630c966637d8f8ed315ea2b6e99cc",
+      "filename": "gdb/testsuite/gdb.go/global-local-var-shadow.go",
+      "status": "added",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a9c798035de33ccc3bc3e494449bbe931e900372/gdb/testsuite/gdb.go/global-local-var-shadow.go",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a9c798035de33ccc3bc3e494449bbe931e900372/gdb/testsuite/gdb.go/global-local-var-shadow.go",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.go/global-local-var-shadow.go?ref=a9c798035de33ccc3bc3e494449bbe931e900372",
+      "patch": "@@ -0,0 +1,11 @@\n+package main\n+\n+import \"fmt\"\n+\n+var st = \"We shall\"\n+\n+func main () {\n+  fmt.Println (\"Before assignment\")\n+  st := \"Hello, world!\" // this intentionally shadows the global \"st\"\n+  fmt.Println (st) // set breakpoint 1 here\n+}"
+    },
+    {
+      "sha": "69f3a8c322e58c1e4a1ad76f0cd85d89ac684231",
+      "filename": "gdb/testsuite/gdb.go/hello.exp",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 7,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a9c798035de33ccc3bc3e494449bbe931e900372/gdb/testsuite/gdb.go/hello.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a9c798035de33ccc3bc3e494449bbe931e900372/gdb/testsuite/gdb.go/hello.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.go/hello.exp?ref=a9c798035de33ccc3bc3e494449bbe931e900372",
+      "patch": "@@ -35,13 +35,6 @@ if { [go_runto_main] < 0 } {\n     return -1\n }\n \n-# This used to print \"\", i.e., the local \"st\" initialized as \"\".\n-setup_xfail \"*-*-*\"\n-\n-gdb_test \"print st\" \\\n-    \".* = $hex \\\"\\\"\" \\\n-    \"starting string check\"\n-\n if { [gdb_breakpoint ${srcfile}:${bp_location1}] } {\n     pass \"setting breakpoint 1\"\n }"
+    },
+    {
+      "sha": "67114dde7143032ad805d6d92cf1948a2b7dc9b9",
+      "filename": "gdb/testsuite/gdb.go/hello.go",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 4,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a9c798035de33ccc3bc3e494449bbe931e900372/gdb/testsuite/gdb.go/hello.go",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a9c798035de33ccc3bc3e494449bbe931e900372/gdb/testsuite/gdb.go/hello.go",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.go/hello.go?ref=a9c798035de33ccc3bc3e494449bbe931e900372",
+      "patch": "@@ -2,11 +2,8 @@ package main\n \n import \"fmt\"\n \n-var myst = \"Shall we?\"\n-\n func main () {\n   fmt.Println (\"Before assignment\")\n-  st := \"Hello, world!\" // this intentionally shadows the global \"st\"\n+  st := \"Hello, world!\"\n   fmt.Println (st) // set breakpoint 1 here\n-  fmt.Println (myst)\n }"
+    }
+  ]
+}

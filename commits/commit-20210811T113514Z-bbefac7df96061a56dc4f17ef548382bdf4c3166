@@ -1,0 +1,98 @@
+{
+  "sha": "bbefac7df96061a56dc4f17ef548382bdf4c3166",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YmJlZmFjN2RmOTYwNjFhNTZkYzRmMTdlZjU0ODM4MmJkZjRjMzE2Ng==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-06-15T11:59:34Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-08-11T11:35:14Z"
+    },
+    "message": "gdb: register signal handler after setting up event token\n\nThis commit fixes the smallest of small possible bug related to signal\nhandling.  If we look in async_init_signals we see code like this:\n\n  signal (SIGQUIT, handle_sigquit);\n  sigquit_token =\n    create_async_signal_handler (async_do_nothing, NULL, \"sigquit\");\n\nThen if we look in handle_sigquit we see code like this:\n\n  mark_async_signal_handler (sigquit_token);\n  signal (sig, handle_sigquit);\n\nFinally, in mark_async_signal_handler we have:\n\n  async_handler_ptr->ready = 1;\n\nWhere async_handler_ptr will be sigquit_token.\n\nWhat this means is that if a SIGQUIT arrive in async_init_signals\nafter handle_sigquit has been registered, but before sigquit_token has\nbeen initialised, then GDB will most likely crash.\n\nThe chance of this happening is tiny, but fixing this is trivial, just\nensure we call create_async_signal_handler before calling signal, so\nlets do that.\n\nThere are no tests for this.  Trying to land a signal in the right\nspot is pretty hit and miss.  I did try changing the current HEAD GDB\nlike this:\n\n  signal (SIGQUIT, handle_sigquit);\n  raise (SIGQUIT);\n  sigquit_token =\n    create_async_signal_handler (async_do_nothing, NULL, \"sigquit\");\n\nAnd confirmed that this did result in a crash, after my change I tried\nthis:\n\n  sigquit_token =\n    create_async_signal_handler (async_do_nothing, NULL, \"sigquit\");\n  signal (SIGQUIT, handle_sigquit);\n  raise (SIGQUIT);\n\nAnd GDB now starts up just fine.\n\ngdb/ChangeLog:\n\n\t* event-top.c (async_init_signals): For each signal, call signal\n\tonly after calling create_async_signal_handler.",
+    "tree": {
+      "sha": "15887ad4d6e92638a01825225f41fa88a0bbcf30",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/15887ad4d6e92638a01825225f41fa88a0bbcf30"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/bbefac7df96061a56dc4f17ef548382bdf4c3166",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bbefac7df96061a56dc4f17ef548382bdf4c3166",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/bbefac7df96061a56dc4f17ef548382bdf4c3166",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bbefac7df96061a56dc4f17ef548382bdf4c3166/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "fb550a919a88bf4e3950dd7bcdf72f0a18d94206",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/fb550a919a88bf4e3950dd7bcdf72f0a18d94206",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/fb550a919a88bf4e3950dd7bcdf72f0a18d94206"
+    }
+  ],
+  "stats": {
+    "total": 8,
+    "additions": 5,
+    "deletions": 3
+  },
+  "files": [
+    {
+      "sha": "2d3bfa6a9c99541254deb096fa3bd02f9be6438a",
+      "filename": "gdb/event-top.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 3,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bbefac7df96061a56dc4f17ef548382bdf4c3166/gdb/event-top.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bbefac7df96061a56dc4f17ef548382bdf4c3166/gdb/event-top.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/event-top.c?ref=bbefac7df96061a56dc4f17ef548382bdf4c3166",
+      "patch": "@@ -918,12 +918,13 @@ async_init_signals (void)\n \n   quit_serial_event = make_serial_event ();\n \n-  signal (SIGINT, handle_sigint);\n   sigint_token =\n     create_async_signal_handler (async_request_quit, NULL, \"sigint\");\n-  signal (SIGTERM, handle_sigterm);\n+  signal (SIGINT, handle_sigint);\n+\n   async_sigterm_token\n     = create_async_signal_handler (async_sigterm_handler, NULL, \"sigterm\");\n+  signal (SIGTERM, handle_sigterm);\n \n   /* If SIGTRAP was set to SIG_IGN, then the SIG_IGN will get passed\n      to the inferior and breakpoints will be ignored.  */\n@@ -940,10 +941,11 @@ async_init_signals (void)\n      might be in memory, shared between the two).  Since we establish\n      a handler for SIGQUIT, when we call exec it will set the signal\n      to SIG_DFL for us.  */\n-  signal (SIGQUIT, handle_sigquit);\n   sigquit_token =\n     create_async_signal_handler (async_do_nothing, NULL, \"sigquit\");\n+  signal (SIGQUIT, handle_sigquit);\n #endif\n+\n #ifdef SIGHUP\n   if (signal (SIGHUP, handle_sighup) != SIG_IGN)\n     sighup_token ="
+    }
+  ]
+}

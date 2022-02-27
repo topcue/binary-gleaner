@@ -1,0 +1,108 @@
+{
+  "sha": "2b677209fe127b44c1920779a6fca2598c66c1d3",
+  "node_id": "C_kwDOANOeidoAKDJiNjc3MjA5ZmUxMjdiNDRjMTkyMDc3OWE2ZmNhMjU5OGM2NmMxZDM",
+  "commit": {
+    "author": {
+      "name": "Maciej W. Rozycki",
+      "email": "macro@embecosm.com",
+      "date": "2021-10-27T11:21:14Z"
+    },
+    "committer": {
+      "name": "Maciej W. Rozycki",
+      "email": "macro@embecosm.com",
+      "date": "2021-10-27T11:21:14Z"
+    },
+    "message": "opcodes: Fix RPATH not being set for dynamic libbfd dependency\n\nIf built as a shared library, libopcodes has a load-time dependency on\nlibbfd, which is recorded in the dynamic section, however without a\ncorresponding RPATH entry for the directory to find libbfd in.  This\ncauses loading to fail whenever libbfd is only pulled by libopcodes\nindirectly and libbfd has been installed in a directory that is not in\nthe dynamic loader's search path.\n\nIt does not happen with the programs included with binutils or GDB,\nbecause they all also pull libbfd when using libopcodes, but it can\nhappen with external software, e.g.:\n\n$ gdbserver --help\ngdbserver: error while loading shared libraries: libbfd-[...].so: cannot open shared object file: No such file or directory\n$\n\n(not our `gdbserver').\n\nIndirect dynamic dependencies are handled by libtool automatically by\nadding RPATH entries as required, however our setup for libopcodes\nprevents this from happening by linking in libbfd with an explicit file\nreference sneaked through to the linker directly behind libtool's back\nvia the `-Wl' linker command-line option rather than via `-l' combined\nwith a suitable library search path specified via `-L', as it would be\nusually the case, or just referring to the relevant .la file in a fully\nlibtool-enabled configuration such as ours.\n\nAccording to an observation in the discussion back in 2007[1][2][3] that\nhas led to the current arrangement it is to prevent libtool from picking\nup the wrong version of libbfd.  It does not appear to be needed though,\nnot at least with our current libtool incarnation, as directly referring\n`libbfd.la' does exactly what it should, as previously suggested[4], and\nwith no link-time reference to the installation directory other than to\nset RPATH.  Uninstalled version of libopcodes has libbfd's build-time\nlocation prepended to RPATH too, as also expected.\n\nUse a direct reference to `libbfd.la' then, making the load error quoted\nabove go away.  Alternatively `-L' and `-l' could be used to the same\neffect, but it seems an unnecessary complication and just another way to\ncircumvent rather than making use of libtool.\n\nReferences:\n\n[1] \"compile failure due to undefined symbol\",\n    <https://sourceware.org/ml/binutils/2007-08/msg00476.html>\n\n[2] same, <https://sourceware.org/ml/binutils/2007-09/msg00000.html>\n\n[3] same, <https://sourceware.org/ml/binutils/2007-10/msg00019.html>\n\n[4] same, <https://sourceware.org/ml/binutils/2007-10/msg00034.html>\n\n\topcodes/\n\t* Makefile.am: Remove obsolete comment.\n\t* configure.ac: Refer `libbfd.la' to link shared BFD library\n\texcept for Cygwin.\n\t* Makefile.in: Regenerate.\n\t* configure: Regenerate.",
+    "tree": {
+      "sha": "cffc48a1f33fc4839bc76e4981633c5554ae1e8f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/cffc48a1f33fc4839bc76e4981633c5554ae1e8f"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/2b677209fe127b44c1920779a6fca2598c66c1d3",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2b677209fe127b44c1920779a6fca2598c66c1d3",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/2b677209fe127b44c1920779a6fca2598c66c1d3",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2b677209fe127b44c1920779a6fca2598c66c1d3/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "28c26ce5fddaf21692c077b5b366a95bce991d64",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/28c26ce5fddaf21692c077b5b366a95bce991d64",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/28c26ce5fddaf21692c077b5b366a95bce991d64"
+    }
+  ],
+  "stats": {
+    "total": 46,
+    "additions": 10,
+    "deletions": 36
+  },
+  "files": [
+    {
+      "sha": "f0e4b72c353c20d35f12e454766874022535e3ba",
+      "filename": "opcodes/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2b677209fe127b44c1920779a6fca2598c66c1d3/opcodes/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2b677209fe127b44c1920779a6fca2598c66c1d3/opcodes/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/ChangeLog?ref=2b677209fe127b44c1920779a6fca2598c66c1d3",
+      "patch": "@@ -1,3 +1,11 @@\n+2021-10-27  Maciej W. Rozycki  <macro@embecosm.com>\n+\n+\t* Makefile.am: Remove obsolete comment.\n+\t* configure.ac: Refer `libbfd.la' to link shared BFD library\n+\texcept for Cygwin.\n+\t* Makefile.in: Regenerate.\n+\t* configure: Regenerate.\n+\n 2021-09-27  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* configure: Regenerate."
+    },
+    {
+      "sha": "e07e360d842790a075a50aaa895ec045abf90772",
+      "filename": "opcodes/Makefile.am",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 6,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2b677209fe127b44c1920779a6fca2598c66c1d3/opcodes/Makefile.am",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2b677209fe127b44c1920779a6fca2598c66c1d3/opcodes/Makefile.am",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/Makefile.am?ref=2b677209fe127b44c1920779a6fca2598c66c1d3",
+      "patch": "@@ -321,12 +321,6 @@ endif\n endif\n \n libopcodes_la_SOURCES =  dis-buf.c disassemble.c dis-init.c\n-# It's desirable to list ../bfd/libbfd.la in DEPENDENCIES and LIBADD.\n-# Unfortunately this causes libtool to add -L$(libdir), referring to the\n-# planned install directory of libbfd.  This can cause us to pick up an\n-# old version of libbfd, or to pick up libbfd for the wrong architecture\n-# if host != build. So for building with shared libraries we use a\n-# hardcoded path to libbfd.so instead of relying on the entries in libbfd.la.\n libopcodes_la_DEPENDENCIES = $(OFILES) @SHARED_DEPENDENCIES@\n libopcodes_la_LIBADD = $(OFILES) @SHARED_LIBADD@\n libopcodes_la_LDFLAGS += -release `cat ../bfd/libtool-soversion` @SHARED_LDFLAGS@"
+    },
+    {
+      "sha": "942737106abf96814bd2f0cb9d013dcec57d05cf",
+      "filename": "opcodes/Makefile.in",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 6,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2b677209fe127b44c1920779a6fca2598c66c1d3/opcodes/Makefile.in",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2b677209fe127b44c1920779a6fca2598c66c1d3/opcodes/Makefile.in",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/Makefile.in?ref=2b677209fe127b44c1920779a6fca2598c66c1d3",
+      "patch": "@@ -699,12 +699,6 @@ OFILES = @BFD_MACHINES@\n CONFIG_STATUS_DEPENDENCIES = $(BFDDIR)/development.sh\n AM_CPPFLAGS = -I. -I$(srcdir) -I../bfd -I$(INCDIR) -I$(BFDDIR) @HDEFINES@ @INCINTL@\n libopcodes_la_SOURCES = dis-buf.c disassemble.c dis-init.c\n-# It's desirable to list ../bfd/libbfd.la in DEPENDENCIES and LIBADD.\n-# Unfortunately this causes libtool to add -L$(libdir), referring to the\n-# planned install directory of libbfd.  This can cause us to pick up an\n-# old version of libbfd, or to pick up libbfd for the wrong architecture\n-# if host != build. So for building with shared libraries we use a\n-# hardcoded path to libbfd.so instead of relying on the entries in libbfd.la.\n libopcodes_la_DEPENDENCIES = $(OFILES) @SHARED_DEPENDENCIES@\n libopcodes_la_LIBADD = $(OFILES) @SHARED_LIBADD@\n # Allow dependency tracking to work on all the source files."
+    },
+    {
+      "sha": "acfbdd6ec6fd79441f2994061be2e05080015779",
+      "filename": "opcodes/configure",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 12,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2b677209fe127b44c1920779a6fca2598c66c1d3/opcodes/configure",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2b677209fe127b44c1920779a6fca2598c66c1d3/opcodes/configure",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/configure?ref=2b677209fe127b44c1920779a6fca2598c66c1d3",
+      "patch": "@@ -12133,19 +12133,8 @@ if test \"$enable_shared\" = \"yes\"; then\n       SHARED_LDFLAGS=\"-no-undefined\"\n       SHARED_LIBADD=\"-L`pwd`/../bfd -lbfd -L`pwd`/../libiberty -liberty $SHARED_LIBADD\"\n       ;;\n-   *-*-darwin*)\n-     SHARED_LIBADD=\"-Wl,`pwd`/../bfd/.libs/libbfd.dylib ${SHARED_LIBADD}\"\n-     SHARED_DEPENDENCIES=\"../bfd/libbfd.la\"\n-     ;;\n     *)\n-      case \"$host_vendor\" in\n-        hp)\n-          SHARED_LIBADD=\"-Wl,`pwd`/../bfd/.libs/libbfd.sl ${SHARED_LIBADD}\"\n-\t  ;;\n-\t*)\n-          SHARED_LIBADD=\"-Wl,`pwd`/../bfd/.libs/libbfd.so ${SHARED_LIBADD}\"\n-\t  ;;\n-      esac\n+      SHARED_LIBADD=\"../bfd/libbfd.la ${SHARED_LIBADD}\"\n       SHARED_DEPENDENCIES=\"../bfd/libbfd.la\"\n       ;;\n   esac"
+    },
+    {
+      "sha": "757ce10fbe24c63bcfa87a33a813910e3439f3e5",
+      "filename": "opcodes/configure.ac",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 12,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2b677209fe127b44c1920779a6fca2598c66c1d3/opcodes/configure.ac",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2b677209fe127b44c1920779a6fca2598c66c1d3/opcodes/configure.ac",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/configure.ac?ref=2b677209fe127b44c1920779a6fca2598c66c1d3",
+      "patch": "@@ -193,19 +193,8 @@ if test \"$enable_shared\" = \"yes\"; then\n       SHARED_LDFLAGS=\"-no-undefined\"\n       SHARED_LIBADD=\"-L`pwd`/../bfd -lbfd -L`pwd`/../libiberty -liberty $SHARED_LIBADD\"\n       ;;\n-   *-*-darwin*)\n-     SHARED_LIBADD=\"-Wl,`pwd`/../bfd/.libs/libbfd.dylib ${SHARED_LIBADD}\"\n-     SHARED_DEPENDENCIES=\"../bfd/libbfd.la\"\n-     ;;\n     *)\n-      case \"$host_vendor\" in\n-        hp)\n-          SHARED_LIBADD=\"-Wl,`pwd`/../bfd/.libs/libbfd.sl ${SHARED_LIBADD}\"\n-\t  ;;\n-\t*)\n-          SHARED_LIBADD=\"-Wl,`pwd`/../bfd/.libs/libbfd.so ${SHARED_LIBADD}\"\n-\t  ;;\n-      esac\n+      SHARED_LIBADD=\"../bfd/libbfd.la ${SHARED_LIBADD}\"\n       SHARED_DEPENDENCIES=\"../bfd/libbfd.la\"\n       ;;\n   esac"
+    }
+  ]
+}

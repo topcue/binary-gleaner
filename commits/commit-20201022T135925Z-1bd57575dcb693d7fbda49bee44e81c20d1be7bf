@@ -1,0 +1,110 @@
+{
+  "sha": "1bd57575dcb693d7fbda49bee44e81c20d1be7bf",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MWJkNTc1NzVkY2I2OTNkN2ZiZGE0OWJlZTQ0ZTgxYzIwZDFiZTdiZg==",
+  "commit": {
+    "author": {
+      "name": "Luis Machado",
+      "email": "luis.machado@linaro.org",
+      "date": "2020-10-14T22:11:09Z"
+    },
+    "committer": {
+      "name": "Luis Machado",
+      "email": "luis.machado@linaro.org",
+      "date": "2020-10-22T13:59:25Z"
+    },
+    "message": "Fix gdb.base/corefile2.exp regression when running Docker/AUFS\n\nThe following failures started showing up after commit\nbb2a67773c - \"Use a std::vector in target_section_table\":\n\nFAIL: gdb.base/corefile2.exp: renamed binfile: print/x mbuf_ro[0]@4\nFAIL: gdb.base/corefile2.exp: renamed binfile: print/x mbuf_ro[pagesize-4]@4\nFAIL: gdb.base/corefile2.exp: renamed binfile: print/x mbuf_ro[-3]@6\nFAIL: gdb.base/corefile2.exp: renamed binfile: print/x mbuf_rw[pagesize-3]@6\nFAIL: gdb.base/corefile2.exp: renamed binfile: print/x mbuf_ro[pagesize-3]@6\n\nI tracked it down to a problem in core_target::xfer_partial, at this point:\n\n\tif (!m_core_file_mappings.empty ())\n\t  xfer_status = xfer_memory_via_mappings (readbuf, writebuf, offset,\n\t\t\t\t\t\t  len, xfered_len);\n\telse\n\t  xfer_status = this->beneath ()->xfer_partial (object, annex, readbuf,\n\t\t\t\t\t\t\twritebuf, offset, len,\n\t\t\t\t\t\t\txfered_len);\n\nIt seems commit bb2a67773c uncovered a latent bug when handling a particular\ncase where things are running within a Docker container using the AUFS storage\ndriver.\n\nWhen building the file mappings for a core file, we call\ngdbarch_read_core_file_mappings, which in turn passes a couple lambda\ncallbacks. One pre-loop and one in-loop.\n\nThe catch is that commit bb2a67773c reworked the pre-loop lambda and\nmade it do nothing. Before that commit, we always allocated\nm_core_file_mappings in that lambda.\n\nNow, when calling the in-loop lambda, we don't touch m_core_file_mappings\nbecause the bfd is nullptr (given Docker leaks the host system path, and that\nfile doesn't exist within the container itself).\n\nSo, instead, we add an entry to the m_core_unavailable_mappings vector.\n\nWhen we reach core_target::xfer_partial, we're only checking for an empty\nm_core_file_mappings. Given it is now empty, we take the path of reading\nthe contents from the file, not the core file. This reads back unexpected\nresults.\n\nThe following patch fixes this by also checking for\nm_core_unavailable_mappings, given core_target::xfer_memory_via_mappings\nalready handles the Docker/AUFS situation.\n\ngdb/ChangeLog:\n\n2020-10-22  Luis Machado  <luis.machado@linaro.org>\n\n\t* corelow.c (core_target::xfer_partial): Also check for an empty\n\tm_core_unavailable_mappings vector.",
+    "tree": {
+      "sha": "8a854c43b2d80104cce3d5970e35638a227178f1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/8a854c43b2d80104cce3d5970e35638a227178f1"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/1bd57575dcb693d7fbda49bee44e81c20d1be7bf",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1bd57575dcb693d7fbda49bee44e81c20d1be7bf",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/1bd57575dcb693d7fbda49bee44e81c20d1be7bf",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1bd57575dcb693d7fbda49bee44e81c20d1be7bf/comments",
+  "author": {
+    "login": "luislinaro",
+    "id": 53092780,
+    "node_id": "MDQ6VXNlcjUzMDkyNzgw",
+    "avatar_url": "https://avatars.githubusercontent.com/u/53092780?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/luislinaro",
+    "html_url": "https://github.com/luislinaro",
+    "followers_url": "https://api.github.com/users/luislinaro/followers",
+    "following_url": "https://api.github.com/users/luislinaro/following{/other_user}",
+    "gists_url": "https://api.github.com/users/luislinaro/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/luislinaro/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/luislinaro/subscriptions",
+    "organizations_url": "https://api.github.com/users/luislinaro/orgs",
+    "repos_url": "https://api.github.com/users/luislinaro/repos",
+    "events_url": "https://api.github.com/users/luislinaro/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/luislinaro/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "luislinaro",
+    "id": 53092780,
+    "node_id": "MDQ6VXNlcjUzMDkyNzgw",
+    "avatar_url": "https://avatars.githubusercontent.com/u/53092780?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/luislinaro",
+    "html_url": "https://github.com/luislinaro",
+    "followers_url": "https://api.github.com/users/luislinaro/followers",
+    "following_url": "https://api.github.com/users/luislinaro/following{/other_user}",
+    "gists_url": "https://api.github.com/users/luislinaro/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/luislinaro/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/luislinaro/subscriptions",
+    "organizations_url": "https://api.github.com/users/luislinaro/orgs",
+    "repos_url": "https://api.github.com/users/luislinaro/repos",
+    "events_url": "https://api.github.com/users/luislinaro/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/luislinaro/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "c6d47bff77db79b1ad99cd7911f7e1807874be55",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c6d47bff77db79b1ad99cd7911f7e1807874be55",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/c6d47bff77db79b1ad99cd7911f7e1807874be55"
+    }
+  ],
+  "stats": {
+    "total": 19,
+    "additions": 15,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "a976442f9a41384d44113b799573c8e76dd41812",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1bd57575dcb693d7fbda49bee44e81c20d1be7bf/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1bd57575dcb693d7fbda49bee44e81c20d1be7bf/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=1bd57575dcb693d7fbda49bee44e81c20d1be7bf",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-10-22  Luis Machado  <luis.machado@linaro.org>\n+\n+\t* corelow.c (core_target::xfer_partial): Also check for an empty\n+\tm_core_unavailable_mappings vector.\n+\n 2020-10-22  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* expprint.c (dump_subexp_body_standard): Print RANGE_HAS_STRIDE."
+    },
+    {
+      "sha": "a54d81571aa69318eb38c81f7c731318d6303619",
+      "filename": "gdb/corelow.c",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 4,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1bd57575dcb693d7fbda49bee44e81c20d1be7bf/gdb/corelow.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1bd57575dcb693d7fbda49bee44e81c20d1be7bf/gdb/corelow.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/corelow.c?ref=1bd57575dcb693d7fbda49bee44e81c20d1be7bf",
+      "patch": "@@ -813,10 +813,16 @@ core_target::xfer_partial (enum target_object object, const char *annex,\n \t   core file provided mappings (e.g. from .note.linuxcore.file\n \t   or the like) as this should provide a more accurate\n \t   result.  If not, check the stratum beneath us, which should\n-\t   be the file stratum.  */\n-\tif (!m_core_file_mappings.empty ())\n-\t  xfer_status = xfer_memory_via_mappings (readbuf, writebuf, offset,\n-\t\t\t\t\t\t  len, xfered_len);\n+\t   be the file stratum.\n+\n+\t   We also check unavailable mappings due to Docker/AUFS driver\n+\t   issues.  */\n+\tif (!m_core_file_mappings.empty ()\n+\t    || !m_core_unavailable_mappings.empty ())\n+\t  {\n+\t    xfer_status = xfer_memory_via_mappings (readbuf, writebuf, offset,\n+\t\t\t\t\t\t    len, xfered_len);\n+\t  }\n \telse\n \t  xfer_status = this->beneath ()->xfer_partial (object, annex, readbuf,\n \t\t\t\t\t\t\twritebuf, offset, len,"
+    }
+  ]
+}

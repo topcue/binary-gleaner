@@ -1,0 +1,110 @@
+{
+  "sha": "74b10a3219e44ba2585e3f7226a6455d41e92c1b",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NzRiMTBhMzIxOWU0NGJhMjU4NWUzZjcyMjZhNjQ1NWQ0MWU5MmMxYg==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-07-07T12:57:36Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-07-08T14:02:51Z"
+    },
+    "message": "gdb: don't set Linux-specific displaced stepping methods in s390_gdbarch_init\n\nAccording to bug 28056, running an s390x binary gives:\n\n    (gdb) run\n    Starting program: /usr/bin/ls\n    /home/ubuntu/tmp/gdb-11.0.90.20210705/gdb/linux-tdep.c:2550: internal-error: displaced_step_prepare_status linux_displaced_step_prepare(gdbarch*, thread_info*, CORE_ADDR&): Assertion `gdbarch_data->num_disp_step_buffers > 0' failed.\n\nThis is because the s390 architecture registers some Linux-specific\ndisplaced stepping callbacks in the OS-agnostic s390_gdbarch_init:\n\n    set_gdbarch_displaced_step_prepare (gdbarch, linux_displaced_step_prepare);\n    set_gdbarch_displaced_step_finish (gdbarch, linux_displaced_step_finish);\n    set_gdbarch_displaced_step_restore_all_in_ptid\n      (gdbarch, linux_displaced_step_restore_all_in_ptid);\n\nBut then the Linux-specific s390_linux_init_abi_any passes\nnum_disp_step_buffers=0 to linux_init_abi:\n\n    linux_init_abi (info, gdbarch, 0);\n\nThe problem happens when linux_displaced_step_prepare is called for the\nfirst time.  It tries to allocate the displaced stepping buffers, but\nsees that the number of displaced stepping buffers for that architecture\nis 0, which is unexpected / invalid.\n\ns390_gdbarch_init should not register the linux_* callbacks, that is\nexpected to be done by linux_init_abi.  If debugging a bare-metal s390\nprogram, or an s390 program on another OS GDB doesn't know about, we\nwouldn't want to use them.  We would either register no callbacks, if\ndisplaced stepping isn't supported, or register a different set of\ncallbacks if we wanted to support displaced stepping in those cases.\n\nThe commit that refactored the displaced stepping machinery and\nintroduced these set_gdbarch_displaced_step_* calls is 187b041e2514\n(\"gdb: move displaced stepping logic to gdbarch, allow starting\nconcurrent displaced steps\").  However, even before that,\ns390_gdbarch_init did:\n\n  set_gdbarch_displaced_step_location (gdbarch, linux_displaced_step_location);\n\n... which already seemed wrong.  The Linux-specific callback was used\neven for non-Linux system.  Maybe that was on purpose, because it would\nalso happen to work in some other non-Linux case, or maybe it was simply\na mistake.  I'll assume that this was a small mistake when\ns390-tdep.{h,c} where factored out of s390-linux-tdep.c, in d6e589456475\n(\"s390: Split up s390-linux-tdep.c into two files\").\n\nFix this by removing the setting of these displaced step callbacks from\ns390_gdbarch_init.  Instead, pass num_disp_step_buffers=1 to\nlinux_init_abi, in s390_linux_init_abi_any.  Doing so will cause\nlinux_init_abi to register these same callbacks.  It will also mean that\nwhen debugging a bare-metal s390 executable or an executable on another\nOS that GDB doesn't know about, gdbarch_displaced_step_prepare won't be\nset, so displaced stepping won't be used.\n\nThis patch will need to be merged in the gdb-11-branch, since this is a\nGDB 11 regression, so here's the ChangeLog entry:\n\ngdb/ChangeLog:\n\n\t* s390-linux-tdep.c (s390_linux_init_abi_any): Pass 1 (number\n\tof displaced stepping buffers to linux_init_abi.\n\t* s390-tdep.c (s390_gdbarch_init): Don't set the Linux-specific\n\tdisplaced-stepping gdbarch callbacks.\n\nChange-Id: Ieab2f8990c78fde845ce7378d6fd4ee2833800d5\nBug: https://sourceware.org/bugzilla/show_bug.cgi?id=28056",
+    "tree": {
+      "sha": "d68e44fb45cde477d0d4b94a07af91af2e392a5b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/d68e44fb45cde477d0d4b94a07af91af2e392a5b"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/74b10a3219e44ba2585e3f7226a6455d41e92c1b",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/74b10a3219e44ba2585e3f7226a6455d41e92c1b",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/74b10a3219e44ba2585e3f7226a6455d41e92c1b",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/74b10a3219e44ba2585e3f7226a6455d41e92c1b/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "e4cbcea361dd5609a2a4cdf5c63ac15837666c50",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e4cbcea361dd5609a2a4cdf5c63ac15837666c50",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/e4cbcea361dd5609a2a4cdf5c63ac15837666c50"
+    }
+  ],
+  "stats": {
+    "total": 6,
+    "additions": 1,
+    "deletions": 5
+  },
+  "files": [
+    {
+      "sha": "1f40e10e3d38a423790a86cbee3de9bacaa28ade",
+      "filename": "gdb/s390-linux-tdep.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/74b10a3219e44ba2585e3f7226a6455d41e92c1b/gdb/s390-linux-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/74b10a3219e44ba2585e3f7226a6455d41e92c1b/gdb/s390-linux-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/s390-linux-tdep.c?ref=74b10a3219e44ba2585e3f7226a6455d41e92c1b",
+      "patch": "@@ -1120,7 +1120,7 @@ s390_linux_init_abi_any (struct gdbarch_info info, struct gdbarch *gdbarch)\n \n   tdep->s390_syscall_record = s390_linux_syscall_record;\n \n-  linux_init_abi (info, gdbarch, 0);\n+  linux_init_abi (info, gdbarch, 1);\n \n   /* Register handling.  */\n   set_gdbarch_core_read_description (gdbarch, s390_core_read_description);"
+    },
+    {
+      "sha": "d3bb2bacbb404a615b3731bf3af97be19649e190",
+      "filename": "gdb/s390-tdep.c",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 4,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/74b10a3219e44ba2585e3f7226a6455d41e92c1b/gdb/s390-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/74b10a3219e44ba2585e3f7226a6455d41e92c1b/gdb/s390-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/s390-tdep.c?ref=74b10a3219e44ba2585e3f7226a6455d41e92c1b",
+      "patch": "@@ -7050,10 +7050,6 @@ s390_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)\n   set_gdbarch_displaced_step_copy_insn (gdbarch,\n \t\t\t\t\ts390_displaced_step_copy_insn);\n   set_gdbarch_displaced_step_fixup (gdbarch, s390_displaced_step_fixup);\n-  set_gdbarch_displaced_step_prepare (gdbarch, linux_displaced_step_prepare);\n-  set_gdbarch_displaced_step_finish (gdbarch, linux_displaced_step_finish);\n-  set_gdbarch_displaced_step_restore_all_in_ptid\n-    (gdbarch, linux_displaced_step_restore_all_in_ptid);\n   set_gdbarch_displaced_step_hw_singlestep (gdbarch, s390_displaced_step_hw_singlestep);\n   set_gdbarch_software_single_step (gdbarch, s390_software_single_step);\n   set_gdbarch_max_insn_length (gdbarch, S390_MAX_INSTR_SIZE);"
+    }
+  ]
+}

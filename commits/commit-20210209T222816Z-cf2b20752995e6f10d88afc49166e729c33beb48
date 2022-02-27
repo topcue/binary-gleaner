@@ -1,0 +1,146 @@
+{
+  "sha": "cf2b20752995e6f10d88afc49166e729c33beb48",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6Y2YyYjIwNzUyOTk1ZTZmMTBkODhhZmM0OTE2NmU3MjljMzNiZWI0OA==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-02-09T22:28:16Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-02-09T22:28:16Z"
+    },
+    "message": "[gdb/symtab] Fix element type modification in read_array_type\n\nWhen running test-case gdb.fortran/function-calls.exp with target board\nunix/gdb:debug_flags=-gdwarf-5, I run into:\n...\n(gdb) PASS: gdb.fortran/function-calls.exp: \\\n  p derived_types_and_module_calls::pass_cart(c)\np derived_types_and_module_calls::pass_cart_nd(c_nd)^M\n^M\nProgram received signal SIGSEGV, Segmentation fault.^M\n0x0000000000400f73 in derived_types_and_module_calls::pass_cart_nd \\\n  (c=<error reading variable: Cannot access memory at address 0xc>) at \\\n  function-calls.f90:130^M\n130             pass_cart_nd = ubound(c%d,1,4)^M\nThe program being debugged was signaled while in a function called from GDB.^M\nGDB has restored the context to what it was before the call.^M\nTo change this behavior use \"set unwindonsignal off\".^M\nEvaluation of the expression containing the function^M\n(derived_types_and_module_calls::pass_cart_nd) will be abandoned.^M\n(gdb) FAIL: gdb.fortran/function-calls.exp: p\n...\n\nThe problem originates in read_array_type, when reading a DW_TAG_array_type\nwith a dwarf-5 DW_TAG_generic_subrange child.  This is not supported, and the\nfallout of this is that rather than constructing a new array type, the code\nproceeds to modify the element type.\n\nFix this conservatively by issuing a complaint and bailing out in\nread_array_type when not being able to construct an array type, such that we\nhave:\n...\n(gdb) maint expand-symtabs function-calls.f90^M\nDuring symbol reading: unable to find array range \\\n  - DIE at 0xe1e [in module function-calls]^M\nDuring symbol reading: unable to find array range \\\n  - DIE at 0xe1e [in module function-calls]^M\n(gdb) KFAIL: gdb.fortran/function-calls.exp: no complaints in srcfile \\\n  (PRMS: symtab/27388)\n...\n\nTested on x86_64-linux.\n\ngdb/ChangeLog:\n\n2021-02-09  Tom de Vries  <tdevries@suse.de>\n\n\tPR symtab/27341\n\t* dwarf2/read.c (read_array_type): Return NULL when not being able to\n\tconstruct an array type.  Add assert to ensure that element_type is\n\tnot being modified.\n\ngdb/testsuite/ChangeLog:\n\n2021-02-09  Tom de Vries  <tdevries@suse.de>\n\n\tPR symtab/27341\n\t* lib/gdb.exp (with_complaints): New proc, factored out of ...\n\t(gdb_load_no_complaints): ... here.\n\t* gdb.fortran/function-calls.exp: Add test-case.",
+    "tree": {
+      "sha": "3dbd21eb20fb46fbed3ff475aeb1a323580141a2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/3dbd21eb20fb46fbed3ff475aeb1a323580141a2"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/cf2b20752995e6f10d88afc49166e729c33beb48",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cf2b20752995e6f10d88afc49166e729c33beb48",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/cf2b20752995e6f10d88afc49166e729c33beb48",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cf2b20752995e6f10d88afc49166e729c33beb48/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "03642b7189bc0bfdf61354a6d9a3f3e46d82709c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/03642b7189bc0bfdf61354a6d9a3f3e46d82709c",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/03642b7189bc0bfdf61354a6d9a3f3e46d82709c"
+    }
+  ],
+  "stats": {
+    "total": 82,
+    "additions": 72,
+    "deletions": 10
+  },
+  "files": [
+    {
+      "sha": "429e4d016f8174e95e4257b67e79a4cfe262a574",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf2b20752995e6f10d88afc49166e729c33beb48/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf2b20752995e6f10d88afc49166e729c33beb48/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=cf2b20752995e6f10d88afc49166e729c33beb48",
+      "patch": "@@ -1,3 +1,10 @@\n+2021-02-09  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR symtab/27341\n+\t* dwarf2/read.c (read_array_type): Return NULL when not being able to\n+\tconstruct an array type.  Add assert to ensure that element_type is\n+\tnot being modified.\n+\n 2021-02-09  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gcore.c (struct gcore_collect_regset_section_cb_data): Delete."
+    },
+    {
+      "sha": "4b901c565f803eb00fdfeaa2a181bbb9be7ae74b",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf2b20752995e6f10d88afc49166e729c33beb48/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf2b20752995e6f10d88afc49166e729c33beb48/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=cf2b20752995e6f10d88afc49166e729c33beb48",
+      "patch": "@@ -17217,6 +17217,14 @@ read_array_type (struct die_info *die, struct dwarf2_cu *cu)\n       child_die = child_die->sibling;\n     }\n \n+  if (range_types.empty ())\n+    {\n+      complaint (_(\"unable to find array range - DIE at %s [in module %s]\"),\n+\t\t sect_offset_str (die->sect_off),\n+\t\t objfile_name (cu->per_objfile->objfile));\n+      return NULL;\n+    }\n+\n   /* Dwarf2 dimensions are output from left to right, create the\n      necessary array types in backwards order.  */\n \n@@ -17246,6 +17254,8 @@ read_array_type (struct die_info *die, struct dwarf2_cu *cu)\n \t}\n     }\n \n+  gdb_assert (type != element_type);\n+\n   /* Understand Dwarf2 support for vector types (like they occur on\n      the PowerPC w/ AltiVec).  Gcc just adds another attribute to the\n      array type.  This is not part of the Dwarf2/3 standard yet, but a"
+    },
+    {
+      "sha": "714c91f30ba8a843656e95f1c37f350c610dce49",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf2b20752995e6f10d88afc49166e729c33beb48/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf2b20752995e6f10d88afc49166e729c33beb48/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=cf2b20752995e6f10d88afc49166e729c33beb48",
+      "patch": "@@ -1,3 +1,10 @@\n+2021-02-09  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR symtab/27341\n+\t* lib/gdb.exp (with_complaints): New proc, factored out of ...\n+\t(gdb_load_no_complaints): ... here.\n+\t* gdb.fortran/function-calls.exp: Add test-case.\n+\n 2021-02-09  Abid Qadeer  <abidh@codesourcery.com>\n \n \t* gdb.threads/signal-command-handle-nopass.exp: Call"
+    },
+    {
+      "sha": "00036d96c7cade132e0b0b671c9abd77f1e78c5f",
+      "filename": "gdb/testsuite/gdb.fortran/function-calls.exp",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf2b20752995e6f10d88afc49166e729c33beb48/gdb/testsuite/gdb.fortran/function-calls.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf2b20752995e6f10d88afc49166e729c33beb48/gdb/testsuite/gdb.fortran/function-calls.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.fortran/function-calls.exp?ref=cf2b20752995e6f10d88afc49166e729c33beb48",
+      "patch": "@@ -24,6 +24,21 @@ if {[prepare_for_testing ${testfile}.exp ${testfile} ${srcfile} {debug f90}]} {\n     return -1\n }\n \n+with_complaints 5 {\n+    set cmd \"maint expand-symtabs $srcfile\"\n+    set cmd_regexp [string_to_regexp $cmd]\n+    set re_kfail [concat \"During symbol reading:\" \\\n+\t\t      \" unable to find array range\"]\n+    gdb_test_multiple $cmd \"no complaints in srcfile\" {\n+\t-re -wrap \"$re_kfail.*\" {\n+\t    kfail symtab/27388 $gdb_test_name\n+\t}\n+        -re \"^$cmd_regexp\\r\\n$gdb_prompt $\" {\n+\t    pass $gdb_test_name\n+\t}\n+    }\n+}\n+\n if {![runto [gdb_get_line_number \"post_init\"]]} then {\n     perror \"couldn't run to breakpoint post_init\"\n     continue"
+    },
+    {
+      "sha": "1406b9171515b1ef6c9f1c51cf9270b3b59b53e1",
+      "filename": "gdb/testsuite/lib/gdb.exp",
+      "status": "modified",
+      "additions": 33,
+      "deletions": 10,
+      "changes": 43,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf2b20752995e6f10d88afc49166e729c33beb48/gdb/testsuite/lib/gdb.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf2b20752995e6f10d88afc49166e729c33beb48/gdb/testsuite/lib/gdb.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/gdb.exp?ref=cf2b20752995e6f10d88afc49166e729c33beb48",
+      "patch": "@@ -5096,11 +5096,11 @@ proc gdb_load { arg } {\n }\n \n #\n-# gdb_load_no_complaints -- As gdb_load, but in addition verifies that\n-# loading caused no symbol reading complaints.\n+# with_complaints -- Execute BODY and set complaints temporary to N for the\n+# duration.\n #\n-proc gdb_load_no_complaints { arg } {\n-    global gdb_prompt gdb_file_cmd_msg decimal\n+proc with_complaints { n body } {\n+    global decimal\n \n     # Save current setting of complaints.\n     set save \"\"\n@@ -5112,16 +5112,39 @@ proc gdb_load_no_complaints { arg } {\n \t}\n     }\n \n-    # Fall back to regular gdb_load if we couldn't get the current setting\n-    # of complaints.\n     if { $save == \"\" } {\n-\treturn gdb_load $arg\n+\tperror \"Did not manage to set complaints\"\n+    } else {\n+\t# Set complaints.\n+\tgdb_test_no_output \"set complaints $n\" \"\"\n     }\n \n-    # Temporarily set complaint to a small non-zero number.\n-    gdb_test_no_output \"set complaints 5\" \"\"\n+    set code [catch {uplevel 1 $body} result]\n+\n+    # Restore saved setting of complaints.\n+    if { $save != \"\" } {\n+\tgdb_test_no_output \"set complaints $save\" \"\"\n+    }\n+\n+    if {$code == 1} {\n+\tglobal errorInfo errorCode\n+\treturn -code $code -errorinfo $errorInfo -errorcode $errorCode $result\n+    } else {\n+\treturn -code $code $result\n+    }\n+}\n+\n+#\n+# gdb_load_no_complaints -- As gdb_load, but in addition verifies that\n+# loading caused no symbol reading complaints.\n+#\n+proc gdb_load_no_complaints { arg } {\n+    global gdb_prompt gdb_file_cmd_msg decimal\n \n-    gdb_load $arg\n+    # Temporarily set complaint to a small non-zero number.\n+    with_complaints 5 {\n+\tgdb_load $arg\n+    }\n \n     # Verify that there were no complaints.\n     set re \"^Reading symbols from \\[^\\r\\n\\]*\\r\\n$gdb_prompt $\""
+    }
+  ]
+}

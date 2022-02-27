@@ -1,0 +1,182 @@
+{
+  "sha": "a66f72981979a1bda60805b8554e0c78c4a39a21",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YTY2ZjcyOTgxOTc5YTFiZGE2MDgwNWI4NTU0ZTBjNzhjNGEzOWEyMQ==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-06-21T18:26:36Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-07-13T00:46:53Z"
+    },
+    "message": "gdb: maintain per-process-target list of resumed threads with pending wait status\n\nLooking up threads that are both resumed and have a pending wait\nstatus to report is something that we do quite often in the fast path\nand is expensive if there are many threads, since it currently requires\nwalking whole thread lists.\n\nThe first instance is in maybe_set_commit_resumed_all_targets.  This is\ncalled after handling each event in fetch_inferior_event, to see if we\nshould ask targets to commit their resumed threads or not.  If at least\none thread is resumed but has a pending wait status, we don't ask the\ntargets to commit their resumed threads, because we want to consume and\nhandle the pending wait status first.\n\nThe second instance is in random_pending_event_thread, where we want to\nselect a random thread among all those that are resumed and have a\npending wait status.  This is called every time we try to consume\nevents, to see if there are any pending events that we we want to\nconsume, before asking the targets for more events.\n\nTo allow optimizing these cases, maintain a per-process-target list of\nthreads that are resumed and have a pending wait status.\n\nIn maybe_set_commit_resumed_all_targets, we'll be able to check in O(1)\nif there are any such threads simply by checking whether the list is\nempty.\n\nIn random_pending_event_thread, we'll be able to use that list, which\nwill be quicker than iterating the list of threads, especially when\nthere are no resumed with pending wait status threads.\n\nAbout implementation details: using the new setters on class\nthread_info, it's relatively easy to maintain that list.  Any time the\n\"resumed\" or \"pending wait status\" property is changed, we check whether\nthat should cause the thread to be added or removed from the list.\n\nIn set_thread_exited, we try to remove the thread from the list, because\nkeeping an exited thread in that list would make no sense (especially if\nthe thread is freed).  My first implementation assumed that a process\nstratum target was always present when set_thread_exited is called.\nThat's however, not the case: in some cases, targets unpush themselves\nfrom an inferior and then call \"exit_inferior\", which exits all the\nthreads.  If the target is unpushed before set_thread_exited is called\non the threads, it means we could mistakenly leave some threads in the\nlist.  I tried to see how hard it would be to make it such that targets\nhave to exit all threads before unpushing themselves from the inferior\n(that would seem logical to me, we don't want threads belonging to an\ninferior that has no process target).  That seemed quite difficult and\nnot worth the time at the moment.  Instead, I changed\ninferior::unpush_target to remove all threads of that inferior from the\nlist.\n\nAs of this patch, the list is not used, this is done in the subsequent\npatches.\n\nThe debug messages in process-stratum-target.c need to print some ptids.\nHowever, they can't use target_pid_to_str to print them without\nintroducing a dependency on the current inferior (the current inferior\nis used to get the current target stack).  For debug messages, I find it\nclearer to print the spelled out ptid anyway (the pid, lwp and tid\nvalues).  Add a ptid_t::to_string method that returns a string\nrepresentation of the ptid that is meant for debug messages, a bit like\nwe already have frame_id::to_string.\n\nChange-Id: Iad8f93db2d13984dd5aa5867db940ed1169dbb67",
+    "tree": {
+      "sha": "f48ef0253d06cf850a822c8fbc7b1d9285f4071d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f48ef0253d06cf850a822c8fbc7b1d9285f4071d"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/a66f72981979a1bda60805b8554e0c78c4a39a21",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a66f72981979a1bda60805b8554e0c78c4a39a21",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/a66f72981979a1bda60805b8554e0c78c4a39a21",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a66f72981979a1bda60805b8554e0c78c4a39a21/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "1edb66d856c82c389edfd7610143236a68c76846",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1edb66d856c82c389edfd7610143236a68c76846",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/1edb66d856c82c389edfd7610143236a68c76846"
+    }
+  ],
+  "stats": {
+    "total": 150,
+    "additions": 146,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "9c178f531d9b494f142eea9020941f382c588b2b",
+      "filename": "gdb/gdbthread.h",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 2,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a66f72981979a1bda60805b8554e0c78c4a39a21/gdb/gdbthread.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a66f72981979a1bda60805b8554e0c78c4a39a21/gdb/gdbthread.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbthread.h?ref=a66f72981979a1bda60805b8554e0c78c4a39a21",
+      "patch": "@@ -296,8 +296,7 @@ class thread_info : public refcounted_object,\n   bool resumed () const\n   { return m_resumed; }\n \n-  void set_resumed (bool resumed)\n-  { m_resumed = resumed; }\n+  void set_resumed (bool resumed);\n \n   /* Frontend view of the thread state.  Note that the THREAD_RUNNING/\n      THREAD_STOPPED states are different from EXECUTING.  When the\n@@ -470,6 +469,12 @@ class thread_info : public refcounted_object,\n      linked.  */\n   intrusive_list_node<thread_info> step_over_list_node;\n \n+  /* Node for list of threads that are resumed and have a pending wait status.\n+\n+     The list head for this is in process_stratum_target, hence all threads in\n+     this list belong to that process target.  */\n+  intrusive_list_node<thread_info> resumed_with_pending_wait_status_node;\n+\n   /* Displaced-step state for this thread.  */\n   displaced_step_thread_state displaced_step_state;\n \n@@ -488,6 +493,13 @@ class thread_info : public refcounted_object,\n   thread_suspend_state m_suspend;\n };\n \n+using thread_info_resumed_with_pending_wait_status_node\n+  = intrusive_member_node<thread_info,\n+\t\t\t  &thread_info::resumed_with_pending_wait_status_node>;\n+using thread_info_resumed_with_pending_wait_status_list\n+  = intrusive_list<thread_info,\n+\t\t   thread_info_resumed_with_pending_wait_status_node>;\n+\n /* A gdb::ref_ptr pointer to a thread_info.  */\n \n using thread_info_ref"
+    },
+    {
+      "sha": "3c569f4f04ffaad50fea2f16b509fad59adaf723",
+      "filename": "gdb/inferior.c",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 0,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a66f72981979a1bda60805b8554e0c78c4a39a21/gdb/inferior.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a66f72981979a1bda60805b8554e0c78c4a39a21/gdb/inferior.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/inferior.c?ref=a66f72981979a1bda60805b8554e0c78c4a39a21",
+      "patch": "@@ -89,6 +89,27 @@ inferior::inferior (int pid_)\n   m_target_stack.push (get_dummy_target ());\n }\n \n+/* See inferior.h.  */\n+\n+int\n+inferior::unpush_target (struct target_ops *t)\n+{\n+  /* If unpushing the process stratum target from the inferior while threads\n+     exist in the inferior, ensure that we don't leave any threads of the\n+     inferior in the target's \"resumed with pending wait status\" list.\n+\n+     See also the comment in set_thread_exited.  */\n+  if (t->stratum () == process_stratum)\n+    {\n+      process_stratum_target *proc_target = as_process_stratum_target (t);\n+\n+      for (thread_info *thread : this->non_exited_threads ())\n+\tproc_target->maybe_remove_resumed_with_pending_wait_status (thread);\n+    }\n+\n+  return m_target_stack.unpush (t);\n+}\n+\n void\n inferior::set_tty (const char *terminal_name)\n {"
+    },
+    {
+      "sha": "2bfe29afed3f231a662ebc957246d848c399aa93",
+      "filename": "gdb/inferior.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a66f72981979a1bda60805b8554e0c78c4a39a21/gdb/inferior.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a66f72981979a1bda60805b8554e0c78c4a39a21/gdb/inferior.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/inferior.h?ref=a66f72981979a1bda60805b8554e0c78c4a39a21",
+      "patch": "@@ -362,8 +362,7 @@ class inferior : public refcounted_object,\n   }\n \n   /* Unpush T from this inferior's target stack.  */\n-  int unpush_target (struct target_ops *t)\n-  { return m_target_stack.unpush (t); }\n+  int unpush_target (struct target_ops *t);\n \n   /* Returns true if T is pushed in this inferior's target stack.  */\n   bool target_is_pushed (target_ops *t)"
+    },
+    {
+      "sha": "2cb6dfc251ae1520acba7fc314ae3e9cb5bb894a",
+      "filename": "gdb/process-stratum-target.c",
+      "status": "modified",
+      "additions": 34,
+      "deletions": 0,
+      "changes": 34,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a66f72981979a1bda60805b8554e0c78c4a39a21/gdb/process-stratum-target.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a66f72981979a1bda60805b8554e0c78c4a39a21/gdb/process-stratum-target.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/process-stratum-target.c?ref=a66f72981979a1bda60805b8554e0c78c4a39a21",
+      "patch": "@@ -106,6 +106,40 @@ process_stratum_target::follow_exec (inferior *follow_inf, ptid_t ptid,\n \n /* See process-stratum-target.h.  */\n \n+void\n+process_stratum_target::maybe_add_resumed_with_pending_wait_status\n+  (thread_info *thread)\n+{\n+  gdb_assert (!thread->resumed_with_pending_wait_status_node.is_linked ());\n+\n+  if (thread->resumed () && thread->has_pending_waitstatus ())\n+    {\n+      infrun_debug_printf (\"adding to resumed threads with event list: %s\",\n+\t\t\t   thread->ptid.to_string ().c_str ());\n+      m_resumed_with_pending_wait_status.push_back (*thread);\n+    }\n+}\n+\n+/* See process-stratum-target.h.  */\n+\n+void\n+process_stratum_target::maybe_remove_resumed_with_pending_wait_status\n+  (thread_info *thread)\n+{\n+  if (thread->resumed () && thread->has_pending_waitstatus ())\n+    {\n+      infrun_debug_printf (\"removing from resumed threads with event list: %s\",\n+\t\t\t   thread->ptid.to_string ().c_str ());\n+      gdb_assert (thread->resumed_with_pending_wait_status_node.is_linked ());\n+      auto it = m_resumed_with_pending_wait_status.iterator_to (*thread);\n+      m_resumed_with_pending_wait_status.erase (it);\n+    }\n+  else\n+    gdb_assert (!thread->resumed_with_pending_wait_status_node.is_linked ());\n+}\n+\n+/* See process-stratum-target.h.  */\n+\n std::set<process_stratum_target *>\n all_non_exited_process_targets ()\n {"
+    },
+    {
+      "sha": "f03728088d38ede78c7be49ca8f817f82300da9a",
+      "filename": "gdb/process-stratum-target.h",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 0,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a66f72981979a1bda60805b8554e0c78c4a39a21/gdb/process-stratum-target.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a66f72981979a1bda60805b8554e0c78c4a39a21/gdb/process-stratum-target.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/process-stratum-target.h?ref=a66f72981979a1bda60805b8554e0c78c4a39a21",
+      "patch": "@@ -22,6 +22,8 @@\n \n #include \"target.h\"\n #include <set>\n+#include \"gdbsupport/intrusive_list.h\"\n+#include \"gdbthread.h\"\n \n /* Abstract base class inherited by all process_stratum targets.  */\n \n@@ -78,6 +80,14 @@ class process_stratum_target : public target_ops\n      may have spawned new threads we haven't heard of yet.  */\n   bool threads_executing = false;\n \n+  /* If THREAD is resumed and has a pending wait status, add it to the\n+     target's \"resumed with pending wait status\" list.  */\n+  void maybe_add_resumed_with_pending_wait_status (thread_info *thread);\n+\n+  /* If THREAD is resumed and has a pending wait status, remove it from the\n+     target's \"resumed with pending wait status\" list.  */\n+  void maybe_remove_resumed_with_pending_wait_status (thread_info *thread);\n+\n   /* The connection number.  Visible in \"info connections\".  */\n   int connection_number = 0;\n \n@@ -112,6 +122,17 @@ class process_stratum_target : public target_ops\n      coalesce multiple resumption requests in a single vCont\n      packet.  */\n   bool commit_resumed_state = false;\n+\n+private:\n+  /* List of threads managed by this target which simultaneously are resumed\n+     and have a pending wait status.\n+\n+     This is done for optimization reasons, it would be possible to walk the\n+     inferior thread lists to find these threads.  But since this is something\n+     we need to do quite frequently in the hot path, maintaining this list\n+     avoids walking the thread lists repeatedly.  */\n+  thread_info_resumed_with_pending_wait_status_list\n+    m_resumed_with_pending_wait_status;\n };\n \n /* Downcast TARGET to process_stratum_target.  */"
+    },
+    {
+      "sha": "74d6b90923f8ddfe871072e418301a26666d3450",
+      "filename": "gdb/thread.c",
+      "status": "modified",
+      "additions": 40,
+      "deletions": 0,
+      "changes": 40,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a66f72981979a1bda60805b8554e0c78c4a39a21/gdb/thread.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a66f72981979a1bda60805b8554e0c78c4a39a21/gdb/thread.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/thread.c?ref=a66f72981979a1bda60805b8554e0c78c4a39a21",
+      "patch": "@@ -188,6 +188,17 @@ set_thread_exited (thread_info *tp, bool silent)\n \n   if (tp->state != THREAD_EXITED)\n     {\n+      process_stratum_target *proc_target = tp->inf->process_target ();\n+\n+      /* Some targets unpush themselves from the inferior's target stack before\n+         clearing the inferior's thread list (which marks all threads as exited,\n+         and therefore leads to this function).  In this case, the inferior's\n+         process target will be nullptr when we arrive here.\n+\n+         See also the comment in inferior::unpush_target.  */\n+      if (proc_target != nullptr)\n+\tproc_target->maybe_remove_resumed_with_pending_wait_status (tp);\n+\n       gdb::observers::thread_exit.notify (tp, silent);\n \n       /* Tag it as exited.  */\n@@ -295,13 +306,39 @@ thread_info::deletable () const\n \n /* See gdbthread.h.  */\n \n+void\n+thread_info::set_resumed (bool resumed)\n+{\n+  if (resumed == m_resumed)\n+    return;\n+\n+  process_stratum_target *proc_target = this->inf->process_target ();\n+\n+  /* If we transition from resumed to not resumed, we might need to remove\n+     the thread from the resumed threads with pending statuses list.  */\n+  if (!resumed)\n+    proc_target->maybe_remove_resumed_with_pending_wait_status (this);\n+\n+  m_resumed = resumed;\n+\n+  /* If we transition from not resumed to resumed, we might need to add\n+     the thread to the resumed threads with pending statuses list.  */\n+  if (resumed)\n+    proc_target->maybe_add_resumed_with_pending_wait_status (this);\n+}\n+\n+/* See gdbthread.h.  */\n+\n void\n thread_info::set_pending_waitstatus (const target_waitstatus &ws)\n {\n   gdb_assert (!this->has_pending_waitstatus ());\n \n   m_suspend.waitstatus = ws;\n   m_suspend.waitstatus_pending_p = 1;\n+\n+  process_stratum_target *proc_target = this->inf->process_target ();\n+  proc_target->maybe_add_resumed_with_pending_wait_status (this);\n }\n \n /* See gdbthread.h.  */\n@@ -311,6 +348,9 @@ thread_info::clear_pending_waitstatus ()\n {\n   gdb_assert (this->has_pending_waitstatus ());\n \n+  process_stratum_target *proc_target = this->inf->process_target ();\n+  proc_target->maybe_remove_resumed_with_pending_wait_status (this);\n+\n   m_suspend.waitstatus_pending_p = 0;\n }\n "
+    },
+    {
+      "sha": "2417120b1eedbf59f33995ddbf8e396ef44dd845",
+      "filename": "gdbsupport/ptid.cc",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a66f72981979a1bda60805b8554e0c78c4a39a21/gdbsupport/ptid.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a66f72981979a1bda60805b8554e0c78c4a39a21/gdbsupport/ptid.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/ptid.cc?ref=a66f72981979a1bda60805b8554e0c78c4a39a21",
+      "patch": "@@ -24,3 +24,11 @@\n \n ptid_t const null_ptid = ptid_t::make_null ();\n ptid_t const minus_one_ptid = ptid_t::make_minus_one ();\n+\n+/* See ptid.h.  */\n+\n+std::string\n+ptid_t::to_string () const\n+{\n+  return string_printf (\"%d.%ld.%ld\", m_pid, m_lwp, m_tid);\n+}"
+    },
+    {
+      "sha": "a2553b29c1a8342d44118a25af27b8c1dbde58eb",
+      "filename": "gdbsupport/ptid.h",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a66f72981979a1bda60805b8554e0c78c4a39a21/gdbsupport/ptid.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a66f72981979a1bda60805b8554e0c78c4a39a21/gdbsupport/ptid.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/ptid.h?ref=a66f72981979a1bda60805b8554e0c78c4a39a21",
+      "patch": "@@ -33,6 +33,7 @@\n */\n \n #include <functional>\n+#include <string>\n \n class ptid_t\n {\n@@ -124,6 +125,12 @@ class ptid_t\n \t    || *this == filter);\n   }\n \n+  /* Return a string representation of the ptid.\n+\n+     This is only meant to be used in debug messages.  */\n+\n+  std::string to_string () const;\n+\n   /* Make a null ptid.  */\n \n   static constexpr ptid_t make_null ()"
+    }
+  ]
+}

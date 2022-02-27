@@ -1,0 +1,146 @@
+{
+  "sha": "3c8c6de21daaae6450860af6b0df3b464ccb19f6",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6M2M4YzZkZTIxZGFhYWU2NDUwODYwYWY2YjBkZjNiNDY0Y2NiMTlmNg==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-10-22T10:34:52Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-01-08T11:52:56Z"
+    },
+    "message": "gdb: user variables with components of dynamic type\n\nConsider this Fortran type:\n\n  type :: some_type\n     integer, allocatable :: array_one (:,:)\n     integer :: a_field\n     integer, allocatable :: array_two (:,:)\n  end type some_type\n\nAnd a variable declared:\n\n  type(some_type) :: some_var\n\nNow within GDB we try this:\n\n  (gdb) set $a = some_var\n  (gdb) p $a\n  $1 = ( array_one =\n  ../../src/gdb/value.c:3968: internal-error: Unexpected lazy value type.\n\nNormally, when an internalvar ($a in this case) is created, it is\nnon-lazy, the value is immediately copied out of the inferior into\nGDB's memory.\n\nWhen printing the internalvar ($a) GDB will extract each field in\nturn, so in this case `array_one`.  As the original internalvar is\nnon-lazy then the extracted field will also be non-lazy, with its\ncontents immediately copied from the parent internalvar.\n\nHowever, when the field has a dynamic type this is not the case, in\nvalue_primitive_field we see that any field with dynamic type is\nalways created lazy.  Further, the content of this field will usually\nnot have been captured in the contents buffer of the original value, a\nfield with dynamic location is effectively a pointer value contained\nwithin the parent value, with rules in the DWARF for how to\ndereference the pointer.\n\nSo, we end up with a lazy lval_internalvar_component representing a\nfield within an lval_internalvar.  This eventually ends up in\nvalue_fetch_lazy, which currently does not support\nlval_internalvar_component, and we see the error above.\n\nMy original plan for how to handle this involved extending\nvalue_fetch_lazy to handle lval_internalvar_component.  However, when\nI did this I ran into another error:\n\n  (gdb) set $a = some_var\n  (gdb) p $a\n  $1 = ( array_one = ((1, 1) (1, 1) (1, 1)), a_field = 5, array_two = ((0, 0, 0) (0, 0, 0)) )\n  (gdb) p $a%array_one\n  $2 = ((1, 1) (1, 1) (1, 1))\n  (gdb) p $a%array_one(1,1)\n  ../../src/gdb/value.c:1547: internal-error: void set_value_address(value*, CORE_ADDR): Assertion `value->lval == lval_memory' failed.\n\nThe problem now is inside set_value_component_location, where we\nattempt to set the address for a component if the original parent\nvalue has a dynamic location.  GDB does not expect to ever set the\naddress on anything other than an lval_memory value (which seems\nreasonable).\n\nIn order to resolve this issue I initially thought about how an\ninternalvar should \"capture\" the value of a program variable at the\nmoment the var is created.  In an ideal world (I think) GDB would be\nable to do this even for values with dynamic type.  So in our above\nexample doing `set $a = some_var` would capture the content of\n'some_var', but also the content of 'array_one', and also 'array_two',\neven though these content regions are not contained within the region\nof 'some_var'.\n\nSupporting this would require GDB values to be able to carry around\nmultiple non-contiguous regions of memory as content in some way,\nwhich sounds like a pretty huge change to a core part of GDB.\n\nSo, I wondered if there was some other solution that wouldn't require\nsuch a huge change.\n\nWhat if values with a dynamic location were though of like points with\nautomatic dereferencing?  Given this C structure:\n\n  struct foo_t {\n    int *val;\n  }\n\n  struct foo_t my_foo;\n\nThen in GDB:\n\n  (gdb) $a = my_foo\n\nWe would expect GDB to capture the pointer value in '$a', but not the\nvalue pointed at by the pointer.  So maybe it's not that unreasonable\nto think that given a dynamically typed field GDB will capture the\naddress of the content, but not the actual content itself.\n\nThat's what this patch does.\n\nThe approach is to catch this case in set_value_component_location.\nWhen we create a component location (of an lval_internalvar) that has\na dynamic data location, the lval_internalvar_component is changed\ninto an lval_memory.  After this, both of the above issues are\nresolved.  In the first case, the lval_memory is still lazy, but\nvalue_fetch_lazy knows how to handle that.  In the second case, when\nwe access an element of the array we are now accessing an element of\nan lval_memory, not an lval_internalvar_component, and calling\nset_value_address on an lval_memory is fine.\n\ngdb/ChangeLog:\n\n\t* value.c (set_value_component_location): Adjust the VALUE_LVAL\n\tfor internalvar components that have a dynamic location.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.fortran/intvar-dynamic-types.exp: New file.\n\t* gdb.fortran/intvar-dynamic-types.f90: New file.",
+    "tree": {
+      "sha": "1c28ebeda89790c422bc091913cf807aa6d447b9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/1c28ebeda89790c422bc091913cf807aa6d447b9"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/3c8c6de21daaae6450860af6b0df3b464ccb19f6",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3c8c6de21daaae6450860af6b0df3b464ccb19f6",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/3c8c6de21daaae6450860af6b0df3b464ccb19f6",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3c8c6de21daaae6450860af6b0df3b464ccb19f6/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "e84c871648606f29f7d35084ab8afc3b522affc3",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e84c871648606f29f7d35084ab8afc3b522affc3",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/e84c871648606f29f7d35084ab8afc3b522affc3"
+    }
+  ],
+  "stats": {
+    "total": 176,
+    "additions": 174,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "216057a773ba327e6baab71b3d8b6e3806d5ebab",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3c8c6de21daaae6450860af6b0df3b464ccb19f6/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3c8c6de21daaae6450860af6b0df3b464ccb19f6/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=3c8c6de21daaae6450860af6b0df3b464ccb19f6",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-01-08  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* value.c (set_value_component_location): Adjust the VALUE_LVAL\n+\tfor internalvar components that have a dynamic location.\n+\n 2021-01-08  Tom de Vries  <tdevries@suse.de>\n \n \tPR gdb/26881"
+    },
+    {
+      "sha": "c53905738ea1fa1e904a34ff0e4acbc61bfcf81c",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3c8c6de21daaae6450860af6b0df3b464ccb19f6/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3c8c6de21daaae6450860af6b0df3b464ccb19f6/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=3c8c6de21daaae6450860af6b0df3b464ccb19f6",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-01-08  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.fortran/intvar-dynamic-types.exp: New file.\n+\t* gdb.fortran/intvar-dynamic-types.f90: New file.\n+\n 2021-01-08  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.fortran/intvar-array.exp: New file."
+    },
+    {
+      "sha": "16dc603cb47718b66974556d56b658183394c02f",
+      "filename": "gdb/testsuite/gdb.fortran/intvar-dynamic-types.exp",
+      "status": "added",
+      "additions": 97,
+      "deletions": 0,
+      "changes": 97,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3c8c6de21daaae6450860af6b0df3b464ccb19f6/gdb/testsuite/gdb.fortran/intvar-dynamic-types.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3c8c6de21daaae6450860af6b0df3b464ccb19f6/gdb/testsuite/gdb.fortran/intvar-dynamic-types.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.fortran/intvar-dynamic-types.exp?ref=3c8c6de21daaae6450860af6b0df3b464ccb19f6",
+      "patch": "@@ -0,0 +1,97 @@\n+# Copyright 2020-2021 Free Software Foundation, Inc.\n+#\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Places a value with components that have dynamic type into a GDB\n+# user variable, and then prints the user variable.\n+\n+standard_testfile \".f90\"\n+load_lib \"fortran.exp\"\n+\n+if { [prepare_for_testing ${testfile}.exp ${testfile} ${srcfile} \\\n+    {debug f90 quiet}] } {\n+    return -1\n+}\n+\n+if ![fortran_runto_main] {\n+    untested \"could not run to main\"\n+    return -1\n+}\n+\n+gdb_breakpoint [gdb_get_line_number \"Break here\"]\n+gdb_continue_to_breakpoint \"Break here\"\n+\n+gdb_test_no_output \"set \\$a=some_var\" \"set \\$a internal variable\"\n+\n+foreach var { \"\\$a\" \"some_var\" } {\n+    with_test_prefix \"print $var\" {\n+\tgdb_test \"print $var\" \\\n+\t    \" = \\\\( array_one = \\\\(\\\\(1, 1\\\\) \\\\(1, 1\\\\) \\\\(1, 1\\\\)\\\\), a_field = 5, array_two = \\\\(\\\\(2, 2, 2\\\\) \\\\(2, 2, 2\\\\)\\\\) \\\\)\" \\\n+\t    \"print full contents\"\n+\n+\tgdb_test \"print $var%array_one\" \\\n+\t    \" = \\\\(\\\\(1, 1\\\\) \\\\(1, 1\\\\) \\\\(1, 1\\\\)\\\\)\" \\\n+\t    \"print array_one field\"\n+\n+\tgdb_test \"print $var%a_field\" \\\n+\t    \" = 5\" \\\n+\t    \"print a_field field\"\n+\n+\tgdb_test \"print $var%array_two\" \\\n+\t    \" = \\\\(\\\\(2, 2, 2\\\\) \\\\(2, 2, 2\\\\)\\\\)\" \\\n+\t    \"print array_two field\"\n+    }\n+}\n+\n+# Create new user variables for the fields of some_var, and show that\n+# modifying these variables does not change the original value from\n+# the program.\n+gdb_test_no_output \"set \\$b = some_var%array_one\"\n+gdb_test_no_output \"set \\$c = some_var%array_two\"\n+gdb_test \"print \\$b\" \\\n+    \" = \\\\(\\\\(1, 1\\\\) \\\\(1, 1\\\\) \\\\(1, 1\\\\)\\\\)\"\n+gdb_test \"print \\$c\" \\\n+    \" = \\\\(\\\\(2, 2, 2\\\\) \\\\(2, 2, 2\\\\)\\\\)\"\n+gdb_test_no_output \"set \\$b(2,2) = 3\"\n+gdb_test_no_output \"set \\$c(3,1) = 4\"\n+gdb_test \"print \\$b\" \\\n+    \" = \\\\(\\\\(1, 1\\\\) \\\\(1, 3\\\\) \\\\(1, 1\\\\)\\\\)\" \\\n+    \"print \\$b after a change\"\n+gdb_test \"print \\$c\" \\\n+    \" = \\\\(\\\\(2, 2, 4\\\\) \\\\(2, 2, 2\\\\)\\\\)\" \\\n+    \"print \\$c after a change\"\n+gdb_test \"print some_var%array_one\" \\\n+    \" = \\\\(\\\\(1, 1\\\\) \\\\(1, 1\\\\) \\\\(1, 1\\\\)\\\\)\"\n+gdb_test \"print some_var%array_two\" \\\n+    \" = \\\\(\\\\(2, 2, 2\\\\) \\\\(2, 2, 2\\\\)\\\\)\"\n+\n+# Now modify the user variable '$a', which is a copy of 'some_var',\n+# and then check how this change is reflected in the original\n+# 'some_var', and the user variable $a.\n+#\n+# When we change 'a_field' which is a non-dynamic field within the\n+# user variable, the change is only visible within the user variable.\n+#\n+# In contrast, when we change 'array_one' and 'array_two', which are\n+# both fields of dynanic type, then the change is visible in both the\n+# user variable and the original program variable 'some_var'.  This\n+# makes sense if you consider the dynamic type as if it was a C\n+# pointer with automatic indirection.\n+gdb_test_no_output \"set \\$a%a_field = 3\"\n+gdb_test_no_output \"set \\$a%array_one(2,2) = 3\"\n+gdb_test_no_output \"set \\$a%array_two(3,1) = 4\"\n+gdb_test \"print \\$a\" \\\n+    \" = \\\\( array_one = \\\\(\\\\(1, 1\\\\) \\\\(1, 3\\\\) \\\\(1, 1\\\\)\\\\), a_field = 3, array_two = \\\\(\\\\(2, 2, 4\\\\) \\\\(2, 2, 2\\\\)\\\\) \\\\)\"\n+gdb_test \"print some_var\" \\\n+    \" = \\\\( array_one = \\\\(\\\\(1, 1\\\\) \\\\(1, 3\\\\) \\\\(1, 1\\\\)\\\\), a_field = 5, array_two = \\\\(\\\\(2, 2, 4\\\\) \\\\(2, 2, 2\\\\)\\\\) \\\\)\""
+    },
+    {
+      "sha": "ef51a32ec777be5967a5a5d858533c5b4b6ca953",
+      "filename": "gdb/testsuite/gdb.fortran/intvar-dynamic-types.f90",
+      "status": "added",
+      "additions": 32,
+      "deletions": 0,
+      "changes": 32,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3c8c6de21daaae6450860af6b0df3b464ccb19f6/gdb/testsuite/gdb.fortran/intvar-dynamic-types.f90",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3c8c6de21daaae6450860af6b0df3b464ccb19f6/gdb/testsuite/gdb.fortran/intvar-dynamic-types.f90",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.fortran/intvar-dynamic-types.f90?ref=3c8c6de21daaae6450860af6b0df3b464ccb19f6",
+      "patch": "@@ -0,0 +1,32 @@\n+! Copyright 2020-2021 Free Software Foundation, Inc.\n+!\n+! This program is free software; you can redistribute it and/or modify\n+! it under the terms of the GNU General Public License as published by\n+! the Free Software Foundation; either version 3 of the License, or\n+! (at your option) any later version.\n+!\n+! This program is distributed in the hope that it will be useful,\n+! but WITHOUT ANY WARRANTY; without even the implied warranty of\n+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+! GNU General Public License for more details.\n+!\n+! You should have received a copy of the GNU General Public License\n+! along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+program internal_var_test\n+  type :: some_type\n+     integer, allocatable :: array_one (:,:)\n+     integer :: a_field\n+     integer, allocatable :: array_two (:,:)\n+  end type some_type\n+\n+  type(some_type) :: some_var\n+\n+  allocate (some_var%array_one (2,3))\n+  allocate (some_var%array_two (3,2))\n+  some_var%array_one (:,:) = 1\n+  some_var%a_field = 5\n+  some_var%array_two (:,:) = 2\n+  deallocate (some_var%array_one) ! Break here.\n+  deallocate (some_var%array_two)\n+end program internal_var_test"
+    },
+    {
+      "sha": "c84698d25e0466bb0b26f35cb04c434d8da9f3b7",
+      "filename": "gdb/value.c",
+      "status": "modified",
+      "additions": 35,
+      "deletions": 2,
+      "changes": 37,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3c8c6de21daaae6450860af6b0df3b464ccb19f6/gdb/value.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3c8c6de21daaae6450860af6b0df3b464ccb19f6/gdb/value.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/value.c?ref=3c8c6de21daaae6450860af6b0df3b464ccb19f6",
+      "patch": "@@ -1784,12 +1784,45 @@ set_value_component_location (struct value *component,\n \tcomponent->location.computed.closure = funcs->copy_closure (whole);\n     }\n \n-  /* If type has a dynamic resolved location property\n-     update it's value address.  */\n+  /* If the WHOLE value has a dynamically resolved location property then\n+     update the address of the COMPONENT.  */\n   type = value_type (whole);\n   if (NULL != TYPE_DATA_LOCATION (type)\n       && TYPE_DATA_LOCATION_KIND (type) == PROP_CONST)\n     set_value_address (component, TYPE_DATA_LOCATION_ADDR (type));\n+\n+  /* Similarly, if the COMPONENT value has a dynamically resolved location\n+     property then update its address.  */\n+  type = value_type (component);\n+  if (NULL != TYPE_DATA_LOCATION (type)\n+      && TYPE_DATA_LOCATION_KIND (type) == PROP_CONST)\n+    {\n+      /* If the COMPONENT has a dynamic location, and is an\n+\t lval_internalvar_component, then we change it to a lval_memory.\n+\n+\t Usually a component of an internalvar is created non-lazy, and has\n+\t its content immediately copied from the parent internalvar.\n+\t However, for components with a dynamic location, the content of\n+\t the component is not contained within the parent, but is instead\n+\t accessed indirectly.  Further, the component will be created as a\n+\t lazy value.\n+\n+\t By changing the type of the component to lval_memory we ensure\n+\t that value_fetch_lazy can successfully load the component.\n+\n+         This solution isn't ideal, but a real fix would require values to\n+         carry around both the parent value contents, and the contents of\n+         any dynamic fields within the parent.  This is a substantial\n+         change to how values work in GDB.  */\n+      if (VALUE_LVAL (component) == lval_internalvar_component)\n+\t{\n+\t  gdb_assert (value_lazy (component));\n+\t  VALUE_LVAL (component) = lval_memory;\n+\t}\n+      else\n+\tgdb_assert (VALUE_LVAL (component) == lval_memory);\n+      set_value_address (component, TYPE_DATA_LOCATION_ADDR (type));\n+    }\n }\n \n /* Access to the value history.  */"
+    }
+  ]
+}

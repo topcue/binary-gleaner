@@ -1,0 +1,134 @@
+{
+  "sha": "b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YjAwODNkZDcyZmNmZjZhYzNjZDhhZTEwZDEwNGNmNzE0ZTVlMzJhYQ==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2021-01-06T02:19:38Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2021-02-03T01:14:46Z"
+    },
+    "message": "Fix a couple vStopped pending ack bugs\n\nA following patch will add a testcase that has two processes with\nthreads stepping over a breakpoint continuously, and then detaches\nfrom one of the processes while threads are running.  The other\nprocess continues stepping over its breakpoint.  And then the testcase\nsends a SIGUSR1, expecting that GDB reports it.  That would sometimes\nhang against gdbserver, due to the bugs fixed here.  Both bugs are\nrelated, in that they're about remote protocol asynchronous Stop\nnotifications.  There's a bug in GDB, and another in GDBserver.\n\nThe GDB bug:\n\n- when we detach from a process, the remote target discards any\n  pending RSP notification related to that process, including the\n  in-flight, yet-unacked notification.  Discarding the in-flight\n  notification is the problem.  Until the in-flight notification is\n  acked with a vStopped packet, the server won't send another %Stop\n  notification.  As a result, the debug session gets messed up.  In\n  the new testcase's case, GDB would hang inside stop_all_threads,\n  waiting for a stop for one of the process'es threads, which never\n  arrived -- its stop reply was permanently stuck in the stop reply\n  queue, waiting for a vStopped packet that never arrived.\n\n  In summary:\n\n   1. GDBserver sends stop notification about thread X, the remote\n      target receives it and stores it\n   2. At the same time, GDB detaches thread X's inferior\n   3. The remote target discards the received stop notification\n   4. GDBserver waits forever for the ack\n\nThe GDBserver bug:\n\n  GDBserver has the opposite bug.  It also discards notifications for\n  the process being detached.  If that discards the head of the\n  notification queue, when gdb sends an ack, it ends up acking the\n  _next_ notification.  Meaning, gdb loses one notification.  In the\n  testcase, this results in a similar hang in stop_all_threads.\n\nSo we have two very similar bugs in GDB and GDBserver, both resulting\nin a similar symptom.  That's why I'm fixing them both at the same\ntime.\n\ngdb/ChangeLog:\n\n\t* remote.c (remote_notif_stop_ack): Don't error out on\n\tTARGET_WAITKIND_IGNORE; instead, just ignore the notification.\n\t(remote_target::discard_pending_stop_replies): Don't delete\n\tin-flight notification; instead, clear its contents.\n\ngdbserver/ChangeLog:\n\n\t* server.cc (discard_queued_stop_replies): Don't ever discard the\n\tnotification at the head of the list.",
+    "tree": {
+      "sha": "834d4ebbe8d24c43f4abbb26367500e0a0c5a751",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/834d4ebbe8d24c43f4abbb26367500e0a0c5a751"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "92234eb192f11b1981acb46a3a5e725360b89d6f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/92234eb192f11b1981acb46a3a5e725360b89d6f",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/92234eb192f11b1981acb46a3a5e725360b89d6f"
+    }
+  ],
+  "stats": {
+    "total": 43,
+    "additions": 34,
+    "deletions": 9
+  },
+  "files": [
+    {
+      "sha": "f11092d840c304a6a0d11485b77c64fdeb0214ae",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa",
+      "patch": "@@ -1,3 +1,10 @@\n+2021-02-03  Pedro Alves  <pedro@palves.net>\n+\n+\t* remote.c (remote_notif_stop_ack): Don't error out on\n+\tTARGET_WAITKIND_IGNORE; instead, just ignore the notification.\n+\t(remote_target::discard_pending_stop_replies): Don't delete\n+\tin-flight notification; instead, clear its contents.\n+\n 2021-02-03  Pedro Alves  <pedro@palves.net>\n \n \t* remote.c (extended_remote_target::attach): Set target async in"
+    },
+    {
+      "sha": "512bd9467f6b4928a0305befe07c82c9392120a3",
+      "filename": "gdb/remote.c",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 9,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa/gdb/remote.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa/gdb/remote.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/remote.c?ref=b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa",
+      "patch": "@@ -7006,13 +7006,11 @@ remote_notif_stop_ack (remote_target *remote,\n   /* acknowledge */\n   putpkt (remote, self->ack_command);\n \n-  if (stop_reply->ws.kind == TARGET_WAITKIND_IGNORE)\n-    {\n-      /* We got an unknown stop reply.  */\n-      error (_(\"Unknown stop reply\"));\n-    }\n-\n-  remote->push_stop_reply (stop_reply);\n+  /* Kind can be TARGET_WAITKIND_IGNORE if we have meanwhile discarded\n+     the notification.  It was left in the queue because we need to\n+     acknowledge it and pull the rest of the notifications out.  */\n+  if (stop_reply->ws.kind != TARGET_WAITKIND_IGNORE)\n+    remote->push_stop_reply (stop_reply);\n }\n \n static int\n@@ -7181,8 +7179,14 @@ remote_target::discard_pending_stop_replies (struct inferior *inf)\n   /* Discard the in-flight notification.  */\n   if (reply != NULL && reply->ptid.pid () == inf->pid)\n     {\n-      delete reply;\n-      rns->pending_event[notif_client_stop.id] = NULL;\n+      /* Leave the notification pending, since the server expects that\n+\t we acknowledge it with vStopped.  But clear its contents, so\n+\t that later on when we acknowledge it, we also discard it.  */\n+      reply->ws.kind = TARGET_WAITKIND_IGNORE;\n+\n+      if (remote_debug)\n+\tfprintf_unfiltered (gdb_stdlog,\n+\t\t\t    \"discarded in-flight notification\\n\");\n     }\n \n   /* Discard the stop replies we have already pulled with"
+    },
+    {
+      "sha": "41154d9e1908a754ad895b08ff3714c64f547e5d",
+      "filename": "gdbserver/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa/gdbserver/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa/gdbserver/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/ChangeLog?ref=b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-02-03  Pedro Alves  <pedro@palves.net>\n+\n+\t* server.cc (discard_queued_stop_replies): Don't ever discard the\n+\tnotification at the head of the list.\n+\n 2021-01-20  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* ax.cc (bytecode_address_table): Make static."
+    },
+    {
+      "sha": "a5497e93cee285ef5989ca9985f25d492407161b",
+      "filename": "gdbserver/server.cc",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa/gdbserver/server.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa/gdbserver/server.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/server.cc?ref=b0083dd72fcff6ac3cd8ae10d104cf714e5e32aa",
+      "patch": "@@ -203,6 +203,15 @@ discard_queued_stop_replies (ptid_t ptid)\n       next = iter;\n       ++next;\n \n+      if (iter == notif_stop.queue.begin ())\n+\t{\n+\t  /* The head of the list contains the notification that was\n+\t     already sent to GDB.  So we can't remove it, otherwise\n+\t     when GDB sends the vStopped, it would ack the _next_\n+\t     notification, which hadn't been sent yet!  */\n+\t  continue;\n+\t}\n+\n       if (remove_all_on_match_ptid (*iter, ptid))\n \t{\n \t  delete *iter;"
+    }
+  ]
+}

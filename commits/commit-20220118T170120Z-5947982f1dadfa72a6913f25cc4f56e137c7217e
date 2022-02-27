@@ -1,0 +1,122 @@
+{
+  "sha": "5947982f1dadfa72a6913f25cc4f56e137c7217e",
+  "node_id": "C_kwDOANOeidoAKDU5NDc5ODJmMWRhZGZhNzJhNjkxM2YyNWNjNGY1NmUxMzdjNzIxN2U",
+  "commit": {
+    "author": {
+      "name": "Tom Tromey",
+      "email": "tom@tromey.com",
+      "date": "2022-01-14T16:06:11Z"
+    },
+    "committer": {
+      "name": "Tom Tromey",
+      "email": "tom@tromey.com",
+      "date": "2022-01-18T17:01:20Z"
+    },
+    "message": "Simplify event_location_probe\n\nevent_location_probe currently stores two strings, but really only\nneeds one.  This patch simplifies it and removes some unnecessary\ncopies as well.",
+    "tree": {
+      "sha": "10300e6cbb942bfa03a00af19c99027edea507e8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/10300e6cbb942bfa03a00af19c99027edea507e8"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/5947982f1dadfa72a6913f25cc4f56e137c7217e",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5947982f1dadfa72a6913f25cc4f56e137c7217e",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/5947982f1dadfa72a6913f25cc4f56e137c7217e",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5947982f1dadfa72a6913f25cc4f56e137c7217e/comments",
+  "author": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "85e428a69f5b34770ec4f76168d3c8dbb3a454bf",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/85e428a69f5b34770ec4f76168d3c8dbb3a454bf",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/85e428a69f5b34770ec4f76168d3c8dbb3a454bf"
+    }
+  ],
+  "stats": {
+    "total": 39,
+    "additions": 16,
+    "deletions": 23
+  },
+  "files": [
+    {
+      "sha": "d4dfc3b8258ec919eaade8189de608618b3b4100",
+      "filename": "gdb/location.c",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 21,
+      "changes": 35,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5947982f1dadfa72a6913f25cc4f56e137c7217e/gdb/location.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5947982f1dadfa72a6913f25cc4f56e137c7217e/gdb/location.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/location.c?ref=5947982f1dadfa72a6913f25cc4f56e137c7217e",
+      "patch": "@@ -71,6 +71,12 @@ struct event_location\n   {\n   }\n \n+  event_location (enum event_location_type t, std::string &&str)\n+    : type (t),\n+      as_string (std::move (str))\n+  {\n+  }\n+\n   explicit event_location (const event_location *to_clone)\n     : type (to_clone->type),\n       as_string (to_clone->as_string)\n@@ -85,17 +91,9 @@ struct event_location\n /* A probe.  */\n struct event_location_probe : public event_location\n {\n-  explicit event_location_probe (const char *probe)\n-    : event_location (PROBE_LOCATION),\n-      addr_string (probe == nullptr\n-\t\t   ? nullptr\n-\t\t   : xstrdup (probe))\n-  {\n-  }\n-\n-  ~event_location_probe ()\n+  explicit event_location_probe (std::string &&probe)\n+    : event_location (PROBE_LOCATION, std::move (probe))\n   {\n-    xfree (addr_string);\n   }\n \n   event_location_up clone () const override\n@@ -105,24 +103,19 @@ struct event_location_probe : public event_location\n \n   bool empty_p () const override\n   {\n-    return addr_string == nullptr;\n+    return false;\n   }\n \n-  char *addr_string;\n-\n protected:\n \n   explicit event_location_probe (const event_location_probe *to_clone)\n-    : event_location (to_clone),\n-      addr_string (to_clone->addr_string == nullptr\n-\t\t   ? nullptr\n-\t\t   : xstrdup (to_clone->addr_string))\n+    : event_location (to_clone)\n   {\n   }\n \n   std::string compute_string () const override\n   {\n-    return addr_string;\n+    return std::move (as_string);\n   }\n };\n \n@@ -357,9 +350,9 @@ get_address_string_location (const struct event_location *location)\n /* See description in location.h.  */\n \n event_location_up\n-new_probe_location (const char *probe)\n+new_probe_location (std::string &&probe)\n {\n-  return event_location_up (new event_location_probe (probe));\n+  return event_location_up (new event_location_probe (std::move (probe)));\n }\n \n /* See description in location.h.  */\n@@ -368,7 +361,7 @@ const char *\n get_probe_location (const struct event_location *location)\n {\n   gdb_assert (location->type == PROBE_LOCATION);\n-  return ((event_location_probe *) location)->addr_string;\n+  return location->to_string ();\n }\n \n /* See description in location.h.  */"
+    },
+    {
+      "sha": "848f6458e5ecd54347b6e0907db7ebf0e7c8b474",
+      "filename": "gdb/location.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5947982f1dadfa72a6913f25cc4f56e137c7217e/gdb/location.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5947982f1dadfa72a6913f25cc4f56e137c7217e/gdb/location.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/location.h?ref=5947982f1dadfa72a6913f25cc4f56e137c7217e",
+      "patch": "@@ -169,7 +169,7 @@ extern const char *\n \n /* Create a new probe location.  */\n \n-extern event_location_up new_probe_location (const char *probe);\n+extern event_location_up new_probe_location (std::string &&probe);\n \n /* Return the probe location (a string) of the given event_location\n    (which must be of type PROBE_LOCATION).  */"
+    },
+    {
+      "sha": "689b5f022e49df1653e95787601167e28212e245",
+      "filename": "gdb/probe.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5947982f1dadfa72a6913f25cc4f56e137c7217e/gdb/probe.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5947982f1dadfa72a6913f25cc4f56e137c7217e/gdb/probe.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/probe.c?ref=5947982f1dadfa72a6913f25cc4f56e137c7217e",
+      "patch": "@@ -204,7 +204,7 @@ parse_probes (const struct event_location *location,\n       std::string canon (arg_start, arg_end - arg_start);\n       canonical->special_display = 1;\n       canonical->pre_expanded = 1;\n-      canonical->location = new_probe_location (canon.c_str ());\n+      canonical->location = new_probe_location (std::move (canon));\n     }\n \n   return result;"
+    }
+  ]
+}

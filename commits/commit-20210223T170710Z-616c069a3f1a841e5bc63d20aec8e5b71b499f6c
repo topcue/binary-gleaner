@@ -1,0 +1,110 @@
+{
+  "sha": "616c069a3f1a841e5bc63d20aec8e5b71b499f6c",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NjE2YzA2OWEzZjFhODQxZTViYzYzZDIwYWVjOGU1YjcxYjQ5OWY2Yw==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-02-23T17:07:10Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-02-23T17:07:10Z"
+    },
+    "message": "gdb/dwarf: don't enqueue CU in maybe_queue_comp_unit if already expanded\n\nThe previous commit log described how items could be left lingering in\nthe dwarf2_per_bfd::queue and how that could cause trouble.\n\nThis patch fixes the issue by changing maybe_queue_comp_unit so that it\ndoesn't put a CU in the to-expand queue if that CU is already expanded.\nThis will make it so that when dwarf2_fetch_die_type_sect_off calls\nfollow_die_offset and maybe_queue_comp_unit, it won't enqueue the target\nCU, because it will see the CU is already expanded.\n\nThis assumes that if a CU is dwarf2_fetch_die_type_sect_off's target CU,\nit will have previously been expanded.  I think it is the case, but I\ncan't be 100% sure.  If that's not true, the assertions added in the\nfollowing patch will catch it, and it means we'll have to re-think a bit\nmore how things work (it wouldn't be well handled at all today anyway).\n\nThis fixes something else in maybe_queue_comp_unit that looks wrong.\nImagine the DIEs of a CU are loaded in memory, but that CU is not\nexpanded.  In that case, maybe_queue_comp_unit will use this early\nreturn:\n\n  /* If the compilation unit is already loaded, just mark it as\n     used.  */\n  dwarf2_cu *cu = per_objfile->get_cu (per_cu);\n  if (cu != nullptr)\n    {\n      cu->last_used = 0;\n      return 0;\n    }\n\n... so the CU won't be queued for expansion.  Whether the DIEs of a CU\nare loaded in memory and whether that CU is expanded are two orthogonal\nthings, but that function appears to mix them.  So, move the queuing\nabove that check / early return, so that if the CU's DIEs are loaded in\nmemory but the CU is not expanded yet, it gets enqueued.\n\nI tried to improve maybe_queue_comp_unit's documentation to clarify what\nthe return value means.  By clarifying this, I noticed that two callers\n(follow_die_offset and follow_die_sig_1) access the CU's DIEs after\ncalling maybe_queue_comp_unit, only relying on maybe_queue_comp_unit's\nreturn value to tell whether DIEs need to be loaded first or not.  As\nexplained in the new comment, this is problematic:\nmaybe_queue_comp_unit's return value doesn't tell whether DIEs are\ncurrently loaded, it means whether maybe_queue_comp_unit requires the\ncaller to load them.  If the CU is already expanded but the DIEs to have\nbeen freed, maybe_queue_comp_unit returns 0, meaning \"I don't need you\nto load the DIEs\".  So if these two functions (follow_die_offset and\nfollow_die_sig_1) need to access the DIEs in any case, for their own\nusage, they should make sure to load them if they are not loaded\nalready.  I therefore added an extra check to the condition they use,\nmaking it so they will always load the DIEs if they aren't already.\n\nFrom what I found, other callers don't care for the CU's DIEs, they call\nmaybe_queue_comp_unit to ensure the CU gets expanded eventually, but\ndon't care for it after that.\n\ngdb/ChangeLog:\n\n\tPR gdb/26828\n\t* dwarf2/read.c (maybe_queue_comp_unit): Check if CU is expanded\n\tto decide whether or not to enqueue it for expansion.\n\t(follow_die_offset, follow_die_sig_1): Ensure we load the DIEs\n\tafter calling maybe_queue_comp_unit.\n\nChange-Id: Id98c6b60669f4b4b21b9be16d0518fc62bdf686a",
+    "tree": {
+      "sha": "986c3d3d74c68d4df4e72368f89f54e1561cc5f7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/986c3d3d74c68d4df4e72368f89f54e1561cc5f7"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/616c069a3f1a841e5bc63d20aec8e5b71b499f6c",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/616c069a3f1a841e5bc63d20aec8e5b71b499f6c",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/616c069a3f1a841e5bc63d20aec8e5b71b499f6c",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/616c069a3f1a841e5bc63d20aec8e5b71b499f6c/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "1a48f0027d52f507da1817406279c1b81a6fa262",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1a48f0027d52f507da1817406279c1b81a6fa262",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/1a48f0027d52f507da1817406279c1b81a6fa262"
+    }
+  ],
+  "stats": {
+    "total": 78,
+    "additions": 61,
+    "deletions": 17
+  },
+  "files": [
+    {
+      "sha": "6aa71ea4e23ed8ea208fbbb6ed72f6821b17888f",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/616c069a3f1a841e5bc63d20aec8e5b71b499f6c/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/616c069a3f1a841e5bc63d20aec8e5b71b499f6c/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=616c069a3f1a841e5bc63d20aec8e5b71b499f6c",
+      "patch": "@@ -1,3 +1,11 @@\n+2021-02-23  Simon Marchi  <simon.marchi@polymtl.ca>\n+\n+\tPR gdb/26828\n+\t* dwarf2/read.c (maybe_queue_comp_unit): Check if CU is expanded\n+\tto decide whether or not to enqueue it for expansion.\n+\t(follow_die_offset, follow_die_sig_1): Ensure we load the DIEs\n+\tafter calling maybe_queue_comp_unit.\n+\n 2021-02-23  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* linux-nat.c (linux_nat_filter_event): Return void."
+    },
+    {
+      "sha": "b36694e54fe1bcff3b7a1f73c6a8c6091ae33e11",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 53,
+      "deletions": 17,
+      "changes": 70,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/616c069a3f1a841e5bc63d20aec8e5b71b499f6c/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/616c069a3f1a841e5bc63d20aec8e5b71b499f6c/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=616c069a3f1a841e5bc63d20aec8e5b71b499f6c",
+      "patch": "@@ -9183,14 +9183,30 @@ queue_comp_unit (dwarf2_per_cu_data *per_cu,\n   per_cu->per_bfd->queue.emplace (per_cu, per_objfile, pretend_language);\n }\n \n-/* If PER_CU is not yet queued, add it to the queue.\n+/* If PER_CU is not yet expanded of queued for expansion, add it to the queue.\n+\n    If DEPENDENT_CU is non-NULL, it has a reference to PER_CU so add a\n    dependency.\n-   The result is non-zero if PER_CU was queued, otherwise the result is zero\n-   meaning either PER_CU is already queued or it is already loaded.\n \n-   N.B. There is an invariant here that if a CU is queued then it is loaded.\n-   The caller is required to load PER_CU if we return non-zero.  */\n+   Return true if maybe_queue_comp_unit requires the caller to load the CU's\n+   DIEs, false otherwise.\n+\n+   Explanation: there is an invariant that if a CU is queued for expansion\n+   (present in `dwarf2_per_bfd::queue`), then its DIEs are loaded\n+   (a dwarf2_cu object exists for this CU, and `dwarf2_per_objfile::get_cu`\n+   returns non-nullptr).  If the CU gets enqueued by this function but its DIEs\n+   are not yet loaded, the the caller must load the CU's DIEs to ensure the\n+   invariant is respected.\n+\n+   The caller is therefore not required to load the CU's DIEs (we return false)\n+   if:\n+\n+     - the CU is already expanded, and therefore does not get enqueued\n+     - the CU gets enqueued for expansion, but its DIEs are already loaded\n+\n+   Note that the caller should not use this function's return value as an\n+   indicator of whether the CU's DIEs are loaded right now, it should check\n+   that by calling `dwarf2_per_objfile::get_cu` instead.  */\n \n static int\n maybe_queue_comp_unit (struct dwarf2_cu *dependent_cu,\n@@ -9221,22 +9237,32 @@ maybe_queue_comp_unit (struct dwarf2_cu *dependent_cu,\n       /* Verify the invariant that if a CU is queued for expansion, its DIEs are\n \t loaded.  */\n       gdb_assert (per_objfile->get_cu (per_cu) != nullptr);\n+\n+      /* If the CU is queued for expansion, it should not already be\n+\t expanded.  */\n+      gdb_assert (!per_objfile->symtab_set_p (per_cu));\n+\n+      /* The DIEs are already loaded, the caller doesn't need to do it.  */\n       return 0;\n     }\n \n+  bool queued = false;\n+  if (!per_objfile->symtab_set_p (per_cu))\n+    {\n+      /* Add it to the queue.  */\n+      queue_comp_unit (per_cu, per_objfile,  pretend_language);\n+      queued = true;\n+    }\n+\n   /* If the compilation unit is already loaded, just mark it as\n      used.  */\n   dwarf2_cu *cu = per_objfile->get_cu (per_cu);\n   if (cu != nullptr)\n-    {\n-      cu->last_used = 0;\n-      return 0;\n-    }\n+    cu->last_used = 0;\n \n-  /* Add it to the queue.  */\n-  queue_comp_unit (per_cu, per_objfile,  pretend_language);\n-\n-  return 1;\n+  /* Ask the caller to load the CU's DIEs if the CU got enqueued for expansion\n+     and the DIEs are not already loaded.  */\n+  return queued && cu == nullptr;\n }\n \n /* Process the queue.  */\n@@ -23704,12 +23730,18 @@ follow_die_offset (sect_offset sect_off, int offset_in_dwz,\n \t\t\t\t sect_offset_str (per_cu->sect_off),\n \t\t\t\t per_objfile->get_cu (per_cu) != nullptr);\n \n-      /* If necessary, add it to the queue and load its DIEs.  */\n-      if (maybe_queue_comp_unit (cu, per_cu, per_objfile, cu->language))\n+      /* If necessary, add it to the queue and load its DIEs.\n+\n+\t Even if maybe_queue_comp_unit doesn't require us to load the CU's DIEs,\n+\t it doesn't mean they are currently loaded.  Since we require them\n+\t to be loaded, we must check for ourselves.  */\n+      if (maybe_queue_comp_unit (cu, per_cu, per_objfile, cu->language)\n+\t  || per_objfile->get_cu (per_cu) == nullptr)\n \tload_full_comp_unit (per_cu, per_objfile, per_objfile->get_cu (per_cu),\n \t\t\t     false, cu->language);\n \n       target_cu = per_objfile->get_cu (per_cu);\n+      gdb_assert (target_cu != nullptr);\n     }\n   else if (cu->dies == NULL)\n     {\n@@ -24083,10 +24115,14 @@ follow_die_sig_1 (struct die_info *src_die, struct signatured_type *sig_type,\n      we can get here for DW_AT_imported_declaration where we need\n      the DIE not the type.  */\n \n-  /* If necessary, add it to the queue and load its DIEs.  */\n+  /* If necessary, add it to the queue and load its DIEs.\n \n+     Even if maybe_queue_comp_unit doesn't require us to load the CU's DIEs,\n+     it doesn't mean they are currently loaded.  Since we require them\n+     to be loaded, we must check for ourselves.  */\n   if (maybe_queue_comp_unit (*ref_cu, &sig_type->per_cu, per_objfile,\n-\t\t\t     language_minimal))\n+\t\t\t     language_minimal)\n+      || per_objfile->get_cu (&sig_type->per_cu) == nullptr)\n     read_signatured_type (sig_type, per_objfile);\n \n   sig_cu = per_objfile->get_cu (&sig_type->per_cu);"
+    }
+  ]
+}

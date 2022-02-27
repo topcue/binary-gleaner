@@ -1,0 +1,110 @@
+{
+  "sha": "ae4b1d73f97e0b2a5975b3c0039b12a7f64b793b",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YWU0YjFkNzNmOTdlMGIyYTU5NzViM2MwMDM5YjEyYTdmNjRiNzkzYg==",
+  "commit": {
+    "author": {
+      "name": "Rainer Orth",
+      "email": "ro@CeBiTec.Uni-Bielefeld.DE",
+      "date": "2020-04-09T11:10:40Z"
+    },
+    "committer": {
+      "name": "Rainer Orth",
+      "email": "ro@CeBiTec.Uni-Bielefeld.DE",
+      "date": "2020-04-09T11:10:40Z"
+    },
+    "message": "ld: Fix pr22269-1 on 32-bit Solaris/SPARC\n\npr22269-1.s currently FAILs to assemble on 32-bit Solaris/SPARC:\n\nERROR:  -K PIC tmpdir/pr22269-1.s: assembly failed\nUNRESOLVED: pr22269-1 (static pie undefined weak)\n\ntmpdir/pr22269-1.s: Assembler messages:\ntmpdir/pr22269-1.s:27: Error: Architecture mismatch on \"be,pn %icc,.LL4 ,pn %icc,.LL4\".\ntmpdir/pr22269-1.s:27: (Requires v9|v9a|v9b|v9c|v9d|v9e|v9v|v9m|m8; requested architecture is sparclite.)\ntmpdir/pr22269-1.s:32: Error: Architecture mismatch on \"return %i7+8\".\ntmpdir/pr22269-1.s:32: (Requires v9|v9a|v9b|v9c|v9d|v9e|v9v|v9m|m8; requested architecture is sparclite.)\ntmpdir/pr22269-1.s:36: Error: Architecture mismatch on \"return %i7+8\".\ntmpdir/pr22269-1.s:36: (Requires v9|v9a|v9b|v9c|v9d|v9e|v9v|v9m|m8; requested architecture is sparclite.)\n\nI could trace this to the fact that gcc on sparc-sun-solaris2.* defaults\nto --with-cpu=v9.  So the gcc -S step of compiling the testcase is run\nwith -mcpu=v9, while the manual invocation of as-new lacks the\ncorresponding -Av9, creating a mismatch.\n\nSolaris seems to be the only affected target, otherwise only\n64-bit-default configurations default to --with-cpu=v9 or\n--with-cpu=ultrasparc: sparcv9-*-*, sparc64-*-*,\nsparc64-*-freebsd*, ultrasparc-*-freebsd*, and sparc64-*-openbsd*.\n\nThis patch just adds -Av9 to AFLAGS_PIC in ld-elf/shared.exp.  It has a\nprecedent in ld-elfvers/vers.exp where -Av9a is added to as_options on\nsparc-*-*.  It lets the test pass and causes no other changes in\nsparc-sun-solaris2.11 test results.\n\n\t* testsuite/ld-elf/shared.exp: Add -Av9 to AFLAGS_PIC on sparc*-*-*.",
+    "tree": {
+      "sha": "80f823554e1014e23393d73fc419293764d59af6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/80f823554e1014e23393d73fc419293764d59af6"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ae4b1d73f97e0b2a5975b3c0039b12a7f64b793b",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ae4b1d73f97e0b2a5975b3c0039b12a7f64b793b",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ae4b1d73f97e0b2a5975b3c0039b12a7f64b793b",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ae4b1d73f97e0b2a5975b3c0039b12a7f64b793b/comments",
+  "author": {
+    "login": "rorth",
+    "id": 3930951,
+    "node_id": "MDQ6VXNlcjM5MzA5NTE=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/3930951?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/rorth",
+    "html_url": "https://github.com/rorth",
+    "followers_url": "https://api.github.com/users/rorth/followers",
+    "following_url": "https://api.github.com/users/rorth/following{/other_user}",
+    "gists_url": "https://api.github.com/users/rorth/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/rorth/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/rorth/subscriptions",
+    "organizations_url": "https://api.github.com/users/rorth/orgs",
+    "repos_url": "https://api.github.com/users/rorth/repos",
+    "events_url": "https://api.github.com/users/rorth/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/rorth/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "rorth",
+    "id": 3930951,
+    "node_id": "MDQ6VXNlcjM5MzA5NTE=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/3930951?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/rorth",
+    "html_url": "https://github.com/rorth",
+    "followers_url": "https://api.github.com/users/rorth/followers",
+    "following_url": "https://api.github.com/users/rorth/following{/other_user}",
+    "gists_url": "https://api.github.com/users/rorth/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/rorth/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/rorth/subscriptions",
+    "organizations_url": "https://api.github.com/users/rorth/orgs",
+    "repos_url": "https://api.github.com/users/rorth/repos",
+    "events_url": "https://api.github.com/users/rorth/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/rorth/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "3071b197da66dce3877b785c8176352762b45ccc",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3071b197da66dce3877b785c8176352762b45ccc",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/3071b197da66dce3877b785c8176352762b45ccc"
+    }
+  ],
+  "stats": {
+    "total": 6,
+    "additions": 5,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "0a8842eebb4578b2077ba55fa9cc044bdb300315",
+      "filename": "ld/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae4b1d73f97e0b2a5975b3c0039b12a7f64b793b/ld/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae4b1d73f97e0b2a5975b3c0039b12a7f64b793b/ld/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/ChangeLog?ref=ae4b1d73f97e0b2a5975b3c0039b12a7f64b793b",
+      "patch": "@@ -1,3 +1,7 @@\n+2020-04-09  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>\n+\n+\t* testsuite/ld-elf/shared.exp: Add -Av9 to AFLAGS_PIC on sparc*-*-*.\n+\n 2020-04-02  H.J. Lu  <hongjiu.lu@intel.com>\n \n \t* testsuite/config/default.exp (NOCF_PROTECTION_CFLAGS): Replace"
+    },
+    {
+      "sha": "33664305150fdd2dc2f11b794fa88ed75335ad41",
+      "filename": "ld/testsuite/ld-elf/shared.exp",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae4b1d73f97e0b2a5975b3c0039b12a7f64b793b/ld/testsuite/ld-elf/shared.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae4b1d73f97e0b2a5975b3c0039b12a7f64b793b/ld/testsuite/ld-elf/shared.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-elf/shared.exp?ref=ae4b1d73f97e0b2a5975b3c0039b12a7f64b793b",
+      "patch": "@@ -46,7 +46,7 @@ if [istarget \"tic6x-*-*\"] {\n     append AFLAGS_PIC \" -mpic -mpid=near\"\n }\n if [istarget \"sparc*-*-*\"] {\n-    append AFLAGS_PIC \" -K PIC\"\n+    append AFLAGS_PIC \" -K PIC -Av9\"\n }\n \n # GAS options to disable program property note."
+    }
+  ]
+}

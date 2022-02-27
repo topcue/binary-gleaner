@@ -1,0 +1,134 @@
+{
+  "sha": "607679092fce3bd6d73830b41630e9edd3affea3",
+  "node_id": "C_kwDOANOeidoAKDYwNzY3OTA5MmZjZTNiZDZkNzM4MzBiNDE2MzBlOWVkZDNhZmZlYTM",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-09-29T13:53:52Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-09-29T13:53:52Z"
+    },
+    "message": "[gdb/testsuite] Disable vgdb tests if xml not supported\n\nI build gdb without xml support using --without-expat, and ran into:\n...\n(gdb) target remote | vgdb --wait=2 --max-invoke-ms=2500 --pid=22032^M\nRemote debugging using | vgdb --wait=2 --max-invoke-ms=2500 --pid=22032^M\nrelaying data between gdb and process 22032^M\nwarning: Can not parse XML target description; XML support was disabled at \\\n  compile time^M\n  ...\n(gdb) PASS: gdb.base/valgrind-infcall.exp: continue #1\np gdb_test_infcall ()^M\nRemote 'g' packet reply is too long (expected 560 bytes, got 800 bytes): ...^M\n(gdb) FAIL: gdb.base/valgrind-infcall.exp: p gdb_test_infcall ()\n...\n\nAfter googling the error message with context valgrind gdbserver, I found\nindications that the Remote 'g' packet reply error is due to missing xml\nsupport.\n\nAnd here ( https://www.valgrind.org/docs/manual/manual-core-adv.html ) I\nfound:\n...\nGDB version needed for ARM and PPC32/64.\n\nYou must use a GDB version which is able to read XML target description sent\nby a gdbserver.  This is the standard setup if GDB was configured and built\nwith the \"expat\" library.  If your GDB was not configured with XML support, it\nwill report an error message when using the \"target\" command.  Debugging will\nnot work because GDB will then not be able to fetch the registers from the\nValgrind gdbserver.\n...\n\nSo I guess I'm running into the same problem for x86_64.\n\nFix this by skipping all gdb.base/valgrind-*.exp tests if xml support is not\navailable.  Although only the gdb.base/valgrind-infcall*.exp produce fails,\nthe Remote 'g' packet reply error occurs in all tests, so it seems prudent to\ndisable them all.\n\nTested on x86_64-linux.",
+    "tree": {
+      "sha": "cf1b4b9c43ff6a6a2a38c4589cae6a209794fff1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/cf1b4b9c43ff6a6a2a38c4589cae6a209794fff1"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/607679092fce3bd6d73830b41630e9edd3affea3",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/607679092fce3bd6d73830b41630e9edd3affea3",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/607679092fce3bd6d73830b41630e9edd3affea3",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/607679092fce3bd6d73830b41630e9edd3affea3/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "6767cc642cffc86848887f9bdd1ffe57d93ef563",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6767cc642cffc86848887f9bdd1ffe57d93ef563",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/6767cc642cffc86848887f9bdd1ffe57d93ef563"
+    }
+  ],
+  "stats": {
+    "total": 20,
+    "additions": 20,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "4b84a45d3337b3d8501fc1c94a07896e4f3f40a3",
+      "filename": "gdb/testsuite/gdb.base/valgrind-bt.exp",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/607679092fce3bd6d73830b41630e9edd3affea3/gdb/testsuite/gdb.base/valgrind-bt.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/607679092fce3bd6d73830b41630e9edd3affea3/gdb/testsuite/gdb.base/valgrind-bt.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/valgrind-bt.exp?ref=607679092fce3bd6d73830b41630e9edd3affea3",
+      "patch": "@@ -13,6 +13,11 @@\n # You should have received a copy of the GNU General Public License\n # along with this program.  If not, see <http://www.gnu.org/licenses/>.\n \n+if { [gdb_skip_xml_test] } {\n+    # Valgrind gdbserver requires gdb with xml support.\n+    return 0\n+}\n+\n load_lib valgrind.exp\n \n if [is_remote target] {"
+    },
+    {
+      "sha": "f9429fbd69afe2c21fe207aaa954bfa1db4b45e4",
+      "filename": "gdb/testsuite/gdb.base/valgrind-disp-step.exp",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/607679092fce3bd6d73830b41630e9edd3affea3/gdb/testsuite/gdb.base/valgrind-disp-step.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/607679092fce3bd6d73830b41630e9edd3affea3/gdb/testsuite/gdb.base/valgrind-disp-step.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/valgrind-disp-step.exp?ref=607679092fce3bd6d73830b41630e9edd3affea3",
+      "patch": "@@ -18,6 +18,11 @@\n # really tests is that GDB falls back to in-line stepping\n # automatically instead of getting stuck or crashing.\n \n+if { [gdb_skip_xml_test] } {\n+    # Valgrind gdbserver requires gdb with xml support.\n+    return 0\n+}\n+\n load_lib valgrind.exp\n \n if [is_remote target] {"
+    },
+    {
+      "sha": "30881ca72ea1ea02bd01c5d1f6491299c88e41db",
+      "filename": "gdb/testsuite/gdb.base/valgrind-infcall-2.exp",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/607679092fce3bd6d73830b41630e9edd3affea3/gdb/testsuite/gdb.base/valgrind-infcall-2.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/607679092fce3bd6d73830b41630e9edd3affea3/gdb/testsuite/gdb.base/valgrind-infcall-2.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/valgrind-infcall-2.exp?ref=607679092fce3bd6d73830b41630e9edd3affea3",
+      "patch": "@@ -29,6 +29,11 @@\n # terminate called after throwing an instance of 'gdb_exception_error'\n # Aborted (core dumped)\n \n+if { [gdb_skip_xml_test] } {\n+    # Valgrind gdbserver requires gdb with xml support.\n+    return 0\n+}\n+\n load_lib valgrind.exp\n \n if [is_remote target] {"
+    },
+    {
+      "sha": "0108f92ceafd8e445a0135ccb9fde8fcc481c4d9",
+      "filename": "gdb/testsuite/gdb.base/valgrind-infcall.exp",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/607679092fce3bd6d73830b41630e9edd3affea3/gdb/testsuite/gdb.base/valgrind-infcall.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/607679092fce3bd6d73830b41630e9edd3affea3/gdb/testsuite/gdb.base/valgrind-infcall.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/valgrind-infcall.exp?ref=607679092fce3bd6d73830b41630e9edd3affea3",
+      "patch": "@@ -13,6 +13,11 @@\n # You should have received a copy of the GNU General Public License\n # along with this program.  If not, see <http://www.gnu.org/licenses/>.\n \n+if { [gdb_skip_xml_test] } {\n+    # Valgrind gdbserver requires gdb with xml support.\n+    return 0\n+}\n+\n load_lib valgrind.exp\n \n if [is_remote target] {"
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "sha": "2dc80cf8a5799120fd4e00199688f721e7de2a62",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MmRjODBjZjhhNTc5OTEyMGZkNGUwMDE5OTY4OGY3MjFlN2RlMmE2Mg==",
+  "commit": {
+    "author": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2019-07-04T00:35:21Z"
+    },
+    "committer": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2019-07-27T20:28:56Z"
+    },
+    "message": "Restrict use of minsym names when printing addresses in disassembled code\n\nbuild_address_symbolic contains some code which causes it to\nprefer the minsym over the the function symbol in certain cases.\nThe cases where this occurs are the same as the \"certain pathological\ncases\" that used to exist in find_frame_funname().\n\nThis commit largely disables that code; it will only prefer the\nminsym when the address of minsym is identical to that of the address\nunder consideration AND the function address for the symbtab sym is\nnot the same as the address under consideration.\n\nSo, without this change, when using the dw2-ranges-func-lo-cold\nexecutable from the gdb.dwarf2/dw2-ranges-func.exp test, GDB exhibits\nthe following behavior:\n\n(gdb) x/5i foo_cold\n   0x40110d <foo+4294967277>:\tpush   %rbp\n   0x40110e <foo+4294967278>:\tmov    %rsp,%rbp\n   0x401111 <foo+4294967281>:\tcallq  0x401106 <baz>\n   0x401116 <foo+4294967286>:\tnop\n   0x401117 <foo+4294967287>:\tpop    %rbp\n\nOn the other hand, still without this change, using the\ndw2-ranges-func-hi-cold executable from the same test, GDB\ndoes this instead:\n\n(gdb) x/5i foo_cold\n   0x401128 <foo_cold>:\tpush   %rbp\n   0x401129 <foo_cold+1>:\tmov    %rsp,%rbp\n   0x40112c <foo_cold+4>:\tcallq  0x401134 <baz>\n   0x401131 <foo_cold+9>:\tnop\n   0x401132 <foo_cold+10>:\tpop    %rbp\n\nThis is inconsistent behavior.  When foo_cold is at a lower\naddress than the function's entry point, the symtab symbol (foo)\nis displayed along with a large positive offset which would wrap\naround the address space if the address space were only 32 bits wide.\n(A later patch fixes this problem by displaying negative offsets.)\n\nThis commit makes the behavior uniform for both the \"lo-cold\" and\n\"hi-cold\" cases:\n\nlo-cold:\n\n(gdb) x/5i foo_cold\n   0x40110d <foo_cold>:\tpush   %rbp\n   0x40110e <foo-18>:\tmov    %rsp,%rbp\n   0x401111 <foo-15>:\tcallq  0x401106 <baz>\n   0x401116 <foo-10>:\tnop\n   0x401117 <foo-9>:\tpop    %rbp\n\nhi-cold:\n\n(gdb) x/5i foo_cold\n   0x401128 <foo_cold>:\tpush   %rbp\n   0x401129 <foo+35>:\tmov    %rsp,%rbp\n   0x40112c <foo+38>:\tcallq  0x401134 <baz>\n   0x401131 <foo+43>:\tnop\n   0x401132 <foo+44>:\tpop    %rbp\n\nIn both cases, the symbol shown for the address at which foo_cold\nresides is shown as <foo_cold>.  Subsequent offsets are shown as\neither negative or positive offsets from the entry pc for foo.\n\nWhen disassembling a function, care must be taken to NOT display\n<+0> as the offset for the second range.  For this reason, I found\nit necessary to add the \"prefer_sym_over_minsym\" parameter to\nbuild_address_symbolic.  The type of this flag is a bool; do_demangle\nought to be a bool also, so I made this change at the same time.\n\ngdb/ChangeLog:\n\n\t* valprint.h (build_address_symbolic): Add \"prefer_sym_over_minsym\"\n\tparameter.  Change type of \"do_demangle\" to bool.\n\t* disasm.c (gdb_pretty_print_disassembler::pretty_print_insn):\n\tPass suitable \"prefer_sym_over_minsym\" flag to\n\tbuild_address_symbolic().  Don't output \"+\" for negative offsets.\n\t* printcmd.c (print_address_symbolic): Update invocation of\n\tbuild_address_symbolic to include a \"prefer_sym_over_minsym\"\n\tflag.\n\t(build_address_symbolic): Add \"prefer_sym_over_minsym\" parameter.\n\tRestrict cases in which use of minimal symbol is preferred to that\n\tof a found symbol.  Update comments.",
+    "tree": {
+      "sha": "072f408b268c8d838bcac8f82b37e1aa215758ed",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/072f408b268c8d838bcac8f82b37e1aa215758ed"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/2dc80cf8a5799120fd4e00199688f721e7de2a62",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2dc80cf8a5799120fd4e00199688f721e7de2a62",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/2dc80cf8a5799120fd4e00199688f721e7de2a62",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2dc80cf8a5799120fd4e00199688f721e7de2a62/comments",
+  "author": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "567238c956c4e5530bd143bfae9393c7ae5524cd",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/567238c956c4e5530bd143bfae9393c7ae5524cd",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/567238c956c4e5530bd143bfae9393c7ae5524cd"
+    }
+  ],
+  "stats": {
+    "total": 66,
+    "additions": 50,
+    "deletions": 16
+  },
+  "files": [
+    {
+      "sha": "82ef5038f1fea98919ce93320d515949c695f570",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2dc80cf8a5799120fd4e00199688f721e7de2a62/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2dc80cf8a5799120fd4e00199688f721e7de2a62/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=2dc80cf8a5799120fd4e00199688f721e7de2a62",
+      "patch": "@@ -3,6 +3,18 @@\n \t* stack.c (find_frame_funname): Remove code which preferred\n \tminsym over symtab sym in \"certain pathological cases\".\n \n+\t* valprint.h (build_address_symbolic): Add \"prefer_sym_over_minsym\"\n+\tparameter.  Change type of \"do_demangle\" to bool.\n+\t* disasm.c (gdb_pretty_print_disassembler::pretty_print_insn):\n+\tPass suitable \"prefer_sym_over_minsym\" flag to\n+\tbuild_address_symbolic().  Don't output \"+\" for negative offsets.\n+\t* printcmd.c (print_address_symbolic): Update invocation of\n+\tbuild_address_symbolic to include a \"prefer_sym_over_minsym\"\n+\tflag.\n+\t(build_address_symbolic): Add \"prefer_sym_over_minsym\" parameter.\n+\tRestrict cases in which use of minimal symbol is preferred to that\n+\tof a found symbol.  Update comments.\n+\n 2019-07-26  Brian Callahan  <bcallah@openbsd.org>\n \n \tPR gdb/24839:"
+    },
+    {
+      "sha": "0d4c9733a0381db849beb32b260749b52f1497a0",
+      "filename": "gdb/disasm.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 4,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2dc80cf8a5799120fd4e00199688f721e7de2a62/gdb/disasm.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2dc80cf8a5799120fd4e00199688f721e7de2a62/gdb/disasm.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/disasm.c?ref=2dc80cf8a5799120fd4e00199688f721e7de2a62",
+      "patch": "@@ -237,16 +237,20 @@ gdb_pretty_print_disassembler::pretty_print_insn (struct ui_out *uiout,\n     uiout->field_core_addr (\"address\", gdbarch, pc);\n \n     std::string name, filename;\n-    if (!build_address_symbolic (gdbarch, pc, 0, &name, &offset, &filename,\n-\t\t\t\t &line, &unmapped))\n+    bool omit_fname = ((flags & DISASSEMBLY_OMIT_FNAME) != 0);\n+    if (!build_address_symbolic (gdbarch, pc, false, omit_fname, &name,\n+                                 &offset, &filename, &line, &unmapped))\n       {\n \t/* We don't care now about line, filename and unmapped.  But we might in\n \t   the future.  */\n \tuiout->text (\" <\");\n-\tif ((flags & DISASSEMBLY_OMIT_FNAME) == 0)\n+\tif (!omit_fname)\n \t  uiout->field_string (\"func-name\", name.c_str (),\n \t\t\t       ui_out_style_kind::FUNCTION);\n-\tuiout->text (\"+\");\n+\t/* For negative offsets, avoid displaying them as +-N; the sign of\n+\t   the offset takes the place of the \"+\" here.  */\n+\tif (offset >= 0)\n+\t  uiout->text (\"+\");\n \tuiout->field_signed (\"offset\", offset);\n \tuiout->text (\">:\\t\");\n       }"
+    },
+    {
+      "sha": "efe6874d39bb019ed3d0fa2c33182253209a7f94",
+      "filename": "gdb/printcmd.c",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 8,
+      "changes": 29,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2dc80cf8a5799120fd4e00199688f721e7de2a62/gdb/printcmd.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2dc80cf8a5799120fd4e00199688f721e7de2a62/gdb/printcmd.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/printcmd.c?ref=2dc80cf8a5799120fd4e00199688f721e7de2a62",
+      "patch": "@@ -529,8 +529,8 @@ print_address_symbolic (struct gdbarch *gdbarch, CORE_ADDR addr,\n   int offset = 0;\n   int line = 0;\n \n-  if (build_address_symbolic (gdbarch, addr, do_demangle, &name, &offset,\n-\t\t\t      &filename, &line, &unmapped))\n+  if (build_address_symbolic (gdbarch, addr, do_demangle, false, &name,\n+                              &offset, &filename, &line, &unmapped))\n     return 0;\n \n   fputs_filtered (leadin, stream);\n@@ -564,7 +564,8 @@ print_address_symbolic (struct gdbarch *gdbarch, CORE_ADDR addr,\n int\n build_address_symbolic (struct gdbarch *gdbarch,\n \t\t\tCORE_ADDR addr,  /* IN */\n-\t\t\tint do_demangle, /* IN */\n+\t\t\tbool do_demangle, /* IN */\n+\t\t\tbool prefer_sym_over_minsym, /* IN */\n \t\t\tstd::string *name, /* OUT */\n \t\t\tint *offset,     /* OUT */\n \t\t\tstd::string *filename, /* OUT */\n@@ -592,8 +593,10 @@ build_address_symbolic (struct gdbarch *gdbarch,\n \t}\n     }\n \n-  /* First try to find the address in the symbol table, then\n-     in the minsyms.  Take the closest one.  */\n+  /* Try to find the address in both the symbol table and the minsyms. \n+     In most cases, we'll prefer to use the symbol instead of the\n+     minsym.  However, there are cases (see below) where we'll choose\n+     to use the minsym instead.  */\n \n   /* This is defective in the sense that it only finds text symbols.  So\n      really this is kind of pointless--we should make sure that the\n@@ -630,7 +633,19 @@ build_address_symbolic (struct gdbarch *gdbarch,\n \n   if (msymbol.minsym != NULL)\n     {\n-      if (BMSYMBOL_VALUE_ADDRESS (msymbol) > name_location || symbol == NULL)\n+      /* Use the minsym if no symbol is found.\n+      \n+\t Additionally, use the minsym instead of a (found) symbol if\n+\t the following conditions all hold:\n+\t   1) The prefer_sym_over_minsym flag is false.\n+\t   2) The minsym address is identical to that of the address under\n+\t      consideration.\n+\t   3) The symbol address is not identical to that of the address\n+\t      under consideration.  */\n+      if (symbol == NULL ||\n+           (!prefer_sym_over_minsym\n+\t    && BMSYMBOL_VALUE_ADDRESS (msymbol) == addr\n+\t    && name_location != addr))\n \t{\n \t  /* If this is a function (i.e. a code address), strip out any\n \t     non-address bits.  For instance, display a pointer to the\n@@ -643,8 +658,6 @@ build_address_symbolic (struct gdbarch *gdbarch,\n \t      || MSYMBOL_TYPE (msymbol.minsym) == mst_solib_trampoline)\n \t    addr = gdbarch_addr_bits_remove (gdbarch, addr);\n \n-\t  /* The msymbol is closer to the address than the symbol;\n-\t     use the msymbol instead.  */\n \t  symbol = 0;\n \t  name_location = BMSYMBOL_VALUE_ADDRESS (msymbol);\n \t  if (do_demangle || asm_demangle)"
+    },
+    {
+      "sha": "07014c11b9f9df347e761260c74e93a4eb93b82d",
+      "filename": "gdb/valprint.h",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 4,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2dc80cf8a5799120fd4e00199688f721e7de2a62/gdb/valprint.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2dc80cf8a5799120fd4e00199688f721e7de2a62/gdb/valprint.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/valprint.h?ref=2dc80cf8a5799120fd4e00199688f721e7de2a62",
+      "patch": "@@ -255,13 +255,18 @@ extern void print_command_completer (struct cmd_list_element *ignore,\n /* Given an address ADDR return all the elements needed to print the\n    address in a symbolic form.  NAME can be mangled or not depending\n    on DO_DEMANGLE (and also on the asm_demangle global variable,\n-   manipulated via ''set print asm-demangle'').  Return 0 in case of\n-   success, when all the info in the OUT paramters is valid.  Return 1\n-   otherwise.  */\n+   manipulated via ''set print asm-demangle'').  When\n+   PREFER_SYM_OVER_MINSYM is true, names (and offsets) from minimal\n+   symbols won't be used except in instances where no symbol was\n+   found; otherwise, a minsym might be used in some instances (mostly\n+   involving function with non-contiguous address ranges).  Return\n+   0 in case of success, when all the info in the OUT paramters is\n+   valid.  Return 1 otherwise.  */\n \n extern int build_address_symbolic (struct gdbarch *,\n \t\t\t\t   CORE_ADDR addr,\n-\t\t\t\t   int do_demangle,\n+\t\t\t\t   bool do_demangle,\n+\t\t\t\t   bool prefer_sym_over_minsym,\n \t\t\t\t   std::string *name,\n \t\t\t\t   int *offset,\n \t\t\t\t   std::string *filename,"
+    }
+  ]
+}

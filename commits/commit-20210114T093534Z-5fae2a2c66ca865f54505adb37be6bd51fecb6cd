@@ -1,0 +1,110 @@
+{
+  "sha": "5fae2a2c66ca865f54505adb37be6bd51fecb6cd",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NWZhZTJhMmM2NmNhODY1ZjU0NTA1YWRiMzdiZTZiZDUxZmVjYjZjZA==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-01-14T09:35:34Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-01-14T09:35:34Z"
+    },
+    "message": "[gdb/breakpoint] Handle .plt.sec in in_plt_section\n\nConsider the following test-case small.c:\n...\n #include <stdio.h>\n #include <stdlib.h>\n #include <string.h>\n\n int main (void) {\n   int *p = (int *)malloc (sizeof(int) * 4);\n   memset (p, 0, sizeof(p));\n   printf (\"p[0] = %d; p[3] = %d\\n\", p[0], p[3]);\n   return 0;\n }\n...\n\nOn Ubuntu 20.04, we get:\n...\n$ gcc -O0 -g small.c\n$ gdb -batch a.out -ex start -ex step\nTemporary breakpoint 1, main () at small.c:6\n6         int *p = (int *) malloc(sizeof(int) * 4);\np[0] = 0; p[3] = 0\n[Inferior 1 (process $dec) exited normally]\n...\nbut after switching off the on-by-default fcf-protection, we get the desired\nbehaviour:\n...\n$ gcc -O0 -g small.c -fcf-protection=none\n$ gdb -batch a.out -ex start -ex step\nTemporary breakpoint 1, main () at small.c:6\n6         int *p = (int *) malloc(sizeof(int) * 4);\n7         memset (p, 0, sizeof(p));\n...\n\nUsing \"set debug infrun 1\", the first observable difference between the two\ndebug sessions is that with -fcf-protection=none we get:\n...\n[infrun] process_event_stop_test: stepped into dynsym resolve code\n...\nIn this case, \"in_solib_dynsym_resolve_code (malloc@plt)\" returns true because\n\"in_plt_section (malloc@plt)\" returns true.\n\nWith -fcf-protection=full, \"in_solib_dynsym_resolve_code (malloc@plt)\" returns\nfalse because \"in_plt_section (malloc@plt)\" returns false, because the section\nname for malloc@plt is .plt.sec instead of .plt, which is not handled in\nin_plt_section:\n...\nstatic inline int\nin_plt_section (CORE_ADDR pc)\n{\n  return pc_in_section (pc, \".plt\");\n}\n...\n\nFix this by handling .plt.sec in in_plt_section.\n\nTested on x86_64-linux.\n\n[ Another requirement to be able to reproduce this is to have a dynamic linker\nwith a \"malloc\" minimal symbol, which causes find_solib_trampoline_target to\nfind it, such that skip_language_trampoline returns the address for the\ndynamic linkers malloc.  This causes the step machinery to set a breakpoint\nthere, and to continue, expecting to hit it.  Obviously, we execute glibc's\nmalloc instead, so the breakpoint is not hit and we continue to program\ncompletion. ]\n\ngdb/ChangeLog:\n\n2021-01-14  Tom de Vries  <tdevries@suse.de>\n\n\tPR breakpoints/27151\n\t* objfiles.h (in_plt_section): Handle .plt.sec.",
+    "tree": {
+      "sha": "bb988a717ee79e147485bcf58801892c1165752a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/bb988a717ee79e147485bcf58801892c1165752a"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/5fae2a2c66ca865f54505adb37be6bd51fecb6cd",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5fae2a2c66ca865f54505adb37be6bd51fecb6cd",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/5fae2a2c66ca865f54505adb37be6bd51fecb6cd",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5fae2a2c66ca865f54505adb37be6bd51fecb6cd/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "116d0cf103a315b220d4e85825986d3b6c312123",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/116d0cf103a315b220d4e85825986d3b6c312123",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/116d0cf103a315b220d4e85825986d3b6c312123"
+    }
+  ],
+  "stats": {
+    "total": 8,
+    "additions": 7,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "c290957bd7d130683d8a1ec673ae0c26889309da",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5fae2a2c66ca865f54505adb37be6bd51fecb6cd/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5fae2a2c66ca865f54505adb37be6bd51fecb6cd/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=5fae2a2c66ca865f54505adb37be6bd51fecb6cd",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-01-14  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR breakpoints/27151\n+\t* objfiles.h (in_plt_section): Handle .plt.sec.\n+\n 2021-01-13  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \tPR gdb/26819"
+    },
+    {
+      "sha": "052f109db4d3375369f5f6ac0232ca16331e485c",
+      "filename": "gdb/objfiles.h",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5fae2a2c66ca865f54505adb37be6bd51fecb6cd/gdb/objfiles.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5fae2a2c66ca865f54505adb37be6bd51fecb6cd/gdb/objfiles.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/objfiles.h?ref=5fae2a2c66ca865f54505adb37be6bd51fecb6cd",
+      "patch": "@@ -786,7 +786,8 @@ extern int pc_in_section (CORE_ADDR, const char *);\n static inline int\n in_plt_section (CORE_ADDR pc)\n {\n-  return pc_in_section (pc, \".plt\");\n+  return (pc_in_section (pc, \".plt\")\n+\t  || pc_in_section (pc, \".plt.sec\"));\n }\n \n /* Keep a registry of per-objfile data-pointers required by other GDB"
+    }
+  ]
+}

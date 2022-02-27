@@ -1,0 +1,242 @@
+{
+  "sha": "6c3a38777b38a2ad87e2b2bcec4567578d1c83ec",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NmMzYTM4Nzc3YjM4YTJhZDg3ZTJiMmJjZWM0NTY3NTc4ZDFjODNlYw==",
+  "commit": {
+    "author": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2021-01-05T13:25:56Z"
+    },
+    "committer": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2021-01-05T14:53:40Z"
+    },
+    "message": "libctf, include: support unnamed structure members better\n\nlibctf has no intrinsic support for the GCC unnamed structure member\nextension.  This principally means that you can't look up named members\ninside unnamed struct or union members via ctf_member_info: you have to\ntiresomely find out the type ID of the unnamed members via iteration,\nthen look in each of these.\n\nThis is ridiculous.  Fix it by extending ctf_member_info so that it\nrecurses into unnamed members for you: this is still unambiguous because\nGCC won't let you create ambiguously-named members even in the presence\nof this extension.\n\nFor consistency, and because the release hasn't happened and we can\nstill do this, break the ctf_member_next API and add flags: we specify\none flag, CTF_MN_RECURSE, which if set causes ctf_member_next to\nautomatically recurse into unnamed members for you, returning not only\nthe members themselves but all their contained members, so that you can\nuse ctf_member_next to identify every member that it would be valid to\ncall ctf_member_info with.\n\nNew lookup tests are added for all of this.\n\ninclude/ChangeLog\n2021-01-05  Nick Alcock  <nick.alcock@oracle.com>\n\n\t* ctf-api.h (CTF_MN_RECURSE): New.\n\t(ctf_member_next): Add flags argument.\n\nlibctf/ChangeLog\n2021-01-05  Nick Alcock  <nick.alcock@oracle.com>\n\n\t* ctf-impl.h (struct ctf_next) <u.ctn_next>: Move to...\n\t<ctn_next>: ... here.\n\t* ctf-util.c (ctf_next_destroy): Unconditionally destroy it.\n\t* ctf-lookup.c (ctf_symbol_next): Adjust accordingly.\n\t* ctf-types.c (ctf_member_iter): Reimplement in terms of...\n\t(ctf_member_next): ... this.  Support recursive unnamed member\n\titeration (off by default).\n\t(ctf_member_info): Look up members in unnamed sub-structs.\n\t* ctf-dedup.c (ctf_dedup_rhash_type): Adjust ctf_member_next call.\n\t(ctf_dedup_emit_struct_members): Likewise.\n\t* testsuite/libctf-lookup/struct-iteration-ctf.c: Test empty unnamed\n\tmembers, and a normal member after the end.\n\t* testsuite/libctf-lookup/struct-iteration.c: Verify that\n\tctf_member_count is consistent with the number of successful returns\n\tfrom a non-recursive ctf_member_next.\n\t* testsuite/libctf-lookup/struct-iteration-*: New, test iteration\n\tover struct members.\n\t* testsuite/libctf-lookup/struct-lookup.c: New test.\n\t* testsuite/libctf-lookup/struct-lookup.lk: New test.",
+    "tree": {
+      "sha": "92e04a38161e85109281a2b3579036ca663865d1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/92e04a38161e85109281a2b3579036ca663865d1"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/comments",
+  "author": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "abed0b0718a6a9cd24cc68fb1f73baf6b31d8ff4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/abed0b0718a6a9cd24cc68fb1f73baf6b31d8ff4",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/abed0b0718a6a9cd24cc68fb1f73baf6b31d8ff4"
+    }
+  ],
+  "stats": {
+    "total": 494,
+    "additions": 392,
+    "deletions": 102
+  },
+  "files": [
+    {
+      "sha": "ab2aa337043d158bb6413ab5a760d1d2405ca1cc",
+      "filename": "include/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/include/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/include/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ChangeLog?ref=6c3a38777b38a2ad87e2b2bcec4567578d1c83ec",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-01-05  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-api.h (CTF_MN_RECURSE): New.\n+\t(ctf_member_next): Add flags argument.\n+\n 2021-01-05  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctf-api.h (ECTF_INCOMPLETE): New."
+    },
+    {
+      "sha": "5cf3257ae4b8feb2a4a716ca7b53d9486aa52aaa",
+      "filename": "include/ctf-api.h",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 1,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/include/ctf-api.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/include/ctf-api.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ctf-api.h?ref=6c3a38777b38a2ad87e2b2bcec4567578d1c83ec",
+      "patch": "@@ -264,6 +264,10 @@ _CTF_ERRORS\n #define\tCTF_ADD_NONROOT\t0\t/* Type only visible in nested scope.  */\n #define\tCTF_ADD_ROOT\t1\t/* Type visible at top-level scope.  */\n \n+/* Flags for ctf_member_next.  */\n+\n+#define CTF_MN_RECURSE 0x1\t/* Recurse into unnamed members.  */\n+\n /* These typedefs are used to define the signature for callback functions that\n    can be used with the iteration and visit functions below.  There is also a\n    family of iteration functions that do not require callbacks.  */\n@@ -411,7 +415,8 @@ extern int ctf_label_info (ctf_dict_t *, const char *, ctf_lblinfo_t *);\n extern int ctf_member_count (ctf_dict_t *, ctf_id_t);\n extern int ctf_member_iter (ctf_dict_t *, ctf_id_t, ctf_member_f *, void *);\n extern ssize_t ctf_member_next (ctf_dict_t *, ctf_id_t, ctf_next_t **,\n-\t\t\t\tconst char **name, ctf_id_t *membtype);\n+\t\t\t\tconst char **name, ctf_id_t *membtype,\n+\t\t\t\tint flags);\n extern int ctf_enum_iter (ctf_dict_t *, ctf_id_t, ctf_enum_f *, void *);\n extern const char *ctf_enum_next (ctf_dict_t *, ctf_id_t, ctf_next_t **,\n \t\t\t\t  int *);"
+    },
+    {
+      "sha": "57507c4ba3f7caeab75cef1408b75b2d6dfd879a",
+      "filename": "libctf/ChangeLog",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ChangeLog?ref=6c3a38777b38a2ad87e2b2bcec4567578d1c83ec",
+      "patch": "@@ -1,3 +1,25 @@\n+2021-01-05  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-impl.h (struct ctf_next) <u.ctn_next>: Move to...\n+\t<ctn_next>: ... here.\n+\t* ctf-util.c (ctf_next_destroy): Unconditionally destroy it.\n+\t* ctf-lookup.c (ctf_symbol_next): Adjust accordingly.\n+\t* ctf-types.c (ctf_member_iter): Reimplement in terms of...\n+\t(ctf_member_next): ... this.  Support recursive unnamed member\n+\titeration (off by default).\n+\t(ctf_member_info): Look up members in unnamed sub-structs.\n+\t* ctf-dedup.c (ctf_dedup_rhash_type): Adjust ctf_member_next call.\n+\t(ctf_dedup_emit_struct_members): Likewise.\n+\t* testsuite/libctf-lookup/struct-iteration-ctf.c: Test empty unnamed\n+\tmembers, and a normal member after the end.\n+\t* testsuite/libctf-lookup/struct-iteration.c: Verify that\n+\tctf_member_count is consistent with the number of successful returns\n+\tfrom a non-recursive ctf_member_next.\n+\t* testsuite/libctf-lookup/struct-iteration-*: New, test iteration\n+\tover struct members.\n+\t* testsuite/libctf-lookup/struct-lookup.c: New test.\n+\t* testsuite/libctf-lookup/struct-lookup.lk: New test.\n+\n 2021-01-05  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctf-link.c (ctf_link_warn_outdated_inputs): New."
+    },
+    {
+      "sha": "da88ae37147bed1866131241d6f25e28a8f65858",
+      "filename": "libctf/ctf-dedup.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/ctf-dedup.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/ctf-dedup.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-dedup.c?ref=6c3a38777b38a2ad87e2b2bcec4567578d1c83ec",
+      "patch": "@@ -887,8 +887,8 @@ ctf_dedup_rhash_type (ctf_dict_t *fp, ctf_dict_t *input, ctf_dict_t **inputs,\n \tctf_dedup_sha1_add (&hash, &size, sizeof (ssize_t), \"struct size\",\n \t\t\t    depth);\n \n-\twhile ((offset = ctf_member_next (input, type, &i, &mname,\n-\t\t\t\t\t  &membtype)) >= 0)\n+\twhile ((offset = ctf_member_next (input, type, &i, &mname, &membtype,\n+\t\t\t\t\t  0)) >= 0)\n \t  {\n \t    if (mname == NULL)\n \t      mname = \"\";\n@@ -2956,7 +2956,7 @@ ctf_dedup_emit_struct_members (ctf_dict_t *output, ctf_dict_t **inputs,\n       target_type = CTF_DEDUP_GID_TO_TYPE (target_id);\n \n       while ((offset = ctf_member_next (input_fp, input_type, &j, &name,\n-\t\t\t\t\t&membtype)) >= 0)\n+\t\t\t\t\t&membtype, 0)) >= 0)\n \t{\n \t  err_fp = target;\n \t  err_type = target_type;"
+    },
+    {
+      "sha": "8a173c1f86895b323e2007bad466dd420807a038",
+      "filename": "libctf/ctf-impl.h",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 5,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/ctf-impl.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/ctf-impl.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-impl.h?ref=6c3a38777b38a2ad87e2b2bcec4567578d1c83ec",
+      "patch": "@@ -532,24 +532,26 @@ struct ctf_next\n   ssize_t ctn_size;\n   ssize_t ctn_increment;\n   uint32_t ctn_n;\n+\n+  /* Some iterators contain other iterators, in addition to their other\n+     state.  */\n+  ctf_next_t *ctn_next;\n+\n   /* We can save space on this side of things by noting that a dictionary is\n      either dynamic or not, as a whole, and a given iterator can only iterate\n      over one kind of thing at once: so we can overlap the DTD and non-DTD\n-     members, and the structure, variable and enum members, etc.\n-\n-     Some of the _next iterators actually thunk down to another _next iterator\n-     themselves, so one of the options in here is a _next iterator!  */\n+     members, and the structure, variable and enum members, etc.  */\n   union\n   {\n     const ctf_member_t *ctn_mp;\n     const ctf_lmember_t *ctn_lmp;\n     const ctf_dmdef_t *ctn_dmd;\n     const ctf_enum_t *ctn_en;\n     const ctf_dvdef_t *ctn_dvd;\n-    ctf_next_t *ctn_next;\n     ctf_next_hkv_t *ctn_sorted_hkv;\n     void **ctn_hash_slot;\n   } u;\n+\n   /* This union is of various sorts of dict we can iterate over:\n      currently dictionaries and archives, dynhashes, and dynsets.  */\n   union"
+    },
+    {
+      "sha": "0d6ef3c5c494a6365d3e855eba38595b28e5270e",
+      "filename": "libctf/ctf-lookup.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/ctf-lookup.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/ctf-lookup.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-lookup.c?ref=6c3a38777b38a2ad87e2b2bcec4567578d1c83ec",
+      "patch": "@@ -442,7 +442,7 @@ ctf_symbol_next (ctf_dict_t *fp, ctf_next_t **it, const char **name,\n \t  return (ctf_set_errno (fp, ECTF_NEXT_END));\n \t}\n \n-      err = ctf_dynhash_next (dynh, &i->u.ctn_next, &dyn_name, &dyn_value);\n+      err = ctf_dynhash_next (dynh, &i->ctn_next, &dyn_name, &dyn_value);\n       /* This covers errors and also end-of-iteration.  */\n       if (err != 0)\n \t{"
+    },
+    {
+      "sha": "6275be0058dc483e051191f4e06ee0f525602690",
+      "filename": "libctf/ctf-types.c",
+      "status": "modified",
+      "additions": 138,
+      "deletions": 89,
+      "changes": 227,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/ctf-types.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/ctf-types.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-types.c?ref=6c3a38777b38a2ad87e2b2bcec4567578d1c83ec",
+      "patch": "@@ -41,76 +41,33 @@ ctf_type_ischild (ctf_dict_t * fp, ctf_id_t id)\n int\n ctf_member_iter (ctf_dict_t *fp, ctf_id_t type, ctf_member_f *func, void *arg)\n {\n-  ctf_dict_t *ofp = fp;\n-  const ctf_type_t *tp;\n-  ctf_dtdef_t *dtd;\n-  ssize_t size, increment;\n-  uint32_t kind, n;\n+  ctf_next_t *i = NULL;\n+  ssize_t offset;\n+  const char *name;\n+  ctf_id_t membtype;\n   int rc;\n \n-  if ((type = ctf_type_resolve (fp, type)) == CTF_ERR)\n-    return -1;\t\t\t/* errno is set for us.  */\n-\n-  if ((tp = ctf_lookup_by_id (&fp, type)) == NULL)\n-    return -1;\t\t\t/* errno is set for us.  */\n-\n-  (void) ctf_get_ctt_size (fp, tp, &size, &increment);\n-  kind = LCTF_INFO_KIND (fp, tp->ctt_info);\n-\n-  if (kind != CTF_K_STRUCT && kind != CTF_K_UNION)\n-    return (ctf_set_errno (ofp, ECTF_NOTSOU));\n-\n-  if ((dtd = ctf_dynamic_type (fp, type)) == NULL)\n+  while ((offset = ctf_member_next (fp, type, &i, &name, &membtype, 0)) >= 0)\n     {\n-      if (size < CTF_LSTRUCT_THRESH)\n-\t{\n-\t  const ctf_member_t *mp = (const ctf_member_t *) ((uintptr_t) tp +\n-\t\t\t\t\t\t\t   increment);\n-\n-\t  for (n = LCTF_INFO_VLEN (fp, tp->ctt_info); n != 0; n--, mp++)\n-\t    {\n-\t      const char *name = ctf_strptr (fp, mp->ctm_name);\n-\t      if ((rc = func (name, mp->ctm_type, mp->ctm_offset, arg)) != 0)\n-\t    return rc;\n-\t    }\n-\t}\n-      else\n-\t{\n-\t  const ctf_lmember_t *lmp = (const ctf_lmember_t *) ((uintptr_t) tp +\n-\t\t\t\t\t\t\t      increment);\n-\n-\t  for (n = LCTF_INFO_VLEN (fp, tp->ctt_info); n != 0; n--, lmp++)\n-\t    {\n-\t      const char *name = ctf_strptr (fp, lmp->ctlm_name);\n-\t      if ((rc = func (name, lmp->ctlm_type,\n-\t\t\t      (unsigned long) CTF_LMEM_OFFSET (lmp), arg)) != 0)\n-\t\treturn rc;\n-\t    }\n-\t}\n-    }\n-  else\n-    {\n-      ctf_dmdef_t *dmd;\n-\n-      for (dmd = ctf_list_next (&dtd->dtd_u.dtu_members);\n-\t   dmd != NULL; dmd = ctf_list_next (dmd))\n+      if ((rc = func (name, membtype, offset, arg)) != 0)\n \t{\n-\t  if ((rc = func (dmd->dmd_name, dmd->dmd_type,\n-\t\t\t  dmd->dmd_offset, arg)) != 0)\n-\t    return rc;\n+\t  ctf_next_destroy (i);\n+\t  return rc;\n \t}\n     }\n+  if (ctf_errno (fp) != ECTF_NEXT_END)\n+    return -1;\t\t\t\t\t/* errno is set for us.  */\n \n   return 0;\n }\n \n /* Iterate over the members of a STRUCT or UNION, returning each member's\n    offset and optionally name and member type in turn.  On end-of-iteration,\n-   returns -1.  */\n+   returns -1.  If FLAGS is CTF_MN_RECURSE, recurse into unnamed members.  */\n \n ssize_t\n ctf_member_next (ctf_dict_t *fp, ctf_id_t type, ctf_next_t **it,\n-\t\t const char **name, ctf_id_t *membtype)\n+\t\t const char **name, ctf_id_t *membtype, int flags)\n {\n   ctf_dict_t *ofp = fp;\n   uint32_t kind;\n@@ -121,6 +78,7 @@ ctf_member_next (ctf_dict_t *fp, ctf_id_t type, ctf_next_t **it,\n     {\n       const ctf_type_t *tp;\n       ctf_dtdef_t *dtd;\n+      ssize_t increment;\n \n       if ((type = ctf_type_resolve (fp, type)) == CTF_ERR)\n \treturn -1;\t\t\t/* errno is set for us.  */\n@@ -132,8 +90,7 @@ ctf_member_next (ctf_dict_t *fp, ctf_id_t type, ctf_next_t **it,\n \treturn ctf_set_errno (ofp, ENOMEM);\n       i->cu.ctn_fp = ofp;\n \n-      (void) ctf_get_ctt_size (fp, tp, &i->ctn_size,\n-\t\t\t       &i->ctn_increment);\n+      (void) ctf_get_ctt_size (fp, tp, &i->ctn_size, &increment);\n       kind = LCTF_INFO_KIND (fp, tp->ctt_info);\n \n       if (kind != CTF_K_STRUCT && kind != CTF_K_UNION)\n@@ -156,11 +113,9 @@ ctf_member_next (ctf_dict_t *fp, ctf_id_t type, ctf_next_t **it,\n \t  i->ctn_n = LCTF_INFO_VLEN (fp, tp->ctt_info);\n \n \t  if (i->ctn_size < CTF_LSTRUCT_THRESH)\n-\t    i->u.ctn_mp = (const ctf_member_t *) ((uintptr_t) tp +\n-\t\t\t\t\t\t  i->ctn_increment);\n+\t    i->u.ctn_mp = (const ctf_member_t *) ((uintptr_t) tp + increment);\n \t  else\n-\t    i->u.ctn_lmp = (const ctf_lmember_t *) ((uintptr_t) tp +\n-\t\t\t\t\t\t    i->ctn_increment);\n+\t    i->u.ctn_lmp = (const ctf_lmember_t *) ((uintptr_t) tp + increment);\n \t}\n       else\n \ti->u.ctn_dmd = ctf_list_next (&dtd->dtd_u.dtu_members);\n@@ -178,41 +133,112 @@ ctf_member_next (ctf_dict_t *fp, ctf_id_t type, ctf_next_t **it,\n   if ((fp = ctf_get_dict (ofp, type)) == NULL)\n     return (ctf_set_errno (ofp, ECTF_NOPARENT));\n \n-  if (!(fp->ctf_flags & LCTF_RDWR))\n-    {\n-      if (i->ctn_n == 0)\n-\tgoto end_iter;\n+  /* When we hit an unnamed struct/union member, we set ctn_type to indicate\n+     that we are inside one, then return the unnamed member: on the next call,\n+     we must skip over top-level member iteration in favour of iteration within\n+     the sub-struct until it later turns out that that iteration has ended.  */\n \n-      if (i->ctn_size < CTF_LSTRUCT_THRESH)\n+ retry:\n+  if (!i->ctn_type)\n+    {\n+      if (!(fp->ctf_flags & LCTF_RDWR))\n \t{\n-\t  if (name)\n-\t    *name = ctf_strptr (fp, i->u.ctn_mp->ctm_name);\n-\t  if (membtype)\n-\t    *membtype = i->u.ctn_mp->ctm_type;\n-\t  offset = i->u.ctn_mp->ctm_offset;\n-\t  i->u.ctn_mp++;\n+\t  if (i->ctn_n == 0)\n+\t    goto end_iter;\n+\n+\t  if (i->ctn_size < CTF_LSTRUCT_THRESH)\n+\t    {\n+\t      const char *membname = ctf_strptr (fp, i->u.ctn_mp->ctm_name);\n+\n+\t      if (name)\n+\t\t*name = membname;\n+\t      if (membtype)\n+\t\t*membtype = i->u.ctn_mp->ctm_type;\n+\t      offset = i->u.ctn_mp->ctm_offset;\n+\n+\t      if (membname[0] == 0\n+\t\t  && (ctf_type_kind (fp, i->u.ctn_mp->ctm_type) == CTF_K_STRUCT\n+\t\t      || ctf_type_kind (fp, i->u.ctn_mp->ctm_type) == CTF_K_UNION))\n+\t\ti->ctn_type = i->u.ctn_mp->ctm_type;\n+\n+\t      i->u.ctn_mp++;\n+\t    }\n+\t  else\n+\t    {\n+\t      const char *membname = ctf_strptr (fp, i->u.ctn_lmp->ctlm_name);\n+\n+\t      if (name)\n+\t\t*name = membname;\n+\t      if (membtype)\n+\t\t*membtype = i->u.ctn_lmp->ctlm_type;\n+\t      offset = (unsigned long) CTF_LMEM_OFFSET (i->u.ctn_lmp);\n+\n+\t      if (membname[0] == 0\n+\t\t  && (ctf_type_kind (fp, i->u.ctn_lmp->ctlm_type) == CTF_K_STRUCT\n+\t\t      || ctf_type_kind (fp, i->u.ctn_lmp->ctlm_type) == CTF_K_UNION))\n+\t\ti->ctn_type = i->u.ctn_lmp->ctlm_type;\n+\n+\t      i->u.ctn_lmp++;\n+\t    }\n+\t  i->ctn_n--;\n \t}\n       else\n \t{\n+\t  if (i->u.ctn_dmd == NULL)\n+\t    goto end_iter;\n+\t  /* The dmd contains a NULL for unnamed dynamic members.  Don't inflict\n+\t     this on our callers.  */\n \t  if (name)\n-\t    *name = ctf_strptr (fp, i->u.ctn_lmp->ctlm_name);\n+\t    {\n+\t      if (i->u.ctn_dmd->dmd_name)\n+\t\t*name = i->u.ctn_dmd->dmd_name;\n+\t      else\n+\t\t*name = \"\";\n+\t    }\n \t  if (membtype)\n-\t    *membtype = i->u.ctn_lmp->ctlm_type;\n-\t  offset = (unsigned long) CTF_LMEM_OFFSET (i->u.ctn_lmp);\n-\t  i->u.ctn_lmp++;\n+\t    *membtype = i->u.ctn_dmd->dmd_type;\n+\t  offset = i->u.ctn_dmd->dmd_offset;\n+\n+\t  if (i->u.ctn_dmd->dmd_name == NULL\n+\t      && (ctf_type_kind (fp, i->u.ctn_dmd->dmd_type) == CTF_K_STRUCT\n+\t\t  || ctf_type_kind (fp, i->u.ctn_dmd->dmd_type) == CTF_K_UNION))\n+\t    i->ctn_type = i->u.ctn_dmd->dmd_type;\n+\n+\t  i->u.ctn_dmd = ctf_list_next (i->u.ctn_dmd);\n \t}\n-      i->ctn_n--;\n+\n+      /* The callers might want automatic recursive sub-struct traversal.  */\n+      if (!(flags & CTF_MN_RECURSE))\n+\ti->ctn_type = 0;\n+\n+      /* Sub-struct traversal starting?  Take note of the offset of this member,\n+\t for later boosting of sub-struct members' offsets.  */\n+      if (i->ctn_type)\n+\ti->ctn_increment = offset;\n     }\n+  /* Traversing a sub-struct?  Just return it, with the offset adjusted.  */\n   else\n     {\n-      if (i->u.ctn_dmd == NULL)\n-\tgoto end_iter;\n-      if (name)\n-\t*name = i->u.ctn_dmd->dmd_name;\n-      if (membtype)\n-\t*membtype = i->u.ctn_dmd->dmd_type;\n-      offset = i->u.ctn_dmd->dmd_offset;\n-      i->u.ctn_dmd = ctf_list_next (i->u.ctn_dmd);\n+      ssize_t ret = ctf_member_next (fp, i->ctn_type, &i->ctn_next, name,\n+\t\t\t\t     membtype, flags);\n+\n+      if (ret >= 0)\n+\treturn ret + i->ctn_increment;\n+\n+      if (ctf_errno (fp) != ECTF_NEXT_END)\n+\t{\n+\t  ctf_next_destroy (i);\n+\t  *it = NULL;\n+\t  i->ctn_type = 0;\n+\t  return ret;\t\t\t\t/* errno is set for us.  */\n+\t}\n+\n+      if (!ctf_assert (fp, (i->ctn_next == NULL)))\n+\treturn -1;\t\t\t\t/* errno is set for us.  */\n+\n+      i->ctn_type = 0;\n+      /* This sub-struct has ended: on to the next real member.  */\n+      goto retry;\n     }\n \n   return offset;\n@@ -1377,7 +1403,7 @@ ctf_type_compat (ctf_dict_t *lfp, ctf_id_t ltype,\n }\n \n /* Return the number of members in a STRUCT or UNION, or the number of\n-   enumerators in an ENUM.  */\n+   enumerators in an ENUM.  The count does not include unnamed sub-members.  */\n \n int\n ctf_member_count (ctf_dict_t *fp, ctf_id_t type)\n@@ -1433,7 +1459,15 @@ ctf_member_info (ctf_dict_t *fp, ctf_id_t type, const char *name,\n \n \t  for (n = LCTF_INFO_VLEN (fp, tp->ctt_info); n != 0; n--, mp++)\n \t    {\n-\t      if (strcmp (ctf_strptr (fp, mp->ctm_name), name) == 0)\n+\t      const char *membname = ctf_strptr (fp, mp->ctm_name);\n+\n+\t      if (membname[0] == 0\n+\t\t  && (ctf_type_kind (fp, mp->ctm_type) == CTF_K_STRUCT\n+\t\t      || ctf_type_kind (fp, mp->ctm_type) == CTF_K_UNION)\n+\t\t  && (ctf_member_info (fp, mp->ctm_type, name, mip) == 0))\n+\t\treturn 0;\n+\n+\t      if (strcmp (membname, name) == 0)\n \t\t{\n \t\t  mip->ctm_type = mp->ctm_type;\n \t\t  mip->ctm_offset = mp->ctm_offset;\n@@ -1448,7 +1482,15 @@ ctf_member_info (ctf_dict_t *fp, ctf_id_t type, const char *name,\n \n \t  for (n = LCTF_INFO_VLEN (fp, tp->ctt_info); n != 0; n--, lmp++)\n \t    {\n-\t      if (strcmp (ctf_strptr (fp, lmp->ctlm_name), name) == 0)\n+\t      const char *membname = ctf_strptr (fp, lmp->ctlm_name);\n+\n+\t      if (membname[0] == 0\n+\t\t  && (ctf_type_kind (fp, lmp->ctlm_type) == CTF_K_STRUCT\n+\t\t      || ctf_type_kind (fp, lmp->ctlm_type) == CTF_K_UNION)\n+\t\t  && (ctf_member_info (fp, lmp->ctlm_type, name, mip) == 0))\n+\t\treturn 0;\n+\n+\t      if (strcmp (membname, name) == 0)\n \t\t{\n \t\t  mip->ctm_type = lmp->ctlm_type;\n \t\t  mip->ctm_offset = (unsigned long) CTF_LMEM_OFFSET (lmp);\n@@ -1464,7 +1506,14 @@ ctf_member_info (ctf_dict_t *fp, ctf_id_t type, const char *name,\n       for (dmd = ctf_list_next (&dtd->dtd_u.dtu_members);\n \t   dmd != NULL; dmd = ctf_list_next (dmd))\n \t{\n-\t  if (strcmp (dmd->dmd_name, name) == 0)\n+\t  if (dmd->dmd_name == NULL\n+\t      && (ctf_type_kind (fp, dmd->dmd_type) == CTF_K_STRUCT\n+\t\t  || ctf_type_kind (fp, dmd->dmd_type) == CTF_K_UNION)\n+\t      && (ctf_member_info (fp, dmd->dmd_type, name, mip) == 0))\n+\t    return 0;\n+\n+\t  if (dmd->dmd_name != NULL\n+\t      && strcmp (dmd->dmd_name, name) == 0)\n \t    {\n \t      mip->ctm_type = dmd->dmd_type;\n \t      mip->ctm_offset = dmd->dmd_offset;"
+    },
+    {
+      "sha": "4f126ba0ee464770dc86d5514479b0abb11da598",
+      "filename": "libctf/ctf-util.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 3,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/ctf-util.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/ctf-util.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-util.c?ref=6c3a38777b38a2ad87e2b2bcec4567578d1c83ec",
+      "patch": "@@ -283,9 +283,8 @@ ctf_next_destroy (ctf_next_t *i)\n \n   if (i->ctn_iter_fun == (void (*) (void)) ctf_dynhash_next_sorted)\n     free (i->u.ctn_sorted_hkv);\n-  if (i->ctn_iter_fun == (void (*) (void)) ctf_symbol_next\n-      && i->cu.ctn_fp->ctf_flags & LCTF_RDWR)\n-    ctf_next_destroy (i->u.ctn_next);\n+  if (i->ctn_next)\n+    ctf_next_destroy (i->ctn_next);\n   free (i);\n }\n "
+    },
+    {
+      "sha": "7df67adaad4d2343002a5b268d1a5d83d142ce79",
+      "filename": "libctf/testsuite/libctf-lookup/struct-iteration-ctf.c",
+      "status": "added",
+      "additions": 28,
+      "deletions": 0,
+      "changes": 28,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/testsuite/libctf-lookup/struct-iteration-ctf.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/testsuite/libctf-lookup/struct-iteration-ctf.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-lookup/struct-iteration-ctf.c?ref=6c3a38777b38a2ad87e2b2bcec4567578d1c83ec",
+      "patch": "@@ -0,0 +1,28 @@\n+#include <unistd.h>\n+\n+struct foo_t\n+{\n+  int foo;\n+  size_t bar;\n+  const char *baz;\n+  struct foo_t *self;\n+  union\n+  {\n+    double should_not_appear;\n+    char *nor_should_this;\n+  } named;\n+  struct\n+  {\n+    long unnamed_sub_member;\n+    union\n+    {\n+      double one_more_level;\n+      long yes_really_one_more;\n+    };\n+  };\n+  struct {};\t\t/* Empty ones */\n+  union {};\n+  int after_the_end;\n+};\n+\n+struct foo_t used;"
+    },
+    {
+      "sha": "03750604ecfd963cbf0b87dce4ea673e7edb6f59",
+      "filename": "libctf/testsuite/libctf-lookup/struct-iteration.c",
+      "status": "added",
+      "additions": 92,
+      "deletions": 0,
+      "changes": 92,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/testsuite/libctf-lookup/struct-iteration.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/testsuite/libctf-lookup/struct-iteration.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-lookup/struct-iteration.c?ref=6c3a38777b38a2ad87e2b2bcec4567578d1c83ec",
+      "patch": "@@ -0,0 +1,92 @@\n+#include <ctf-api.h>\n+#include <stdio.h>\n+#include <stdlib.h>\n+\n+static int\n+print_struct (const char *name, ctf_id_t membtype, unsigned long offset,\n+              void *fp_)\n+{\n+  ctf_dict_t *fp = (ctf_dict_t *) fp_;\n+  char *type_name = ctf_type_aname (fp, membtype);\n+\n+  printf (\"iter test: %s, offset %lx, has type %lx/%s\\n\",\n+          name, offset, membtype, type_name);\n+  free (type_name);\n+\n+  return 0;\n+}\n+\n+int\n+main (int argc, char *argv[])\n+{\n+  ctf_dict_t *fp;\n+  ctf_archive_t *ctf;\n+  ctf_id_t type;\n+  ctf_next_t *i = NULL;\n+  const char *name;\n+  ctf_id_t membtype;\n+  ssize_t offset;\n+  ssize_t icount = 0;\n+  int err;\n+\n+  if (argc != 2)\n+    {\n+      fprintf (stderr, \"Syntax: %s PROGRAM\\n\", argv[0]);\n+      exit(1);\n+    }\n+\n+  if ((ctf = ctf_open (argv[1], NULL, &err)) == NULL)\n+    goto open_err;\n+  if ((fp = ctf_dict_open (ctf, NULL, &err)) == NULL)\n+    goto open_err;\n+\n+  /* Iterate over the structure members with each iterator type in turn.  */\n+\n+  if ((type = ctf_lookup_by_name (fp, \"struct foo_t\") ) == CTF_ERR)\n+    goto err;\n+\n+  if (ctf_member_iter (fp, type, print_struct, fp) < 0)\n+    goto ierr;\n+\n+  while ((offset = ctf_member_next (fp, type, &i, &name, &membtype,\n+\t\t\t\t    CTF_MN_RECURSE)) >= 0)\n+    {\n+      char *type_name = ctf_type_aname (fp, membtype);\n+\n+      printf (\"next test: %s, offset %lx, has type %lx/%s\\n\",\n+              name, offset, membtype, type_name);\n+      free (type_name);\n+    }\n+  if (ctf_errno (fp) != ECTF_NEXT_END)\n+    goto nerr;\n+\n+  /* Now make sure the count of members does not include any recursive\n+     members.  */\n+  while ((offset = ctf_member_next (fp, type, &i, &name, &membtype, 0)) >= 0)\n+    icount++;\n+\n+  if (ctf_errno (fp) != ECTF_NEXT_END)\n+    goto nerr;\n+\n+  if (icount != ctf_member_count (fp, type))\n+    printf (\"member counts differ: %li by direct iteration, \"\n+\t    \"%li by ctf_member_count\\n\", icount, ctf_member_count (fp, type));\n+\n+  ctf_dict_close (fp);\n+  ctf_close (ctf);\n+\n+  return 0;\n+\n+ open_err:\n+  fprintf (stderr, \"%s: cannot open: %s\\n\", argv[0], ctf_errmsg (err));\n+  return 1;\n+ err:\n+  fprintf (stderr, \"Lookup failed: %s\\n\", ctf_errmsg (ctf_errno (fp)));\n+  return 1;\n+ ierr:\n+  fprintf (stderr, \"_iter iteration failed: %s\\n\", ctf_errmsg (ctf_errno (fp)));\n+  return 1;\n+ nerr:\n+  fprintf (stderr, \"_next iteration failed: %s\\n\", ctf_errmsg (ctf_errno (fp)));\n+  return 1;\n+}"
+    },
+    {
+      "sha": "fd644547f20d90138c6adb5dd63ba24e3806366c",
+      "filename": "libctf/testsuite/libctf-lookup/struct-iteration.lk",
+      "status": "added",
+      "additions": 24,
+      "deletions": 0,
+      "changes": 24,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/testsuite/libctf-lookup/struct-iteration.lk",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/testsuite/libctf-lookup/struct-iteration.lk",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-lookup/struct-iteration.lk?ref=6c3a38777b38a2ad87e2b2bcec4567578d1c83ec",
+      "patch": "@@ -0,0 +1,24 @@\n+# source: struct-iteration-ctf.c\n+# link: on\n+iter test: foo, offset [0-9a-f]*, has type [0-9a-f]*/int\n+iter test: bar, offset [0-9a-f]*, has type [0-9a-f]*/size_t\n+iter test: baz, offset [0-9a-f]*, has type [0-9a-f]*/const char \\*\n+iter test: self, offset [0-9a-f]*, has type [0-9a-f]*/struct foo_t \\*\n+iter test: named, offset [0-9a-f]*, has type [0-9a-f]*/union \n+iter test: , offset [0-9a-f]*, has type [0-9a-f]*/struct \n+iter test: , offset [0-9a-f]*, has type [0-9a-f]*/struct \n+iter test: , offset [0-9a-f]*, has type [0-9a-f]*/union \n+iter test: after_the_end, offset [0-9a-f]*, has type [0-9a-f]*/int\n+next test: foo, offset [0-9a-f]*, has type [0-9a-f]*/int\n+next test: bar, offset [0-9a-f]*, has type [0-9a-f]*/size_t\n+next test: baz, offset [0-9a-f]*, has type [0-9a-f]*/const char \\*\n+next test: self, offset [0-9a-f]*, has type [0-9a-f]*/struct foo_t \\*\n+next test: named, offset [0-9a-f]*, has type [0-9a-f]*/union \n+next test: , offset [0-9a-f]*, has type [0-9a-f]*/struct \n+next test: unnamed_sub_member, offset [0-9a-f]*, has type [0-9a-f]*/long int\n+next test: , offset [0-9a-f]*, has type [0-9a-f]*/union \n+next test: one_more_level, offset [0-9a-f]*, has type [0-9a-f]*/double\n+next test: yes_really_one_more, offset [0-9a-f]*, has type [0-9a-f]*/long int\n+next test: , offset [0-9a-f]*, has type [0-9a-f]*/struct \n+next test: , offset [0-9a-f]*, has type [0-9a-f]*/union \n+next test: after_the_end, offset [0-9a-f]*, has type [0-9a-f]*/int"
+    },
+    {
+      "sha": "9b95317bfa0eb7abbc7b1acc8891544b354f6fb4",
+      "filename": "libctf/testsuite/libctf-lookup/struct-lookup.c",
+      "status": "added",
+      "additions": 60,
+      "deletions": 0,
+      "changes": 60,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/testsuite/libctf-lookup/struct-lookup.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/testsuite/libctf-lookup/struct-lookup.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-lookup/struct-lookup.c?ref=6c3a38777b38a2ad87e2b2bcec4567578d1c83ec",
+      "patch": "@@ -0,0 +1,60 @@\n+#include <ctf-api.h>\n+#include <stdio.h>\n+#include <stdlib.h>\n+\n+int\n+main (int argc, char *argv[])\n+{\n+  ctf_dict_t *fp;\n+  ctf_archive_t *ctf;\n+  ctf_id_t type;\n+  char *type_name;\n+  ctf_membinfo_t mi;\n+  int err;\n+\n+  if (argc != 2)\n+    {\n+      fprintf (stderr, \"Syntax: %s PROGRAM\\n\", argv[0]);\n+      exit(1);\n+    }\n+\n+  if ((ctf = ctf_open (argv[1], NULL, &err)) == NULL)\n+    goto open_err;\n+  if ((fp = ctf_dict_open (ctf, NULL, &err)) == NULL)\n+    goto open_err;\n+\n+  /* Dig out some strucutre members by name.  */\n+\n+  if ((type = ctf_lookup_by_name (fp, \"struct foo_t\") ) == CTF_ERR)\n+    goto err;\n+\n+  if (ctf_member_info (fp, type, \"baz\", &mi) < 0)\n+    goto err;\n+\n+  type_name = ctf_type_aname (fp, mi.ctm_type);\n+  printf (\"baz is of type %s, at offset %lx\\n\", type_name, mi.ctm_offset);\n+  free (type_name);\n+\n+  if (ctf_member_info (fp, type, \"one_more_level\", &mi) < 0)\n+    goto err;\n+\n+  type_name = ctf_type_aname (fp, mi.ctm_type);\n+  printf (\"one_more_level is of type %s, at offset %lx\\n\", type_name, mi.ctm_offset);\n+  free (type_name);\n+\n+  if (ctf_member_info (fp, type, \"should_not_appear\", &mi) >= 0\n+      || ctf_errno (fp) != ECTF_NOMEMBNAM)\n+    fprintf (stderr, \"should_not_appear appeared.\\n\");\n+\n+  ctf_dict_close (fp);\n+  ctf_close (ctf);\n+\n+  return 0;\n+\n+ open_err:\n+  fprintf (stderr, \"%s: cannot open: %s\\n\", argv[0], ctf_errmsg (err));\n+  return 1;\n+ err:\n+  fprintf (stderr, \"Lookup failed: %s\\n\", ctf_errmsg (ctf_errno (fp)));\n+  return 1;\n+}"
+    },
+    {
+      "sha": "b8488237489f04fb2b39c2833d5d7b5e0ac89839",
+      "filename": "libctf/testsuite/libctf-lookup/struct-lookup.lk",
+      "status": "added",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/testsuite/libctf-lookup/struct-lookup.lk",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6c3a38777b38a2ad87e2b2bcec4567578d1c83ec/libctf/testsuite/libctf-lookup/struct-lookup.lk",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-lookup/struct-lookup.lk?ref=6c3a38777b38a2ad87e2b2bcec4567578d1c83ec",
+      "patch": "@@ -0,0 +1,4 @@\n+# source: struct-iteration-ctf.c\n+# link: on\n+baz is of type const char \\*, at offset [0-9a-z]*\n+one_more_level is of type double, at offset [0-9a-z]*"
+    }
+  ]
+}

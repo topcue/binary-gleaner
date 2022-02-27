@@ -1,0 +1,146 @@
+{
+  "sha": "8457e5ecc45295bc9550c4f705a276d5ca90d908",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ODQ1N2U1ZWNjNDUyOTViYzk1NTBjNGY3MDVhMjc2ZDVjYTkwZDkwOA==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-06-16T10:44:30Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-06-16T10:44:30Z"
+    },
+    "message": "[gdb/symtab] Fix infinite recursion in dwarf2_cu::get_builder(), again\n\nThis is another attempt at fixing the problem described in commit 4cf88725da1\n\"[gdb/symtab] Fix infinite recursion in dwarf2_cu::get_builder()\", which was\nreverted in commit 3db19b2d724.\n\nFirst off, some context.\n\nA DWARF CU can be viewed as a symbol table: toplevel children of a CU DIE\nrepresent symbol table entries for that CU.  Furthermore, there is a\nhierarchy: a symbol table entry such as a function itself has a symbol table\ncontaining parameters and local variables.\n\nThe dwarf reader maintains a notion of current symbol table (that is: the\nsymbol table a new symbol needs to be entered into) in dwarf2_cu member\nlist_in_scope.\n\nA problem then presents itself when reading inter-CU references:\n- a new symbol read from a CU B needs to be entered into the symbol table of\n  another CU A.\n- the notion of current symbol table is tracked on a per-CU basis.\nThis is addressed in inherit_abstract_dies by temporarily overwriting the\nlist_in_scope for CU B with the one for CU A.\n\nThe current symbol table is one aspect of the current dwarf reader context\nthat is tracked, but there are more, f.i. ones that are tracked via the\ndwarf2_cu member m_builder, f.i. m_builder->m_local_using_directives.\n\nA similar problem exists in relation to inter-CU references, but a different\nsolution was chosen:\n- to keep track of an ancestor field in dwarf2_cu, which is updated\n  when traversing inter-CU references, and\n- to use the ancestor field in dwarf2_cu::get_builder to return the m_builder\n  in scope.\n\nThere is no actual concept of a CU having an ancestor, it just marks the most\nrecent CU from which a CU was inter-CU-referenced.  Consequently, when\nfollowing inter-CU references from a CU A to another CU B and back to CU A,\nthe ancestors form a cycle, which causes dwarf2_cu::get_builder to hang or\nsegfault, as reported in PR26327.\n\nISTM that the ancestor implementation is confusing and fragile, and should\ngo.  Furthermore, it seems that keeping track of the m_builder in scope can be\nhandled simply with a per-objfile variable.\n\nFix the hang / segfault by:\n- keeping track of the m_builder in scope using a new variable\n  per_obj->sym_cu, and\n- using it in dwarf2_cu::get_builder.\n\nTested on x86_64-linux (openSUSE Leap 15.2), no regressions for config:\n- using default gcc version 7.5.0\n  (with 5 unexpected FAILs)\n- gcc 10.3.0 and target board\n  unix/-flto/-O0/-flto-partition=none/-ffat-lto-objects\n  (with 1000 unexpected FAILs)\n\ngdb/ChangeLog:\n\n2021-06-16  Tom de Vries  <tdevries@suse.de>\n\n\tPR symtab/26327\n\t* dwarf2/cu.h (dwarf2_cu::ancestor): Remove.\n\t(dwarf2_cu::get_builder): Declare and move ...\n\t* dwarf2/cu.c (dwarf2_cu::get_builder): ... here.  Use sym_cu instead\n\tof ancestor.  Assert return value is non-null.\n\t* dwarf2/read.c (read_file_scope): Set per_objfile->sym_cu.\n\t(follow_die_offset, follow_die_sig_1): Remove setting of ancestor.\n\t(dwarf2_per_objfile): Add sym_cu field.",
+    "tree": {
+      "sha": "e877a0000327703f00927fed1b6affd5fdc29fe8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/e877a0000327703f00927fed1b6affd5fdc29fe8"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/8457e5ecc45295bc9550c4f705a276d5ca90d908",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8457e5ecc45295bc9550c4f705a276d5ca90d908",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/8457e5ecc45295bc9550c4f705a276d5ca90d908",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8457e5ecc45295bc9550c4f705a276d5ca90d908/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "bb32eac5a90b2b141fed4ce490aded74134f1d75",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bb32eac5a90b2b141fed4ce490aded74134f1d75",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/bb32eac5a90b2b141fed4ce490aded74134f1d75"
+    }
+  ],
+  "stats": {
+    "total": 59,
+    "additions": 36,
+    "deletions": 23
+  },
+  "files": [
+    {
+      "sha": "e841fdaab5e6f203ce870fb2f0388bf396a34525",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8457e5ecc45295bc9550c4f705a276d5ca90d908/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8457e5ecc45295bc9550c4f705a276d5ca90d908/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=8457e5ecc45295bc9550c4f705a276d5ca90d908",
+      "patch": "@@ -1,3 +1,14 @@\n+2021-06-16  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR symtab/26327\n+\t* dwarf2/cu.h (dwarf2_cu::ancestor): Remove.\n+\t(dwarf2_cu::get_builder): Declare and move ...\n+\t* dwarf2/cu.c (dwarf2_cu::get_builder): ... here.  Use sym_cu instead\n+\tof ancestor.  Assert return value is non-null.\n+\t* dwarf2/read.c (read_file_scope): Set per_objfile->sym_cu.\n+\t(follow_die_offset, follow_die_sig_1): Remove setting of ancestor.\n+\t(dwarf2_per_objfile): Add sym_cu field.\n+\n 2021-06-15  Alan Modra  <amodra@gmail.com>\n \n \t* testsuite/lib/gdb.exp (exec_is_pie): Match new PIE readelf output."
+    },
+    {
+      "sha": "bc3f26dc28fa7e8a39e8dc1d7e056d35d147b4ba",
+      "filename": "gdb/dwarf2/cu.c",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8457e5ecc45295bc9550c4f705a276d5ca90d908/gdb/dwarf2/cu.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8457e5ecc45295bc9550c4f705a276d5ca90d908/gdb/dwarf2/cu.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/cu.c?ref=8457e5ecc45295bc9550c4f705a276d5ca90d908",
+      "patch": "@@ -138,3 +138,18 @@ dwarf2_cu::add_dependence (struct dwarf2_per_cu_data *ref_per_cu)\n   if (*slot == nullptr)\n     *slot = ref_per_cu;\n }\n+\n+/* See dwarf2/cu.h.  */\n+\n+buildsym_compunit *\n+dwarf2_cu::get_builder ()\n+{\n+  /* If this CU has a builder associated with it, use that.  */\n+  if (m_builder != nullptr)\n+    return m_builder.get ();\n+\n+  if (per_objfile->sym_cu != nullptr)\n+    return per_objfile->sym_cu->m_builder.get ();\n+\n+  gdb_assert_not_reached (\"\");\n+}"
+    },
+    {
+      "sha": "fe606f3eab73e878845bce61ecf7eab9fe9e49f3",
+      "filename": "gdb/dwarf2/cu.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 16,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8457e5ecc45295bc9550c4f705a276d5ca90d908/gdb/dwarf2/cu.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8457e5ecc45295bc9550c4f705a276d5ca90d908/gdb/dwarf2/cu.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/cu.h?ref=8457e5ecc45295bc9550c4f705a276d5ca90d908",
+      "patch": "@@ -272,23 +272,8 @@ struct dwarf2_cu\n \n   struct partial_die_info *find_partial_die (sect_offset sect_off);\n \n-  /* If this CU was inherited by another CU (via specification,\n-     abstract_origin, etc), this is the ancestor CU.  */\n-  dwarf2_cu *ancestor;\n-\n   /* Get the buildsym_compunit for this CU.  */\n-  buildsym_compunit *get_builder ()\n-  {\n-    /* If this CU has a builder associated with it, use that.  */\n-    if (m_builder != nullptr)\n-      return m_builder.get ();\n-\n-    /* Otherwise, search ancestors for a valid builder.  */\n-    if (ancestor != nullptr)\n-      return ancestor->get_builder ();\n-\n-    return nullptr;\n-  }\n+  buildsym_compunit *get_builder ();\n };\n \n #endif /* GDB_DWARF2_CU_H */"
+    },
+    {
+      "sha": "07bc08fba1409b8d379a496a0904de4f963defe1",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 7,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8457e5ecc45295bc9550c4f705a276d5ca90d908/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8457e5ecc45295bc9550c4f705a276d5ca90d908/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=8457e5ecc45295bc9550c4f705a276d5ca90d908",
+      "patch": "@@ -10521,6 +10521,10 @@ read_file_scope (struct die_info *die, struct dwarf2_cu *cu)\n \n   cu->start_symtab (fnd.name, fnd.comp_dir, lowpc);\n \n+  gdb_assert (per_objfile->sym_cu == nullptr);\n+  scoped_restore restore_sym_cu\n+    = make_scoped_restore (&per_objfile->sym_cu, cu);\n+\n   /* Decode line number information if present.  We do this before\n      processing child DIEs, so that the line header table is available\n      for DW_AT_decl_file.  */\n@@ -10536,6 +10540,7 @@ read_file_scope (struct die_info *die, struct dwarf2_cu *cu)\n \t  child_die = child_die->sibling;\n \t}\n     }\n+  per_objfile->sym_cu = nullptr;\n \n   /* Decode macro information, if present.  Dwarf 2 macro information\n      refers to information in the line number info statement program\n@@ -23114,9 +23119,6 @@ follow_die_offset (sect_offset sect_off, int offset_in_dwz,\n   *ref_cu = target_cu;\n   temp_die.sect_off = sect_off;\n \n-  if (target_cu != cu)\n-    target_cu->ancestor = cu;\n-\n   return (struct die_info *) htab_find_with_hash (target_cu->die_hash,\n \t\t\t\t\t\t  &temp_die,\n \t\t\t\t\t\t  to_underlying (sect_off));\n@@ -23469,7 +23471,7 @@ follow_die_sig_1 (struct die_info *src_die, struct signatured_type *sig_type,\n \t\t  struct dwarf2_cu **ref_cu)\n {\n   struct die_info temp_die;\n-  struct dwarf2_cu *sig_cu, *cu = *ref_cu;\n+  struct dwarf2_cu *sig_cu;\n   struct die_info *die;\n   dwarf2_per_objfile *per_objfile = (*ref_cu)->per_objfile;\n \n@@ -23505,9 +23507,6 @@ follow_die_sig_1 (struct die_info *src_die, struct signatured_type *sig_type,\n \t}\n \n       *ref_cu = sig_cu;\n-      if (sig_cu != cu)\n-\tsig_cu->ancestor = cu;\n-\n       return die;\n     }\n "
+    },
+    {
+      "sha": "ee454ad300a12a74c1e90190241906bbafcbe7a9",
+      "filename": "gdb/dwarf2/read.h",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8457e5ecc45295bc9550c4f705a276d5ca90d908/gdb/dwarf2/read.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8457e5ecc45295bc9550c4f705a276d5ca90d908/gdb/dwarf2/read.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.h?ref=8457e5ecc45295bc9550c4f705a276d5ca90d908",
+      "patch": "@@ -579,6 +579,9 @@ struct dwarf2_per_objfile\n   /* Table containing line_header indexed by offset and offset_in_dwz.  */\n   htab_up line_header_hash;\n \n+  /* The CU containing the m_builder in scope.  */\n+  dwarf2_cu *sym_cu = nullptr;\n+\n private:\n   /* Hold the corresponding compunit_symtab for each CU or TU.  This\n      is indexed by dwarf2_per_cu_data::index.  A NULL value means"
+    }
+  ]
+}

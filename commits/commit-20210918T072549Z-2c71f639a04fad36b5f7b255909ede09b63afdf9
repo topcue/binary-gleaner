@@ -1,0 +1,158 @@
+{
+  "sha": "2c71f639a04fad36b5f7b255909ede09b63afdf9",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MmM3MWY2MzlhMDRmYWQzNmI1ZjdiMjU1OTA5ZWRlMDliNjNhZmRmOQ==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-09-18T07:25:49Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-09-18T07:25:49Z"
+    },
+    "message": "[gdb/ada] Handle artificial local symbols\n\nWith current master and gcc 7.5.0/8.5.0, we have this timeout:\n...\n(gdb) print s^M\nMultiple matches for s^M\n[0] cancel^M\n[1] s at src/gdb/testsuite/gdb.ada/interface/foo.adb:20^M\n[2] s at src/gdb/testsuite/gdb.ada/interface/foo.adb:?^M\n> FAIL: gdb.ada/interface.exp: print s (timeout)\n...\n\n[ The FAIL doesn't reproduce with gcc 9.3.1.  This difference in\nbehaviour bisects to gcc commit d70ba0c10de.\n\nThe FAIL with earlier gcc bisects to gdb commit ba8694b650b. ]\n\nThe FAIL is caused by gcc generating this debug info describing a named\nartificial variable:\n...\n <2><1204>: Abbrev Number: 31 (DW_TAG_variable)\n    <1205>   DW_AT_name        : s.14\n    <1209>   DW_AT_type        : <0x1213>\n    <120d>   DW_AT_artificial  : 1\n    <120d>   DW_AT_location    : 5 byte block: 91 e0 7d 23 18   \\\n      (DW_OP_fbreg: -288; DW_OP_plus_uconst: 24)\n...\n\nAn easy way to fix this would be to simply not put named artificial variables\ninto the symbol table.  However, that causes regressions for Ada.  It relies\non being able to get the value from such variables, using a named reference.\n\nFix this instead by marking the symbol as artificial, and:\n- ignoring such symbols in ada_resolve_variable, which fixes the FAIL\n- ignoring such ada symbols in do_print_variable_and_value, which prevents\n  them from showing up in \"info locals\"\n\nNote that a fix for the latter was submitted here (\nhttps://sourceware.org/pipermail/gdb-patches/2008-January/054994.html ), and\nthis patch borrows from it.\n\nTested on x86_64-linux.\n\nCo-Authored-By: Joel Brobecker  <brobecker@adacore.com>\n\nBug: https://sourceware.org/bugzilla/show_bug.cgi?id=28180",
+    "tree": {
+      "sha": "325ee9398313ad6a302f7e0986deabe21944579b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/325ee9398313ad6a302f7e0986deabe21944579b"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/2c71f639a04fad36b5f7b255909ede09b63afdf9",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2c71f639a04fad36b5f7b255909ede09b63afdf9",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/2c71f639a04fad36b5f7b255909ede09b63afdf9",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2c71f639a04fad36b5f7b255909ede09b63afdf9/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "10c21d953d8b26f75e73d6fdba1320093c657b6c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/10c21d953d8b26f75e73d6fdba1320093c657b6c",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/10c21d953d8b26f75e73d6fdba1320093c657b6c"
+    }
+  ],
+  "stats": {
+    "total": 46,
+    "additions": 45,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "487d92be5c9240bb879d2572b89ebb7aaa224e6d",
+      "filename": "gdb/ada-lang.c",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 0,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2c71f639a04fad36b5f7b255909ede09b63afdf9/gdb/ada-lang.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2c71f639a04fad36b5f7b255909ede09b63afdf9/gdb/ada-lang.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ada-lang.c?ref=2c71f639a04fad36b5f7b255909ede09b63afdf9",
+      "patch": "@@ -3539,6 +3539,17 @@ ada_resolve_variable (struct symbol *sym, const struct block *block,\n \t candidates.end ());\n     }\n \n+  /* Filter out artificial symbols.  */\n+  candidates.erase\n+    (std::remove_if\n+     (candidates.begin (),\n+      candidates.end (),\n+      [] (block_symbol &bsym)\n+      {\n+       return bsym.symbol->artificial;\n+      }),\n+     candidates.end ());\n+\n   int i;\n   if (candidates.empty ())\n     error (_(\"No definition found for %s\"), sym->print_name ());\n@@ -13027,6 +13038,12 @@ class ada_language : public language_defn\n     return language_defn::read_var_value (var, var_block, frame);\n   }\n \n+  /* See language.h.  */\n+  virtual bool symbol_printing_suppressed (struct symbol *symbol) const override\n+  {\n+    return symbol->artificial;\n+  }\n+\n   /* See language.h.  */\n   void language_arch_info (struct gdbarch *gdbarch,\n \t\t\t   struct language_arch_info *lai) const override"
+    },
+    {
+      "sha": "3c81ac6b7b51be892882536128741f5d25ae4dfd",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2c71f639a04fad36b5f7b255909ede09b63afdf9/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2c71f639a04fad36b5f7b255909ede09b63afdf9/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=2c71f639a04fad36b5f7b255909ede09b63afdf9",
+      "patch": "@@ -21700,6 +21700,11 @@ new_symbol (struct die_info *die, struct type *type, struct dwarf2_cu *cu,\n \t  sym->set_linkage_name (linkagename);\n \t}\n \n+      /* Handle DW_AT_artificial.  */\n+      attr = dwarf2_attr (die, DW_AT_artificial, cu);\n+      if (attr != nullptr)\n+\tsym->artificial = attr->as_boolean ();\n+\n       /* Default assumptions.\n \t Use the passed type or decode it from the die.  */\n       SYMBOL_DOMAIN (sym) = VAR_DOMAIN;"
+    },
+    {
+      "sha": "40d22d205596950d31021d5cece83044ad80b111",
+      "filename": "gdb/language.h",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2c71f639a04fad36b5f7b255909ede09b63afdf9/gdb/language.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2c71f639a04fad36b5f7b255909ede09b63afdf9/gdb/language.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/language.h?ref=2c71f639a04fad36b5f7b255909ede09b63afdf9",
+      "patch": "@@ -327,6 +327,14 @@ struct language_defn\n     return {};\n   }\n \n+  /* Return true if SYMBOL represents an entity that is not\n+     supposed to be seen by the user.  To be used to filter symbols\n+     during printing.  */\n+  virtual bool symbol_printing_suppressed (struct symbol *symbol) const\n+  {\n+    return false;\n+  }\n+\n   /* The per-architecture (OS/ABI) language information.  */\n \n   virtual void language_arch_info (struct gdbarch *,"
+    },
+    {
+      "sha": "7c4cf9491cc28653d5e34954a1f791f9d3d1fabc",
+      "filename": "gdb/stack.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2c71f639a04fad36b5f7b255909ede09b63afdf9/gdb/stack.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2c71f639a04fad36b5f7b255909ede09b63afdf9/gdb/stack.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/stack.c?ref=2c71f639a04fad36b5f7b255909ede09b63afdf9",
+      "patch": "@@ -2322,6 +2322,8 @@ do_print_variable_and_value (const char *print_name,\n   if (p->treg.has_value ()\n       && !treg_matches_sym_type_name (*p->treg, sym))\n     return;\n+  if (language_def (sym->language ())->symbol_printing_suppressed (sym))\n+    return;\n \n   frame = frame_find_by_id (p->frame_id);\n   if (frame == NULL)"
+    },
+    {
+      "sha": "5182f51672e39e7dfa7bec7bed7701935576b7bd",
+      "filename": "gdb/symtab.h",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 1,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2c71f639a04fad36b5f7b255909ede09b63afdf9/gdb/symtab.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2c71f639a04fad36b5f7b255909ede09b63afdf9/gdb/symtab.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/symtab.h?ref=2c71f639a04fad36b5f7b255909ede09b63afdf9",
+      "patch": "@@ -1122,7 +1122,8 @@ struct symbol : public general_symbol_info, public allocate_on_obstack\n       is_argument (0),\n       is_inlined (0),\n       maybe_copied (0),\n-      subclass (SYMBOL_NONE)\n+      subclass (SYMBOL_NONE),\n+      artificial (false)\n     {\n       /* We can't use an initializer list for members of a base class, and\n \t general_symbol_info needs to stay a POD type.  */\n@@ -1192,6 +1193,10 @@ struct symbol : public general_symbol_info, public allocate_on_obstack\n \n   ENUM_BITFIELD (symbol_subclass_kind) subclass : 2;\n \n+  /* Whether this symbol is artificial.  */\n+\n+  bool artificial : 1;\n+\n   /* Line number of this symbol's definition, except for inlined\n      functions.  For an inlined function (class LOC_BLOCK and\n      SYMBOL_INLINED set) this is the line number of the function's call"
+    },
+    {
+      "sha": "2dfcd8e8afde18132e1fddd18614de062e8e8f82",
+      "filename": "gdb/testsuite/gdb.ada/interface.exp",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2c71f639a04fad36b5f7b255909ede09b63afdf9/gdb/testsuite/gdb.ada/interface.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2c71f639a04fad36b5f7b255909ede09b63afdf9/gdb/testsuite/gdb.ada/interface.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.ada/interface.exp?ref=2c71f639a04fad36b5f7b255909ede09b63afdf9",
+      "patch": "@@ -33,3 +33,10 @@ gdb_test \"print r\" \\\n \n gdb_test \"print s\" \\\n          \"= \\\\(x => 1, y => 2, w => 3, h => 4\\\\)\"\n+\n+set cmd \"info locals\"\n+gdb_test $cmd \\\n+    [multi_line \\\n+\t $cmd \\\n+\t \"r = \\[^\\r\\n\\]*\" \\\n+\t \"s = \\[^\\r\\n\\]*\"]"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "sha": "4e394b28e3b0309853cb2dfce377b01787caa183",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NGUzOTRiMjhlM2IwMzA5ODUzY2IyZGZjZTM3N2IwMTc4N2NhYTE4Mw==",
+  "commit": {
+    "author": {
+      "name": "Hans-Peter Nilsson",
+      "email": "hp@bitrange.com",
+      "date": "2020-06-29T03:38:26Z"
+    },
+    "committer": {
+      "name": "Hans-Peter Nilsson",
+      "email": "hp@bitrange.com",
+      "date": "2020-06-29T03:38:26Z"
+    },
+    "message": "gas/testsuite: test-case for PR25331 (mmix reloc fixup bug)\n\nThe bug manifested \"only\" for a 64-bit host:\n\npr25331.c: Assembler messages:\npr25331.c:430: Error: internal error: fixup not contained within frag\nfailed with: <pr25331.c: Assembler messages:\npr25331.c:430: Error: internal error: fixup not contained within frag>, no expected output\nFAIL: gas/mmix/pr25331\n\ngas:\n\tPR gas/25331\n\t* testsuite/gas/mmix/pr25331.d, testsuite/gas/mmix/pr25331.s: New test.",
+    "tree": {
+      "sha": "9f0abd9adc01930f8511aff02395760788c569f4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/9f0abd9adc01930f8511aff02395760788c569f4"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/4e394b28e3b0309853cb2dfce377b01787caa183",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4e394b28e3b0309853cb2dfce377b01787caa183",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/4e394b28e3b0309853cb2dfce377b01787caa183",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4e394b28e3b0309853cb2dfce377b01787caa183/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "b20e7614da3d64ffe05617d5ac89819bff6bedf8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b20e7614da3d64ffe05617d5ac89819bff6bedf8",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b20e7614da3d64ffe05617d5ac89819bff6bedf8"
+    }
+  ],
+  "stats": {
+    "total": 482,
+    "additions": 482,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "fdec78bfa2200cf79b91f04f58c4a70f359eaeeb",
+      "filename": "gas/ChangeLog",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4e394b28e3b0309853cb2dfce377b01787caa183/gas/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4e394b28e3b0309853cb2dfce377b01787caa183/gas/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/ChangeLog?ref=4e394b28e3b0309853cb2dfce377b01787caa183",
+      "patch": "@@ -8,6 +8,7 @@\n \tSimilarly this fixup affects 4 bytes, not 8 and needs its\n \tfx_no_overflow set.\n \t* config/tc-mmix.h (TC_FX_SIZE_SLACK): Don't define.\n+\t* testsuite/gas/mmix/pr25331.d, testsuite/gas/mmix/pr25331.s: New test.\n \n 2020-06-29  Alan Modra  <amodra@gmail.com>\n "
+    },
+    {
+      "sha": "cabb05841add64315d7ab18ffcab5c959b15fe41",
+      "filename": "gas/testsuite/gas/mmix/pr25331.d",
+      "status": "added",
+      "additions": 34,
+      "deletions": 0,
+      "changes": 34,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4e394b28e3b0309853cb2dfce377b01787caa183/gas/testsuite/gas/mmix/pr25331.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4e394b28e3b0309853cb2dfce377b01787caa183/gas/testsuite/gas/mmix/pr25331.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/mmix/pr25331.d?ref=4e394b28e3b0309853cb2dfce377b01787caa183",
+      "patch": "@@ -0,0 +1,34 @@\n+# as: -x\n+# objdump: -r\n+\n+# Make sure gas can assemble a typical compiler-generated file that\n+# requires generating a stub for out-of-range or unknown target\n+# locations.  Check that the generated relocations are sane.\n+\n+.*:     file format elf64-mmix\n+\n+RELOCATION RECORDS FOR \\[\\.text\\]:\n+OFFSET           TYPE              VALUE \n+0+2a R_MMIX_BASE_PLUS_OFFSET  __stack_chk_guard\n+0+13a R_MMIX_BASE_PLUS_OFFSET  \\.data\\+0x0+8\n+0+1a2 R_MMIX_BASE_PLUS_OFFSET  \\.data\\+0x0+8\n+0+1ca R_MMIX_BASE_PLUS_OFFSET  \\.data\n+0+2ce R_MMIX_BASE_PLUS_OFFSET  \\.data\n+0+2d6 R_MMIX_BASE_PLUS_OFFSET  \\.data\n+0+33e R_MMIX_BASE_PLUS_OFFSET  \\.data\n+0+422 R_MMIX_BASE_PLUS_OFFSET  \\.data\\+0x0+10\n+0+5fe R_MMIX_BASE_PLUS_OFFSET  \\.data\\+0x0+10\n+0+60a R_MMIX_BASE_PLUS_OFFSET  __stack_chk_guard\n+0+3c R_MMIX_PUSHJ_STUBBABLE  ak\n+0+48 R_MMIX_PUSHJ_STUBBABLE  o\n+0+64 R_MMIX_PUSHJ_STUBBABLE  ag\n+0+c8 R_MMIX_GETA       c\n+0+d8 R_MMIX_PUSHJ_STUBBABLE  t\n+0+12c R_MMIX_PUSHJ_STUBBABLE  u\n+0+16c R_MMIX_PUSHJ_STUBBABLE  c\n+0+3a4 R_MMIX_PUSHJ_STUBBABLE  ak\n+0+410 R_MMIX_PUSHJ_STUBBABLE  ao\n+0+5ec R_MMIX_GETA       \\.rodata\n+0+614 R_MMIX_PUSHJ_STUBBABLE  __stack_chk_fail\n+\n+"
+    },
+    {
+      "sha": "ed3f325077e75c66a8216527113c2c4b8bb4925f",
+      "filename": "gas/testsuite/gas/mmix/pr25331.s",
+      "status": "added",
+      "additions": 447,
+      "deletions": 0,
+      "changes": 447,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4e394b28e3b0309853cb2dfce377b01787caa183/gas/testsuite/gas/mmix/pr25331.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4e394b28e3b0309853cb2dfce377b01787caa183/gas/testsuite/gas/mmix/pr25331.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/mmix/pr25331.s?ref=4e394b28e3b0309853cb2dfce377b01787caa183",
+      "patch": "@@ -0,0 +1,447 @@\n+# 1 \"pr25331.c\"\n+! mmixal:= 8H LOC Data_Section\n+\t.text ! mmixal:= 9H LOC 8B\n+\t.global f\n+\t.data ! mmixal:= 8H LOC 9B\n+\t.p2align 3\n+\tLOC @+(8-@)&7\n+f\tIS @\n+\tLOC @+8\n+\t.global g\n+\t.p2align 2\n+\tLOC @+(4-@)&3\n+g\tIS @\n+\tLOC @+4\n+\t.global h\n+\t.p2align 3\n+\tLOC @+(8-@)&7\n+h\tIS @\n+\tLOC @+8\n+\t.section\t.rodata\n+\t.p2align 2\n+\tLOC @+(4-@)&3\n+LC:0\tIS @\n+\tBYTE #0\n+\t.text ! mmixal:= 9H LOC 8B\n+\t.p2align 2\n+\tLOC @+(4-@)&3\n+\t.global i\n+i\tIS @\n+\tSUBU $254,$254,240\n+\tSTOU $253,$254,232\n+\tADDU $253,$254,240\n+\tSUBU $254,$254,168\n+\tGET $1,rJ\n+\tSETL $5,#198\n+\tNEGU $5,0,$5\n+\tADDU $4,$253,$5\n+\tSTOU $0,$4,0\n+\tSUBU $0,$253,16\n+\tLDO $6,__stack_chk_guard\n+\tSTOU $6,$0,0\n+\tSETL $7,#184\n+\tNEGU $7,0,$7\n+\tADDU $0,$253,$7\n+\tPUSHJ $8,ak\n+\tPUT rJ,$1\n+\tSTTU $8,$0,0\n+\tPUSHJ $8,o\n+\tPUT rJ,$1\n+\tSET $4,$8\n+\tSETL $5,#18b\n+\tNEGU $5,0,$5\n+\tADDU $0,$253,$5\n+\tSTBU $4,$0,0\n+\tPUSHJ $8,ag\n+\tPUT rJ,$1\n+\tSETL $6,#18a\n+\tNEGU $6,0,$6\n+\tADDU $0,$253,$6\n+\tLDW $0,$0,0\n+\tSET $0,$0\n+\tSLU $0,$0,16\n+\tSET $0,$0\n+\tSLU $0,$0,32\n+\tSR $0,$0,32\n+\tSR $0,$0,16\n+\tSET $0,$0\n+\tAND $0,$0,8\n+\tSET $0,$0\n+\tSLU $0,$0,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,0\n+\tBZ $0,L:2\n+\tSETL $7,#168\n+\tNEGU $7,0,$7\n+\tADDU $0,$253,$7\n+\tLDO $0,$0,0\n+\tCMP $0,$0,0\n+\tBZ $0,L:2\n+\tGETA $9,c\n+\tPUSHJ $8,t\n+\tPUT rJ,$1\n+\tSET $0,$8\n+\tSLU $0,$0,32\n+\tSR $0,$0,32\n+\tSETL $5,#168\n+\tNEGU $5,0,$5\n+\tADDU $4,$253,$5\n+\tSTOU $0,$4,0\n+L:2\tIS @\n+\tSETL $6,#168\n+\tNEGU $6,0,$6\n+\tADDU $0,$253,$6\n+\tLDO $0,$0,0\n+\tCMP $0,$0,0\n+\tBZ $0,L:3\n+\tSETL $7,#174\n+\tNEGU $7,0,$7\n+\tADDU $0,$253,$7\n+\tSETL $1,#2\n+\tSTTU $1,$0,0\n+\tJMP L:4\n+L:3\tIS @\n+\tPUSHJ $8,u\n+\tPUT rJ,$1\n+\tJMP L:5\n+L:7\tIS @\n+\tLDT $0,g\n+\tSLU $0,$0,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,0\n+\tBZ $0,L:5\n+\tSETL $4,#184\n+\tNEGU $4,0,$4\n+\tADDU $0,$253,$4\n+\tLDT $0,$0,0\n+\tSLU $0,$0,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,0\n+\tBNZ $0,L:29\n+L:5\tIS @\n+\tPUSHJ $8,c\n+\tPUT rJ,$1\n+\tSET $0,$8\n+\tLDO $0,$0,0\n+\tPUSHGO $8,$0,0\n+\tPUT rJ,$1\n+\tSET $0,$8\n+\tSLU $0,$0,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,0\n+\tBNZ $0,L:7\n+\tJMP L:6\n+L:29\tIS @\n+\tSWYM 0,0,0\n+L:6\tIS @\n+\tLDT $0,g\n+\tSLU $0,$0,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,0\n+\tBZ $0,L:30\n+\tSWYM 0,0,0\n+\tJMP L:9\n+L:31\tIS @\n+\tSWYM 0,0,0\n+\tJMP L:9\n+L:32\tIS @\n+\tSWYM 0,0,0\n+L:9\tIS @\n+\tLDO $0,f\n+\tSET $2,$0\n+\tJMP L:8\n+L:30\tIS @\n+\tSWYM 0,0,0\n+L:8\tIS @\n+\tSLU $0,$2,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,71\n+\tBZ $0,L:10\n+\tSLU $0,$2,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,71\n+\tBP $0,L:4\n+\tSLU $0,$2,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,32\n+\tBZ $0,L:12\n+\tSLU $0,$2,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,68\n+\tBZ $0,L:13\n+\tJMP L:4\n+L:12\tIS @\n+\tSETL $5,#18b\n+\tNEGU $5,0,$5\n+\tADDU $0,$253,$5\n+\tLDB $0,$0,0\n+\tSLU $0,$0,56\n+\tSR $0,$0,56\n+\tCMP $0,$0,0\n+\tBZ $0,L:14\n+\tSETL $6,#18b\n+\tNEGU $6,0,$6\n+\tADDU $0,$253,$6\n+\tSETL $7,#20\n+\tSTBU $7,$0,0\n+L:14\tIS @\n+\tSETL $2,#198\n+\tNEGU $2,0,$2\n+\tADDU $0,$253,$2\n+\tLDO $0,$0,0\n+\tADDU $4,$0,8\n+\tSETL $5,#198\n+\tNEGU $5,0,$5\n+\tADDU $2,$253,$5\n+\tSTOU $4,$2,0\n+\tADDU $2,$0,4\n+\tSETL $6,#180\n+\tNEGU $6,0,$6\n+\tADDU $0,$253,$6\n+\tLDT $7,$2,0\n+\tSTTU $7,$0,0\n+\tSETL $2,#180\n+\tNEGU $2,0,$2\n+\tADDU $0,$253,$2\n+\tLDT $0,$0,0\n+\tSLU $0,$0,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,0\n+\tBNZ $0,L:31\n+\tSETL $4,#180\n+\tNEGU $4,0,$4\n+\tADDU $0,$253,$4\n+\tSETL $5,#180\n+\tNEGU $5,0,$5\n+\tADDU $2,$253,$5\n+\tLDT $6,$2,0\n+\tSTTU $6,$0,0\n+\tLDO $0,f\n+\tADDU $2,$0,1\n+\tSTOU $2,f\n+\tLDB $0,$0,0\n+\tSET $0,$0\n+\tSLU $0,$0,24\n+\tSET $0,$0\n+\tSLU $0,$0,32\n+\tSR $0,$0,32\n+\tSR $0,$0,24\n+\tSET $2,$0\n+\tSLU $0,$2,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,0\n+\tBZ $0,L:16\n+\tSETL $7,#198\n+\tNEGU $7,0,$7\n+\tADDU $0,$253,$7\n+\tLDO $0,$0,0\n+\tADDU $5,$0,8\n+\tSETL $6,#198\n+\tNEGU $6,0,$6\n+\tADDU $4,$253,$6\n+\tSTOU $5,$4,0\n+\tADDU $0,$0,4\n+\tLDT $0,$0,0\n+\tSLU $0,$0,32\n+\tSR $0,$0,32\n+\tSTOU $0,f\n+L:16\tIS @\n+\tSETL $7,#17c\n+\tNEGU $7,0,$7\n+\tADDU $0,$253,$7\n+\tLDT $0,$0,0\n+\tSLU $0,$0,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,0\n+\tBNZ $0,L:32\n+\tSWYM 0,0,0\n+L:18\tIS @\n+\tSET $0,$2\n+\tSLU $0,$0,32\n+\tSRU $0,$0,32\n+\tCMPU $0,$0,9\n+\tBNP $0,L:18\n+\tJMP L:19\n+L:22\tIS @\n+\tSLU $0,$2,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,0\n+\tBNZ $0,L:20\n+\tAND $0,$3,6\n+\tSET $0,$0\n+\tSLU $0,$0,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,0\n+\tBZ $0,L:21\n+L:20\tIS @\n+\tPUSHJ $8,ak\n+\tPUT rJ,$1\n+\tSETL $4,#198\n+\tNEGU $4,0,$4\n+\tADDU $0,$253,$4\n+\tLDO $0,$0,0\n+\tADDU $5,$0,8\n+\tSETL $6,#198\n+\tNEGU $6,0,$6\n+\tADDU $4,$253,$6\n+\tSTOU $5,$4,0\n+\tADDU $0,$0,4\n+\tLDT $0,$0,0\n+\tSETL $7,#178\n+\tNEGU $7,0,$7\n+\tADDU $4,$253,$7\n+\tSETL $5,#188\n+\tNEGU $5,0,$5\n+\tADDU $6,$253,$5\n+\tSLU $0,$0,32\n+\tSR $0,$0,32\n+\tSETL $7,#170\n+\tNEGU $7,0,$7\n+\tADDU $5,$253,$7\n+\tSET $11,$6\n+\tSET $10,$0\n+\tLDO $9,$5,0\n+\tPUSHJ $8,ao\n+\tPUT rJ,$1\n+\tSTTU $8,$4,0\n+\tJMP L:19\n+L:21\tIS @\n+\tLDO $4,h\n+\tSETL $5,#198\n+\tNEGU $5,0,$5\n+\tADDU $0,$253,$5\n+\tLDO $0,$0,0\n+\tADDU $6,$0,8\n+\tSETL $7,#198\n+\tNEGU $7,0,$7\n+\tADDU $5,$253,$7\n+\tSTOU $6,$5,0\n+\tADDU $0,$0,4\n+\tLDT $0,$0,0\n+\tSTTU $0,$4,0\n+L:19\tIS @\n+\tSLU $0,$2,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,0\n+\tBNZ $0,L:22\n+\tJMP L:4\n+L:13\tIS @\n+\tAND $0,$3,6\n+\tSET $0,$0\n+\tSLU $0,$0,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,0\n+\tBZ $0,L:23\n+\tSETL $1,#198\n+\tNEGU $1,0,$1\n+\tADDU $0,$253,$1\n+\tLDO $0,$0,0\n+\tADDU $4,$0,8\n+\tSETL $5,#198\n+\tNEGU $5,0,$5\n+\tADDU $1,$253,$5\n+\tSTOU $4,$1,0\n+\tLDO $0,$0,0\n+\tJMP L:24\n+L:23\tIS @\n+\tAND $0,$3,4\n+\tSET $0,$0\n+\tSLU $0,$0,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,0\n+\tBZ $0,L:25\n+\tSETL $6,#198\n+\tNEGU $6,0,$6\n+\tADDU $0,$253,$6\n+\tLDO $0,$0,0\n+\tADDU $4,$0,8\n+\tSETL $7,#198\n+\tNEGU $7,0,$7\n+\tADDU $1,$253,$7\n+\tSTOU $4,$1,0\n+\tADDU $0,$0,4\n+\tLDT $0,$0,0\n+\tSET $0,$0\n+\tSLU $0,$0,48\n+\tSR $0,$0,48\n+\tJMP L:24\n+L:25\tIS @\n+\tSETL $1,#198\n+\tNEGU $1,0,$1\n+\tADDU $0,$253,$1\n+\tLDO $0,$0,0\n+\tADDU $4,$0,8\n+\tSETL $5,#198\n+\tNEGU $5,0,$5\n+\tADDU $1,$253,$5\n+\tSTOU $4,$1,0\n+\tADDU $0,$0,4\n+\tLDT $0,$0,0\n+\tSLU $0,$0,32\n+\tSR $0,$0,32\n+L:24\tIS @\n+\tSETL $6,#158\n+\tNEGU $6,0,$6\n+\tADDU $1,$253,$6\n+\tSTOU $0,$1,0\n+L:10\tIS @\n+\tAND $0,$3,8\n+\tSET $0,$0\n+\tSLU $0,$0,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,0\n+\tBZ $0,L:27\n+\tSETL $7,#198\n+\tNEGU $7,0,$7\n+\tADDU $0,$253,$7\n+\tLDO $0,$0,0\n+\tADDU $3,$0,8\n+\tSETL $4,#198\n+\tNEGU $4,0,$4\n+\tADDU $1,$253,$4\n+\tSTOU $3,$1,0\n+\tSETL $5,#160\n+\tNEGU $5,0,$5\n+\tADDU $1,$253,$5\n+\tLDO $6,$0,0\n+\tSTOU $6,$1,0\n+L:27\tIS @\n+\tSETL $7,#168\n+\tNEGU $7,0,$7\n+\tADDU $0,$253,$7\n+\tLDO $0,$0,0\n+\tCMP $0,$0,0\n+\tBZ $0,L:4\n+\tSETL $1,#160\n+\tNEGU $1,0,$1\n+\tADDU $0,$253,$1\n+\tLDO $0,$0,0\n+\tSRU $0,$0,63\n+\tSET $0,$0\n+\tAND $0,$0,1\n+\tSET $0,$0\n+\tSLU $0,$0,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,0\n+\tBZ $0,L:4\n+\tSLU $0,$2,32\n+\tSR $0,$0,32\n+\tCMP $0,$0,0\n+\tBZ $0,L:4\n+\tGETA $2,LC:0\n+\tSTOU $2,h\n+L:4\tIS @\n+\tSUBU $0,$253,16\n+\tLDO $1,$0,0\n+\tLDO $0,__stack_chk_guard\n+\tCMP $0,$1,$0\n+\tBZ $0,L:28\n+\tPUSHJ $8,__stack_chk_fail\n+L:28\tIS @\n+\tSET $0,$2\n+\tINCL $254,#190\n+\tLDO $253,$254,0\n+\tADDU $254,$254,8\n+\tPOP 1,0\n+\n+\t.data ! mmixal:= 8H LOC 9B"
+    }
+  ]
+}

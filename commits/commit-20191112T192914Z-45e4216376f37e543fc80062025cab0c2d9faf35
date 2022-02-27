@@ -1,0 +1,182 @@
+{
+  "sha": "45e4216376f37e543fc80062025cab0c2d9faf35",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NDVlNDIxNjM3NmYzN2U1NDNmYzgwMDYyMDI1Y2FiMGMyZDlmYWYzNQ==",
+  "commit": {
+    "author": {
+      "name": "Tom Tromey",
+      "email": "tom@tromey.com",
+      "date": "2019-08-16T21:16:12Z"
+    },
+    "committer": {
+      "name": "Tom Tromey",
+      "email": "tom@tromey.com",
+      "date": "2019-11-12T19:29:14Z"
+    },
+    "message": "Make TUI resizing tests more robust\n\nAs Sergio pointed out, the TUI resizing tests are flaky.  Debugging\nthis showed three main problems.\n\n1. expect's \"stty\" command processes its arguments one-by-one.  So,\nrather than requesting a single resize, it sends two separate resize\nrequests (one for rows and one for columns).  This means gdb sees two\nSIGWINCH signals and resizes the terminal twice.\n\nI consider this a bug in expect, but I couldn't readily see how to\nreport a bug; and anyway the fix wouldn't propagate very quickly.\n\nThis patch works around this problem by explicitly doing two separate\nresizes (so it will be robust if expect ever does change); and then by\nwaiting for each resize to complete before continuing.\n\n2. gdb uses curses to drive the console rendering.  Currently the test\nsuite looks for terminal text insertion sequences to decide when a\ncommand has completed.  However, it turns out that, sometimes, curses\ncan output things in non-obvious ways.  I didn't debug into curses but\nI guess this can happen due to output optimizations.  No matter the\nreason, sometimes the current approach of only tracking text\ninsertions is not enough to detect that gdb has finished rendering.\n\nThis patch fixes this problem by arranging to detect the termination\noutput after any curses command, not just insertion.\n\n3. Detecting when a resize has completed is tricky.  In fact, I could\nnot find a way to reliably do this.\n\nThis patch fixes this problem by adding a special maint\n\"tui-resize-message\" setting to gdb.  When this is enabled, gdb will\nprint a message after each SIGWINCH has been fully processed.  The\ntest suite enables this mode and then waits for the message in order\nto know when control can be returned to the calling test.\n\nThis patch also adds a timeout, to avoid the situation where the\nterminal code fails to notice a change for some reason.  This lets the\ntest at least try to continue.\n\ngdb/ChangeLog\n2019-11-12  Tom Tromey  <tom@tromey.com>\n\n\t* tui/tui-win.c (resize_message): New global.\n\t(show_tui_resize_message): New function.\n\t(tui_async_resize_screen): Print message if requested.\n\t(_initialize_tui_win): Add tui-resize-message setting.\n\t* NEWS: Add entry for new commands.\n\ngdb/doc/ChangeLog\n2019-11-12  Tom Tromey  <tom@tromey.com>\n\n\t* gdb.texinfo (Maintenance Commands): Document new command.\n\ngdb/testsuite/ChangeLog\n2019-11-12  Tom Tromey  <tom@tromey.com>\n\n\t* lib/tuiterm.exp (_accept): Add wait_for parameter.  Check output\n\tafter any command.  Expect prompt after WAIT_FOR is seen.\n\t(enter_tui): Enable resize messages.\n\t(command): Expect command in output.\n\t(get_line): Avoid error when cursor appears to be off-screen.\n\t(dump_screen): Include screen size in title.\n\t(_do_resize): New proc, from \"resize\".\n\t(resize): Rewrite.  Do resize in two steps.\n\t* gdb.tui/empty.exp (layouts): Fix entries.\n\t(check_boxes): Remove xfail.\n\t(check_text): Dump screen on failure.\n\nChange-Id: I420e0259cb99b21adcd28f671b99161eefa7a51d",
+    "tree": {
+      "sha": "f2c6f0623643aaf4293481443aaa97bc554b7b33",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f2c6f0623643aaf4293481443aaa97bc554b7b33"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/45e4216376f37e543fc80062025cab0c2d9faf35",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/45e4216376f37e543fc80062025cab0c2d9faf35",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/45e4216376f37e543fc80062025cab0c2d9faf35",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/45e4216376f37e543fc80062025cab0c2d9faf35/comments",
+  "author": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "ef8f595f73a6b42f745bc76a716f45079eae1075",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ef8f595f73a6b42f745bc76a716f45079eae1075",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/ef8f595f73a6b42f745bc76a716f45079eae1075"
+    }
+  ],
+  "stats": {
+    "total": 220,
+    "additions": 174,
+    "deletions": 46
+  },
+  "files": [
+    {
+      "sha": "ee9a464c1bf2fb2e66b50c4afa5b3e54bb7c0d37",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/45e4216376f37e543fc80062025cab0c2d9faf35/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/45e4216376f37e543fc80062025cab0c2d9faf35/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=45e4216376f37e543fc80062025cab0c2d9faf35",
+      "patch": "@@ -1,3 +1,11 @@\n+2019-11-12  Tom Tromey  <tom@tromey.com>\n+\n+\t* tui/tui-win.c (resize_message): New global.\n+\t(show_tui_resize_message): New function.\n+\t(tui_async_resize_screen): Print message if requested.\n+\t(_initialize_tui_win): Add tui-resize-message setting.\n+\t* NEWS: Add entry for new commands.\n+\n 2019-11-11  Tom Tromey  <tom@tromey.com>\n \n \t* tui/tui.c (tui_initialize_readline): Add new bindable readline"
+    },
+    {
+      "sha": "b0f54473e2f39675c955df357f26c4437e086134",
+      "filename": "gdb/NEWS",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/45e4216376f37e543fc80062025cab0c2d9faf35/gdb/NEWS",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/45e4216376f37e543fc80062025cab0c2d9faf35/gdb/NEWS",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/NEWS?ref=45e4216376f37e543fc80062025cab0c2d9faf35",
+      "patch": "@@ -154,6 +154,12 @@ maint show test-settings KIND\n   A set of commands used by the testsuite for exercising the settings\n   infrastructure.\n \n+maint set tui-resize-message [on|off]\n+maint show tui-resize-message\n+  Control whether GDB prints a message each time the terminal is\n+  resized when in TUI mode.  This is primarily useful for testing the\n+  TUI.\n+\n set print frame-info [short-location|location|location-and-address\n                         |source-and-location|source-line|auto]\n show print frame-info"
+    },
+    {
+      "sha": "7076c76b0554fb43e92f249c524297e471c36e89",
+      "filename": "gdb/doc/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/45e4216376f37e543fc80062025cab0c2d9faf35/gdb/doc/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/45e4216376f37e543fc80062025cab0c2d9faf35/gdb/doc/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/ChangeLog?ref=45e4216376f37e543fc80062025cab0c2d9faf35",
+      "patch": "@@ -1,3 +1,7 @@\n+2019-11-12  Tom Tromey  <tom@tromey.com>\n+\n+\t* gdb.texinfo (Maintenance Commands): Document new command.\n+\n 2019-11-11  Tom Tromey  <tom@tromey.com>\n \n \t* gdb.texinfo (TUI Keys): Document readline function names."
+    },
+    {
+      "sha": "87936b3a2b62f83628e930dfc38bd681e1c55715",
+      "filename": "gdb/doc/gdb.texinfo",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/45e4216376f37e543fc80062025cab0c2d9faf35/gdb/doc/gdb.texinfo",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/45e4216376f37e543fc80062025cab0c2d9faf35/gdb/doc/gdb.texinfo",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/gdb.texinfo?ref=45e4216376f37e543fc80062025cab0c2d9faf35",
+      "patch": "@@ -37933,6 +37933,19 @@ does not indicate support.\n target supports it.\n @end table\n \n+@kindex maint set tui-resize-message\n+@kindex maint show tui-resize-message\n+@item maint set tui-resize-message\n+@item maint show tui-resize-message\n+Control whether @value{GDBN} displays a message each time the terminal\n+is resized when in TUI mode.  The default is @code{off}, which means\n+that @value{GDBN} is silent during resizes.  When @code{on},\n+@value{GDBN} will display a message after a resize is completed; the\n+message will include a number indicating how many times the terminal\n+has been resized.  This setting is intended for use by the test suite,\n+where it would otherwise be difficult to determine when a resize and\n+refresh has been completed.\n+\n @kindex maint set per-command\n @kindex maint show per-command\n @item maint set per-command"
+    },
+    {
+      "sha": "7416b820d78eab40893b7351ecd96bb0f8bcec89",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/45e4216376f37e543fc80062025cab0c2d9faf35/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/45e4216376f37e543fc80062025cab0c2d9faf35/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=45e4216376f37e543fc80062025cab0c2d9faf35",
+      "patch": "@@ -1,3 +1,17 @@\n+2019-11-12  Tom Tromey  <tom@tromey.com>\n+\n+\t* lib/tuiterm.exp (_accept): Add wait_for parameter.  Check output\n+\tafter any command.  Expect prompt after WAIT_FOR is seen.\n+\t(enter_tui): Enable resize messages.\n+\t(command): Expect command in output.\n+\t(get_line): Avoid error when cursor appears to be off-screen.\n+\t(dump_screen): Include screen size in title.\n+\t(_do_resize): New proc, from \"resize\".\n+\t(resize): Rewrite.  Do resize in two steps.\n+\t* gdb.tui/empty.exp (layouts): Fix entries.\n+\t(check_boxes): Remove xfail.\n+\t(check_text): Dump screen on failure.\n+\n 2019-11-10  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.python/py-symbol.exp: Add test for"
+    },
+    {
+      "sha": "b6ee3505490ce1238320a25fc59788e8390062a1",
+      "filename": "gdb/testsuite/gdb.tui/empty.exp",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 11,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/45e4216376f37e543fc80062025cab0c2d9faf35/gdb/testsuite/gdb.tui/empty.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/45e4216376f37e543fc80062025cab0c2d9faf35/gdb/testsuite/gdb.tui/empty.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.tui/empty.exp?ref=45e4216376f37e543fc80062025cab0c2d9faf35",
+      "patch": "@@ -34,24 +34,26 @@ if {![Term::enter_tui]} {\n set layouts {\n     {src src {{0 0 80 15}} {{0 0 90 23}}\n \t{{\"no source\" \"No Source Available\"}}}\n-    {regs src-regs {{0 0 80 8} {0 7 80 8}} {{0 0 90 13} {0 13 90 13}}\n+    {regs src-regs {{0 0 80 8} {0 7 80 8}} {{0 0 90 13} {0 12 90 13}}\n \t{\n \t    {\"no source\" \"No Source Available\"}\n \t    {\"no regs\" \"Register Values Unavailable\"}\n \t}}\n     {asm asm {{0 0 80 15}} {{0 0 90 23}}\n-\t{\"no asm\" \"No Assembly Available\"}}\n-    {regs asm-regs {{0 0 80 8} {0 7 80 9}} {{0 0 90 13} {0 13 90 14}}\n+\t{\n+\t    {\"no asm\" \"No Assembly Available\"}\n+\t}}\n+    {regs asm-regs {{0 0 80 8} {0 7 80 8}} {{0 0 90 13} {0 12 90 13}}\n \t{\n \t    {\"no asm\" \"No Assembly Available\"}\n \t    {\"no regs\" \"Register Values Unavailable\"}\n \t}}\n-    {split split {{0 0 80 8} {0 7 80 9}} {{0 0 90 13} {0 13 90 14}}\n+    {split split {{0 0 80 8} {0 7 80 8}} {{0 0 90 13} {0 12 90 13}}\n \t{\n \t    {\"no source\" \"No Source Available\"}\n \t    {\"no asm\" \"No Assembly Available\"}\n \t}}\n-    {regs split-regs {{0 0 80 8} {0 7 80 9}} {{0 0 90 13} {0 13 90 14}}\n+    {regs split-regs {{0 0 80 8} {0 7 80 8}} {{0 0 90 13} {0 12 90 13}}\n \t{\n \t    {\"no asm\" \"No Assembly Available\"}\n \t    {\"no regs\" \"Register Values Unavailable\"}\n@@ -62,11 +64,6 @@ set layouts {\n proc check_boxes {boxes} {\n     set boxno 1\n     foreach box $boxes {\n-\tif {$boxno > 1} {\n-\t    # The upper-left corner of the second box may not render\n-\t    # properly, due to overlap.\n-\t    setup_xfail *-*-*\n-\t}\n \teval Term::check_box [list \"box $boxno\"] $box\n \tincr boxno\n     }\n@@ -77,7 +74,9 @@ proc check_text {text_list} {\n     set text [Term::get_all_lines]\n     foreach item $text_list {\n \tlassign $item testname check\n-\tgdb_assert {[string first $check $text]} $testname\n+\tif {![gdb_assert {[regexp -- $check $text]} $testname]} {\n+\t    Term::dump_screen\n+\t}\n     }\n }\n "
+    },
+    {
+      "sha": "dcba02889ec186e31415ea6527431526f8b6c702",
+      "filename": "gdb/testsuite/lib/tuiterm.exp",
+      "status": "modified",
+      "additions": 85,
+      "deletions": 35,
+      "changes": 120,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/45e4216376f37e543fc80062025cab0c2d9faf35/gdb/testsuite/lib/tuiterm.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/45e4216376f37e543fc80062025cab0c2d9faf35/gdb/testsuite/lib/tuiterm.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/tuiterm.exp?ref=45e4216376f37e543fc80062025cab0c2d9faf35",
+      "patch": "@@ -40,6 +40,8 @@ namespace eval Term {\n \n     variable _last_char\n \n+    variable _resize_count\n+\n     # If ARG is empty, return DEF: otherwise ARG.  This is useful for\n     # defaulting arguments in CSIs.\n     proc _default {arg def} {\n@@ -368,11 +370,13 @@ namespace eval Term {\n \tvariable _cur_x\n \tvariable _cur_y\n \tvariable _attrs\n+\tvariable _resize_count\n \n \tset _rows $rows\n \tset _cols $cols\n \tset _cur_x 0\n \tset _cur_y 0\n+\tset _resize_count 0\n \tarray set _attrs {\n \t    intensity normal\n \t    fg default\n@@ -385,39 +389,58 @@ namespace eval Term {\n     }\n \n     # Accept some output from gdb and update the screen.\n-    proc _accept {} {\n+    proc _accept {wait_for} {\n \tglobal expect_out\n-\tgdb_expect {\n-\t    -re \"^\\[\\x07\\x08\\x0a\\x0d\\]\" {\n-\t\tscan $expect_out(0,string) %c val\n-\t\tset hexval [format \"%02x\" $val]\n-\t\tverbose \"+++ _ctl_0x${hexval}\"\n-\t\t_ctl_0x${hexval}\n-\t\texp_continue\n-\t    }\n-\t    -re \"^\\x1b(\\[0-9a-zA-Z\\])\" {\n-\t\tverbose \"+++ unsupported escape\"\n-\t\terror \"unsupported escape\"\n-\t    }\n-\t    -re \"^\\x1b\\\\\\[(\\[0-9;\\]*)(\\[a-zA-Z@\\])\" {\n-\t\tset cmd $expect_out(2,string)\n-\t\tset params [split $expect_out(1,string) \";\"]\n-\t\tverbose \"+++ _csi_$cmd <<<$expect_out(1,string)>>>\"\n-\t\teval _csi_$cmd $params\n-\t\texp_continue\n+\tglobal gdb_prompt\n+\tvariable _cur_x\n+\tvariable _cur_y\n+\n+\tset prompt_wait_for \"$gdb_prompt \\$\"\n+\n+\twhile 1 {\n+\t    gdb_expect {\n+\t\t-re \"^\\[\\x07\\x08\\x0a\\x0d\\]\" {\n+\t\t    scan $expect_out(0,string) %c val\n+\t\t    set hexval [format \"%02x\" $val]\n+\t\t    verbose \"+++ _ctl_0x${hexval}\"\n+\t\t    _ctl_0x${hexval}\n+\t\t}\n+\t\t-re \"^\\x1b(\\[0-9a-zA-Z\\])\" {\n+\t\t    verbose \"+++ unsupported escape\"\n+\t\t    error \"unsupported escape\"\n+\t\t}\n+\t\t-re \"^\\x1b\\\\\\[(\\[0-9;\\]*)(\\[a-zA-Z@\\])\" {\n+\t\t    set cmd $expect_out(2,string)\n+\t\t    set params [split $expect_out(1,string) \";\"]\n+\t\t    verbose \"+++ _csi_$cmd <<<$expect_out(1,string)>>>\"\n+\t\t    eval _csi_$cmd $params\n+\t\t}\n+\t\t-re \"^\\[^\\x07\\x08\\x0a\\x0d\\x1b\\]+\" {\n+\t\t    _insert $expect_out(0,string)\n+\t\t    variable _last_char\n+\t\t    set _last_char [string index $expect_out(0,string) end]\n+\t\t}\n+\n+\t\ttimeout {\n+\t\t    # Assume a timeout means we somehow missed the\n+\t\t    # expected result, and carry on.\n+\t\t    return\n+\t\t}\n \t    }\n-\t    -re \"^\\[^\\x07\\x08\\x0a\\x0d\\x1b\\]+\" {\n-\t\t_insert $expect_out(0,string)\n-\t\tvariable _last_char\n-\t\tset _last_char [string index $expect_out(0,string) end]\n-\t\t# If the prompt was just inserted, return.\n-\t\tvariable _cur_x\n-\t\tvariable _cur_y\n-\t\tglobal gdb_prompt\n+\n+\t    # If the cursor appears just after the prompt, return.  It\n+\t    # isn't reliable to check this only after an insertion,\n+\t    # because curses may make \"unusual\" redrawing decisions.\n+\t    if {$wait_for == \"$prompt_wait_for\"} {\n \t\tset prev [get_line $_cur_y $_cur_x]\n-\t\tif {![regexp -- \"$gdb_prompt \\$\" $prev]} {\n-\t\t    exp_continue\n+\t    } else {\n+\t\tset prev [get_line $_cur_y]\n+\t    }\n+\t    if {[regexp -- $wait_for $prev]} {\n+\t\tif {$wait_for == \"$prompt_wait_for\"} {\n+\t\t    break\n \t\t}\n+\t\tset wait_for $prompt_wait_for\n \t    }\n \t}\n     }\n@@ -447,6 +470,7 @@ namespace eval Term {\n \t}\n \n \tgdb_test_no_output \"set tui border-kind ascii\"\n+\tgdb_test_no_output \"maint set tui-resize-message on\"\n \tcommand \"tui enable\"\n \treturn 1\n     }\n@@ -456,13 +480,20 @@ namespace eval Term {\n     # be supplied by this function.\n     proc command {cmd} {\n \tsend_gdb \"$cmd\\n\"\n-\t_accept\n+\t_accept [string_to_regexp $cmd]\n     }\n \n     # Return the text of screen line N, without attributes.  Lines are\n     # 0-based.  If C is given, stop before column C.  Columns are also\n     # zero-based.\n     proc get_line {n {c \"\"}} {\n+\tvariable _rows\n+\t# This can happen during resizing, if the cursor seems to\n+\t# temporarily be off-screen.\n+\tif {$n >= $_rows} {\n+\t    return \"\"\n+\t}\n+\n \tset result \"\"\n \tvariable _cols\n \tvariable _chars\n@@ -567,15 +598,16 @@ namespace eval Term {\n     # numbers.\n     proc dump_screen {} {\n \tvariable _rows\n-\tverbose \"Screen Dump:\"\n+\tvariable _cols\n+\tverbose \"Screen Dump ($_cols x $_rows):\"\n \tfor {set y 0} {$y < $_rows} {incr y} {\n \t    set fmt [format %5d $y]\n \t    verbose \"$fmt [get_line $y]\"\n \t}\n     }\n \n     # Resize the terminal.\n-    proc resize {rows cols} {\n+    proc _do_resize {rows cols} {\n \tvariable _chars\n \tvariable _rows\n \tvariable _cols\n@@ -596,13 +628,31 @@ namespace eval Term {\n \t\tset _chars($x,$y) $local_chars($x,$y)\n \t    }\n \t}\n+    }\n+\n+    proc resize {rows cols} {\n+\tvariable _rows\n+\tvariable _cols\n+\tvariable _resize_count\n \n \tglobal gdb_spawn_name\n+\t# expect handles each argument to stty separately.  This means\n+\t# that gdb will see SIGWINCH twice.  Rather than rely on this\n+\t# behavior (which, after all, could be changed), we make it\n+\t# explicit here.  This also simplifies waiting for the redraw.\n+\t_do_resize $rows $_cols\n+\tstty rows $_rows < $gdb_spawn_name\n+\t# Due to the strange column resizing behavior, and because we\n+\t# don't care about this intermediate resize, we don't check\n+\t# the size here.\n+\t_accept \"@@ resize done $_resize_count\"\n+\tincr _resize_count\n \t# Somehow the number of columns transmitted to gdb is one less\n \t# than what we request from expect.  We hide this weird\n \t# details from the caller.\n-\tstty rows $_rows columns [expr {$_cols + 1}] \\\n-\t    < $gdb_spawn_name\n-\t_accept\n+\t_do_resize $_rows $cols\n+\tstty columns [expr {$_cols + 1}] < $gdb_spawn_name\n+\t_accept \"@@ resize done $_resize_count, size = ${_cols}x${rows}\"\n+\tincr _resize_count\n     }\n }"
+    },
+    {
+      "sha": "feeee34c0831d76c82a216d0da1251b200124692",
+      "filename": "gdb/tui/tui-win.c",
+      "status": "modified",
+      "additions": 34,
+      "deletions": 0,
+      "changes": 34,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/45e4216376f37e543fc80062025cab0c2d9faf35/gdb/tui/tui-win.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/45e4216376f37e543fc80062025cab0c2d9faf35/gdb/tui/tui-win.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/tui/tui-win.c?ref=45e4216376f37e543fc80062025cab0c2d9faf35",
+      "patch": "@@ -33,6 +33,7 @@\n #include \"top.h\"\n #include \"source.h\"\n #include \"event-loop.h\"\n+#include \"gdbcmd.h\"\n \n #include \"tui/tui.h\"\n #include \"tui/tui-io.h\"\n@@ -340,6 +341,22 @@ tui_set_var_cmd (const char *null_args,\n     tui_rehighlight_all ();\n }\n \n+\f\n+\n+/* True if TUI resizes should print a message.  This is used by the\n+   test suite.  */\n+\n+static bool resize_message;\n+\n+static void\n+show_tui_resize_message (struct ui_file *file, int from_tty,\n+\t\t\t struct cmd_list_element *c, const char *value)\n+{\n+  fprintf_filtered (file, _(\"TUI resize messaging is %s.\\n\"), value);\n+}\n+\n+\f\n+\n /* Generic window name completion function.  Complete window name pointed\n    to by TEXT and WORD.  If INCLUDE_NEXT_PREV_P is true then the special\n    window names 'next' and 'prev' will also be considered as possible\n@@ -677,6 +694,13 @@ tui_async_resize_screen (gdb_client_data arg)\n       tui_resize_all ();\n       tui_refresh_all_win ();\n       tui_update_gdb_sizes ();\n+      if (resize_message)\n+\t{\n+\t  static int count;\n+\t  printf_unfiltered (\"@@ resize done %d, size = %dx%d\\n\", count,\n+\t\t\t     tui_term_width (), tui_term_height ());\n+\t  ++count;\n+\t}\n       tui_redisplay_readline ();\n     }\n }\n@@ -1434,4 +1458,14 @@ Show the tab witdh, in characters, for the TUI.\"), _(\"\\\n This variable controls how many spaces are used to display a tab character.\"),\n \t\t\t     tui_set_tab_width, tui_show_tab_width,\n \t\t\t     &tui_setlist, &tui_showlist);\n+\n+  add_setshow_boolean_cmd (\"tui-resize-message\", class_maintenance,\n+\t\t\t   &resize_message, _(\"\\\n+Set TUI resize messaging.\"), _(\"\\\n+Show TUI resize messaging.\"), _(\"\\\n+When enabled GDB will print a message when the terminal is resized.\"),\n+\t\t\t   nullptr,\n+\t\t\t   show_tui_resize_message,\n+\t\t\t   &maintenance_set_cmdlist,\n+\t\t\t   &maintenance_show_cmdlist);\n }"
+    }
+  ]
+}

@@ -1,0 +1,170 @@
+{
+  "sha": "98c59b527b1472b87a9ee4959c4bfae85061bc1d",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OThjNTliNTI3YjE0NzJiODdhOWVlNDk1OWM0YmZhZTg1MDYxYmMxZA==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "palves@redhat.com",
+      "date": "2020-05-19T17:36:24Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "palves@redhat.com",
+      "date": "2020-05-19T17:37:15Z"
+    },
+    "message": "Make exec-file-mismatch compare build IDs\n\nThe patch makes GDB do exec-file-mismatch validation by comparing\nbuild IDs instead of the current method of comparing filenames.\n\nCurrently, the exec-file-mismatch feature simply compares filenames to\ndecide whether the exec file loaded in gdb and the exec file the\ntarget reports is running match.  This causes false positives when\nremote debugging, because it'll often be the case that the paths in\nthe host and the target won't match.  And of course misses the case of\nthe files having the same name but being actually different files\n(e.g., different builds).\n\nThis also broke many testcases when running against gdbserver, causing\ntests to be skipped like (here native-extended-gdbserver):\n\n  (gdb) run\n  Starting program: /home/pedro/gdb/binutils-gdb/build/gdb/testsuite/outputs/gdb.base/argv0-symlink/argv0-symlink-filelink\n  warning: Mismatch between current exec-file /home/pedro/gdb/binutils-gdb/build/gdb/testsuite/outputs/gdb.base/argv0-symlink/argv0-symlink-filelink\n  and automatically determined exec-file /home/pedro/gdb/binutils-gdb/build/gdb/testsuite/outputs/gdb.base/argv0-symlink/argv0-symlink\n  exec-file-mismatch handling is currently \"ask\"\n  Load new symbol table from \"/home/pedro/gdb/binutils-gdb/build/gdb/testsuite/outputs/gdb.base/argv0-symlink/argv0-symlink\"? (y or n) UNTESTED: gdb.base/argv0-symlink.exp: could not run to main\n\nor to fail like (here native-gdbserver):\n\n (gdb) spawn /home/pedro/gdb/binutils-gdb/build/gdb/testsuite/../../gdbserver/gdbserver --once localhost:2346 /home/pedro/gdb/binutils-gdb/build/gdb/te\n stsuite/outputs/gdb.btrace/buffer-size/skip_btrace_tests-19968.x\n Process /home/pedro/gdb/binutils-gdb/build/gdb/testsuite/outputs/gdb.btrace/buffer-size/skip_btrace_tests-19968.x created; pid = 20040\n Listening on port 2346\n target remote localhost:2346\n Remote debugging using localhost:2346\n warning: Mismatch between current exec-file /home/pedro/gdb/binutils-gdb/build/gdb/testsuite/temp/19968/skip_btrace_tests-19968.x\n and automatically determined exec-file /home/pedro/gdb/binutils-gdb/build/gdb/testsuite/outputs/gdb.btrace/buffer-size/skip_btrace_tests-19968.x\n exec-file-mismatch handling is currently \"ask\"\n Load new symbol table from \"/home/pedro/gdb/binutils-gdb/build/gdb/testsuite/outputs/gdb.btrace/buffer-size/skip_btrace_tests-19968.x\"? (y or n) Quit\n (gdb) UNSUPPORTED: gdb.btrace/buffer-size.exp: target does not support record-btrace\n\nThe former case is about GDB not realizing the two files are the same,\nbecause one of the them is a symlink to the other.  The latter case is\nabout GDB realizing that one file is a copy of the other.\n\nOver the years, the toolchain has settled on build ID matching being\nthe canonical method to match core dumps to executables, and\nexecutables with no debug info to their debug info.\n\nThis patch makes us use build IDs to match the running image of a\nbinary with its version loaded in gdb, which may or may not have debug\ninfo.  This is very much like the core dump/executable matching.\n\nThe change to gdb_bfd_open is necessary to get rid of the \"transfers\nfrom remote targets can be slow\" warning when we open the remote file\nto read its build ID:\n\n (gdb) r\n Starting program: /home/pedro/gdb/binutils-gdb/build/gdb/testsuite/outputs/gdb.base/break/break\n Reading /home/pedro/gdb/binutils-gdb/build/gdb/testsuite/outputs/gdb.base/argv0-symlink/argv0-symlink from remote target...\n warning: File transfers from remote targets can be slow. Use \"set sysroot\" to access files locally instead.\n ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n warning: Mismatch between current exec-file /home/pedro/gdb/binutils-gdb/build/gdb/testsuite/outputs/gdb.base/break/break\n and automatically determined exec-file /home/pedro/gdb/binutils-gdb/build/gdb/testsuite/outputs/gdb.base/argv0-symlink/argv0-symlink\n exec-file-mismatch handling is currently \"ask\"\n Load new symbol table from \"/home/pedro/gdb/binutils-gdb/build/gdb/testsuite/outputs/gdb.base/argv0-symlink/argv0-symlink\"? (y or n)\n\nWhile trying this out, I was worried that bfd would read a lot of\nstuff from the binary in order to extract the build ID, making it\npotentially slow, but turns out we don't read all that much.  Maybe a\ncouple hundred bytes, and most of it seemingly is the read-ahead\ncache.  So I'm not worried about that.  Otherwise I'd consider whether\na new qXfer:buildid:read would be better.  But I'm happy that we\nseemingly don't need to worry about it.\n\ngdb/ChangeLog:\n2020-05-19  Pedro Alves  <palves@redhat.com>\n\n\t* NEWS (set exec-file-mismatch): Adjust entry.\n\t* exec.c: Include \"build-id.h\".\n\t(validate_exec_file): Try to match build IDs instead of filenames.\n\t* gdb_bfd.c (struct gdb_bfd_open_closure): New.\n\t(gdb_bfd_iovec_fileio_open): Adjust to use gdb_bfd_open_closure\n\tand pass down 'warn_if_slow'.\n\t(gdb_bfd_open): Add 'warn_if_slow' parameter.  Use\n\tgdb_bfd_open_closure to pass it down.\n\t* gdb_bfd.h (gdb_bfd_open): Add 'warn_if_slow' parameter.\n\ngdb/doc/ChangeLog:\n2020-05-19  Pedro Alves  <palves@redhat.com>\n\n\t* gdb.texinfo (Attach): Update exec-file-mismatch description to\n\tmention build IDs.\n\t(Separate Debug Files): Add \"build id\" anchor.",
+    "tree": {
+      "sha": "3f6aba282331272a9f85a58f7b95b698440e1b4e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/3f6aba282331272a9f85a58f7b95b698440e1b4e"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/98c59b527b1472b87a9ee4959c4bfae85061bc1d",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/98c59b527b1472b87a9ee4959c4bfae85061bc1d",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/98c59b527b1472b87a9ee4959c4bfae85061bc1d",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/98c59b527b1472b87a9ee4959c4bfae85061bc1d/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "4111f652f955028e8219fad2d60af1fd22aa29ee",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4111f652f955028e8219fad2d60af1fd22aa29ee",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/4111f652f955028e8219fad2d60af1fd22aa29ee"
+    }
+  ],
+  "stats": {
+    "total": 136,
+    "additions": 100,
+    "deletions": 36
+  },
+  "files": [
+    {
+      "sha": "f62557da6c04f4ade9ac2ab166b61f2d3b37ac1b",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/98c59b527b1472b87a9ee4959c4bfae85061bc1d/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/98c59b527b1472b87a9ee4959c4bfae85061bc1d/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=98c59b527b1472b87a9ee4959c4bfae85061bc1d",
+      "patch": "@@ -1,3 +1,15 @@\n+2020-05-19  Pedro Alves  <palves@redhat.com>\n+\n+\t* NEWS (set exec-file-mismatch): Adjust entry.\n+\t* exec.c: Include \"build-id.h\".\n+\t(validate_exec_file): Try to match build IDs instead of filenames.\n+\t* gdb_bfd.c (struct gdb_bfd_open_closure): New.\n+\t(gdb_bfd_iovec_fileio_open): Adjust to use gdb_bfd_open_closure\n+\tand pass down 'warn_if_slow'.\n+\t(gdb_bfd_open): Add 'warn_if_slow' parameter.  Use\n+\tgdb_bfd_open_closure to pass it down.\n+\t* gdb_bfd.h (gdb_bfd_open): Add 'warn_if_slow' parameter.\n+\n 2020-05-19  Pedro Alves  <palves@redhat.com>\n \n \t* gdb_bfd.c (gdb_bfd_iovec_fileio_open): Adjust."
+    },
+    {
+      "sha": "2a9c8b8ee1924cf35bd258a4e3937051961fe63f",
+      "filename": "gdb/NEWS",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 8,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/98c59b527b1472b87a9ee4959c4bfae85061bc1d/gdb/NEWS",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/98c59b527b1472b87a9ee4959c4bfae85061bc1d/gdb/NEWS",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/NEWS?ref=98c59b527b1472b87a9ee4959c4bfae85061bc1d",
+      "patch": "@@ -54,14 +54,13 @@\n \n set exec-file-mismatch -- Set exec-file-mismatch handling (ask|warn|off).\n show exec-file-mismatch -- Show exec-file-mismatch handling (ask|warn|off).\n-  Set or show the option 'exec-file-mismatch'.  When GDB attaches to\n-  a running process and can determine the name of the executable file\n-  the process runs, this new option indicates whether to detect mismatch\n-  between the name of the current executable file loaded by GDB\n-  and the name of the executable file used to start the process.\n-  If 'ask', the default, display a warning and ask the user\n-  whether to load the process executable file; if 'warn', just display\n-  a warning; if 'off', don't attempt to detect a mismatch.\n+  Set or show the option 'exec-file-mismatch'.  When GDB attaches to a\n+  running process, this new option indicates whether to detect\n+  a mismatch between the current executable file loaded by GDB and the\n+  executable file used to start the process.  If 'ask', the default,\n+  display a warning and ask the user whether to load the process\n+  executable file; if 'warn', just display a warning; if 'off', don't\n+  attempt to detect a mismatch.\n \n tui new-layout NAME WINDOW WEIGHT [WINDOW WEIGHT]...\n   Define a new TUI layout, specifying its name and the windows that"
+    },
+    {
+      "sha": "f19b8973f8ebb7be208c843140fa92d0c219d53b",
+      "filename": "gdb/doc/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/98c59b527b1472b87a9ee4959c4bfae85061bc1d/gdb/doc/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/98c59b527b1472b87a9ee4959c4bfae85061bc1d/gdb/doc/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/ChangeLog?ref=98c59b527b1472b87a9ee4959c4bfae85061bc1d",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-05-19  Pedro Alves  <palves@redhat.com>\n+\n+\t* gdb.texinfo (Attach): Update exec-file-mismatch description to\n+\tmention build IDs.\n+\t(Separate Debug Files): Add \"build id\" anchor.\n+\n 2020-05-15  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n \n \t* gdb.texinfo (Help): Document the help and apropos changes."
+    },
+    {
+      "sha": "641816284954a492d6079560b9e6ab8312efa159",
+      "filename": "gdb/doc/gdb.texinfo",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 10,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/98c59b527b1472b87a9ee4959c4bfae85061bc1d/gdb/doc/gdb.texinfo",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/98c59b527b1472b87a9ee4959c4bfae85061bc1d/gdb/doc/gdb.texinfo",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/gdb.texinfo?ref=98c59b527b1472b87a9ee4959c4bfae85061bc1d",
+      "patch": "@@ -2909,22 +2909,22 @@ the @code{file} command to load the program.  @xref{Files, ,Commands to\n Specify Files}.\n \n @anchor{set exec-file-mismatch}\n-If the debugger can determine the name of the executable file running\n-in the process it is attaching to, and this file name does not match\n-the name of the current exec-file loaded by @value{GDBN}, the option\n-@code{exec-file-mismatch} specifies how to handle the mismatch.\n+If the debugger can determine that the executable file running in the\n+process it is attaching to does not match the current exec-file loaded\n+by @value{GDBN}, the option @code{exec-file-mismatch} specifies how to\n+handle the mismatch.  @value{GDBN} tries to compare the files by\n+comparing their build IDs (@pxref{build ID}), if available.\n \n @table @code\n @kindex exec-file-mismatch\n @cindex set exec-file-mismatch\n @item set exec-file-mismatch @samp{ask|warn|off}\n \n-Whether to detect mismatch between the name of the current executable\n-file loaded by @value{GDBN} and the name of the executable file used to\n-start the process.  If @samp{ask}, the default, display a warning\n-and ask the user whether to load the process executable file; if\n-@samp{warn}, just display a warning; if @samp{off}, don't attempt to\n-detect a mismatch.\n+Whether to detect mismatch between the current executable file loaded\n+by @value{GDBN} and the executable file used to start the process.  If\n+@samp{ask}, the default, display a warning and ask the user whether to\n+load the process executable file; if @samp{warn}, just display a\n+warning; if @samp{off}, don't attempt to detect a mismatch.\n \n @cindex show exec-file-mismatch\n @item show exec-file-mismatch\n@@ -20874,6 +20874,7 @@ checksum for the debug file, which @value{GDBN} uses to validate that\n the executable and the debug file came from the same build.\n \n @item\n+@anchor{build ID}\n The executable contains a @dfn{build ID}, a unique bit string that is\n also present in the corresponding debug info file.  (This is supported\n only on some operating systems, when using the ELF or PE file formats"
+    },
+    {
+      "sha": "932270a000d0585374414ce4f46e4cd1690705ab",
+      "filename": "gdb/exec.c",
+      "status": "modified",
+      "additions": 44,
+      "deletions": 9,
+      "changes": 53,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/98c59b527b1472b87a9ee4959c4bfae85061bc1d/gdb/exec.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/98c59b527b1472b87a9ee4959c4bfae85061bc1d/gdb/exec.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/exec.c?ref=98c59b527b1472b87a9ee4959c4bfae85061bc1d",
+      "patch": "@@ -37,6 +37,7 @@\n #include \"gdb_bfd.h\"\n #include \"gcore.h\"\n #include \"source.h\"\n+#include \"build-id.h\"\n \n #include <fcntl.h>\n #include \"readline/tilde.h\"\n@@ -247,20 +248,54 @@ validate_exec_file (int from_tty)\n   struct inferior *inf = current_inferior ();\n   /* Try to determine a filename from the process itself.  */\n   const char *pid_exec_file = target_pid_to_exec_file (inf->pid);\n+  bool build_id_mismatch = false;\n \n-  /* If wee cannot validate the exec file, return.  */\n+  /* If we cannot validate the exec file, return.  */\n   if (current_exec_file == NULL || pid_exec_file == NULL)\n     return;\n \n-  std::string exec_file_target (pid_exec_file);\n+  /* Try validating via build-id, if available.  This is the most\n+     reliable check.  */\n+  const bfd_build_id *exec_file_build_id = build_id_bfd_get (exec_bfd);\n+  if (exec_file_build_id != nullptr)\n+    {\n+      /* Prepend the target prefix, to force gdb_bfd_open to open the\n+\t file on the remote file system (if indeed remote).  */\n+      std::string target_pid_exec_file\n+\t= std::string (TARGET_SYSROOT_PREFIX) + pid_exec_file;\n+\n+      gdb_bfd_ref_ptr abfd (gdb_bfd_open (target_pid_exec_file.c_str (),\n+\t\t\t\t\t  gnutarget, -1, false));\n+      if (abfd != nullptr)\n+\t{\n+\t  const bfd_build_id *target_exec_file_build_id\n+\t    = build_id_bfd_get (abfd.get ());\n \n-  /* In case the exec file is not local, exec_file_target has to point at\n-     the target file system.  */\n-  if (is_target_filename (current_exec_file) && !target_filesystem_is_local ())\n-    exec_file_target = TARGET_SYSROOT_PREFIX + exec_file_target;\n+\t  if (target_exec_file_build_id != nullptr)\n+\t    {\n+\t      if (exec_file_build_id->size == target_exec_file_build_id->size\n+\t\t  && memcmp (exec_file_build_id->data,\n+\t\t\t     target_exec_file_build_id->data,\n+\t\t\t     exec_file_build_id->size) == 0)\n+\t\t{\n+\t\t  /* Match.  */\n+\t\t  return;\n+\t\t}\n+\t      else\n+\t\tbuild_id_mismatch = true;\n+\t    }\n+\t}\n+    }\n \n-  if (exec_file_target != current_exec_file)\n+  if (build_id_mismatch)\n     {\n+      std::string exec_file_target (pid_exec_file);\n+\n+      /* In case the exec file is not local, exec_file_target has to point at\n+\t the target file system.  */\n+      if (is_target_filename (current_exec_file) && !target_filesystem_is_local ())\n+\texec_file_target = TARGET_SYSROOT_PREFIX + exec_file_target;\n+\n       warning\n \t(_(\"Mismatch between current exec-file %ps\\n\"\n \t   \"and automatically determined exec-file %ps\\n\"\n@@ -1215,8 +1250,8 @@ Set exec-file-mismatch handling (ask|warn|off).\"),\n \t\t\t_(\"\\\n Show exec-file-mismatch handling (ask|warn|off).\"),\n \t\t\t_(\"\\\n-Specifies how to handle a mismatch between the current exec-file name\\n\\\n-loaded by GDB and the exec-file name automatically determined when attaching\\n\\\n+Specifies how to handle a mismatch between the current exec-file\\n\\\n+loaded by GDB and the exec-file automatically determined when attaching\\n\\\n to a process:\\n\\n\\\n  ask  - warn the user and ask whether to load the determined exec-file.\\n\\\n  warn - warn the user, but do not change the exec-file.\\n\\"
+    },
+    {
+      "sha": "25e0178a8b8beb34e71c3d667db199227e42b569",
+      "filename": "gdb/gdb_bfd.c",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 7,
+      "changes": 23,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/98c59b527b1472b87a9ee4959c4bfae85061bc1d/gdb/gdb_bfd.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/98c59b527b1472b87a9ee4959c4bfae85061bc1d/gdb/gdb_bfd.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdb_bfd.c?ref=98c59b527b1472b87a9ee4959c4bfae85061bc1d",
+      "patch": "@@ -271,22 +271,29 @@ fileio_errno_to_host (int errnum)\n   return -1;\n }\n \n+/* bfd_openr_iovec OPEN_CLOSURE data for gdb_bfd_open.  */\n+struct gdb_bfd_open_closure\n+{\n+  inferior *inf;\n+  bool warn_if_slow;\n+};\n+\n /* Wrapper for target_fileio_open suitable for passing as the\n-   OPEN_FUNC argument to gdb_bfd_openr_iovec.  The supplied\n-   OPEN_CLOSURE is unused.  */\n+   OPEN_FUNC argument to gdb_bfd_openr_iovec.  */\n \n static void *\n-gdb_bfd_iovec_fileio_open (struct bfd *abfd, void *inferior)\n+gdb_bfd_iovec_fileio_open (struct bfd *abfd, void *open_closure)\n {\n   const char *filename = bfd_get_filename (abfd);\n   int fd, target_errno;\n   int *stream;\n+  gdb_bfd_open_closure *oclosure = (gdb_bfd_open_closure *) open_closure;\n \n   gdb_assert (is_target_filename (filename));\n \n-  fd = target_fileio_open ((struct inferior *) inferior,\n+  fd = target_fileio_open (oclosure->inf,\n \t\t\t   filename + strlen (TARGET_SYSROOT_PREFIX),\n-\t\t\t   FILEIO_O_RDONLY, 0, true,\n+\t\t\t   FILEIO_O_RDONLY, 0, oclosure->warn_if_slow,\n \t\t\t   &target_errno);\n   if (fd == -1)\n     {\n@@ -378,7 +385,8 @@ gdb_bfd_iovec_fileio_fstat (struct bfd *abfd, void *stream,\n /* See gdb_bfd.h.  */\n \n gdb_bfd_ref_ptr\n-gdb_bfd_open (const char *name, const char *target, int fd)\n+gdb_bfd_open (const char *name, const char *target, int fd,\n+\t      bool warn_if_slow)\n {\n   hashval_t hash;\n   void **slot;\n@@ -392,9 +400,10 @@ gdb_bfd_open (const char *name, const char *target, int fd)\n \t{\n \t  gdb_assert (fd == -1);\n \n+\t  gdb_bfd_open_closure open_closure { current_inferior (), warn_if_slow };\n \t  return gdb_bfd_openr_iovec (name, target,\n \t\t\t\t      gdb_bfd_iovec_fileio_open,\n-\t\t\t\t      current_inferior (),\n+\t\t\t\t      &open_closure,\n \t\t\t\t      gdb_bfd_iovec_fileio_pread,\n \t\t\t\t      gdb_bfd_iovec_fileio_close,\n \t\t\t\t      gdb_bfd_iovec_fileio_fstat);"
+    },
+    {
+      "sha": "a941b79fe73477313e0c0fc83e64070016ccc075",
+      "filename": "gdb/gdb_bfd.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/98c59b527b1472b87a9ee4959c4bfae85061bc1d/gdb/gdb_bfd.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/98c59b527b1472b87a9ee4959c4bfae85061bc1d/gdb/gdb_bfd.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdb_bfd.h?ref=98c59b527b1472b87a9ee4959c4bfae85061bc1d",
+      "patch": "@@ -78,10 +78,12 @@ typedef gdb::ref_ptr<struct bfd, gdb_bfd_ref_policy> gdb_bfd_ref_ptr;\n    If the BFD was not accessed using target fileio operations then the\n    filename associated with the BFD and accessible with\n    bfd_get_filename will not be exactly NAME but rather NAME with\n-   TARGET_SYSROOT_PREFIX stripped.  */\n+   TARGET_SYSROOT_PREFIX stripped.  If WARN_IF_SLOW is true, print a\n+   warning message if the file is being accessed over a link that may\n+   be slow.  */\n \n gdb_bfd_ref_ptr gdb_bfd_open (const char *name, const char *target,\n-\t\t\t      int fd = -1);\n+\t\t\t      int fd = -1, bool warn_if_slow = true);\n \n /* Mark the CHILD BFD as being a member of PARENT.  Also, increment\n    the reference count of CHILD.  Calling this function ensures that"
+    }
+  ]
+}

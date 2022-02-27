@@ -1,0 +1,110 @@
+{
+  "sha": "00ac85d3751b763155adb4e9d15dd134399b4e77",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MDBhYzg1ZDM3NTFiNzYzMTU1YWRiNGU5ZDE1ZGQxMzQzOTliNGU3Nw==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2020-04-16T19:46:03Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2020-04-16T19:46:36Z"
+    },
+    "message": "gdb: is_linked_with_cygwin_dll: handle import table not at beginning of .idata section\n\nWhen loading the file C:\\Windows\\SysWOW64\\msvcrt.dll, taken from a\nWindows 10 system, into GDB, we get the following warning:\n\n    warning: Failed to parse .idata section: name's virtual address (0x0) is outside .idata section's range [0xb82b8, 0xb97f0[.\n\nThis uncovers an issue with how we parse the import table, part of the\n.idata section.  Right now, we assume that the import table is located\nat the beginning of the section.  That was the case in everything I had\ntried so far, but this file is an example where that's not true.\n\nWe need to compute the offset of the import table within the .idata\nsection, and start there, instead of at the beginning of the .idata\nsection.  Using the file mentioned above, this is the values we have to\nwork with:\n\n  A) bfd_section_vma (idata_section)    101b8000\n  B) Import table's virtual address        b82b8\n  C) Image base                         10100000\n\nThe virtual address that BFD returns us for the section has the image\nbase applied, so we need to subtract it first.  The offset of the table\nin the section is therefore:\n\n    B - (A - C)\n\nThis patch implements that.\n\ngdb/ChangeLog:\n\n\t* windows-tdep.c (is_linked_with_cygwin_dll): Consider case where\n\timport table is not at beginning of .idata section.",
+    "tree": {
+      "sha": "70878801a6acb5757be71fd35df4aa770394471f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/70878801a6acb5757be71fd35df4aa770394471f"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/00ac85d3751b763155adb4e9d15dd134399b4e77",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/00ac85d3751b763155adb4e9d15dd134399b4e77",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/00ac85d3751b763155adb4e9d15dd134399b4e77",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/00ac85d3751b763155adb4e9d15dd134399b4e77/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "8e4979ac1ea78147ecbcbf81af5e946873dda079",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8e4979ac1ea78147ecbcbf81af5e946873dda079",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/8e4979ac1ea78147ecbcbf81af5e946873dda079"
+    }
+  ],
+  "stats": {
+    "total": 52,
+    "additions": 39,
+    "deletions": 13
+  },
+  "files": [
+    {
+      "sha": "ebba52faef901fbbf26b54c40995fc31c28c6279",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/00ac85d3751b763155adb4e9d15dd134399b4e77/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/00ac85d3751b763155adb4e9d15dd134399b4e77/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=00ac85d3751b763155adb4e9d15dd134399b4e77",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-04-16  Simon Marchi  <simon.marchi@polymtl.ca>\n+\n+\t* windows-tdep.c (is_linked_with_cygwin_dll): Consider case where\n+\timport table is not at beginning of .idata section.\n+\n 2020-04-16  Pedro Alves  <palves@redhat.com>\n \n \t* inferior.c (delete_inferior): Use delete operator directly"
+    },
+    {
+      "sha": "50bb9591f931824306db066f1deeaefa4d499d9e",
+      "filename": "gdb/windows-tdep.c",
+      "status": "modified",
+      "additions": 34,
+      "deletions": 13,
+      "changes": 47,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/00ac85d3751b763155adb4e9d15dd134399b4e77/gdb/windows-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/00ac85d3751b763155adb4e9d15dd134399b4e77/gdb/windows-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/windows-tdep.c?ref=00ac85d3751b763155adb4e9d15dd134399b4e77",
+      "patch": "@@ -999,11 +999,32 @@ is_linked_with_cygwin_dll (bfd *abfd)\n   if (idata_section == nullptr)\n     return false;\n \n-  /* Find the virtual address of the .idata section.  We must subtract this\n-     from the RVAs (relative virtual addresses) to obtain an offset in the\n-     section. */\n-  bfd_vma idata_addr\n-    = pe_data (abfd)->pe_opthdr.DataDirectory[PE_IMPORT_TABLE].VirtualAddress;\n+  bfd_size_type idata_section_size = bfd_section_size (idata_section);\n+  internal_extra_pe_aouthdr *pe_extra = &pe_data (abfd)->pe_opthdr;\n+  bfd_vma import_table_va = pe_extra->DataDirectory[PE_IMPORT_TABLE].VirtualAddress;\n+  bfd_vma idata_section_va = bfd_section_vma (idata_section);\n+\n+  /* The section's virtual address as reported by BFD has the image base applied,\n+     remove it.  */\n+  gdb_assert (idata_section_va >= pe_extra->ImageBase);\n+  idata_section_va -= pe_extra->ImageBase;\n+\n+  bfd_vma idata_section_end_va = idata_section_va + idata_section_size;\n+\n+  /* Make sure that the import table is indeed within the .idata section's range.  */\n+  if (import_table_va < idata_section_va\n+      || import_table_va >= idata_section_end_va)\n+    {\n+      warning (_(\"\\\n+%s: import table's virtual address (0x%\" BFD_VMA_FMT \"x) is outside .idata \\\n+section's range [0x%\" BFD_VMA_FMT \"x, 0x%\" BFD_VMA_FMT \"x[.\"),\n+\t       bfd_get_filename (abfd), import_table_va, idata_section_va,\n+\t       idata_section_end_va);\n+      return false;\n+    }\n+\n+  /* The import table starts at this offset into the .idata section.  */\n+  bfd_vma import_table_offset_in_sect = import_table_va - idata_section_va;\n \n   /* Get the section's data.  */\n   gdb::byte_vector idata_contents;\n@@ -1013,9 +1034,10 @@ is_linked_with_cygwin_dll (bfd *abfd)\n       return false;\n     }\n \n-  size_t idata_size = idata_contents.size ();\n-  const gdb_byte *iter = idata_contents.data ();\n-  const gdb_byte *end = idata_contents.data () + idata_size;\n+  gdb_assert (idata_contents.size () == idata_section_size);\n+\n+  const gdb_byte *iter = idata_contents.data () + import_table_offset_in_sect;\n+  const gdb_byte *end = idata_contents.data () + idata_section_size;\n   const pe_import_directory_entry null_dir_entry = { 0 };\n \n   /* Iterate through all directory entries.  */\n@@ -1036,21 +1058,20 @@ is_linked_with_cygwin_dll (bfd *abfd)\n \t\t  sizeof (pe_import_directory_entry)) == 0)\n \tbreak;\n \n-      bfd_vma name_addr = dir_entry->name_rva;\n+      bfd_vma name_va = dir_entry->name_rva;\n \n       /* If the name's virtual address is smaller than the section's virtual\n          address, there's a problem.  */\n-      if (name_addr < idata_addr\n-\t  || name_addr >= (idata_addr + idata_size))\n+      if (name_va < idata_section_va || name_va >= idata_section_end_va)\n \t{\n \t  warning (_(\"\\\n Failed to parse .idata section: name's virtual address (0x%\" BFD_VMA_FMT \"x) \\\n is outside .idata section's range [0x%\" BFD_VMA_FMT \"x, 0x%\" BFD_VMA_FMT \"x[.\"),\n-\t\t   name_addr, idata_addr, idata_addr + idata_size);\n+\t\t   name_va, idata_section_va, idata_section_end_va);\n \t  break;\n \t}\n \n-      const gdb_byte *name = &idata_contents[name_addr - idata_addr];\n+      const gdb_byte *name = &idata_contents[name_va - idata_section_va];\n \n       /* Make sure we don't overshoot the end of the section with the streq.  */\n       if (name + sizeof (CYGWIN_DLL_NAME) > end)"
+    }
+  ]
+}

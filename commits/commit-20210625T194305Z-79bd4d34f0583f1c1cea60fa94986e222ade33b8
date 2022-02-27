@@ -1,0 +1,158 @@
+{
+  "sha": "79bd4d34f0583f1c1cea60fa94986e222ade33b8",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NzliZDRkMzRmMDU4M2YxYzFjZWE2MGZhOTQ5ODZlMjIyYWRlMzNiOA==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-06-21T22:33:11Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-06-25T19:43:05Z"
+    },
+    "message": "gdb: fix regression in evaluate_funcall for non C++ like cases\n\nThis regression, as it is exposed by the test added in this commit,\nfirst became noticable with this commit:\n\n  commit d182f2797922a305fbd1ef6a483cc39a56b43e02\n  Date:   Mon Mar 8 07:27:57 2021 -0700\n\n      Convert c-exp.y to use operations\n\nBut, this commit only added converted the C expression parser to make\nuse of code that was added in this commit:\n\n  commit a00b7254fb614af557de7ae7cc0eb39a0ce0e408\n  Date:   Mon Mar 8 07:27:57 2021 -0700\n\n      Implement function call operations\n\nAnd it was this second commit that actually introduced the bugs (there\nare two).\n\nIn structop_base_operation::evaluate_funcall we build up an argument\nlist in the vector vals.  Later in this function the argument list\nmight be passed to value_struct_elt.\n\nPrior to commit a00b7254fb614 the vals vector (or argvec as it used to\nbe called) stored the value for the function callee in the argvec at\nindex 0.  This 'callee' value is what ends up being passed to\nevaluate_subexp_do_call, and represents the function to be called, the\nvalue contents are the address of the function, and the value type is\nthe function signature.  The remaining items held in the argvec were\nthe values to pass to the function.  For a non-static member function\nthe `this' pointer would be at index 1 in the array.\n\nAfter commit a00b7254fb614 this callee value is now held in a separate\nvariable, not the vals array.  So, for non-static member functions,\nthe `this' pointer is now at index 0, with any other arguments after\nthat.\n\nWhat this means is that previous, when we called value_struct_elt we\nwould pass the address of argvec[1] as this was the first argument.\nBut now we should be passing the address of vals[0].  Unfortunately,\nwe are still passing vals[1], effectively skipping the first\nargument.\n\nThe second issue is that, prior to commit a00b7254fb614, the argvec\narray was NULL terminated.  This is required as value_struct_elt\ncalls search_struct_method, which calls typecmp, and typecmp requires\nthat the array have a NULL at the end.\n\nAfter commit a00b7254fb614 this NULL has been lost, and we are\ntherefore violating the API requirements of typecmp.\n\nThis commit fixes both of these regressions.  I also extended the\nheader comments on search_struct_method and value_struct_elt to make\nit clearer that the array required a NULL marker at the end.\n\nYou will notice in the test attached to this commit that I test\ncalling a non-static member function, but not calling a static member\nfunction.  The reason for this is that calling static member functions\nis currently broken due to a different bug.  That will be fixed in a\nlater patch in this series, at which time I'll add a test for calling\na static member function.\n\ngdb/ChangeLog:\n\n\tPR gdb/27994\n\t* eval.c (structop_base_operation::evaluate_funcall): Add a\n\tnullptr to the end of the args array, which should not be included\n\tin the argument array_view.  Pass all the arguments through to\n\tvalue_struct_elt.\n\t* valops.c (search_struct_method): Update header comment.\n\t(value_struct_elt): Likewise.\n\ngdb/testsuite/ChangeLog:\n\n\tPR gdb/27994\n\t* gdb.cp/method-call-in-c.cc: New file.\n\t* gdb.cp/method-call-in-c.exp: New file.",
+    "tree": {
+      "sha": "c1a646ab831a8496764718f5dbe8e76f3af525da",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c1a646ab831a8496764718f5dbe8e76f3af525da"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/79bd4d34f0583f1c1cea60fa94986e222ade33b8",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/79bd4d34f0583f1c1cea60fa94986e222ade33b8",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/79bd4d34f0583f1c1cea60fa94986e222ade33b8",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/79bd4d34f0583f1c1cea60fa94986e222ade33b8/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "3da4c6449b1ce57accfb1b9fa8415ad1cf42039b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3da4c6449b1ce57accfb1b9fa8415ad1cf42039b",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/3da4c6449b1ce57accfb1b9fa8415ad1cf42039b"
+    }
+  ],
+  "stats": {
+    "total": 125,
+    "additions": 121,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "04ea77f06e23b158f08360a4cb242e51336d779a",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/79bd4d34f0583f1c1cea60fa94986e222ade33b8/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/79bd4d34f0583f1c1cea60fa94986e222ade33b8/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=79bd4d34f0583f1c1cea60fa94986e222ade33b8",
+      "patch": "@@ -1,3 +1,13 @@\n+2021-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\tPR gdb/27994\n+\t* eval.c (structop_base_operation::evaluate_funcall): Add a\n+\tnullptr to the end of the args array, which should not be included\n+\tin the argument array_view.  Pass all the arguments through to\n+\tvalue_struct_elt.\n+\t* valops.c (search_struct_method): Update header comment.\n+\t(value_struct_elt): Likewise.\n+\n 2021-06-25  Tom Tromey  <tom@tromey.com>\n \n \t* dwarf2/read.c (create_addrmap_from_aranges): Change padding"
+    },
+    {
+      "sha": "ab070a3d9f66c1fdcec059c659539b6f8df59607",
+      "filename": "gdb/eval.c",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 3,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/79bd4d34f0583f1c1cea60fa94986e222ade33b8/gdb/eval.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/79bd4d34f0583f1c1cea60fa94986e222ade33b8/gdb/eval.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/eval.c?ref=79bd4d34f0583f1c1cea60fa94986e222ade33b8",
+      "patch": "@@ -872,7 +872,9 @@ structop_base_operation::evaluate_funcall\n      (struct type *expect_type, struct expression *exp, enum noside noside,\n       const std::vector<operation_up> &args)\n {\n-  std::vector<value *> vals (args.size () + 1);\n+  /* Allocate space for the function call arguments.  Include space for a\n+     `this' pointer at the start, and a trailing nullptr.  */\n+  std::vector<value *> vals (args.size () + 2);\n   /* First, evaluate the structure into vals[0].  */\n   enum exp_opcode op = opcode ();\n   if (op == STRUCTOP_STRUCT)\n@@ -918,9 +920,16 @@ structop_base_operation::evaluate_funcall\n \t}\n     }\n \n+  /* Evaluate the arguments, and add the trailing nullptr.  The '+ 1' here\n+     is to allow for the `this' pointer we placed into vals[0].  */\n   for (int i = 0; i < args.size (); ++i)\n     vals[i + 1] = args[i]->evaluate_with_coercion (exp, noside);\n-  gdb::array_view<value *> arg_view = vals;\n+  vals[args.size () + 1] = nullptr;\n+\n+  /* The array view includes the `this' pointer, but not the trailing\n+     nullptr.  */\n+  gdb::array_view<value *> arg_view\n+    = gdb::make_array_view (&vals[0], args.size () + 1);\n \n   int static_memfuncp;\n   value *callee;\n@@ -941,7 +950,7 @@ structop_base_operation::evaluate_funcall\n     {\n       struct value *temp = vals[0];\n \n-      callee = value_struct_elt (&temp, &vals[1], tstr,\n+      callee = value_struct_elt (&temp, &vals[0], tstr,\n \t\t\t\t &static_memfuncp,\n \t\t\t\t op == STRUCTOP_STRUCT\n \t\t\t\t ? \"structure\" : \"structure pointer\");"
+    },
+    {
+      "sha": "878921d0932e2abb26adeaafd15141eaba4ca012",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/79bd4d34f0583f1c1cea60fa94986e222ade33b8/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/79bd4d34f0583f1c1cea60fa94986e222ade33b8/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=79bd4d34f0583f1c1cea60fa94986e222ade33b8",
+      "patch": "@@ -1,3 +1,9 @@\n+2021-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\tPR gdb/27994\n+\t* gdb.cp/method-call-in-c.cc: New file.\n+\t* gdb.cp/method-call-in-c.exp: New file.\n+\n 2021-06-25  Tom Tromey  <tom@tromey.com>\n \n \t* lib/gdb.exp (add_gdb_index, ensure_gdb_index): Add \"style\""
+    },
+    {
+      "sha": "09e4285ed5d3b7e535bfca97b9105b4cde525a31",
+      "filename": "gdb/testsuite/gdb.cp/method-call-in-c.cc",
+      "status": "added",
+      "additions": 44,
+      "deletions": 0,
+      "changes": 44,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/79bd4d34f0583f1c1cea60fa94986e222ade33b8/gdb/testsuite/gdb.cp/method-call-in-c.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/79bd4d34f0583f1c1cea60fa94986e222ade33b8/gdb/testsuite/gdb.cp/method-call-in-c.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.cp/method-call-in-c.cc?ref=79bd4d34f0583f1c1cea60fa94986e222ade33b8",
+      "patch": "@@ -0,0 +1,44 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2021 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+struct baz_type\n+{\n+  int a = 0;\n+  int b = 1;\n+  int c = 2;\n+};\n+\n+struct foo_type\n+{\n+  int func (baz_type b, float f)\n+  {\n+    return var++;\n+  }\n+\n+  int var = 123;\n+};\n+\n+int\n+main (void)\n+{\n+  baz_type b = {};\n+  float f = 1.0;\n+\n+  foo_type foo;\n+\n+  return foo.func (b, f);\t/* Break here.  */\n+}"
+    },
+    {
+      "sha": "0e6851b3478b0988a7a050daa9df8cc50d440549",
+      "filename": "gdb/testsuite/gdb.cp/method-call-in-c.exp",
+      "status": "added",
+      "additions": 43,
+      "deletions": 0,
+      "changes": 43,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/79bd4d34f0583f1c1cea60fa94986e222ade33b8/gdb/testsuite/gdb.cp/method-call-in-c.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/79bd4d34f0583f1c1cea60fa94986e222ade33b8/gdb/testsuite/gdb.cp/method-call-in-c.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.cp/method-call-in-c.exp?ref=79bd4d34f0583f1c1cea60fa94986e222ade33b8",
+      "patch": "@@ -0,0 +1,43 @@\n+# Copyright 2021 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Ensure that calling a member function works correctly even when the\n+# language is forced to 'C' (this should be fine, so long at no\n+# overload resolution is required), or when overload-resolution is\n+# off.\n+\n+standard_testfile .cc\n+\n+if { [prepare_for_testing \"failed to prepare\" $testfile $srcfile] } {\n+    return -1\n+}\n+\n+if ![runto_main] then {\n+    return 0\n+}\n+\n+gdb_breakpoint [gdb_get_line_number \"Break here\"]\n+gdb_continue_to_breakpoint \"Break here\"\n+\n+set result 123\n+foreach_with_prefix lang { c++ c } {\n+    foreach_with_prefix overload_resolution { on off } {\n+\tgdb_test_no_output \"set overload-resolution ${overload_resolution}\"\n+\tgdb_test \"set language ${lang}\"\n+\n+\tgdb_test \"print foo.func (b, f)\" \" = ${result}\"\n+\tincr result\n+    }\n+}"
+    },
+    {
+      "sha": "2b579304204e6deba190b045aace2f65ee84f84f",
+      "filename": "gdb/valops.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 1,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/79bd4d34f0583f1c1cea60fa94986e222ade33b8/gdb/valops.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/79bd4d34f0583f1c1cea60fa94986e222ade33b8/gdb/valops.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/valops.c?ref=79bd4d34f0583f1c1cea60fa94986e222ade33b8",
+      "patch": "@@ -2181,6 +2181,10 @@ search_struct_field (const char *name, struct value *arg1,\n    ARG1 by OFFSET bytes, and search in it assuming it has (class) type\n    TYPE.\n \n+   The ARGS array is a list of argument values used to help finding NAME,\n+   though ARGS can be nullptr.  If ARGS is not nullptr then the list itself\n+   must have a NULL at the end.\n+\n    If found, return value, else if name matched and args not return\n    (value) -1, else return NULL.  */\n \n@@ -2309,7 +2313,8 @@ search_struct_method (const char *name, struct value **arg1p,\n    ERR is used in the error message if *ARGP's type is wrong.\n \n    C++: ARGS is a list of argument types to aid in the selection of\n-   an appropriate method.  Also, handle derived types.\n+   an appropriate method.  Also, handle derived types.  The array ARGS must\n+   have a NULL at the end.\n \n    STATIC_MEMFUNCP, if non-NULL, points to a caller-supplied location\n    where the truthvalue of whether the function that was resolved was"
+    }
+  ]
+}

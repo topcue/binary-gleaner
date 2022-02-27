@@ -1,0 +1,254 @@
+{
+  "sha": "cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404",
+  "node_id": "C_kwDOANOeidoAKGNkM2Y2NTVjYzdhNTU0MzdhMDVhYThlN2IxZmNjOTA1MWI1ZmU0MDQ",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-10-01T02:38:29Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2021-10-07T15:03:54Z"
+    },
+    "message": "gdb: add accessors for field (and call site) location\n\nAdd accessors for the various location values in struct field.  This\nlets us assert that when we get a location value of a certain kind (say,\nbitpos), the field's location indeed contains a value of that kind.\n\nRemove the SET_FIELD_* macros, instead use the new setters directly.\nUpdate the FIELD_* macros used to access field locations to go through\nthe getters.  They will be removed in a subsequent patch.\n\nThere are places where the FIELD_* macros are used on call_site_target\nstructures, because it contains members of the same name (loc_kind and\nloc).  For now, I have replicated the getters/setters in\ncall_site_target.  But we could perhaps eventually factor them in a\n\"location\" structure that can be used at both places.\n\nNote that the field structure, being zero-initialized, defaults to a\nbitpos location with value 0.  While writing this patch, I tried to make\nit default to an \"unset\" location, to catch places where we would miss\nsetting a field's location.  However, I found that some places relied on\nthe default being \"bitpos 0\", so I left it as-is.  This change could\nalways be done as follow-up work, making these places explicitly set the\n\"bitpos 0\" location.\n\nI found two issues to fix:\n\n - I got some failures in the gdb.base/infcall-nested-structs-c++.exp\n   test.  They were caused by two functions in amd64-tdep.c using\n   TYPE_FIELD_BITPOS before checking if the location is of the bitpos\n   kind, which they do indirectly through `field_is_static`.  Simply\n   move getting the bitpos below the field_is_static call.\n\n - I got a failure in gdb.xml/tdesc-regs.exp.  It turns out that in\n   make_gdb_type_enum, we set enum field values using SET_FIELD_BITPOS,\n   and later access them through FIELD_ENUMVAL.  Fix that by using\n   set_loc_enumval to set the value.\n\nChange-Id: I53d3734916c46457576ba11dd77df4049d2fc1e8",
+    "tree": {
+      "sha": "6ac5ac49884488ff6e8856d8d1ae7964a47866fe",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/6ac5ac49884488ff6e8856d8d1ae7964a47866fe"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "8baf3d07567f886be683aa26e3fc92346b604a93",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8baf3d07567f886be683aa26e3fc92346b604a93",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/8baf3d07567f886be683aa26e3fc92346b604a93"
+    }
+  ],
+  "stats": {
+    "total": 294,
+    "additions": 189,
+    "deletions": 105
+  },
+  "files": [
+    {
+      "sha": "98718bcc98bf2f434c66240fa6854296b4fd4c84",
+      "filename": "gdb/ada-lang.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/ada-lang.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/ada-lang.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ada-lang.c?ref=cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404",
+      "patch": "@@ -7503,7 +7503,7 @@ ada_template_to_fixed_record_type_1 (struct type *type,\n     {\n       off = align_up (off, field_alignment (type, f))\n \t+ TYPE_FIELD_BITPOS (type, f);\n-      SET_FIELD_BITPOS (rtype->field (f), off);\n+      rtype->field (f).set_loc_bitpos (off);\n       TYPE_FIELD_BITSIZE (rtype, f) = 0;\n \n       if (ada_is_variant_part (type, f))"
+    },
+    {
+      "sha": "477612080883a01680cd330c0b064693e37c31d9",
+      "filename": "gdb/amd64-tdep.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 5,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/amd64-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/amd64-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/amd64-tdep.c?ref=cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404",
+      "patch": "@@ -553,7 +553,6 @@ amd64_has_unaligned_fields (struct type *type)\n       for (int i = 0; i < type->num_fields (); i++)\n \t{\n \t  struct type *subtype = check_typedef (type->field (i).type ());\n-\t  int bitpos = TYPE_FIELD_BITPOS (type, i);\n \n \t  /* Ignore static fields, empty fields (for example nested\n \t     empty structures), and bitfields (these are handled by\n@@ -564,6 +563,8 @@ amd64_has_unaligned_fields (struct type *type)\n \t      || TYPE_FIELD_PACKED (type, i))\n \t    continue;\n \n+\t  int bitpos = TYPE_FIELD_BITPOS (type, i);\n+\n \t  if (bitpos % 8 != 0)\n \t    return true;\n \n@@ -592,21 +593,21 @@ amd64_classify_aggregate_field (struct type *type, int i,\n \t\t\t\tunsigned int bitoffset)\n {\n   struct type *subtype = check_typedef (type->field (i).type ());\n-  int bitpos = bitoffset + TYPE_FIELD_BITPOS (type, i);\n-  int pos = bitpos / 64;\n   enum amd64_reg_class subclass[2];\n   int bitsize = TYPE_FIELD_BITSIZE (type, i);\n-  int endpos;\n \n   if (bitsize == 0)\n     bitsize = TYPE_LENGTH (subtype) * 8;\n-  endpos = (bitpos + bitsize - 1) / 64;\n \n   /* Ignore static fields, or empty fields, for example nested\n      empty structures.*/\n   if (field_is_static (&type->field (i)) || bitsize == 0)\n     return;\n \n+  int bitpos = bitoffset + TYPE_FIELD_BITPOS (type, i);\n+  int pos = bitpos / 64;\n+  int endpos = (bitpos + bitsize - 1) / 64;\n+\n   if (subtype->code () == TYPE_CODE_STRUCT\n       || subtype->code () == TYPE_CODE_UNION)\n     {"
+    },
+    {
+      "sha": "225e0e28e956968d8188a0b25c6998ee13246504",
+      "filename": "gdb/coffread.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/coffread.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/coffread.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/coffread.c?ref=cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404",
+      "patch": "@@ -2012,7 +2012,7 @@ coff_read_struct_type (int index, int length, int lastsym,\n \t\t\t\t\t\tname));\n \t  list->field.set_type (decode_type (ms, ms->c_type, &sub_aux,\n \t\t\t\t\t     objfile));\n-\t  SET_FIELD_BITPOS (list->field, 8 * ms->c_value);\n+\t  list->field.set_loc_bitpos (8 * ms->c_value);\n \t  FIELD_BITSIZE (list->field) = 0;\n \t  nfields++;\n \t  break;\n@@ -2029,7 +2029,7 @@ coff_read_struct_type (int index, int length, int lastsym,\n \t\t\t\t\t\tname));\n \t  list->field.set_type (decode_type (ms, ms->c_type, &sub_aux,\n \t\t\t\t\t     objfile));\n-\t  SET_FIELD_BITPOS (list->field, ms->c_value);\n+\t  list->field.set_loc_bitpos (ms->c_value);\n \t  FIELD_BITSIZE (list->field) = sub_aux.x_sym.x_misc.x_lnsz.x_size;\n \t  nfields++;\n \t  break;\n@@ -2145,7 +2145,7 @@ coff_read_enum_type (int index, int length, int lastsym,\n \n \t  SYMBOL_TYPE (xsym) = type;\n \t  type->field (n).set_name (xsym->linkage_name ());\n-\t  SET_FIELD_ENUMVAL (type->field (n), SYMBOL_VALUE (xsym));\n+\t  type->field (n).set_loc_enumval (SYMBOL_VALUE (xsym));\n \t  if (SYMBOL_VALUE (xsym) < 0)\n \t    unsigned_enum = 0;\n \t  TYPE_FIELD_BITSIZE (type, n) = 0;"
+    },
+    {
+      "sha": "ef7276af07491206d3c71ea255578beadc1934b4",
+      "filename": "gdb/cp-valprint.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/cp-valprint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/cp-valprint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cp-valprint.c?ref=cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404",
+      "patch": "@@ -735,13 +735,13 @@ test_print_fields (gdbarch *arch)\n   if (gdbarch_byte_order (arch) == BFD_ENDIAN_LITTLE)\n     {\n       f = append_composite_type_field_raw (the_struct, \"A\", bool_type);\n-      SET_FIELD_BITPOS (*f, 1);\n+      f->set_loc_bitpos (1);\n       FIELD_BITSIZE (*f) = 1;\n       f = append_composite_type_field_raw (the_struct, \"B\", uint8_type);\n-      SET_FIELD_BITPOS (*f, 3);\n+      f->set_loc_bitpos (3);\n       FIELD_BITSIZE (*f) = 3;\n       f = append_composite_type_field_raw (the_struct, \"C\", bool_type);\n-      SET_FIELD_BITPOS (*f, 7);\n+      f->set_loc_bitpos (7);\n       FIELD_BITSIZE (*f) = 1;\n     }\n   /* According to the logic commented in \"make_gdb_type_struct ()\" of\n@@ -750,13 +750,13 @@ test_print_fields (gdbarch *arch)\n   else\n     {\n       f = append_composite_type_field_raw (the_struct, \"A\", bool_type);\n-      SET_FIELD_BITPOS (*f, 30);\n+      f->set_loc_bitpos (30);\n       FIELD_BITSIZE (*f) = 1;\n       f = append_composite_type_field_raw (the_struct, \"B\", uint8_type);\n-      SET_FIELD_BITPOS (*f, 26);\n+      f->set_loc_bitpos (26);\n       FIELD_BITSIZE (*f) = 3;\n       f = append_composite_type_field_raw (the_struct, \"C\", bool_type);\n-      SET_FIELD_BITPOS (*f, 24);\n+      f->set_loc_bitpos (24);\n       FIELD_BITSIZE (*f) = 1;\n     }\n "
+    },
+    {
+      "sha": "712683b98ab88255d4f294137e532ef9734498b4",
+      "filename": "gdb/ctfread.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/ctfread.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/ctfread.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ctfread.c?ref=cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404",
+      "patch": "@@ -418,7 +418,7 @@ ctf_add_member_cb (const char *name,\n     process_struct_members (ccp, tid, t);\n \n   fp->set_type (t);\n-  SET_FIELD_BITPOS (*fp, offset / TARGET_CHAR_BIT);\n+  fp->set_loc_bitpos (offset / TARGET_CHAR_BIT);\n   FIELD_BITSIZE (*fp) = get_bitsize (ccp->fp, tid, kind);\n \n   fip->fields.emplace_back (new_field);\n@@ -440,7 +440,7 @@ ctf_add_enum_member_cb (const char *name, int enum_value, void *arg)\n   fp = &new_field.field;\n   fp->set_name (name);\n   fp->set_type (nullptr);\n-  SET_FIELD_ENUMVAL (*fp, enum_value);\n+  fp->set_loc_enumval (enum_value);\n   FIELD_BITSIZE (*fp) = 0;\n \n   if (name != nullptr)"
+    },
+    {
+      "sha": "cbd9a3012eb7098c1cc35699db6cf4969ceefc89",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 21,
+      "changes": 41,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404",
+      "patch": "@@ -9093,7 +9093,7 @@ quirk_rust_enum (struct type *type, struct objfile *objfile)\n       type->field (0).set_type (field_type);\n       TYPE_FIELD_ARTIFICIAL (type, 0) = 1;\n       type->field (0).set_name (\"<<discriminant>>\");\n-      SET_FIELD_BITPOS (type->field (0), bit_offset);\n+      type->field (0).set_loc_bitpos (bit_offset);\n \n       /* The order of fields doesn't really matter, so put the real\n \t field at index 1 and the data-less field at index 2.  */\n@@ -9113,7 +9113,7 @@ quirk_rust_enum (struct type *type, struct objfile *objfile)\n       /* NAME points into the original discriminant name, which\n \t already has the correct lifetime.  */\n       type->field (2).set_name (name);\n-      SET_FIELD_BITPOS (type->field (2), 0);\n+      type->field (2).set_loc_bitpos (0);\n \n       /* Indicate that this is a variant type.  */\n       static discriminant_range ranges[1] = { { 0, 0 } };\n@@ -13469,7 +13469,8 @@ read_call_site_scope (struct die_info *die, struct dwarf2_cu *cu)\n       /* This was a pre-DWARF-5 GNU extension alias for DW_AT_call_origin.  */\n       attr = dwarf2_attr (die, DW_AT_abstract_origin, cu);\n     }\n-  SET_FIELD_DWARF_BLOCK (call_site->target, NULL);\n+\n+  call_site->target.set_loc_dwarf_block (nullptr);\n   if (!attr || (attr->form_is_block () && attr->as_block ()->size == 0))\n     /* Keep NULL DWARF_BLOCK.  */;\n   else if (attr->form_is_block ())\n@@ -13483,7 +13484,7 @@ read_call_site_scope (struct die_info *die, struct dwarf2_cu *cu)\n       dlbaton->per_objfile = per_objfile;\n       dlbaton->per_cu = cu->per_cu;\n \n-      SET_FIELD_DWARF_BLOCK (call_site->target, dlbaton);\n+      call_site->target.set_loc_dwarf_block (dlbaton);\n     }\n   else if (attr->form_is_ref ())\n     {\n@@ -13505,7 +13506,7 @@ read_call_site_scope (struct die_info *die, struct dwarf2_cu *cu)\n \t\t\t \"physname, for referencing DIE %s [in module %s]\"),\n \t\t       sect_offset_str (die->sect_off), objfile_name (objfile));\n \t  else\n-\t    SET_FIELD_PHYSNAME (call_site->target, target_physname);\n+\t    call_site->target.set_loc_physname (target_physname);\n \t}\n       else\n \t{\n@@ -13521,7 +13522,7 @@ read_call_site_scope (struct die_info *die, struct dwarf2_cu *cu)\n \t    {\n \t      lowpc = (gdbarch_adjust_dwarf2_addr (gdbarch, lowpc + baseaddr)\n \t\t       - baseaddr);\n-\t      SET_FIELD_PHYSADDR (call_site->target, lowpc);\n+\t      call_site->target.set_loc_physaddr (lowpc);\n \t    }\n \t}\n     }\n@@ -14483,7 +14484,7 @@ handle_member_location (struct die_info *die, struct dwarf2_cu *cu,\n       if (attr->form_is_constant ())\n \t{\n \t  LONGEST offset = attr->constant_value (0);\n-\t  SET_FIELD_BITPOS (*field, offset * bits_per_byte);\n+\t  field->set_loc_bitpos (offset * bits_per_byte);\n \t}\n       else if (attr->form_is_section_offset ())\n \tdwarf2_complex_location_expr_complaint ();\n@@ -14492,7 +14493,7 @@ handle_member_location (struct die_info *die, struct dwarf2_cu *cu,\n \t  bool handled;\n \t  CORE_ADDR offset = decode_locdesc (attr->as_block (), cu, &handled);\n \t  if (handled)\n-\t    SET_FIELD_BITPOS (*field, offset * bits_per_byte);\n+\t    field->set_loc_bitpos (offset * bits_per_byte);\n \t  else\n \t    {\n \t      dwarf2_per_objfile *per_objfile = cu->per_objfile;\n@@ -14509,7 +14510,7 @@ handle_member_location (struct die_info *die, struct dwarf2_cu *cu,\n \t      dlbaton->per_objfile = per_objfile;\n \t      dlbaton->per_cu = cu->per_cu;\n \n-\t      SET_FIELD_DWARF_BLOCK (*field, dlbaton);\n+\t      field->set_loc_dwarf_block (dlbaton);\n \t    }\n \t}\n       else\n@@ -14519,7 +14520,7 @@ handle_member_location (struct die_info *die, struct dwarf2_cu *cu,\n     {\n       attr = dwarf2_attr (die, DW_AT_data_bit_offset, cu);\n       if (attr != nullptr)\n-\tSET_FIELD_BITPOS (*field, attr->constant_value (0));\n+\tfield->set_loc_bitpos (attr->constant_value (0));\n     }\n }\n \n@@ -14568,7 +14569,7 @@ dwarf2_add_field (struct field_info *fip, struct die_info *die,\n       /* Get type of field.  */\n       fp->set_type (die_type (die, cu));\n \n-      SET_FIELD_BITPOS (*fp, 0);\n+      fp->set_loc_bitpos (0);\n \n       /* Get bit size of field (zero if none).  */\n       attr = dwarf2_attr (die, DW_AT_bit_size, cu);\n@@ -14593,8 +14594,7 @@ dwarf2_add_field (struct field_info *fip, struct die_info *die,\n \t\t anonymous object to the MSB of the field.  We don't\n \t\t have to do anything special since we don't need to\n \t\t know the size of the anonymous object.  */\n-\t      SET_FIELD_BITPOS (*fp, (FIELD_BITPOS (*fp)\n-\t\t\t\t      + attr->constant_value (0)));\n+\t      fp->set_loc_bitpos ((FIELD_BITPOS (*fp) + attr->constant_value (0)));\n \t    }\n \t  else\n \t    {\n@@ -14623,10 +14623,9 @@ dwarf2_add_field (struct field_info *fip, struct die_info *die,\n \t\t     bit field.  */\n \t\t  anonymous_size = TYPE_LENGTH (fp->type ());\n \t\t}\n-\t      SET_FIELD_BITPOS (*fp,\n-\t\t\t\t(FIELD_BITPOS (*fp)\n-\t\t\t\t + anonymous_size * bits_per_byte\n-\t\t\t\t - bit_offset - FIELD_BITSIZE (*fp)));\n+\t      fp->set_loc_bitpos (FIELD_BITPOS (*fp)\n+\t\t\t      + anonymous_size * bits_per_byte\n+\t\t\t      - bit_offset - FIELD_BITSIZE (*fp));\n \t    }\n \t}\n \n@@ -14682,7 +14681,7 @@ dwarf2_add_field (struct field_info *fip, struct die_info *die,\n \n       /* The name is already allocated along with this objfile, so we don't\n \t need to duplicate it for the type.  */\n-      SET_FIELD_PHYSNAME (*fp, physname ? physname : \"\");\n+      fp->set_loc_physname (physname ? physname : \"\");\n       fp->set_type (die_type (die, cu));\n       fp->set_name (fieldname);\n     }\n@@ -16142,7 +16141,7 @@ update_enumeration_type_from_children (struct die_info *die,\n       fields.emplace_back ();\n       struct field &field = fields.back ();\n       field.set_name (dwarf2_physname (name, child_die, cu));\n-      SET_FIELD_ENUMVAL (field, value);\n+      field.set_loc_enumval (value);\n     }\n \n   if (!fields.empty ())\n@@ -16416,7 +16415,7 @@ recognize_bound_expression (struct die_info *die, enum dwarf_attribute name,\n   else\n     return false;\n \n-  SET_FIELD_BITPOS (*field, 8 * offset);\n+  field->set_loc_bitpos (8 * offset);\n   if (size != TYPE_LENGTH (field->type ()))\n     FIELD_BITSIZE (*field) = 8 * size;\n \n@@ -16564,7 +16563,7 @@ quirk_ada_thick_pointer (struct die_info *die, struct dwarf2_cu *cu,\n \n   result->field (1).set_name (\"P_BOUNDS\");\n   result->field (1).set_type (lookup_pointer_type (bounds));\n-  SET_FIELD_BITPOS (result->field (1), 8 * bounds_offset);\n+  result->field (1).set_loc_bitpos (8 * bounds_offset);\n \n   result->set_name (type->name ());\n   TYPE_LENGTH (result) = (TYPE_LENGTH (result->field (0).type ())"
+    },
+    {
+      "sha": "de73a2b5608d86187e65ace2202b9b69bfd7ff69",
+      "filename": "gdb/gdbtypes.c",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 19,
+      "changes": 33,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/gdbtypes.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/gdbtypes.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbtypes.c?ref=cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404",
+      "patch": "@@ -2599,8 +2599,8 @@ resolve_dynamic_struct (struct type *type,\n \t  CORE_ADDR addr;\n \t  if (dwarf2_evaluate_property (&prop, nullptr, addr_stack, &addr,\n \t\t\t\t\ttrue))\n-\t    SET_FIELD_BITPOS (resolved_type->field (i),\n-\t\t\t      TARGET_CHAR_BIT * (addr - addr_stack->addr));\n+\t    resolved_type->field (i).set_loc_bitpos\n+\t      (TARGET_CHAR_BIT * (addr - addr_stack->addr));\n \t}\n \n       /* As we know this field is not a static field, the field's\n@@ -5561,25 +5561,22 @@ copy_type_recursive (struct objfile *objfile,\n \t  switch (TYPE_FIELD_LOC_KIND (type, i))\n \t    {\n \t    case FIELD_LOC_KIND_BITPOS:\n-\t      SET_FIELD_BITPOS (new_type->field (i),\n-\t\t\t\tTYPE_FIELD_BITPOS (type, i));\n+\t      new_type->field (i).set_loc_bitpos (TYPE_FIELD_BITPOS (type, i));\n \t      break;\n \t    case FIELD_LOC_KIND_ENUMVAL:\n-\t      SET_FIELD_ENUMVAL (new_type->field (i),\n-\t\t\t\t TYPE_FIELD_ENUMVAL (type, i));\n+\t      new_type->field (i).set_loc_enumval (TYPE_FIELD_ENUMVAL (type, i));\n \t      break;\n \t    case FIELD_LOC_KIND_PHYSADDR:\n-\t      SET_FIELD_PHYSADDR (new_type->field (i),\n-\t\t\t\t  TYPE_FIELD_STATIC_PHYSADDR (type, i));\n+\t      new_type->field (i).set_loc_physaddr\n+\t\t(TYPE_FIELD_STATIC_PHYSADDR (type, i));\n \t      break;\n \t    case FIELD_LOC_KIND_PHYSNAME:\n-\t      SET_FIELD_PHYSNAME (new_type->field (i),\n-\t\t\t\t  xstrdup (TYPE_FIELD_STATIC_PHYSNAME (type,\n-\t\t\t\t\t\t\t\t       i)));\n+\t      new_type->field (i).set_loc_physname\n+\t\t(xstrdup (TYPE_FIELD_STATIC_PHYSNAME (type, i)));\n \t      break;\n             case FIELD_LOC_KIND_DWARF_BLOCK:\n-              SET_FIELD_DWARF_BLOCK (new_type->field (i),\n-                                     TYPE_FIELD_DWARF_BLOCK (type, i));\n+              new_type->field (i).set_loc_dwarf_block\n+\t\t(TYPE_FIELD_DWARF_BLOCK (type, i));\n               break;\n \t    default:\n \t      internal_error (__FILE__, __LINE__,\n@@ -5846,7 +5843,7 @@ append_flags_type_field (struct type *type, int start_bitpos, int nr_bits,\n \n   type->field (field_nr).set_name (xstrdup (name));\n   type->field (field_nr).set_type (field_type);\n-  SET_FIELD_BITPOS (type->field (field_nr), start_bitpos);\n+  type->field (field_nr).set_loc_bitpos (start_bitpos);\n   TYPE_FIELD_BITSIZE (type, field_nr) = nr_bits;\n   type->set_num_fields (type->num_fields () + 1);\n }\n@@ -5918,10 +5915,8 @@ append_composite_type_field_aligned (struct type *t, const char *name,\n       TYPE_LENGTH (t) = TYPE_LENGTH (t) + TYPE_LENGTH (field);\n       if (t->num_fields () > 1)\n \t{\n-\t  SET_FIELD_BITPOS (f[0],\n-\t\t\t    (FIELD_BITPOS (f[-1])\n-\t\t\t     + (TYPE_LENGTH (f[-1].type ())\n-\t\t\t\t* TARGET_CHAR_BIT)));\n+\t  f->set_loc_bitpos\n+\t    ((FIELD_BITPOS (f[-1]) + (TYPE_LENGTH (f[-1].type ()) * TARGET_CHAR_BIT)));\n \n \t  if (alignment)\n \t    {\n@@ -5932,7 +5927,7 @@ append_composite_type_field_aligned (struct type *t, const char *name,\n \n \t      if (left)\n \t\t{\n-\t\t  SET_FIELD_BITPOS (f[0], FIELD_BITPOS (f[0]) + (alignment - left));\n+\t\t  f->set_loc_bitpos (FIELD_BITPOS (f[0]) + (alignment - left));\n \t\t  TYPE_LENGTH (t) += (alignment - left) / TARGET_CHAR_BIT;\n \t\t}\n \t    }"
+    },
+    {
+      "sha": "dc575c429967839c7510e70019fea70da6c71cfd",
+      "filename": "gdb/gdbtypes.h",
+      "status": "modified",
+      "additions": 118,
+      "deletions": 27,
+      "changes": 145,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/gdbtypes.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/gdbtypes.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbtypes.h?ref=cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404",
+      "patch": "@@ -664,7 +664,74 @@ struct field\n     m_name = name;\n   }\n \n-  union field_location loc;\n+  /* Location getters / setters.  */\n+\n+  field_loc_kind loc_kind () const\n+  {\n+    return m_loc_kind;\n+  }\n+\n+  LONGEST loc_bitpos () const\n+  {\n+    gdb_assert (m_loc_kind == FIELD_LOC_KIND_BITPOS);\n+    return m_loc.bitpos;\n+  }\n+\n+  void set_loc_bitpos (LONGEST bitpos)\n+  {\n+    m_loc_kind = FIELD_LOC_KIND_BITPOS;\n+    m_loc.bitpos = bitpos;\n+  }\n+\n+  LONGEST loc_enumval () const\n+  {\n+    gdb_assert (m_loc_kind == FIELD_LOC_KIND_ENUMVAL);\n+    return m_loc.enumval;\n+  }\n+\n+  void set_loc_enumval (LONGEST enumval)\n+  {\n+    m_loc_kind = FIELD_LOC_KIND_ENUMVAL;\n+    m_loc.enumval = enumval;\n+  }\n+\n+  CORE_ADDR loc_physaddr () const\n+  {\n+    gdb_assert (m_loc_kind == FIELD_LOC_KIND_PHYSADDR);\n+    return m_loc.physaddr;\n+  }\n+\n+  void set_loc_physaddr (CORE_ADDR physaddr)\n+  {\n+    m_loc_kind = FIELD_LOC_KIND_PHYSADDR;\n+    m_loc.physaddr = physaddr;\n+  }\n+\n+  const char *loc_physname () const\n+  {\n+    gdb_assert (m_loc_kind == FIELD_LOC_KIND_PHYSNAME);\n+    return m_loc.physname;\n+  }\n+\n+  void set_loc_physname (const char *physname)\n+  {\n+    m_loc_kind = FIELD_LOC_KIND_PHYSNAME;\n+    m_loc.physname = physname;\n+  }\n+\n+  dwarf2_locexpr_baton *loc_dwarf_block () const\n+  {\n+    gdb_assert (m_loc_kind == FIELD_LOC_KIND_DWARF_BLOCK);\n+    return m_loc.dwarf_block;\n+  }\n+\n+  void set_loc_dwarf_block (dwarf2_locexpr_baton *dwarf_block)\n+  {\n+    m_loc_kind = FIELD_LOC_KIND_DWARF_BLOCK;\n+    m_loc.dwarf_block = dwarf_block;\n+  }\n+\n+  union field_location m_loc;\n \n   /* * For a function or member type, this is 1 if the argument is\n      marked artificial.  Artificial arguments should not be shown\n@@ -675,7 +742,7 @@ struct field\n \n   /* * Discriminant for union field_location.  */\n \n-  ENUM_BITFIELD(field_loc_kind) loc_kind : 3;\n+  ENUM_BITFIELD(field_loc_kind) m_loc_kind : 3;\n \n   /* * Size of this field, in bits, or zero if not packed.\n      If non-zero in an array type, indicates the element size in\n@@ -1742,11 +1809,52 @@ enum call_site_parameter_kind\n \n struct call_site_target\n {\n-  union field_location loc;\n+  field_loc_kind loc_kind () const\n+  {\n+    return m_loc_kind;\n+  }\n+\n+  CORE_ADDR loc_physaddr () const\n+  {\n+    gdb_assert (m_loc_kind == FIELD_LOC_KIND_PHYSADDR);\n+    return m_loc.physaddr;\n+  }\n+\n+  void set_loc_physaddr (CORE_ADDR physaddr)\n+  {\n+    m_loc_kind = FIELD_LOC_KIND_PHYSADDR;\n+    m_loc.physaddr = physaddr;\n+  }\n+\n+  const char *loc_physname () const\n+  {\n+    gdb_assert (m_loc_kind == FIELD_LOC_KIND_PHYSNAME);\n+    return m_loc.physname;\n+  }\n+\n+  void set_loc_physname (const char *physname)\n+    {\n+      m_loc_kind = FIELD_LOC_KIND_PHYSNAME;\n+      m_loc.physname = physname;\n+    }\n+\n+  dwarf2_locexpr_baton *loc_dwarf_block () const\n+  {\n+    gdb_assert (m_loc_kind == FIELD_LOC_KIND_DWARF_BLOCK);\n+    return m_loc.dwarf_block;\n+  }\n+\n+  void set_loc_dwarf_block (dwarf2_locexpr_baton *dwarf_block)\n+    {\n+      m_loc_kind = FIELD_LOC_KIND_DWARF_BLOCK;\n+      m_loc.dwarf_block = dwarf_block;\n+    }\n+\n+  union field_location m_loc;\n \n   /* * Discriminant for union field_location.  */\n \n-  ENUM_BITFIELD(field_loc_kind) loc_kind : 3;\n+  ENUM_BITFIELD(field_loc_kind) m_loc_kind : 3;\n };\n \n union call_site_parameter_u\n@@ -2016,29 +2124,12 @@ extern void set_type_vptr_basetype (struct type *, struct type *);\n   (TYPE_CPLUS_SPECIFIC(thistype)->virtual_field_bits == NULL ? 0 \\\n     : B_TST(TYPE_CPLUS_SPECIFIC(thistype)->virtual_field_bits, (index)))\n \n-#define FIELD_LOC_KIND(thisfld) ((thisfld).loc_kind)\n-#define FIELD_BITPOS_LVAL(thisfld) ((thisfld).loc.bitpos)\n-#define FIELD_BITPOS(thisfld) (FIELD_BITPOS_LVAL (thisfld) + 0)\n-#define FIELD_ENUMVAL_LVAL(thisfld) ((thisfld).loc.enumval)\n-#define FIELD_ENUMVAL(thisfld) (FIELD_ENUMVAL_LVAL (thisfld) + 0)\n-#define FIELD_STATIC_PHYSNAME(thisfld) ((thisfld).loc.physname)\n-#define FIELD_STATIC_PHYSADDR(thisfld) ((thisfld).loc.physaddr)\n-#define FIELD_DWARF_BLOCK(thisfld) ((thisfld).loc.dwarf_block)\n-#define SET_FIELD_BITPOS(thisfld, bitpos)\t\t\t\\\n-  (FIELD_LOC_KIND (thisfld) = FIELD_LOC_KIND_BITPOS,\t\t\\\n-   FIELD_BITPOS_LVAL (thisfld) = (bitpos))\n-#define SET_FIELD_ENUMVAL(thisfld, enumval)\t\t\t\\\n-  (FIELD_LOC_KIND (thisfld) = FIELD_LOC_KIND_ENUMVAL,\t\t\\\n-   FIELD_ENUMVAL_LVAL (thisfld) = (enumval))\n-#define SET_FIELD_PHYSNAME(thisfld, name)\t\t\t\\\n-  (FIELD_LOC_KIND (thisfld) = FIELD_LOC_KIND_PHYSNAME,\t\t\\\n-   FIELD_STATIC_PHYSNAME (thisfld) = (name))\n-#define SET_FIELD_PHYSADDR(thisfld, addr)\t\t\t\\\n-  (FIELD_LOC_KIND (thisfld) = FIELD_LOC_KIND_PHYSADDR,\t\t\\\n-   FIELD_STATIC_PHYSADDR (thisfld) = (addr))\n-#define SET_FIELD_DWARF_BLOCK(thisfld, addr)\t\t\t\\\n-  (FIELD_LOC_KIND (thisfld) = FIELD_LOC_KIND_DWARF_BLOCK,\t\\\n-   FIELD_DWARF_BLOCK (thisfld) = (addr))\n+#define FIELD_LOC_KIND(thisfld) ((thisfld).loc_kind ())\n+#define FIELD_BITPOS(thisfld) ((thisfld).loc_bitpos ())\n+#define FIELD_ENUMVAL(thisfld) ((thisfld).loc_enumval ())\n+#define FIELD_STATIC_PHYSNAME(thisfld) ((thisfld).loc_physname ())\n+#define FIELD_STATIC_PHYSADDR(thisfld) ((thisfld).loc_physaddr ())\n+#define FIELD_DWARF_BLOCK(thisfld) ((thisfld).loc_dwarf_block ())\n #define FIELD_ARTIFICIAL(thisfld) ((thisfld).artificial)\n #define FIELD_BITSIZE(thisfld) ((thisfld).bitsize)\n "
+    },
+    {
+      "sha": "b82ac59fb79083c01d25d4b58700934bff393052",
+      "filename": "gdb/gnu-v3-abi.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/gnu-v3-abi.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/gnu-v3-abi.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gnu-v3-abi.c?ref=cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404",
+      "patch": "@@ -137,28 +137,28 @@ build_gdb_vtable_type (struct gdbarch *arch)\n   /* ptrdiff_t vcall_and_vbase_offsets[0]; */\n   field->set_name (\"vcall_and_vbase_offsets\");\n   field->set_type (lookup_array_range_type (ptrdiff_type, 0, -1));\n-  SET_FIELD_BITPOS (*field, offset * TARGET_CHAR_BIT);\n+  field->set_loc_bitpos (offset * TARGET_CHAR_BIT);\n   offset += TYPE_LENGTH (field->type ());\n   field++;\n \n   /* ptrdiff_t offset_to_top; */\n   field->set_name (\"offset_to_top\");\n   field->set_type (ptrdiff_type);\n-  SET_FIELD_BITPOS (*field, offset * TARGET_CHAR_BIT);\n+  field->set_loc_bitpos (offset * TARGET_CHAR_BIT);\n   offset += TYPE_LENGTH (field->type ());\n   field++;\n \n   /* void *type_info; */\n   field->set_name (\"type_info\");\n   field->set_type (void_ptr_type);\n-  SET_FIELD_BITPOS (*field, offset * TARGET_CHAR_BIT);\n+  field->set_loc_bitpos (offset * TARGET_CHAR_BIT);\n   offset += TYPE_LENGTH (field->type ());\n   field++;\n \n   /* void (*virtual_functions[0]) (); */\n   field->set_name (\"virtual_functions\");\n   field->set_type (lookup_array_range_type (ptr_to_void_fn_type, 0, -1));\n-  SET_FIELD_BITPOS (*field, offset * TARGET_CHAR_BIT);\n+  field->set_loc_bitpos (offset * TARGET_CHAR_BIT);\n   offset += TYPE_LENGTH (field->type ());\n   field++;\n \n@@ -1035,14 +1035,14 @@ build_std_type_info_type (struct gdbarch *arch)\n   /* The vtable.  */\n   field->set_name (\"_vptr.type_info\");\n   field->set_type (void_ptr_type);\n-  SET_FIELD_BITPOS (*field, offset * TARGET_CHAR_BIT);\n+  field->set_loc_bitpos (offset * TARGET_CHAR_BIT);\n   offset += TYPE_LENGTH (field->type ());\n   field++;\n \n   /* The name.  */\n   field->set_name (\"__name\");\n   field->set_type (char_ptr_type);\n-  SET_FIELD_BITPOS (*field, offset * TARGET_CHAR_BIT);\n+  field->set_loc_bitpos (offset * TARGET_CHAR_BIT);\n   offset += TYPE_LENGTH (field->type ());\n   field++;\n "
+    },
+    {
+      "sha": "0faff5f43c886f26eea67abedf1d1c7742fc40dd",
+      "filename": "gdb/mdebugread.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/mdebugread.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/mdebugread.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/mdebugread.c?ref=cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404",
+      "patch": "@@ -1056,7 +1056,7 @@ parse_symbol (SYMR *sh, union aux_ext *ax, char *ext_sh, int bigend,\n \t\tif (tsym.st != stMember)\n \t\t  break;\n \n-\t\tSET_FIELD_ENUMVAL (*f, tsym.value);\n+\t\tf->set_loc_enumval (tsym.value);\n \t\tf->set_type (t);\n \t\tf->set_name (debug_info->ss + cur_fdr->issBase + tsym.iss);\n \t\tFIELD_BITSIZE (*f) = 0;\n@@ -1242,7 +1242,7 @@ parse_symbol (SYMR *sh, union aux_ext *ax, char *ext_sh, int bigend,\n \tstruct field *f = &top_stack->cur_type->field (top_stack->cur_field);\n \ttop_stack->cur_field++;\n \tf->set_name (name);\n-\tSET_FIELD_BITPOS (*f, sh->value);\n+\tf->set_loc_bitpos (sh->value);\n \tbitsize = 0;\n \tf->set_type (parse_type (cur_fd, ax, sh->index, &bitsize, bigend,\n \t\t\t\t name));"
+    },
+    {
+      "sha": "3c6a358061869069741fa045a539330a8f6bfd47",
+      "filename": "gdb/rust-lang.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/rust-lang.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/rust-lang.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/rust-lang.c?ref=cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404",
+      "patch": "@@ -912,7 +912,7 @@ rust_composite_type (struct type *original,\n     {\n       struct field *field = &result->field (i);\n \n-      SET_FIELD_BITPOS (*field, bitpos);\n+      field->set_loc_bitpos (bitpos);\n       bitpos += TYPE_LENGTH (type1) * TARGET_CHAR_BIT;\n \n       field->set_name (field1);\n@@ -933,7 +933,7 @@ rust_composite_type (struct type *original,\n \t  if (delta != 0)\n \t    bitpos += align - delta;\n \t}\n-      SET_FIELD_BITPOS (*field, bitpos);\n+      field->set_loc_bitpos (bitpos);\n \n       field->set_name (field2);\n       field->set_type (type2);"
+    },
+    {
+      "sha": "64734b7f4b61262055a43a3d9499124fe031b399",
+      "filename": "gdb/stabsread.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 7,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/stabsread.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/stabsread.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/stabsread.c?ref=cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404",
+      "patch": "@@ -2755,8 +2755,7 @@ read_cpp_abbrev (struct stab_field_info *fip, const char **pp,\n       {\n \tint nbits;\n \n-\tSET_FIELD_BITPOS (fip->list->field,\n-\t\t\t  read_huge_number (pp, ';', &nbits, 0));\n+\tfip->list->field.set_loc_bitpos (read_huge_number (pp, ';', &nbits, 0));\n \tif (nbits != 0)\n \t  return 0;\n       }\n@@ -2817,7 +2816,7 @@ read_one_struct_field (struct stab_field_info *fip, const char **pp,\n \t  p++;\n \t}\n       /* Static class member.  */\n-      SET_FIELD_PHYSNAME (fip->list->field, savestring (*pp, p - *pp));\n+      fip->list->field.set_loc_physname (savestring (*pp, p - *pp));\n       *pp = p + 1;\n       return;\n     }\n@@ -2833,8 +2832,7 @@ read_one_struct_field (struct stab_field_info *fip, const char **pp,\n   {\n     int nbits;\n \n-    SET_FIELD_BITPOS (fip->list->field,\n-\t\t      read_huge_number (pp, ',', &nbits, 0));\n+    fip->list->field.set_loc_bitpos (read_huge_number (pp, ',', &nbits, 0));\n     if (nbits != 0)\n       {\n \tstabs_general_complaint (\"bad structure-type format\");\n@@ -3110,7 +3108,7 @@ read_baseclasses (struct stab_field_info *fip, const char **pp,\n \t   corresponding to this baseclass.  Always zero in the absence of\n \t   multiple inheritance.  */\n \n-\tSET_FIELD_BITPOS (newobj->field, read_huge_number (pp, ',', &nbits, 0));\n+\tnewobj->field.set_loc_bitpos (read_huge_number (pp, ',', &nbits, 0));\n \tif (nbits != 0)\n \t  return 0;\n       }\n@@ -3639,7 +3637,7 @@ read_enum_type (const char **pp, struct type *type,\n \n \t  SYMBOL_TYPE (xsym) = type;\n \t  type->field (n).set_name (xsym->linkage_name ());\n-\t  SET_FIELD_ENUMVAL (type->field (n), SYMBOL_VALUE (xsym));\n+\t  type->field (n).set_loc_enumval (SYMBOL_VALUE (xsym));\n \t  TYPE_FIELD_BITSIZE (type, n) = 0;\n \t}\n       if (syms == osyms)"
+    },
+    {
+      "sha": "4587ecae7d197aec9689f26105e1bd4473cd9ed5",
+      "filename": "gdb/target-descriptions.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/target-descriptions.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/target-descriptions.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/target-descriptions.c?ref=cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404",
+      "patch": "@@ -230,9 +230,9 @@ make_gdb_type (struct gdbarch *gdbarch, struct tdesc_type *ttype)\n \t      bitsize = f.end - f.start + 1;\n \t      total_size = e->size * TARGET_CHAR_BIT;\n \t      if (gdbarch_byte_order (m_gdbarch) == BFD_ENDIAN_BIG)\n-\t\tSET_FIELD_BITPOS (fld[0], total_size - f.start - bitsize);\n+\t\tfld->set_loc_bitpos (total_size - f.start - bitsize);\n \t      else\n-\t\tSET_FIELD_BITPOS (fld[0], f.start);\n+\t\tfld->set_loc_bitpos (f.start);\n \t      FIELD_BITSIZE (fld[0]) = bitsize;\n \t    }\n \t  else\n@@ -298,7 +298,7 @@ make_gdb_type (struct gdbarch *gdbarch, struct tdesc_type *ttype)\n \t\t\t\t\t       xstrdup (f.name.c_str ()),\n \t\t\t\t\t       NULL);\n \n-\t  SET_FIELD_BITPOS (fld[0], f.start);\n+\t  fld->set_loc_enumval (f.start);\n \t}\n     }\n "
+    },
+    {
+      "sha": "f6005a32135a132f40141c54e87c727f65b83363",
+      "filename": "gdb/windows-tdep.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/windows-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404/gdb/windows-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/windows-tdep.c?ref=cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404",
+      "patch": "@@ -762,7 +762,7 @@ create_enum (struct gdbarch *gdbarch, int bit, const char *name,\n   for (i = 0; i < count; i++)\n     {\n       type->field (i).set_name (values[i].name);\n-      SET_FIELD_ENUMVAL (type->field (i), values[i].value);\n+      type->field (i).set_loc_enumval (values[i].value);\n     }\n \n   return type;"
+    }
+  ]
+}

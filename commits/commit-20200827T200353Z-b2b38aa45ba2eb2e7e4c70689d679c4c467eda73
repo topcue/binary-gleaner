@@ -1,0 +1,110 @@
+{
+  "sha": "b2b38aa45ba2eb2e7e4c70689d679c4c467eda73",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YjJiMzhhYTQ1YmEyZWIyZTdlNGM3MDY4OWQ2NzljNGM0NjdlZGE3Mw==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-08-27T20:03:53Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-08-27T20:03:53Z"
+    },
+    "message": "Fix advance/until and inline frames (PR gdb/26523)\n\nIf you do \"tbreak LINENO; c\" to advance to an inlined function, GDB\npresents the stop at the inline frame instead of at the non-artificial\nstack frame:\n\n (gdb) list 21\n 18      static inline __attribute__ ((always_inline)) int\n 19      inline_func (int i)\n 20      {\n 21        return i + 1;\n 22      }\n\n (gdb) tbreak 21\n Temporary breakpoint 3 at 0x55555555516f: advance.cc:21.\n (gdb) c\n Continuing.\n\n Temporary breakpoint 3, inline_func (i=0) at advance.cc:21\n 21        return i + 1;\n\nThe logic for this is in stopped_by_user_bp_inline_frame:\n\n /* Loop over the stop chain and determine if execution stopped in an\n    inlined frame because of a breakpoint with a user-specified\n    location set at FRAME_BLOCK.  */\n\n static bool\n stopped_by_user_bp_inline_frame (const block *frame_block, bpstat stop_chain)\n\nIf however, you do \"advance LINENO\" or \"until LINENO\" instead, GDB\npresents the stop at the non-artificial frame:\n\n (gdb) advance 21\n main () at advance.cc:43\n 43        i = inline_func (i);\n (gdb)\n\n\"advance\" and \"until\" should really behave like user breakpoints here,\nsince their location is also user-specified.  As the comment in\ngdb.base/advance.exp says, \"advance <location>\" is really just\nsyntactic sugar for \"tbreak <location>; continue\".\n\nFix this by making stopped_by_user_bp_inline_frame also consider\nadvance/until breakpoints.\n\nA testcase covering this will be included in the next patch.\n\ngdb/ChangeLog:\n\n\tPR gdb/26523\n\t* inline-frame.c (stopped_by_user_bp_inline_frame): Also consider\n\tbp_until breakpoints user-specified locations.  Update intro\n\tcomment.",
+    "tree": {
+      "sha": "fd979e988c0709036d8bf78e45bdc1ee750d2789",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/fd979e988c0709036d8bf78e45bdc1ee750d2789"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/b2b38aa45ba2eb2e7e4c70689d679c4c467eda73",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b2b38aa45ba2eb2e7e4c70689d679c4c467eda73",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/b2b38aa45ba2eb2e7e4c70689d679c4c467eda73",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b2b38aa45ba2eb2e7e4c70689d679c4c467eda73/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "b0191216046cca6affd74b3bfebdb124ad5f428e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b0191216046cca6affd74b3bfebdb124ad5f428e",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b0191216046cca6affd74b3bfebdb124ad5f428e"
+    }
+  ],
+  "stats": {
+    "total": 13,
+    "additions": 11,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "d9cb0b17643b184a90332f7ece517e249b499b76",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b2b38aa45ba2eb2e7e4c70689d679c4c467eda73/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b2b38aa45ba2eb2e7e4c70689d679c4c467eda73/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=b2b38aa45ba2eb2e7e4c70689d679c4c467eda73",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-08-27  Pedro Alves  <pedro@palves.net>\n+\n+\tPR gdb/26523\n+\t* inline-frame.c (stopped_by_user_bp_inline_frame): Also consider\n+\tbp_until breakpoints user-specified locations.  Update intro\n+\tcomment.\n+\n 2020-08-27  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* gdb_bfd.h (gdb_bfd_section_iterator, gdb_bfd_section_range,"
+    },
+    {
+      "sha": "35ceb27d9c14729efedddab04e1325fc763e62be",
+      "filename": "gdb/inline-frame.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b2b38aa45ba2eb2e7e4c70689d679c4c467eda73/gdb/inline-frame.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b2b38aa45ba2eb2e7e4c70689d679c4c467eda73/gdb/inline-frame.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/inline-frame.c?ref=b2b38aa45ba2eb2e7e4c70689d679c4c467eda73",
+      "patch": "@@ -303,7 +303,8 @@ block_starting_point_at (CORE_ADDR pc, const struct block *block)\n }\n \n /* Loop over the stop chain and determine if execution stopped in an\n-   inlined frame because of a user breakpoint set at FRAME_BLOCK.  */\n+   inlined frame because of a breakpoint with a user-specified location\n+   set at FRAME_BLOCK.  */\n \n static bool\n stopped_by_user_bp_inline_frame (const block *frame_block, bpstat stop_chain)\n@@ -312,7 +313,8 @@ stopped_by_user_bp_inline_frame (const block *frame_block, bpstat stop_chain)\n     {\n       struct breakpoint *bpt = s->breakpoint_at;\n \n-      if (bpt != NULL && user_breakpoint_p (bpt))\n+      if (bpt != NULL\n+\t  && (user_breakpoint_p (bpt) || bpt->type == bp_until))\n \t{\n \t  bp_location *loc = s->bp_location_at;\n \t  enum bp_loc_type t = loc->loc_type;"
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "sha": "7d7571f0c14b4673ca95f6dc31d6f07d429e6697",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6N2Q3NTcxZjBjMTRiNDY3M2NhOTVmNmRjMzFkNmYwN2Q0MjllNjY5Nw==",
+  "commit": {
+    "author": {
+      "name": "Sergio Durigan Junior",
+      "email": "sergiodj@redhat.com",
+      "date": "2019-06-26T21:34:50Z"
+    },
+    "committer": {
+      "name": "Sergio Durigan Junior",
+      "email": "sergiodj@redhat.com",
+      "date": "2019-06-28T20:28:21Z"
+    },
+    "message": "Adjust i386 registers on SystemTap probes' arguments (PR breakpoints/24541)\n\nThis bug has been reported on PR breakpoints/24541, but it is possible\nto reproduce it easily by running:\n\n  make check-gdb TESTS=gdb.base/stap-probe.exp RUNTESTFLAGS='--target_board unix/-m32'\n\nThe underlying cause is kind of complex, and involves decisions made\nby GCC and the sys/sdt.h header file about how to represent a probe\nargument that lives in a register in 32-bit programs.  I'll use\nAndrew's example on the bug to illustrate the problem.\n\nlibstdc++ has a probe named \"throw\" with two arguments.  On i386, the\nprobe is:\n\n  stapsdt              0x00000028       NT_STAPSDT (SystemTap probe descriptors)\n    Provider: libstdcxx\n    Name: throw\n    Location: 0x00072c96, Base: 0x00133d64, Semaphore: 0x00000000\n    Arguments: 4@%si 4@%di\n\nI.e., the first argument is an unsigned 32-bit value (represented by\nthe \"4@\") that lives on %si, and the second argument is an unsigned\n32-bit value that lives on %di.  Note the discrepancy between the\nargument size reported by the probe (32-bit) and the register size\nbeing used to store the value (16-bit).\n\nHowever, if you take a look at the disassemble of a program that uses\nthis probe, you will see:\n\n    00072c80 <__cxa_throw@@CXXABI_1.3>:\n       72c80:       57                      push   %edi\n       72c81:       56                      push   %esi\n       72c82:       53                      push   %ebx\n       72c83:       8b 74 24 10             mov    0x10(%esp),%esi\n       72c87:       e8 74 bf ff ff          call   6ec00 <__cxa_finalize@plt+0x980>\n       72c8c:       81 c3 74 e3 10 00       add    $0x10e374,%ebx\n       72c92:       8b 7c 24 14             mov    0x14(%esp),%edi\n       72c96:       90                      nop                      <----------------- PROBE IS HERE\n       72c97:       e8 d4 a2 ff ff          call   6cf70 <__cxa_get_globals@plt>\n       72c9c:       83 40 04 01             addl   $0x1,0x4(%eax)\n       72ca0:       83 ec 04                sub    $0x4,%esp\n       72ca3:       ff 74 24 1c             pushl  0x1c(%esp)\n       72ca7:       57                      push   %edi\n       72ca8:       56                      push   %esi\n       72ca9:       e8 62 a3 ff ff          call   6d010 <__cxa_init_primary_exception@plt>\n       72cae:       8d 70 40                lea    0x40(%eax),%esi\n       72cb1:       c7 00 01 00 00 00       movl   $0x1,(%eax)\n       72cb7:       89 34 24                mov    %esi,(%esp)\n       72cba:       e8 61 96 ff ff          call   6c320 <_Unwind_RaiseException@plt>\n       72cbf:       89 34 24                mov    %esi,(%esp)\n       72cc2:       e8 c9 84 ff ff          call   6b190 <__cxa_begin_catch@plt>\n       72cc7:       e8 d4 b3 ff ff          call   6e0a0 <_ZSt9terminatev@plt>\n       72ccc:       66 90                   xchg   %ax,%ax\n       72cce:       66 90                   xchg   %ax,%ax\n\nNote how the program is actually using %edi, and not %di, to store the\nsecond argument.  This is the problem here.\n\nGDB will basically read the probe argument, then read the contents of\n%di, and then cast this value to uint32_t, which causes the wrong\nvalue to be obtained.  In the gdb.base/stap-probe.exp case, this makes\nGDB read the wrong memory location, and not be able to display a test\nstring.  In Andrew's example, this causes GDB to actually stop at a\n\"catch throw\" when it should actually have *not* stopped.\n\nAfter some discussion with Frank Eigler and Jakub Jelinek, it was\ndecided that this bug should be fixed on the client side (i.e., the\nprogram that actually reads the probes), and this is why I'm proposing\nthis patch.\n\nThe idea is simple: we will have a gdbarch method, which, for now, is\nonly used by i386.  The generic code that deals with register operands\non gdb/stap-probe.c will call this method if it exists, passing the\ncurrent parse information, the register name and its number.\n\nThe i386 method will then verify if the register size is greater or\nequal than the size reported by the stap probe (the \"4@\" part).  If it\nis, we're fine.  Otherwise, it will check if we're dealing with any of\nthe \"extendable\" registers (like ax, bx, si, di, sp, etc.).  If we\nare, it will change the register name to include the \"e\" prefix.\n\nI have tested the patch here in many scenarios, and it fixes Andrew's\nbug and also the regressions I mentioned before, on\ngdb.base/stap-probe.exp.  No regressions where found on other tests.\n\nComments?\n\ngdb/ChangeLog:\n2019-06-27  Sergio Durigan Junior  <sergiodj@redhat.com>\n\n\tPR breakpoints/24541\n\t* gdbarch.c: Regenerate.\n\t* gdbarch.h: Regenerate.\n\t* gdbarch.sh: Add 'stap_adjust_register'.\n\t* i386-tdep.c: Include '<unordered_set>'.\n\t(i386_stap_adjust_register): New function.\n\t(i386_elf_init_abi): Register 'i386_stap_adjust_register'.\n\t* stap-probe.c (stap_parse_register_operand): Call\n\t'gdbarch_stap_adjust_register'.",
+    "tree": {
+      "sha": "c69c8e8fa415deab4cf017b644097940f770badc",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c69c8e8fa415deab4cf017b644097940f770badc"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/7d7571f0c14b4673ca95f6dc31d6f07d429e6697",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7d7571f0c14b4673ca95f6dc31d6f07d429e6697",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/7d7571f0c14b4673ca95f6dc31d6f07d429e6697",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7d7571f0c14b4673ca95f6dc31d6f07d429e6697/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "5af5392a3d1525fb825747b203a6159ddcba0aa4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5af5392a3d1525fb825747b203a6159ddcba0aa4",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/5af5392a3d1525fb825747b203a6159ddcba0aa4"
+    }
+  ],
+  "stats": {
+    "total": 159,
+    "additions": 156,
+    "deletions": 3
+  },
+  "files": [
+    {
+      "sha": "d28471e3ead6a22b94caafbd625c2a6a149f2da6",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7d7571f0c14b4673ca95f6dc31d6f07d429e6697/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7d7571f0c14b4673ca95f6dc31d6f07d429e6697/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=7d7571f0c14b4673ca95f6dc31d6f07d429e6697",
+      "patch": "@@ -1,3 +1,15 @@\n+2019-06-28  Sergio Durigan Junior  <sergiodj@redhat.com>\n+\n+\tPR breakpoints/24541\n+\t* gdbarch.c: Regenerate.\n+\t* gdbarch.h: Regenerate.\n+\t* gdbarch.sh: Add 'stap_adjust_register'.\n+\t* i386-tdep.c: Include '<unordered_set>'.\n+\t(i386_stap_adjust_register): New function.\n+\t(i386_elf_init_abi): Register 'i386_stap_adjust_register'.\n+\t* stap-probe.c (stap_parse_register_operand): Call\n+\t'gdbarch_stap_adjust_register'.\n+\n 2019-06-28  Sergio Durigan Junior  <sergiodj@redhat.com>\n \n \tPR python/24742"
+    },
+    {
+      "sha": "cc7d0ace66c5f8b04d4a1f2344b386b9f8774df2",
+      "filename": "gdb/gdbarch.c",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 0,
+      "changes": 32,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7d7571f0c14b4673ca95f6dc31d6f07d429e6697/gdb/gdbarch.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7d7571f0c14b4673ca95f6dc31d6f07d429e6697/gdb/gdbarch.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbarch.c?ref=7d7571f0c14b4673ca95f6dc31d6f07d429e6697",
+      "patch": "@@ -324,6 +324,7 @@ struct gdbarch\n   const char * stap_gdb_register_suffix;\n   gdbarch_stap_is_single_operand_ftype *stap_is_single_operand;\n   gdbarch_stap_parse_special_token_ftype *stap_parse_special_token;\n+  gdbarch_stap_adjust_register_ftype *stap_adjust_register;\n   gdbarch_dtrace_parse_probe_argument_ftype *dtrace_parse_probe_argument;\n   gdbarch_dtrace_probe_is_enabled_ftype *dtrace_probe_is_enabled;\n   gdbarch_dtrace_enable_probe_ftype *dtrace_enable_probe;\n@@ -687,6 +688,7 @@ verify_gdbarch (struct gdbarch *gdbarch)\n   /* Skip verify of stap_gdb_register_suffix, invalid_p == 0 */\n   /* Skip verify of stap_is_single_operand, has predicate.  */\n   /* Skip verify of stap_parse_special_token, has predicate.  */\n+  /* Skip verify of stap_adjust_register, has predicate.  */\n   /* Skip verify of dtrace_parse_probe_argument, has predicate.  */\n   /* Skip verify of dtrace_probe_is_enabled, has predicate.  */\n   /* Skip verify of dtrace_enable_probe, has predicate.  */\n@@ -1396,6 +1398,12 @@ gdbarch_dump (struct gdbarch *gdbarch, struct ui_file *file)\n   fprintf_unfiltered (file,\n                       \"gdbarch_dump: stack_frame_destroyed_p = <%s>\\n\",\n                       host_address_to_string (gdbarch->stack_frame_destroyed_p));\n+  fprintf_unfiltered (file,\n+                      \"gdbarch_dump: gdbarch_stap_adjust_register_p() = %d\\n\",\n+                      gdbarch_stap_adjust_register_p (gdbarch));\n+  fprintf_unfiltered (file,\n+                      \"gdbarch_dump: stap_adjust_register = <%s>\\n\",\n+                      host_address_to_string (gdbarch->stap_adjust_register));\n   fprintf_unfiltered (file,\n                       \"gdbarch_dump: stap_gdb_register_prefix = %s\\n\",\n                       pstring (gdbarch->stap_gdb_register_prefix));\n@@ -4515,6 +4523,30 @@ set_gdbarch_stap_parse_special_token (struct gdbarch *gdbarch,\n   gdbarch->stap_parse_special_token = stap_parse_special_token;\n }\n \n+int\n+gdbarch_stap_adjust_register_p (struct gdbarch *gdbarch)\n+{\n+  gdb_assert (gdbarch != NULL);\n+  return gdbarch->stap_adjust_register != NULL;\n+}\n+\n+void\n+gdbarch_stap_adjust_register (struct gdbarch *gdbarch, struct stap_parse_info *p, std::string &regname, int regnum)\n+{\n+  gdb_assert (gdbarch != NULL);\n+  gdb_assert (gdbarch->stap_adjust_register != NULL);\n+  if (gdbarch_debug >= 2)\n+    fprintf_unfiltered (gdb_stdlog, \"gdbarch_stap_adjust_register called\\n\");\n+  gdbarch->stap_adjust_register (gdbarch, p, regname, regnum);\n+}\n+\n+void\n+set_gdbarch_stap_adjust_register (struct gdbarch *gdbarch,\n+                                  gdbarch_stap_adjust_register_ftype stap_adjust_register)\n+{\n+  gdbarch->stap_adjust_register = stap_adjust_register;\n+}\n+\n int\n gdbarch_dtrace_parse_probe_argument_p (struct gdbarch *gdbarch)\n {"
+    },
+    {
+      "sha": "0857d2f30279480ddb93199364f5796b51ca5119",
+      "filename": "gdb/gdbarch.h",
+      "status": "modified",
+      "additions": 30,
+      "deletions": 0,
+      "changes": 30,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7d7571f0c14b4673ca95f6dc31d6f07d429e6697/gdb/gdbarch.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7d7571f0c14b4673ca95f6dc31d6f07d429e6697/gdb/gdbarch.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbarch.h?ref=7d7571f0c14b4673ca95f6dc31d6f07d429e6697",
+      "patch": "@@ -1350,6 +1350,36 @@ typedef int (gdbarch_stap_parse_special_token_ftype) (struct gdbarch *gdbarch, s\n extern int gdbarch_stap_parse_special_token (struct gdbarch *gdbarch, struct stap_parse_info *p);\n extern void set_gdbarch_stap_parse_special_token (struct gdbarch *gdbarch, gdbarch_stap_parse_special_token_ftype *stap_parse_special_token);\n \n+/* Perform arch-dependent adjustments to a register name.\n+  \n+   In very specific situations, it may be necessary for the register\n+   name present in a SystemTap probe's argument to be handled in a\n+   special way.  For example, on i386, GCC may over-optimize the\n+   register allocation and use smaller registers than necessary.  In\n+   such cases, the client that is reading and evaluating the SystemTap\n+   probe (ourselves) will need to actually fetch values from the wider\n+   version of the register in question.\n+  \n+   To illustrate the example, consider the following probe argument\n+   (i386):\n+  \n+      4@%ax\n+  \n+   This argument says that its value can be found at the %ax register,\n+   which is a 16-bit register.  However, the argument's prefix says\n+   that its type is \"uint32_t\", which is 32-bit in size.  Therefore, in\n+   this case, GDB should actually fetch the probe's value from register\n+   %eax, not %ax.  In this scenario, this function would actually\n+   replace the register name from %ax to %eax.\n+  \n+   The rationale for this can be found at PR breakpoints/24541. */\n+\n+extern int gdbarch_stap_adjust_register_p (struct gdbarch *gdbarch);\n+\n+typedef void (gdbarch_stap_adjust_register_ftype) (struct gdbarch *gdbarch, struct stap_parse_info *p, std::string &regname, int regnum);\n+extern void gdbarch_stap_adjust_register (struct gdbarch *gdbarch, struct stap_parse_info *p, std::string &regname, int regnum);\n+extern void set_gdbarch_stap_adjust_register (struct gdbarch *gdbarch, gdbarch_stap_adjust_register_ftype *stap_adjust_register);\n+\n /* DTrace related functions.\n    The expression to compute the NARTGth+1 argument to a DTrace USDT probe.\n    NARG must be >= 0. */"
+    },
+    {
+      "sha": "f3d1bf489acaf91c01e68986d1cdaaa9b2edd2de",
+      "filename": "gdb/gdbarch.sh",
+      "status": "modified",
+      "additions": 25,
+      "deletions": 0,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7d7571f0c14b4673ca95f6dc31d6f07d429e6697/gdb/gdbarch.sh",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7d7571f0c14b4673ca95f6dc31d6f07d429e6697/gdb/gdbarch.sh",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbarch.sh?ref=7d7571f0c14b4673ca95f6dc31d6f07d429e6697",
+      "patch": "@@ -1030,6 +1030,31 @@ M;int;stap_is_single_operand;const char *s;s\n # parser), and should advance the buffer pointer (p->arg).\n M;int;stap_parse_special_token;struct stap_parse_info *p;p\n \n+# Perform arch-dependent adjustments to a register name.\n+#\n+# In very specific situations, it may be necessary for the register\n+# name present in a SystemTap probe's argument to be handled in a\n+# special way.  For example, on i386, GCC may over-optimize the\n+# register allocation and use smaller registers than necessary.  In\n+# such cases, the client that is reading and evaluating the SystemTap\n+# probe (ourselves) will need to actually fetch values from the wider\n+# version of the register in question.\n+#\n+# To illustrate the example, consider the following probe argument\n+# (i386):\n+#\n+#    4@%ax\n+#\n+# This argument says that its value can be found at the %ax register,\n+# which is a 16-bit register.  However, the argument's prefix says\n+# that its type is \"uint32_t\", which is 32-bit in size.  Therefore, in\n+# this case, GDB should actually fetch the probe's value from register\n+# %eax, not %ax.  In this scenario, this function would actually\n+# replace the register name from %ax to %eax.\n+#\n+# The rationale for this can be found at PR breakpoints/24541.\n+M;void;stap_adjust_register;struct stap_parse_info *p, std::string \\&regname, int regnum;p, regname, regnum\n+\n # DTrace related functions.\n \n # The expression to compute the NARTGth+1 argument to a DTrace USDT probe."
+    },
+    {
+      "sha": "00c1f8d7499818b09e6fd4f85ecd397ba0c04ca8",
+      "filename": "gdb/i386-tdep.c",
+      "status": "modified",
+      "additions": 29,
+      "deletions": 0,
+      "changes": 29,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7d7571f0c14b4673ca95f6dc31d6f07d429e6697/gdb/i386-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7d7571f0c14b4673ca95f6dc31d6f07d429e6697/gdb/i386-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/i386-tdep.c?ref=7d7571f0c14b4673ca95f6dc31d6f07d429e6697",
+      "patch": "@@ -64,6 +64,7 @@\n #include \"parser-defs.h\"\n #include <ctype.h>\n #include <algorithm>\n+#include <unordered_set>\n \n /* Register names.  */\n \n@@ -4385,6 +4386,32 @@ i386_stap_parse_special_token (struct gdbarch *gdbarch,\n   return 0;\n }\n \n+/* Implementation of 'gdbarch_stap_adjust_register', as defined in\n+   gdbarch.h.  */\n+\n+static void\n+i386_stap_adjust_register (struct gdbarch *gdbarch, struct stap_parse_info *p,\n+\t\t\t   std::string &regname, int regnum)\n+{\n+  static const std::unordered_set<std::string> reg_assoc\n+    = { \"ax\", \"bx\", \"cx\", \"dx\",\n+\t\"si\", \"di\", \"bp\", \"sp\" };\n+\n+  if (register_size (gdbarch, regnum) >= TYPE_LENGTH (p->arg_type))\n+    {\n+      /* If we're dealing with a register whose size is greater or\n+\t equal than the size specified by the \"[-]N@\" prefix, then we\n+\t don't need to do anything.  */\n+      return;\n+    }\n+\n+  if (reg_assoc.find (regname) != reg_assoc.end ())\n+    {\n+      /* Use the extended version of the register.  */\n+      regname = \"e\" + regname;\n+    }\n+}\n+\n \f\n \n /* gdbarch gnu_triplet_regexp method.  Both arches are acceptable as GDB always\n@@ -4433,6 +4460,8 @@ i386_elf_init_abi (struct gdbarch_info info, struct gdbarch *gdbarch)\n \t\t\t\t      i386_stap_is_single_operand);\n   set_gdbarch_stap_parse_special_token (gdbarch,\n \t\t\t\t\ti386_stap_parse_special_token);\n+  set_gdbarch_stap_adjust_register (gdbarch,\n+\t\t\t\t    i386_stap_adjust_register);\n \n   set_gdbarch_in_indirect_branch_thunk (gdbarch,\n \t\t\t\t\ti386_in_indirect_branch_thunk);"
+    },
+    {
+      "sha": "aa1c8144d8a0b43c902fdb36d74659375366033f",
+      "filename": "gdb/stap-probe.c",
+      "status": "modified",
+      "additions": 28,
+      "deletions": 3,
+      "changes": 31,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7d7571f0c14b4673ca95f6dc31d6f07d429e6697/gdb/stap-probe.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7d7571f0c14b4673ca95f6dc31d6f07d429e6697/gdb/stap-probe.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/stap-probe.c?ref=7d7571f0c14b4673ca95f6dc31d6f07d429e6697",
+      "patch": "@@ -762,13 +762,38 @@ stap_parse_register_operand (struct stap_parse_info *p)\n \tregname += gdb_reg_suffix;\n     }\n \n+  int regnum = user_reg_map_name_to_regnum (gdbarch, regname.c_str (),\n+\t\t\t\t\t    regname.size ());\n+\n   /* Is this a valid register name?  */\n-  if (user_reg_map_name_to_regnum (gdbarch,\n-\t\t\t\t   regname.c_str (),\n-\t\t\t\t   regname.size ()) == -1)\n+  if (regnum == -1)\n     error (_(\"Invalid register name `%s' on expression `%s'.\"),\n \t   regname.c_str (), p->saved_arg);\n \n+  /* Check if there's any special treatment that the arch-specific\n+     code would like to perform on the register name.  */\n+  if (gdbarch_stap_adjust_register_p (gdbarch))\n+    {\n+      std::string oldregname = regname;\n+\n+      gdbarch_stap_adjust_register (gdbarch, p, regname, regnum);\n+\n+      if (regname != oldregname)\n+\t{\n+\t  /* This is just a check we perform to make sure that the\n+\t     arch-dependent code has provided us with a valid\n+\t     register name.  */\n+\t  regnum = user_reg_map_name_to_regnum (gdbarch, regname.c_str (),\n+\t\t\t\t\t\tregname.size ());\n+\n+\t  if (regnum == -1)\n+\t    internal_error (__FILE__, __LINE__,\n+\t\t\t    _(\"Invalid register name '%s' after replacing it\"\n+\t\t\t      \" (previous name was '%s')\"),\n+\t\t\t    regname.c_str (), oldregname.c_str ());\n+\t}\n+    }\n+\n   write_exp_elt_opcode (&p->pstate, OP_REGISTER);\n   str.ptr = regname.c_str ();\n   str.length = regname.size ();"
+    }
+  ]
+}

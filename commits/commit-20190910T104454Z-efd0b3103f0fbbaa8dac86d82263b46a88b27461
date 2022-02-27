@@ -1,0 +1,120 @@
+{
+  "sha": "efd0b3103f0fbbaa8dac86d82263b46a88b27461",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZWZkMGIzMTAzZjBmYmJhYThkYWM4NmQ4MjI2M2I0NmE4OGIyNzQ2MQ==",
+  "commit": {
+    "author": {
+      "name": "Srinath Parvathaneni",
+      "email": "srinath.parvathaneni@arm.com",
+      "date": "2019-09-10T10:44:37Z"
+    },
+    "committer": {
+      "name": "Srinath Parvathaneni",
+      "email": "srinath.parvathaneni@arm.com",
+      "date": "2019-09-10T10:44:54Z"
+    },
+    "message": "[PATCH][ARM][GAS]: Support to MVE VCTP instruction.\n\nThis patch adds support for MVE VCTP instruction in assembler.\n\ngas ChangeLog:\n\n2019-09-10  Srinath Parvathaneni  <srinath.parvathaneni@arm.com>\n\n        * config/tc-arm.c (M_MNEM_vctp): Add new Mnemonic.\n        (do_mve_vctp): Add function to encode VCTP instruction.\n        * testsuite/gas/arm/mve-vctp-bad.d: New test.\n        * testsuite/gas/arm/mve-vctp-bad.l: Likewise.\n        * testsuite/gas/arm/mve-vctp-bad.s: Likewise.\n        * testsuite/gas/arm/mve-vctp.d: Likewise.\n        * testsuite/gas/arm/mve-vctp.s: Likewise.",
+    "tree": {
+      "sha": "a90e401abd9d2c20be96c68b3b916f3a7bb2a924",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/a90e401abd9d2c20be96c68b3b916f3a7bb2a924"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/efd0b3103f0fbbaa8dac86d82263b46a88b27461",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/efd0b3103f0fbbaa8dac86d82263b46a88b27461",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/efd0b3103f0fbbaa8dac86d82263b46a88b27461",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/efd0b3103f0fbbaa8dac86d82263b46a88b27461/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "a084a2a6a181c2206be4ba29b21dc0ae441ab4e9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a084a2a6a181c2206be4ba29b21dc0ae441ab4e9",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/a084a2a6a181c2206be4ba29b21dc0ae441ab4e9"
+    }
+  ],
+  "stats": {
+    "total": 177,
+    "additions": 177,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "32a15f65ec852bae54184ab29447f17ab84d8fec",
+      "filename": "gas/config/tc-arm.c",
+      "status": "modified",
+      "additions": 41,
+      "deletions": 0,
+      "changes": 41,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/efd0b3103f0fbbaa8dac86d82263b46a88b27461/gas/config/tc-arm.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/efd0b3103f0fbbaa8dac86d82263b46a88b27461/gas/config/tc-arm.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-arm.c?ref=efd0b3103f0fbbaa8dac86d82263b46a88b27461",
+      "patch": "@@ -14424,6 +14424,7 @@ do_mve_scalar_shift (void)\n #define M_MNEM_vmlsdavax  0xeef01e21\n #define M_MNEM_vmullt\t0xee011e00\n #define M_MNEM_vmullb\t0xee010e00\n+#define M_MNEM_vctp\t0xf000e801\n #define M_MNEM_vst20\t0xfc801e00\n #define M_MNEM_vst21\t0xfc801e20\n #define M_MNEM_vst40\t0xfc801e01\n@@ -15793,6 +15794,45 @@ mve_get_vcmp_vpt_cond (struct neon_type_el et)\n   abort ();\n }\n \n+/* For VCTP (create vector tail predicate) in MVE.  */\n+static void\n+do_mve_vctp (void)\n+{\n+  int dt = 0;\n+  unsigned size = 0x0;\n+\n+  if (inst.cond > COND_ALWAYS)\n+    inst.pred_insn_type = INSIDE_VPT_INSN;\n+  else\n+    inst.pred_insn_type = MVE_OUTSIDE_PRED_INSN;\n+\n+  /* This is a typical MVE instruction which has no type but have size 8, 16,\n+     32 and 64.  For instructions with no type, inst.vectype.el[j].type is set\n+     to NT_untyped and size is updated in inst.vectype.el[j].size.  */\n+  if ((inst.operands[0].present) && (inst.vectype.el[0].type == NT_untyped))\n+    dt = inst.vectype.el[0].size;\n+\n+  /* Setting this does not indicate an actual NEON instruction, but only\n+     indicates that the mnemonic accepts neon-style type suffixes.  */\n+  inst.is_neon = 1;\n+\n+  switch (dt)\n+    {\n+      case 8:\n+\tbreak;\n+      case 16:\n+\tsize = 0x1; break;\n+      case 32:\n+\tsize = 0x2; break;\n+      case 64:\n+\tsize = 0x3; break;\n+      default:\n+\tfirst_error (_(\"Type is not allowed for this instruction\"));\n+    }\n+  inst.instruction |= size << 20;\n+  inst.instruction |= inst.operands[0].reg << 16;\n+}\n+\n static void\n do_mve_vpt (void)\n {\n@@ -25494,6 +25534,7 @@ static const struct asm_opcode insns[] =\n \n  /* MVE and MVE FP only.  */\n  mToC(\"vhcadd\",\tee000f00,   4, (RMQ, RMQ, RMQ, EXPi),\t\t  mve_vhcadd),\n+ mCEF(vctp,\t_vctp,      1, (RRnpc),\t\t\t\t  mve_vctp),\n  mCEF(vadc,\t_vadc,      3, (RMQ, RMQ, RMQ),\t\t\t  mve_vadc),\n  mCEF(vadci,\t_vadci,     3, (RMQ, RMQ, RMQ),\t\t\t  mve_vadc),\n  mToC(\"vsbc\",\tfe300f00,   3, (RMQ, RMQ, RMQ),\t\t\t  mve_vsbc),"
+    },
+    {
+      "sha": "b85f9f2f4b7c722a6118828136a7680133c4f21a",
+      "filename": "gas/testsuite/gas/arm/mve-vctp-bad.d",
+      "status": "added",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/efd0b3103f0fbbaa8dac86d82263b46a88b27461/gas/testsuite/gas/arm/mve-vctp-bad.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/efd0b3103f0fbbaa8dac86d82263b46a88b27461/gas/testsuite/gas/arm/mve-vctp-bad.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/mve-vctp-bad.d?ref=efd0b3103f0fbbaa8dac86d82263b46a88b27461",
+      "patch": "@@ -0,0 +1,4 @@\n+#name: Invalid MVE vctp instruction\n+#source: mve-vctp-bad.s\n+#as: -march=armv8.1-m.main+mve.fp -mfloat-abi=hard\n+#error_output: mve-vctp-bad.l"
+    },
+    {
+      "sha": "70e99ddcc21c973a2317f6783b58ec085ff2e385",
+      "filename": "gas/testsuite/gas/arm/mve-vctp-bad.l",
+      "status": "added",
+      "additions": 36,
+      "deletions": 0,
+      "changes": 36,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/efd0b3103f0fbbaa8dac86d82263b46a88b27461/gas/testsuite/gas/arm/mve-vctp-bad.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/efd0b3103f0fbbaa8dac86d82263b46a88b27461/gas/testsuite/gas/arm/mve-vctp-bad.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/mve-vctp-bad.l?ref=efd0b3103f0fbbaa8dac86d82263b46a88b27461",
+      "patch": "@@ -0,0 +1,36 @@\n+[^:]*: Assembler messages:\n+[^:]*:8: Error: Type is not allowed for this instruction -- `vctp.s8 r13'\n+[^:]*:8: Error: Type is not allowed for this instruction -- `vctp.u16 r13'\n+[^:]*:8: Error: Type is not allowed for this instruction -- `vctp.f32 r13'\n+[^:]*:8: Error: r15 not allowed here -- `vctp.8 r15'\n+[^:]*:8: Error: r15 not allowed here -- `vctp.16 r15'\n+[^:]*:8: Error: r15 not allowed here -- `vctp.32 r15'\n+[^:]*:8: Error: r15 not allowed here -- `vctp.64 r15'\n+[^:]*:8: Error: r15 not allowed here -- `vctp.s8 r15'\n+[^:]*:8: Error: r15 not allowed here -- `vctp.u16 r15'\n+[^:]*:8: Error: r15 not allowed here -- `vctp.f32 r15'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.8 r0'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.16 r0'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.32 r0'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.64 r0'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.f32 r0'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.8 r1'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.16 r1'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.32 r1'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.64 r1'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.f32 r1'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.8 r2'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.16 r2'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.32 r2'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.64 r2'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.f32 r2'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.8 r4'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.16 r4'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.32 r4'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.64 r4'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.f32 r4'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.8 r8'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.16 r8'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.32 r8'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.64 r8'\n+[^:]*:14: Error: vector predicated instruction should be in VPT/VPST block -- `vctpt.f32 r8'"
+    },
+    {
+      "sha": "217d75d3bf1a0a4a6fed66965bd5e63604a02b5b",
+      "filename": "gas/testsuite/gas/arm/mve-vctp-bad.s",
+      "status": "added",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/efd0b3103f0fbbaa8dac86d82263b46a88b27461/gas/testsuite/gas/arm/mve-vctp-bad.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/efd0b3103f0fbbaa8dac86d82263b46a88b27461/gas/testsuite/gas/arm/mve-vctp-bad.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/mve-vctp-bad.s?ref=efd0b3103f0fbbaa8dac86d82263b46a88b27461",
+      "patch": "@@ -0,0 +1,14 @@\n+.syntax unified\n+.thumb\n+\n+.irp op1, r13, r15\n+.irp op2 8, 16, 32, 64, s8, u16, f32\n+vctp.\\op2 \\op1\n+.endr\n+.endr\n+\n+.irp op1, r0, r1, r2, r4, r8\n+.irp op2 8, 16, 32, 64, f32\n+vctpt.\\op2 \\op1\n+.endr\n+.endr"
+    },
+    {
+      "sha": "e9ec13876ec600eb9a96a1095358db8b7a245ba4",
+      "filename": "gas/testsuite/gas/arm/mve-vctp.d",
+      "status": "added",
+      "additions": 67,
+      "deletions": 0,
+      "changes": 67,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/efd0b3103f0fbbaa8dac86d82263b46a88b27461/gas/testsuite/gas/arm/mve-vctp.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/efd0b3103f0fbbaa8dac86d82263b46a88b27461/gas/testsuite/gas/arm/mve-vctp.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/mve-vctp.d?ref=efd0b3103f0fbbaa8dac86d82263b46a88b27461",
+      "patch": "@@ -0,0 +1,67 @@\n+# name: MVE vctp instructions\n+# as: -march=armv8.1-m.main+mve\n+# objdump: -dr --prefix-addresses --show-raw-insn -marmv8.1-m.main\n+\n+.*: +file format .*arm.*\n+\n+Disassembly of section .text:\n+[^>]*> f000 e801 \tvctp.8\tr0\n+[^>]*> f010 e801 \tvctp.16\tr0\n+[^>]*> f020 e801 \tvctp.32\tr0\n+[^>]*> f030 e801 \tvctp.64\tr0\n+[^>]*> f001 e801 \tvctp.8\tr1\n+[^>]*> f011 e801 \tvctp.16\tr1\n+[^>]*> f021 e801 \tvctp.32\tr1\n+[^>]*> f031 e801 \tvctp.64\tr1\n+[^>]*> f002 e801 \tvctp.8\tr2\n+[^>]*> f012 e801 \tvctp.16\tr2\n+[^>]*> f022 e801 \tvctp.32\tr2\n+[^>]*> f032 e801 \tvctp.64\tr2\n+[^>]*> f004 e801 \tvctp.8\tr4\n+[^>]*> f014 e801 \tvctp.16\tr4\n+[^>]*> f024 e801 \tvctp.32\tr4\n+[^>]*> f034 e801 \tvctp.64\tr4\n+[^>]*> f008 e801 \tvctp.8\tr8\n+[^>]*> f018 e801 \tvctp.16\tr8\n+[^>]*> f028 e801 \tvctp.32\tr8\n+[^>]*> f038 e801 \tvctp.64\tr8\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f000 e801 \tvctpt.8\tr0\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f010 e801 \tvctpt.16\tr0\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f020 e801 \tvctpt.32\tr0\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f030 e801 \tvctpt.64\tr0\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f001 e801 \tvctpt.8\tr1\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f011 e801 \tvctpt.16\tr1\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f021 e801 \tvctpt.32\tr1\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f031 e801 \tvctpt.64\tr1\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f002 e801 \tvctpt.8\tr2\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f012 e801 \tvctpt.16\tr2\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f022 e801 \tvctpt.32\tr2\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f032 e801 \tvctpt.64\tr2\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f004 e801 \tvctpt.8\tr4\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f014 e801 \tvctpt.16\tr4\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f024 e801 \tvctpt.32\tr4\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f034 e801 \tvctpt.64\tr4\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f008 e801 \tvctpt.8\tr8\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f018 e801 \tvctpt.16\tr8\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f028 e801 \tvctpt.32\tr8\n+[^>]*> fe71 0f4d \tvpst\n+[^>]*> f038 e801 \tvctpt.64\tr8"
+    },
+    {
+      "sha": "b00ca5ad01a7e4ecbbb357ac9c5b56ee16690c02",
+      "filename": "gas/testsuite/gas/arm/mve-vctp.s",
+      "status": "added",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/efd0b3103f0fbbaa8dac86d82263b46a88b27461/gas/testsuite/gas/arm/mve-vctp.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/efd0b3103f0fbbaa8dac86d82263b46a88b27461/gas/testsuite/gas/arm/mve-vctp.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/mve-vctp.s?ref=efd0b3103f0fbbaa8dac86d82263b46a88b27461",
+      "patch": "@@ -0,0 +1,15 @@\n+.syntax unified\n+.thumb\n+\n+.irp op1, r0, r1, r2, r4, r8\n+.irp op2 8, 16, 32, 64\n+vctp.\\op2 \\op1\n+.endr\n+.endr\n+\n+.irp op1, r0, r1, r2, r4, r8\n+.irp op2 8, 16, 32, 64\n+vpst\n+vctpt.\\op2 \\op1\n+.endr\n+.endr"
+    }
+  ]
+}

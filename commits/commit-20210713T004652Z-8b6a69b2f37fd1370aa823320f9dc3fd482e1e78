@@ -1,0 +1,170 @@
+{
+  "sha": "8b6a69b2f37fd1370aa823320f9dc3fd482e1e78",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OGI2YTY5YjJmMzdmZDEzNzBhYTgyMzMyMGY5ZGMzZmQ0ODJlMWU3OA==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-06-15T18:49:32Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-07-13T00:46:52Z"
+    },
+    "message": "gdb: use intrusive list for step-over chain\n\nThe threads that need a step-over are currently linked using an\nhand-written intrusive doubly-linked list, so that seems a very good\ncandidate for intrusive_list, convert it.\n\nFor this, we have a use case of appending a list to another one (in\nstart_step_over).  Based on the std::list and Boost APIs, add a splice\nmethod.  However, only support splicing the other list at the end of the\n`this` list, since that's all we need.\n\nAdd explicit default assignment operators to\nreference_to_pointer_iterator, which are otherwise implicitly deleted.\nThis is needed because to define thread_step_over_list_safe_iterator, we\nwrap reference_to_pointer_iterator inside a basic_safe_iterator, and\nbasic_safe_iterator needs to be able to copy-assign the wrapped\niterator.  The move-assignment operator is therefore not needed, only\nthe copy-assignment operator is.  But for completeness, add both.\n\nChange-Id: I31b2ff67c7b78251314646b31887ef1dfebe510c",
+    "tree": {
+      "sha": "aadd270b49270314c5c60f4e25ae1dd6ce74c9a4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/aadd270b49270314c5c60f4e25ae1dd6ce74c9a4"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/8b6a69b2f37fd1370aa823320f9dc3fd482e1e78",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8b6a69b2f37fd1370aa823320f9dc3fd482e1e78",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/8b6a69b2f37fd1370aa823320f9dc3fd482e1e78",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8b6a69b2f37fd1370aa823320f9dc3fd482e1e78/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "08bdefb58b78621f50b30f64170e2cdc31c1b2cf",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/08bdefb58b78621f50b30f64170e2cdc31c1b2cf",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/08bdefb58b78621f50b30f64170e2cdc31c1b2cf"
+    }
+  ],
+  "stats": {
+    "total": 315,
+    "additions": 177,
+    "deletions": 138
+  },
+  "files": [
+    {
+      "sha": "35044383069be7e08e04ac355ecbb686e745db8d",
+      "filename": "gdb/gdbthread.h",
+      "status": "modified",
+      "additions": 28,
+      "deletions": 24,
+      "changes": 52,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8b6a69b2f37fd1370aa823320f9dc3fd482e1e78/gdb/gdbthread.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8b6a69b2f37fd1370aa823320f9dc3fd482e1e78/gdb/gdbthread.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbthread.h?ref=8b6a69b2f37fd1370aa823320f9dc3fd482e1e78",
+      "patch": "@@ -387,11 +387,9 @@ class thread_info : public refcounted_object,\n      expressions.  */\n   std::vector<struct value *> stack_temporaries;\n \n-  /* Step-over chain.  A thread is in the step-over queue if these are\n-     non-NULL.  If only a single thread is in the chain, then these\n-     fields point to self.  */\n-  struct thread_info *step_over_prev = NULL;\n-  struct thread_info *step_over_next = NULL;\n+  /* Step-over chain.  A thread is in the step-over queue if this node is\n+     linked.  */\n+  intrusive_list_node<thread_info> step_over_list_node;\n \n   /* Displaced-step state for this thread.  */\n   displaced_step_thread_state displaced_step_state;\n@@ -742,36 +740,42 @@ extern value *get_last_thread_stack_temporary (struct thread_info *tp);\n extern bool value_in_thread_stack_temporaries (struct value *,\n \t\t\t\t\t       struct thread_info *thr);\n \n+/* Thread step-over list type.  */\n+using thread_step_over_list_node\n+  = intrusive_member_node<thread_info, &thread_info::step_over_list_node>;\n+using thread_step_over_list\n+  = intrusive_list<thread_info, thread_step_over_list_node>;\n+using thread_step_over_list_iterator\n+  = reference_to_pointer_iterator<thread_step_over_list::iterator>;\n+using thread_step_over_list_safe_iterator\n+  = basic_safe_iterator<thread_step_over_list_iterator>;\n+using thread_step_over_list_safe_range\n+  = iterator_range<thread_step_over_list_safe_iterator>;\n+\n+static inline thread_step_over_list_safe_range\n+make_thread_step_over_list_safe_range (thread_step_over_list &list)\n+{\n+  return thread_step_over_list_safe_range\n+    (thread_step_over_list_safe_iterator (list.begin (),\n+\t\t\t\t\t  list.end ()),\n+     thread_step_over_list_safe_iterator (list.end (),\n+\t\t\t\t\t  list.end ()));\n+}\n+\n /* Add TP to the end of the global pending step-over chain.  */\n \n extern void global_thread_step_over_chain_enqueue (thread_info *tp);\n \n-/* Append the thread step over chain CHAIN_HEAD to the global thread step over\n+/* Append the thread step over list LIST to the global thread step over\n    chain. */\n \n extern void global_thread_step_over_chain_enqueue_chain\n-  (thread_info *chain_head);\n-\n-/* Remove TP from step-over chain LIST_P.  */\n-\n-extern void thread_step_over_chain_remove (thread_info **list_p,\n-\t\t\t\t\t   thread_info *tp);\n+  (thread_step_over_list &&list);\n \n /* Remove TP from the global pending step-over chain.  */\n \n extern void global_thread_step_over_chain_remove (thread_info *tp);\n \n-/* Return the thread following TP in the step-over chain whose head is\n-   CHAIN_HEAD.  Return NULL if TP is the last entry in the chain.  */\n-\n-extern thread_info *thread_step_over_chain_next (thread_info *chain_head,\n-\t\t\t\t\t\t thread_info *tp);\n-\n-/* Return the thread following TP in the global step-over chain, or NULL if TP\n-   is the last entry in the chain.  */\n-\n-extern thread_info *global_thread_step_over_chain_next (thread_info *tp);\n-\n /* Return true if TP is in any step-over chain.  */\n \n extern int thread_is_in_step_over_chain (struct thread_info *tp);\n@@ -782,7 +786,7 @@ extern int thread_is_in_step_over_chain (struct thread_info *tp);\n    TP may be nullptr, in which case it denotes an empty list, so a length of\n    0.  */\n \n-extern int thread_step_over_chain_length (thread_info *tp);\n+extern int thread_step_over_chain_length (const thread_step_over_list &l);\n \n /* Cancel any ongoing execution command.  */\n "
+    },
+    {
+      "sha": "6a478ef096640bf57dc4efc920c1882aea6760b9",
+      "filename": "gdb/infrun.c",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 19,
+      "changes": 39,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8b6a69b2f37fd1370aa823320f9dc3fd482e1e78/gdb/infrun.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8b6a69b2f37fd1370aa823320f9dc3fd482e1e78/gdb/infrun.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infrun.c?ref=8b6a69b2f37fd1370aa823320f9dc3fd482e1e78",
+      "patch": "@@ -1245,7 +1245,7 @@ follow_exec (ptid_t ptid, const char *exec_file_target)\n    to avoid starvation, otherwise, we could e.g., find ourselves\n    constantly stepping the same couple threads past their breakpoints\n    over and over, if the single-step finish fast enough.  */\n-struct thread_info *global_thread_step_over_chain_head;\n+thread_step_over_list global_thread_step_over_list;\n \n /* Bit flags indicating what the thread needs to step over.  */\n \n@@ -1843,8 +1843,6 @@ start_step_over (void)\n {\n   INFRUN_SCOPED_DEBUG_ENTER_EXIT;\n \n-  thread_info *next;\n-\n   /* Don't start a new step-over if we already have an in-line\n      step-over operation ongoing.  */\n   if (step_over_info_valid_p ())\n@@ -1854,8 +1852,8 @@ start_step_over (void)\n      steps, threads will be enqueued in the global chain if no buffers are\n      available.  If we iterated on the global chain directly, we might iterate\n      indefinitely.  */\n-  thread_info *threads_to_step = global_thread_step_over_chain_head;\n-  global_thread_step_over_chain_head = NULL;\n+  thread_step_over_list threads_to_step\n+    = std::move (global_thread_step_over_list);\n \n   infrun_debug_printf (\"stealing global queue of threads to step, length = %d\",\n \t\t       thread_step_over_chain_length (threads_to_step));\n@@ -1867,18 +1865,22 @@ start_step_over (void)\n      global list.  */\n   SCOPE_EXIT\n     {\n-      if (threads_to_step == nullptr)\n+      if (threads_to_step.empty ())\n \tinfrun_debug_printf (\"step-over queue now empty\");\n       else\n \t{\n \t  infrun_debug_printf (\"putting back %d threads to step in global queue\",\n \t\t\t       thread_step_over_chain_length (threads_to_step));\n \n-\t  global_thread_step_over_chain_enqueue_chain (threads_to_step);\n+\t  global_thread_step_over_chain_enqueue_chain\n+\t    (std::move (threads_to_step));\n \t}\n     };\n \n-  for (thread_info *tp = threads_to_step; tp != NULL; tp = next)\n+  thread_step_over_list_safe_range range\n+    = make_thread_step_over_list_safe_range (threads_to_step);\n+\n+  for (thread_info *tp : range)\n     {\n       struct execution_control_state ecss;\n       struct execution_control_state *ecs = &ecss;\n@@ -1887,8 +1889,6 @@ start_step_over (void)\n \n       gdb_assert (!tp->stop_requested);\n \n-      next = thread_step_over_chain_next (threads_to_step, tp);\n-\n       if (tp->inf->displaced_step_state.unavailable)\n \t{\n \t  /* The arch told us to not even try preparing another displaced step\n@@ -1903,7 +1903,7 @@ start_step_over (void)\n \t step over chain indefinitely if something goes wrong when resuming it\n \t If the error is intermittent and it still needs a step over, it will\n \t get enqueued again when we try to resume it normally.  */\n-      thread_step_over_chain_remove (&threads_to_step, tp);\n+      threads_to_step.erase (threads_to_step.iterator_to (*tp));\n \n       step_what = thread_still_needs_step_over (tp);\n       must_be_in_line = ((step_what & STEP_OVER_WATCHPOINT)\n@@ -3790,15 +3790,16 @@ prepare_for_detach (void)\n \n   /* Remove all threads of INF from the global step-over chain.  We\n      want to stop any ongoing step-over, not start any new one.  */\n-  thread_info *next;\n-  for (thread_info *tp = global_thread_step_over_chain_head;\n-       tp != nullptr;\n-       tp = next)\n-    {\n-      next = global_thread_step_over_chain_next (tp);\n-      if (tp->inf == inf)\n+  thread_step_over_list_safe_range range\n+    = make_thread_step_over_list_safe_range (global_thread_step_over_list);\n+\n+  for (thread_info *tp : range)\n+    if (tp->inf == inf)\n+      {\n+\tinfrun_debug_printf (\"removing thread %s from global step over chain\",\n+\t\t\t     target_pid_to_str (tp->ptid).c_str ());\n \tglobal_thread_step_over_chain_remove (tp);\n-    }\n+      }\n \n   /* If we were already in the middle of an inline step-over, and the\n      thread stepping belongs to the inferior we're detaching, we need"
+    },
+    {
+      "sha": "5a577365f94602a9bd85af74a82d7a46c07d3a04",
+      "filename": "gdb/infrun.h",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8b6a69b2f37fd1370aa823320f9dc3fd482e1e78/gdb/infrun.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8b6a69b2f37fd1370aa823320f9dc3fd482e1e78/gdb/infrun.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infrun.h?ref=8b6a69b2f37fd1370aa823320f9dc3fd482e1e78",
+      "patch": "@@ -18,8 +18,10 @@\n #ifndef INFRUN_H\n #define INFRUN_H 1\n \n+#include \"gdbthread.h\"\n #include \"symtab.h\"\n #include \"gdbsupport/byte-vector.h\"\n+#include \"gdbsupport/intrusive_list.h\"\n \n struct target_waitstatus;\n struct frame_info;\n@@ -253,7 +255,7 @@ extern void mark_infrun_async_event_handler (void);\n \n /* The global chain of threads that need to do a step-over operation\n    to get past e.g., a breakpoint.  */\n-extern struct thread_info *global_thread_step_over_chain_head;\n+extern thread_step_over_list global_thread_step_over_list;\n \n /* Remove breakpoints if possible (usually that means, if everything\n    is stopped).  On failure, print a message.  */"
+    },
+    {
+      "sha": "925ed96c3d8373208b6f2aba34511080e624228c",
+      "filename": "gdb/thread.c",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 94,
+      "changes": 106,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8b6a69b2f37fd1370aa823320f9dc3fd482e1e78/gdb/thread.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8b6a69b2f37fd1370aa823320f9dc3fd482e1e78/gdb/thread.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/thread.c?ref=8b6a69b2f37fd1370aa823320f9dc3fd482e1e78",
+      "patch": "@@ -183,7 +183,7 @@ void\n set_thread_exited (thread_info *tp, bool silent)\n {\n   /* Dead threads don't need to step-over.  Remove from chain.  */\n-  if (tp->step_over_next != NULL)\n+  if (thread_is_in_step_over_chain (tp))\n     global_thread_step_over_chain_remove (tp);\n \n   if (tp->state != THREAD_EXITED)\n@@ -293,93 +293,22 @@ thread_info::deletable () const\n   return refcount () == 0 && !is_current_thread (this);\n }\n \n-/* Add TP to the end of the step-over chain LIST_P.  */\n-\n-static void\n-step_over_chain_enqueue (struct thread_info **list_p, struct thread_info *tp)\n-{\n-  gdb_assert (tp->step_over_next == NULL);\n-  gdb_assert (tp->step_over_prev == NULL);\n-\n-  if (*list_p == NULL)\n-    {\n-      *list_p = tp;\n-      tp->step_over_prev = tp->step_over_next = tp;\n-    }\n-  else\n-    {\n-      struct thread_info *head = *list_p;\n-      struct thread_info *tail = head->step_over_prev;\n-\n-      tp->step_over_prev = tail;\n-      tp->step_over_next = head;\n-      head->step_over_prev = tp;\n-      tail->step_over_next = tp;\n-    }\n-}\n-\n-/* See gdbthread.h.  */\n-\n-void\n-thread_step_over_chain_remove (thread_info **list_p, thread_info *tp)\n-{\n-  gdb_assert (tp->step_over_next != NULL);\n-  gdb_assert (tp->step_over_prev != NULL);\n-\n-  if (*list_p == tp)\n-    {\n-      if (tp == tp->step_over_next)\n-\t*list_p = NULL;\n-      else\n-\t*list_p = tp->step_over_next;\n-    }\n-\n-  tp->step_over_prev->step_over_next = tp->step_over_next;\n-  tp->step_over_next->step_over_prev = tp->step_over_prev;\n-  tp->step_over_prev = tp->step_over_next = NULL;\n-}\n-\n-/* See gdbthread.h.  */\n-\n-thread_info *\n-thread_step_over_chain_next (thread_info *chain_head, thread_info *tp)\n-{\n-  thread_info *next = tp->step_over_next;\n-\n-  return next == chain_head ? NULL : next;\n-}\n-\n-/* See gdbthread.h.  */\n-\n-struct thread_info *\n-global_thread_step_over_chain_next (struct thread_info *tp)\n-{\n-  return thread_step_over_chain_next (global_thread_step_over_chain_head, tp);\n-}\n-\n /* See gdbthread.h.  */\n \n int\n thread_is_in_step_over_chain (struct thread_info *tp)\n {\n-  return (tp->step_over_next != NULL);\n+  return tp->step_over_list_node.is_linked ();\n }\n \n /* See gdbthread.h.  */\n \n int\n-thread_step_over_chain_length (thread_info *tp)\n+thread_step_over_chain_length (const thread_step_over_list &l)\n {\n-  if (tp == nullptr)\n-    return 0;\n-\n-  gdb_assert (thread_is_in_step_over_chain (tp));\n-\n   int num = 1;\n \n-  for (thread_info *iter = tp->step_over_next;\n-       iter != tp;\n-       iter = iter->step_over_next)\n+  for (const thread_info &thread ATTRIBUTE_UNUSED : l)\n     ++num;\n \n   return num;\n@@ -393,29 +322,16 @@ global_thread_step_over_chain_enqueue (struct thread_info *tp)\n   infrun_debug_printf (\"enqueueing thread %s in global step over chain\",\n \t\t       target_pid_to_str (tp->ptid).c_str ());\n \n-  step_over_chain_enqueue (&global_thread_step_over_chain_head, tp);\n+  gdb_assert (!thread_is_in_step_over_chain (tp));\n+  global_thread_step_over_list.push_back (*tp);\n }\n \n /* See gdbthread.h.  */\n \n void\n-global_thread_step_over_chain_enqueue_chain (thread_info *chain_head)\n+global_thread_step_over_chain_enqueue_chain (thread_step_over_list &&list)\n {\n-  gdb_assert (chain_head->step_over_next != nullptr);\n-  gdb_assert (chain_head->step_over_prev != nullptr);\n-\n-  if (global_thread_step_over_chain_head == nullptr)\n-    global_thread_step_over_chain_head = chain_head;\n-  else\n-    {\n-      thread_info *global_last = global_thread_step_over_chain_head->step_over_prev;\n-      thread_info *chain_last = chain_head->step_over_prev;\n-\n-      chain_last->step_over_next = global_thread_step_over_chain_head;\n-      global_last->step_over_next = chain_head;\n-      global_thread_step_over_chain_head->step_over_prev = chain_last;\n-      chain_head->step_over_prev = global_last;\n-    }\n+  global_thread_step_over_list.splice (std::move (list));\n }\n \n /* See gdbthread.h.  */\n@@ -426,7 +342,9 @@ global_thread_step_over_chain_remove (struct thread_info *tp)\n   infrun_debug_printf (\"removing thread %s from global step over chain\",\n \t\t       target_pid_to_str (tp->ptid).c_str ());\n \n-  thread_step_over_chain_remove (&global_thread_step_over_chain_head, tp);\n+  gdb_assert (thread_is_in_step_over_chain (tp));\n+  auto it = global_thread_step_over_list.iterator_to (*tp);\n+  global_thread_step_over_list.erase (it);\n }\n \n /* Delete the thread referenced by THR.  If SILENT, don't notify\n@@ -810,7 +728,7 @@ set_running_thread (struct thread_info *tp, bool running)\n       /* If the thread is now marked stopped, remove it from\n \t the step-over queue, so that we don't try to resume\n \t it until the user wants it to.  */\n-      if (tp->step_over_next != NULL)\n+      if (thread_is_in_step_over_chain (tp))\n \tglobal_thread_step_over_chain_remove (tp);\n     }\n "
+    },
+    {
+      "sha": "8b2b2d1391eff84afcb812cc8228d0be65905668",
+      "filename": "gdb/unittests/intrusive_list-selftests.c",
+      "status": "modified",
+      "additions": 84,
+      "deletions": 0,
+      "changes": 84,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8b6a69b2f37fd1370aa823320f9dc3fd482e1e78/gdb/unittests/intrusive_list-selftests.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8b6a69b2f37fd1370aa823320f9dc3fd482e1e78/gdb/unittests/intrusive_list-selftests.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/unittests/intrusive_list-selftests.c?ref=8b6a69b2f37fd1370aa823320f9dc3fd482e1e78",
+      "patch": "@@ -503,6 +503,89 @@ struct intrusive_list_test\n     }\n   }\n \n+  static void\n+  test_splice ()\n+  {\n+    {\n+      /* Two non-empty lists.  */\n+      item_type a (\"a\"), b (\"b\"), c (\"c\"), d (\"d\"), e (\"e\");\n+      ListType list1;\n+      ListType list2;\n+      std::vector<const item_type *> expected;\n+\n+      list1.push_back (a);\n+      list1.push_back (b);\n+      list1.push_back (c);\n+\n+      list2.push_back (d);\n+      list2.push_back (e);\n+\n+      list1.splice (std::move (list2));\n+\n+      expected = {&a, &b, &c, &d, &e};\n+      verify_items (list1, expected);\n+\n+      expected = {};\n+      verify_items (list2, expected);\n+    }\n+\n+    {\n+      /* Receiving list empty.  */\n+      item_type a (\"a\"), b (\"b\"), c (\"c\");\n+      ListType list1;\n+      ListType list2;\n+      std::vector<const item_type *> expected;\n+\n+      list2.push_back (a);\n+      list2.push_back (b);\n+      list2.push_back (c);\n+\n+      list1.splice (std::move (list2));\n+\n+      expected = {&a, &b, &c};\n+      verify_items (list1, expected);\n+\n+      expected = {};\n+      verify_items (list2, expected);\n+    }\n+\n+    {\n+      /* Giving list empty.  */\n+      item_type a (\"a\"), b (\"b\"), c (\"c\");\n+      ListType list1;\n+      ListType list2;\n+      std::vector<const item_type *> expected;\n+\n+      list1.push_back (a);\n+      list1.push_back (b);\n+      list1.push_back (c);\n+\n+      list1.splice (std::move (list2));\n+\n+      expected = {&a, &b, &c};\n+      verify_items (list1, expected);\n+\n+      expected = {};\n+      verify_items (list2, expected);\n+    }\n+\n+    {\n+      /* Both lists empty.  */\n+      item_type a (\"a\"), b (\"b\"), c (\"c\");\n+      ListType list1;\n+      ListType list2;\n+      std::vector<const item_type *> expected;\n+\n+      list1.splice (std::move (list2));\n+\n+      expected = {};\n+      verify_items (list1, expected);\n+\n+      expected = {};\n+      verify_items (list2, expected);\n+    }\n+  }\n+\n   static void\n   test_pop_front ()\n   {\n@@ -682,6 +765,7 @@ test_intrusive_list ()\n   tests.test_push_front ();\n   tests.test_push_back ();\n   tests.test_insert ();\n+  tests.test_splice ();\n   tests.test_pop_front ();\n   tests.test_pop_back ();\n   tests.test_erase ();"
+    },
+    {
+      "sha": "58aa68f1ab8d8dfa97e6cda54dcb34e39f75d042",
+      "filename": "gdbsupport/intrusive_list.h",
+      "status": "modified",
+      "additions": 27,
+      "deletions": 0,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8b6a69b2f37fd1370aa823320f9dc3fd482e1e78/gdbsupport/intrusive_list.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8b6a69b2f37fd1370aa823320f9dc3fd482e1e78/gdbsupport/intrusive_list.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/intrusive_list.h?ref=8b6a69b2f37fd1370aa823320f9dc3fd482e1e78",
+      "patch": "@@ -350,6 +350,33 @@ class intrusive_list\n     pos_node->prev = &elem;\n   }\n \n+  /* Move elements from LIST at the end of the current list.  */\n+  void splice (intrusive_list &&other)\n+  {\n+    if (other.empty ())\n+      return;\n+\n+    if (this->empty ())\n+      {\n+\t*this = std::move (other);\n+\treturn;\n+      }\n+\n+    /* [A ... B] + [C ... D] */\n+    T *b_elem = m_back;\n+    node_type *b_node = as_node (b_elem);\n+    T *c_elem = other.m_front;\n+    node_type *c_node = as_node (c_elem);\n+    T *d_elem = other.m_back;\n+\n+    b_node->next = c_elem;\n+    c_node->prev = b_elem;\n+    m_back = d_elem;\n+\n+    other.m_front = nullptr;\n+    other.m_back = nullptr;\n+  }\n+\n   void pop_front ()\n   {\n     gdb_assert (!this->empty ());"
+    },
+    {
+      "sha": "9210426adccc18288d3e1e201c688f3f67664d2a",
+      "filename": "gdbsupport/reference-to-pointer-iterator.h",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8b6a69b2f37fd1370aa823320f9dc3fd482e1e78/gdbsupport/reference-to-pointer-iterator.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8b6a69b2f37fd1370aa823320f9dc3fd482e1e78/gdbsupport/reference-to-pointer-iterator.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/reference-to-pointer-iterator.h?ref=8b6a69b2f37fd1370aa823320f9dc3fd482e1e78",
+      "patch": "@@ -56,6 +56,9 @@ struct reference_to_pointer_iterator\n   reference_to_pointer_iterator (const reference_to_pointer_iterator &) = default;\n   reference_to_pointer_iterator (reference_to_pointer_iterator &&) = default;\n \n+  reference_to_pointer_iterator &operator= (const reference_to_pointer_iterator &) = default;\n+  reference_to_pointer_iterator &operator= (reference_to_pointer_iterator &&) = default;\n+\n   value_type operator* () const\n   { return &*m_it; }\n "
+    }
+  ]
+}

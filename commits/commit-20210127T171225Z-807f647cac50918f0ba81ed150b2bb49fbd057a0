@@ -1,0 +1,146 @@
+{
+  "sha": "807f647cac50918f0ba81ed150b2bb49fbd057a0",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ODA3ZjY0N2NhYzUwOTE4ZjBiYTgxZWQxNTBiMmJiNDlmYmQwNTdhMA==",
+  "commit": {
+    "author": {
+      "name": "Matthew Malcomson",
+      "email": "matthew.malcomson@arm.com",
+      "date": "2021-01-27T17:09:46Z"
+    },
+    "committer": {
+      "name": "Matthew Malcomson",
+      "email": "matthew.malcomson@arm.com",
+      "date": "2021-01-27T17:12:25Z"
+    },
+    "message": "GDB: aarch64: Add ability to displaced step over a BR/BLR instruction\n\nEnable displaced stepping over a BR/BLR instruction\n\nDisplaced stepping over an instruction executes a instruction in a\nscratch area and then manually fixes up the PC address to leave\nexecution where it would have been if the instruction were in its\noriginal location.\n\nThe BR instruction does not need modification in order to run correctly\nat a different address, but the displaced step fixup method should not\nmanually adjust the PC since the BR instruction sets that value already.\n\nThe BLR instruction should also avoid such a fixup, but must also have\nthe link register modified to point to just after the original code\nlocation rather than back to the scratch location.\n\nThis patch adds the above functionality.\nWe add this functionality by modifying aarch64_displaced_step_others\nrather than by adding a new visitor method to aarch64_insn_visitor.\nWe choose this since it seems that visitor approach is designed\nspecifically for PC relative instructions (which must always be modified\nwhen executed in a different location).\n\nIt seems that the BR and BLR instructions are more like the RET\ninstruction which is already handled specially in\naarch64_displaced_step_others.\n\nThis also means the gdbserver code to relocate an instruction when\ncreating a fast tracepoint does not need to be modified, since nothing\nspecial is needed for the BR and BLR instructions there.\n\nRegression tests showed nothing untoward on native aarch64 (though it\ntook a while for me to get the testcase to account for PIE).\n\n------#####\nOriginal observed (mis)behaviour before was that displaced stepping over\na BR or BLR instruction would not execute the function they called.\nMost easily seen by putting a breakpoint with a condition on such an\ninstruction and a print statement in the functions they called.\nWhen run with the breakpoint enabled the function is not called and\n\"numargs called\" is not printed.\nWhen run with the breakpoint disabled the function is called and the\nmessage is printed.\n\n--- GDB Session\n~ [15:57:14] % gdb ../using-blr\nReading symbols from ../using-blr...done.\n(gdb) disassemble blr_call_value\nDump of assembler code for function blr_call_value:\n...\n   0x0000000000400560 <+28>:    blr     x2\n...\n   0x00000000004005b8 <+116>:   ret\nEnd of assembler dump.\n(gdb) break *0x0000000000400560\nBreakpoint 1 at 0x400560: file ../using-blr.c, line 22.\n(gdb) condition 1 10 == 0\n(gdb) run\nStarting program: /home/matmal01/using-blr\n[Inferior 1 (process 33279) exited with code 012]\n(gdb) disable 1\n(gdb) run\nStarting program: /home/matmal01/using-blr\nnumargs called\n[Inferior 1 (process 33289) exited with code 012]\n(gdb)\n\nTest program:\n---- using-blr ----\n\\#include <stdio.h>\ntypedef int (foo) (int, int);\ntypedef void (bar) (int, int);\nstruct sls_testclass {\n    foo *x;\n    bar *y;\n    int left;\n    int right;\n};\n\n__attribute__ ((noinline))\nint blr_call_value (struct sls_testclass x)\n{\n  int retval = x.x(x.left, x.right);\n  if (retval % 10)\n    return 100;\n  return 9;\n}\n\n__attribute__ ((noinline))\nint blr_call (struct sls_testclass x)\n{\n  x.y(x.left, x.right);\n  if (x.left % 10)\n    return 100;\n  return 9;\n}\n\nint\nnumargs (__attribute__ ((unused)) int left, __attribute__ ((unused)) int right)\n{\n        printf(\"numargs called\\n\");\n        return 10;\n}\n\nvoid\naltfunc (__attribute__ ((unused)) int left, __attribute__ ((unused)) int right)\n{\n        printf(\"altfunc called\\n\");\n}\n\nint main(int argc, char **argv)\n{\n  struct sls_testclass x = { .x = numargs, .y = altfunc, .left = 1, .right = 2 };\n  if (argc > 2)\n  {\n        blr_call (x);\n  }\n  else\n        blr_call_value (x);\n  return 10;\n}",
+    "tree": {
+      "sha": "b44da762abaeb7cc956bf5471172425b7baddf73",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/b44da762abaeb7cc956bf5471172425b7baddf73"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/807f647cac50918f0ba81ed150b2bb49fbd057a0",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/807f647cac50918f0ba81ed150b2bb49fbd057a0",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/807f647cac50918f0ba81ed150b2bb49fbd057a0",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/807f647cac50918f0ba81ed150b2bb49fbd057a0/comments",
+  "author": {
+    "login": "mmalcomson",
+    "id": 57484298,
+    "node_id": "MDQ6VXNlcjU3NDg0Mjk4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/57484298?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/mmalcomson",
+    "html_url": "https://github.com/mmalcomson",
+    "followers_url": "https://api.github.com/users/mmalcomson/followers",
+    "following_url": "https://api.github.com/users/mmalcomson/following{/other_user}",
+    "gists_url": "https://api.github.com/users/mmalcomson/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/mmalcomson/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/mmalcomson/subscriptions",
+    "organizations_url": "https://api.github.com/users/mmalcomson/orgs",
+    "repos_url": "https://api.github.com/users/mmalcomson/repos",
+    "events_url": "https://api.github.com/users/mmalcomson/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/mmalcomson/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "mmalcomson",
+    "id": 57484298,
+    "node_id": "MDQ6VXNlcjU3NDg0Mjk4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/57484298?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/mmalcomson",
+    "html_url": "https://github.com/mmalcomson",
+    "followers_url": "https://api.github.com/users/mmalcomson/followers",
+    "following_url": "https://api.github.com/users/mmalcomson/following{/other_user}",
+    "gists_url": "https://api.github.com/users/mmalcomson/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/mmalcomson/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/mmalcomson/subscriptions",
+    "organizations_url": "https://api.github.com/users/mmalcomson/orgs",
+    "repos_url": "https://api.github.com/users/mmalcomson/repos",
+    "events_url": "https://api.github.com/users/mmalcomson/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/mmalcomson/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "bb3c2d4d94185aab4323b59973f1de89917be738",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bb3c2d4d94185aab4323b59973f1de89917be738",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/bb3c2d4d94185aab4323b59973f1de89917be738"
+    }
+  ],
+  "stats": {
+    "total": 120,
+    "additions": 114,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "087e2041ba225e63fe764977979d80a9b2a244c9",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/807f647cac50918f0ba81ed150b2bb49fbd057a0/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/807f647cac50918f0ba81ed150b2bb49fbd057a0/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=807f647cac50918f0ba81ed150b2bb49fbd057a0",
+      "patch": "@@ -1,3 +1,10 @@\n+2021-01-27  Matthew Malcomson  <matthew.malcomson@arm.com>\n+\n+\t* aarch64-tdep.c (aarch64_displaced_step_others): Account for\n+\tBLR and BR instructions.\n+\t* arch/aarch64-insn.h (enum aarch64_opcodes): Add BR opcode.\n+\t(enum aarch64_masks): New.\n+\n 2021-01-26  Tom Tromey  <tromey@adacore.com>\n \n \t* windows-nat.c (DEBUG_EXEC, DEBUG_EVENTS, DEBUG_MEM)"
+    },
+    {
+      "sha": "3ac0564dd9a1bf01a7df60059b3a7b353e3b042f",
+      "filename": "gdb/aarch64-tdep.c",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 6,
+      "changes": 19,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/807f647cac50918f0ba81ed150b2bb49fbd057a0/gdb/aarch64-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/807f647cac50918f0ba81ed150b2bb49fbd057a0/gdb/aarch64-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/aarch64-tdep.c?ref=807f647cac50918f0ba81ed150b2bb49fbd057a0",
+      "patch": "@@ -3099,14 +3099,21 @@ aarch64_displaced_step_others (const uint32_t insn,\n   struct aarch64_displaced_step_data *dsd\n     = (struct aarch64_displaced_step_data *) data;\n \n-  aarch64_emit_insn (dsd->insn_buf, insn);\n-  dsd->insn_count = 1;\n-\n-  if ((insn & 0xfffffc1f) == 0xd65f0000)\n+  uint32_t masked_insn = (insn & CLEAR_Rn_MASK);\n+  if (masked_insn == BLR)\n     {\n-      /* RET */\n-      dsd->dsc->pc_adjust = 0;\n+      /* Emit a BR to the same register and then update LR to the original\n+\t address (similar to aarch64_displaced_step_b).  */\n+      aarch64_emit_insn (dsd->insn_buf, insn & 0xffdfffff);\n+      regcache_cooked_write_unsigned (dsd->regs, AARCH64_LR_REGNUM,\n+\t\t\t\t      data->insn_addr + 4);\n     }\n+  else\n+    aarch64_emit_insn (dsd->insn_buf, insn);\n+  dsd->insn_count = 1;\n+\n+  if (masked_insn == RET || masked_insn == BR || masked_insn == BLR)\n+    dsd->dsc->pc_adjust = 0;\n   else\n     dsd->dsc->pc_adjust = 4;\n }"
+    },
+    {
+      "sha": "6f9ec8572b22c1d61ad96b317090da36dd14f27d",
+      "filename": "gdb/arch/aarch64-insn.h",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/807f647cac50918f0ba81ed150b2bb49fbd057a0/gdb/arch/aarch64-insn.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/807f647cac50918f0ba81ed150b2bb49fbd057a0/gdb/arch/aarch64-insn.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/arch/aarch64-insn.h?ref=807f647cac50918f0ba81ed150b2bb49fbd057a0",
+      "patch": "@@ -61,7 +61,9 @@ enum aarch64_opcodes\n   CBNZ            = 0x21000000 | B,\n   TBZ             = 0x36000000 | B,\n   TBNZ            = 0x37000000 | B,\n+  /* BR             1101 0110 0001 1111 0000 00rr rrr0 0000 */\n   /* BLR            1101 0110 0011 1111 0000 00rr rrr0 0000 */\n+  BR              = 0xd61f0000,\n   BLR             = 0xd63f0000,\n   /* RET            1101 0110 0101 1111 0000 00rr rrr0 0000 */\n   RET             = 0xd65f0000,\n@@ -128,6 +130,13 @@ enum aarch64_opcodes\n   NOP             = (0 << 5) | HINT,\n };\n \n+/* List of useful masks.  */\n+enum aarch64_masks\n+{\n+  /* Used for masking out an Rn argument from an opcode.  */\n+  CLEAR_Rn_MASK = 0xfffffc1f,\n+};\n+\n /* Representation of a general purpose register of the form xN or wN.\n \n    This type is used by emitting functions that take registers as operands.  */"
+    },
+    {
+      "sha": "f20f041878ee0d1cf8860897abff7d772309c85e",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/807f647cac50918f0ba81ed150b2bb49fbd057a0/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/807f647cac50918f0ba81ed150b2bb49fbd057a0/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=807f647cac50918f0ba81ed150b2bb49fbd057a0",
+      "patch": "@@ -1,3 +1,7 @@\n+2021-01-27  Matthew Malcomson  <matthew.malcomson@arm.com>\n+\n+\t* gdb.arch/insn-reloc.c: Add tests for BR and BLR.\n+\n 2021-01-26  Tom de Vries  <tdevries@suse.de>\n \n \t* gdb.threads/killed-outside.exp: Allow regular output."
+    },
+    {
+      "sha": "62f13a9275439c8e2abdedd5cfbd88d06d863d03",
+      "filename": "gdb/testsuite/gdb.arch/insn-reloc.c",
+      "status": "modified",
+      "additions": 81,
+      "deletions": 0,
+      "changes": 81,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/807f647cac50918f0ba81ed150b2bb49fbd057a0/gdb/testsuite/gdb.arch/insn-reloc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/807f647cac50918f0ba81ed150b2bb49fbd057a0/gdb/testsuite/gdb.arch/insn-reloc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/insn-reloc.c?ref=807f647cac50918f0ba81ed150b2bb49fbd057a0",
+      "patch": "@@ -512,6 +512,84 @@ can_relocate_bl (void)\n        : : : \"x30\"); /* Test that LR is updated correctly.  */\n }\n \n+/* Make sure we can relocate a BR instruction.\n+\n+     ... Set x0 to target\n+   set_point12:\n+     BR x0 ; jump to target (tracepoint here).\n+     fail()\n+     return\n+   target:\n+     pass()\n+   end\n+\n+   */\n+\n+static void\n+can_relocate_br (void)\n+{\n+  int ok = 0;\n+\n+  asm goto (\"  adr x0, %l0\\n\"\n+            \"set_point12:\\n\"\n+            \"  br x0\\n\"\n+            :\n+            :\n+            : \"x0\"\n+            : madejump);\n+\n+  fail ();\n+  return;\n+madejump:\n+  pass ();\n+}\n+\n+/* Make sure we can relocate a BLR instruction.\n+\n+   We use two different functions since the test runner expects one breakpoint\n+   per function and we want to test two different things.\n+   For BLR we want to test that the BLR actually jumps to the relevant\n+   function, *and* that it sets the LR register correctly.\n+\n+   Hence we create one testcase that jumps to `pass` using BLR, and one\n+   testcase that jumps to `pass` if BLR has set the LR correctly.\n+\n+  -- can_relocate_blr_jumps\n+     ... Set x0 to pass\n+   set_point13:\n+     BLR x0        ; jump to pass (tracepoint here).\n+\n+  -- can_relocate_blr_sets_lr\n+     ... Set x0 to foo\n+   set_point14:\n+     BLR x0        ; jumps somewhere else (tracepoint here).\n+     BL pass       ; ensures the LR was set correctly by the BLR.\n+\n+   */\n+\n+static void\n+can_relocate_blr_jumps (void)\n+{\n+  int ok = 0;\n+\n+  /* Test BLR indeed jumps to the target.  */\n+  asm (\"set_point13:\\n\"\n+       \"  blr %[address]\\n\"\n+       : : [address] \"r\" (&pass) : \"x30\");\n+}\n+\n+static void\n+can_relocate_blr_sets_lr (void)\n+{\n+  int ok = 0;\n+\n+  /* Test BLR sets the LR correctly.  */\n+  asm (\"set_point14:\\n\"\n+       \"  blr %[address]\\n\"\n+       \"  bl pass\\n\"\n+       : : [address] \"r\" (&foo) : \"x30\");\n+}\n+\n #endif\n \n /* Functions testing relocations need to be placed here.  GDB will read\n@@ -536,6 +614,9 @@ static testcase_ftype testcases[] = {\n   can_relocate_ldr,\n   can_relocate_bcond_false,\n   can_relocate_bl,\n+  can_relocate_br,\n+  can_relocate_blr_jumps,\n+  can_relocate_blr_sets_lr,\n #endif\n };\n "
+    }
+  ]
+}

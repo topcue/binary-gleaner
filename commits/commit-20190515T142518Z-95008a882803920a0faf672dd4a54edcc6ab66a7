@@ -1,0 +1,120 @@
+{
+  "sha": "95008a882803920a0faf672dd4a54edcc6ab66a7",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OTUwMDhhODgyODAzOTIwYTBmYWY2NzJkZDRhNTRlZGNjNmFiNjZhNw==",
+  "commit": {
+    "author": {
+      "name": "John Darrington",
+      "email": "john@darrington.wattle.id.au",
+      "date": "2019-05-15T12:16:33Z"
+    },
+    "committer": {
+      "name": "John Darrington",
+      "email": "john@darrington.wattle.id.au",
+      "date": "2019-05-15T14:25:18Z"
+    },
+    "message": "S12Z: New option -mreg-prefix\n\nAdd a new machine dependent option to set a prefix for register names.\n\ngas/\n\n* config/tc-s12z.c (register_prefix): New variable.  (md_show_usage,\n  md_parse_option):  parse the new option.\n  (lex_reg_name): Scan the prefix if one is set.\n* doc/c-s12z.texi (S12Z-Opts): Document the new option.\n* testsuite/gas/s12z/reg-prefix.d: New file.\n* testsuite/gas/s12z/reg-prefix.s: New file.\n* testsuite/gas/s12z/s12z.exp: Add them.",
+    "tree": {
+      "sha": "02002a8ce019154a349eee4a8da3484ac18e5825",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/02002a8ce019154a349eee4a8da3484ac18e5825"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/95008a882803920a0faf672dd4a54edcc6ab66a7",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/95008a882803920a0faf672dd4a54edcc6ab66a7",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/95008a882803920a0faf672dd4a54edcc6ab66a7",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/95008a882803920a0faf672dd4a54edcc6ab66a7/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "7bede82892a06e6c26989803e70f53697392dcf9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7bede82892a06e6c26989803e70f53697392dcf9",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/7bede82892a06e6c26989803e70f53697392dcf9"
+    }
+  ],
+  "stats": {
+    "total": 172,
+    "additions": 155,
+    "deletions": 17
+  },
+  "files": [
+    {
+      "sha": "874401416ddfe295254a6e53294afa2f9f2a81e3",
+      "filename": "gas/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/95008a882803920a0faf672dd4a54edcc6ab66a7/gas/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/95008a882803920a0faf672dd4a54edcc6ab66a7/gas/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/ChangeLog?ref=95008a882803920a0faf672dd4a54edcc6ab66a7",
+      "patch": "@@ -1,3 +1,13 @@\n+2019-05-15  John Darrington <john@darrington.wattle.id.au>\n+\n+\t* config/tc-s12z.c (register_prefix): New variable.  (md_show_usage,\n+\tmd_parse_option):  parse the new option.\n+\t(lex_reg_name): Scan the prefix if one is set.\n+\t* doc/c-s12z.texi (S12Z-Opts): Document the new option.\n+\t* testsuite/gas/s12z/reg-prefix.d: New file.\n+\t* testsuite/gas/s12z/reg-prefix.s: New file.\n+\t* testsuite/gas/s12z/s12z.exp: Add them.\n+\n 2019-05-14  John Darrington <john@darrington.wattle.id.au>\n \n \t* doc/as.texi (Machine Dependencies): Fix misaligned menu entry."
+    },
+    {
+      "sha": "568f7b593caf357add7b1ac8bda4f448cf80c439",
+      "filename": "gas/config/tc-s12z.c",
+      "status": "modified",
+      "additions": 41,
+      "deletions": 8,
+      "changes": 49,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/95008a882803920a0faf672dd4a54edcc6ab66a7/gas/config/tc-s12z.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/95008a882803920a0faf672dd4a54edcc6ab66a7/gas/config/tc-s12z.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-s12z.c?ref=95008a882803920a0faf672dd4a54edcc6ab66a7",
+      "patch": "@@ -32,6 +32,8 @@ const char comment_chars[] = \";\";\n const char line_comment_chars[] = \"#*\";\n const char line_separator_chars[] = \"\";\n \n+static char * register_prefix = NULL;\n+\n const char EXP_CHARS[] = \"eE\";\n const char FLT_CHARS[] = \"dD\";\n \n@@ -40,10 +42,12 @@ static char *fail_line_pointer;\n \f\n /* Options and initialization.  */\n \n-const char *md_shortopts = \"Sm:\";\n+const char *md_shortopts = \"\";\n \n struct option md_longopts[] =\n   {\n+   {\"mreg-prefix\", required_argument, NULL, OPTION_MD_BASE},\n+   {NULL, no_argument, NULL, 0}\n   };\n \n size_t md_longopts_size = sizeof (md_longopts);\n@@ -92,8 +96,12 @@ s12z_listing_header (void)\n }\n \n void\n-md_show_usage (FILE *stream ATTRIBUTE_UNUSED)\n+md_show_usage (FILE *stream)\n {\n+  fprintf (stream,\n+      _(\"\\ns12z options:\\n\"\n+\t\"  -mreg-prefix=PREFIX     set a prefix used to indicate register names (default none)\"\n+        \"\\n\"));\n }\n \n void\n@@ -102,9 +110,17 @@ s12z_print_statistics (FILE *file ATTRIBUTE_UNUSED)\n }\n \n int\n-md_parse_option (int c ATTRIBUTE_UNUSED, const char *arg ATTRIBUTE_UNUSED)\n+md_parse_option (int c, const char *arg)\n {\n-  return 0;\n+  switch (c)\n+    {\n+    case OPTION_MD_BASE:\n+      register_prefix = xstrdup (arg);\n+      break;\n+    default:\n+      return 0;\n+    }\n+  return 1;\n }\n \f\n symbolS *\n@@ -310,13 +326,30 @@ static bfd_boolean\n lex_reg_name (uint16_t which, int *reg)\n {\n   char *p = input_line_pointer;\n-  while (p != 0 &&\n-\t ((*p >= 'a' && *p <='z') || (*p >= '0' && *p <= '9') || (*p >= 'A' && *p <='Z')))\n+\n+  if (p == 0)\n+    return false;\n+\n+  /* Scan (and ignore) the register prefix.  */\n+  if (register_prefix)\n+    {\n+      int len = strlen (register_prefix);\n+      if (0 == strncmp (register_prefix, p, len))\n+        p += len;\n+      else\n+        return false;\n+    }\n+\n+  char *start_of_reg_name = p;\n+\n+  while ((*p >= 'a' && *p <='z')\n+         || (*p >= '0' && *p <= '9')\n+         || (*p >= 'A' && *p <='Z'))\n     {\n       p++;\n     }\n \n-  size_t len = p - input_line_pointer;\n+  size_t len = p - start_of_reg_name;\n \n   if (len <= 0)\n     return false;\n@@ -327,7 +360,7 @@ lex_reg_name (uint16_t which, int *reg)\n       gas_assert (registers[i].name);\n \n       if (len == strlen (registers[i].name)\n-\t  && 0 == strncasecmp (registers[i].name, input_line_pointer, len))\n+\t  && 0 == strncasecmp (registers[i].name, start_of_reg_name, len))\n \t{\n \t  if ((0x1U << i) & which)\n \t    {"
+    },
+    {
+      "sha": "29c0d86a366cfabe2b3204cb3f3221826c106548",
+      "filename": "gas/doc/c-s12z.texi",
+      "status": "modified",
+      "additions": 77,
+      "deletions": 9,
+      "changes": 86,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/95008a882803920a0faf672dd4a54edcc6ab66a7/gas/doc/c-s12z.texi",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/95008a882803920a0faf672dd4a54edcc6ab66a7/gas/doc/c-s12z.texi",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/doc/c-s12z.texi?ref=95008a882803920a0faf672dd4a54edcc6ab66a7",
+      "patch": "@@ -4,11 +4,11 @@\n @ifset GENERIC\n @page\n @node S12Z-Dependent\n-@chapter S12Z Dependent Features\n+@chapter   S12Z Dependent Features\n @end ifset\n @ifclear GENERIC\n @node Machine Dependencies\n-@chapter S12Z Dependent Features\n+@chapter   S12Z Dependent Features\n @end ifclear\n \n The Freescale S12Z version of @code{@value{AS}} has a few machine\n@@ -19,7 +19,7 @@ dependent features.\n * S12Z-Opts::                   S12Z Options\n * S12Z-Syntax::                 Syntax\n * S12Z-Directives::             Assembler Directives\n-* S12Z-opcodes::                Opcodes\n+* S12Z-Opcodes::                Opcodes\n @end menu\n \n @node S12Z-Opts\n@@ -28,9 +28,25 @@ dependent features.\n @cindex options, S12Z\n @cindex S12Z options\n \n+The S12Z version of @code{@value{AS}} has the following options:\n+\n+@cindex @samp{-mreg-prefix=@var{prefix}} option, reg-prefix\n+You can use the @samp{-mreg-prefix=@var{pfx}} option to indicate\n+that the assembler expects each register name to be prefixed with the\n+string @var{pfx}.\n+\n+For an explanation of what this means and why it might be needed,\n+see @ref{Register Notation}.\n+\n @node S12Z-Syntax\n @section Syntax\n \n+\n+@menu\n+* Register Notation::                How to refer to registers\n+@end menu\n+\n+\n @cindex S12Z syntax\n @cindex syntax, S12Z\n \n@@ -109,16 +125,21 @@ Thus, they must be within the range [-32768, 32767].\n @item Register\n @samp{@var{reg}}\n \n+@cindex register names, S12Z\n Some instructions accept a register as an operand.\n-In general, @var{reg} may be a data register (@samp{D0}, @samp{D1} @dots{}\n-@samp{D7}), the @var{X} register or the @var{Y} register.\n+In general, @var{reg} may be a\n+data register (@samp{D0}, @samp{D1} @dots{} @samp{D7}),\n+the @samp{X} register or the @samp{Y} register.\n \n A few instructions accept as an argument the stack pointer\n register (@samp{S}), and/or the program counter (@samp{P}).\n \n Some very special instructions accept arguments which refer to the\n condition code register.  For these arguments the  syntax is\n-@samp{CCR}, @samp{CCH} or @samp{CCL} which refer to the complete condition code register, the condition code register high byte and the condition code register low byte respectively.\n+@samp{CCR}, @samp{CCH} or @samp{CCL} which refer to the complete\n+condition code register, the condition code register high byte\n+and the condition code register low byte respectively.\n+\n \n @item Absolute Direct\n @samp{@var{symbol}}, or @samp{@var{digits}}\n@@ -178,8 +199,6 @@ must be one of the data registers @samp{D0}, @samp{D1} @dots{} @samp{D7}.\n If any of the registers @samp{D2} @dots{} @samp{D5} are specified, then\n the register value is treated as a signed value.\n Otherwise it is treated as unsigned.\n-\n-\n @end table\n \n For example:\n@@ -199,12 +218,61 @@ For example:\n \tpsh     cch\n @end smallexample\n \n+@node Register Notation\n+@subsection Register Notation\n+\n+@cindex register notation, S12Z\n+Without a register prefix (@pxref{S12Z-Opts}), S12Z assembler code is expected in the traditional\n+format like this:\n+@smallexample\n+lea s, (-2,s)\n+st d2, (0,s)\n+ld x,  symbol\n+tfr d2, d6\n+cmp d6, #1532\n+@end smallexample\n+\n+@noindent\n+However, if @code{@value{AS}} is started with (for example) @samp{-mreg-prefix=%}\n+then all register names must be prefixed with @samp{%} as follows:\n+@smallexample\n+lea %s, (-2,%s)\n+st %d2, (0,%s)\n+ld %x,  symbol\n+tfr %d2, %d6\n+cmp %d6, #1532\n+@end smallexample\n+\n+The register prefix feature is intended to be used by compilers\n+to avoid ambiguity between symbols and register names.\n+Consider the following assembler instruction:\n+@smallexample\n+st d0, d1\n+@end smallexample\n+@noindent\n+This instruction is most likely to\n+mean ``Store the value in the register D0 into the register D1'' and that is the\n+default way in which @code{@value{AS}} interprets it.\n+However it could also be intended to mean\n+``Store the value in the register D0 into the memory referenced by the symbol\n+named @samp{d1}''.\n+If that is what is intended then @code{@value{AS}} must be invoked with\n+@samp{-mreg-prefix=@var{pfx}} and the code written as\n+@smallexample\n+st @var{pfx}d0, d1\n+@end smallexample\n+@noindent\n+where @var{pfx} is the chosen register prefix.\n+For this reason, compiler back-ends should choose a register prefix which\n+cannot be confused with a symbol name.\n+\n+\n @node S12Z-Directives\n @section Assembler Directives\n \n @cindex assembler directives, S12Z\n \n-@node S12Z-opcodes\n+@node S12Z-Opcodes\n @section Opcodes\n \n @cindex S12Z opcodes"
+    },
+    {
+      "sha": "ed44249d205f39c167d55e0b9f49a2024284eb29",
+      "filename": "gas/testsuite/gas/s12z/reg-prefix.d",
+      "status": "added",
+      "additions": 17,
+      "deletions": 0,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/95008a882803920a0faf672dd4a54edcc6ab66a7/gas/testsuite/gas/s12z/reg-prefix.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/95008a882803920a0faf672dd4a54edcc6ab66a7/gas/testsuite/gas/s12z/reg-prefix.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/s12z/reg-prefix.d?ref=95008a882803920a0faf672dd4a54edcc6ab66a7",
+      "patch": "@@ -0,0 +1,17 @@\n+#objdump: -d -r\n+#name:    register prefix\n+#source:  reg-prefix.s --mreg-prefix=%\n+\n+tmpdir/reg-prefix.o:     file format elf32-s12z\n+\n+\n+Disassembly of section .text:\n+\n+00000000 <d0-0x1>:\n+   0:\t01          \tnop\n+\n+00000001 <d0>:\n+   1:\tc5 bc       \tst d1, d0\n+   3:\tc5 fa 00 00 \tst d1, d0\n+   7:\t01 \n+\t\t\t5: R_S12Z_OPR\t.text"
+    },
+    {
+      "sha": "6f251b5e9650beede73c5b59a0629094c6eb8ad1",
+      "filename": "gas/testsuite/gas/s12z/reg-prefix.s",
+      "status": "added",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/95008a882803920a0faf672dd4a54edcc6ab66a7/gas/testsuite/gas/s12z/reg-prefix.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/95008a882803920a0faf672dd4a54edcc6ab66a7/gas/testsuite/gas/s12z/reg-prefix.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/s12z/reg-prefix.s?ref=95008a882803920a0faf672dd4a54edcc6ab66a7",
+      "patch": "@@ -0,0 +1,6 @@\n+;;; This test checks that when assembling with --mreg-prefix=%\n+;;; registers can be distinguished from symbols.\n+\tnop\n+d0:\n+\tst %d1, %d0\n+\tst %d1, d0"
+    },
+    {
+      "sha": "cccfc6e5490d936bb70ddc37fc8e7de137f04618",
+      "filename": "gas/testsuite/gas/s12z/s12z.exp",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/95008a882803920a0faf672dd4a54edcc6ab66a7/gas/testsuite/gas/s12z/s12z.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/95008a882803920a0faf672dd4a54edcc6ab66a7/gas/testsuite/gas/s12z/s12z.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/s12z/s12z.exp?ref=95008a882803920a0faf672dd4a54edcc6ab66a7",
+      "patch": "@@ -138,3 +138,7 @@ run_dump_test st-large-direct\n run_dump_test st-small-direct\n \n run_dump_test imm-dest\n+\n+# Miscellaneous\n+\n+run_dump_test reg-prefix"
+    }
+  ]
+}

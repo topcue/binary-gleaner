@@ -1,0 +1,60 @@
+{
+  "sha": "8b8b05a454442ee187bcb279e52701028d98afc6",
+  "node_id": "C_kwDOANOeidoAKDhiOGIwNWE0NTQ0NDJlZTE4N2JjYjI3OWU1MjcwMTAyOGQ5OGFmYzY",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-11-12T12:04:08Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-12-13T11:10:29Z"
+    },
+    "message": "gdb: have mips_nbsd_nat_target inherit from nbsd_nat_target\n\nWhile working on another patch I had reason to look at\nmips-netbsd-nat.c, and noticed that the class mips_nbsd_nat_target\ninherits directly from inf_ptrace_target.\n\nThis is a little strange as alpha_bsd_nat_target,\narm_netbsd_nat_target, hppa_nbsd_nat_target, m68k_bsd_nat_target,\nppc_nbsd_nat_target, sh_nbsd_nat_target, and vax_bsd_nat_target all\ninherit from nbsd_nat_target.\n\nOriginally, in this commit:\n\n  commit f6ac5f3d63e03a81c4ff3749aba234961cc9090e\n  Date:   Thu May 3 00:37:22 2018 +0100\n\n      Convert struct target_ops to C++\n\nWhen the target tree was converted to C++, all of the above classes\ninherited from inf_ptrace_target except for hppa_nbsd_nat_target,\nwhich was the only class that originally inherited from\nnbsd_nat_target.\n\nLater on all the remaining targets (except mips) were converted to\ninherit from nbsd_nat_target, these are the commits:\n\n  commit 4fed520be264b60893aa674071947890f8172915\n  Date:   Sat Mar 14 16:05:24 2020 +0100\n\n      Inherit alpha_netbsd_nat_target from nbsd_nat_target\n\n  commit 6018d381a00515933016c539d2fdc18ad0d304b8\n  Date:   Sat Mar 14 14:50:51 2020 +0100\n\n      Inherit arm_netbsd_nat_target from nbsd_nat_target\n\n  commit 01a801176ea15ddfc988cade2e3d84c3b0abfec3\n  Date:   Sat Mar 14 16:54:42 2020 +0100\n\n      Inherit m68k_bsd_nat_target from nbsd_nat_target\n\n  commit 9faa006d11a5e08264a007463435f84b77864c9c\n  Date:   Thu Mar 19 14:52:57 2020 +0100\n\n      Inherit ppc_nbsd_nat_target from nbsd_nat_target\n\n  commit 9809762324491b851332ce600ae9bde8dd34f601\n  Date:   Tue Mar 17 15:07:39 2020 +0100\n\n      Inherit sh_nbsd_nat_target from nbsd_nat_target\n\n  commit d5be5fa4207da00d039a1d5a040ba316e7092cbd\n  Date:   Sat Mar 14 13:21:58 2020 +0100\n\n      Inherit vax_bsd_nat_target from nbsd_nat_target\n\nI could only find mailing list threads for ppc and sh in the archive ,\nand unfortunately, none of the commits has any real detail that might\nexplain why mips was missed out, the only extra context I could find\nwas this message:\n\n  https://sourceware.org/pipermail/gdb-patches/2020-March/166853.html\n\nWhich says that \"proper\" OS support is going to be added to\nnbsd_nat_target, hence the need to inherit from that class.\n\nMy guess is that leaving mips_nbsd_nat_target unchanged was an\noversight, so, in this commit, I propose changing mips_nbsd_nat_target\nto inherit from nbsd_nat_target just like all the other nbsd targets.\n\nMy motivation for this patch relates to the post_startup_inferior\ntarget method.  In a future commit I want to change how this method is\nhandled.  Currently the mips_nbsd_nat_target will pick up the empty\nimplementation of inf_child_target::post_startup_inferior rather than\nthe version in netbsd-nat.c.  This feels like a bug to me, as surely,\nenabling of proc events is something that would need to be done for\nall netbsd targets, regardless of architecture.\n\nIn my future patch I have a choice then, either (a) add a new, empty\nimplementation of post_startup_inferior to mips_nbsd_nat_target,\nor (b) this commit, have mips_nbsd_nat_target inherit from\nnbsd_nat_target.  Option (b) seems like the right way to go, hence,\nthis commit.\n\nI've done absolutely no testing for this change, not even building it,\nas that would require at least an environment in which I can x-build\nmips-netbsd applications, which I have no idea how to set up.",
+    "tree": {
+      "sha": "e7befec0545cc8fb21399a66b7d743a65cc4c3c2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/e7befec0545cc8fb21399a66b7d743a65cc4c3c2"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/8b8b05a454442ee187bcb279e52701028d98afc6",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8b8b05a454442ee187bcb279e52701028d98afc6",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/8b8b05a454442ee187bcb279e52701028d98afc6",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8b8b05a454442ee187bcb279e52701028d98afc6/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "a96eadd871207cc7a811def35fb32a971c6be1bb",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a96eadd871207cc7a811def35fb32a971c6be1bb",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/a96eadd871207cc7a811def35fb32a971c6be1bb"
+    }
+  ],
+  "stats": {
+    "total": 3,
+    "additions": 2,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "887163cccd492e7ce673d4c4f1324bd3b0fca514",
+      "filename": "gdb/mips-netbsd-nat.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8b8b05a454442ee187bcb279e52701028d98afc6/gdb/mips-netbsd-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8b8b05a454442ee187bcb279e52701028d98afc6/gdb/mips-netbsd-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/mips-netbsd-nat.c?ref=8b8b05a454442ee187bcb279e52701028d98afc6",
+      "patch": "@@ -30,9 +30,10 @@\n \n #include \"mips-tdep.h\"\n #include \"mips-netbsd-tdep.h\"\n+#include \"netbsd-nat.h\"\n #include \"inf-ptrace.h\"\n \n-class mips_nbsd_nat_target final : public inf_ptrace_target\n+class mips_nbsd_nat_target final : public nbsd_nat_target\n {\n   void fetch_registers (struct regcache *, int) override;\n   void store_registers (struct regcache *, int) override;"
+    }
+  ]
+}

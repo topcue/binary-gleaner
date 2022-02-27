@@ -1,0 +1,98 @@
+{
+  "sha": "a63e5a3dccb8040e6e39e92677633bcaffbc6877",
+  "node_id": "C_kwDOANOeidoAKGE2M2U1YTNkY2NiODA0MGU2ZTM5ZTkyNjc3NjMzYmNhZmZiYzY4Nzc",
+  "commit": {
+    "author": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2022-02-26T20:35:10Z"
+    },
+    "committer": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2022-02-26T20:36:35Z"
+    },
+    "message": "Handle recursive internal problem in gdb_internal_error_resync\n\nI came across this problem when testing gdb.base/gdb-sigterm.exp\non a machine with a pre-release version of glib-2.34 installed:\n\nA problem internal to GDB has been detected,\nfurther debugging may prove unreliable.\nQuit this debugging session? (y or n) Recursive internal problem.\nFAIL: gdb.base/gdb-sigterm.exp: expect eof #0 (GDB internal error)\nResyncing due to internal error.\nERROR: : spawn id exp11 not open\n    while executing\n\"expect {\n-i exp11 -timeout 10\n\t    -re \"Quit this debugging session\\\\? \\\\(y or n\\\\) $\" {\n\t\tsend_gdb \"n\\n\" answer\n\t\tincr count\n\t    }\n\t    -re \"Create...\"\n    (\"uplevel\" body line 1)\n    invoked from within\n\"uplevel $body\" NONE : spawn id exp11 not open\nERROR: Could not resync from internal error (timeout)\ngdb.base/gdb-sigterm.exp: expect eof #0: stepped 9 times\nUNRESOLVED: gdb.base/gdb-sigterm.exp: 50 SIGTERM passes\n\nI don't have a problem with the latter ERROR nor the UNRESOLVED\nmessages.  However the first ERROR regarding the exp11 spawn id\nnot being open is not especially useful.\n\nThis commit handles the \"Recursive internal problem\" case, avoiding\nthe problematic ERROR shown above.\n\nWith this commit in place, the log messages look like this instead:\n\nA problem internal to GDB has been detected,\nfurther debugging may prove unreliable.\nQuit this debugging session? (y or n) Recursive internal problem.\nFAIL: gdb.base/gdb-sigterm.exp: expect eof #15 (GDB internal error)\nResyncing due to internal error.\nERROR: Could not resync from internal error (recursive internal problem)\ngdb.base/gdb-sigterm.exp: expect eof #15: stepped 12 times\nUNRESOLVED: gdb.base/gdb-sigterm.exp: 50 SIGTERM passes\n\ngdb/testsuite/ChangeLog:\n\n\t* lib/gdb.exp (gdb_internal_error_resync): Handle \"Recursive\n\tinternal problem\".",
+    "tree": {
+      "sha": "fe2e9a98a84c0a74a6f1b83d89030dcd32125080",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/fe2e9a98a84c0a74a6f1b83d89030dcd32125080"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/a63e5a3dccb8040e6e39e92677633bcaffbc6877",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a63e5a3dccb8040e6e39e92677633bcaffbc6877",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/a63e5a3dccb8040e6e39e92677633bcaffbc6877",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a63e5a3dccb8040e6e39e92677633bcaffbc6877/comments",
+  "author": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "cc1cf2a6040e6f265e37278ae8628cbbad2bdddf",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cc1cf2a6040e6f265e37278ae8628cbbad2bdddf",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/cc1cf2a6040e6f265e37278ae8628cbbad2bdddf"
+    }
+  ],
+  "stats": {
+    "total": 4,
+    "additions": 4,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "0be5b4e6c9695bb6e2cdf9b9dc53d8c458c03e20",
+      "filename": "gdb/testsuite/lib/gdb.exp",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a63e5a3dccb8040e6e39e92677633bcaffbc6877/gdb/testsuite/lib/gdb.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a63e5a3dccb8040e6e39e92677633bcaffbc6877/gdb/testsuite/lib/gdb.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/gdb.exp?ref=a63e5a3dccb8040e6e39e92677633bcaffbc6877",
+      "patch": "@@ -770,6 +770,10 @@ proc gdb_internal_error_resync {} {\n     set count 0\n     while {$count < 10} {\n \tgdb_expect {\n+\t    -re \"Recursive internal problem\\\\.\" {\n+\t\tperror \"Could not resync from internal error (recursive internal problem)\"\n+\t\treturn 0\n+\t    }\n \t    -re \"Quit this debugging session\\\\? \\\\(y or n\\\\) $\" {\n \t\tsend_gdb \"n\\n\" answer\n \t\tincr count"
+    }
+  ]
+}

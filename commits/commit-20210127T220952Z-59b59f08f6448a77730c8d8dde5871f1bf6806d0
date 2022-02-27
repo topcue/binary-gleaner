@@ -1,0 +1,134 @@
+{
+  "sha": "59b59f08f6448a77730c8d8dde5871f1bf6806d0",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NTliNTlmMDhmNjQ0OGE3NzczMGM4ZDhkZGU1ODcxZjFiZjY4MDZkMA==",
+  "commit": {
+    "author": {
+      "name": "Lancelot SIX",
+      "email": "lsix@lancelotsix.com",
+      "date": "2021-01-01T20:11:28Z"
+    },
+    "committer": {
+      "name": "Lancelot SIX",
+      "email": "lsix@lancelotsix.com",
+      "date": "2021-01-27T22:09:52Z"
+    },
+    "message": "Avoid use after free with logging and debug redirect.\n\nThis patch addresses PR gdb/27133. Before it, the following succession\nof commands would cause gdb to crash:\n\n\tset logging redirect on\n\tset logging debugredirect on\n\tset logging on\n\nThe problem eventually comes down to a use after free. The function\ncli_interp_base::set_logging is called with a unique_ptr argument that\nholds a pointer to the redirection file. In the problematic use case,\nno-one ever took ownership of that pointer (as far as unique_ptr is\nconcerned), so the call to its dtor at the end of the function causes\nthe file object to be deleted. Any later use of the pointer to the\nredirection file is therefore an error.\n\nThis patch ensures that the unique_ptr is released  when required (so it\ndoes not assume ownership anymore). The internal logic of\ncli_interp_base::set_logging takes care of freeing the ui_file when it\nis not necessary anymore using the saved_output.file_to_delete field.\n\ngdb/ChangeLog:\n\n\tPR gdb/27133\n\t* cli/cli-interp.c (cli_interp_base::set_logging): Ensure the\n\tunique_ptr is released when the wrapped pointer is kept for later\n\tuse.\n\ngdb/testsuite/ChangeLog:\n\n\tPR gdb/27133\n\t* gdb.base/ui-redirect.exp: Add test case that ensures that\n\tredirecting both logging and debug does not cause gdb to crash.",
+    "tree": {
+      "sha": "c24651da1b22a17810f325f0cce7493965ef827e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c24651da1b22a17810f325f0cce7493965ef827e"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/59b59f08f6448a77730c8d8dde5871f1bf6806d0",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/59b59f08f6448a77730c8d8dde5871f1bf6806d0",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/59b59f08f6448a77730c8d8dde5871f1bf6806d0",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/59b59f08f6448a77730c8d8dde5871f1bf6806d0/comments",
+  "author": {
+    "login": "lsix",
+    "id": 724339,
+    "node_id": "MDQ6VXNlcjcyNDMzOQ==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/724339?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/lsix",
+    "html_url": "https://github.com/lsix",
+    "followers_url": "https://api.github.com/users/lsix/followers",
+    "following_url": "https://api.github.com/users/lsix/following{/other_user}",
+    "gists_url": "https://api.github.com/users/lsix/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/lsix/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/lsix/subscriptions",
+    "organizations_url": "https://api.github.com/users/lsix/orgs",
+    "repos_url": "https://api.github.com/users/lsix/repos",
+    "events_url": "https://api.github.com/users/lsix/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/lsix/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "lsix",
+    "id": 724339,
+    "node_id": "MDQ6VXNlcjcyNDMzOQ==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/724339?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/lsix",
+    "html_url": "https://github.com/lsix",
+    "followers_url": "https://api.github.com/users/lsix/followers",
+    "following_url": "https://api.github.com/users/lsix/following{/other_user}",
+    "gists_url": "https://api.github.com/users/lsix/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/lsix/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/lsix/subscriptions",
+    "organizations_url": "https://api.github.com/users/lsix/orgs",
+    "repos_url": "https://api.github.com/users/lsix/repos",
+    "events_url": "https://api.github.com/users/lsix/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/lsix/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "807f647cac50918f0ba81ed150b2bb49fbd057a0",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/807f647cac50918f0ba81ed150b2bb49fbd057a0",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/807f647cac50918f0ba81ed150b2bb49fbd057a0"
+    }
+  ],
+  "stats": {
+    "total": 30,
+    "additions": 30,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "6cf6d40a247b531b0e750c37e7b3667a611af277",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/59b59f08f6448a77730c8d8dde5871f1bf6806d0/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/59b59f08f6448a77730c8d8dde5871f1bf6806d0/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=59b59f08f6448a77730c8d8dde5871f1bf6806d0",
+      "patch": "@@ -1,3 +1,10 @@\n+2021-01-27  Lancelot SIX  <lsix@lancelotsix.com>\n+\n+\tPR gdb/27133\n+\t* cli/cli-interp.c (cli_interp_base::set_logging): Ensure the\n+\tunique_ptr is released when the wrapped pointer is kept for later\n+\tuse.\n+\n 2021-01-27  Matthew Malcomson  <matthew.malcomson@arm.com>\n \n \t* aarch64-tdep.c (aarch64_displaced_step_others): Account for"
+    },
+    {
+      "sha": "882384e9a9155f2c09cc57d9c29bac792654202d",
+      "filename": "gdb/cli/cli-interp.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/59b59f08f6448a77730c8d8dde5871f1bf6806d0/gdb/cli/cli-interp.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/59b59f08f6448a77730c8d8dde5871f1bf6806d0/gdb/cli/cli-interp.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cli/cli-interp.c?ref=59b59f08f6448a77730c8d8dde5871f1bf6806d0",
+      "patch": "@@ -430,6 +430,14 @@ cli_interp_base::set_logging (ui_file_up logfile, bool logging_redirect,\n \t  saved_output.file_to_delete = tee;\n \t}\n \n+      /* Make sure that the call to logfile's dtor does not delete the\n+         underlying pointer if we still keep a reference to it.  If\n+         logfile_p is not referenced as the file_to_delete, then either\n+         the logfile is not used (no redirection) and it should be\n+         deleted, or a tee took ownership of the pointer. */\n+      if (logfile_p != nullptr && saved_output.file_to_delete == logfile_p)\n+\tlogfile.release ();\n+\n       gdb_stdout = logging_redirect ? logfile_p : tee;\n       gdb_stdlog = debug_redirect ? logfile_p : tee;\n       gdb_stderr = logging_redirect ? logfile_p : tee;"
+    },
+    {
+      "sha": "814c6ded1e02307ee230a390cd847f713558ddb5",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/59b59f08f6448a77730c8d8dde5871f1bf6806d0/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/59b59f08f6448a77730c8d8dde5871f1bf6806d0/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=59b59f08f6448a77730c8d8dde5871f1bf6806d0",
+      "patch": "@@ -1,3 +1,10 @@\n+2021-01-27  Lancelot SIX  <lsix@lancelotsix.com>\n+\n+\tPR gdb/27133\n+\t* gdb.base/ui-redirect.exp: Add test case that ensures that\n+\tredirecting both logging and debug does not cause gdb to crash.\n+\n+\n 2021-01-27  Matthew Malcomson  <matthew.malcomson@arm.com>\n \n \t* gdb.arch/insn-reloc.c: Add tests for BR and BLR."
+    },
+    {
+      "sha": "cb0749b80c25ec71dcc6a1bd8946e90f37a0765e",
+      "filename": "gdb/testsuite/gdb.base/ui-redirect.exp",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/59b59f08f6448a77730c8d8dde5871f1bf6806d0/gdb/testsuite/gdb.base/ui-redirect.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/59b59f08f6448a77730c8d8dde5871f1bf6806d0/gdb/testsuite/gdb.base/ui-redirect.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/ui-redirect.exp?ref=59b59f08f6448a77730c8d8dde5871f1bf6806d0",
+      "patch": "@@ -140,3 +140,11 @@ with_test_prefix \"redirect debugging\" {\n     gdb_test \"set logging off\" \"Done logging to /dev/null\\\\.\"\n     gdb_test \"help\" \"List of classes of commands:.*\"\n }\n+\n+with_test_prefix \"redirect logging and debuging\" {\n+    gdb_test_no_output \"set logging redirect on\"\n+    gdb_test_no_output \"set logging debugredirect on\"\n+    gdb_test \"set logging on\" \\\n+    \"Redirecting output to /dev/null.*Redirecting debug output to /dev/null\\\\.\"\n+    gdb_test \"set logging off\" \"Done logging to /dev/null\\\\.\"\n+}"
+    }
+  ]
+}

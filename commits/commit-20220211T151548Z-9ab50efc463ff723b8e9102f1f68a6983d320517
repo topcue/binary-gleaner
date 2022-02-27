@@ -1,0 +1,103 @@
+{
+  "sha": "9ab50efc463ff723b8e9102f1f68a6983d320517",
+  "node_id": "C_kwDOANOeidoAKDlhYjUwZWZjNDYzZmY3MjNiOGU5MTAyZjFmNjhhNjk4M2QzMjA1MTc",
+  "commit": {
+    "author": {
+      "name": "Bruno Larsen",
+      "email": "blarsen@redhat.com",
+      "date": "2022-01-26T13:08:13Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-02-11T15:15:48Z"
+    },
+    "message": "gdb: fix until behavior with trailing !is_stmt lines\n\nWhen using the command \"until\", it is expected that GDB will exit a\nloop if the current instruction is the last one related to that loop.\nHowever, if there were trailing non-statement instructions, \"until\"\nwould just behave as \"next\".  This was noticeable in clang-compiled\ncode, but might happen with gcc-compiled as well.  PR gdb/17315 relates\nto this problem, as running gdb.base/watchpoint.exp with clang\nwould fail for this reason.\n\nTo better understand this issue, consider the following source code,\nwith line numbers marked on the left:\n\n  10:\tfor (i = 0; i < 10; ++i)\n  11:     loop_body ();\n  12:   other_stuff ();\n\nIf we transform this to pseudo-assembler, and generate a line table,\nwe could end up with something like this:\n\n  Address | Pseudo-Assembler | Line | Is-Statement?\n\n  0x100   | i = 0            | 10   | Yes\n  0x104   | loop_body ()     | 11   | Yes\n  0x108   | i = i + 1        | 10   | Yes\n  0x10c   | if (i < 10):     | 10   | No\n  0x110   |     goto 0x104   | 10   | No\n  0x114   | other_stuff ()   | 12   | Yes\n\nNotice the two non-statement instructions at the end of the loop.\n\nThe problem is that when we reach address 0x108 and use 'until',\nhoping to leave the loop, GDB sets up a stepping range that runs from\nthe start of the function (0x100 in our example) to the end of the\ncurrent line table entry, that is 0x10c in our example.  GDB then\nstarts stepping forward.\n\nWhen 0x10c is reached GDB spots that we have left the stepping range,\nthat the new location is not a statement, and that the new location is\nassociated with the same source line number as the previous stepping\nrange.  GDB then sets up a new stepping range that runs from 0x10c to\n0x114, and continues stepping forward.\n\nWithin that stepping range the inferior hits the goto (at 0x110) and\nloops back to address 0x104.\n\nAt 0x104 GDB spots that we have left the previous stepping range, that\nthe new address is marked as a statement, and that the new address is\nfor a different source line.  As a result, GDB stops and returns\ncontrol to the user.  This is not what the user was expecting, they\nexpected GDB to exit the loop.\n\nThe fix proposed in this patch, is that, when the user issues the\n'until' command, and GDB sets up the initial stepping range, GDB will\ncheck subsequent SALs (symtab_and_lines) to see if they are\nnon-statements associated with the same line number.  If they are then\nthe end of the initial stepping range is extended to the end of the\nnon-statement SALs.\n\nIn our example above, the user is at 0x108 and uses 'until', GDB now\nsets up a stepping range from the start of the function 0x100 to\n0x114, the first address associated with a different line.\n\nNow as GDB steps around the loop it never leaves the initial stepping\nrange.  It is only when GDB exits the loop that we leave the stepping\nrange, and the stepping finishes at address 0x114.\n\nThis patch also adds a test case that can be run with gcc to test that\nthis functionality is not broken in the future.\n\nBug: https://sourceware.org/bugzilla/show_bug.cgi?id=17315",
+    "tree": {
+      "sha": "1daaefad5d325dc20ea22ec4be58df257041930a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/1daaefad5d325dc20ea22ec4be58df257041930a"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/9ab50efc463ff723b8e9102f1f68a6983d320517",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9ab50efc463ff723b8e9102f1f68a6983d320517",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/9ab50efc463ff723b8e9102f1f68a6983d320517",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9ab50efc463ff723b8e9102f1f68a6983d320517/comments",
+  "author": {
+    "login": "billionai",
+    "id": 31167038,
+    "node_id": "MDQ6VXNlcjMxMTY3MDM4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/31167038?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/billionai",
+    "html_url": "https://github.com/billionai",
+    "followers_url": "https://api.github.com/users/billionai/followers",
+    "following_url": "https://api.github.com/users/billionai/following{/other_user}",
+    "gists_url": "https://api.github.com/users/billionai/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/billionai/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/billionai/subscriptions",
+    "organizations_url": "https://api.github.com/users/billionai/orgs",
+    "repos_url": "https://api.github.com/users/billionai/repos",
+    "events_url": "https://api.github.com/users/billionai/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/billionai/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": null,
+  "parents": [
+    {
+      "sha": "b4b0dcfd03b6b40bec2e9fb21723f30d43e52f41",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b4b0dcfd03b6b40bec2e9fb21723f30d43e52f41",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b4b0dcfd03b6b40bec2e9fb21723f30d43e52f41"
+    }
+  ],
+  "stats": {
+    "total": 257,
+    "additions": 257,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "0e1cfcbadcd6e57ed4244f2247a0fe43258fb266",
+      "filename": "gdb/infcmd.c",
+      "status": "modified",
+      "additions": 39,
+      "deletions": 0,
+      "changes": 39,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9ab50efc463ff723b8e9102f1f68a6983d320517/gdb/infcmd.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9ab50efc463ff723b8e9102f1f68a6983d320517/gdb/infcmd.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infcmd.c?ref=9ab50efc463ff723b8e9102f1f68a6983d320517",
+      "patch": "@@ -1346,6 +1346,45 @@ until_next_command (int from_tty)\n \n       tp->control.step_range_start = BLOCK_ENTRY_PC (SYMBOL_BLOCK_VALUE (func));\n       tp->control.step_range_end = sal.end;\n+\n+      /* By setting the step_range_end based on the current pc, we are\n+\t assuming that the last line table entry for any given source line\n+\t will have is_stmt set to true.  This is not necessarily the case,\n+\t there may be additional entries for the same source line with\n+\t is_stmt set false.  Consider the following code:\n+\n+\t for (int i = 0; i < 10; i++)\n+\t   loop_body ();\n+\n+\t Clang-13, will generate multiple line table entries at the end of\n+\t the loop all associated with the 'for' line.  The first of these\n+\t entries is marked is_stmt true, but the other entries are is_stmt\n+\t false.\n+\n+\t If we only use the values in SAL, then our stepping range may not\n+\t extend to the end of the loop. The until command will reach the\n+\t end of the range, find a non is_stmt instruction, and step to the\n+\t next is_stmt instruction. This stopping point, however, will be\n+\t inside the loop, which is not what we wanted.\n+\n+\t Instead, we now check any subsequent line table entries to see if\n+\t they are for the same line.  If they are, and they are marked\n+\t is_stmt false, then we extend the end of our stepping range.\n+\n+\t When we finish this process the end of the stepping range will\n+\t point either to a line with a different line number, or, will\n+\t point at an address for the same line number that is marked as a\n+\t statement.  */\n+\n+      struct symtab_and_line final_sal\n+\t= find_pc_line (tp->control.step_range_end, 0);\n+\n+      while (final_sal.line == sal.line && final_sal.symtab == sal.symtab\n+\t     && !final_sal.is_stmt)\n+\t{\n+\t  tp->control.step_range_end = final_sal.end;\n+\t  final_sal = find_pc_line (final_sal.end, 0);\n+\t}\n     }\n   tp->control.may_range_step = 1;\n "
+    },
+    {
+      "sha": "749695b3db1fc03211833719e74438a9e5a17c06",
+      "filename": "gdb/testsuite/gdb.base/until-trailing-insns.c",
+      "status": "added",
+      "additions": 35,
+      "deletions": 0,
+      "changes": 35,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9ab50efc463ff723b8e9102f1f68a6983d320517/gdb/testsuite/gdb.base/until-trailing-insns.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9ab50efc463ff723b8e9102f1f68a6983d320517/gdb/testsuite/gdb.base/until-trailing-insns.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/until-trailing-insns.c?ref=9ab50efc463ff723b8e9102f1f68a6983d320517",
+      "patch": "@@ -0,0 +1,35 @@\n+/* Copyright 2022 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+int\n+main ()\n+{\t\t\t\t\t\t\t/* TAG: main prologue */\n+    asm (\"main_label: .globl main_label\");\n+    asm (\"loop_start: .globl loop_start\");\n+    int a, i;\n+    i = 0;\t\t\t\t\t\t/* TAG: loop assignment */\n+    while (1)\t\t\t\t\t\t/* TAG: loop line */\n+      {\n+\tasm (\"loop_condition: .globl loop_condition\");\n+\tif (i >= 10) break;\t\t\t\t/* TAG: loop condition */\n+\tasm (\"loop_code: .globl loop_code\");\n+\ta = i;\t\t\t\t\t\t/* TAG: loop code */\n+\tasm (\"loop_increment: .globl loop_increment\");\n+\ti++;\t\t\t\t\t\t/* TAG: loop increment */\n+\tasm (\"loop_jump: .globl loop_jump\");\n+      }\n+    asm (\"main_return: .globl main_return\");\n+    return 0;\t\t\t\t\t\t/* TAG: main return */\n+}"
+    },
+    {
+      "sha": "e87f4a317e7ed3ba8032962432f78e9a65249e3a",
+      "filename": "gdb/testsuite/gdb.base/until-trailing-insns.exp",
+      "status": "added",
+      "additions": 183,
+      "deletions": 0,
+      "changes": 183,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9ab50efc463ff723b8e9102f1f68a6983d320517/gdb/testsuite/gdb.base/until-trailing-insns.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9ab50efc463ff723b8e9102f1f68a6983d320517/gdb/testsuite/gdb.base/until-trailing-insns.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/until-trailing-insns.exp?ref=9ab50efc463ff723b8e9102f1f68a6983d320517",
+      "patch": "@@ -0,0 +1,183 @@\n+# Copyright 2022 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# This test sets up debug information for a loop as we see in some cases\n+# from clang-13.  In this situation, instructions at both the start and end\n+# of the loop are associated (in the line table), with the header line of\n+# the loop (line 10 in the example below).\n+#\n+# At the end of the loop we see some instructions marked as not a statement,\n+# but still associated with the same loop header line.  For example,\n+# consider the following C code:\n+#\n+# 10:\tfor (i = 0; i < 10; ++i)\n+# 11:     loop_body ();\n+# 12:   other_stuff ();\n+#\n+# Transformed into the following pseudo-assembler, with associated line table:\n+#\n+# Address | Pseudo-Assembler | Line | Is-Statement?\n+#\n+# 0x100   | i = 0            | 10   | Yes\n+# 0x104   | loop_body ()     | 11   | Yes\n+# 0x108   | i = i + 1        | 10   | Yes\n+# 0x10c   | if (i < 10):     | 10   | No\n+# 0x110   |     goto 0x104   | 10   | No\n+# 0x114   | other_stuff ()   | 12   | Yes\n+#\n+# Notice the two non-statement instructions at the end of the loop.\n+#\n+# The problem here is that when we reach address 0x108 and use 'until',\n+# hoping to leave the loop, GDB sets up a stepping range that runs from the\n+# start of the function (0x100 in our example) to the end of the current\n+# line table entry, that is 0x10c in our example.  GDB then starts stepping\n+# forward.\n+#\n+# When 0x10c is reached GDB spots that we have left the stepping range, that\n+# the new location is not a statement, and that the new location is\n+# associated with the same source line number as the previous stepping\n+# range.  GDB then sets up a new stepping range that runs from 0x10c to\n+# 0x114, and continues stepping forward.\n+#\n+# Within that stepping range the inferior hits the goto and loops back to\n+# address 0x104.\n+#\n+# At 0x104 GDB spots that we have left the previous stepping range, that the\n+# new address is marked as a statement, and that the new address is for a\n+# different source line.  As a result, GDB stops and returns control to the\n+# user.  This is not what the user was expecting, they expected GDB not to\n+# stop until they were outside of the loop.\n+#\n+# The fix is that, when the user issues the 'until' command, and GDB sets up\n+# the initial stepping range, GDB will check subsequent SALs to see if they\n+# are non-statements associated with the same line number.  If they are then\n+# the end of the initial stepping range is pushed out to the end of the\n+# non-statement SALs.\n+#\n+# In our example above, the user is at 0x108 and uses 'until'.  GDB now sets\n+# up a stepping range from the start of the function 0x100 to 0x114, the\n+# first address associated with a different line.\n+#\n+# Now as GDB steps around the loop it never leaves the initial stepping\n+# range.  It is only when GDB exits the loop that we leave the stepping\n+# range, and the stepping finishes at address 0x114.\n+#\n+# This test checks this behaviour using the DWARF assembler.\n+\n+load_lib dwarf.exp\n+\n+# This test can only be run on targets which support DWARF-2 and use gas.\n+if {![dwarf2_support]} {\n+    unsupported \"dwarf2 support required for this test\"\n+    return 0\n+}\n+\n+if [get_compiler_info] {\n+    return -1\n+}\n+\n+# The DWARF assembler requires the gcc compiler.\n+if {!$gcc_compiled} {\n+    unsupported \"gcc is required for this test\"\n+    return 0\n+}\n+\n+standard_testfile .c .S\n+\n+if { [prepare_for_testing \"failed to prepare\" ${testfile} ${srcfile}] } {\n+    return -1\n+}\n+\n+set asm_file [standard_output_file $srcfile2]\n+Dwarf::assemble $asm_file {\n+    global srcdir subdir srcfile\n+    declare_labels integer_label L\n+    set int_size [get_sizeof \"int\" 4]\n+\n+    # Find start address and length for our functions.\n+    lassign [function_range main [list ${srcdir}/${subdir}/$srcfile]] \\\n+\tmain_start main_len\n+    set main_end \"$main_start + $main_len\"\n+\n+    cu {} {\n+\tcompile_unit {\n+\t    {language @DW_LANG_C}\n+\t    {name until-trailing-isns.c}\n+\t    {stmt_list $L DW_FORM_sec_offset}\n+\t    {low_pc 0 addr}\n+\t} {\n+\t    subprogram {\n+\t\t{external 1 flag}\n+\t\t{name main}\n+\t\t{low_pc $main_start addr}\n+\t\t{high_pc $main_len DW_FORM_data4}\n+\t    }\n+\t}\n+    }\n+\n+    lines {version 2 default_is_stmt 1} L {\n+\tinclude_dir \"${srcdir}/${subdir}\"\n+\tfile_name \"$srcfile\" 1\n+\n+\t# Generate a line table program.  This mimicks clang-13's behavior\n+\t# of adding some !is_stmt at the end of a loop line, making until\n+\t# not work properly.\n+\tprogram {\n+\t    {DW_LNE_set_address $main_start}\n+\t    {line [gdb_get_line_number \"TAG: main prologue\"]}\n+\t    {DW_LNS_copy}\n+\t    {DW_LNE_set_address loop_start}\n+\t    {line [gdb_get_line_number \"TAG: loop line\"]}\n+\t    {DW_LNS_copy}\n+\t    {DW_LNE_set_address loop_condition}\n+\t    {line [gdb_get_line_number \"TAG: loop line\"]}\n+\t    {DW_LNS_negate_stmt}\n+\t    {DW_LNS_copy}\n+\t    {DW_LNE_set_address loop_code}\n+\t    {line [gdb_get_line_number \"TAG: loop code\"]}\n+\t    {DW_LNS_negate_stmt}\n+\t    {DW_LNS_copy}\n+\t    {DW_LNE_set_address loop_increment}\n+\t    {line [gdb_get_line_number \"TAG: loop line\"]}\n+\t    {DW_LNS_copy}\n+\t    {DW_LNE_set_address loop_jump}\n+\t    {line [gdb_get_line_number \"TAG: loop line\"]}\n+\t    {DW_LNS_negate_stmt}\n+\t    {DW_LNS_copy}\n+\t    {DW_LNE_set_address main_return}\n+\t    {line [gdb_get_line_number \"TAG: main return\"]}\n+\t    {DW_LNS_negate_stmt}\n+\t    {DW_LNS_copy}\n+\t    {DW_LNE_set_address $main_end}\n+\t    {line [expr [gdb_get_line_number \"TAG: main return\"] + 1]}\n+\t    {DW_LNS_copy}\n+\t    {DW_LNE_end_sequence}\n+\t}\n+    }\n+\n+}\n+\n+if { [prepare_for_testing \"failed to prepare\" ${testfile} \\\n+\t[list $srcfile $asm_file] {nodebug} ] } {\n+    return -1\n+}\n+\n+if ![runto_main] {\n+    return -1\n+}\n+\n+gdb_test \"next\" \".* TAG: loop code .*\" \"inside the loop\"\n+gdb_test \"next\" \".* TAG: loop line .*\" \"ending of loop\"\n+gdb_test \"until\" \".* TAG: main return .*\" \"left loop\""
+    }
+  ]
+}

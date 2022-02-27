@@ -1,0 +1,79 @@
+{
+  "sha": "3a6a0158ee07ba2f960ae4a898897460382dc5ec",
+  "node_id": "C_kwDOANOeidoAKDNhNmEwMTU4ZWUwN2JhMmY5NjBhZTRhODk4ODk3NDYwMzgyZGM1ZWM",
+  "commit": {
+    "author": {
+      "name": "Cooper Qu",
+      "email": "cooper.qu@linux.alibaba.com",
+      "date": "2021-09-22T08:14:36Z"
+    },
+    "committer": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2021-09-28T11:39:16Z"
+    },
+    "message": "RISC-V: Fix wrong version number when arch contains 'p'.\n\nWhen specify a default version for p extension in\nriscv_supported_std_ext[](elfxx-riscv.c) and assembling with\n-march=rv32imacp, the c extension's version in attribute will become\n0p0, the expectation is 2p0.\n\nTODO: Remember to add testcase when we have supported standrad p in\nthe future.\n\nbfd/\n\tPR gas/28372\n\t* elfxx-riscv.c (riscv_parsing_subset_version): Break if p\n\trepresent the 'p' extension.\n\nChange-Id: Ia4e0cf26f3d7d07acaee8cefd86707ecac663a59",
+    "tree": {
+      "sha": "36aea02fddd2e89558fb596ecb7318be4b9f0508",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/36aea02fddd2e89558fb596ecb7318be4b9f0508"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/3a6a0158ee07ba2f960ae4a898897460382dc5ec",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3a6a0158ee07ba2f960ae4a898897460382dc5ec",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/3a6a0158ee07ba2f960ae4a898897460382dc5ec",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3a6a0158ee07ba2f960ae4a898897460382dc5ec/comments",
+  "author": {
+    "login": "Cooper-Qu",
+    "id": 68842787,
+    "node_id": "MDQ6VXNlcjY4ODQyNzg3",
+    "avatar_url": "https://avatars.githubusercontent.com/u/68842787?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/Cooper-Qu",
+    "html_url": "https://github.com/Cooper-Qu",
+    "followers_url": "https://api.github.com/users/Cooper-Qu/followers",
+    "following_url": "https://api.github.com/users/Cooper-Qu/following{/other_user}",
+    "gists_url": "https://api.github.com/users/Cooper-Qu/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/Cooper-Qu/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/Cooper-Qu/subscriptions",
+    "organizations_url": "https://api.github.com/users/Cooper-Qu/orgs",
+    "repos_url": "https://api.github.com/users/Cooper-Qu/repos",
+    "events_url": "https://api.github.com/users/Cooper-Qu/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/Cooper-Qu/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": null,
+  "parents": [
+    {
+      "sha": "69a61890cb94746e5a564776081c3cefa8fca408",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/69a61890cb94746e5a564776081c3cefa8fca408",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/69a61890cb94746e5a564776081c3cefa8fca408"
+    }
+  ],
+  "stats": {
+    "total": 8,
+    "additions": 2,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "044cc63d09ef980de7bd9991608c1e08169e8c1b",
+      "filename": "bfd/elfxx-riscv.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 6,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3a6a0158ee07ba2f960ae4a898897460382dc5ec/bfd/elfxx-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3a6a0158ee07ba2f960ae4a898897460382dc5ec/bfd/elfxx-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfxx-riscv.c?ref=3a6a0158ee07ba2f960ae4a898897460382dc5ec",
+      "patch": "@@ -1536,13 +1536,9 @@ riscv_parsing_subset_version (const char *p,\n \t{\n \t  np = *(p + 1);\n \n+\t  /* Might be beginning of `p` extension.  */\n \t  if (!ISDIGIT (np))\n-\t    {\n-\t      /* Might be beginning of `p` extension.  */\n-\t      *major_version = version;\n-\t      *minor_version = 0;\n-\t      return p;\n-\t    }\n+\t    break;\n \n \t  *major_version = version;\n \t  major_p = false;"
+    }
+  ]
+}

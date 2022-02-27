@@ -1,0 +1,60 @@
+{
+  "sha": "ee22a1a31d3432bb40b67229f75ae7c2a271e38e",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZWUyMmExYTMxZDM0MzJiYjQwYjY3MjI5Zjc1YWU3YzJhMjcxZTM4ZQ==",
+  "commit": {
+    "author": {
+      "name": "John David Anglin",
+      "email": "danglin@gcc.gnu.org",
+      "date": "2021-05-19T15:27:28Z"
+    },
+    "committer": {
+      "name": "John David Anglin",
+      "email": "danglin@gcc.gnu.org",
+      "date": "2021-05-19T15:27:28Z"
+    },
+    "message": "Fix offset for ia64 PCREL60B relocation on HP-UX\n\ngas/ChangeLog:\n2021-05-19  John Buddery  <jvb@cyberscience.com>\n\tPR 25599\n\t* config/tc-ia64.c (emit_one_bundle): Increment fixup offset\n\tby one for PCREL60B relocation on HP-UX.",
+    "tree": {
+      "sha": "9f7ed80b2a39f710395c8e19222a2259c39107b8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/9f7ed80b2a39f710395c8e19222a2259c39107b8"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ee22a1a31d3432bb40b67229f75ae7c2a271e38e",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ee22a1a31d3432bb40b67229f75ae7c2a271e38e",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ee22a1a31d3432bb40b67229f75ae7c2a271e38e",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ee22a1a31d3432bb40b67229f75ae7c2a271e38e/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "8dd8c8d4ab262bc4e469b9914cc9b83de3b5bcfb",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8dd8c8d4ab262bc4e469b9914cc9b83de3b5bcfb",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/8dd8c8d4ab262bc4e469b9914cc9b83de3b5bcfb"
+    }
+  ],
+  "stats": {
+    "total": 11,
+    "additions": 10,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "34482eb4f973963adb6b4d9587642c112df42bf3",
+      "filename": "gas/config/tc-ia64.c",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 1,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ee22a1a31d3432bb40b67229f75ae7c2a271e38e/gas/config/tc-ia64.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ee22a1a31d3432bb40b67229f75ae7c2a271e38e/gas/config/tc-ia64.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-ia64.c?ref=ee22a1a31d3432bb40b67229f75ae7c2a271e38e",
+      "patch": "@@ -6887,8 +6887,17 @@ emit_one_bundle (void)\n \n       for (j = 0; j < md.slot[curr].num_fixups; ++j)\n \t{\n+\t  unsigned long where;\n+\n \t  ifix = md.slot[curr].fixup + j;\n-\t  fix = fix_new_exp (frag_now, frag_now_fix () - 16 + i, 8,\n+\t  where = frag_now_fix () - 16 + i;\n+#ifdef TE_HPUX\n+\t  /* Fix offset for PCREL60B relocation on HP-UX.  */\n+\t  if (ifix->code == BFD_RELOC_IA64_PCREL60B)\n+\t    ++where;\n+#endif\n+\n+\t  fix = fix_new_exp (frag_now, where, 8,\n \t\t\t     &ifix->expr, ifix->is_pcrel, ifix->code);\n \t  fix->tc_fix_data.opnd = ifix->opnd;\n \t  fix->fx_file = md.slot[curr].src_file;"
+    }
+  ]
+}

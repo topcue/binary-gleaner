@@ -1,0 +1,122 @@
+{
+  "sha": "1d01693f555be09f78cea4e2454c24457777f057",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MWQwMTY5M2Y1NTViZTA5Zjc4Y2VhNGUyNDU0YzI0NDU3Nzc3ZjA1Nw==",
+  "commit": {
+    "author": {
+      "name": "Jose E. Marchesi",
+      "email": "jose.marchesi@oracle.com",
+      "date": "2020-09-03T13:22:05Z"
+    },
+    "committer": {
+      "name": "Jose E. Marchesi",
+      "email": "jose.marchesi@oracle.com",
+      "date": "2020-09-03T16:21:20Z"
+    },
+    "message": "sim: better handle builds of primary targets lacking sims\n\nWhen building with a primary target that doesn't feature a simulator,\none would expect for nothing to be done in sim/.  However, a\n$(top_builddir)/sim/testsuite directory is created, with a Makefile\ncontaining a rule like:\n\ncheck-DEJAGNU: site.exp\n\techo \"Dejagnu-checking in `pwd` directory ...\"\n\trootme=`pwd`; export rootme; echo rootme = $$rootme; \\\n\tsrcdir=`cd ${srcdir}; pwd`; export srcdir ; echo srcdir = $$srcdir; \\\n\tEXPECT=${EXPECT} ; export EXPECT ; echo EXPECT = $$EXPECT; \\\n\tif [ -f $$rootme/../../expect/expect ]; then \\\n\t  TCL_LIBRARY=`cd $$srcdir/../../tcl/library && pwd`; \\\n\t  export TCL_LIBRARY; \\\n\tfi; \\\n        echo TCL_LIBRARY = $$TCL_LIBRARY; \\\n\truntest=$(RUNTEST); echo runtest = $$runtest; \\\n\tif $(SHELL) -c \"$$runtest --version\" > /dev/null 2>&1; then \\\n\t  $$runtest $(RUNTESTFLAGS); \\\n\telse echo \"WARNING: could not find \\`runtest'\" 1>&2; :;\\\n\tfi\n\nConsequently, when `make check' recurses into sim/testsuite, the above\nrule is executed.  Until now, the desired effect (of doing nothing)\nwas achieved because `runtest --version' fails due to a malformed\nsite.exp being generated in objdir: it is malformed because the\nprimary target doesn't configure a $sim_arch. i.e. this was doing the\nright thing just by chance.\n\nHowever, the git version of dejagnu seems to have changed in a way\nruntest doesn't try to load site.exp when it gets --version.  The net\neffect is that the rule above tries to actually run the tests, failing\nmiserably.\n\nThis little patch makes sim/configure to not recurse into\nsim/testsuite if the primary target didn't configure a simulator.\n\nTested with:\n- A simulator target (bpf-unkonwn-none).\n- A simulator-less target (x86_64-linux-gnu).\n- A simulator-less target and --build-targets=all.\n\nsim/ChangeLog:\n\n2020-09-03  Jose E. Marchesi  <jose.marchesi@oracle.com>\n\n\t* configure.ac: Do not configure sim/testsuite nor sim/igen if the\n\tprimary target doesn't have a simulator.\n\t* configure: Regenerate.",
+    "tree": {
+      "sha": "b2f79a7ef21bed3b0557fe9e0a7b43f3e95bc0c1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/b2f79a7ef21bed3b0557fe9e0a7b43f3e95bc0c1"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/1d01693f555be09f78cea4e2454c24457777f057",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1d01693f555be09f78cea4e2454c24457777f057",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/1d01693f555be09f78cea4e2454c24457777f057",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1d01693f555be09f78cea4e2454c24457777f057/comments",
+  "author": {
+    "login": "jemarch",
+    "id": 7061875,
+    "node_id": "MDQ6VXNlcjcwNjE4NzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/7061875?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/jemarch",
+    "html_url": "https://github.com/jemarch",
+    "followers_url": "https://api.github.com/users/jemarch/followers",
+    "following_url": "https://api.github.com/users/jemarch/following{/other_user}",
+    "gists_url": "https://api.github.com/users/jemarch/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/jemarch/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/jemarch/subscriptions",
+    "organizations_url": "https://api.github.com/users/jemarch/orgs",
+    "repos_url": "https://api.github.com/users/jemarch/repos",
+    "events_url": "https://api.github.com/users/jemarch/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/jemarch/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "jemarch",
+    "id": 7061875,
+    "node_id": "MDQ6VXNlcjcwNjE4NzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/7061875?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/jemarch",
+    "html_url": "https://github.com/jemarch",
+    "followers_url": "https://api.github.com/users/jemarch/followers",
+    "following_url": "https://api.github.com/users/jemarch/following{/other_user}",
+    "gists_url": "https://api.github.com/users/jemarch/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/jemarch/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/jemarch/subscriptions",
+    "organizations_url": "https://api.github.com/users/jemarch/orgs",
+    "repos_url": "https://api.github.com/users/jemarch/repos",
+    "events_url": "https://api.github.com/users/jemarch/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/jemarch/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "dd216e07a156c19e589fc5f481fe13a256262801",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/dd216e07a156c19e589fc5f481fe13a256262801",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/dd216e07a156c19e589fc5f481fe13a256262801"
+    }
+  ],
+  "stats": {
+    "total": 22,
+    "additions": 16,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "5f5f5b8c7568bc6c78431bd1e23a20a3c876f158",
+      "filename": "sim/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1d01693f555be09f78cea4e2454c24457777f057/sim/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1d01693f555be09f78cea4e2454c24457777f057/sim/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/sim/ChangeLog?ref=1d01693f555be09f78cea4e2454c24457777f057",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-09-03  Jose E. Marchesi  <jose.marchesi@oracle.com>\n+\n+\t* configure.ac: Do not configure sim/testsuite nor sim/igen if the\n+\tprimary target doesn't have a simulator.\n+\t* configure: Regenerate.\n+\n 2020-08-04  Jose E. Marchesi  <jose.marchesi@oracle.com>\n \t    David Faust <david.faust@oracle.com>\n "
+    },
+    {
+      "sha": "34f1a15a4c63ea58678a4e90c053d0f23cffcb0c",
+      "filename": "sim/configure",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 3,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1d01693f555be09f78cea4e2454c24457777f057/sim/configure",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1d01693f555be09f78cea4e2454c24457777f057/sim/configure",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/sim/configure?ref=1d01693f555be09f78cea4e2454c24457777f057",
+      "patch": "@@ -3914,11 +3914,13 @@ subdirs=\"$subdirs aarch64\"\n esac\n \n \n-   subdirs=\"$subdirs testsuite\"\n+   if test x\"${sim_arch}\" != x; then\n+      subdirs=\"$subdirs testsuite\"\n \n-   if test \"$sim_igen\" = yes; then\n-      subdirs=\"$subdirs igen\"\n+      if test \"$sim_igen\" = yes; then\n+         subdirs=\"$subdirs igen\"\n \n+      fi\n    fi\n fi\n "
+    },
+    {
+      "sha": "d92ca25d39781980cf2965e0c4deb359e6ebc5b5",
+      "filename": "sim/configure.ac",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 3,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1d01693f555be09f78cea4e2454c24457777f057/sim/configure.ac",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1d01693f555be09f78cea4e2454c24457777f057/sim/configure.ac",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/sim/configure.ac?ref=1d01693f555be09f78cea4e2454c24457777f057",
+      "patch": "@@ -43,9 +43,11 @@ m4_define([SIM_ARCH], [\n ])\n if test \"${enable_sim}\" != no; then\n    sinclude(configure.tgt)\n-   AC_CONFIG_SUBDIRS(testsuite)\n-   if test \"$sim_igen\" = yes; then\n-      AC_CONFIG_SUBDIRS(igen)\n+   if test x\"${sim_arch}\" != x; then\n+      AC_CONFIG_SUBDIRS(testsuite)\n+      if test \"$sim_igen\" = yes; then\n+         AC_CONFIG_SUBDIRS(igen)\n+      fi\n    fi\n fi\n "
+    }
+  ]
+}

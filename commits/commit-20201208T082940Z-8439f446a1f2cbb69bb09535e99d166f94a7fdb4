@@ -1,0 +1,110 @@
+{
+  "sha": "8439f446a1f2cbb69bb09535e99d166f94a7fdb4",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ODQzOWY0NDZhMWYyY2JiNjliYjA5NTM1ZTk5ZDE2NmY5NGE3ZmRiNA==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-12-08T08:29:40Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-12-08T08:29:40Z"
+    },
+    "message": "[gdb/testsuite] Fix gdb.ada/mi_task_arg.exp for -m32\n\nWhen running test-case gdb.ada/mi_task_arg.exp with target board unix/-m32, I\nrun into:\n...\n(gdb) ^M\nExpecting: ^(-stack-list-arguments 1[^M\n]+)?(\\^done,stack-args=\\[ \\\n  frame={level=\"0\",args=\\[\\]}, \\\n  frame={level=\"1\",args=\\[{name=\"<_task>\",value=\"0x[0-9A-Fa-f]+\"}\\]}, \\\n  frame={level=\"2\",args=\\[({name=\"self_id\",value=\"0x[0-9A-Fa-f]+\"})?\\]},.*[^M\n]+[(]gdb[)] ^M\n[ ]*)\n-stack-list-arguments 1^M\n^done,stack-args=[ \\\n  frame={level=\"0\",args=[]}, \\\n  frame={level=\"1\",args=[{name=\"<_task>\",value=\"0x808abf0\"}]}, \\\n  frame={level=\"2\",args=[{name=\"self_id\",value=\"<optimized out>\"}]}, \\\n  frame={level=\"3\",args=[]},frame={level=\"4\",args=[]}]^M\n(gdb) ^M\nFAIL: gdb.ada/mi_task_arg.exp: -stack-list-arguments 1 (unexpected output)\n...\n\nThe problem is that we're expecting a $hex for the value of self_id, but\ninstead get <optimized out>.\n\nLooking at the debug info for self_id:\n...\n <1><12a1f>: Abbrev Number: 84 (DW_TAG_subprogram)\n    <12a20>   DW_AT_name        : system__tasking__stages__task_wrapper\n    ...\n <2><12a35>: Abbrev Number: 61 (DW_TAG_formal_parameter)\n    <12a36>   DW_AT_name        : self_id\n    <12a40>   DW_AT_location    : 0x459e (location list)\n...\nit refers to location information here:\n...\n    0000459e 08053060 080531ac (DW_OP_fbreg: 0)\n    000045aa 0805327c 080532a5 (DW_OP_fbreg: 0)\n    000045b6 08053320 08053324 (DW_OP_fbreg: 0)\n...\nwhile the pc used to retrieve the location information is 0x080531c5:\n...\n $ gdb -batch outputs/gdb.ada/mi_task_arg/task_switch \\\n   -ex \"break 57\" -ex run -ex bt\n   ...\n #0  task_switch.break_me () at task_switch.adb:57\n #1  0x0804aaae in task_switch.caller (<_task>=0x808abf0) \\\n                     at task_switch.adb:51\n #2  0x080531c5 in system.tasking.stages.task_wrapper \\\n                     (self_id=<optimized out>) at s-tassta.adb:1295\n...\nwhich indeed falls outside of the ranges listed in the location info.\n\nFix this by accepting <optimized out> as valid value of self_id.\n\nTested on x86_64-linux.\n\ngdb/testsuite/ChangeLog:\n\n2020-12-08  Tom de Vries  <tdevries@suse.de>\n\n\t* gdb.ada/mi_task_arg.exp: Accept <optimized out> as valid value of\n\tself_id.",
+    "tree": {
+      "sha": "dae03b2e1667d58039fc7912aa46a3f35074a438",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/dae03b2e1667d58039fc7912aa46a3f35074a438"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/8439f446a1f2cbb69bb09535e99d166f94a7fdb4",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8439f446a1f2cbb69bb09535e99d166f94a7fdb4",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/8439f446a1f2cbb69bb09535e99d166f94a7fdb4",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8439f446a1f2cbb69bb09535e99d166f94a7fdb4/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "28e36bf89069fbf630a5aaf1251d21ebd11b5f77",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/28e36bf89069fbf630a5aaf1251d21ebd11b5f77",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/28e36bf89069fbf630a5aaf1251d21ebd11b5f77"
+    }
+  ],
+  "stats": {
+    "total": 11,
+    "additions": 9,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "2cf25a4311be0d12656e58e4ed09d6cbe8e8e113",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8439f446a1f2cbb69bb09535e99d166f94a7fdb4/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8439f446a1f2cbb69bb09535e99d166f94a7fdb4/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=8439f446a1f2cbb69bb09535e99d166f94a7fdb4",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-12-08  Tom de Vries  <tdevries@suse.de>\n+\n+\t* gdb.ada/mi_task_arg.exp: Accept <optimized out> as valid value of\n+\tself_id.\n+\n 2020-12-07  Pedro Alves  <pedro@palves.net>\n \n \t* gdb.base/break-on-linker-gcd-function.exp: Remove unused"
+    },
+    {
+      "sha": "ace808c605912535343f23016b94e39a036fe26d",
+      "filename": "gdb/testsuite/gdb.ada/mi_task_arg.exp",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8439f446a1f2cbb69bb09535e99d166f94a7fdb4/gdb/testsuite/gdb.ada/mi_task_arg.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8439f446a1f2cbb69bb09535e99d166f94a7fdb4/gdb/testsuite/gdb.ada/mi_task_arg.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.ada/mi_task_arg.exp?ref=8439f446a1f2cbb69bb09535e99d166f94a7fdb4",
+      "patch": "@@ -49,9 +49,11 @@ if ![mi_runto \"task_switch.break_me\"] then {\n # Frame for task_switch.break_me\n set frame0 \"frame=\\{level=\\\"0\\\",args=\\\\\\[\\\\\\]\\}\"\n # Frame for task_switch.caller\n-set frame1 \"frame=\\{level=\\\"1\\\",args=\\\\\\[\\{name=\\\"<_task>\\\",value=\\\"$hex\\\"\\}\\\\\\]\\}\"\n+set frame1_args \"\\{name=\\\"<_task>\\\",value=\\\"$hex\\\"\\}\"\n+set frame1 \"frame=\\{level=\\\"1\\\",args=\\\\\\[$frame1_args\\\\\\]\\}\"\n # Frame for system.tasking.stages.task_wrapper\n-set frame2 \"frame=\\{level=\\\"2\\\",args=\\\\\\[(\\{name=\\\"self_id\\\",value=\\\"$hex\\\"\\})?\\\\\\]\\}\"\n+set frame2_args \"(\\{name=\\\"self_id\\\",value=\\\"($hex|<optimized out>)\\\"\\})?\"\n+set frame2 \"frame=\\{level=\\\"2\\\",args=\\\\\\[$frame2_args\\\\\\]\\}\"\n mi_gdb_test \"-stack-list-arguments 1\" \\\n             \"\\\\^done,stack-args=\\\\\\[$frame0,$frame1,$frame2,.*\" \\\n             \"-stack-list-arguments 1\""
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "sha": "bd454f8baf5382e6ad2869dc077e3d0711a17882",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YmQ0NTRmOGJhZjUzODJlNmFkMjg2OWRjMDc3ZTNkMDcxMWExNzg4Mg==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-11-12T19:33:29Z"
+    },
+    "committer": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-11-14T01:25:39Z"
+    },
+    "message": "Fix python gdbpy_breakpoint_object leak.\n\nvalgrind reports a leak when a breakpoint is created then deleted:\n\n==1313== 40 bytes in 1 blocks are definitely lost in loss record 1,115 of 8,596\n==1313==    at 0x4835753: malloc (vg_replace_malloc.c:307)\n==1313==    by 0x6E05BC: _PyObject_New (object.c:255)\n==1313==    by 0x470E4B: gdbpy_breakpoint_created(breakpoint*) (py-breakpoint.c:1023)\n==1313==    by 0x2946D9: operator() (std_function.h:687)\n==1313==    by 0x2946D9: notify (observable.h:106)\n==1313==    by 0x2946D9: install_breakpoint(int, std::unique_ptr<breakpoint, std::default_delete<breakpoint> >&&, int) (breakpoint.c:8136)\n==1313==    by 0x295BCA: create_breakpoint_sal (breakpoint.c:8878)\n==1313==    by 0x295BCA: create_breakpoints_sal (breakpoint.c:8919)\n==1313==    by 0x295BCA: create_breakpoints_sal_default (breakpoint.c:13671)\n...\n\nThe leak is due to a superfluous Py_INCREF when the python object\nis allocated inside gdbpy_breakpoint_created, when the python object\nis allocated locally: this object has already a refcount of 1, and\nthe only reference is the reference from the C breakpoint object.\nThe Py_INCREF is however needed when the python object was created from\npython: the python object was stored in bppy_pending_object, and\ngdbpy_breakpoint_created creates a new reference to this object.\n\nSolve the leak by calling 'Py_INCREF (newbp);' only in the bppy_pending_object\ncase.\n\nRegression tested on debian/amd64 natively and under valgrind on centos/amd64.\nBefore the patch, 795 tests have a definite leak.\nAfter the patch, 197 have a definite leak.\n\nThanks to Tom, that helped on irc with the python refcount logic.\n\ngdb/ChangeLog\n2019-11-14  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n\n\t* python/py-finishbreakpoint.c (gdbpy_breakpoint_created):\n\tonly call Py_INCREF (newbp) in the bppy_pending_object case.",
+    "tree": {
+      "sha": "3a8e03a789c62af55b429487cc2601b6a46a2ca4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/3a8e03a789c62af55b429487cc2601b6a46a2ca4"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/bd454f8baf5382e6ad2869dc077e3d0711a17882",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bd454f8baf5382e6ad2869dc077e3d0711a17882",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/bd454f8baf5382e6ad2869dc077e3d0711a17882",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bd454f8baf5382e6ad2869dc077e3d0711a17882/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "7a13ef8500d8d5e911739993c348ebeaaff550c5",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7a13ef8500d8d5e911739993c348ebeaaff550c5",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/7a13ef8500d8d5e911739993c348ebeaaff550c5"
+    }
+  ],
+  "stats": {
+    "total": 7,
+    "additions": 6,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "8be8efbb4176e777e596ed5bf1fff9d6bdadd323",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bd454f8baf5382e6ad2869dc077e3d0711a17882/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bd454f8baf5382e6ad2869dc077e3d0711a17882/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=bd454f8baf5382e6ad2869dc077e3d0711a17882",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-11-14  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n+\n+\t* python/py-finishbreakpoint.c (gdbpy_breakpoint_created):\n+\tonly call Py_INCREF (newbp) in the bppy_pending_object case.\n+\n 2019-11-13  Tom Tromey  <tromey@adacore.com>\n \n \tPR build/25182:"
+    },
+    {
+      "sha": "4170737416cab30a2e4181104d102fb0c20a9001",
+      "filename": "gdb/python/py-breakpoint.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bd454f8baf5382e6ad2869dc077e3d0711a17882/gdb/python/py-breakpoint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bd454f8baf5382e6ad2869dc077e3d0711a17882/gdb/python/py-breakpoint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/py-breakpoint.c?ref=bd454f8baf5382e6ad2869dc077e3d0711a17882",
+      "patch": "@@ -1017,6 +1017,7 @@ gdbpy_breakpoint_created (struct breakpoint *bp)\n   if (bppy_pending_object)\n     {\n       newbp = bppy_pending_object;\n+      Py_INCREF (newbp);\n       bppy_pending_object = NULL;\n     }\n   else\n@@ -1027,7 +1028,6 @@ gdbpy_breakpoint_created (struct breakpoint *bp)\n       newbp->bp = bp;\n       newbp->bp->py_bp_object = newbp;\n       newbp->is_finish_bp = 0;\n-      Py_INCREF (newbp);\n       ++bppy_live;\n     }\n   else"
+    }
+  ]
+}

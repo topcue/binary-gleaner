@@ -1,0 +1,110 @@
+{
+  "sha": "5a99adb86018c10da294e7556544e401c492c2fb",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NWE5OWFkYjg2MDE4YzEwZGEyOTRlNzU1NjU0NGU0MDFjNDkyYzJmYg==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-07-30T07:23:01Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-07-30T07:23:01Z"
+    },
+    "message": "[gdb/build] Fix Wmaybe-uninitialized in gdb/ui-style.h\n\nWhen building CFLAGS/CXXFLAGS=\"-O2 -g -Wall\" and gcc 4.8.5, we run into:\n...\nsrc/gdb/cli/cli-style.c:154:42: warning: '*((void*)&<anonymous> +8)' \\\n  may be used uninitialized in this function [-Wmaybe-uninitialized]\nsrc/gdb/cli/cli-style.c:154:42: warning: '*((void*)&<anonymous> +9)' \\\n  may be used uninitialized in this function [-Wmaybe-uninitialized]\nsrc/gdb/cli/cli-style.c:154:42: warning: '*((void*)&<anonymous> +10)' \\\n  may be used uninitialized in this function [-Wmaybe-uninitialized]\n...\n\nThe root cause is that the data members of class color, nested in struct\nui_file_style in gdb/ui-style.h:\n...\n    bool m_simple;\n    int m_value;\n    uint8_t m_red, m_green, m_blue;\n...\nare only partially initialized by this constructor:\n...\n    color (int c)\n      : m_simple (true),\n        m_value (c)\n    {\n      gdb_assert (c >= -1 && c <= 255);\n    }\n...\nbut the default copy constructor will copy all the fields.\n\nThe member m_simple acts as a discriminant, to indicate which other members\nare valid:\n- m_value (with m_simple == true)\n- m_red, m_green, m_blue (with m_simple == false)\nSo, we don't need storage for both m_value and m_red/m_green/m_blue at the\nsame time.\n\nFix this by wrapping the respective members in a union:\n...\n    bool m_simple;\n    union\n    {\n      int m_value;\n      struct\n      {\n       uint8_t m_red, m_green, m_blue;\n      };\n    };\n...\nwhich also fixes the warning.\n\nBuild and reg-tested on x86_64-linux.\n\ngdb/ChangeLog:\n\n2020-07-30  Tom de Vries  <tdevries@suse.de>\n\n\tPR build/26320\n\t* ui-style.h (struct ui_file_style::color): Wrap m_value and\n\tm_red/m_green/m_blue in a union.",
+    "tree": {
+      "sha": "cd82df9ccda9b1fe658fce1424c7379c150b72fb",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/cd82df9ccda9b1fe658fce1424c7379c150b72fb"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/5a99adb86018c10da294e7556544e401c492c2fb",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5a99adb86018c10da294e7556544e401c492c2fb",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/5a99adb86018c10da294e7556544e401c492c2fb",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5a99adb86018c10da294e7556544e401c492c2fb/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "13069b87d1b4331b940c7744b2436291427ec988",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/13069b87d1b4331b940c7744b2436291427ec988",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/13069b87d1b4331b940c7744b2436291427ec988"
+    }
+  ],
+  "stats": {
+    "total": 16,
+    "additions": 14,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "a61a57355b56beb88f6bcf0b9a2bca585362572f",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5a99adb86018c10da294e7556544e401c492c2fb/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5a99adb86018c10da294e7556544e401c492c2fb/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=5a99adb86018c10da294e7556544e401c492c2fb",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-07-30  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR build/26320\n+\t* ui-style.h (struct ui_file_style::color): Wrap m_value and\n+\tm_red/m_green/m_blue in a union.\n+\n 2020-07-29  Tom de Vries  <tdevries@suse.de>\n \n \tPR tdep/26280"
+    },
+    {
+      "sha": "9cb6dda5fcbf983c16930430a958e1b19ae9614e",
+      "filename": "gdb/ui-style.h",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 2,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5a99adb86018c10da294e7556544e401c492c2fb/gdb/ui-style.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5a99adb86018c10da294e7556544e401c492c2fb/gdb/ui-style.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ui-style.h?ref=5a99adb86018c10da294e7556544e401c492c2fb",
+      "patch": "@@ -126,8 +126,14 @@ struct ui_file_style\n   private:\n \n     bool m_simple;\n-    int m_value;\n-    uint8_t m_red, m_green, m_blue;\n+    union\n+    {\n+      int m_value;\n+      struct\n+      {\n+\tuint8_t m_red, m_green, m_blue;\n+      };\n+    };\n   };\n \n   /* Intensity settings that are available.  */"
+    }
+  ]
+}

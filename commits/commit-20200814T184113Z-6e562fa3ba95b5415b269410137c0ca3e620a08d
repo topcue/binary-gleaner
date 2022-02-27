@@ -1,0 +1,72 @@
+{
+  "sha": "6e562fa3ba95b5415b269410137c0ca3e620a08d",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NmU1NjJmYTNiYTk1YjU0MTViMjY5NDEwMTM3YzBjYTNlNjIwYTA4ZA==",
+  "commit": {
+    "author": {
+      "name": "Pedro Franco de Carvalho",
+      "email": "pedromfc@linux.ibm.com",
+      "date": "2020-08-14T18:41:13Z"
+    },
+    "committer": {
+      "name": "Pedro Franco de Carvalho",
+      "email": "pedromfc@linux.ibm.com",
+      "date": "2020-08-14T18:41:13Z"
+    },
+    "message": "[PowerPC] Use < 0 and >= 0 for watchpoint ptrace calls\n\nIn commit 227c0bf4b3dd0cf65dceb58e729e9da81b38b5a7, which fixed some\nwatchpoint bugs, I compared the return value of some ptrace calls with ==\n-1 and != -1.  Althought this should be correct, since the rest of the\nfile uses < 0 and >= 0, I have modified this for consistency.\n\ngdb/ChangeLog:\n\n\t* ppc-linux-nat.c (ppc_linux_dreg_interface::detect)\n\t(ppc_linux_nat_target::low_prepare_to_resume): Use ptrace () < 0\n\tand >= to check return value instead of == -1 and != -1.",
+    "tree": {
+      "sha": "199507168df2d5215aab75def94fa900e1e86add",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/199507168df2d5215aab75def94fa900e1e86add"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/6e562fa3ba95b5415b269410137c0ca3e620a08d",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6e562fa3ba95b5415b269410137c0ca3e620a08d",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/6e562fa3ba95b5415b269410137c0ca3e620a08d",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6e562fa3ba95b5415b269410137c0ca3e620a08d/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "d369b608a1fc84813762e71a40a6cafb3ab828fe",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d369b608a1fc84813762e71a40a6cafb3ab828fe",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/d369b608a1fc84813762e71a40a6cafb3ab828fe"
+    }
+  ],
+  "stats": {
+    "total": 14,
+    "additions": 10,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "5fbc887cb11723a71f5d9794d3dd6084c08540fc",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6e562fa3ba95b5415b269410137c0ca3e620a08d/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6e562fa3ba95b5415b269410137c0ca3e620a08d/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=6e562fa3ba95b5415b269410137c0ca3e620a08d",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-08-14  Pedro Franco de Carvalho  <pedromfc@linux.ibm.com>\n+\n+\t* ppc-linux-nat.c (ppc_linux_dreg_interface::detect)\n+\t(ppc_linux_nat_target::low_prepare_to_resume): Use ptrace () < 0\n+\tand >= to check return value instead of == -1 and != -1.\n+\n 2020-08-14  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* utils.h (class gdb_argv) <as_array_view>: New method."
+    },
+    {
+      "sha": "89efdaebc0b13d6b16f611e36946bdacb1f15e3c",
+      "filename": "gdb/ppc-linux-nat.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6e562fa3ba95b5415b269410137c0ca3e620a08d/gdb/ppc-linux-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6e562fa3ba95b5415b269410137c0ca3e620a08d/gdb/ppc-linux-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ppc-linux-nat.c?ref=6e562fa3ba95b5415b269410137c0ca3e620a08d",
+      "patch": "@@ -379,7 +379,7 @@ class ppc_linux_dreg_interface\n     bool no_features = false;\n \n     if (ptrace (PPC_PTRACE_GETHWDBGINFO, ptid.lwp (), 0, &m_hwdebug_info)\n-\t!= -1)\n+\t>= 0)\n       {\n \t/* If there are no advertised features, we don't use the\n \t   HWDEBUG interface and try the DEBUGREG interface instead.\n@@ -425,7 +425,7 @@ class ppc_linux_dreg_interface\n       {\n \tunsigned long wp;\n \n-\tif (ptrace (PTRACE_GET_DEBUGREG, ptid.lwp (), 0, &wp) != -1)\n+\tif (ptrace (PTRACE_GET_DEBUGREG, ptid.lwp (), 0, &wp) >= 0)\n \t  {\n \t    m_interface.emplace (DEBUGREG);\n \t    return;\n@@ -2867,7 +2867,7 @@ ppc_linux_nat_target::low_prepare_to_resume (struct lwp_info *lp)\n \t\t the debug register state when fork and clone events are\n \t\t detected.  */\n \t      if (ptrace (PPC_PTRACE_DELHWDEBUG, lp->ptid.lwp (), 0,\n-\t\t\t  bp_it->first) == -1)\n+\t\t\t  bp_it->first) < 0)\n \t\tif (errno != ENOENT)\n \t\t  perror_with_name (_(\"Error deleting hardware \"\n \t\t\t\t      \"breakpoint or watchpoint\"));\n@@ -2921,7 +2921,7 @@ ppc_linux_nat_target::low_prepare_to_resume (struct lwp_info *lp)\n       long ret = ptrace (PTRACE_SET_DEBUGREG, lp->ptid.lwp (),\n \t\t\t 0, wp);\n \n-      if (ret == -1)\n+      if (ret < 0)\n \tperror_with_name (_(\"Error setting hardware watchpoint\"));\n     }\n "
+    }
+  ]
+}

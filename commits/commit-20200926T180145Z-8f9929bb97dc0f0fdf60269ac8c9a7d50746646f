@@ -1,0 +1,134 @@
+{
+  "sha": "8f9929bb97dc0f0fdf60269ac8c9a7d50746646f",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OGY5OTI5YmI5N2RjMGYwZmRmNjAyNjlhYzhjOWE3ZDUwNzQ2NjQ2Zg==",
+  "commit": {
+    "author": {
+      "name": "Gareth Rees",
+      "email": "grees@undo.io",
+      "date": "2020-09-26T18:01:45Z"
+    },
+    "committer": {
+      "name": "Joel Brobecker",
+      "email": "brobecker@adacore.com",
+      "date": "2020-09-26T18:01:45Z"
+    },
+    "message": "gdb: Fix from_tty argument to gdb.execute in Python.\n\nPrior to commit 56bcdbea2b, the from_tty keyword argument to the\nPython function gdb.execute controlled whether the command took input\nfrom the terminal. When from_tty=True, \"starti\" and similar commands\nprompted the user:\n\n    (gdb) python gdb.execute(\"starti\", from_tty=True)\n    The program being debugged has been started already.\n    Start it from the beginning? (y or n) y\n    Starting program: /bin/true\n\n    Program stopped.\n\nWhen from_tty=False, these commands did not prompt the user, and \"yes\"\nwas assumed:\n\n    (gdb) python gdb.execute(\"starti\", from_tty=False)\n\n    Program stopped.\n\nHowever, after commit 56bcdbea2b, the from_tty keyword argument no\nlonger had this effect. For example, as of commit 7ade7fba75:\n\n    (gdb) python gdb.execute(\"starti\", from_tty=True)\n    The program being debugged has been started already.\n    Start it from the beginning? (y or n) [answered Y; input not from terminal]\n    Starting program: /bin/true\n\n    Program stopped.\n\nNote the \"[answered Y; input not from terminal]\" in the output even\nthough from_tty=True was requested.\n\nLooking at commit 56bcdbea2b, it seems that the behaviour of the\nfrom_tty argument was changed accidentally. The commit message said:\n\n    Let gdb.execute handle multi-line commands\n\n    This changes the Python API so that gdb.execute can now handle\n    multi-line commands, like \"commands\" or \"define\".\n\nand there was no mention of changing the effect of the from_tty\nargument. It looks as though the code for setting the instream to\nnullptr was accidentally moved from execute_user_command() to\nexecute_control_commands() along with the other scoped restores.\n\nAccordingly, the simplest way to fix this is to partially reverse\ncommit 56bcdbea2b by moving the code for setting the instream to\nnullptr back to execute_user_command() where it was to begin with.\n\nAdditionally, add a test case to reduce the risk of similar breakage\nin future.\n\ngdb/ChangeLog:\n\n\tPR python/26586\n\t* cli/cli-script.c (execute_control_commands): don't set\n\tinstream to nullptr here as this breaks the from_tty argument\n\tto gdb.execute in Python.\n\t(execute_user_command): set instream to nullptr here instead.\n\ngdb/testsuite/ChangeLog:\n\n\tPR python/26586\n\t* gdb.python/python.exp: add test cases for the from_tty\n\targument to gdb.execute.",
+    "tree": {
+      "sha": "8081c9fad347a16b20255ca2c32499914db880b1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/8081c9fad347a16b20255ca2c32499914db880b1"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/8f9929bb97dc0f0fdf60269ac8c9a7d50746646f",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8f9929bb97dc0f0fdf60269ac8c9a7d50746646f",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/8f9929bb97dc0f0fdf60269ac8c9a7d50746646f",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8f9929bb97dc0f0fdf60269ac8c9a7d50746646f/comments",
+  "author": {
+    "login": "gareth-rees",
+    "id": 922721,
+    "node_id": "MDQ6VXNlcjkyMjcyMQ==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/922721?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/gareth-rees",
+    "html_url": "https://github.com/gareth-rees",
+    "followers_url": "https://api.github.com/users/gareth-rees/followers",
+    "following_url": "https://api.github.com/users/gareth-rees/following{/other_user}",
+    "gists_url": "https://api.github.com/users/gareth-rees/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/gareth-rees/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/gareth-rees/subscriptions",
+    "organizations_url": "https://api.github.com/users/gareth-rees/orgs",
+    "repos_url": "https://api.github.com/users/gareth-rees/repos",
+    "events_url": "https://api.github.com/users/gareth-rees/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/gareth-rees/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "brobecke",
+    "id": 11981700,
+    "node_id": "MDQ6VXNlcjExOTgxNzAw",
+    "avatar_url": "https://avatars.githubusercontent.com/u/11981700?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/brobecke",
+    "html_url": "https://github.com/brobecke",
+    "followers_url": "https://api.github.com/users/brobecke/followers",
+    "following_url": "https://api.github.com/users/brobecke/following{/other_user}",
+    "gists_url": "https://api.github.com/users/brobecke/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/brobecke/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/brobecke/subscriptions",
+    "organizations_url": "https://api.github.com/users/brobecke/orgs",
+    "repos_url": "https://api.github.com/users/brobecke/repos",
+    "events_url": "https://api.github.com/users/brobecke/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/brobecke/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "63e5eea234c2bd2c7ce7dc921c71b22bc4fd0d6b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/63e5eea234c2bd2c7ce7dc921c71b22bc4fd0d6b",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/63e5eea234c2bd2c7ce7dc921c71b22bc4fd0d6b"
+    }
+  ],
+  "stats": {
+    "total": 36,
+    "additions": 32,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "b60312c63a75b747362fcfb03dddd833618fe9ce",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8f9929bb97dc0f0fdf60269ac8c9a7d50746646f/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8f9929bb97dc0f0fdf60269ac8c9a7d50746646f/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=8f9929bb97dc0f0fdf60269ac8c9a7d50746646f",
+      "patch": "@@ -1,3 +1,11 @@\n+2020-09-26  Gareth Rees <grees@undo.io>  (tiny change)\n+\n+\tPR python/26586\n+\t* cli/cli-script.c (execute_control_commands): don't set\n+\tinstream to nullptr here as this breaks the from_tty argument\n+\tto gdb.execute in Python.\n+\t(execute_user_command): set instream to nullptr here instead.\n+\n 2020-09-25  Simon Marchi  <simon.marchi@efficios.com>\n \n \t* infrun.h (infrun_debug_printf): Fix formatting."
+    },
+    {
+      "sha": "f8ac610d4d6d3505350e1dba868b20891b652999",
+      "filename": "gdb/cli/cli-script.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 4,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8f9929bb97dc0f0fdf60269ac8c9a7d50746646f/gdb/cli/cli-script.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8f9929bb97dc0f0fdf60269ac8c9a7d50746646f/gdb/cli/cli-script.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cli/cli-script.c?ref=8f9929bb97dc0f0fdf60269ac8c9a7d50746646f",
+      "patch": "@@ -392,10 +392,6 @@ execute_cmd_post_hook (struct cmd_list_element *c)\n void\n execute_control_commands (struct command_line *cmdlines, int from_tty)\n {\n-  /* Set the instream to 0, indicating execution of a\n-     user-defined function.  */\n-  scoped_restore restore_instream\n-    = make_scoped_restore (&current_ui->instream, nullptr);\n   scoped_restore save_async = make_scoped_restore (&current_ui->async, 0);\n   scoped_restore save_nesting\n     = make_scoped_restore (&command_nest_depth, command_nest_depth + 1);\n@@ -464,6 +460,11 @@ execute_user_command (struct cmd_list_element *c, const char *args)\n   if (user_args_stack.size () > max_user_call_depth)\n     error (_(\"Max user call depth exceeded -- command aborted.\"));\n \n+  /* Set the instream to nullptr, indicating execution of a\n+     user-defined function.  */\n+  scoped_restore restore_instream\n+    = make_scoped_restore (&current_ui->instream, nullptr);\n+\n   execute_control_commands (cmdlines, 0);\n }\n "
+    },
+    {
+      "sha": "248f039c029eff2b56f4d5e4cff3f4b85d963fbc",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8f9929bb97dc0f0fdf60269ac8c9a7d50746646f/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8f9929bb97dc0f0fdf60269ac8c9a7d50746646f/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=8f9929bb97dc0f0fdf60269ac8c9a7d50746646f",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-09-26  Gareth Rees <grees@undo.io>  (tiny change)\n+\n+\tPR python/26586\n+\t* gdb.python/python.exp: add test cases for the from_tty\n+\targument to gdb.execute.\n+\n 2020-09-25  Gary Benson <gbenson@redhat.com>\n \n \t* gdb.base/infcall-nested-structs.exp.tcl: Add"
+    },
+    {
+      "sha": "017f33afe52457f630a462197459d7f8a6a40094",
+      "filename": "gdb/testsuite/gdb.python/python.exp",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8f9929bb97dc0f0fdf60269ac8c9a7d50746646f/gdb/testsuite/gdb.python/python.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8f9929bb97dc0f0fdf60269ac8c9a7d50746646f/gdb/testsuite/gdb.python/python.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.python/python.exp?ref=8f9929bb97dc0f0fdf60269ac8c9a7d50746646f",
+      "patch": "@@ -526,3 +526,16 @@ gdb_test \"print \\$cvar3\" \"= void\" \\\n # Test PR 23669, the following would invoke the \"commands\" command instead of\n # \"show commands\".\n gdb_test \"python gdb.execute(\\\"show commands\\\")\" \"$decimal  print \\\\\\$cvar3.*\"\n+\n+# Test that the from_tty argument to gdb.execute is effective. If\n+# False, the user is not prompted for decisions such as restarting the\n+# program, and \"yes\" is assumed. If True, the user is prompted.\n+gdb_test \"python gdb.execute('starti', from_tty=False)\" \\\n+    \"Program stopped.*\" \\\n+    \"starti via gdb.execute, not from tty\"\n+gdb_test_multiple \"python gdb.execute('starti', from_tty=True)\" \\\n+    \"starti via gdb.execute, from tty\" {\n+    -re {The program being debugged has been started already\\.\\r\\nStart it from the beginning\\? \\(y or n\\) $} {\n+\tgdb_test \"y\" \"Starting program:.*\" \"starti via interactive input\"\n+    }\n+}"
+    }
+  ]
+}

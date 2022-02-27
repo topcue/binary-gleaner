@@ -1,0 +1,146 @@
+{
+  "sha": "ef83a141a291474f1364d6c64ee7a207b96b8e19",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZWY4M2ExNDFhMjkxNDc0ZjEzNjRkNmM2NGVlN2EyMDdiOTZiOGUxOQ==",
+  "commit": {
+    "author": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2020-04-24T19:40:31Z"
+    },
+    "committer": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2020-04-24T19:40:31Z"
+    },
+    "message": "Add new variant part code\n\nThis patch adds the infrastructure for the new variant part code.  At\nthis point, nothing uses this code.  This is done in a separate patch\nto make it simpler to review.\n\nI examined a few possible approaches to handling variant parts.  In\nparticular, I considered having a DWARF variant part be a union\n(similar to how the Rust code works now); and I considered having type\nfields have a flag indicating that they are variants.\n\nHaving separate types seemed bad conceptually, because these variants\naren't truly separate -- they rely on the \"parent\" type.  And,\nchanging how fields worked seemed excessively invasive.\n\nSo, in the end I thought the approach taken in this patch was both\nsimple to implement and understand, without losing generality.  The\nidea in this patch is that all the fields of a type with variant parts\nwill be stored in a single field array, just as if they'd all been\nlisted directly.  Then, the variants are attached as a dynamic\nproperty.  These control which fields end up in the type that's\nconstructed during dynamic type resolution.\n\ngdb/ChangeLog\n2020-04-24  Tom Tromey  <tromey@adacore.com>\n\n\t* gdbtypes.c (is_dynamic_type_internal): Check for variant parts.\n\t(variant::matches, compute_variant_fields_recurse)\n\t(compute_variant_fields_inner, compute_variant_fields): New\n\tfunctions.\n\t(resolve_dynamic_struct): Check for DYN_PROP_VARIANT_PARTS.\n\tUse resolved_type after type is made.\n\t(operator==): Add new cases.\n\t* gdbtypes.h (TYPE_HAS_VARIANT_PARTS): New macro.\n\t(struct discriminant_range, struct variant, struct variant_part):\n\tNew.\n\t(union dynamic_prop_data) <variant_parts, original_type>: New\n\tmembers.\n\t(enum dynamic_prop_node_kind) <DYN_PROP_VARIANT_PARTS>: New constant.\n\t(enum dynamic_prop_kind) <PROP_TYPE, PROP_VARIANT_PARTS>: New\n\tconstants.\n\t* value.c (unpack_bits_as_long): Now public.\n\t* value.h (unpack_bits_as_long): Declare.",
+    "tree": {
+      "sha": "ff9631e4ec9fa56f4bd480982b6ed04af5816b8a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/ff9631e4ec9fa56f4bd480982b6ed04af5816b8a"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ef83a141a291474f1364d6c64ee7a207b96b8e19",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ef83a141a291474f1364d6c64ee7a207b96b8e19",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ef83a141a291474f1364d6c64ee7a207b96b8e19",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ef83a141a291474f1364d6c64ee7a207b96b8e19/comments",
+  "author": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "675127ec647e08ceabc66ec7d3ad560d91deacad",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/675127ec647e08ceabc66ec7d3ad560d91deacad",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/675127ec647e08ceabc66ec7d3ad560d91deacad"
+    }
+  ],
+  "stats": {
+    "total": 366,
+    "additions": 338,
+    "deletions": 28
+  },
+  "files": [
+    {
+      "sha": "b5128802cd227a0c40c0deb5a728cac025db8386",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 0,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ef83a141a291474f1364d6c64ee7a207b96b8e19/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ef83a141a291474f1364d6c64ee7a207b96b8e19/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=ef83a141a291474f1364d6c64ee7a207b96b8e19",
+      "patch": "@@ -1,3 +1,23 @@\n+2020-04-24  Tom Tromey  <tromey@adacore.com>\n+\n+\t* gdbtypes.c (is_dynamic_type_internal): Check for variant parts.\n+\t(variant::matches, compute_variant_fields_recurse)\n+\t(compute_variant_fields_inner, compute_variant_fields): New\n+\tfunctions.\n+\t(resolve_dynamic_struct): Check for DYN_PROP_VARIANT_PARTS.\n+\tUse resolved_type after type is made.\n+\t(operator==): Add new cases.\n+\t* gdbtypes.h (TYPE_HAS_VARIANT_PARTS): New macro.\n+\t(struct discriminant_range, struct variant, struct variant_part):\n+\tNew.\n+\t(union dynamic_prop_data) <variant_parts, original_type>: New\n+\tmembers.\n+\t(enum dynamic_prop_node_kind) <DYN_PROP_VARIANT_PARTS>: New constant.\n+\t(enum dynamic_prop_kind) <PROP_TYPE, PROP_VARIANT_PARTS>: New\n+\tconstants.\n+\t* value.c (unpack_bits_as_long): Now public.\n+\t* value.h (unpack_bits_as_long): Declare.\n+\n 2020-04-24  Tom Tromey  <tromey@adacore.com>\n \n \t* rs6000-tdep.c (struct ppc_variant): Rename from \"variant\"."
+    },
+    {
+      "sha": "c2a1d221377ef698c8ae86446586005a77d84e6b",
+      "filename": "gdb/gdbtypes.c",
+      "status": "modified",
+      "additions": 190,
+      "deletions": 10,
+      "changes": 200,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ef83a141a291474f1364d6c64ee7a207b96b8e19/gdb/gdbtypes.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ef83a141a291474f1364d6c64ee7a207b96b8e19/gdb/gdbtypes.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbtypes.c?ref=ef83a141a291474f1364d6c64ee7a207b96b8e19",
+      "patch": "@@ -39,6 +39,7 @@\n #include \"dwarf2/loc.h\"\n #include \"gdbcore.h\"\n #include \"floatformat.h\"\n+#include <algorithm>\n \n /* Initialize BADNESS constants.  */\n \n@@ -886,6 +887,10 @@ operator== (const dynamic_prop &l, const dynamic_prop &r)\n     case PROP_LOCEXPR:\n     case PROP_LOCLIST:\n       return l.data.baton == r.data.baton;\n+    case PROP_VARIANT_PARTS:\n+      return l.data.variant_parts == r.data.variant_parts;\n+    case PROP_TYPE:\n+      return l.data.original_type == r.data.original_type;\n     }\n \n   gdb_assert_not_reached (\"unhandled dynamic_prop kind\");\n@@ -1966,6 +1971,10 @@ is_dynamic_type_internal (struct type *type, int top_level)\n   if (TYPE_ALLOCATED_PROP (type))\n     return 1;\n \n+  struct dynamic_prop *prop = get_dyn_prop (DYN_PROP_VARIANT_PARTS, type);\n+  if (prop != nullptr && prop->kind != PROP_TYPE)\n+    return 1;\n+\n   switch (TYPE_CODE (type))\n     {\n     case TYPE_CODE_RANGE:\n@@ -2215,6 +2224,161 @@ resolve_dynamic_union (struct type *type,\n   return resolved_type;\n }\n \n+/* See gdbtypes.h.  */\n+\n+bool\n+variant::matches (ULONGEST value, bool is_unsigned) const\n+{\n+  for (const discriminant_range &range : discriminants)\n+    if (range.contains (value, is_unsigned))\n+      return true;\n+  return false;\n+}\n+\n+static void\n+compute_variant_fields_inner (struct type *type,\n+\t\t\t      struct property_addr_info *addr_stack,\n+\t\t\t      const variant_part &part,\n+\t\t\t      std::vector<bool> &flags);\n+\n+/* A helper function to determine which variant fields will be active.\n+   This handles both the variant's direct fields, and any variant\n+   parts embedded in this variant.  TYPE is the type we're examining.\n+   ADDR_STACK holds information about the concrete object.  VARIANT is\n+   the current variant to be handled.  FLAGS is where the results are\n+   stored -- this function sets the Nth element in FLAGS if the\n+   corresponding field is enabled.  ENABLED is whether this variant is\n+   enabled or not.  */\n+\n+static void\n+compute_variant_fields_recurse (struct type *type,\n+\t\t\t\tstruct property_addr_info *addr_stack,\n+\t\t\t\tconst variant &variant,\n+\t\t\t\tstd::vector<bool> &flags,\n+\t\t\t\tbool enabled)\n+{\n+  for (int field = variant.first_field; field < variant.last_field; ++field)\n+    flags[field] = enabled;\n+\n+  for (const variant_part &new_part : variant.parts)\n+    {\n+      if (enabled)\n+\tcompute_variant_fields_inner (type, addr_stack, new_part, flags);\n+      else\n+\t{\n+\t  for (const auto &sub_variant : new_part.variants)\n+\t    compute_variant_fields_recurse (type, addr_stack, sub_variant,\n+\t\t\t\t\t    flags, enabled);\n+\t}\n+    }\n+}\n+\n+/* A helper function to determine which variant fields will be active.\n+   This evaluates the discriminant, decides which variant (if any) is\n+   active, and then updates FLAGS to reflect which fields should be\n+   available.  TYPE is the type we're examining.  ADDR_STACK holds\n+   information about the concrete object.  VARIANT is the current\n+   variant to be handled.  FLAGS is where the results are stored --\n+   this function sets the Nth element in FLAGS if the corresponding\n+   field is enabled.  */\n+\n+static void\n+compute_variant_fields_inner (struct type *type,\n+\t\t\t      struct property_addr_info *addr_stack,\n+\t\t\t      const variant_part &part,\n+\t\t\t      std::vector<bool> &flags)\n+{\n+  /* Evaluate the discriminant.  */\n+  gdb::optional<ULONGEST> discr_value;\n+  if (part.discriminant_index != -1)\n+    {\n+      int idx = part.discriminant_index;\n+\n+      if (TYPE_FIELD_LOC_KIND (type, idx) != FIELD_LOC_KIND_BITPOS)\n+\terror (_(\"Cannot determine struct field location\"\n+\t\t \" (invalid location kind)\"));\n+\n+      if (addr_stack->valaddr != NULL)\n+\tdiscr_value = unpack_field_as_long (type, addr_stack->valaddr, idx);\n+      else\n+\t{\n+\t  CORE_ADDR addr = (addr_stack->addr\n+\t\t\t    + (TYPE_FIELD_BITPOS (type, idx)\n+\t\t\t       / TARGET_CHAR_BIT));\n+\n+\t  LONGEST bitsize = TYPE_FIELD_BITSIZE (type, idx);\n+\t  LONGEST size = bitsize / 8;\n+\t  if (size == 0)\n+\t    size = TYPE_LENGTH (TYPE_FIELD_TYPE (type, idx));\n+\n+\t  gdb_byte bits[sizeof (ULONGEST)];\n+\t  read_memory (addr, bits, size);\n+\n+\t  LONGEST bitpos = (TYPE_FIELD_BITPOS (type, idx)\n+\t\t\t    % TARGET_CHAR_BIT);\n+\n+\t  discr_value = unpack_bits_as_long (TYPE_FIELD_TYPE (type, idx),\n+\t\t\t\t\t     bits, bitpos, bitsize);\n+\t}\n+    }\n+\n+  /* Go through each variant and see which applies.  */\n+  const variant *default_variant = nullptr;\n+  const variant *applied_variant = nullptr;\n+  for (const auto &variant : part.variants)\n+    {\n+      if (variant.is_default ())\n+\tdefault_variant = &variant;\n+      else if (discr_value.has_value ()\n+\t       && variant.matches (*discr_value, part.is_unsigned))\n+\t{\n+\t  applied_variant = &variant;\n+\t  break;\n+\t}\n+    }\n+  if (applied_variant == nullptr)\n+    applied_variant = default_variant;\n+\n+  for (const auto &variant : part.variants)\n+    compute_variant_fields_recurse (type, addr_stack, variant,\n+\t\t\t\t    flags, applied_variant == &variant);\n+}  \n+\n+/* Determine which variant fields are available in TYPE.  The enabled\n+   fields are stored in RESOLVED_TYPE.  ADDR_STACK holds information\n+   about the concrete object.  PARTS describes the top-level variant\n+   parts for this type.  */\n+\n+static void\n+compute_variant_fields (struct type *type,\n+\t\t\tstruct type *resolved_type,\n+\t\t\tstruct property_addr_info *addr_stack,\n+\t\t\tconst gdb::array_view<variant_part> &parts)\n+{\n+  /* Assume all fields are included by default.  */\n+  std::vector<bool> flags (TYPE_NFIELDS (resolved_type), true);\n+\n+  /* Now disable fields based on the variants that control them.  */\n+  for (const auto &part : parts)\n+    compute_variant_fields_inner (type, addr_stack, part, flags);\n+\n+  TYPE_NFIELDS (resolved_type) = std::count (flags.begin (), flags.end (),\n+\t\t\t\t\t     true);\n+  TYPE_FIELDS (resolved_type)\n+    = (struct field *) TYPE_ALLOC (resolved_type,\n+\t\t\t\t   TYPE_NFIELDS (resolved_type)\n+\t\t\t\t   * sizeof (struct field));\n+  int out = 0;\n+  for (int i = 0; i < TYPE_NFIELDS (type); ++i)\n+    {\n+      if (!flags[i])\n+\tcontinue;\n+\n+      TYPE_FIELD (resolved_type, out) = TYPE_FIELD (type, i);\n+      ++out;\n+    }\n+}\n+\n /* Resolve dynamic bounds of members of the struct TYPE to static\n    bounds.  ADDR_STACK is a stack of struct property_addr_info to\n    be used if needed during the dynamic resolution.  */\n@@ -2231,19 +2395,35 @@ resolve_dynamic_struct (struct type *type,\n   gdb_assert (TYPE_NFIELDS (type) > 0);\n \n   resolved_type = copy_type (type);\n-  TYPE_FIELDS (resolved_type)\n-    = (struct field *) TYPE_ALLOC (resolved_type,\n-\t\t\t\t   TYPE_NFIELDS (resolved_type)\n-\t\t\t\t   * sizeof (struct field));\n-  memcpy (TYPE_FIELDS (resolved_type),\n-\t  TYPE_FIELDS (type),\n-\t  TYPE_NFIELDS (resolved_type) * sizeof (struct field));\n+\n+  struct dynamic_prop *variant_prop = get_dyn_prop (DYN_PROP_VARIANT_PARTS,\n+\t\t\t\t\t\t    resolved_type);\n+  if (variant_prop != nullptr && variant_prop->kind == PROP_VARIANT_PARTS)\n+    {\n+      compute_variant_fields (type, resolved_type, addr_stack,\n+\t\t\t      *variant_prop->data.variant_parts);\n+      /* We want to leave the property attached, so that the Rust code\n+\t can tell whether the type was originally an enum.  */\n+      variant_prop->kind = PROP_TYPE;\n+      variant_prop->data.original_type = type;\n+    }\n+  else\n+    {\n+      TYPE_FIELDS (resolved_type)\n+\t= (struct field *) TYPE_ALLOC (resolved_type,\n+\t\t\t\t       TYPE_NFIELDS (resolved_type)\n+\t\t\t\t       * sizeof (struct field));\n+      memcpy (TYPE_FIELDS (resolved_type),\n+\t      TYPE_FIELDS (type),\n+\t      TYPE_NFIELDS (resolved_type) * sizeof (struct field));\n+    }\n+\n   for (i = 0; i < TYPE_NFIELDS (resolved_type); ++i)\n     {\n       unsigned new_bit_length;\n       struct property_addr_info pinfo;\n \n-      if (field_is_static (&TYPE_FIELD (type, i)))\n+      if (field_is_static (&TYPE_FIELD (resolved_type, i)))\n \tcontinue;\n \n       /* As we know this field is not a static field, the field's\n@@ -2253,11 +2433,11 @@ resolve_dynamic_struct (struct type *type,\n \t that verification indicates a bug in our code, the error\n \t is not severe enough to suggest to the user he stops\n \t his debugging session because of it.  */\n-      if (TYPE_FIELD_LOC_KIND (type, i) != FIELD_LOC_KIND_BITPOS)\n+      if (TYPE_FIELD_LOC_KIND (resolved_type, i) != FIELD_LOC_KIND_BITPOS)\n \terror (_(\"Cannot determine struct field location\"\n \t\t \" (invalid location kind)\"));\n \n-      pinfo.type = check_typedef (TYPE_FIELD_TYPE (type, i));\n+      pinfo.type = check_typedef (TYPE_FIELD_TYPE (resolved_type, i));\n       pinfo.valaddr = addr_stack->valaddr;\n       pinfo.addr\n \t= (addr_stack->addr"
+    },
+    {
+      "sha": "8b4da6e3f9fbbe75c31f27fcf8b9985a61cad3c1",
+      "filename": "gdb/gdbtypes.h",
+      "status": "modified",
+      "additions": 104,
+      "deletions": 1,
+      "changes": 105,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ef83a141a291474f1364d6c64ee7a207b96b8e19/gdb/gdbtypes.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ef83a141a291474f1364d6c64ee7a207b96b8e19/gdb/gdbtypes.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbtypes.h?ref=ef83a141a291474f1364d6c64ee7a207b96b8e19",
+      "patch": "@@ -51,6 +51,7 @@\n #include \"gdbsupport/underlying.h\"\n #include \"gdbsupport/print-utils.h\"\n #include \"dwarf2.h\"\n+#include \"gdb_obstack.h\"\n \n /* Forward declarations for prototypes.  */\n struct field;\n@@ -358,6 +359,10 @@ DEF_ENUM_FLAGS_TYPE (enum type_instance_flag_value, type_instance_flags);\n #define TYPE_IS_ALLOCATABLE(t) \\\n   (get_dyn_prop (DYN_PROP_ALLOCATED, t) != NULL)\n \n+/* * True if this type has variant parts.  */\n+#define TYPE_HAS_VARIANT_PARTS(t) \\\n+  (get_dyn_prop (DYN_PROP_VARIANT_PARTS, t) != nullptr)\n+\n /* * Instruction-space delimited type.  This is for Harvard architectures\n    which have separate instruction and data address spaces (and perhaps\n    others).\n@@ -399,6 +404,84 @@ DEF_ENUM_FLAGS_TYPE (enum type_instance_flag_value, type_instance_flags);\n #define TYPE_ADDRESS_CLASS_ALL(t) (TYPE_INSTANCE_FLAGS(t) \\\n \t\t\t\t   & TYPE_INSTANCE_FLAG_ADDRESS_CLASS_ALL)\n \n+/* * Information about a single discriminant.  */\n+\n+struct discriminant_range\n+{\n+  /* * The range of values for the variant.  This is an inclusive\n+     range.  */\n+  ULONGEST low, high;\n+\n+  /* * Return true if VALUE is contained in this range.  IS_UNSIGNED\n+     is true if this should be an unsigned comparison; false for\n+     signed.  */\n+  bool contains (ULONGEST value, bool is_unsigned) const\n+  {\n+    if (is_unsigned)\n+      return value >= low && value <= high;\n+    LONGEST valuel = (LONGEST) value;\n+    return valuel >= (LONGEST) low && valuel <= (LONGEST) high;\n+  }\n+};\n+\n+struct variant_part;\n+\n+/* * A single variant.  A variant has a list of discriminant values.\n+   When the discriminator matches one of these, the variant is\n+   enabled.  Each variant controls zero or more fields; and may also\n+   control other variant parts as well.  This struct corresponds to\n+   DW_TAG_variant in DWARF.  */\n+\n+struct variant : allocate_on_obstack\n+{\n+  /* * The discriminant ranges for this variant.  */\n+  gdb::array_view<discriminant_range> discriminants;\n+\n+  /* * The fields controlled by this variant.  This is inclusive on\n+     the low end and exclusive on the high end.  A variant may not\n+     control any fields, in which case the two values will be equal.\n+     These are indexes into the type's array of fields.  */\n+  int first_field;\n+  int last_field;\n+\n+  /* * Variant parts controlled by this variant.  */\n+  gdb::array_view<variant_part> parts;\n+\n+  /* * Return true if this is the default variant.  The default\n+     variant can be recognized because it has no associated\n+     discriminants.  */\n+  bool is_default () const\n+  {\n+    return discriminants.empty ();\n+  }\n+\n+  /* * Return true if this variant matches VALUE.  IS_UNSIGNED is true\n+     if this should be an unsigned comparison; false for signed.  */\n+  bool matches (ULONGEST value, bool is_unsigned) const;\n+};\n+\n+/* * A variant part.  Each variant part has an optional discriminant\n+   and holds an array of variants.  This struct corresponds to\n+   DW_TAG_variant_part in DWARF.  */\n+\n+struct variant_part : allocate_on_obstack\n+{\n+  /* * The index of the discriminant field in the outer type.  This is\n+     an index into the type's array of fields.  If this is -1, there\n+     is no discriminant, and only the default variant can be\n+     considered to be selected.  */\n+  int discriminant_index;\n+\n+  /* * True if this discriminant is unsigned; false if signed.  This\n+     comes from the type of the discriminant.  */\n+  bool is_unsigned;\n+\n+  /* * The variants that are controlled by this variant part.  Note\n+     that these will always be sorted by field number.  */\n+  gdb::array_view<variant> variants;\n+};\n+\n+\n /* * Information needed for a discriminated union.  A discriminated\n    union is handled somewhat differently from an ordinary union.\n \n@@ -438,7 +521,9 @@ enum dynamic_prop_kind\n   PROP_CONST,     /* Constant.  */\n   PROP_ADDR_OFFSET, /* Address offset.  */\n   PROP_LOCEXPR,   /* Location expression.  */\n-  PROP_LOCLIST    /* Location list.  */\n+  PROP_LOCLIST,    /* Location list.  */\n+  PROP_VARIANT_PARTS, /* Variant parts.  */\n+  PROP_TYPE,\t   /* Type.  */\n };\n \n union dynamic_prop_data\n@@ -450,6 +535,21 @@ union dynamic_prop_data\n   /* Storage for dynamic property.  */\n \n   void *baton;\n+\n+  /* Storage of variant parts for a type.  A type with variant parts\n+     has all its fields \"linearized\" -- stored in a single field\n+     array, just as if they had all been declared that way.  The\n+     variant parts are attached via a dynamic property, and then are\n+     used to control which fields end up in the final type during\n+     dynamic type resolution.  */\n+\n+  const gdb::array_view<variant_part> *variant_parts;\n+\n+  /* Once a variant type is resolved, we may want to be able to go\n+     from the resolved type to the original type.  In this case we\n+     rewrite the property's kind and set this field.  */\n+\n+  struct type *original_type;\n };\n \n /* * Used to store a dynamic property.  */\n@@ -493,6 +593,9 @@ enum dynamic_prop_node_kind\n \n   /* A property holding information about a discriminated union.  */\n   DYN_PROP_DISCRIMINATED,\n+\n+  /* A property holding variant parts.  */\n+  DYN_PROP_VARIANT_PARTS,\n };\n \n /* * List for dynamic type attributes.  */"
+    },
+    {
+      "sha": "5ae0b32f4fc2537e59db16d5d7c8710a165ef325",
+      "filename": "gdb/value.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 17,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ef83a141a291474f1364d6c64ee7a207b96b8e19/gdb/value.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ef83a141a291474f1364d6c64ee7a207b96b8e19/gdb/value.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/value.c?ref=ef83a141a291474f1364d6c64ee7a207b96b8e19",
+      "patch": "@@ -3090,23 +3090,9 @@ value_fn_field (struct value **arg1p, struct fn_field *f,\n \n \f\n \n-/* Unpack a bitfield of the specified FIELD_TYPE, from the object at\n-   VALADDR, and store the result in *RESULT.\n-   The bitfield starts at BITPOS bits and contains BITSIZE bits; if\n-   BITSIZE is zero, then the length is taken from FIELD_TYPE.\n-\n-   Extracting bits depends on endianness of the machine.  Compute the\n-   number of least significant bits to discard.  For big endian machines,\n-   we compute the total number of bits in the anonymous object, subtract\n-   off the bit count from the MSB of the object to the MSB of the\n-   bitfield, then the size of the bitfield, which leaves the LSB discard\n-   count.  For little endian machines, the discard count is simply the\n-   number of bits from the LSB of the anonymous object to the LSB of the\n-   bitfield.\n-\n-   If the field is signed, we also do sign extension.  */\n-\n-static LONGEST\n+/* See value.h.  */\n+\n+LONGEST\n unpack_bits_as_long (struct type *field_type, const gdb_byte *valaddr,\n \t\t     LONGEST bitpos, LONGEST bitsize)\n {"
+    },
+    {
+      "sha": "dfe3e8e3ed3b57ae8f99b348a793b59401b27b53",
+      "filename": "gdb/value.h",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 0,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ef83a141a291474f1364d6c64ee7a207b96b8e19/gdb/value.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ef83a141a291474f1364d6c64ee7a207b96b8e19/gdb/value.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/value.h?ref=ef83a141a291474f1364d6c64ee7a207b96b8e19",
+      "patch": "@@ -651,6 +651,27 @@ extern CORE_ADDR unpack_pointer (struct type *type, const gdb_byte *valaddr);\n extern LONGEST unpack_field_as_long (struct type *type,\n \t\t\t\t     const gdb_byte *valaddr,\n \t\t\t\t     int fieldno);\n+\n+/* Unpack a bitfield of the specified FIELD_TYPE, from the object at\n+   VALADDR, and store the result in *RESULT.\n+   The bitfield starts at BITPOS bits and contains BITSIZE bits; if\n+   BITSIZE is zero, then the length is taken from FIELD_TYPE.\n+\n+   Extracting bits depends on endianness of the machine.  Compute the\n+   number of least significant bits to discard.  For big endian machines,\n+   we compute the total number of bits in the anonymous object, subtract\n+   off the bit count from the MSB of the object to the MSB of the\n+   bitfield, then the size of the bitfield, which leaves the LSB discard\n+   count.  For little endian machines, the discard count is simply the\n+   number of bits from the LSB of the anonymous object to the LSB of the\n+   bitfield.\n+\n+   If the field is signed, we also do sign extension.  */\n+\n+extern LONGEST unpack_bits_as_long (struct type *field_type,\n+\t\t\t\t    const gdb_byte *valaddr,\n+\t\t\t\t    LONGEST bitpos, LONGEST bitsize);\n+\n extern int unpack_value_field_as_long (struct type *type, const gdb_byte *valaddr,\n \t\t\t\tLONGEST embedded_offset, int fieldno,\n \t\t\t\tconst struct value *val, LONGEST *result);"
+    }
+  ]
+}

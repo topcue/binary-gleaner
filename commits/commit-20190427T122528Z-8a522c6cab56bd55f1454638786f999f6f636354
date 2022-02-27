@@ -1,0 +1,168 @@
+{
+  "sha": "8a522c6cab56bd55f1454638786f999f6f636354",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OGE1MjJjNmNhYjU2YmQ1NWYxNDU0NjM4Nzg2Zjk5OWY2ZjYzNjM1NA==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-03-09T22:55:44Z"
+    },
+    "committer": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-04-27T12:25:28Z"
+    },
+    "message": "Have 'thread|frame apply' style their output.\n\n'thread|frame apply CMD' launches CMD so that CMD output goes to a string_file.\nThis patch ensures that string_file for such CMD output contains\nstyle escape sequences that 'thread|frame apply' will later on\noutput on the real terminal, so as to have CMD output properly styled.\n\nThe idea is to have the class ui_file having overridable methods\nto indicate that the output to this ui_file should be done using\n'terminal' behaviour such as styling.\nThen these methods are overriden in string_file so that a specially\nconstructed string_file will get output with style escape sequences.\n\nAfter this patch, the output of CMD by thread|frame apply CMD is styled\nsimilarly as when CMD is launched directly.\nNote that string_file (term_out true) could also support wrapping,\nbut this is not done (yet?).\n\nTested on debian/amd64.\n\ngdb/ChangeLog\n2019-04-27  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n\n\tSupport style in 'frame|thread apply'\n\n\t* gdbcmd.h (execute_command_to_string): New term_out parameter.\n\t* record.c (record_start, record_stop): Update callers of\n\texecute_command_to_string with false.\n\t* ui-file.h (class ui_file): New term_out and can_emit_style_escape\n\tmethods.\n\t(class string_file): New constructor with term_out parameter.\n\tOverride methods term_out and can_emit_style_escape.  New member\n\tterm_out.\n\t(class stdio_file): Override can_emit_style_escape.\n\t(class tee_file): Override term_out and can_emit_style_escape.\n\t* utils.h (can_emit_style_escape): Remove.\n\t* utils.c (can_emit_style_escape): Likewise.\n\tUpdate all callers of can_emit_style_escape (SOMESTREAM) to\n\tSOMESTREAM->can_emit_style_escape.\n\t* source-cache.c (source_cache::get_source_lines): Likewise.\n\t* stack.c (frame_apply_command_count): Call execute_command_to_string\n\tpassing the term_out characteristic of the current gdb_stdout.\n\t* thread.c (thr_try_catch_cmd): Likewise.\n\t* top.c (execute_command_to_string): pass term_out parameter\n\tto construct the string_file for the command output.\n\t* ui-file.c (term_cli_styling): New function (most code moved\n\tfrom utils.c can_emit_style_escape).\n\t(string_file::string_file, string_file::can_emit_style_escape,\n\tstdio_file::can_emit_style_escape, tee_file::term_out,\n\ttee_file::can_emit_style_escape): New functions.",
+    "tree": {
+      "sha": "a73bb0f05e55c318a7026e0aee00c74853f410d9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/a73bb0f05e55c318a7026e0aee00c74853f410d9"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/8a522c6cab56bd55f1454638786f999f6f636354",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8a522c6cab56bd55f1454638786f999f6f636354",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/8a522c6cab56bd55f1454638786f999f6f636354",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8a522c6cab56bd55f1454638786f999f6f636354/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "136afab8c7d8a8a91dbf38e79be4f9dc4125d552",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/136afab8c7d8a8a91dbf38e79be4f9dc4125d552",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/136afab8c7d8a8a91dbf38e79be4f9dc4125d552"
+    }
+  ],
+  "stats": {
+    "total": 170,
+    "additions": 123,
+    "deletions": 47
+  },
+  "files": [
+    {
+      "sha": "5d0e697d832c854b0f5cb511da52114f07e486d2",
+      "filename": "gdb/gdbcmd.h",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 1,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8a522c6cab56bd55f1454638786f999f6f636354/gdb/gdbcmd.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8a522c6cab56bd55f1454638786f999f6f636354/gdb/gdbcmd.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbcmd.h?ref=8a522c6cab56bd55f1454638786f999f6f636354",
+      "patch": "@@ -133,7 +133,12 @@ extern struct cmd_list_element *showchecklist;\n extern struct cmd_list_element *save_cmdlist;\n \n extern void execute_command (const char *, int);\n-extern std::string execute_command_to_string (const char *p, int from_tty);\n+\n+/* Execute command P and returns its output.  If TERM_OUT,\n+   the output is built using terminal output behaviour such\n+   as cli_styling.  */\n+extern std::string execute_command_to_string (const char *p, int from_tty,\n+\t\t\t\t\t      bool term_out);\n \n extern void print_command_line (struct command_line *, unsigned int,\n \t\t\t\tstruct ui_file *);"
+    },
+    {
+      "sha": "828c19968a3d9fb92f04fff12d66bec1abc164b2",
+      "filename": "gdb/record.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8a522c6cab56bd55f1454638786f999f6f636354/gdb/record.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8a522c6cab56bd55f1454638786f999f6f636354/gdb/record.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/record.c?ref=8a522c6cab56bd55f1454638786f999f6f636354",
+      "patch": "@@ -99,25 +99,25 @@ record_start (const char *method, const char *format, int from_tty)\n   if (method == NULL)\n     {\n       if (format == NULL)\n-\texecute_command_to_string (\"record\", from_tty);\n+\texecute_command_to_string (\"record\", from_tty, false);\n       else\n \terror (_(\"Invalid format.\"));\n     }\n   else if (strcmp (method, \"full\") == 0)\n     {\n       if (format == NULL)\n-\texecute_command_to_string (\"record full\", from_tty);\n+\texecute_command_to_string (\"record full\", from_tty, false);\n       else\n \terror (_(\"Invalid format.\"));\n     }\n   else if (strcmp (method, \"btrace\") == 0)\n     {\n       if (format == NULL)\n-\texecute_command_to_string (\"record btrace\", from_tty);\n+\texecute_command_to_string (\"record btrace\", from_tty, false);\n       else if (strcmp (format, \"bts\") == 0)\n-\texecute_command_to_string (\"record btrace bts\", from_tty);\n+\texecute_command_to_string (\"record btrace bts\", from_tty, false);\n       else if (strcmp (format, \"pt\") == 0)\n-\texecute_command_to_string (\"record btrace pt\", from_tty);\n+\texecute_command_to_string (\"record btrace pt\", from_tty, false);\n       else\n \terror (_(\"Invalid format.\"));\n     }\n@@ -130,7 +130,7 @@ record_start (const char *method, const char *format, int from_tty)\n void\n record_stop (int from_tty)\n {\n-  execute_command_to_string (\"record stop\", from_tty);\n+  execute_command_to_string (\"record stop\", from_tty, false);\n }\n \n /* See record.h.  */"
+    },
+    {
+      "sha": "d2fb4b81b7171a1e68e9aae4349c4e544420939d",
+      "filename": "gdb/source-cache.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8a522c6cab56bd55f1454638786f999f6f636354/gdb/source-cache.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8a522c6cab56bd55f1454638786f999f6f636354/gdb/source-cache.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/source-cache.c?ref=8a522c6cab56bd55f1454638786f999f6f636354",
+      "patch": "@@ -181,7 +181,7 @@ source_cache::get_source_lines (struct symtab *s, int first_line,\n     return false;\n \n #ifdef HAVE_SOURCE_HIGHLIGHT\n-  if (source_styling && can_emit_style_escape (gdb_stdout))\n+  if (source_styling && gdb_stdout->can_emit_style_escape ())\n     {\n       const char *fullname = symtab_to_fullname (s);\n "
+    },
+    {
+      "sha": "e5de10949d05be52e2a5a3917db9098f7f8e0b6e",
+      "filename": "gdb/stack.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8a522c6cab56bd55f1454638786f999f6f636354/gdb/stack.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8a522c6cab56bd55f1454638786f999f6f636354/gdb/stack.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/stack.c?ref=8a522c6cab56bd55f1454638786f999f6f636354",
+      "patch": "@@ -2693,7 +2693,8 @@ frame_apply_command_count (const char *which_command,\n \t       set to the selected frame.  */\n \t    scoped_restore_current_thread restore_fi_current_frame;\n \n-\t    cmd_result = execute_command_to_string (cmd, from_tty);\n+\t    cmd_result = execute_command_to_string\n+\t      (cmd, from_tty, gdb_stdout->term_out ());\n \t  }\n \t  fi = get_selected_frame (_(\"frame apply \"\n \t\t\t\t     \"unable to get selected frame.\"));"
+    },
+    {
+      "sha": "b6c9b9583e0e1c5f0e3d0295381e189a7af8f87b",
+      "filename": "gdb/thread.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8a522c6cab56bd55f1454638786f999f6f636354/gdb/thread.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8a522c6cab56bd55f1454638786f999f6f636354/gdb/thread.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/thread.c?ref=8a522c6cab56bd55f1454638786f999f6f636354",
+      "patch": "@@ -1461,7 +1461,8 @@ thr_try_catch_cmd (thread_info *thr, const char *cmd, int from_tty,\n   switch_to_thread (thr);\n   try\n     {\n-      std::string cmd_result = execute_command_to_string (cmd, from_tty);\n+      std::string cmd_result = execute_command_to_string\n+\t(cmd, from_tty, gdb_stdout->term_out ());\n       if (!flags.silent || cmd_result.length () > 0)\n \t{\n \t  if (!flags.quiet)"
+    },
+    {
+      "sha": "bacd684dbaaf005e95226c4222829d9f250ac300",
+      "filename": "gdb/top.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8a522c6cab56bd55f1454638786f999f6f636354/gdb/top.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8a522c6cab56bd55f1454638786f999f6f636354/gdb/top.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/top.c?ref=8a522c6cab56bd55f1454638786f999f6f636354",
+      "patch": "@@ -657,15 +657,16 @@ execute_command (const char *p, int from_tty)\n    temporarily set to true.  */\n \n std::string\n-execute_command_to_string (const char *p, int from_tty)\n+execute_command_to_string (const char *p, int from_tty,\n+\t\t\t   bool term_out)\n {\n   /* GDB_STDOUT should be better already restored during these\n      restoration callbacks.  */\n   set_batch_flag_and_restore_page_info save_page_info;\n \n   scoped_restore save_async = make_scoped_restore (&current_ui->async, 0);\n \n-  string_file str_file;\n+  string_file str_file (term_out);\n \n   {\n     current_uiout->redirect (&str_file);"
+    },
+    {
+      "sha": "4139b5deffc47933e317700edb289d4360ca7a63",
+      "filename": "gdb/ui-file.c",
+      "status": "modified",
+      "additions": 71,
+      "deletions": 0,
+      "changes": 71,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8a522c6cab56bd55f1454638786f999f6f636354/gdb/ui-file.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8a522c6cab56bd55f1454638786f999f6f636354/gdb/ui-file.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ui-file.c?ref=8a522c6cab56bd55f1454638786f999f6f636354",
+      "patch": "@@ -101,6 +101,33 @@ ui_file_isatty (struct ui_file *file)\n   return file->isatty ();\n }\n \n+/* true if the gdb terminal supports styling, and styling is enabled.  */\n+\n+static bool\n+term_cli_styling ()\n+{\n+  extern int cli_styling;\n+\n+  if (!cli_styling)\n+    return false;\n+\n+  const char *term = getenv (\"TERM\");\n+  /* Windows doesn't by default define $TERM, but can support styles\n+     regardless.  */\n+#ifndef _WIN32\n+  if (term == nullptr || !strcmp (term, \"dumb\"))\n+    return false;\n+#else\n+  /* But if they do define $TERM, let us behave the same as on Posix\n+     platforms, for the benefit of programs which invoke GDB as their\n+     back-end.  */\n+  if (term && !strcmp (term, \"dumb\"))\n+    return false;\n+#endif\n+  return true;\n+}\n+\n+\n void\n ui_file_write (struct ui_file *file,\n \t\tconst char *buf,\n@@ -140,6 +167,22 @@ string_file::write (const char *buf, long length_buf)\n   m_string.append (buf, length_buf);\n }\n \n+/* See ui-file.h.  */\n+\n+bool\n+string_file::term_out ()\n+{\n+  return m_term_out;\n+}\n+\n+/* See ui-file.h.  */\n+\n+bool\n+string_file::can_emit_style_escape ()\n+{\n+  return m_term_out && term_cli_styling ();\n+}\n+\n \f\n \n stdio_file::stdio_file (FILE *file, bool close_p)\n@@ -255,6 +298,16 @@ stdio_file::isatty ()\n   return ::isatty (m_fd);\n }\n \n+/* See ui-file.h.  */\n+\n+bool\n+stdio_file::can_emit_style_escape ()\n+{\n+  return (this == gdb_stdout\n+\t  && this->isatty ()\n+\t  && term_cli_styling ());\n+}\n+\n \f\n \n /* This is the implementation of ui_file method 'write' for stderr.\n@@ -332,3 +385,21 @@ tee_file::isatty ()\n {\n   return m_one->isatty ();\n }\n+\n+/* See ui-file.h.  */\n+\n+bool\n+tee_file::term_out ()\n+{\n+  return m_one->term_out ();\n+}\n+\n+/* See ui-file.h.  */\n+\n+bool\n+tee_file::can_emit_style_escape ()\n+{\n+  return (this == gdb_stdout\n+\t  && m_one->term_out ()\n+\t  && term_cli_styling ());\n+}"
+    },
+    {
+      "sha": "56f0c0f957c35d458a7e2dc8ff28cbe2c0893ce5",
+      "filename": "gdb/ui-file.h",
+      "status": "modified",
+      "additions": 27,
+      "deletions": 1,
+      "changes": 28,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8a522c6cab56bd55f1454638786f999f6f636354/gdb/ui-file.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8a522c6cab56bd55f1454638786f999f6f636354/gdb/ui-file.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ui-file.h?ref=8a522c6cab56bd55f1454638786f999f6f636354",
+      "patch": "@@ -70,6 +70,17 @@ class ui_file\n   virtual bool isatty ()\n   { return false; }\n \n+  /* true indicates terminal output behaviour such as cli_styling.\n+     This default implementation indicates to do terminal output\n+     behaviour if the UI_FILE is a tty.  A derived class can override\n+     TERM_OUT to have cli_styling behaviour without being a tty.  */\n+  virtual bool term_out ()\n+  { return isatty (); }\n+\n+  /* true if ANSI escapes can be used on STREAM.  */\n+  virtual bool can_emit_style_escape ()\n+  { return false; }\n+\n   virtual void flush ()\n   {}\n };\n@@ -109,7 +120,13 @@ extern int gdb_console_fputs (const char *, FILE *);\n class string_file : public ui_file\n {\n public:\n-  string_file () {}\n+  /* Construct a string_file to collect 'raw' output, i.e. without\n+     'terminal' behaviour such as cli_styling.  */\n+  string_file () : m_term_out (false) {};\n+  /* If TERM_OUT, construct a string_file with terminal output behaviour\n+     such as cli_styling)\n+     else collect 'raw' output like the previous constructor.  */\n+  explicit string_file (bool term_out) : m_term_out (term_out) {};\n   ~string_file () override;\n \n   /* Override ui_file methods.  */\n@@ -119,6 +136,9 @@ class string_file : public ui_file\n   long read (char *buf, long length_buf) override\n   { gdb_assert_not_reached (\"a string_file is not readable\"); }\n \n+  bool term_out () override;\n+  bool can_emit_style_escape () override;\n+\n   /* string_file-specific public API.  */\n \n   /* Accesses the std::string containing the entire output collected\n@@ -145,6 +165,8 @@ class string_file : public ui_file\n private:\n   /* The internal buffer.  */\n   std::string m_string;\n+\n+  bool m_term_out;\n };\n \n /* A ui_file implementation that maps directly onto <stdio.h>'s FILE.\n@@ -183,6 +205,8 @@ class stdio_file : public ui_file\n \n   bool isatty () override;\n \n+  bool can_emit_style_escape () override;\n+\n private:\n   /* Sets the internal stream to FILE, and saves the FILE's file\n      descriptor in M_FD.  */\n@@ -255,6 +279,8 @@ class tee_file : public ui_file\n   void puts (const char *) override;\n \n   bool isatty () override;\n+  bool term_out () override;\n+  bool can_emit_style_escape () override;\n   void flush () override;\n \n private:"
+    },
+    {
+      "sha": "fd4427d4e6ce946e70928ffb6064fea19d96353f",
+      "filename": "gdb/utils.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 30,
+      "changes": 35,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8a522c6cab56bd55f1454638786f999f6f636354/gdb/utils.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8a522c6cab56bd55f1454638786f999f6f636354/gdb/utils.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/utils.c?ref=8a522c6cab56bd55f1454638786f999f6f636354",
+      "patch": "@@ -1435,38 +1435,13 @@ emit_style_escape (const ui_file_style &style,\n     fputs_unfiltered (style.to_ansi ().c_str (), stream);\n }\n \n-/* See utils.h.  */\n-\n-bool\n-can_emit_style_escape (struct ui_file *stream)\n-{\n-  if (stream != gdb_stdout\n-      || !cli_styling\n-      || !ui_file_isatty (stream))\n-    return false;\n-  const char *term = getenv (\"TERM\");\n-  /* Windows doesn't by default define $TERM, but can support styles\n-     regardless.  */\n-#ifndef _WIN32\n-  if (term == nullptr || !strcmp (term, \"dumb\"))\n-    return false;\n-#else\n-  /* But if they do define $TERM, let us behave the same as on Posix\n-     platforms, for the benefit of programs which invoke GDB as their\n-     back-end.  */\n-  if (term && !strcmp (term, \"dumb\"))\n-    return false;\n-#endif\n-  return true;\n-}\n-\n /* Set the current output style.  This will affect future uses of the\n    _filtered output functions.  */\n \n static void\n set_output_style (struct ui_file *stream, const ui_file_style &style)\n {\n-  if (!can_emit_style_escape (stream))\n+  if (!stream->can_emit_style_escape ())\n     return;\n \n   /* Note that we don't pass STREAM here, because we want to emit to\n@@ -1479,7 +1454,7 @@ set_output_style (struct ui_file *stream, const ui_file_style &style)\n void\n reset_terminal_style (struct ui_file *stream)\n {\n-  if (can_emit_style_escape (stream))\n+  if (stream->can_emit_style_escape ())\n     {\n       /* Force the setting, regardless of what we think the setting\n \t might already be.  */\n@@ -1504,7 +1479,7 @@ prompt_for_continue (void)\n   bool disable_pagination = pagination_disabled_for_command;\n \n   /* Clear the current styling.  */\n-  if (can_emit_style_escape (gdb_stdout))\n+  if (gdb_stdout->can_emit_style_escape ())\n     emit_style_escape (ui_file_style (), gdb_stdout);\n \n   if (annotation_level > 1)\n@@ -1801,7 +1776,7 @@ fputs_maybe_filtered (const char *linebuffer, struct ui_file *stream,\n \t      lines_printed++;\n \t      if (wrap_column)\n \t\t{\n-\t\t  if (can_emit_style_escape (stream))\n+\t\t  if (stream->can_emit_style_escape ())\n \t\t    emit_style_escape (ui_file_style (), stream);\n \t\t  /* If we aren't actually wrapping, don't output\n \t\t     newline -- if chars_per_line is right, we\n@@ -1823,7 +1798,7 @@ fputs_maybe_filtered (const char *linebuffer, struct ui_file *stream,\n \t      if (wrap_column)\n \t\t{\n \t\t  fputs_unfiltered (wrap_indent, stream);\n-\t\t  if (can_emit_style_escape (stream))\n+\t\t  if (stream->can_emit_style_escape ())\n \t\t    emit_style_escape (wrap_style, stream);\n \t\t  /* FIXME, this strlen is what prevents wrap_indent from\n \t\t     containing tabs.  However, if we recurse to print it"
+    },
+    {
+      "sha": "76c10049a7f8dc7ddce62651f54b79819435e962",
+      "filename": "gdb/utils.h",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 4,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8a522c6cab56bd55f1454638786f999f6f636354/gdb/utils.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8a522c6cab56bd55f1454638786f999f6f636354/gdb/utils.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/utils.h?ref=8a522c6cab56bd55f1454638786f999f6f636354",
+      "patch": "@@ -440,10 +440,6 @@ extern void fputs_styled (const char *linebuffer,\n \n extern void reset_terminal_style (struct ui_file *stream);\n \n-/* Return true if ANSI escapes can be used on STREAM.  */\n-\n-extern bool can_emit_style_escape (struct ui_file *stream);\n-\n /* Display the host ADDR on STREAM formatted as ``0x%x''.  */\n extern void gdb_print_host_address_1 (const void *addr, struct ui_file *stream);\n "
+    }
+  ]
+}

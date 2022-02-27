@@ -1,0 +1,110 @@
+{
+  "sha": "16b10d6e61bfa0940333354e8144b3924dc86e56",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MTZiMTBkNmU2MWJmYTA5NDAzMzMzNTRlODE0NGIzOTI0ZGM4NmU1Ng==",
+  "commit": {
+    "author": {
+      "name": "Luis Machado",
+      "email": "luis.machado@linaro.org",
+      "date": "2020-01-14T16:46:07Z"
+    },
+    "committer": {
+      "name": "Luis Machado",
+      "email": "luis.machado@linaro.org",
+      "date": "2020-01-27T20:28:06Z"
+    },
+    "message": "Harden gdb.base/step-over-syscall.exp\n\nNew in v3:\n- Verify if the syscall number matches what is expected for the target.\n- Used gdb_assert for one more check.\n\nNew in v2:\n\n- Set initial values to -1 instead of 0.\n- Rewrote RE to prevent unexpected matching when parsing one character at a\n  time.\n- Used gdb_assert for an additional check.\n- Validated with check-read1\n\nThere are a couple problems with this test.\n\nFirst\n--\n\ngdb.base/step-over-syscall.exp records the address of a syscall instruction\nwithin fork/vfork/clone functions and also the address of the instruction\nafter that syscall instruction.\n\nIt uses these couples addresses to make sure we stepped over a syscall\ninstruction (fork/vfork/clone events) correctly.\n\nThe way the test fetches the addresses of the instructions is by stepi-ing\nits way through the fork/vfork/clone functions until it finds a match for\na syscall. Then it stepi's once again to get the address of the next\ninstruction.\n\nThis assumes that stepi-ing over a syscall is working correctly and landing\nin the right PC. This is not the case for AArch64/Linux, where we're\nlanding a couple instructions after the syscall in some cases.\n\nThe following patch lets the test execute as before, but adds a new instruction\naddress check using the x command as opposed to stepi.\n\nI didn't want to change how the test works since we may also be\ninterested in checking if stepi-ing over the syscall under different\nconditions (displaced stepping on/off) yields the same results. I don't\nfeel strongly about this, so i'm OK with changing how we compare PC's for\nthe entire test if folks decide it is reasonable.\n\nSecond\n--\n\nFAIL: gdb.base/step-over-syscall.exp: vfork: displaced=off: continue to vfork (3rd time) (the program exited)\nFAIL: gdb.base/step-over-syscall.exp: vfork: displaced=off: continue to syscall insn vfork (the program is no longer running)\nFAIL: gdb.base/step-over-syscall.exp: vfork: displaced=off: single step over vfork (the program is no longer running)\n\nDepending on the glibc version we may have different code generated for the\nfork/vfork/clone functions.\n\nI ran into the situation where vfork for newer glibc's on AArch64/Linux is\nvery short, so \"break vfork\" will put a breakpoint right at the syscall\ninstruction, which is something the testcase isn't expecting (a off-by-1\nof sorts).\n\nThe patch adds extra code to handle this case. If the test detects we're\nalready sitting at a syscall instruction, it records the address and moves\non to record the address after that particular instruction.\n\nAnother measure is to \"break *$syscall\" instead of \"break $syscall\". That\nguarantees we're stopping at the first instruction of the syscall function,\nif it ever happens that the syscall instruction is the first instruction of\nthose functions.\n\nWith these changes i can fix some failures for aarch64-linux-gnu and also\nexpose the problems i've reported here:\n\nhttps://sourceware.org/ml/gdb-patches/2019-12/msg01071.html\n\nThese tests now fail for aarch64-linux-gnu (patch for this is going through\nreviews):\n\nFAIL: gdb.base/step-over-syscall.exp: vfork: displaced=off: pc after stepi matches insn addr after syscall\nFAIL: gdb.base/step-over-syscall.exp: vfork: displaced=on: pc after stepi matches insn addr after syscall\n\ngdb/testsuite/ChangeLog:\n\n2020-01-27  Luis Machado  <luis.machado@linaro.org>\n\n\t* gdb.base/step-over-syscall.exp (setup): Check if we're already\n\tsitting at a syscall instruction when we hit the syscall function's\n\tbreakpoint.\n\tCheck PC against one obtained with the x command.\n\tValidate syscall number.\n\t(step_over_syscall): Don't continue to the syscall instruction if\n\twe're already there.",
+    "tree": {
+      "sha": "a3844d67c6879b914a8e67c6e1197e1e2d9b2666",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/a3844d67c6879b914a8e67c6e1197e1e2d9b2666"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/16b10d6e61bfa0940333354e8144b3924dc86e56",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/16b10d6e61bfa0940333354e8144b3924dc86e56",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/16b10d6e61bfa0940333354e8144b3924dc86e56",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/16b10d6e61bfa0940333354e8144b3924dc86e56/comments",
+  "author": {
+    "login": "luislinaro",
+    "id": 53092780,
+    "node_id": "MDQ6VXNlcjUzMDkyNzgw",
+    "avatar_url": "https://avatars.githubusercontent.com/u/53092780?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/luislinaro",
+    "html_url": "https://github.com/luislinaro",
+    "followers_url": "https://api.github.com/users/luislinaro/followers",
+    "following_url": "https://api.github.com/users/luislinaro/following{/other_user}",
+    "gists_url": "https://api.github.com/users/luislinaro/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/luislinaro/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/luislinaro/subscriptions",
+    "organizations_url": "https://api.github.com/users/luislinaro/orgs",
+    "repos_url": "https://api.github.com/users/luislinaro/repos",
+    "events_url": "https://api.github.com/users/luislinaro/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/luislinaro/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "luislinaro",
+    "id": 53092780,
+    "node_id": "MDQ6VXNlcjUzMDkyNzgw",
+    "avatar_url": "https://avatars.githubusercontent.com/u/53092780?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/luislinaro",
+    "html_url": "https://github.com/luislinaro",
+    "followers_url": "https://api.github.com/users/luislinaro/followers",
+    "following_url": "https://api.github.com/users/luislinaro/following{/other_user}",
+    "gists_url": "https://api.github.com/users/luislinaro/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/luislinaro/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/luislinaro/subscriptions",
+    "organizations_url": "https://api.github.com/users/luislinaro/orgs",
+    "repos_url": "https://api.github.com/users/luislinaro/repos",
+    "events_url": "https://api.github.com/users/luislinaro/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/luislinaro/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "82ef9cad78b74ee9176e059e8c8dec1bdb4a1efe",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/82ef9cad78b74ee9176e059e8c8dec1bdb4a1efe",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/82ef9cad78b74ee9176e059e8c8dec1bdb4a1efe"
+    }
+  ],
+  "stats": {
+    "total": 144,
+    "additions": 111,
+    "deletions": 33
+  },
+  "files": [
+    {
+      "sha": "4fd5dc8333066086389dd754c19ec5d123f005e7",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/16b10d6e61bfa0940333354e8144b3924dc86e56/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/16b10d6e61bfa0940333354e8144b3924dc86e56/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=16b10d6e61bfa0940333354e8144b3924dc86e56",
+      "patch": "@@ -1,3 +1,13 @@\n+2020-01-27  Luis Machado  <luis.machado@linaro.org>\n+\n+\t* gdb.base/step-over-syscall.exp (setup): Check if we're already\n+\tsitting at a syscall instruction when we hit the syscall function's\n+\tbreakpoint.\n+\tCheck PC against one obtained with the x command.\n+\tValidate syscall number.\n+\t(step_over_syscall): Don't continue to the syscall instruction if\n+\twe're already there.\n+\n 2020-01-25  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n \n \t* gdb.base/attach.exp: Test 'set exec-file-mismatch'."
+    },
+    {
+      "sha": "0d0c31abe87e4032b20ab5acefc2736cd0efb081",
+      "filename": "gdb/testsuite/gdb.base/step-over-syscall.exp",
+      "status": "modified",
+      "additions": 101,
+      "deletions": 33,
+      "changes": 134,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/16b10d6e61bfa0940333354e8144b3924dc86e56/gdb/testsuite/gdb.base/step-over-syscall.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/16b10d6e61bfa0940333354e8144b3924dc86e56/gdb/testsuite/gdb.base/step-over-syscall.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/step-over-syscall.exp?ref=16b10d6e61bfa0940333354e8144b3924dc86e56",
+      "patch": "@@ -16,27 +16,50 @@\n # along with this program.  If not, see <http://www.gnu.org/licenses/>.\n \n set syscall_insn \"\"\n+set syscall_register \"\"\n+array set syscall_number {}\n \n-# Define the syscall instruction for each target.\n+# Define the syscall instructions, registers and numbers for each target.\n \n if { [istarget \"i\\[34567\\]86-*-linux*\"] || [istarget \"x86_64-*-linux*\"] } {\n     set syscall_insn \"\\[ \\t\\](int|syscall|sysenter)\\[ \\t\\]\"\n+    set syscall_register \"eax\"\n+    array set syscall_number {fork \"(56|120)\" vfork \"(58|190)\" \\\n+      clone \"(56|120)\"}\n } elseif { [istarget \"aarch64*-*-linux*\"] || [istarget \"arm*-*-linux*\"] } {\n     set syscall_insn \"\\[ \\t\\](swi|svc)\\[ \\t\\]\"\n+\n+    if { [istarget \"aarch64*-*-linux*\"] } {\n+\tset syscall_register \"x8\"\n+    } else {\n+\tset syscall_register \"r7\"\n+    }\n+\n+    array set syscall_number {fork \"(120|220)\" vfork \"(190|220)\" \\\n+      clone \"(120|220)\"}\n } else {\n     return -1\n }\n \n proc_with_prefix check_pc_after_cross_syscall { syscall syscall_insn_next_addr } {\n     set syscall_insn_next_addr_found [get_hexadecimal_valueof \"\\$pc\" \"0\"]\n \n-    set test \"single step over $syscall final pc\"\n-    if {$syscall_insn_next_addr != 0\n-\t&& $syscall_insn_next_addr == $syscall_insn_next_addr_found} {\n-\tpass $test\n-    } else {\n-\tfail $test\n-    }\n+    gdb_assert {$syscall_insn_next_addr != 0 \\\n+      && $syscall_insn_next_addr == $syscall_insn_next_addr_found} \\\n+\t\"single step over $syscall final pc\"\n+}\n+\n+# Verify the syscall number is the correct one.\n+\n+proc syscall_number_matches { syscall } {\n+  global syscall_register syscall_number\n+\n+  if {[gdb_test \"p \\$$syscall_register\" \".*= $syscall_number($syscall)\" \\\n+    \"syscall number matches\"] != 0} {\n+      return 0\n+  }\n+\n+  return 1\n }\n \n # Restart GDB and set up the test.  Return a list in which the first one\n@@ -47,6 +70,8 @@ proc_with_prefix check_pc_after_cross_syscall { syscall syscall_insn_next_addr }\n proc setup { syscall } {\n     global gdb_prompt syscall_insn\n \n+    global hex\n+    set next_insn_addr -1\n     set testfile \"step-over-$syscall\"\n \n     clean_restart $testfile\n@@ -62,7 +87,7 @@ proc setup { syscall } {\n     gdb_test_no_output \"set displaced-stepping off\" \\\n \t\"set displaced-stepping off during test setup\"\n \n-    gdb_test \"break $syscall\" \"Breakpoint \\[0-9\\]* at .*\"\n+    gdb_test \"break \\*$syscall\" \"Breakpoint \\[0-9\\]* at .*\"\n \n     gdb_test \"continue\" \"Continuing\\\\..*Breakpoint \\[0-9\\]+, (.* in |__libc_|)$syscall \\\\(\\\\).*\" \\\n \t\"continue to $syscall (1st time)\"\n@@ -75,39 +100,77 @@ proc setup { syscall } {\n     # Hit the breakpoint on $syscall for the second time.  In this time,\n     # the address of syscall insn and next insn of syscall are recorded.\n \n-    gdb_test \"display/i \\$pc\" \".*\"\n+    # Check if the first instruction we stopped at is the syscall one.\n+    set syscall_insn_addr -1\n+    gdb_test_multiple \"display/i \\$pc\" \"fetch first stop pc\" {\n+\t-re \"display/i .*: x/i .*=> ($hex) .*:.*$syscall_insn.*$gdb_prompt $\" {\n+\t    set insn_addr $expect_out(1,string)\n \n-    # Single step until we see a syscall insn or we reach the\n-    # upper bound of loop iterations.\n-    set msg \"find syscall insn in $syscall\"\n-    set steps 0\n-    set max_steps 1000\n-    gdb_test_multiple \"stepi\" $msg {\n-\t-re \".*$syscall_insn.*$gdb_prompt $\" {\n-\t    pass $msg\n+\t    # Is the syscall number the correct one?\n+\t    if {[syscall_number_matches $syscall]} {\n+\t\tset syscall_insn_addr $insn_addr\n+\t    }\n+\t    pass $gdb_test_name\n \t}\n-\t-re \"x/i .*=>.*\\r\\n$gdb_prompt $\" {\n-\t    incr steps\n-\t    if {$steps == $max_steps} {\n-\t\tfail $msg\n-\t    } else {\n-\t\tsend_gdb \"stepi\\n\"\n-\t\texp_continue\n+\t-re \".*$gdb_prompt $\" {\n+\t    pass $gdb_test_name\n+\t}\n+    }\n+\n+    # If we are not at the syscall instruction yet, keep looking for it with\n+    # stepi commands.\n+    if {$syscall_insn_addr == -1} {\n+\t# Single step until we see a syscall insn or we reach the\n+\t# upper bound of loop iterations.\n+\tset steps 0\n+\tset max_steps 1000\n+\tgdb_test_multiple \"stepi\" \"find syscall insn in $syscall\" {\n+\t    -re \".*$syscall_insn.*$gdb_prompt $\" {\n+\t\t# Is the syscall number the correct one?\n+\t\tif {[syscall_number_matches $syscall]} {\n+\t\t    pass $gdb_test_name\n+\t\t} else {\n+\t\t    exp_continue\n+\t\t}\n \t    }\n+\t    -re \"x/i .*=>.*\\r\\n$gdb_prompt $\" {\n+\t\tincr steps\n+\t\tif {$steps == $max_steps} {\n+\t\t    fail $gdb_test_name\n+\t\t} else {\n+\t\t    send_gdb \"stepi\\n\"\n+\t\t    exp_continue\n+\t\t}\n+\t    }\n+\t}\n+\n+\tif {$steps == $max_steps} {\n+\t    return { -1, -1 }\n \t}\n     }\n \n-    if {$steps == $max_steps} {\n-\treturn { -1, -1 }\n+    # We have found the syscall instruction.  Now record the next instruction.\n+    # Use the X command instead of stepi since we can't guarantee\n+    # stepi is working properly.\n+    gdb_test_multiple \"x/2i \\$pc\" \"pc before/after syscall instruction\" {\n+\t-re \"x/2i .*=> ($hex) .*:.*$syscall_insn.* ($hex) .*:.*$gdb_prompt $\" {\n+\t    set syscall_insn_addr $expect_out(1,string)\n+\t    set next_insn_addr $expect_out(3,string)\n+\t    pass $gdb_test_name\n+\t}\n     }\n \n-    set syscall_insn_addr [get_hexadecimal_valueof \"\\$pc\" \"0\" \\\n-\t\t\t       \"pc before stepi\"]\n     if {[gdb_test \"stepi\" \"x/i .*=>.*\" \"stepi $syscall insn\"] != 0} {\n \treturn { -1, -1 }\n     }\n-    return [list $syscall_insn_addr [get_hexadecimal_valueof \"\\$pc\" \\\n-\t\t\t\t\t \"0\" \"pc after stepi\"]]\n+\n+    set pc_after_stepi [get_hexadecimal_valueof \"\\$pc\" \"0\" \\\n+\t\t\t    \"pc after stepi\"]\n+\n+    gdb_assert {$next_insn_addr == $pc_after_stepi} \\\n+\t\"pc after stepi matches insn addr after syscall\"\n+\n+    return [list $syscall_insn_addr $pc_after_stepi]\n }\n \n proc step_over_syscall { syscall } {\n@@ -156,8 +219,13 @@ proc step_over_syscall { syscall } {\n \t\t}\n \t    }\n \n-\t    gdb_test \"continue\" \"Continuing\\\\..*Breakpoint \\[0-9\\]+, .*\" \\\n-\t\t\"continue to syscall insn $syscall\"\n+\t    # Check if the syscall breakpoint is at the syscall instruction\n+\t    # address.  If so, no need to continue, otherwise we will run the\n+\t    # inferior to completion.\n+\t    if {$syscall_insn_addr != [get_hexadecimal_valueof \"\\$pc\" \"0\"]} {\n+\t\tgdb_test \"continue\" \"Continuing\\\\..*Breakpoint \\[0-9\\]+, .*\" \\\n+\t\t    \"continue to syscall insn $syscall\"\n+\t    }\n \n \t    gdb_test_no_output \"set displaced-stepping $displaced\"\n "
+    }
+  ]
+}

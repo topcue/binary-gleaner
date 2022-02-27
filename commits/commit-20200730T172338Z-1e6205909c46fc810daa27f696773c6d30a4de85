@@ -1,0 +1,146 @@
+{
+  "sha": "1e6205909c46fc810daa27f696773c6d30a4de85",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MWU2MjA1OTA5YzQ2ZmM4MTBkYWEyN2Y2OTY3NzNjNmQzMGE0ZGU4NQ==",
+  "commit": {
+    "author": {
+      "name": "Tankut Baris Aktemur",
+      "email": "tankut.baris.aktemur@intel.com",
+      "date": "2020-07-30T17:23:38Z"
+    },
+    "committer": {
+      "name": "Tankut Baris Aktemur",
+      "email": "tankut.baris.aktemur@intel.com",
+      "date": "2020-07-30T17:23:38Z"
+    },
+    "message": "gdb/breakpoint: do not update the condition string if parsing the condition fails\n\nThe condition of a breakpoint can be set with the 'cond' command.  If\nthe condition has errors that make it problematic to evaluate, it\nappears like GDB rejects the condition, but updates the breakpoint's\ncondition string, which causes incorrect/unintuitive behavior.\n\nFor instance:\n\n  $ gdb ./test\n  Reading symbols from ./test...\n  (gdb) break 5\n  Breakpoint 1 at 0x1155: file test.c, line 5.\n  (gdb) cond 1 gibberish\n  No symbol \"gibberish\" in current context.\n\nAt this point, it looks like the condition was rejected.\nBut \"info breakpoints\" shows the following:\n\n  (gdb) info breakpoints\n  Num     Type           Disp Enb Address            What\n  1       breakpoint     keep y   0x0000000000001155 in main at test.c:5\n          stop only if gibberish\n\nRunning the code gives the following behavior, where re-insertion of\nthe breakpoint causes failures.\n\n  (gdb) run\n  Starting program: test\n  warning: failed to reevaluate condition for breakpoint 1: No symbol \"gibberish\" in current context.\n  warning: failed to reevaluate condition for breakpoint 1: No symbol \"gibberish\" in current context.\n  warning: failed to reevaluate condition for breakpoint 1: No symbol \"gibberish\" in current context.\n  warning: failed to reevaluate condition for breakpoint 1: No symbol \"gibberish\" in current context.\n  warning: failed to reevaluate condition for breakpoint 1: No symbol \"gibberish\" in current context.\n  [Inferior 1 (process 19084) exited normally]\n  (gdb)\n\nThis broken behavior occurs because GDB updates the condition string\nof the breakpoint *before* checking that it parses successfully.\nWhen parsing fails, the update has already taken place.\n\nFix the problem by updating the condition string *after* parsing the\ncondition.  We get the following behavior when this patch is applied:\n\n  $ gdb ./test\n  Reading symbols from ./test...\n  (gdb) break 5\n  Breakpoint 1 at 0x1155: file test.c, line 5.\n  (gdb) cond 1 gibberish\n  No symbol \"gibberish\" in current context.\n  (gdb) info breakpoints\n  Num     Type           Disp Enb Address            What\n  1       breakpoint     keep y   0x0000000000001155 in main at test.c:5\n  (gdb) run\n  Starting program: test\n\n  Breakpoint 1, main () at test.c:5\n  5         a = a + 1; /* break-here */\n  (gdb) c\n  Continuing.\n  [Inferior 1 (process 15574) exited normally]\n  (gdb)\n\nA side note: The problem does not occur if the condition is given\nat the time of breakpoint definition, as in \"break 5 if gibberish\",\nbecause the parsing of the condition fails during symtab-and-line\ncreation, before the breakpoint is created.\n\nFinally, the code included the following comment:\n\n  /* I don't know if it matters whether this is the string the user\n     typed in or the decompiled expression.  */\n\nThis comment did not make sense to me because the condition string is\nthe user-typed input.  The patch updates this comment, too.\n\ngdb/ChangeLog:\n2020-07-30  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n\n\t* breakpoint.c (set_breakpoint_condition): Update the\n\tcondition string after parsing the new condition successfully.\n\ngdb/testsuite/ChangeLog:\n2020-07-30  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n\n\t* gdb.base/condbreak-bad.c: New test.\n\t* gdb.base/condbreak-bad.exp: New file.",
+    "tree": {
+      "sha": "4cbeb5bdb7db28acba52c8153c2021c724cf72c7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/4cbeb5bdb7db28acba52c8153c2021c724cf72c7"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/1e6205909c46fc810daa27f696773c6d30a4de85",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1e6205909c46fc810daa27f696773c6d30a4de85",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/1e6205909c46fc810daa27f696773c6d30a4de85",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1e6205909c46fc810daa27f696773c6d30a4de85/comments",
+  "author": {
+    "login": "barisaktemur",
+    "id": 55686642,
+    "node_id": "MDQ6VXNlcjU1Njg2NjQy",
+    "avatar_url": "https://avatars.githubusercontent.com/u/55686642?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/barisaktemur",
+    "html_url": "https://github.com/barisaktemur",
+    "followers_url": "https://api.github.com/users/barisaktemur/followers",
+    "following_url": "https://api.github.com/users/barisaktemur/following{/other_user}",
+    "gists_url": "https://api.github.com/users/barisaktemur/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/barisaktemur/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/barisaktemur/subscriptions",
+    "organizations_url": "https://api.github.com/users/barisaktemur/orgs",
+    "repos_url": "https://api.github.com/users/barisaktemur/repos",
+    "events_url": "https://api.github.com/users/barisaktemur/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/barisaktemur/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "barisaktemur",
+    "id": 55686642,
+    "node_id": "MDQ6VXNlcjU1Njg2NjQy",
+    "avatar_url": "https://avatars.githubusercontent.com/u/55686642?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/barisaktemur",
+    "html_url": "https://github.com/barisaktemur",
+    "followers_url": "https://api.github.com/users/barisaktemur/followers",
+    "following_url": "https://api.github.com/users/barisaktemur/following{/other_user}",
+    "gists_url": "https://api.github.com/users/barisaktemur/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/barisaktemur/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/barisaktemur/subscriptions",
+    "organizations_url": "https://api.github.com/users/barisaktemur/orgs",
+    "repos_url": "https://api.github.com/users/barisaktemur/repos",
+    "events_url": "https://api.github.com/users/barisaktemur/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/barisaktemur/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "4d3bb35620e70d543d438bf21be1307f7ea0f5d0",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4d3bb35620e70d543d438bf21be1307f7ea0f5d0",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/4d3bb35620e70d543d438bf21be1307f7ea0f5d0"
+    }
+  ],
+  "stats": {
+    "total": 91,
+    "additions": 83,
+    "deletions": 8
+  },
+  "files": [
+    {
+      "sha": "cbe850d46815e136f58f86f1ae623c828a325cb1",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1e6205909c46fc810daa27f696773c6d30a4de85/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1e6205909c46fc810daa27f696773c6d30a4de85/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=1e6205909c46fc810daa27f696773c6d30a4de85",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-07-30  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n+\n+\t* breakpoint.c (set_breakpoint_condition): Update the\n+\tcondition string after parsing the new condition successfully.\n+\n 2020-07-30  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>\n \n \t* proc-api.c (_STRUCTURED_PROC): Don't define."
+    },
+    {
+      "sha": "a3a7c17fbcf9db340c475ec123c6ae30d9868fca",
+      "filename": "gdb/breakpoint.c",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 8,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1e6205909c46fc810daa27f696773c6d30a4de85/gdb/breakpoint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1e6205909c46fc810daa27f696773c6d30a4de85/gdb/breakpoint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/breakpoint.c?ref=1e6205909c46fc810daa27f696773c6d30a4de85",
+      "patch": "@@ -834,9 +834,6 @@ void\n set_breakpoint_condition (struct breakpoint *b, const char *exp,\n \t\t\t  int from_tty)\n {\n-  xfree (b->cond_string);\n-  b->cond_string = NULL;\n-\n   if (is_watchpoint (b))\n     {\n       struct watchpoint *w = (struct watchpoint *) b;\n@@ -859,18 +856,16 @@ set_breakpoint_condition (struct breakpoint *b, const char *exp,\n \n   if (*exp == 0)\n     {\n+      xfree (b->cond_string);\n+      b->cond_string = nullptr;\n+\n       if (from_tty)\n \tprintf_filtered (_(\"Breakpoint %d now unconditional.\\n\"), b->number);\n     }\n   else\n     {\n       const char *arg = exp;\n \n-      /* I don't know if it matters whether this is the string the user\n-\t typed in or the decompiled expression.  */\n-      b->cond_string = xstrdup (arg);\n-      b->condition_not_parsed = 0;\n-\n       if (is_watchpoint (b))\n \t{\n \t  struct watchpoint *w = (struct watchpoint *) b;\n@@ -896,6 +891,12 @@ set_breakpoint_condition (struct breakpoint *b, const char *exp,\n \t\terror (_(\"Junk at end of expression\"));\n \t    }\n \t}\n+\n+      /* We know that the new condition parsed successfully.  The\n+\t condition string of the breakpoint can be safely updated.  */\n+      xfree (b->cond_string);\n+      b->cond_string = xstrdup (exp);\n+      b->condition_not_parsed = 0;\n     }\n   mark_breakpoint_modified (b);\n "
+    },
+    {
+      "sha": "7be030343bc28e604af83b4fd9eeb3693909b4d0",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1e6205909c46fc810daa27f696773c6d30a4de85/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1e6205909c46fc810daa27f696773c6d30a4de85/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=1e6205909c46fc810daa27f696773c6d30a4de85",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-07-30  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n+\n+\t* gdb.base/condbreak-bad.c: New test.\n+\t* gdb.base/condbreak-bad.exp: New file.\n+\n 2020-07-30  Tom de Vries  <tdevries@suse.de>\n \n \t* lib/sym-info-cmds.exp (GDBInfoModuleSymbols::check_entry_1): Factor"
+    },
+    {
+      "sha": "58283b75ca7444f5c8448a97761fe8053a3dde84",
+      "filename": "gdb/testsuite/gdb.base/condbreak-bad.c",
+      "status": "added",
+      "additions": 24,
+      "deletions": 0,
+      "changes": 24,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1e6205909c46fc810daa27f696773c6d30a4de85/gdb/testsuite/gdb.base/condbreak-bad.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1e6205909c46fc810daa27f696773c6d30a4de85/gdb/testsuite/gdb.base/condbreak-bad.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/condbreak-bad.c?ref=1e6205909c46fc810daa27f696773c6d30a4de85",
+      "patch": "@@ -0,0 +1,24 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+int\n+main ()\n+{\n+  int a = 10;\n+  a = a + 1; /* break-here */\n+  return 0;\n+}"
+    },
+    {
+      "sha": "a01ba2a934076fa959941eb6309086d062b2be67",
+      "filename": "gdb/testsuite/gdb.base/condbreak-bad.exp",
+      "status": "added",
+      "additions": 40,
+      "deletions": 0,
+      "changes": 40,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1e6205909c46fc810daa27f696773c6d30a4de85/gdb/testsuite/gdb.base/condbreak-bad.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1e6205909c46fc810daa27f696773c6d30a4de85/gdb/testsuite/gdb.base/condbreak-bad.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/condbreak-bad.exp?ref=1e6205909c46fc810daa27f696773c6d30a4de85",
+      "patch": "@@ -0,0 +1,40 @@\n+# Copyright 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test defining bad conditions for breakpoints.\n+\n+standard_testfile\n+\n+if {[prepare_for_testing \"failed to prepare\" ${binfile} ${srcfile}]} {\n+    return\n+}\n+\n+set bp_location [gdb_get_line_number \"break-here\"]\n+gdb_breakpoint \"$bp_location\"\n+set bpnum [get_integer_valueof \"\\$bpnum\" 0 \"get bpnum\"]\n+\n+# Define a 'bad' condition.  The breakpoint should stay unconditional.\n+gdb_test \"cond $bpnum gibberish\" \\\n+    \"No symbol \\\"gibberish\\\" in current context.\" \\\n+    \"attempt a bad condition\"\n+\n+set fill \"\\[^\\r\\n\\]*\"\n+\n+gdb_test \"info break\" \\\n+    [multi_line \\\n+\t \"Num${fill}What\" \\\n+\t \"${decimal}${fill}breakpoint${fill}keep y${fill}:${bp_location}\"] \\\n+    \"breakpoint is unconditional\"\n+"
+    }
+  ]
+}

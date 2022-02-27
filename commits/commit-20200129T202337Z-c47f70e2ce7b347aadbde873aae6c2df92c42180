@@ -1,0 +1,91 @@
+{
+  "sha": "c47f70e2ce7b347aadbde873aae6c2df92c42180",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YzQ3ZjcwZTJjZTdiMzQ3YWFkYmRlODczYWFlNmMyZGY5MmM0MjE4MA==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "palves@redhat.com",
+      "date": "2020-01-29T17:53:55Z"
+    },
+    "committer": {
+      "name": "Sergio Durigan Junior",
+      "email": "sergiodj@redhat.com",
+      "date": "2020-01-29T20:23:37Z"
+    },
+    "message": "Fix -Werror-stringop error on infcmd.c:construct_inferior_arguments\n\nWhile testing a GCC 10 build of our git HEAD, Sergio noticed an error\ntriggered by -Werror-stringop on\ninfcmd.c:construct_inferior_arguments.  One of the things the function\ndoes is calculate the length of the string that will hold the\ninferior's arguments.  GCC warns us that 'length' can be 0, which can\nlead to undesired behaviour:\n\n../../gdb/infcmd.c: In function 'char* construct_inferior_arguments(int, char**)':\n../../gdb/infcmd.c:369:17: error: writing 1 byte into a region of size 0 [-Werror=stringop-overflow=]\n  369 |       result[0] = '\\0';\n      |       ~~~~~~~~~~^~~~~~\n../../gdb/infcmd.c:368:33: note: at offset 0 to an object with size 0 allocated by 'xmalloc' here\n  368 |       result = (char *) xmalloc (length);\n      |                         ~~~~~~~~^~~~~~~~\n\nThe solution here is to assert that 'argc' is greater than 0 on entry,\nwhich makes GCC understand that the loops always run at least once,\nand thus 'length' is always > 0.\n\nTested by rebuilding.\n\ngdb/ChangeLog:\n2020-01-29  Pedro Alves  <palves@redhat.com>\n\t    Sergio Durigan Junior  <sergiodj@redhat.com>\n\n\t* infcmd.c (construct_inferior_arguments): Assert that\n\t'argc' is greater than 0.\n\nChange-Id: Ide8407cbedcb4921de1843a6a15bbcb7676c7d26",
+    "tree": {
+      "sha": "c33c1dd5f281fc1eafd9382f04953fbbeca6c431",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c33c1dd5f281fc1eafd9382f04953fbbeca6c431"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/c47f70e2ce7b347aadbde873aae6c2df92c42180",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c47f70e2ce7b347aadbde873aae6c2df92c42180",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/c47f70e2ce7b347aadbde873aae6c2df92c42180",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c47f70e2ce7b347aadbde873aae6c2df92c42180/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": null,
+  "parents": [
+    {
+      "sha": "fc1ca146f76eea0b76b1392ea1a7aa8fb0742490",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/fc1ca146f76eea0b76b1392ea1a7aa8fb0742490",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/fc1ca146f76eea0b76b1392ea1a7aa8fb0742490"
+    }
+  ],
+  "stats": {
+    "total": 11,
+    "additions": 11,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "535249196a8985f41bb41aeb5f3af8b999b7218d",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c47f70e2ce7b347aadbde873aae6c2df92c42180/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c47f70e2ce7b347aadbde873aae6c2df92c42180/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=c47f70e2ce7b347aadbde873aae6c2df92c42180",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-01-29  Pedro Alves  <palves@redhat.com>\n+\t    Sergio Durigan Junior  <sergiodj@redhat.com>\n+\n+\t* infcmd.c (construct_inferior_arguments): Assert that\n+\t'argc' is greater than 0.\n+\n 2020-01-29  Luis Machado  <luis.machado@linaro.org>\n \n \t* aarch64-tdep.c (BRK_INSN_MASK): Define to 0xffe0001f."
+    },
+    {
+      "sha": "62890bde2a22de57e90616a65d1b8b5d6e9136ba",
+      "filename": "gdb/infcmd.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c47f70e2ce7b347aadbde873aae6c2df92c42180/gdb/infcmd.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c47f70e2ce7b347aadbde873aae6c2df92c42180/gdb/infcmd.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infcmd.c?ref=c47f70e2ce7b347aadbde873aae6c2df92c42180",
+      "patch": "@@ -268,6 +268,11 @@ construct_inferior_arguments (int argc, char **argv)\n {\n   char *result;\n \n+  /* ARGC should always be at least 1, but we double check this\n+     here.  This is also needed to silence -Werror-stringop\n+     warnings.  */\n+  gdb_assert (argc > 0);\n+\n   if (startup_with_shell)\n     {\n #ifdef __MINGW32__"
+    }
+  ]
+}

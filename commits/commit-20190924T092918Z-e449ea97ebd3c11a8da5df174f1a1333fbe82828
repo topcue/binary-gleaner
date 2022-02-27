@@ -1,0 +1,108 @@
+{
+  "sha": "e449ea97ebd3c11a8da5df174f1a1333fbe82828",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZTQ0OWVhOTdlYmQzYzExYThkYTVkZjE3NGYxYTEzMzNmYmU4MjgyOA==",
+  "commit": {
+    "author": {
+      "name": "Srinath Parvathaneni",
+      "email": "srinath.parvathaneni@arm.com",
+      "date": "2019-09-24T09:18:12Z"
+    },
+    "committer": {
+      "name": "Srinath Parvathaneni",
+      "email": "srinath.parvathaneni@arm.com",
+      "date": "2019-09-24T09:29:18Z"
+    },
+    "message": "[ARM]: Modify assembler to accept floating and signless datatypes for MVE instruction VLDR.\n\nThis patch modifies assembler to accept the equivalent sized floating\nand signless datatypes for VLDR instruction but as alias for the unsigned version.\n\ngas/ChangeLog:\n\n2019-09-23  Srinath Parvathaneni  <srinath.parvathaneni@arm.com>\n\n\t* config/tc-arm.c (do_mve_vstr_vldr_RQ): Modify function to allow float\n\t* and signless datatypes for few cases of VLDR instruction.\n\t* testsuite/gas/arm/mve-vldr-bad-3.l: Modify.\n\t* testsuite/gas/arm/mve-vldr-bad-3.s: Likewise.\n\t* testsuite/gas/arm/mve-vstrldr-1.d: Likewise.\n\t* testsuite/gas/arm/mve-vstrldr-1.s: Likewise.",
+    "tree": {
+      "sha": "46fc427d8e83e925202e427d2a631dc9c3bcf480",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/46fc427d8e83e925202e427d2a631dc9c3bcf480"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/e449ea97ebd3c11a8da5df174f1a1333fbe82828",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e449ea97ebd3c11a8da5df174f1a1333fbe82828",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/e449ea97ebd3c11a8da5df174f1a1333fbe82828",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e449ea97ebd3c11a8da5df174f1a1333fbe82828/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "5d33705c7befb0711c134089cc8fffdbf9bc031c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5d33705c7befb0711c134089cc8fffdbf9bc031c",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/5d33705c7befb0711c134089cc8fffdbf9bc031c"
+    }
+  ],
+  "stats": {
+    "total": 87,
+    "additions": 81,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "2f394bae505f202e615ebcac6c19097ac4d51ac6",
+      "filename": "gas/config/tc-arm.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 5,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e449ea97ebd3c11a8da5df174f1a1333fbe82828/gas/config/tc-arm.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e449ea97ebd3c11a8da5df174f1a1333fbe82828/gas/config/tc-arm.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-arm.c?ref=e449ea97ebd3c11a8da5df174f1a1333fbe82828",
+      "patch": "@@ -17282,6 +17282,7 @@ static void\n do_mve_vstr_vldr_RQ (int size, int elsize, int load)\n {\n     unsigned os = inst.operands[1].imm >> 5;\n+    unsigned type = inst.vectype.el[0].type;\n     constraint (os != 0 && size == 8,\n \t\t_(\"can not shift offsets when accessing less than half-word\"));\n     constraint (os && os != neon_logbits (size),\n@@ -17312,15 +17313,14 @@ do_mve_vstr_vldr_RQ (int size, int elsize, int load)\n \tconstraint (inst.operands[0].reg == (inst.operands[1].imm & 0x1f),\n \t\t    _(\"destination register and offset register may not be\"\n \t\t    \" the same\"));\n-\tconstraint (size == elsize && inst.vectype.el[0].type != NT_unsigned,\n+\tconstraint (size == elsize && type == NT_signed, BAD_EL_TYPE);\n+\tconstraint (size != elsize && type != NT_unsigned && type != NT_signed,\n \t\t    BAD_EL_TYPE);\n-\tconstraint (inst.vectype.el[0].type != NT_unsigned\n-\t\t    && inst.vectype.el[0].type != NT_signed, BAD_EL_TYPE);\n-\tinst.instruction |= (inst.vectype.el[0].type == NT_unsigned) << 28;\n+\tinst.instruction |= ((size == elsize) || (type == NT_unsigned)) << 28;\n       }\n     else\n       {\n-\tconstraint (inst.vectype.el[0].type != NT_untyped, BAD_EL_TYPE);\n+\tconstraint (type != NT_untyped, BAD_EL_TYPE);\n       }\n \n     inst.instruction |= 1 << 23;"
+    },
+    {
+      "sha": "4b773b109ebc9ccd7301e3891f1fb97487ddd085",
+      "filename": "gas/testsuite/gas/arm/mve-vldr-bad-3.l",
+      "status": "modified",
+      "additions": 34,
+      "deletions": 0,
+      "changes": 34,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e449ea97ebd3c11a8da5df174f1a1333fbe82828/gas/testsuite/gas/arm/mve-vldr-bad-3.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e449ea97ebd3c11a8da5df174f1a1333fbe82828/gas/testsuite/gas/arm/mve-vldr-bad-3.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/mve-vldr-bad-3.l?ref=e449ea97ebd3c11a8da5df174f1a1333fbe82828",
+      "patch": "@@ -133,3 +133,37 @@\n [^:]*:134: Error: syntax error -- `vldrweq.32 q0,\\[r0\\]'\n [^:]*:135: Error: vector predicated instruction should be in VPT/VPST block -- `vldrwt.32 q0,\\[r0\\]'\n [^:]*:137: Error: instruction missing MVE vector predication code -- `vldrw.32 q0,\\[r0\\]'\n+[^:]*:140: Error: bad element type for instruction -- `vldrb.16 q0,\\[r2,q3\\]'\n+[^:]*:140: Error: bad element type for instruction -- `vldrb.32 q0,\\[r2,q3\\]'\n+[^:]*:140: Error: bad element type for instruction -- `vldrb.64 q0,\\[r2,q3\\]'\n+[^:]*:140: Error: bad element type for instruction -- `vldrb.f16 q0,\\[r2,q3\\]'\n+[^:]*:140: Error: bad element type for instruction -- `vldrb.f32 q0,\\[r2,q3\\]'\n+[^:]*:140: Error: bad element type for instruction -- `vldrb.f64 q0,\\[r2,q3\\]'\n+[^:]*:140: Error: bad element type for instruction -- `vldrb.p16 q0,\\[r2,q3\\]'\n+[^:]*:140: Error: bad element type for instruction -- `vldrb.p32 q0,\\[r2,q3\\]'\n+[^:]*:140: Error: bad element type for instruction -- `vldrb.p64 q0,\\[r2,q3\\]'\n+[^:]*:140: Error: bad element type for instruction -- `vldrb.s8 q0,\\[r2,q3\\]'\n+[^:]*:143: Error: bad element type for instruction -- `vldrh.8 q0,\\[r2,q3,uxtw#1\\]'\n+[^:]*:143: Error: bad element type for instruction -- `vldrh.32 q0,\\[r2,q3,uxtw#1\\]'\n+[^:]*:143: Error: bad element type for instruction -- `vldrh.64 q0,\\[r2,q3,uxtw#1\\]'\n+[^:]*:143: Error: bad element type for instruction -- `vldrh.f32 q0,\\[r2,q3,uxtw#1\\]'\n+[^:]*:143: Error: bad element type for instruction -- `vldrh.f64 q0,\\[r2,q3,uxtw#1\\]'\n+[^:]*:143: Error: bad element type for instruction -- `vldrh.p32 q0,\\[r2,q3,uxtw#1\\]'\n+[^:]*:143: Error: bad element type for instruction -- `vldrh.p64 q0,\\[r2,q3,uxtw#1\\]'\n+[^:]*:143: Error: bad element type for instruction -- `vldrh.s16 q0,\\[r2,q3,uxtw#1\\]'\n+[^:]*:146: Error: bad element type for instruction -- `vldrw.8 q0,\\[r2,q3,uxtw#2\\]'\n+[^:]*:146: Error: bad element type for instruction -- `vldrw.16 q0,\\[r2,q3,uxtw#2\\]'\n+[^:]*:146: Error: bad element type for instruction -- `vldrw.64 q0,\\[r2,q3,uxtw#2\\]'\n+[^:]*:146: Error: bad element type for instruction -- `vldrw.f16 q0,\\[r2,q3,uxtw#2\\]'\n+[^:]*:146: Error: bad element type for instruction -- `vldrw.f64 q0,\\[r2,q3,uxtw#2\\]'\n+[^:]*:146: Error: bad element type for instruction -- `vldrw.p16 q0,\\[r2,q3,uxtw#2\\]'\n+[^:]*:146: Error: bad element type for instruction -- `vldrw.p64 q0,\\[r2,q3,uxtw#2\\]'\n+[^:]*:146: Error: bad element type for instruction -- `vldrw.s32 q0,\\[r2,q3,uxtw#2\\]'\n+[^:]*:149: Error: bad element type for instruction -- `vldrd.8 q0,\\[r2,q3,uxtw#3\\]'\n+[^:]*:149: Error: bad element type for instruction -- `vldrd.16 q0,\\[r2,q3,uxtw#3\\]'\n+[^:]*:149: Error: bad element type for instruction -- `vldrd.32 q0,\\[r2,q3,uxtw#3\\]'\n+[^:]*:149: Error: bad element type for instruction -- `vldrd.f16 q0,\\[r2,q3,uxtw#3\\]'\n+[^:]*:149: Error: bad element type for instruction -- `vldrd.f32 q0,\\[r2,q3,uxtw#3\\]'\n+[^:]*:149: Error: bad element type for instruction -- `vldrd.p16 q0,\\[r2,q3,uxtw#3\\]'\n+[^:]*:149: Error: bad element type for instruction -- `vldrd.p32 q0,\\[r2,q3,uxtw#3\\]'\n+[^:]*:149: Error: bad element type for instruction -- `vldrd.s64 q0,\\[r2,q3,uxtw#3\\]'"
+    },
+    {
+      "sha": "3712cada977b290dfa08b3861f11689294299571",
+      "filename": "gas/testsuite/gas/arm/mve-vldr-bad-3.s",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 1,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e449ea97ebd3c11a8da5df174f1a1333fbe82828/gas/testsuite/gas/arm/mve-vldr-bad-3.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e449ea97ebd3c11a8da5df174f1a1333fbe82828/gas/testsuite/gas/arm/mve-vldr-bad-3.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/mve-vldr-bad-3.s?ref=e449ea97ebd3c11a8da5df174f1a1333fbe82828",
+      "patch": "@@ -135,4 +135,15 @@ vldrweq.32 q0, [r0]\n vldrwt.32 q0, [r0]\n vpst\n vldrw.32 q0, [r0]\n-\n+.irp op1, 16, 32, 64, f16, f32, f64, p16, p32, p64, s8\n+vldrb.\\op1 q0, [r2, q3]\n+.endr\n+.irp op1, 8, 32, 64, f32, f64, p32, p64, s16\n+vldrh.\\op1 q0, [r2, q3, uxtw #1]\n+.endr\n+.irp op1, 8, 16, 64, f16, f64, p16, p64, s32\n+vldrw.\\op1 q0, [r2, q3, uxtw #2]\n+.endr\n+.irp op1, 8, 16, 32, f16, f32, p16, p32, s64\n+vldrd.\\op1 q0, [r2, q3, uxtw #3]\n+.endr"
+    },
+    {
+      "sha": "0bffd2e076956a2b72d70192391587f53b5a8cca",
+      "filename": "gas/testsuite/gas/arm/mve-vstrldr-1.d",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 0,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e449ea97ebd3c11a8da5df174f1a1333fbe82828/gas/testsuite/gas/arm/mve-vstrldr-1.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e449ea97ebd3c11a8da5df174f1a1333fbe82828/gas/testsuite/gas/arm/mve-vstrldr-1.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/mve-vstrldr-1.d?ref=e449ea97ebd3c11a8da5df174f1a1333fbe82828",
+      "patch": "@@ -7561,3 +7561,20 @@ Disassembly of section .text:\n [^>]*> fe71 8f4d \tvpste\n [^>]*> fc93 6fdb \tvldrdt.u64\tq3, \\[r3, q5, uxtw #3\\]\n [^>]*> fc97 efd9 \tvldrde.u64\tq7, \\[r7, q4, uxtw #3\\]\n+[^>]*> fc92 0e06 \tvldrb.u8\tq0, \\[r2, q3\\]\n+[^>]*> ec92 0e86 \tvldrb.s16\tq0, \\[r2, q3\\]\n+[^>]*> fc92 0e06 \tvldrb.u8\tq0, \\[r2, q3\\]\n+[^>]*> fc92 0e97 \tvldrh.u16\tq0, \\[r2, q3, uxtw #1\\]\n+[^>]*> fc92 0e97 \tvldrh.u16\tq0, \\[r2, q3, uxtw #1\\]\n+[^>]*> ec92 0f17 \tvldrh.s32\tq0, \\[r2, q3, uxtw #1\\]\n+[^>]*> fc92 0e97 \tvldrh.u16\tq0, \\[r2, q3, uxtw #1\\]\n+[^>]*> fc92 0e97 \tvldrh.u16\tq0, \\[r2, q3, uxtw #1\\]\n+[^>]*> fc92 0f17 \tvldrh.u32\tq0, \\[r2, q3, uxtw #1\\]\n+[^>]*> fc92 0f47 \tvldrw.u32\tq0, \\[r2, q3, uxtw #2\\]\n+[^>]*> fc92 0f47 \tvldrw.u32\tq0, \\[r2, q3, uxtw #2\\]\n+[^>]*> fc92 0f47 \tvldrw.u32\tq0, \\[r2, q3, uxtw #2\\]\n+[^>]*> fc92 0f47 \tvldrw.u32\tq0, \\[r2, q3, uxtw #2\\]\n+[^>]*> fc92 0fd7 \tvldrd.u64\tq0, \\[r2, q3, uxtw #3\\]\n+[^>]*> fc92 0fd7 \tvldrd.u64\tq0, \\[r2, q3, uxtw #3\\]\n+[^>]*> fc92 0fd7 \tvldrd.u64\tq0, \\[r2, q3, uxtw #3\\]\n+[^>]*> fc92 0fd7 \tvldrd.u64\tq0, \\[r2, q3, uxtw #3\\]"
+    },
+    {
+      "sha": "d6d11cc8262e065b1e2d7e0bbadbd6628eed0471",
+      "filename": "gas/testsuite/gas/arm/mve-vstrldr-1.s",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e449ea97ebd3c11a8da5df174f1a1333fbe82828/gas/testsuite/gas/arm/mve-vstrldr-1.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e449ea97ebd3c11a8da5df174f1a1333fbe82828/gas/testsuite/gas/arm/mve-vstrldr-1.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/mve-vstrldr-1.s?ref=e449ea97ebd3c11a8da5df174f1a1333fbe82828",
+      "patch": "@@ -116,3 +116,16 @@ vldrde.u64 q2, [r0, q1]\n vpste\n vldrdt.u64 q3, [r3, q5, UXTW #3]\n vldrde.u64 q7, [r7, q4, UXTW #3]\n+\n+.irp dt, u8, s16, 8\n+vldrb.\\dt q0, [r2, q3]\n+.endr\n+.irp dt, 16, u16, s32, f16, p16, u32\n+vldrh.\\dt q0, [r2, q3, UXTW #1]\n+.endr\n+.irp dt, 32, u32, f32, p32\n+vldrw.\\dt q0, [r2, q3, UXTW #2]\n+.endr\n+.irp dt, 64, u64, f64, p64\n+vldrd.\\dt q0, [r2, q3, UXTW #3]\n+.endr"
+    }
+  ]
+}

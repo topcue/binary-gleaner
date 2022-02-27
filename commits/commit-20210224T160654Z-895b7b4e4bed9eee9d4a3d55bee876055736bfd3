@@ -1,0 +1,134 @@
+{
+  "sha": "895b7b4e4bed9eee9d4a3d55bee876055736bfd3",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ODk1YjdiNGU0YmVkOWVlZTlkNGEzZDU1YmVlODc2MDU1NzM2YmZkMw==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-02-04T18:34:13Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-02-24T16:06:54Z"
+    },
+    "message": "gdb/riscv: select rv32 target by default when requested\n\nGDB for RISC-V always uses target descriptions.  When the target\ndoesn't provide a target description then a default is selected.\nUsually this default is selected based on the properties of the\nexecutable being debugged.  However, when there is no executable being\ndebugged we currently fallback to the riscv:rv64 target description as\nthe default.  This leads to strange behaviour like this:\n\n  $ gdb\n  (gdb) set architecture riscv:rv32\n  (gdb) p sizeof ($pc)\n  $1 = 8\n\nDespite the users specifically setting the architecture to riscv:rv32\nGDB still thinks that the target has riscv:rv64 register sizes.\n\nThe above is a bit of a contrived situation.  I actually ran into this\nsituation while trying to connect to a running riscv:rv32 target\nwithout supplying an executable (the target didn't provide a target\ndescription).  When I tried to set a register on the target I ran into\nerrors because GDB was passing 8 bytes to the target rather than the\nexpected 4.  Even when I manually specified the architecture (as\nabove) I couldn't convince GDB to only send 4 bytes.\n\nThis patch fixes this issue.  Now, when we selected a default target\ndescription we will make use of the user selected architecture to\nguide our choice.  In the above example we now get:\n\n  $ gdb\n  (gdb) set architecture riscv:rv32\n  (gdb) p sizeof ($pc)\n  $1 = 4\n\nAnd my real world example of connecting to a remote without an\nexecutable works fine.\n\nI've used the fact that we can ask GDB about $pc even when no\nexecutable is loaded as the basis for a test to cover this situation.\n\ngdb/ChangeLog:\n\n\t* riscv-tdep.c (riscv_features_from_gdbarch_info): Rename to...\n\t(riscv_features_from_bfd): ...this.  Change parameter type to\n\t'bfd*', and update as required.\n\t(riscv_find_default_target_description): Update call to\n\triscv_features_from_bfd.  Select a default xlen based on\n\tinfo.bfd_arch_info.\n\t(riscv_gdbarch_init): Update call to riscv_features_from_bfd.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.arch/riscv-default-tdesc.exp: New file.",
+    "tree": {
+      "sha": "99f835d6b88ce3dd716e62b17f26f0ea58d25812",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/99f835d6b88ce3dd716e62b17f26f0ea58d25812"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/895b7b4e4bed9eee9d4a3d55bee876055736bfd3",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/895b7b4e4bed9eee9d4a3d55bee876055736bfd3",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/895b7b4e4bed9eee9d4a3d55bee876055736bfd3",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/895b7b4e4bed9eee9d4a3d55bee876055736bfd3/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe"
+    }
+  ],
+  "stats": {
+    "total": 101,
+    "additions": 86,
+    "deletions": 15
+  },
+  "files": [
+    {
+      "sha": "e136c98985fc79b65ed7bac5c10e6d786421f458",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/895b7b4e4bed9eee9d4a3d55bee876055736bfd3/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/895b7b4e4bed9eee9d4a3d55bee876055736bfd3/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=895b7b4e4bed9eee9d4a3d55bee876055736bfd3",
+      "patch": "@@ -1,3 +1,13 @@\n+2021-02-24  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* riscv-tdep.c (riscv_features_from_gdbarch_info): Rename to...\n+\t(riscv_features_from_bfd): ...this.  Change parameter type to\n+\t'bfd*', and update as required.\n+\t(riscv_find_default_target_description): Update call to\n+\triscv_features_from_bfd.  Select a default xlen based on\n+\tinfo.bfd_arch_info.\n+\t(riscv_gdbarch_init): Update call to riscv_features_from_bfd.\n+\n 2021-02-24  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* eval.c (evaluate_subexp_standard): Call value_ind for points to"
+    },
+    {
+      "sha": "da86ed1271650e9e87dd98ebda9960c0c0691bea",
+      "filename": "gdb/riscv-tdep.c",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 15,
+      "changes": 28,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/895b7b4e4bed9eee9d4a3d55bee876055736bfd3/gdb/riscv-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/895b7b4e4bed9eee9d4a3d55bee876055736bfd3/gdb/riscv-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/riscv-tdep.c?ref=895b7b4e4bed9eee9d4a3d55bee876055736bfd3",
+      "patch": "@@ -3215,13 +3215,11 @@ static const struct frame_unwind riscv_frame_unwind =\n   /*.prev_arch     =*/ NULL,\n };\n \n-/* Extract a set of required target features out of INFO, specifically the\n-   bfd being executed is examined to see what target features it requires.\n-   IF there is no current bfd, or the bfd doesn't indicate any useful\n-   features then a RISCV_GDBARCH_FEATURES is returned in its default state.  */\n+/* Extract a set of required target features out of ABFD.  If ABFD is\n+   nullptr then a RISCV_GDBARCH_FEATURES is returned in its default state.  */\n \n static struct riscv_gdbarch_features\n-riscv_features_from_gdbarch_info (const struct gdbarch_info info)\n+riscv_features_from_bfd (const bfd *abfd)\n {\n   struct riscv_gdbarch_features features;\n \n@@ -3231,11 +3229,10 @@ riscv_features_from_gdbarch_info (const struct gdbarch_info info)\n      only used at all if the target hasn't given us a description, so this\n      is really a last ditched effort to do something sane before giving\n      up.  */\n-  if (info.abfd != NULL\n-      && bfd_get_flavour (info.abfd) == bfd_target_elf_flavour)\n+  if (abfd != nullptr && bfd_get_flavour (abfd) == bfd_target_elf_flavour)\n     {\n-      unsigned char eclass = elf_elfheader (info.abfd)->e_ident[EI_CLASS];\n-      int e_flags = elf_elfheader (info.abfd)->e_flags;\n+      unsigned char eclass = elf_elfheader (abfd)->e_ident[EI_CLASS];\n+      int e_flags = elf_elfheader (abfd)->e_flags;\n \n       if (eclass == ELFCLASS32)\n \tfeatures.xlen = 4;\n@@ -3273,13 +3270,14 @@ riscv_find_default_target_description (const struct gdbarch_info info)\n {\n   /* Extract desired feature set from INFO.  */\n   struct riscv_gdbarch_features features\n-    = riscv_features_from_gdbarch_info (info);\n+    = riscv_features_from_bfd (info.abfd);\n \n-  /* If the XLEN field is still 0 then we got nothing useful from INFO.  In\n-     this case we fall back to a minimal useful target, 8-byte x-registers,\n-     with no floating point.  */\n+  /* If the XLEN field is still 0 then we got nothing useful from INFO.BFD,\n+     maybe there was no bfd object.  In this case we fall back to a minimal\n+     useful target with no floating point, the x-register size is selected\n+     based on the architecture from INFO.  */\n   if (features.xlen == 0)\n-    features.xlen = 8;\n+    features.xlen = info.bfd_arch_info->bits_per_word == 32 ? 4 : 8;\n \n   /* Now build a target description based on the feature set.  */\n   return riscv_lookup_target_description (features);\n@@ -3497,7 +3495,7 @@ riscv_gdbarch_init (struct gdbarch_info info,\n      target, then check that this matches with what the target is\n      providing.  */\n   struct riscv_gdbarch_features abi_features\n-    = riscv_features_from_gdbarch_info (info);\n+    = riscv_features_from_bfd (info.abfd);\n \n   /* If the ABI_FEATURES xlen is 0 then this indicates we got no useful abi\n      features from the INFO object.  In this case we just treat the"
+    },
+    {
+      "sha": "4d2d5434aa08eda93fdacdd34aafe9d072737888",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/895b7b4e4bed9eee9d4a3d55bee876055736bfd3/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/895b7b4e4bed9eee9d4a3d55bee876055736bfd3/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=895b7b4e4bed9eee9d4a3d55bee876055736bfd3",
+      "patch": "@@ -1,3 +1,7 @@\n+2021-02-24  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.arch/riscv-default-tdesc.exp: New file.\n+\n 2021-02-24  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.fortran/pointer-to-pointer.exp: Additional tests."
+    },
+    {
+      "sha": "2b7e8fa63e8ac38e2838c1f3f396b8d4f23309a1",
+      "filename": "gdb/testsuite/gdb.arch/riscv-default-tdesc.exp",
+      "status": "added",
+      "additions": 59,
+      "deletions": 0,
+      "changes": 59,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/895b7b4e4bed9eee9d4a3d55bee876055736bfd3/gdb/testsuite/gdb.arch/riscv-default-tdesc.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/895b7b4e4bed9eee9d4a3d55bee876055736bfd3/gdb/testsuite/gdb.arch/riscv-default-tdesc.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/riscv-default-tdesc.exp?ref=895b7b4e4bed9eee9d4a3d55bee876055736bfd3",
+      "patch": "@@ -0,0 +1,59 @@\n+# Copyright 2021 Free Software Foundation, Inc.\n+#\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Check the size of the $pc register as the user changes the selected\n+# architecture.  As no executable is provided then the size of the $pc\n+# register is defined by the default target description selected by\n+# GDB.\n+#\n+# This test ensures that GDB is selecting an RV32 default if the user\n+# has forced the current architecture to be riscv:rv32.\n+#\n+# In all other cases the default will be RV64.\n+\n+if {![istarget \"riscv*-*-*\"]} {\n+    verbose \"Skipping ${gdb_test_file_name}.\"\n+    return\n+}\n+\n+# Start GDB with no executable.\n+gdb_start\n+\n+# The tests are defined by a list of architecture names to switch too\n+# and the expected size of $pc.  The first list entry is special and\n+# has an empty architecture string, this checks GDB's default value on\n+# startup.\n+foreach data {{\"\" 8} {\"riscv:rv32\" 4} {\"riscv:rv64\" 8} {\"riscv\" 8} \\\n+\t\t  {\"auto\" 8}} {\n+    set arch [lindex $data 0]\n+    set size [lindex $data 1]\n+\n+    # Switch architecture.\n+    if { $arch != \"\" && $arch != \"auto\" } {\n+\tgdb_test \"set architecture $arch\" \\\n+\t    \"The target architecture is set to \\\"$arch\\\"\\\\.\"\n+    } elseif { $arch == \"auto\" } {\n+\tgdb_test \"set architecture $arch\" \\\n+\t    \"The target architecture is set to \\\"auto\\\" \\\\(currently \\\"riscv\\\"\\\\)\\\\.\"\n+    } else {\n+\tset arch \"default architecture\"\n+    }\n+\n+    # Check the size of $pc.\n+    with_test_prefix \"$arch\" {\n+\tgdb_test \"p sizeof (\\$pc)\" \" = $size\" \\\n+\t    \"size of \\$pc register is $size\"\n+    }\n+}"
+    }
+  ]
+}

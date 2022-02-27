@@ -1,0 +1,96 @@
+{
+  "sha": "2f2c677e670063360cbb3fb1b32bd6cf36bcf03a",
+  "node_id": "C_kwDOANOeidoAKDJmMmM2NzdlNjcwMDYzMzYwY2JiM2ZiMWIzMmJkNmNmMzZiY2YwM2E",
+  "commit": {
+    "author": {
+      "name": "Keith Seitz",
+      "email": "keiths@redhat.com",
+      "date": "2022-02-25T00:42:22Z"
+    },
+    "committer": {
+      "name": "Keith Seitz",
+      "email": "keiths@redhat.com",
+      "date": "2022-02-25T00:42:22Z"
+    },
+    "message": "Move find_toplevel_char to cp-support.[ch]\n\nfind_toplevel_char is being used more and more outside of linespec.c, so\nthis patch moves it into cp-support.[ch].",
+    "tree": {
+      "sha": "ae2115f266176ad9555cc09d8e1b5239ee04de15",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/ae2115f266176ad9555cc09d8e1b5239ee04de15"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/2f2c677e670063360cbb3fb1b32bd6cf36bcf03a",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2f2c677e670063360cbb3fb1b32bd6cf36bcf03a",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/2f2c677e670063360cbb3fb1b32bd6cf36bcf03a",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2f2c677e670063360cbb3fb1b32bd6cf36bcf03a/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "685c6a86373edfce04454562e022a20a303eb734",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/685c6a86373edfce04454562e022a20a303eb734",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/685c6a86373edfce04454562e022a20a303eb734"
+    }
+  ],
+  "stats": {
+    "total": 165,
+    "additions": 81,
+    "deletions": 84
+  },
+  "files": [
+    {
+      "sha": "501d96d43cd96588de1c130ab06fd218ecd1bdd4",
+      "filename": "gdb/cp-support.c",
+      "status": "modified",
+      "additions": 74,
+      "deletions": 0,
+      "changes": 74,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2f2c677e670063360cbb3fb1b32bd6cf36bcf03a/gdb/cp-support.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2f2c677e670063360cbb3fb1b32bd6cf36bcf03a/gdb/cp-support.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cp-support.c?ref=2f2c677e670063360cbb3fb1b32bd6cf36bcf03a",
+      "patch": "@@ -2199,6 +2199,80 @@ info_vtbl_command (const char *arg, int from_tty)\n   cplus_print_vtable (value);\n }\n \n+/* See description in cp-support.h.  */\n+\n+const char *\n+find_toplevel_char (const char *s, char c)\n+{\n+  int quoted = 0;\t\t/* zero if we're not in quotes;\n+\t\t\t\t   '\"' if we're in a double-quoted string;\n+\t\t\t\t   '\\'' if we're in a single-quoted string.  */\n+  int depth = 0;\t\t/* Number of unclosed parens we've seen.  */\n+  const char *scan;\n+\n+  for (scan = s; *scan; scan++)\n+    {\n+      if (quoted)\n+\t{\n+\t  if (*scan == quoted)\n+\t    quoted = 0;\n+\t  else if (*scan == '\\\\' && *(scan + 1))\n+\t    scan++;\n+\t}\n+      else if (*scan == c && ! quoted && depth == 0)\n+\treturn scan;\n+      else if (*scan == '\"' || *scan == '\\'')\n+\tquoted = *scan;\n+      else if (*scan == '(' || *scan == '<')\n+\tdepth++;\n+      else if ((*scan == ')' || *scan == '>') && depth > 0)\n+\tdepth--;\n+      else if (*scan == 'o' && !quoted && depth == 0)\n+\t{\n+\t  /* Handle C++ operator names.  */\n+\t  if (strncmp (scan, CP_OPERATOR_STR, CP_OPERATOR_LEN) == 0)\n+\t    {\n+\t      scan += CP_OPERATOR_LEN;\n+\t      if (*scan == c)\n+\t\treturn scan;\n+\t      while (ISSPACE (*scan))\n+\t\t{\n+\t\t  ++scan;\n+\t\t  if (*scan == c)\n+\t\t    return scan;\n+\t\t}\n+\t      if (*scan == '\\0')\n+\t\tbreak;\n+\n+\t      switch (*scan)\n+\t\t{\n+\t\t  /* Skip over one less than the appropriate number of\n+\t\t     characters: the for loop will skip over the last\n+\t\t     one.  */\n+\t\tcase '<':\n+\t\t  if (scan[1] == '<')\n+\t\t    {\n+\t\t      scan++;\n+\t\t      if (*scan == c)\n+\t\t\treturn scan;\n+\t\t    }\n+\t\t  break;\n+\t\tcase '>':\n+\t\t  if (scan[1] == '>')\n+\t\t    {\n+\t\t      scan++;\n+\t\t      if (*scan == c)\n+\t\t\treturn scan;\n+\t\t    }\n+\t\t  break;\n+\t\t}\n+\t    }\n+\t}\n+    }\n+\n+  return 0;\n+}\n+\n void _initialize_cp_support ();\n void\n _initialize_cp_support ()"
+    },
+    {
+      "sha": "4fbd53c892358100223045504e8f8d86b2486b12",
+      "filename": "gdb/cp-support.h",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2f2c677e670063360cbb3fb1b32bd6cf36bcf03a/gdb/cp-support.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2f2c677e670063360cbb3fb1b32bd6cf36bcf03a/gdb/cp-support.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cp-support.h?ref=2f2c677e670063360cbb3fb1b32bd6cf36bcf03a",
+      "patch": "@@ -190,4 +190,11 @@ extern struct cmd_list_element *maint_cplus_cmd_list;\n \n gdb::unique_xmalloc_ptr<char> gdb_demangle (const char *name, int options);\n \n+/* Find an instance of the character C in the string S that is outside\n+   of all parenthesis pairs, single-quoted strings, and double-quoted\n+   strings.  Also, ignore the char within a template name, like a ','\n+   within foo<int, int>.  */\n+\n+extern const char *find_toplevel_char (const char *s, char c);\n+\n #endif /* CP_SUPPORT_H */"
+    },
+    {
+      "sha": "4d41f74ab2fbb9ce4204eebaef962942474c58d4",
+      "filename": "gdb/linespec.c",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 77,
+      "changes": 77,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2f2c677e670063360cbb3fb1b32bd6cf36bcf03a/gdb/linespec.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2f2c677e670063360cbb3fb1b32bd6cf36bcf03a/gdb/linespec.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/linespec.c?ref=2f2c677e670063360cbb3fb1b32bd6cf36bcf03a",
+      "patch": "@@ -1298,83 +1298,6 @@ find_methods (struct type *t, enum language t_lang, const char *name,\n     superclasses->push_back (TYPE_BASECLASS (t, ibase));\n }\n \n-/* Find an instance of the character C in the string S that is outside\n-   of all parenthesis pairs, single-quoted strings, and double-quoted\n-   strings.  Also, ignore the char within a template name, like a ','\n-   within foo<int, int>, while considering C++ operator</operator<<.  */\n-\n-const char *\n-find_toplevel_char (const char *s, char c)\n-{\n-  int quoted = 0;\t\t/* zero if we're not in quotes;\n-\t\t\t\t   '\"' if we're in a double-quoted string;\n-\t\t\t\t   '\\'' if we're in a single-quoted string.  */\n-  int depth = 0;\t\t/* Number of unclosed parens we've seen.  */\n-  const char *scan;\n-\n-  for (scan = s; *scan; scan++)\n-    {\n-      if (quoted)\n-\t{\n-\t  if (*scan == quoted)\n-\t    quoted = 0;\n-\t  else if (*scan == '\\\\' && *(scan + 1))\n-\t    scan++;\n-\t}\n-      else if (*scan == c && ! quoted && depth == 0)\n-\treturn scan;\n-      else if (*scan == '\"' || *scan == '\\'')\n-\tquoted = *scan;\n-      else if (*scan == '(' || *scan == '<')\n-\tdepth++;\n-      else if ((*scan == ')' || *scan == '>') && depth > 0)\n-\tdepth--;\n-      else if (*scan == 'o' && !quoted && depth == 0)\n-\t{\n-\t  /* Handle C++ operator names.  */\n-\t  if (strncmp (scan, CP_OPERATOR_STR, CP_OPERATOR_LEN) == 0)\n-\t    {\n-\t      scan += CP_OPERATOR_LEN;\n-\t      if (*scan == c)\n-\t\treturn scan;\n-\t      while (isspace (*scan))\n-\t\t{\n-\t\t  ++scan;\n-\t\t  if (*scan == c)\n-\t\t    return scan;\n-\t\t}\n-\t      if (*scan == '\\0')\n-\t\tbreak;\n-\n-\t      switch (*scan)\n-\t\t{\n-\t\t  /* Skip over one less than the appropriate number of\n-\t\t     characters: the for loop will skip over the last\n-\t\t     one.  */\n-\t\tcase '<':\n-\t\t  if (scan[1] == '<')\n-\t\t    {\n-\t\t      scan++;\n-\t\t      if (*scan == c)\n-\t\t\treturn scan;\n-\t\t    }\n-\t\t  break;\n-\t\tcase '>':\n-\t\t  if (scan[1] == '>')\n-\t\t    {\n-\t\t      scan++;\n-\t\t      if (*scan == c)\n-\t\t\treturn scan;\n-\t\t    }\n-\t\t  break;\n-\t\t}\n-\t    }\n-\t}\n-    }\n-\n-  return 0;\n-}\n-\n /* The string equivalent of find_toplevel_char.  Returns a pointer\n    to the location of NEEDLE in HAYSTACK, ignoring any occurrences\n    inside \"()\" and \"<>\".  Returns NULL if NEEDLE was not found.  */"
+    },
+    {
+      "sha": "bb8975548a3c5e467706a5551fc5425f032ec451",
+      "filename": "gdb/linespec.h",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 7,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2f2c677e670063360cbb3fb1b32bd6cf36bcf03a/gdb/linespec.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2f2c677e670063360cbb3fb1b32bd6cf36bcf03a/gdb/linespec.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/linespec.h?ref=2f2c677e670063360cbb3fb1b32bd6cf36bcf03a",
+      "patch": "@@ -162,13 +162,6 @@ extern const char *get_gdb_linespec_parser_quote_characters (void);\n \n extern int is_ada_operator (const char *string);\n \n-/* Find an instance of the character C in the string S that is outside\n-   of all parenthesis pairs, single-quoted strings, and double-quoted\n-   strings.  Also, ignore the char within a template name, like a ','\n-   within foo<int, int>.  */\n-\n-extern const char *find_toplevel_char (const char *s, char c);\n-\n /* Find the end of the (first) linespec pointed to by *STRINGP.\n    STRINGP will be advanced to this point.  */\n "
+    }
+  ]
+}

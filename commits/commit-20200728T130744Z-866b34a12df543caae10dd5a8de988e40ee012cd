@@ -1,0 +1,110 @@
+{
+  "sha": "866b34a12df543caae10dd5a8de988e40ee012cd",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ODY2YjM0YTEyZGY1NDNjYWFlMTBkZDVhOGRlOTg4ZTQwZWUwMTJjZA==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-07-28T13:07:44Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-07-28T13:07:44Z"
+    },
+    "message": "[gdb/build] Fix Wmaybe-uninitialized in gdb_optional.h\n\nWhen building with CFLAGS/CXXFLAGS=\"-O2 -g -Wall\", we run into:\n...\nIn file included from src/gdb/exceptions.h:23,\n                 from src/gdb/utils.h:24,\n                 from src/gdb/defs.h:630,\n                 from src/gdb/record-btrace.c:22:\nsrc/gdb/ui-out.h: In function 'void btrace_insn_history(ui_out*, \\\n  const btrace_thread_info*, const btrace_insn_iterator*, \\\n  const btrace_insn_iterator*, gdb_disassembly_flags)':\nsrc/gdb/ui-out.h:352:18: warning: \\\n  'asm_list.ui_out_emit_type<ui_out_type_list>::m_uiout' may be used \\\n  uninitialized in this function [-Wmaybe-uninitialized]\n  352 |     m_uiout->end (Type);\n      |     ~~~~~~~~~~~~~^~~~~~\nsrc/gdb/record-btrace.c:795:35: note: \\\n  'asm_list.ui_out_emit_type<ui_out_type_list>::m_uiout' was declared here\n  795 |   gdb::optional<ui_out_emit_list> asm_list;\n      |                                   ^~~~~~~~\n...\n\nThis is reported as PR gcc/80635 - \"[8/9/10/11 regression] std::optional and\nbogus -Wmaybe-uninitialized warning\".\n\nSilence the warning by using the workaround suggested here (\nhttps://gcc.gnu.org/bugzilla/show_bug.cgi?id=80635#c53 ):\n...\n   union\n   {\n     struct { } m_dummy;\n     T m_item;\n+    volatile char dont_use; // Silences -Wmaybe-uninitialized warning.\n   };\n...\n\nBuild on x86_64-linux.\n\ngdbsupport/ChangeLog:\n\n2020-07-28  Tom de Vries  <tdevries@suse.de>\n\n\tPR build/26281\n\t* gdb_optional.h (class optional): Add volatile member to union\n\tcontaning m_dummy and m_item.",
+    "tree": {
+      "sha": "d3358331c7dd50ac7e5183eb03326b737105c932",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/d3358331c7dd50ac7e5183eb03326b737105c932"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/866b34a12df543caae10dd5a8de988e40ee012cd",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/866b34a12df543caae10dd5a8de988e40ee012cd",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/866b34a12df543caae10dd5a8de988e40ee012cd",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/866b34a12df543caae10dd5a8de988e40ee012cd/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "d70f978b44aafc22d87c0e72d0875008c3d9e311",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d70f978b44aafc22d87c0e72d0875008c3d9e311",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/d70f978b44aafc22d87c0e72d0875008c3d9e311"
+    }
+  ],
+  "stats": {
+    "total": 8,
+    "additions": 8,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "45c2ce70a31ddfad7557290e4e9ab6a79c79351d",
+      "filename": "gdbsupport/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/866b34a12df543caae10dd5a8de988e40ee012cd/gdbsupport/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/866b34a12df543caae10dd5a8de988e40ee012cd/gdbsupport/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/ChangeLog?ref=866b34a12df543caae10dd5a8de988e40ee012cd",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-07-28  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR build/26281\n+\t* gdb_optional.h (class optional): Add volatile member to union\n+\tcontaning m_dummy and m_item.\n+\n 2020-07-17  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* tdesc.h (struct target_desc_deleter): Moved here"
+    },
+    {
+      "sha": "ef6760df60b756b3d0cfed2174523848cb6b7d93",
+      "filename": "gdbsupport/gdb_optional.h",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/866b34a12df543caae10dd5a8de988e40ee012cd/gdbsupport/gdb_optional.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/866b34a12df543caae10dd5a8de988e40ee012cd/gdbsupport/gdb_optional.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/gdb_optional.h?ref=866b34a12df543caae10dd5a8de988e40ee012cd",
+      "patch": "@@ -208,6 +208,8 @@ class optional\n   {\n     struct { } m_dummy;\n     T m_item;\n+    volatile char dont_use; /* Silences -Wmaybe-uninitialized warning, see\n+\t\t\t       PR gcc/80635.  */\n   };\n \n   /* True if the object was ever emplaced.  */"
+    }
+  ]
+}

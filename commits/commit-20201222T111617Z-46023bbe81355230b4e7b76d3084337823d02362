@@ -1,0 +1,72 @@
+{
+  "sha": "46023bbe81355230b4e7b76d3084337823d02362",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NDYwMjNiYmU4MTM1NTIzMGI0ZTdiNzZkMzA4NDMzNzgyM2QwMjM2Mg==",
+  "commit": {
+    "author": {
+      "name": "Shahab Vahedi",
+      "email": "shahab@synopsys.com",
+      "date": "2020-11-10T18:34:57Z"
+    },
+    "committer": {
+      "name": "Shahab Vahedi",
+      "email": "shahab@synopsys.com",
+      "date": "2020-12-22T11:16:17Z"
+    },
+    "message": "arc: Take into account the REGNUM in supply/collect gdb hooks\n\nAll the arc_linux_supply_*() target operations and the\narc_linux_collect_v2_regset() in arc-linux-tdep.c were\nsupplying/collecting all the registers in regcache as if the\nREGNUM was set to -1.\n\nThe more efficient behavior is to examine the REGNUM and act\naccordingly.  That is what this patch does.\n\ngdb/ChangeLog:\n\n\t* arc-linux-tdep.c (supply_register): New.\n\t(arc_linux_supply_gregset, arc_linux_supply_v2_regset,\n\tarc_linux_collect_v2_regset): Consider REGNUM.",
+    "tree": {
+      "sha": "bbdc7000a47c4c145664381126987bf30b99a559",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/bbdc7000a47c4c145664381126987bf30b99a559"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/46023bbe81355230b4e7b76d3084337823d02362",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/46023bbe81355230b4e7b76d3084337823d02362",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/46023bbe81355230b4e7b76d3084337823d02362",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/46023bbe81355230b4e7b76d3084337823d02362/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "d4af727286e3a9f177ba11677fbd3a012d36558a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d4af727286e3a9f177ba11677fbd3a012d36558a",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/d4af727286e3a9f177ba11677fbd3a012d36558a"
+    }
+  ],
+  "stats": {
+    "total": 47,
+    "additions": 38,
+    "deletions": 9
+  },
+  "files": [
+    {
+      "sha": "92bb56d6f7e77fca596370344b75d1e07b943924",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/46023bbe81355230b4e7b76d3084337823d02362/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/46023bbe81355230b4e7b76d3084337823d02362/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=46023bbe81355230b4e7b76d3084337823d02362",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-12-22  Shahab Vahedi  <shahab@synopsys.com>\n+\n+\t* arc-linux-tdep.c (supply_register): New.\n+\t(arc_linux_supply_gregset, arc_linux_supply_v2_regset,\n+\tarc_linux_collect_v2_regset): Consider REGNUM.\n+\n 2020-12-22  Anton Kolesov  <anton.kolesov@synopsys.com>\n \n \t* arc-linux-tdep.c (arc_linux_sc_reg_offsets): New static variable."
+    },
+    {
+      "sha": "db17fcfce51eb5070ca821aae95a03041e895cef",
+      "filename": "gdb/arc-linux-tdep.c",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 9,
+      "changes": 41,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/46023bbe81355230b4e7b76d3084337823d02362/gdb/arc-linux-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/46023bbe81355230b4e7b76d3084337823d02362/gdb/arc-linux-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/arc-linux-tdep.c?ref=46023bbe81355230b4e7b76d3084337823d02362",
+      "patch": "@@ -461,6 +461,18 @@ arc_linux_skip_solib_resolver (struct gdbarch *gdbarch, CORE_ADDR pc)\n     }\n }\n \n+/* Populate REGCACHE with register REGNUM from BUF.  */\n+\n+static void\n+supply_register (struct regcache *regcache, int regnum, const gdb_byte *buf)\n+{\n+  /* Skip non-existing registers.  */\n+  if ((arc_linux_core_reg_offsets[regnum] == ARC_OFFSET_NO_REGISTER))\n+    return;\n+\n+  regcache->raw_supply (regnum, buf + arc_linux_core_reg_offsets[regnum]);\n+}\n+\n void\n arc_linux_supply_gregset (const struct regset *regset,\n \t\t\t  struct regcache *regcache,\n@@ -471,9 +483,14 @@ arc_linux_supply_gregset (const struct regset *regset,\n \n   const bfd_byte *buf = (const bfd_byte *) gregs;\n \n-  for (int reg = 0; reg <= ARC_LAST_REGNUM; reg++)\n-      if (arc_linux_core_reg_offsets[reg] != ARC_OFFSET_NO_REGISTER)\n-\tregcache->raw_supply (reg, buf + arc_linux_core_reg_offsets[reg]);\n+  /* regnum == -1 means writing all the registers.  */\n+  if (regnum == -1)\n+    for (int reg = 0; reg <= ARC_LAST_REGNUM; reg++)\n+      supply_register (regcache, reg, buf);\n+  else if (regnum <= ARC_LAST_REGNUM)\n+    supply_register (regcache, regnum, buf);\n+  else\n+    gdb_assert_not_reached (\"Invalid regnum in arc_linux_supply_gregset.\");\n }\n \n void\n@@ -484,9 +501,12 @@ arc_linux_supply_v2_regset (const struct regset *regset,\n   const bfd_byte *buf = (const bfd_byte *) v2_regs;\n \n   /* user_regs_arcv2 is defined in linux arch/arc/include/uapi/asm/ptrace.h.  */\n-  regcache->raw_supply (ARC_R30_REGNUM, buf);\n-  regcache->raw_supply (ARC_R58_REGNUM, buf + REGOFF (1));\n-  regcache->raw_supply (ARC_R59_REGNUM, buf + REGOFF (2));\n+  if (regnum == -1 || regnum == ARC_R30_REGNUM)\n+    regcache->raw_supply (ARC_R30_REGNUM, buf);\n+  if (regnum == -1 || regnum == ARC_R58_REGNUM)\n+    regcache->raw_supply (ARC_R58_REGNUM, buf + REGOFF (1));\n+  if (regnum == -1 || regnum == ARC_R59_REGNUM)\n+    regcache->raw_supply (ARC_R59_REGNUM, buf + REGOFF (2));\n }\n \n /* Populate BUF with register REGNUM from the REGCACHE.  */\n@@ -544,9 +564,12 @@ arc_linux_collect_v2_regset (const struct regset *regset,\n {\n   bfd_byte *buf = (bfd_byte *) v2_regs;\n \n-  regcache->raw_collect (ARC_R30_REGNUM, buf);\n-  regcache->raw_collect (ARC_R58_REGNUM, buf + REGOFF (1));\n-  regcache->raw_collect (ARC_R59_REGNUM, buf + REGOFF (2));\n+  if (regnum == -1 || regnum == ARC_R30_REGNUM)\n+    regcache->raw_collect (ARC_R30_REGNUM, buf);\n+  if (regnum == -1 || regnum == ARC_R58_REGNUM)\n+    regcache->raw_collect (ARC_R58_REGNUM, buf + REGOFF (1));\n+  if (regnum == -1 || regnum == ARC_R59_REGNUM)\n+    regcache->raw_collect (ARC_R59_REGNUM, buf + REGOFF (2));\n }\n \n /* Linux regset definitions.  */"
+    }
+  ]
+}

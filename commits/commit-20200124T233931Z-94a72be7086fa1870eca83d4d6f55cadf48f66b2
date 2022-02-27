@@ -1,0 +1,158 @@
+{
+  "sha": "94a72be7086fa1870eca83d4d6f55cadf48f66b2",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OTRhNzJiZTcwODZmYTE4NzBlY2E4M2Q0ZDZmNTVjYWRmNDhmNjZiMg==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2019-11-05T16:00:26Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-01-24T23:39:31Z"
+    },
+    "message": "gdb: Include end of sequence markers in the line table\n\nIn this commit:\n\n  commit d9b3de22f33e400f7f409cce3acf6c7dab07dd79\n  Date:   Wed May 27 14:44:29 2015 -0700\n\n      Add struct to record dwarf line number state machine.\n\nI believe an unintended change was made to how we store the DWARF line\ntable, the end of sequence markers between sequences of lines were\nlost from the line table.\n\nThis commit fixes this small oversight and restores the end of\nsequence markers.\n\nGiven that we've survived this long without noticing is clearly an\nindication that this isn't that serious, however, a later patch that I\nam developing would benefit from having the markers in place, so I'd\nlike to restore them.\n\nHaving the markers also means that the output of 'maintenance info\nline-table' now more closely reflects the DWARF line table.\n\nI've taken this opportunity to improve how 'maintenance info\nline-table' displays the end of sequence markers - it now uses the END\nkeyword, rather than just printing an entry with line number 0.  So we\nsee this:\n\n  INDEX    LINE ADDRESS\n  0          12 0x00000000004003b0\n  1          17 0x00000000004003b0\n  2          18 0x00000000004003b0\n  3         END 0x00000000004003b7\n  4           5 0x00000000004004a0\n  5           6 0x00000000004004a0\n  6         END 0x00000000004004a7\n\nInstead of what we would have seen, which was this:\n\n  INDEX    LINE ADDRESS\n  0          12 0x00000000004003b0\n  1          17 0x00000000004003b0\n  2          18 0x00000000004003b0\n  3           0 0x00000000004003b7\n  4           5 0x00000000004004a0\n  5           6 0x00000000004004a0\n  6           0 0x00000000004004a7\n\nI've added a small test that uses 'maintenance info line-table' to\nensure that we don't regress this again.\n\ngdb/ChangeLog:\n\n\t* dwarf2read.c (lnp_state_machine::record_line): Include\n\tend_sequence parameter in debug print out.  Record the line if we\n\tare at an end_sequence marker even if it's not the start of a\n\tstatement.\n\t* symmisc.c (maintenance_print_one_line_table): Print end of\n\tsequence markers with 'END' not '0'.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.base/maint.exp: Update line table parsing test.\n\t* gdb.dwarf2/dw2-ranges-base.exp: Add new line table parsing test.\n\nChange-Id: I002f872248db82a1d4fefdc6b51ff5dbf932d8a8",
+    "tree": {
+      "sha": "a192bf52d83a7b102df54ba551482e9c13120078",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/a192bf52d83a7b102df54ba551482e9c13120078"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/94a72be7086fa1870eca83d4d6f55cadf48f66b2",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/94a72be7086fa1870eca83d4d6f55cadf48f66b2",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/94a72be7086fa1870eca83d4d6f55cadf48f66b2",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/94a72be7086fa1870eca83d4d6f55cadf48f66b2/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "b5f998b2dd80e673b1506fbe5113e5e4834346bc",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b5f998b2dd80e673b1506fbe5113e5e4834346bc",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b5f998b2dd80e673b1506fbe5113e5e4834346bc"
+    }
+  ],
+  "stats": {
+    "total": 72,
+    "additions": 61,
+    "deletions": 11
+  },
+  "files": [
+    {
+      "sha": "82eea3254c4a1a5e62a6ca9830cd573e12a47d23",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/94a72be7086fa1870eca83d4d6f55cadf48f66b2/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/94a72be7086fa1870eca83d4d6f55cadf48f66b2/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=94a72be7086fa1870eca83d4d6f55cadf48f66b2",
+      "patch": "@@ -1,3 +1,12 @@\n+2020-01-24  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* dwarf2read.c (lnp_state_machine::record_line): Include\n+\tend_sequence parameter in debug print out.  Record the line if we\n+\tare at an end_sequence marker even if it's not the start of a\n+\tstatement.\n+\t* symmisc.c (maintenance_print_one_line_table): Print end of\n+\tsequence markers with 'END' not '0'.\n+\n 2020-01-24  Pedro Alves  <palves@redhat.com>\n \n \tPR gdb/25410"
+    },
+    {
+      "sha": "a81a77aa5040309513fd9c2743463fc023c9abe8",
+      "filename": "gdb/dwarf2read.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 3,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/94a72be7086fa1870eca83d4d6f55cadf48f66b2/gdb/dwarf2read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/94a72be7086fa1870eca83d4d6f55cadf48f66b2/gdb/dwarf2read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2read.c?ref=94a72be7086fa1870eca83d4d6f55cadf48f66b2",
+      "patch": "@@ -21314,10 +21314,11 @@ lnp_state_machine::record_line (bool end_sequence)\n     {\n       fprintf_unfiltered (gdb_stdlog,\n \t\t\t  \"Processing actual line %u: file %u,\"\n-\t\t\t  \" address %s, is_stmt %u, discrim %u\\n\",\n+\t\t\t  \" address %s, is_stmt %u, discrim %u%s\\n\",\n \t\t\t  m_line, m_file,\n \t\t\t  paddress (m_gdbarch, m_address),\n-\t\t\t  m_is_stmt, m_discriminator);\n+\t\t\t  m_is_stmt, m_discriminator,\n+\t\t\t  (end_sequence ? \"\\t(end sequence)\" : \"\"));\n     }\n \n   file_entry *fe = current_file ();\n@@ -21330,7 +21331,8 @@ lnp_state_machine::record_line (bool end_sequence)\n   else if (m_op_index == 0 || end_sequence)\n     {\n       fe->included_p = 1;\n-      if (m_record_lines_p && (producer_is_codewarrior (m_cu) || m_is_stmt))\n+      if (m_record_lines_p\n+\t  && (producer_is_codewarrior (m_cu) || m_is_stmt || end_sequence))\n \t{\n \t  if (m_last_subfile != m_cu->get_builder ()->get_current_subfile ()\n \t      || end_sequence)"
+    },
+    {
+      "sha": "a6a7e728c4a0c16b72894762b9e3fc182cba5a12",
+      "filename": "gdb/symmisc.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 2,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/94a72be7086fa1870eca83d4d6f55cadf48f66b2/gdb/symmisc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/94a72be7086fa1870eca83d4d6f55cadf48f66b2/gdb/symmisc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/symmisc.c?ref=94a72be7086fa1870eca83d4d6f55cadf48f66b2",
+      "patch": "@@ -999,8 +999,12 @@ maintenance_print_one_line_table (struct symtab *symtab, void *data)\n \t  struct linetable_entry *item;\n \n \t  item = &linetable->item [i];\n-\t  printf_filtered (_(\"%-6d %6d %s\\n\"), i, item->line,\n-\t\t\t   core_addr_to_string (item->pc));\n+\t  printf_filtered (\"%-6d \", i);\n+\t  if (item->line > 0)\n+\t    printf_filtered (\"%6d \", item->line);\n+\t  else\n+\t    printf_filtered (\"%6s \", _(\"END\"));\n+\t  printf_filtered (\"%s\\n\", core_addr_to_string (item->pc));\n \t}\n     }\n "
+    },
+    {
+      "sha": "1a1bc44ccbba17fcb0d2c8e4fa257e7b63fc4807",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/94a72be7086fa1870eca83d4d6f55cadf48f66b2/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/94a72be7086fa1870eca83d4d6f55cadf48f66b2/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=94a72be7086fa1870eca83d4d6f55cadf48f66b2",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-01-24  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.base/maint.exp: Update line table parsing test.\n+\t* gdb.dwarf2/dw2-ranges-base.exp: Add new line table parsing test.\n+\n 2020-01-24  Pedro Alves  <palves@redhat.com>\n \n \tPR gdb/25410"
+    },
+    {
+      "sha": "fe25e0fc6126f0b2b8f2809c2ce32131fcf2cbd7",
+      "filename": "gdb/testsuite/gdb.base/maint.exp",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 6,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/94a72be7086fa1870eca83d4d6f55cadf48f66b2/gdb/testsuite/gdb.base/maint.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/94a72be7086fa1870eca83d4d6f55cadf48f66b2/gdb/testsuite/gdb.base/maint.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/maint.exp?ref=94a72be7086fa1870eca83d4d6f55cadf48f66b2",
+      "patch": "@@ -508,8 +508,8 @@ gdb_test \"maint\" \\\n # Test that \"main info line-table\" w/o a file name shows the symtab for\n # $srcfile.\n set saw_srcfile 0\n-set test \"maint info line-table w/o a file name\"\n-gdb_test_multiple \"maint info line-table\" $test {\n+gdb_test_multiple \"maint info line-table\" \\\n+    \"maint info line-table w/o a file name\" {\n     -re \"symtab: \\[^\\n\\r\\]+${srcfile} \\\\(\\\\(struct symtab \\\\*\\\\) $hex\\\\)\\r\\nlinetable: \\\\(\\\\(struct linetable \\\\*\\\\) $hex\\\\):\\r\\nINDEX\\[ \\t\\]+LINE\\[ \\t\\]+ADDRESS\" {\n \tset saw_srcfile 1\n \texp_continue\n@@ -518,7 +518,11 @@ gdb_test_multiple \"maint info line-table\" $test {\n \t# Match each symtab to avoid overflowing expect's buffer.\n \texp_continue\n     }\n-    -re \"$decimal\\[ \\t\\]+$decimal\\[ \\t\\]+$hex\\r\\n\" {\n+    -re \"symtab: \\[^\\n\\r\\]+ \\\\(\\\\(struct symtab \\\\*\\\\) $hex\\\\)\\r\\nlinetable: \\\\(\\\\(struct linetable \\\\*\\\\) 0x0\\\\):\\r\\nNo line table.\\r\\n\" {\n+\t# For symtabs with no linetable.\n+\texp_continue\n+    }\n+    -re \"^$decimal\\[ \\t\\]+$decimal\\[ \\t\\]+$hex\\r\\n\" {\n \t# Line table entries can be long too:\n \t#\n \t#  INDEX    LINE ADDRESS\n@@ -531,13 +535,17 @@ gdb_test_multiple \"maint info line-table\" $test {\n \t#  6          45 0x0000000000400740\n \t#  (...)\n \t#  454       129 0x00007ffff7df1d28\n-\t#  455         0 0x00007ffff7df1d3f\n+\t#  455       END 0x00007ffff7df1d3f\n \t#\n \t# Match each line to avoid overflowing expect's buffer.\n \texp_continue\n     }\n-    -re \"$gdb_prompt $\" {\n-\tgdb_assert $saw_srcfile $test\n+    -re \"^$decimal\\[ \\t\\]+END\\[ \\t\\]+$hex\\r\\n\" {\n+\t# Matches an end marker in the above.\n+\texp_continue\n+    }\n+    -re \"^$gdb_prompt $\" {\n+\tgdb_assert $saw_srcfile $gdb_test_name\n     }\n }\n "
+    },
+    {
+      "sha": "33177336f5891835c4180c5d80621117ada389a2",
+      "filename": "gdb/testsuite/gdb.dwarf2/dw2-ranges-base.exp",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/94a72be7086fa1870eca83d4d6f55cadf48f66b2/gdb/testsuite/gdb.dwarf2/dw2-ranges-base.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/94a72be7086fa1870eca83d4d6f55cadf48f66b2/gdb/testsuite/gdb.dwarf2/dw2-ranges-base.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/dw2-ranges-base.exp?ref=94a72be7086fa1870eca83d4d6f55cadf48f66b2",
+      "patch": "@@ -141,3 +141,25 @@ gdb_test \"info line frame2\" \\\n     \"Line 21 of .* starts at address .* and ends at .*\"\n gdb_test \"info line frame3\" \\\n     \"Line 31 of .* starts at address .* and ends at .*\"\n+\n+# Ensure that the line table correctly tracks the end of sequence markers.\n+set end_seq_count 0\n+gdb_test_multiple \"maint info line-table\" \\\n+    \"count END markers in line table\" {\n+\t-re \"^$decimal\\[ \\t\\]+$decimal\\[ \\t\\]+$hex\\r\\n\" {\n+\t    exp_continue\n+\t}\n+\t-re \"^$decimal\\[ \\t\\]+END\\[ \\t\\]+$hex\\r\\n\" {\n+\t    incr end_seq_count\n+\t    exp_continue\n+\t}\n+\t-re \"^$gdb_prompt $\" {\n+\t    gdb_assert [expr $end_seq_count == 3] $gdb_test_name\n+\t}\n+\t-re \".*linetable: \\\\(\\\\(struct linetable \\\\*\\\\) 0x0\\\\):\\r\\nNo line table.\\r\\n\" {\n+\t    exp_continue\n+\t}\n+\t-re \".*linetable: \\\\(\\\\(struct linetable \\\\*\\\\) $hex\\\\):\\r\\nINDEX\\[ \\t\\]+LINE\\[ \\t\\]+ADDRESS\\r\\n\" {\n+\t    exp_continue\n+\t}\n+    }"
+    }
+  ]
+}

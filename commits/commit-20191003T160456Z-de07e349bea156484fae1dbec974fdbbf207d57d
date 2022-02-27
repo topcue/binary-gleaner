@@ -1,0 +1,218 @@
+{
+  "sha": "de07e349bea156484fae1dbec974fdbbf207d57d",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZGUwN2UzNDliZWExNTY0ODRmYWUxZGJlYzk3NGZkYmJmMjA3ZDU3ZA==",
+  "commit": {
+    "author": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2019-09-17T05:54:23Z"
+    },
+    "committer": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2019-10-03T16:04:56Z"
+    },
+    "message": "libctf: remove ctf_malloc, ctf_free and ctf_strdup\n\nThese just get in the way of auditing for erroneous usage of strdup and\nadd a huge irregular surface of \"ctf_malloc or malloc? ctf_free or free?\nctf_strdup or strdup?\"\n\nctf_malloc and ctf_free usage has not reliably matched up for many\nyears, if ever, making the whole game pointless.\n\nGo back to malloc, free, and strdup like everyone else: while we're at\nit, fix a bunch of places where we weren't properly checking for OOM.\nThis changes the interface of ctf_cuname_set and ctf_parent_name_set,\nwhich could strdup but could not return errors (like ENOMEM).\n\nNew in v4.\n\ninclude/\n\t* ctf-api.h (ctf_cuname_set): Can now fail, returning int.\n\t(ctf_parent_name_set): Likewise.\nlibctf/\n\t* ctf-impl.h (ctf_alloc): Remove.\n\t(ctf_free): Likewise.\n\t(ctf_strdup): Likewise.\n\t* ctf-subr.c (ctf_alloc): Remove.\n\t(ctf_free): Likewise.\n\t* ctf-util.c (ctf_strdup): Remove.\n\n\t* ctf-create.c (ctf_serialize): Use malloc, not ctf_alloc; free, not\n\tctf_free; strdup, not ctf_strdup.\n\t(ctf_dtd_delete): Likewise.\n\t(ctf_dvd_delete): Likewise.\n\t(ctf_add_generic): Likewise.\n\t(ctf_add_function): Likewise.\n\t(ctf_add_enumerator): Likewise.\n\t(ctf_add_member_offset): Likewise.\n\t(ctf_add_variable): Likewise.\n\t(membadd): Likewise.\n\t(ctf_compress_write): Likewise.\n\t(ctf_write_mem): Likewise.\n\t* ctf-decl.c (ctf_decl_push): Likewise.\n\t(ctf_decl_fini): Likewise.\n\t(ctf_decl_sprintf): Likewise.  Check for OOM.\n\t* ctf-dump.c (ctf_dump_append): Use malloc, not ctf_alloc; free, not\n\tctf_free; strdup, not ctf_strdup.\n\t(ctf_dump_free): Likewise.\n\t(ctf_dump): Likewise.\n\t* ctf-open.c (upgrade_types_v1): Likewise.\n\t(init_types): Likewise.\n\t(ctf_file_close): Likewise.\n\t(ctf_bufopen_internal): Likewise.  Check for OOM.\n\t(ctf_parent_name_set): Likewise: report the OOM to the caller.\n\t(ctf_cuname_set): Likewise.\n\t(ctf_import): Likewise.\n\t* ctf-string.c (ctf_str_purge_atom_refs): Use malloc, not ctf_alloc;\n\tfree, not ctf_free; strdup, not ctf_strdup.\n\t(ctf_str_free_atom): Likewise.\n\t(ctf_str_create_atoms): Likewise.\n\t(ctf_str_add_ref_internal): Likewise.\n\t(ctf_str_remove_ref): Likewise.\n\t(ctf_str_write_strtab): Likewise.",
+    "tree": {
+      "sha": "6c05706f80ed06a2c71ef69aab121d1102aa73ed",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/6c05706f80ed06a2c71ef69aab121d1102aa73ed"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/de07e349bea156484fae1dbec974fdbbf207d57d",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/de07e349bea156484fae1dbec974fdbbf207d57d",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/de07e349bea156484fae1dbec974fdbbf207d57d",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/de07e349bea156484fae1dbec974fdbbf207d57d/comments",
+  "author": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "9c1a2295e84170d2de06ef3c828f0c9f5933867e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9c1a2295e84170d2de06ef3c828f0c9f5933867e",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/9c1a2295e84170d2de06ef3c828f0c9f5933867e"
+    }
+  ],
+  "stats": {
+    "total": 282,
+    "additions": 163,
+    "deletions": 119
+  },
+  "files": [
+    {
+      "sha": "c409344df0030dbc104a81a3b1e8ebd79640ebf1",
+      "filename": "include/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de07e349bea156484fae1dbec974fdbbf207d57d/include/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de07e349bea156484fae1dbec974fdbbf207d57d/include/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ChangeLog?ref=de07e349bea156484fae1dbec974fdbbf207d57d",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-09-23  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-api.h (ctf_cuname_set): Can now fail, returning int.\n+\t(ctf_parent_name_set): Likewise.\n+\n 2019-08-05  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctf-api.h (ECTF_NONREPRESENTABLE): New."
+    },
+    {
+      "sha": "d15b73421037b5fc4895dfe2986993f0ef094039",
+      "filename": "include/ctf-api.h",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de07e349bea156484fae1dbec974fdbbf207d57d/include/ctf-api.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de07e349bea156484fae1dbec974fdbbf207d57d/include/ctf-api.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ctf-api.h?ref=de07e349bea156484fae1dbec974fdbbf207d57d",
+      "patch": "@@ -286,10 +286,10 @@ extern int ctf_arc_write_fd (int, ctf_file_t **, size_t, const char **,\n \t\t\t     size_t);\n \n extern const char *ctf_cuname (ctf_file_t *);\n-extern void ctf_cuname_set (ctf_file_t *, const char *);\n+extern int ctf_cuname_set (ctf_file_t *, const char *);\n extern ctf_file_t *ctf_parent_file (ctf_file_t *);\n extern const char *ctf_parent_name (ctf_file_t *);\n-extern void ctf_parent_name_set (ctf_file_t *, const char *);\n+extern int ctf_parent_name_set (ctf_file_t *, const char *);\n extern int ctf_type_isparent (ctf_file_t *, ctf_id_t);\n extern int ctf_type_ischild (ctf_file_t *, ctf_id_t);\n "
+    },
+    {
+      "sha": "85cd785de94595d06b346dbd3c5cf30804205506",
+      "filename": "libctf/ChangeLog",
+      "status": "modified",
+      "additions": 43,
+      "deletions": 0,
+      "changes": 43,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de07e349bea156484fae1dbec974fdbbf207d57d/libctf/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de07e349bea156484fae1dbec974fdbbf207d57d/libctf/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ChangeLog?ref=de07e349bea156484fae1dbec974fdbbf207d57d",
+      "patch": "@@ -1,3 +1,46 @@\n+2019-09-23  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-impl.h (ctf_alloc): Remove.\n+\t(ctf_free): Likewise.\n+\t(ctf_strdup): Likewise.\n+\t* ctf-subr.c (ctf_alloc): Remove.\n+\t(ctf_free): Likewise.\n+\t* ctf-util.c (ctf_strdup): Remove.\n+\n+\t* ctf-create.c (ctf_serialize): Use malloc, not ctf_alloc; free, not\n+\tctf_free; strdup, not ctf_strdup.\n+\t(ctf_dtd_delete): Likewise.\n+\t(ctf_dvd_delete): Likewise.\n+\t(ctf_add_generic): Likewise.\n+\t(ctf_add_function): Likewise.\n+\t(ctf_add_enumerator): Likewise.\n+\t(ctf_add_member_offset): Likewise.\n+\t(ctf_add_variable): Likewise.\n+\t(membadd): Likewise.\n+\t(ctf_compress_write): Likewise.\n+\t(ctf_write_mem): Likewise.\n+\t* ctf-decl.c (ctf_decl_push): Likewise.\n+\t(ctf_decl_fini): Likewise.\n+\t(ctf_decl_sprintf): Likewise.  Check for OOM.\n+\t* ctf-dump.c (ctf_dump_append): Use malloc, not ctf_alloc; free, not\n+\tctf_free; strdup, not ctf_strdup.\n+\t(ctf_dump_free): Likewise.\n+\t(ctf_dump): Likewise.\n+\t* ctf-open.c (upgrade_types_v1): Likewise.\n+\t(init_types): Likewise.\n+\t(ctf_file_close): Likewise.\n+\t(ctf_bufopen_internal): Likewise.  Check for OOM.\n+\t(ctf_parent_name_set): Likewise: report the OOM to the caller.\n+\t(ctf_cuname_set): Likewise.\n+\t(ctf_import): Likewise.\n+\t* ctf-string.c (ctf_str_purge_atom_refs): Use malloc, not ctf_alloc;\n+\tfree, not ctf_free; strdup, not ctf_strdup.\n+\t(ctf_str_free_atom): Likewise.\n+\t(ctf_str_create_atoms): Likewise.\n+\t(ctf_str_add_ref_internal): Likewise.\n+\t(ctf_str_remove_ref): Likewise.\n+\t(ctf_str_write_strtab): Likewise.\n+\n 2019-08-09  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctf-types.c (ctf_type_encoding): Fix the dynamic case to"
+    },
+    {
+      "sha": "fa40100c770114a0154ac7665bb6132ce6491cff",
+      "filename": "libctf/ctf-create.c",
+      "status": "modified",
+      "additions": 33,
+      "deletions": 32,
+      "changes": 65,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de07e349bea156484fae1dbec974fdbbf207d57d/libctf/ctf-create.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de07e349bea156484fae1dbec974fdbbf207d57d/libctf/ctf-create.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-create.c?ref=de07e349bea156484fae1dbec974fdbbf207d57d",
+      "patch": "@@ -479,7 +479,7 @@ ctf_serialize (ctf_file_t *fp)\n \n   if (strtab.cts_strs == NULL)\n     {\n-      ctf_free (buf);\n+      free (buf);\n       return (ctf_set_errno (fp, EAGAIN));\n     }\n \n@@ -491,16 +491,16 @@ ctf_serialize (ctf_file_t *fp)\n \n   if ((newbuf = ctf_realloc (fp, buf, buf_size + strtab.cts_len)) == NULL)\n     {\n-      ctf_free (buf);\n-      ctf_free (strtab.cts_strs);\n+      free (buf);\n+      free (strtab.cts_strs);\n       return (ctf_set_errno (fp, EAGAIN));\n     }\n   buf = newbuf;\n   memcpy (buf + buf_size, strtab.cts_strs, strtab.cts_len);\n   hdrp = (ctf_header_t *) buf;\n   hdrp->cth_strlen = strtab.cts_len;\n   buf_size += hdrp->cth_strlen;\n-  ctf_free (strtab.cts_strs);\n+  free (strtab.cts_strs);\n \n   /* Finally, we are ready to ctf_simple_open() the new container.  If this\n      is successful, we then switch nfp and fp and free the old container.  */\n@@ -509,7 +509,7 @@ ctf_serialize (ctf_file_t *fp)\n \t\t\t\t       0, NULL, 0, fp->ctf_syn_ext_strtab,\n \t\t\t\t       1, &err)) == NULL)\n     {\n-      ctf_free (buf);\n+      free (buf);\n       return (ctf_set_errno (fp, err));\n     }\n \n@@ -635,13 +635,13 @@ ctf_dtd_delete (ctf_file_t *fp, ctf_dtdef_t *dtd)\n \t   dmd != NULL; dmd = nmd)\n \t{\n \t  if (dmd->dmd_name != NULL)\n-\t      ctf_free (dmd->dmd_name);\n+\t      free (dmd->dmd_name);\n \t  nmd = ctf_list_next (dmd);\n-\t  ctf_free (dmd);\n+\t  free (dmd);\n \t}\n       break;\n     case CTF_K_FUNCTION:\n-      ctf_free (dtd->dtd_u.dtu_argv);\n+      free (dtd->dtd_u.dtu_argv);\n       break;\n     }\n \n@@ -654,7 +654,7 @@ ctf_dtd_delete (ctf_file_t *fp, ctf_dtdef_t *dtd)\n     }\n \n   ctf_list_delete (&fp->ctf_dtdefs, dtd);\n-  ctf_free (dtd);\n+  free (dtd);\n }\n \n ctf_dtdef_t *\n@@ -694,10 +694,10 @@ void\n ctf_dvd_delete (ctf_file_t *fp, ctf_dvdef_t *dvd)\n {\n   ctf_dynhash_remove (fp->ctf_dvhash, dvd->dvd_name);\n-  ctf_free (dvd->dvd_name);\n+  free (dvd->dvd_name);\n \n   ctf_list_delete (&fp->ctf_dvdefs, dvd);\n-  ctf_free (dvd);\n+  free (dvd);\n }\n \n ctf_dvdef_t *\n@@ -815,7 +815,7 @@ ctf_add_generic (ctf_file_t *fp, uint32_t flag, const char *name, int kind,\n   if (ctf_grow_ptrtab (fp) < 0)\n       return CTF_ERR;\t\t/* errno is set for us. */\n \n-  if ((dtd = ctf_alloc (sizeof (ctf_dtdef_t))) == NULL)\n+  if ((dtd = malloc (sizeof (ctf_dtdef_t))) == NULL)\n     return (ctf_set_errno (fp, EAGAIN));\n \n   type = ++fp->ctf_typemax;\n@@ -827,13 +827,13 @@ ctf_add_generic (ctf_file_t *fp, uint32_t flag, const char *name, int kind,\n \n   if (dtd->dtd_data.ctt_name == 0 && name != NULL && name[0] != '\\0')\n     {\n-      ctf_free (dtd);\n+      free (dtd);\n       return (ctf_set_errno (fp, EAGAIN));\n     }\n \n   if (ctf_dtd_insert (fp, dtd, kind) < 0)\n     {\n-      ctf_free (dtd);\n+      free (dtd);\n       return CTF_ERR;\t\t\t/* errno is set for us.  */\n     }\n   fp->ctf_flags |= LCTF_DIRTY;\n@@ -1066,13 +1066,13 @@ ctf_add_function (ctf_file_t *fp, uint32_t flag,\n   if (vlen > CTF_MAX_VLEN)\n     return (ctf_set_errno (fp, EOVERFLOW));\n \n-  if (vlen != 0 && (vdat = ctf_alloc (sizeof (ctf_id_t) * vlen)) == NULL)\n+  if (vlen != 0 && (vdat = malloc (sizeof (ctf_id_t) * vlen)) == NULL)\n     return (ctf_set_errno (fp, EAGAIN));\n \n   if ((type = ctf_add_generic (fp, flag, NULL, CTF_K_FUNCTION,\n \t\t\t       &dtd)) == CTF_ERR)\n     {\n-      ctf_free (vdat);\n+      free (vdat);\n       return CTF_ERR;\t\t   /* errno is set for us.  */\n     }\n \n@@ -1315,12 +1315,12 @@ ctf_add_enumerator (ctf_file_t *fp, ctf_id_t enid, const char *name,\n \treturn (ctf_set_errno (fp, ECTF_DUPLICATE));\n     }\n \n-  if ((dmd = ctf_alloc (sizeof (ctf_dmdef_t))) == NULL)\n+  if ((dmd = malloc (sizeof (ctf_dmdef_t))) == NULL)\n     return (ctf_set_errno (fp, EAGAIN));\n \n-  if ((s = ctf_strdup (name)) == NULL)\n+  if ((s = strdup (name)) == NULL)\n     {\n-      ctf_free (dmd);\n+      free (dmd);\n       return (ctf_set_errno (fp, EAGAIN));\n     }\n \n@@ -1378,12 +1378,12 @@ ctf_add_member_offset (ctf_file_t *fp, ctf_id_t souid, const char *name,\n       (malign = ctf_type_align (fp, type)) < 0)\n     return -1;\t\t\t/* errno is set for us.  */\n \n-  if ((dmd = ctf_alloc (sizeof (ctf_dmdef_t))) == NULL)\n+  if ((dmd = malloc (sizeof (ctf_dmdef_t))) == NULL)\n     return (ctf_set_errno (fp, EAGAIN));\n \n-  if (name != NULL && (s = ctf_strdup (name)) == NULL)\n+  if (name != NULL && (s = strdup (name)) == NULL)\n     {\n-      ctf_free (dmd);\n+      free (dmd);\n       return (ctf_set_errno (fp, EAGAIN));\n     }\n \n@@ -1500,20 +1500,21 @@ ctf_add_variable (ctf_file_t *fp, const char *name, ctf_id_t ref)\n       && (ctf_errno (fp) == ECTF_NONREPRESENTABLE))\n     return -1;\n \n-  if ((dvd = ctf_alloc (sizeof (ctf_dvdef_t))) == NULL)\n+  if ((dvd = malloc (sizeof (ctf_dvdef_t))) == NULL)\n     return (ctf_set_errno (fp, EAGAIN));\n \n-  if (name != NULL && (dvd->dvd_name = ctf_strdup (name)) == NULL)\n+  if (name != NULL && (dvd->dvd_name = strdup (name)) == NULL)\n     {\n-      ctf_free (dvd);\n+      free (dvd);\n       return (ctf_set_errno (fp, EAGAIN));\n     }\n   dvd->dvd_type = ref;\n   dvd->dvd_snapshots = fp->ctf_snapshots;\n \n   if (ctf_dvd_insert (fp, dvd) < 0)\n     {\n-      ctf_free (dvd);\n+      free (dvd->dvd_name);\n+      free (dvd);\n       return -1;\t\t\t/* errno is set for us.  */\n     }\n \n@@ -1580,12 +1581,12 @@ membadd (const char *name, ctf_id_t type, unsigned long offset, void *arg)\n   ctf_dmdef_t *dmd;\n   char *s = NULL;\n \n-  if ((dmd = ctf_alloc (sizeof (ctf_dmdef_t))) == NULL)\n+  if ((dmd = malloc (sizeof (ctf_dmdef_t))) == NULL)\n     return (ctf_set_errno (ctb->ctb_file, EAGAIN));\n \n-  if (name != NULL && (s = ctf_strdup (name)) == NULL)\n+  if (name != NULL && (s = strdup (name)) == NULL)\n     {\n-      ctf_free (dmd);\n+      free (dmd);\n       return (ctf_set_errno (ctb->ctb_file, EAGAIN));\n     }\n \n@@ -2115,7 +2116,7 @@ ctf_compress_write (ctf_file_t *fp, int fd)\n   hp->cth_flags |= CTF_F_COMPRESS;\n   compress_len = compressBound (fp->ctf_size);\n \n-  if ((buf = ctf_alloc (compress_len)) == NULL)\n+  if ((buf = malloc (compress_len)) == NULL)\n     return (ctf_set_errno (fp, ECTF_ZALLOC));\n \n   if ((rc = compress (buf, (uLongf *) &compress_len,\n@@ -2150,7 +2151,7 @@ ctf_compress_write (ctf_file_t *fp, int fd)\n     }\n \n ret:\n-  ctf_free (buf);\n+  free (buf);\n   return err;\n }\n \n@@ -2198,7 +2199,7 @@ ctf_write_mem (ctf_file_t *fp, size_t *size, size_t threshold)\n \t{\n \t  ctf_dprintf (\"zlib deflate err: %s\\n\", zError (rc));\n \t  ctf_set_errno (fp, ECTF_COMPRESS);\n-\t  ctf_free (buf);\n+\t  free (buf);\n \t  return NULL;\n \t}\n       *size += compress_len;"
+    },
+    {
+      "sha": "584bd5ed40bcd2a099c5f53ace4c92d26d8dfb78",
+      "filename": "libctf/ctf-decl.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 4,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de07e349bea156484fae1dbec974fdbbf207d57d/libctf/ctf-decl.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de07e349bea156484fae1dbec974fdbbf207d57d/libctf/ctf-decl.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-decl.c?ref=de07e349bea156484fae1dbec974fdbbf207d57d",
+      "patch": "@@ -65,7 +65,7 @@ ctf_decl_fini (ctf_decl_t *cd)\n       for (cdp = ctf_list_next (&cd->cd_nodes[i]); cdp != NULL; cdp = ndp)\n \t{\n \t  ndp = ctf_list_next (cdp);\n-\t  ctf_free (cdp);\n+\t  free (cdp);\n \t}\n     }\n }\n@@ -132,7 +132,7 @@ ctf_decl_push (ctf_decl_t *cd, ctf_file_t *fp, ctf_id_t type)\n       prec = CTF_PREC_BASE;\n     }\n \n-  if ((cdp = ctf_alloc (sizeof (ctf_decl_node_t))) == NULL)\n+  if ((cdp = malloc (sizeof (ctf_decl_node_t))) == NULL)\n     {\n       cd->cd_err = EAGAIN;\n       return;\n@@ -176,10 +176,14 @@ void ctf_decl_sprintf (ctf_decl_t *cd, const char *format, ...)\n   va_end (ap);\n \n   if (n > 0)\n-      cd->cd_buf = ctf_str_append (cd->cd_buf, str);\n+    {\n+      char *newbuf;\n+      if ((newbuf = ctf_str_append (cd->cd_buf, str)) != NULL)\n+\tcd->cd_buf = newbuf;\n+    }\n \n   /* Sticky error condition.  */\n-  if (n < 0)\n+  if (n < 0 || cd->cd_buf == NULL)\n     {\n       free (cd->cd_buf);\n       cd->cd_buf = NULL;"
+    },
+    {
+      "sha": "c2d331be23fcac6bb601e119915e88a2dd2c3966",
+      "filename": "libctf/ctf-dump.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de07e349bea156484fae1dbec974fdbbf207d57d/libctf/ctf-dump.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de07e349bea156484fae1dbec974fdbbf207d57d/libctf/ctf-dump.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-dump.c?ref=de07e349bea156484fae1dbec974fdbbf207d57d",
+      "patch": "@@ -52,7 +52,7 @@ ctf_dump_append (ctf_dump_state_t *state, char *str)\n {\n   ctf_dump_item_t *cdi;\n \n-  if ((cdi = ctf_alloc (sizeof (struct ctf_dump_item))) == NULL)\n+  if ((cdi = malloc (sizeof (struct ctf_dump_item))) == NULL)\n     return (ctf_set_errno (state->cds_fp, ENOMEM));\n \n   cdi->cdi_item = str;\n@@ -73,7 +73,7 @@ ctf_dump_free (ctf_dump_state_t *state)\n     {\n       free (cdi->cdi_item);\n       next_cdi = ctf_list_next (cdi);\n-      ctf_free (cdi);\n+      free (cdi);\n     }\n }\n \n@@ -668,7 +668,7 @@ ctf_dump (ctf_file_t *fp, ctf_dump_state_t **statep, ctf_sect_names_t sect,\n \t by bit.  The first call will take (much) longer than otherwise, but the\n \t amortized time needed is the same.  */\n \n-      if ((*statep = ctf_alloc (sizeof (struct ctf_dump_state))) == NULL)\n+      if ((*statep = malloc (sizeof (struct ctf_dump_state))) == NULL)\n \t{\n \t  ctf_set_errno (fp, ENOMEM);\n \t  goto end;\n@@ -779,7 +779,7 @@ ctf_dump (ctf_file_t *fp, ctf_dump_state_t **statep, ctf_sect_names_t sect,\n \n  end:\n   ctf_dump_free (state);\n-  ctf_free (state);\n+  free (state);\n   ctf_set_errno (fp, 0);\n   *statep = NULL;\n   return NULL;"
+    },
+    {
+      "sha": "bed3487608f1deb7be98506e223a21b8f06e420e",
+      "filename": "libctf/ctf-impl.h",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 6,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de07e349bea156484fae1dbec974fdbbf207d57d/libctf/ctf-impl.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de07e349bea156484fae1dbec974fdbbf207d57d/libctf/ctf-impl.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-impl.h?ref=de07e349bea156484fae1dbec974fdbbf207d57d",
+      "patch": "@@ -455,13 +455,7 @@ extern void *ctf_mmap (size_t length, size_t offset, int fd);\n extern void ctf_munmap (void *, size_t);\n extern ssize_t ctf_pread (int fd, void *buf, ssize_t count, off_t offset);\n \n-_libctf_malloc_\n-extern void *ctf_alloc (size_t);\n-extern void ctf_free (void *);\n extern void *ctf_realloc (ctf_file_t *, void *, size_t);\n-\n-_libctf_malloc_\n-extern char *ctf_strdup (const char *);\n extern char *ctf_str_append (char *, const char *);\n extern const char *ctf_strerror (int);\n "
+    },
+    {
+      "sha": "4a95b7f38a5a33968bb3e7a47c535d1564784c31",
+      "filename": "libctf/ctf-open.c",
+      "status": "modified",
+      "additions": 57,
+      "deletions": 35,
+      "changes": 92,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de07e349bea156484fae1dbec974fdbbf207d57d/libctf/ctf-open.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de07e349bea156484fae1dbec974fdbbf207d57d/libctf/ctf-open.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-open.c?ref=de07e349bea156484fae1dbec974fdbbf207d57d",
+      "patch": "@@ -446,7 +446,7 @@ upgrade_types_v1 (ctf_file_t *fp, ctf_header_t *cth)\n      number unchanged, so that LCTF_INFO_* still works on the\n      as-yet-untranslated type info.  */\n \n-  if ((ctf_base = ctf_alloc (fp->ctf_size + increase)) == NULL)\n+  if ((ctf_base = malloc (fp->ctf_size + increase)) == NULL)\n     return ECTF_ZALLOC;\n \n   /* Start at ctf_buf, not ctf_base, to squeeze out the original header: we\n@@ -613,7 +613,7 @@ upgrade_types_v1 (ctf_file_t *fp, ctf_header_t *cth)\n   assert ((size_t) t2p - (size_t) fp->ctf_buf == cth->cth_stroff);\n \n   ctf_set_version (fp, cth, CTF_VERSION_1_UPGRADED_3);\n-  ctf_free (old_ctf_base);\n+  free (old_ctf_base);\n \n   return 0;\n }\n@@ -746,9 +746,9 @@ init_types (ctf_file_t *fp, ctf_header_t *cth)\n \t\t\t  ctf_hash_eq_string)) == NULL)\n     return ENOMEM;\n \n-  fp->ctf_txlate = ctf_alloc (sizeof (uint32_t) * (fp->ctf_typemax + 1));\n+  fp->ctf_txlate = malloc (sizeof (uint32_t) * (fp->ctf_typemax + 1));\n   fp->ctf_ptrtab_len = fp->ctf_typemax + 1;\n-  fp->ctf_ptrtab = ctf_alloc (sizeof (uint32_t) * fp->ctf_ptrtab_len);\n+  fp->ctf_ptrtab = malloc (sizeof (uint32_t) * fp->ctf_ptrtab_len);\n \n   if (fp->ctf_txlate == NULL || fp->ctf_ptrtab == NULL)\n     return ENOMEM;\t\t/* Memory allocation failed.  */\n@@ -1370,17 +1370,17 @@ ctf_bufopen_internal (const ctf_sect_t *ctfsect, const ctf_sect_t *symsect,\n   if (ctfsect->cts_size < hdrsz)\n     return (ctf_set_open_errno (errp, ECTF_NOCTFBUF));\n \n-  if ((fp = ctf_alloc (sizeof (ctf_file_t))) == NULL)\n+  if ((fp = malloc (sizeof (ctf_file_t))) == NULL)\n     return (ctf_set_open_errno (errp, ENOMEM));\n \n   memset (fp, 0, sizeof (ctf_file_t));\n \n   if (writable)\n     fp->ctf_flags |= LCTF_RDWR;\n \n-  if ((fp->ctf_header = ctf_alloc (sizeof (struct ctf_header))) == NULL)\n+  if ((fp->ctf_header = malloc (sizeof (struct ctf_header))) == NULL)\n     {\n-      ctf_free (fp);\n+      free (fp);\n       return (ctf_set_open_errno (errp, ENOMEM));\n     }\n   hp = fp->ctf_header;\n@@ -1435,7 +1435,7 @@ ctf_bufopen_internal (const ctf_sect_t *ctfsect, const ctf_sect_t *symsect,\n       /* We are allocating this ourselves, so we can drop the ctf header\n \t copy in favour of ctf->ctf_header.  */\n \n-      if ((fp->ctf_base = ctf_alloc (fp->ctf_size)) == NULL)\n+      if ((fp->ctf_base = malloc (fp->ctf_size)) == NULL)\n \t{\n \t  err = ECTF_ZALLOC;\n \t  goto bad;\n@@ -1466,7 +1466,7 @@ ctf_bufopen_internal (const ctf_sect_t *ctfsect, const ctf_sect_t *symsect,\n     }\n   else if (foreign_endian)\n     {\n-      if ((fp->ctf_base = ctf_alloc (fp->ctf_size)) == NULL)\n+      if ((fp->ctf_base = malloc (fp->ctf_size)) == NULL)\n \t{\n \t  err = ECTF_ZALLOC;\n \t  goto bad;\n@@ -1506,11 +1506,23 @@ ctf_bufopen_internal (const ctf_sect_t *ctfsect, const ctf_sect_t *symsect,\n     }\n \n   if (fp->ctf_data.cts_name != NULL)\n-    fp->ctf_data.cts_name = ctf_strdup (fp->ctf_data.cts_name);\n+    if ((fp->ctf_data.cts_name = strdup (fp->ctf_data.cts_name)) == NULL)\n+      {\n+\terr = ENOMEM;\n+\tgoto bad;\n+      }\n   if (fp->ctf_symtab.cts_name != NULL)\n-    fp->ctf_symtab.cts_name = ctf_strdup (fp->ctf_symtab.cts_name);\n+    if ((fp->ctf_symtab.cts_name = strdup (fp->ctf_symtab.cts_name)) == NULL)\n+      {\n+\terr = ENOMEM;\n+\tgoto bad;\n+      }\n   if (fp->ctf_strtab.cts_name != NULL)\n-    fp->ctf_strtab.cts_name = ctf_strdup (fp->ctf_strtab.cts_name);\n+    if ((fp->ctf_strtab.cts_name = strdup (fp->ctf_strtab.cts_name)) == NULL)\n+      {\n+\terr = ENOMEM;\n+\tgoto bad;\n+      }\n \n   if (fp->ctf_data.cts_name == NULL)\n     fp->ctf_data.cts_name = _CTF_NULLSTR;\n@@ -1558,7 +1570,7 @@ ctf_bufopen_internal (const ctf_sect_t *ctfsect, const ctf_sect_t *symsect,\n   if (symsect != NULL)\n     {\n       fp->ctf_nsyms = symsect->cts_size / symsect->cts_entsize;\n-      fp->ctf_sxlate = ctf_alloc (fp->ctf_nsyms * sizeof (uint32_t));\n+      fp->ctf_sxlate = malloc (fp->ctf_nsyms * sizeof (uint32_t));\n \n       if (fp->ctf_sxlate == NULL)\n \t{\n@@ -1613,8 +1625,8 @@ ctf_file_close (ctf_file_t *fp)\n       return;\n     }\n \n-  ctf_free (fp->ctf_dyncuname);\n-  ctf_free (fp->ctf_dynparname);\n+  free (fp->ctf_dyncuname);\n+  free (fp->ctf_dynparname);\n   ctf_file_close (fp->ctf_parent);\n \n   for (dtd = ctf_list_next (&fp->ctf_dtdefs); dtd != NULL; dtd = ntd)\n@@ -1645,20 +1657,20 @@ ctf_file_close (ctf_file_t *fp)\n     }\n   ctf_dynhash_destroy (fp->ctf_dvhash);\n   ctf_str_free_atoms (fp);\n-  ctf_free (fp->ctf_tmp_typeslice);\n+  free (fp->ctf_tmp_typeslice);\n \n   if (fp->ctf_data.cts_name != _CTF_NULLSTR)\n-    ctf_free ((char *) fp->ctf_data.cts_name);\n+    free ((char *) fp->ctf_data.cts_name);\n \n   if (fp->ctf_symtab.cts_name != _CTF_NULLSTR)\n-    ctf_free ((char *) fp->ctf_symtab.cts_name);\n+    free ((char *) fp->ctf_symtab.cts_name);\n \n   if (fp->ctf_strtab.cts_name != _CTF_NULLSTR)\n-    ctf_free ((char *) fp->ctf_strtab.cts_name);\n+    free ((char *) fp->ctf_strtab.cts_name);\n   else if (fp->ctf_data_mmapped)\n     ctf_munmap (fp->ctf_data_mmapped, fp->ctf_data_mmapped_len);\n \n-  ctf_free (fp->ctf_dynbase);\n+  free (fp->ctf_dynbase);\n \n   ctf_dynhash_destroy (fp->ctf_syn_ext_strtab);\n   ctf_dynhash_destroy (fp->ctf_link_inputs);\n@@ -1667,12 +1679,12 @@ ctf_file_close (ctf_file_t *fp)\n   ctf_dynhash_destroy (fp->ctf_link_cu_mapping);\n   ctf_dynhash_destroy (fp->ctf_add_processing);\n \n-  ctf_free (fp->ctf_sxlate);\n-  ctf_free (fp->ctf_txlate);\n-  ctf_free (fp->ctf_ptrtab);\n+  free (fp->ctf_sxlate);\n+  free (fp->ctf_txlate);\n+  free (fp->ctf_ptrtab);\n \n-  ctf_free (fp->ctf_header);\n-  ctf_free (fp);\n+  free (fp->ctf_header);\n+  free (fp);\n }\n \n /* The converse of ctf_open().  ctf_open() disguises whatever it opens as an\n@@ -1719,14 +1731,16 @@ ctf_parent_name (ctf_file_t *fp)\n \n /* Set the parent name.  It is an error to call this routine without calling\n    ctf_import() at some point.  */\n-void\n+int\n ctf_parent_name_set (ctf_file_t *fp, const char *name)\n {\n   if (fp->ctf_dynparname != NULL)\n-    ctf_free (fp->ctf_dynparname);\n+    free (fp->ctf_dynparname);\n \n-  fp->ctf_dynparname = ctf_strdup (name);\n+  if ((fp->ctf_dynparname = strdup (name)) == NULL)\n+    return (ctf_set_errno (fp, ENOMEM));\n   fp->ctf_parname = fp->ctf_dynparname;\n+  return 0;\n }\n \n /* Return the name of the compilation unit this CTF file applies to.  Usually\n@@ -1738,14 +1752,16 @@ ctf_cuname (ctf_file_t *fp)\n }\n \n /* Set the compilation unit name.  */\n-void\n+int\n ctf_cuname_set (ctf_file_t *fp, const char *name)\n {\n   if (fp->ctf_dyncuname != NULL)\n-    ctf_free (fp->ctf_dyncuname);\n+    free (fp->ctf_dyncuname);\n \n-  fp->ctf_dyncuname = ctf_strdup (name);\n+  if ((fp->ctf_dyncuname = strdup (name)) == NULL)\n+    return (ctf_set_errno (fp, ENOMEM));\n   fp->ctf_cuname = fp->ctf_dyncuname;\n+  return 0;\n }\n \n /* Import the types from the specified parent container by storing a pointer\n@@ -1761,15 +1777,21 @@ ctf_import (ctf_file_t *fp, ctf_file_t *pfp)\n     return (ctf_set_errno (fp, ECTF_DMODEL));\n \n   if (fp->ctf_parent != NULL)\n-    ctf_file_close (fp->ctf_parent);\n+    {\n+      ctf_file_close (fp->ctf_parent);\n+      fp->ctf_parent = NULL;\n+    }\n \n   if (pfp != NULL)\n     {\n-      fp->ctf_flags |= LCTF_CHILD;\n-      pfp->ctf_refcnt++;\n+      int err;\n \n       if (fp->ctf_parname == NULL)\n-\tctf_parent_name_set (fp, \"PARENT\");\n+\tif ((err = ctf_parent_name_set (fp, \"PARENT\")) < 0)\n+\t  return err;\n+\n+      fp->ctf_flags |= LCTF_CHILD;\n+      pfp->ctf_refcnt++;\n     }\n   fp->ctf_parent = pfp;\n   return 0;"
+    },
+    {
+      "sha": "a4227f9d9e73a0600fe1ff591fa466ee7efedebf",
+      "filename": "libctf/ctf-string.c",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 11,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de07e349bea156484fae1dbec974fdbbf207d57d/libctf/ctf-string.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de07e349bea156484fae1dbec974fdbbf207d57d/libctf/ctf-string.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-string.c?ref=de07e349bea156484fae1dbec974fdbbf207d57d",
+      "patch": "@@ -82,7 +82,7 @@ ctf_str_purge_atom_refs (ctf_str_atom_t *atom)\n     {\n       next = ctf_list_next (ref);\n       ctf_list_delete (&atom->csa_refs, ref);\n-      ctf_free (ref);\n+      free (ref);\n     }\n }\n \n@@ -93,7 +93,7 @@ ctf_str_free_atom (void *a)\n   ctf_str_atom_t *atom = a;\n \n   ctf_str_purge_atom_refs (atom);\n-  ctf_free (atom);\n+  free (atom);\n }\n \n /* Create the atoms table.  There is always at least one atom in it, the null\n@@ -102,7 +102,7 @@ int\n ctf_str_create_atoms (ctf_file_t *fp)\n {\n   fp->ctf_str_atoms = ctf_dynhash_create (ctf_hash_string, ctf_hash_eq_string,\n-\t\t\t\t\t  ctf_free, ctf_str_free_atom);\n+\t\t\t\t\t  free, ctf_str_free_atom);\n   if (fp->ctf_str_atoms == NULL)\n     return -ENOMEM;\n \n@@ -154,7 +154,7 @@ ctf_str_add_ref_internal (ctf_file_t *fp, const char *str,\n \n   if (add_ref)\n     {\n-      if ((aref = ctf_alloc (sizeof (struct ctf_str_atom_ref))) == NULL)\n+      if ((aref = malloc (sizeof (struct ctf_str_atom_ref))) == NULL)\n \treturn NULL;\n       aref->caf_ref = ref;\n     }\n@@ -169,11 +169,11 @@ ctf_str_add_ref_internal (ctf_file_t *fp, const char *str,\n       return atom;\n     }\n \n-  if ((atom = ctf_alloc (sizeof (struct ctf_str_atom))) == NULL)\n+  if ((atom = malloc (sizeof (struct ctf_str_atom))) == NULL)\n     goto oom;\n   memset (atom, 0, sizeof (struct ctf_str_atom));\n \n-  if ((newstr = ctf_strdup (str)) == NULL)\n+  if ((newstr = strdup (str)) == NULL)\n     goto oom;\n \n   if (ctf_dynhash_insert (fp->ctf_str_atoms, newstr, atom) < 0)\n@@ -203,9 +203,9 @@ ctf_str_add_ref_internal (ctf_file_t *fp, const char *str,\n  oom:\n   if (newstr)\n     ctf_dynhash_remove (fp->ctf_str_atoms, newstr);\n-  ctf_free (atom);\n-  ctf_free (aref);\n-  ctf_free (newstr);\n+  free (atom);\n+  free (aref);\n+  free (newstr);\n   return NULL;\n }\n \n@@ -279,7 +279,7 @@ ctf_str_remove_ref (ctf_file_t *fp, const char *str, uint32_t *ref)\n       if (aref->caf_ref == ref)\n \t{\n \t  ctf_list_delete (&atom->csa_refs, aref);\n-\t  ctf_free (aref);\n+\t  free (aref);\n \t}\n     }\n }\n@@ -452,7 +452,7 @@ ctf_str_write_strtab (ctf_file_t *fp)\n   qsort (&sorttab[1], s.strtab_count - 1, sizeof (ctf_str_atom_t *),\n \t ctf_str_sort_strtab);\n \n-  if ((strtab.cts_strs = ctf_alloc (strtab.cts_len)) == NULL)\n+  if ((strtab.cts_strs = malloc (strtab.cts_len)) == NULL)\n     goto oom_sorttab;\n \n   if (!fp->ctf_syn_ext_strtab)"
+    },
+    {
+      "sha": "6bd7f10aeeac0dde395f57936742b637fcd2b3a5",
+      "filename": "libctf/ctf-subr.c",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 12,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de07e349bea156484fae1dbec974fdbbf207d57d/libctf/ctf-subr.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de07e349bea156484fae1dbec974fdbbf207d57d/libctf/ctf-subr.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-subr.c?ref=de07e349bea156484fae1dbec974fdbbf207d57d",
+      "patch": "@@ -65,18 +65,6 @@ ctf_munmap (void *buf, size_t length _libctf_unused_)\n #endif\n }\n \n-_libctf_malloc_ void *\n-ctf_alloc (size_t size)\n-{\n-  return (malloc (size));\n-}\n-\n-void\n-ctf_free (void *buf)\n-{\n-  free (buf);\n-}\n-\n ssize_t\n ctf_pread (int fd, void *buf, ssize_t count, off_t offset)\n {"
+    },
+    {
+      "sha": "d10b2b53a9c34329d901106deba9b4b0afe7165d",
+      "filename": "libctf/ctf-util.c",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 13,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de07e349bea156484fae1dbec974fdbbf207d57d/libctf/ctf-util.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de07e349bea156484fae1dbec974fdbbf207d57d/libctf/ctf-util.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-util.c?ref=de07e349bea156484fae1dbec974fdbbf207d57d",
+      "patch": "@@ -103,19 +103,6 @@ ctf_sym_to_elf64 (const Elf32_Sym *src, Elf64_Sym *dst)\n   return dst;\n }\n \n-/* Same as strdup(3C), but use ctf_alloc() to do the memory allocation. */\n-\n-_libctf_malloc_ char *\n-ctf_strdup (const char *s1)\n-{\n-  char *s2 = ctf_alloc (strlen (s1) + 1);\n-\n-  if (s2 != NULL)\n-    (void) strcpy (s2, s1);\n-\n-  return s2;\n-}\n-\n /* A string appender working on dynamic strings.  */\n \n char *"
+    }
+  ]
+}

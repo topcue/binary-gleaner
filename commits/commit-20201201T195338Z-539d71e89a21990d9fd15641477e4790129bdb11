@@ -1,0 +1,72 @@
+{
+  "sha": "539d71e89a21990d9fd15641477e4790129bdb11",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NTM5ZDcxZTg5YTIxOTkwZDlmZDE1NjQxNDc3ZTQ3OTAxMjliZGIxMQ==",
+  "commit": {
+    "author": {
+      "name": "Rogerio Alves",
+      "email": "rcardoso@linux.ibm.com",
+      "date": "2020-12-01T19:53:38Z"
+    },
+    "committer": {
+      "name": "Rogerio Alves",
+      "email": "rcardoso@linux.ibm.com",
+      "date": "2020-12-01T19:53:38Z"
+    },
+    "message": "PowerPC remove 512 bytes region limit if 2nd DAWR is avaliable.\n\nPower 10 introduces the 2nd DAWR (second watchpoint) and also removed\na restriction that limit the watch region to 512 bytes.\n\n2020-11-08  Rogerio A. Cardoso  <rcardoso@linux.ibm.com>\n\n/gdb\n\n\t* ppc-linux-nat.c: (PPC_DEBUG_FEATURE_DATA_BP_ARCH_31): New define.\n\t(region_ok_for_hw_watchpoint): Check if 2nd DAWR is avaliable before\n\tset region.",
+    "tree": {
+      "sha": "e9b6b57d0132c057ecfdc9346c13ac3c61122371",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/e9b6b57d0132c057ecfdc9346c13ac3c61122371"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/539d71e89a21990d9fd15641477e4790129bdb11",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/539d71e89a21990d9fd15641477e4790129bdb11",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/539d71e89a21990d9fd15641477e4790129bdb11",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/539d71e89a21990d9fd15641477e4790129bdb11/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "0ae45769809bc2d571c3c75cec27c76ec4c1bfc3",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0ae45769809bc2d571c3c75cec27c76ec4c1bfc3",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/0ae45769809bc2d571c3c75cec27c76ec4c1bfc3"
+    }
+  ],
+  "stats": {
+    "total": 31,
+    "additions": 23,
+    "deletions": 8
+  },
+  "files": [
+    {
+      "sha": "39637aa92a59103269361e5a7032ad4e0da4f379",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/539d71e89a21990d9fd15641477e4790129bdb11/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/539d71e89a21990d9fd15641477e4790129bdb11/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=539d71e89a21990d9fd15641477e4790129bdb11",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-12-01  Rogerio A. Cardoso  <rcardoso@linux.ibm.com>\n+\t* ppc-linux-nat.c: (PPC_DEBUG_FEATURE_DATA_BP_ARCH_31): New define.\n+\t(region_ok_for_hw_watchpoint): Check if 2nd DAWR is avaliable before\n+\tset region.\n+\n 2020-11-30  Tom de Vries  <tdevries@suse.de>\n \n \tPR symtab/26905"
+    },
+    {
+      "sha": "a4d216b4aaae3b3089aa3b263de46285221e5433",
+      "filename": "gdb/ppc-linux-nat.c",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 8,
+      "changes": 26,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/539d71e89a21990d9fd15641477e4790129bdb11/gdb/ppc-linux-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/539d71e89a21990d9fd15641477e4790129bdb11/gdb/ppc-linux-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ppc-linux-nat.c?ref=539d71e89a21990d9fd15641477e4790129bdb11",
+      "patch": "@@ -138,6 +138,11 @@ struct ppc_hw_breakpoint\n #define PPC_DEBUG_FEATURE_DATA_BP_DAWR\t0x10\n #endif /* PPC_DEBUG_FEATURE_DATA_BP_DAWR */\n \n+/* Feature defined on Linux kernel v5.1: Second watchpoint support.  */\n+#ifndef PPC_DEBUG_FEATURE_DATA_BP_ARCH_31\n+#define PPC_DEBUG_FEATURE_DATA_BP_ARCH_31 0x20\n+#endif /* PPC_DEBUG_FEATURE_DATA_BP_ARCH_31 */\n+\n /* The version of the PowerPC HWDEBUG kernel interface that we will use, if\n    available.  */\n #define PPC_DEBUG_CURRENT_VERSION 1\n@@ -2108,9 +2113,10 @@ ppc_linux_nat_target::region_ok_for_hw_watchpoint (CORE_ADDR addr, int len)\n      watchpoints.  */\n   if (m_dreg_interface.hwdebug_p ())\n     {\n-      int region_size;\n       const struct ppc_debug_info &hwdebug_info = (m_dreg_interface\n \t\t\t\t\t\t   .hwdebug_info ());\n+      int region_size = hwdebug_info.data_bp_alignment;\n+      int region_align = region_size;\n \n       /* Embedded DAC-based processors, like the PowerPC 440 have ranged\n \t watchpoints and can watch any access within an arbitrary memory\n@@ -2122,15 +2128,19 @@ ppc_linux_nat_target::region_ok_for_hw_watchpoint (CORE_ADDR addr, int len)\n \treturn 2;\n       /* Check if the processor provides DAWR interface.  */\n       if (hwdebug_info.features & PPC_DEBUG_FEATURE_DATA_BP_DAWR)\n-\t/* DAWR interface allows to watch up to 512 byte wide ranges which\n-\t   can't cross a 512 byte boundary.  */\n-\tregion_size = 512;\n-      else\n-\tregion_size = hwdebug_info.data_bp_alignment;\n+\t{\n+\t  /* DAWR interface allows to watch up to 512 byte wide ranges.  */\n+\t  region_size = 512;\n+\t  /* DAWR interface allows to watch up to 512 byte wide ranges which\n+\t     can't cross a 512 byte bondary on machines that doesn't have a\n+\t     second DAWR (P9 or less).  */\n+\t  if (!(hwdebug_info.features & PPC_DEBUG_FEATURE_DATA_BP_ARCH_31))\n+\t    region_align = 512;\n+\t}\n       /* Server processors provide one hardware watchpoint and addr+len should\n \t fall in the watchable region provided by the ptrace interface.  */\n-      if (region_size\n-\t  && (addr + len > (addr & ~(region_size - 1)) + region_size))\n+      if (region_align\n+\t  && (addr + len > (addr & ~(region_align - 1)) + region_size))\n \treturn 0;\n     }\n   /* addr+len must fall in the 8 byte watchable region for DABR-based"
+    }
+  ]
+}

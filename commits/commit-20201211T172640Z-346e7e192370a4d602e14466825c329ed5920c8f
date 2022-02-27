@@ -1,0 +1,110 @@
+{
+  "sha": "346e7e192370a4d602e14466825c329ed5920c8f",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MzQ2ZTdlMTkyMzcwYTRkNjAyZTE0NDY2ODI1YzMyOWVkNTkyMGM4Zg==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-12-11T17:26:40Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-12-11T17:26:40Z"
+    },
+    "message": "[gdb/testsuite] Update gdb.arch/i386-mpx-call.exp for -m32\n\nWhen running test-case gdb.arch/i386-mpx-call.exp with target board unix/-m32,\nwe run into:\n...\n(gdb) continue^M\nContinuing.^M\n(gdb) FAIL: gdb.arch/i386-mpx-call.exp: upper_bnd0: continue to a bnd violation\n...\n\nLet's look first for reference at -m64, where the test passes.\n\nThe test-case uses -mmpx -fcheck-pointer-bounds to generate pointer checks in\nthe exec.  Effectively, -fcheck-pointer-bounds modifies the calling ABI: a\ncall passes pointer bounds as well as arguments.  The call to upper (with\nfour pointer arguments and an int argument, passed in 5 registers) is modified\nlike this:\n...\n   lea    -0xa0(%rbp),%rcx\n   lea    -0x80(%rbp),%rdx\n   lea    -0x60(%rbp),%rsi\n   lea    -0x40(%rbp),%rax\n   mov    $0x0,%r8d\n+  bndmov -0x110(%rbp),%bnd3\n+  bndmov -0x100(%rbp),%bnd2\n+  bndmov -0xf0(%rbp),%bnd1\n+  bndmov -0xe0(%rbp),%bnd0\n   mov    %rax,%rdi\n-  callq  <upper>\n+  bnd callq <upper>\n...\npasssing the four pointer bounds in bounds registers BND0-3.\n\nThe top-level mechanism of the test is as follows:\n- run the exec to after all mallocs are done, such that all pointer variables\n  are valid\n- do inferior calls, similar to those present in the program\n\nThe inferior call mechanism doesn't differentiate between a call to a function\ncompiled with -fcheck-pointer-bounds, and one without.  It merely resets the\nbound registers to all-allowed state (see amd64_push_dummy_call), to make sure\nthe checks don't trigger during the inferior call.  [ This is the same as what\nhappens when executing a call without bnd prefix when the BNDPRESERVE bit of\nthe BNDCFG register is set to 0, a provision for calling an instrumented\nfunction using a non-instrumented call. ]\n\nFirst, two inferior calls are done (default_run and verify_default_values)\nwith the bound registers unmodified by the test.  So, the memory accesses are\nperformed with the bounds registers set by amd64_push_dummy_call to\nall-allowed, and the bounds checks do not trigger.\n\nThen we try to do an inferior call with modified bounds registers, set to\nnone-allowed.  In order to do that, we set a breakpoint at *upper before\ndoing the inferior call.  Once we hit the breakpoint during the inferior call,\nthe bounds registers are set to none-allowed, and we continue expecting to run\ninto an triggered bounds check, which takes the shape of a sigsegv.\n\nBack to -m32.  Here, the pointer arguments are passed in memory rather than\nregisters, so with -fcheck-pointer-bounds, the pointer bounds are placed in\nthe Bounds Table using bndstx:\n...\n  movl   $0x0,0x10(%eax)\n  lea    -0x70(%ebp),%edx\n  mov    %edx,0xc(%eax)\n  lea    -0x5c(%ebp),%edx\n  mov    %edx,0x8(%eax)\n  lea    -0x48(%ebp),%edx\n  mov    %edx,0x4(%eax)\n  lea    -0x34(%ebp),%edx\n  mov    %edx,(%eax)\n  lea    0xc(%eax),%edx\n  mov    0xc(%eax),%ecx\n  bndmov -0xa8(%ebp),%bnd1\n  bndstx %bnd1,(%edx,%ecx,1)\n  lea    0x8(%eax),%edx\n  mov    0x8(%eax),%ecx\n  bndmov -0xa0(%ebp),%bnd3\n  bndstx %bnd3,(%edx,%ecx,1)\n  lea    0x4(%eax),%edx\n  mov    0x4(%eax),%ecx\n  bndmov -0x98(%ebp),%bnd1\n  bndstx %bnd1,(%edx,%ecx,1)\n  mov    (%eax),%edx\n  bndmov -0x90(%ebp),%bnd3\n  bndstx %bnd3,(%eax,%edx,1)\n  bnd call 804893f <upper>\n...\n\nAgain, the bounds registers are reset at the start of the inferior call by\namd64_push_dummy_call, and modified by the test-case, but neither has any\neffect.  The code in upper reads the pointer bounds from the Bounds Table, not\nfrom the bounds registers.\n\nNote that for a test.c with an out-of-bounds access:\n...\n$ cat test.c\nvoid foo (int *a) { volatile int v = a[1]; }\nint main (void) { int a; foo (&a); return 0; }\n$ gcc test.c -mmpx -fcheck-pointer-bounds -g -m32\n$ ./a.out\nSaw a #BR! status 1 at 0x804848d\n...\nand inferior call foo (&a) right before \"bnd call foo\" (at the point that the\nbounds for a are setup in the bounds table) doesn't trigger a bounds violation:\n...\n(gdb) call foo (&a)\n(gdb)\n...\nThis is because the bounds table doesn't associate a pointer with bounds, but\nrather a pair of pointer and pointer location.  So, the bound is setup for &a,\nwith as location the pushed argument in the frame.  The inferior call however\nexecutes in a dummy frame, so the bound is checked for &a with as location the\npushed argument in the dummy frame, which is different, so the bounds check\ndoesn't trigger.\n\nIn conclusion, this is expected behaviour.\n\nUpdate the test-case to not expect to override effective pointer bounds using\nthe bounds registers when the bounds passing is done via the Bounds Table.\n\nTested on x86_64-linux.\n\ngdb/testsuite/ChangeLog:\n\n2020-12-11  Tom de Vries  <tdevries@suse.de>\n\n\tPR testsuite/26991\n\t* gdb.arch/i386-mpx-call.exp: Don't expect to trigger bounds\n        violations by setting bounds registers if the bounds are passed in the\n        Bounds Table.",
+    "tree": {
+      "sha": "b1037663f86a98cb734ea402b79e97943c3c4392",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/b1037663f86a98cb734ea402b79e97943c3c4392"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/346e7e192370a4d602e14466825c329ed5920c8f",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/346e7e192370a4d602e14466825c329ed5920c8f",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/346e7e192370a4d602e14466825c329ed5920c8f",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/346e7e192370a4d602e14466825c329ed5920c8f/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "02c727013cc3ae08b86ad360429f9a0dbdc0ec92",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/02c727013cc3ae08b86ad360429f9a0dbdc0ec92",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/02c727013cc3ae08b86ad360429f9a0dbdc0ec92"
+    }
+  ],
+  "stats": {
+    "total": 38,
+    "additions": 35,
+    "deletions": 3
+  },
+  "files": [
+    {
+      "sha": "7f682281660619b7ebfcb292ea990ef970f58ed6",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/346e7e192370a4d602e14466825c329ed5920c8f/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/346e7e192370a4d602e14466825c329ed5920c8f/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=346e7e192370a4d602e14466825c329ed5920c8f",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-12-11  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR testsuite/26991\n+\t* gdb.arch/i386-mpx-call.exp: Don't expect to trigger bounds\n+        violations by setting bounds registers if the bounds are passed in the\n+        Bounds Table.\n+\n 2020-12-11  Tom de Vries  <tdevries@suse.de>\n \n \tPR testsuite/26954"
+    },
+    {
+      "sha": "8f8fea5415b8b408ca20efb7041c28be19c1f3d6",
+      "filename": "gdb/testsuite/gdb.arch/i386-mpx-call.exp",
+      "status": "modified",
+      "additions": 28,
+      "deletions": 3,
+      "changes": 31,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/346e7e192370a4d602e14466825c329ed5920c8f/gdb/testsuite/gdb.arch/i386-mpx-call.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/346e7e192370a4d602e14466825c329ed5920c8f/gdb/testsuite/gdb.arch/i386-mpx-call.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/i386-mpx-call.exp?ref=346e7e192370a4d602e14466825c329ed5920c8f",
+      "patch": "@@ -49,6 +49,15 @@ gdb_test_multiple \"print have_mpx ()\" $test {\n     }\n }\n \n+set bounds_table 0\n+gdb_test_multiple \"disassemble upper\" \"\" {\n+    -re -wrap \"bndldx.*\" {\n+\tset bounds_table 1\n+    }\n+    -re -wrap \"\" {\n+    }\n+}\n+\n # Convenience for returning from an inferior call that causes a BND violation.\n #\n gdb_test_no_output \"set confirm off\"\n@@ -136,9 +145,25 @@ proc perform_a_call {func} {\n #\n proc check_bound_violation {parm parm_type is_positive} {\n \n-    global u_fault\n-\n-    gdb_test \"continue\" \"$u_fault.*\" \"continue to a bnd violation\"\n+    global u_fault bounds_table\n+\n+    set have_bnd_violation 0\n+    gdb_test_multiple \"continue\" \"continue to a bnd violation\" {\n+\t-re -wrap \"Continuing\\.\" {\n+\t    if { $bounds_table } {\n+\t\tpass $gdb_test_name\n+\t    } else {\n+\t\tfail $gdb_test_name\n+\t    }\n+\t}\n+\t-re -wrap \"$u_fault.*\" {\n+\t    pass $gdb_test_name\n+\t    set have_bnd_violation 1\n+\t}\n+    }\n+    if { ! $have_bnd_violation } {\n+\treturn\n+    }\n \n     set message \"access only one position\"\n     if {$is_positive == 1} {"
+    }
+  ]
+}

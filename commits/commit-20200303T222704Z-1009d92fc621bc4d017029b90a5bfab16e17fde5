@@ -1,0 +1,122 @@
+{
+  "sha": "1009d92fc621bc4d017029b90a5bfab16e17fde5",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MTAwOWQ5MmZjNjIxYmM0ZDAxNzAyOWI5MGE1YmZhYjE2ZTE3ZmRlNQ==",
+  "commit": {
+    "author": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2020-03-03T22:27:04Z"
+    },
+    "committer": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2020-03-03T22:27:04Z"
+    },
+    "message": "Find tailcall frames before inline frames\n\nA customer reported a failure to unwind in a certain core dump.  A\nlengthy investigation showed that the problem came from the\ninteraction between the tailcall and inline frame sniffers.\n\nNormally, the regular DWARF unwinder may discover a chain of tail\ncalls ending in the current frame.  In this case, it sets a member on\nthe dwarf2_frame_cache object, so that a subsequent call into the\ntailcall sniffer will create the tailcall frames.\n\nHowever, in this scenario, what happened is that the DWARF unwinder\ndid find tailcall frames -- but then the PC of the first such frame\nwas recognized and claimed by the inline frame sniffer.\n\nThis then caused unwinding to go astray further up the stack.\n\nThis patch fixes the problem by arranging for the tailcall sniffer to\nbe called before the inline sniffer.  This way, if a DWARF frame has\ntailcall information, the tailcalls will always be processed first.\nThis is safe to do, because the tailcall sniffer can only claim a\nframe if the previous frame did in fact find this information.  (So,\nfor example, if no DWARF frame is ever found, then this sniffer will\nnever trigger.)\n\nThis patch also partially reverts:\n\n    commit 1ec56e88aa9b052ab10b806d82fbdbc8d153d977\n    Author: Pedro Alves <palves@redhat.com>\n    Date:   Fri Nov 22 13:17:46 2013 +0000\n\n\tEliminate dwarf2_frame_cache recursion, don't unwind from the dwarf2 sniffer (move dwarf2_tailcall_sniffer_first elsewhere).\n\nThat patch moved the call to dwarf2_tailcall_sniffer_first out of\ndwarf2_frame_cache, and into dwarf2_frame_prev_register.  However, in\nthis situation, this is too late -- by the time\ndwarf2_frame_prev_register is called, the frame in question is already\nrecognized by the inline frame sniffer.\n\nRather than fully revert that patch, though, this just arranges to\ncall dwarf2_tailcall_sniffer_first from dwarf2_frame_cache -- which is\ncalled shortly after the DWARF frame sniffer succeeds, via\ncompute_frame_id.\n\nI don't know how to write a test case for this.\n\ngdb/ChangeLog\n2020-03-03  Tom Tromey  <tromey@adacore.com>\n\n\t* dwarf2/frame.c (struct dwarf2_frame_cache)\n\t<checked_tailcall_bottom, entry_cfa_sp_offset,\n\tentry_cfa_sp_offset_p>: Remove members.\n\t(dwarf2_frame_cache): Call dwarf2_tailcall_sniffer_first.\n\t(dwarf2_frame_prev_register): Don't call\n\tdwarf2_tailcall_sniffer_first.\n\t(dwarf2_append_unwinders): Don't append tailcall unwinder.\n\t* frame-unwind.c (add_unwinder): New fuction.\n\t(frame_unwind_init): Use it.  Add tailcall unwinder.",
+    "tree": {
+      "sha": "f26cda6eaeec61a7d4c4761c22d4ab2ad35cfffd",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f26cda6eaeec61a7d4c4761c22d4ab2ad35cfffd"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/1009d92fc621bc4d017029b90a5bfab16e17fde5",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1009d92fc621bc4d017029b90a5bfab16e17fde5",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/1009d92fc621bc4d017029b90a5bfab16e17fde5",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1009d92fc621bc4d017029b90a5bfab16e17fde5/comments",
+  "author": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "89725b0d5357b85ffc35ae451db0c0ddf1aa5831",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/89725b0d5357b85ffc35ae451db0c0ddf1aa5831",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/89725b0d5357b85ffc35ae451db0c0ddf1aa5831"
+    }
+  ],
+  "stats": {
+    "total": 79,
+    "additions": 47,
+    "deletions": 32
+  },
+  "files": [
+    {
+      "sha": "edb87811823f57e6aeaa3341b515195a1aab0f74",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1009d92fc621bc4d017029b90a5bfab16e17fde5/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1009d92fc621bc4d017029b90a5bfab16e17fde5/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=1009d92fc621bc4d017029b90a5bfab16e17fde5",
+      "patch": "@@ -1,3 +1,15 @@\n+2020-03-03  Tom Tromey  <tromey@adacore.com>\n+\n+\t* dwarf2/frame.c (struct dwarf2_frame_cache)\n+\t<checked_tailcall_bottom, entry_cfa_sp_offset,\n+\tentry_cfa_sp_offset_p>: Remove members.\n+\t(dwarf2_frame_cache): Call dwarf2_tailcall_sniffer_first.\n+\t(dwarf2_frame_prev_register): Don't call\n+\tdwarf2_tailcall_sniffer_first.\n+\t(dwarf2_append_unwinders): Don't append tailcall unwinder.\n+\t* frame-unwind.c (add_unwinder): New fuction.\n+\t(frame_unwind_init): Use it.  Add tailcall unwinder.\n+\n 2020-03-03  Andrew Burgess  <andrew.burgess@embecosm.com>\n \t    Alok Kumar Sharma  <AlokKumar.Sharma@amd.com>\n "
+    },
+    {
+      "sha": "74488f9a8aa97b5ab05f2c0e639dd17428061537",
+      "filename": "gdb/dwarf2/frame.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 26,
+      "changes": 34,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1009d92fc621bc4d017029b90a5bfab16e17fde5/gdb/dwarf2/frame.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1009d92fc621bc4d017029b90a5bfab16e17fde5/gdb/dwarf2/frame.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/frame.c?ref=1009d92fc621bc4d017029b90a5bfab16e17fde5",
+      "patch": "@@ -959,22 +959,12 @@ struct dwarf2_frame_cache\n   /* The .text offset.  */\n   CORE_ADDR text_offset;\n \n-  /* True if we already checked whether this frame is the bottom frame\n-     of a virtual tail call frame chain.  */\n-  int checked_tailcall_bottom;\n-\n   /* If not NULL then this frame is the bottom frame of a TAILCALL_FRAME\n      sequence.  If NULL then it is a normal case with no TAILCALL_FRAME\n      involved.  Non-bottom frames of a virtual tail call frames chain use\n      dwarf2_tailcall_frame_unwind unwinder so this field does not apply for\n      them.  */\n   void *tailcall_cache;\n-\n-  /* The number of bytes to subtract from TAILCALL_FRAME frames frame\n-     base to get the SP, to simulate the return address pushed on the\n-     stack.  */\n-  LONGEST entry_cfa_sp_offset;\n-  int entry_cfa_sp_offset_p;\n };\n \n static struct dwarf2_frame_cache *\n@@ -1037,6 +1027,8 @@ dwarf2_frame_cache (struct frame_info *this_frame, void **this_cache)\n      in an address that's within the range of FDE locations.  This\n      is due to the possibility of the function occupying non-contiguous\n      ranges.  */\n+  LONGEST entry_cfa_sp_offset;\n+  int entry_cfa_sp_offset_p = 0;\n   if (get_frame_func_if_available (this_frame, &entry_pc)\n       && fde->initial_location <= entry_pc\n       && entry_pc < fde->initial_location + fde->address_range)\n@@ -1049,8 +1041,8 @@ dwarf2_frame_cache (struct frame_info *this_frame, void **this_cache)\n \t  && (dwarf_reg_to_regnum (gdbarch, fs.regs.cfa_reg)\n \t      == gdbarch_sp_regnum (gdbarch)))\n \t{\n-\t  cache->entry_cfa_sp_offset = fs.regs.cfa_offset;\n-\t  cache->entry_cfa_sp_offset_p = 1;\n+\t  entry_cfa_sp_offset = fs.regs.cfa_offset;\n+\t  entry_cfa_sp_offset_p = 1;\n \t}\n     }\n   else\n@@ -1195,6 +1187,10 @@ incomplete CFI data; unspecified registers (e.g., %s) at %s\"),\n       && fs.regs.reg[fs.retaddr_column].how == DWARF2_FRAME_REG_UNDEFINED)\n     cache->undefined_retaddr = 1;\n \n+  dwarf2_tailcall_sniffer_first (this_frame, &cache->tailcall_cache,\n+\t\t\t\t (entry_cfa_sp_offset_p\n+\t\t\t\t  ? &entry_cfa_sp_offset : NULL));\n+\n   return cache;\n }\n \n@@ -1239,16 +1235,6 @@ dwarf2_frame_prev_register (struct frame_info *this_frame, void **this_cache,\n   CORE_ADDR addr;\n   int realnum;\n \n-  /* Check whether THIS_FRAME is the bottom frame of a virtual tail\n-     call frame chain.  */\n-  if (!cache->checked_tailcall_bottom)\n-    {\n-      cache->checked_tailcall_bottom = 1;\n-      dwarf2_tailcall_sniffer_first (this_frame, &cache->tailcall_cache,\n-\t\t\t\t     (cache->entry_cfa_sp_offset_p\n-\t\t\t\t      ? &cache->entry_cfa_sp_offset : NULL));\n-    }\n-\n   /* Non-bottom frames of a virtual tail call frames chain use\n      dwarf2_tailcall_frame_unwind unwinder so this code does not apply for\n      them.  If dwarf2_tailcall_prev_register_first does not have specific value\n@@ -1410,10 +1396,6 @@ static const struct frame_unwind dwarf2_signal_frame_unwind =\n void\n dwarf2_append_unwinders (struct gdbarch *gdbarch)\n {\n-  /* TAILCALL_FRAME must be first to find the record by\n-     dwarf2_tailcall_sniffer_first.  */\n-  frame_unwind_append_unwinder (gdbarch, &dwarf2_tailcall_frame_unwind);\n-\n   frame_unwind_append_unwinder (gdbarch, &dwarf2_frame_unwind);\n   frame_unwind_append_unwinder (gdbarch, &dwarf2_signal_frame_unwind);\n }"
+    },
+    {
+      "sha": "3334c472d0202b546f5eea17e27ec6cbbabc7476",
+      "filename": "gdb/frame-unwind.c",
+      "status": "modified",
+      "additions": 27,
+      "deletions": 6,
+      "changes": 33,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1009d92fc621bc4d017029b90a5bfab16e17fde5/gdb/frame-unwind.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1009d92fc621bc4d017029b90a5bfab16e17fde5/gdb/frame-unwind.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/frame-unwind.c?ref=1009d92fc621bc4d017029b90a5bfab16e17fde5",
+      "patch": "@@ -27,6 +27,7 @@\n #include \"gdb_obstack.h\"\n #include \"target.h\"\n #include \"gdbarch.h\"\n+#include \"dwarf2/frame-tailcall.h\"\n \n static struct gdbarch_data *frame_unwind_data;\n \n@@ -43,6 +44,18 @@ struct frame_unwind_table\n   struct frame_unwind_table_entry **osabi_head;\n };\n \n+/* A helper function to add an unwinder to a list.  LINK says where to\n+   install the new unwinder.  The new link is returned.  */\n+\n+static struct frame_unwind_table_entry **\n+add_unwinder (struct obstack *obstack, const struct frame_unwind *unwinder,\n+\t      struct frame_unwind_table_entry **link)\n+{\n+  *link = OBSTACK_ZALLOC (obstack, struct frame_unwind_table_entry);\n+  (*link)->unwinder = unwinder;\n+  return &(*link)->next;\n+}\n+\n static void *\n frame_unwind_init (struct obstack *obstack)\n {\n@@ -51,13 +64,21 @@ frame_unwind_init (struct obstack *obstack)\n \n   /* Start the table out with a few default sniffers.  OSABI code\n      can't override this.  */\n-  table->list = OBSTACK_ZALLOC (obstack, struct frame_unwind_table_entry);\n-  table->list->unwinder = &dummy_frame_unwind;\n-  table->list->next = OBSTACK_ZALLOC (obstack,\n-\t\t\t\t      struct frame_unwind_table_entry);\n-  table->list->next->unwinder = &inline_frame_unwind;\n+  struct frame_unwind_table_entry **link = &table->list;\n+\n+  link = add_unwinder (obstack, &dummy_frame_unwind, link);\n+  /* The DWARF tailcall sniffer must come before the inline sniffer.\n+     Otherwise, we can end up in a situation where a DWARF frame finds\n+     tailcall information, but then the inline sniffer claims a frame\n+     before the tailcall sniffer, resulting in confusion.  This is\n+     safe to do always because the tailcall sniffer can only ever be\n+     activated if the newer frame was created using the DWARF\n+     unwinder, and it also found tailcall information.  */\n+  link = add_unwinder (obstack, &dwarf2_tailcall_frame_unwind, link);\n+  link = add_unwinder (obstack, &inline_frame_unwind, link);\n+\n   /* The insertion point for OSABI sniffers.  */\n-  table->osabi_head = &table->list->next->next;\n+  table->osabi_head = link;\n   return table;\n }\n "
+    }
+  ]
+}

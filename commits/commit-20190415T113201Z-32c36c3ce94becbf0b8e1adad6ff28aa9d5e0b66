@@ -1,0 +1,230 @@
+{
+  "sha": "32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MzJjMzZjM2NlOTRiZWNiZjBiOGUxYWRhZDZmZjI4YWE5ZDVlMGI2Ng==",
+  "commit": {
+    "author": {
+      "name": "Andre Vieira",
+      "email": "andre.simoesdiasvieira@arm.com",
+      "date": "2019-04-15T11:23:24Z"
+    },
+    "committer": {
+      "name": "Andre Vieira",
+      "email": "andre.simoesdiasvieira@arm.com",
+      "date": "2019-04-15T11:32:01Z"
+    },
+    "message": "[binutils, ARM, 16/16] Add support to VLDR and VSTR of system registers\n\nGNU as' Arm backend assumes each mnemonic has a single entry in the instruction table but VLDR (system register) and VSTR (system register) are different instructions than VLDR and VSTR. It is thus necessary to add some form of demultiplexing in the parser. It starts by creating a new operand type OP_VLDR which indicate that the operand is either the existing OP_RVSD operand or a system register. The function parse_operands () then tries these two cases in order, calling the new parse_sys_vldr_vstr for the second case.\n\nSince the encoding function is specified in the instruction table entry, it also need to have some sort of demultiplexing. This is done in do_vldr_vstr which either calls the existing do_neon_ldr_str () or calls the new do_t_vldr_vstr_sysreg ().\n\nA new internal relocation is needed as well since the offset has a shorter range than in other Thumb coprocessor instructions. Disassembly also requires special care since VSTR (system register) reuse the STC encoding with the coprocessor number 15. Armv8.1-M Mainline ARM manual states that coprocessor 8, 14 and 15 are reserved for floating-point and MVE instructions a feature bit check is added if the coprocessor number is one of this value and we are trying to match a coprocessor instruction (eg. STC) to forbid the match.\n\nChangeLog entries are as follows:\n\n*** bfd/ChangeLog ***\n\n2019-04-15  Thomas Preud'homme  <thomas.preudhomme@arm.com>\n\n\t* reloc.c (BFD_RELOC_ARM_T32_VLDR_VSTR_OFF_IMM): New internal\n\trelocation.\n\t* bfd-in2.h: Regenerate.\n\t* libbfd.h: Likewise.\n\n*** gas/ChangeLog ***\n\n2019-04-15  Thomas Preud'homme  <thomas.preudhomme@arm.com>\n\n\t* config/tc-arm.c (parse_sys_vldr_vstr): New function.\n\t(OP_VLDR): New enum operand_parse_code enumerator.\n\t(parse_operands): Add logic for OP_VLDR.\n\t(do_t_vldr_vstr_sysreg): New function.\n\t(do_vldr_vstr): Likewise.\n\t(insns): Guard VLDR and VSTR by arm_ext_v4t for Thumb mode.\n\t(md_apply_fix): Add bound check for VLDR and VSTR co-processor offset.\n\tAdd masking logic for BFD_RELOC_ARM_T32_VLDR_VSTR_OFF_IMM relocation.\n\t* testsuite/gas/arm/archv8m_1m-cmse-main-bad.s: Add examples of bad\n\tuses of VLDR and VSTR.\n\t* testsuite/gas/arm/archv8m_1m-cmse-main-bad.l: Add error messages for\n\tabove bad uses.\n\t* testsuite/gas/arm/archv8m_1m-cmse-main.s: Add examples of VLDR and\n\tVSTR valid uses.\n\t* testsuite/gas/arm/archv8m_1m-cmse-main.d: Add disassembly for the\n\tabove examples.\n\n*** opcodes/ChangeLog ***\n\n2019-04-15  Thomas Preud'homme  <thomas.preudhomme@arm.com>\n\n\t* arm-dis.c (coprocessor_opcodes): Document new %J and %K format\n\tspecifier.  Add entries for VLDR and VSTR of system registers.\n\t(print_insn_coprocessor): Forbid coprocessor numbers 8, 14 and 15 in\n\tcoprocessor instructions on Armv8.1-M Mainline targets.  Add handling\n\tof %J and %K format specifier.",
+    "tree": {
+      "sha": "db796495046d5bfcb414ee310b9a08ae73f19e00",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/db796495046d5bfcb414ee310b9a08ae73f19e00"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/comments",
+  "author": {
+    "login": "avieira-arm",
+    "id": 68072104,
+    "node_id": "MDQ6VXNlcjY4MDcyMTA0",
+    "avatar_url": "https://avatars.githubusercontent.com/u/68072104?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/avieira-arm",
+    "html_url": "https://github.com/avieira-arm",
+    "followers_url": "https://api.github.com/users/avieira-arm/followers",
+    "following_url": "https://api.github.com/users/avieira-arm/following{/other_user}",
+    "gists_url": "https://api.github.com/users/avieira-arm/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/avieira-arm/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/avieira-arm/subscriptions",
+    "organizations_url": "https://api.github.com/users/avieira-arm/orgs",
+    "repos_url": "https://api.github.com/users/avieira-arm/repos",
+    "events_url": "https://api.github.com/users/avieira-arm/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/avieira-arm/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "avieira-arm",
+    "id": 68072104,
+    "node_id": "MDQ6VXNlcjY4MDcyMTA0",
+    "avatar_url": "https://avatars.githubusercontent.com/u/68072104?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/avieira-arm",
+    "html_url": "https://github.com/avieira-arm",
+    "followers_url": "https://api.github.com/users/avieira-arm/followers",
+    "following_url": "https://api.github.com/users/avieira-arm/following{/other_user}",
+    "gists_url": "https://api.github.com/users/avieira-arm/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/avieira-arm/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/avieira-arm/subscriptions",
+    "organizations_url": "https://api.github.com/users/avieira-arm/orgs",
+    "repos_url": "https://api.github.com/users/avieira-arm/repos",
+    "events_url": "https://api.github.com/users/avieira-arm/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/avieira-arm/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "efd6b3591b4bc8440f4145dfc0e6dbfc0545f7d8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/efd6b3591b4bc8440f4145dfc0e6dbfc0545f7d8",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/efd6b3591b4bc8440f4145dfc0e6dbfc0545f7d8"
+    }
+  ],
+  "stats": {
+    "total": 300,
+    "additions": 295,
+    "deletions": 5
+  },
+  "files": [
+    {
+      "sha": "834b84f75f9b4b295c775f7069b2ce68369f062e",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66",
+      "patch": "@@ -1,3 +1,10 @@\n+2019-04-15  Thomas Preud'homme  <thomas.preudhomme@arm.com>\n+\n+\t* reloc.c (BFD_RELOC_ARM_T32_VLDR_VSTR_OFF_IMM): New internal\n+\trelocation.\n+\t* bfd-in2.h: Regenerate.\n+\t* libbfd.h: Likewise.\n+\n 2019-04-15  Sudakshina Das  <sudi.das@arm.com>\n \n \t* reloc.c (BFD_RELOC_ARM_THUMB_LOOP12): New."
+    },
+    {
+      "sha": "13af0beade1ee1521be7db8307e5fa2e025594b2",
+      "filename": "bfd/bfd-in2.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/bfd/bfd-in2.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/bfd/bfd-in2.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/bfd-in2.h?ref=32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66",
+      "patch": "@@ -3722,6 +3722,7 @@ pc-relative or some form of GOT-indirect relocation.  */\n   BFD_RELOC_ARM_CP_OFF_IMM_S2,\n   BFD_RELOC_ARM_T32_CP_OFF_IMM,\n   BFD_RELOC_ARM_T32_CP_OFF_IMM_S2,\n+  BFD_RELOC_ARM_T32_VLDR_VSTR_OFF_IMM,\n   BFD_RELOC_ARM_ADR_IMM,\n   BFD_RELOC_ARM_LDR_IMM,\n   BFD_RELOC_ARM_LITERAL,"
+    },
+    {
+      "sha": "b51df73179fd1d3185f904466fd995f113a22835",
+      "filename": "bfd/libbfd.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/bfd/libbfd.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/bfd/libbfd.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/libbfd.h?ref=32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66",
+      "patch": "@@ -1634,6 +1634,7 @@ static const char *const bfd_reloc_code_real_names[] = { \"@@uninitialized@@\",\n   \"BFD_RELOC_ARM_CP_OFF_IMM_S2\",\n   \"BFD_RELOC_ARM_T32_CP_OFF_IMM\",\n   \"BFD_RELOC_ARM_T32_CP_OFF_IMM_S2\",\n+  \"BFD_RELOC_ARM_T32_VLDR_VSTR_OFF_IMM\",\n   \"BFD_RELOC_ARM_ADR_IMM\",\n   \"BFD_RELOC_ARM_LDR_IMM\",\n   \"BFD_RELOC_ARM_LITERAL\","
+    },
+    {
+      "sha": "9615279833228cff4cb7f4cd77e930b2ad7cf4ab",
+      "filename": "bfd/reloc.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/bfd/reloc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/bfd/reloc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/reloc.c?ref=32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66",
+      "patch": "@@ -3292,6 +3292,8 @@ ENUMX\n   BFD_RELOC_ARM_T32_CP_OFF_IMM\n ENUMX\n   BFD_RELOC_ARM_T32_CP_OFF_IMM_S2\n+ENUMX\n+  BFD_RELOC_ARM_T32_VLDR_VSTR_OFF_IMM\n ENUMX\n   BFD_RELOC_ARM_ADR_IMM\n ENUMX"
+    },
+    {
+      "sha": "7eb172c96bac8416f6f8b226dabae05d94d5e22e",
+      "filename": "gas/ChangeLog",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 0,
+      "changes": 19,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/gas/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/gas/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/ChangeLog?ref=32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66",
+      "patch": "@@ -1,3 +1,22 @@\n+2019-04-15  Thomas Preud'homme  <thomas.preudhomme@arm.com>\n+\n+\t* config/tc-arm.c (parse_sys_vldr_vstr): New function.\n+\t(OP_VLDR): New enum operand_parse_code enumerator.\n+\t(parse_operands): Add logic for OP_VLDR.\n+\t(do_t_vldr_vstr_sysreg): New function.\n+\t(do_vldr_vstr): Likewise.\n+\t(insns): Guard VLDR and VSTR by arm_ext_v4t for Thumb mode.\n+\t(md_apply_fix): Add bound check for VLDR and VSTR co-processor offset.\n+\tAdd masking logic for BFD_RELOC_ARM_T32_VLDR_VSTR_OFF_IMM relocation.\n+\t* testsuite/gas/arm/archv8m_1m-cmse-main-bad.s: Add examples of bad\n+\tuses of VLDR and VSTR.\n+\t* testsuite/gas/arm/archv8m_1m-cmse-main-bad.l: Add error messages for\n+\tabove bad uses.\n+\t* testsuite/gas/arm/archv8m_1m-cmse-main.s: Add examples of VLDR and\n+\tVSTR valid uses.\n+\t* testsuite/gas/arm/archv8m_1m-cmse-main.d: Add disassembly for the\n+\tabove examples.\n+\n 2019-04-15  Thomas Preud'homme  <thomas.preudhomme@arm.com>\n \n \t* config/tc-arm.c (arm_typed_reg_parse): Fix typo in comment."
+    },
+    {
+      "sha": "20a2dee1aaa1660fbda62d8aa8d9551d929352b5",
+      "filename": "gas/config/tc-arm.c",
+      "status": "modified",
+      "additions": 120,
+      "deletions": 4,
+      "changes": 124,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/gas/config/tc-arm.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/gas/config/tc-arm.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-arm.c?ref=32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66",
+      "patch": "@@ -6128,6 +6128,39 @@ parse_psr (char **str, bfd_boolean lhs)\n   return FAIL;\n }\n \n+static int\n+parse_sys_vldr_vstr (char **str)\n+{\n+  unsigned i;\n+  int val = FAIL;\n+  struct {\n+    const char *name;\n+    int regl;\n+    int regh;\n+  } sysregs[] = {\n+    {\"FPSCR\",\t\t0x1, 0x0},\n+    {\"FPSCR_nzcvqc\",\t0x2, 0x0},\n+    {\"VPR\",\t\t0x4, 0x1},\n+    {\"P0\",\t\t0x5, 0x1},\n+    {\"FPCXTNS\",\t\t0x6, 0x1},\n+    {\"FPCXTS\",\t\t0x7, 0x1}\n+  };\n+  char *op_end = strchr (*str, ',');\n+  size_t op_strlen = op_end - *str;\n+\n+  for (i = 0; i < sizeof (sysregs) / sizeof (sysregs[0]); i++)\n+    {\n+      if (!strncmp (*str, sysregs[i].name, op_strlen))\n+\t{\n+\t  val = sysregs[i].regl | (sysregs[i].regh << 3);\n+\t  *str = op_end;\n+\t  break;\n+\t}\n+    }\n+\n+  return val;\n+}\n+\n /* Parse the flags argument to CPSI[ED].  Returns FAIL on error, or a\n    value suitable for splatting into the AIF field of the instruction.\t*/\n \n@@ -6652,6 +6685,7 @@ enum operand_parse_code\n   OP_RNDQ_Ibig,\t/* Neon D or Q reg, or big immediate for logic and VMVN.  */\n   OP_RNDQ_I63b, /* Neon D or Q reg, or immediate for shift.  */\n   OP_RIWR_I32z, /* iWMMXt wR register, or immediate 0 .. 32 for iWMMXt2.  */\n+  OP_VLDR,\t/* VLDR operand.  */\n \n   OP_I0,        /* immediate zero */\n   OP_I7,\t/* immediate value 0 .. 7 */\n@@ -7225,6 +7259,13 @@ parse_operands (char *str, const unsigned int *pattern, bfd_boolean thumb)\n \t  val = parse_psr (&str, op_parse_code == OP_wPSR);\n \t  break;\n \n+\tcase OP_VLDR:\n+\t  po_reg_or_goto (REG_TYPE_VFSD, try_sysreg);\n+\t  break;\n+\ttry_sysreg:\n+\t  val = parse_sys_vldr_vstr (&str);\n+\t  break;\n+\n \tcase OP_APSR_RR:\n \t  po_reg_or_goto (REG_TYPE_RN, try_apsr);\n \t  break;\n@@ -7401,6 +7442,10 @@ parse_operands (char *str, const unsigned int *pattern, bfd_boolean thumb)\n \t    inst.error = BAD_PC;\n \t  break;\n \n+\tcase OP_VLDR:\n+\t  if (inst.operands[i].isreg)\n+\t    break;\n+\t/* fall through.  */\n \tcase OP_CPSF:\n \tcase OP_ENDI:\n \tcase OP_oROR:\n@@ -17397,6 +17442,55 @@ do_neon_ldr_str (void)\n     }\n }\n \n+static void\n+do_t_vldr_vstr_sysreg (void)\n+{\n+  int fp_vldr_bitno = 20, sysreg_vldr_bitno = 20;\n+  bfd_boolean is_vldr = ((inst.instruction & (1 << fp_vldr_bitno)) != 0);\n+\n+  /* Use of PC is UNPREDICTABLE.  */\n+  if (inst.operands[1].reg == REG_PC)\n+    inst.error = _(\"Use of PC here is UNPREDICTABLE\");\n+\n+  if (inst.operands[1].immisreg)\n+    inst.error = _(\"instruction does not accept register index\");\n+\n+  if (!inst.operands[1].isreg)\n+    inst.error = _(\"instruction does not accept PC-relative addressing\");\n+\n+  if (abs (inst.operands[1].imm) >= (1 << 7))\n+    inst.error = _(\"immediate value out of range\");\n+\n+  inst.instruction = 0xec000f80;\n+  if (is_vldr)\n+    inst.instruction |= 1 << sysreg_vldr_bitno;\n+  encode_arm_cp_address (1, TRUE, FALSE, BFD_RELOC_ARM_T32_VLDR_VSTR_OFF_IMM);\n+  inst.instruction |= (inst.operands[0].imm & 0x7) << 13;\n+  inst.instruction |= (inst.operands[0].imm & 0x8) << 19;\n+}\n+\n+static void\n+do_vldr_vstr (void)\n+{\n+  bfd_boolean sysreg_op = !inst.operands[0].isreg;\n+\n+  /* VLDR/VSTR (System Register).  */\n+  if (sysreg_op)\n+    {\n+      if (!mark_feature_used (&arm_ext_v8_1m_main))\n+\tas_bad (_(\"Instruction not permitted on this architecture\"));\n+\n+      do_t_vldr_vstr_sysreg ();\n+    }\n+  /* VLDR/VSTR.  */\n+  else\n+    {\n+      if (!mark_feature_used (&fpu_vfp_ext_v1xd))\n+\tas_bad (_(\"Instruction not permitted on this architecture\"));\n+      do_neon_ldr_str ();\n+    }\n+}\n+\n /* \"interleave\" version also handles non-interleaving register VLD1/VST1\n    instructions.  */\n \n@@ -21284,8 +21378,6 @@ static const struct asm_opcode insns[] =\n  NCE(vstm,      c800b00, 2, (RRnpctw, VRSDLST), neon_ldm_stm),\n  NCE(vstmia,    c800b00, 2, (RRnpctw, VRSDLST), neon_ldm_stm),\n  NCE(vstmdb,    d000b00, 2, (RRnpctw, VRSDLST), neon_ldm_stm),\n- NCE(vldr,      d100b00, 2, (RVSD, ADDRGLDC), neon_ldr_str),\n- NCE(vstr,      d000b00, 2, (RVSD, ADDRGLDC), neon_ldr_str),\n \n  nCEF(vcvt,     _vcvt,   3, (RNSDQ, RNSDQ, oI32z), neon_cvt),\n  nCEF(vcvtr,    _vcvt,   2, (RNSDQ, RNSDQ), neon_cvtr),\n@@ -21297,6 +21389,15 @@ static const struct asm_opcode insns[] =\n  NCE(vmov,      0,       1, (VMOV), neon_mov),\n  NCE(vmovq,     0,       1, (VMOV), neon_mov),\n \n+#undef  THUMB_VARIANT\n+/* Could be either VLDR/VSTR or VLDR/VSTR (system register) which are guarded\n+   by different feature bits.  Since we are setting the Thumb guard, we can\n+   require Thumb-1 which makes it a nop guard and set the right feature bit in\n+   do_vldr_vstr ().  */\n+#define THUMB_VARIANT  & arm_ext_v4t\n+ NCE(vldr,      d100b00, 2, (VLDR, ADDRGLDC), vldr_vstr),\n+ NCE(vstr,      d000b00, 2, (VLDR, ADDRGLDC), vldr_vstr),\n+\n #undef  ARM_VARIANT\n #define ARM_VARIANT    & arm_ext_fp16\n #undef  THUMB_VARIANT\n@@ -24548,6 +24649,7 @@ md_apply_fix (fixS *\tfixP,\n \n     case BFD_RELOC_ARM_CP_OFF_IMM:\n     case BFD_RELOC_ARM_T32_CP_OFF_IMM:\n+    case BFD_RELOC_ARM_T32_VLDR_VSTR_OFF_IMM:\n       if (fixP->fx_r_type == BFD_RELOC_ARM_CP_OFF_IMM)\n \tnewval = md_chars_to_number (buf, INSN_SIZE);\n       else\n@@ -24561,6 +24663,12 @@ md_apply_fix (fixS *\tfixP,\n \t    as_bad_where (fixP->fx_file, fixP->fx_line,\n \t\t\t  _(\"co-processor offset out of range\"));\n \t}\n+      else if ((newval & 0xfe001f80) == 0xec000f80)\n+\t{\n+\t  if (value < -511 || value > 512 || (value & 3))\n+\t    as_bad_where (fixP->fx_file, fixP->fx_line,\n+\t\t\t  _(\"co-processor offset out of range\"));\n+\t}\n       else if (value < -1023 || value > 1023 || (value & 3))\n \tas_bad_where (fixP->fx_file, fixP->fx_line,\n \t\t      _(\"co-processor offset out of range\"));\n@@ -24574,10 +24682,18 @@ md_apply_fix (fixS *\tfixP,\n       else\n \tnewval = get_thumb32_insn (buf);\n       if (value == 0)\n-\tnewval &= 0xffffff00;\n+\t{\n+\t  if (fixP->fx_r_type == BFD_RELOC_ARM_T32_VLDR_VSTR_OFF_IMM)\n+\t    newval &= 0xffffff80;\n+\t  else\n+\t    newval &= 0xffffff00;\n+\t}\n       else\n \t{\n-\t  newval &= 0xff7fff00;\n+\t  if (fixP->fx_r_type == BFD_RELOC_ARM_T32_VLDR_VSTR_OFF_IMM)\n+\t    newval &= 0xff7fff80;\n+\t  else\n+\t    newval &= 0xff7fff00;\n \t  if ((newval & 0x0f200f00) == 0x0d000900)\n \t    {\n \t      /* This is a fp16 vstr/vldr."
+    },
+    {
+      "sha": "979982dd9f3bc2059ea059db37dd655c4140b8f5",
+      "filename": "gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.l",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.l?ref=32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66",
+      "patch": "@@ -6,3 +6,11 @@\n [^:]*:11: Error: VPR expected last -- `vscclrm {s0}'\n [^:]*:12: Error: VFP single precision register or VPR expected -- `vscclrm {s1,d1,VPR}'\n [^:]*:13: Error: VFP single precision register expected -- `vscclrm {s1-d1,VPR}'\n+[^:]*:15: Error: syntax error -- `vldr APSR,\\[r2\\]'\n+[^:]*:20: Error: syntax error -- `vstr APSR,\\[r2\\]'\n+[^:]*:16: Error: co-processor offset out of range\n+[^:]*:17: Error: co-processor offset out of range\n+[^:]*:18: Error: co-processor offset out of range\n+[^:]*:21: Error: co-processor offset out of range\n+[^:]*:22: Error: co-processor offset out of range\n+[^:]*:23: Error: co-processor offset out of range"
+    },
+    {
+      "sha": "894e8b2b8f03cef09bfe33dcf238af68fb07f95d",
+      "filename": "gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.s",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/archv8m_1m-cmse-main-bad.s?ref=32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66",
+      "patch": "@@ -11,3 +11,13 @@ vscclrm {} @ Rejects empty list\n vscclrm {s0} @ Rejects list without VPR\n vscclrm {s1, d1, VPR} @ Reject mix of single and double-precision VFP registers\n vscclrm {s1-d1, VPR} @ Likewise when using a range\n+\n+vldr APSR, [r2] @ Rejects incorrect system register\n+vldr FPSCR, [r2, #2] @ Rejects invalid immediate for offset variant\n+vldr FPSCR, [r2, #2]! @ Likewise for pre-index variant\n+vldr FPSCR, [r2], #2 @ Likewise for post-index variant\n+\n+vstr APSR, [r2] @ Rejects incorrect system register\n+vstr FPSCR, [r2, #2] @ Rejects invalid immediate for offset variant\n+vstr FPSCR, [r2, #2]! @ Likewise for pre-index variant\n+vstr FPSCR, [r2], #2 @ Likewise for post-index variant"
+    },
+    {
+      "sha": "1ed543a04e8602a0c6dfed28c0ec6ae455722af0",
+      "filename": "gas/testsuite/gas/arm/archv8m_1m-cmse-main.d",
+      "status": "modified",
+      "additions": 34,
+      "deletions": 0,
+      "changes": 34,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/gas/testsuite/gas/arm/archv8m_1m-cmse-main.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/gas/testsuite/gas/arm/archv8m_1m-cmse-main.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/archv8m_1m-cmse-main.d?ref=32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66",
+      "patch": "@@ -20,4 +20,38 @@ Disassembly of section .text:\n 0+.* <[^>]*> ec9f 0b20 \tvscclrm\t{d0-d15, VPR}\n 0+.* <[^>]*> bf18      \tit\tne\n 0+.* <[^>]*> ecdf 1a01 \tvscclrmne\t{s3, VPR}\n+0+.* <[^>]*> ed92 2f80 \tvldr\tFPSCR, \\[r2\\]\n+0+.* <[^>]*> ed92 2f82 \tvldr\tFPSCR, \\[r2, #8\\]\n+0+.* <[^>]*> ed92 2f82 \tvldr\tFPSCR, \\[r2, #8\\]\n+0+.* <[^>]*> ed12 2f82 \tvldr\tFPSCR, \\[r2, #-8\\]\n+0+.* <[^>]*> edb2 2f82 \tvldr\tFPSCR, \\[r2, #8\\]!\n+0+.* <[^>]*> edb2 2f82 \tvldr\tFPSCR, \\[r2, #8\\]!\n+0+.* <[^>]*> ed32 2f82 \tvldr\tFPSCR, \\[r2, #-8\\]!\n+0+.* <[^>]*> ecb2 2f82 \tvldr\tFPSCR, \\[r2\\], #8\n+0+.* <[^>]*> ecb2 2f82 \tvldr\tFPSCR, \\[r2\\], #8\n+0+.* <[^>]*> ec32 2f82 \tvldr\tFPSCR, \\[r2\\], #-8\n+0+.* <[^>]*> ed93 4f80 \tvldr\tFPSCR_nzcvqc, \\[r3\\]\n+0+.* <[^>]*> edd3 8f80 \tvldr\tVPR, \\[r3\\]\n+0+.* <[^>]*> edd3 af80 \tvldr\tP0, \\[r3\\]\n+0+.* <[^>]*> edd3 cf80 \tvldr\tFPCXTNS, \\[r3\\]\n+0+.* <[^>]*> edd3 ef80 \tvldr\tFPCXTS, \\[r3\\]\n+0+.* <[^>]*> bfa8      \tit\tge\n+0+.* <[^>]*> edd3 ef80 \tvldrge\tFPCXTS, \\[r3\\]\n+0+.* <[^>]*> ed82 2f80 \tvstr\tFPSCR, \\[r2\\]\n+0+.* <[^>]*> ed82 2f82 \tvstr\tFPSCR, \\[r2, #8\\]\n+0+.* <[^>]*> ed82 2f82 \tvstr\tFPSCR, \\[r2, #8\\]\n+0+.* <[^>]*> ed02 2f82 \tvstr\tFPSCR, \\[r2, #-8\\]\n+0+.* <[^>]*> eda2 2f82 \tvstr\tFPSCR, \\[r2, #8\\]!\n+0+.* <[^>]*> eda2 2f82 \tvstr\tFPSCR, \\[r2, #8\\]!\n+0+.* <[^>]*> ed22 2f82 \tvstr\tFPSCR, \\[r2, #-8\\]!\n+0+.* <[^>]*> eca2 2f82 \tvstr\tFPSCR, \\[r2\\], #8\n+0+.* <[^>]*> eca2 2f82 \tvstr\tFPSCR, \\[r2\\], #8\n+0+.* <[^>]*> ec22 2f82 \tvstr\tFPSCR, \\[r2\\], #-8\n+0+.* <[^>]*> ed83 4f80 \tvstr\tFPSCR_nzcvqc, \\[r3\\]\n+0+.* <[^>]*> edc3 8f80 \tvstr\tVPR, \\[r3\\]\n+0+.* <[^>]*> edc3 af80 \tvstr\tP0, \\[r3\\]\n+0+.* <[^>]*> edc3 cf80 \tvstr\tFPCXTNS, \\[r3\\]\n+0+.* <[^>]*> edc3 ef80 \tvstr\tFPCXTS, \\[r3\\]\n+0+.* <[^>]*> bfa8      \tit\tge\n+0+.* <[^>]*> edc3 ef80 \tvstrge\tFPCXTS, \\[r3\\]\n #..."
+    },
+    {
+      "sha": "9a20e1e4fe7ab1e497d83da13f288f1efcfc6a0c",
+      "filename": "gas/testsuite/gas/arm/archv8m_1m-cmse-main.s",
+      "status": "modified",
+      "additions": 34,
+      "deletions": 0,
+      "changes": 34,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/gas/testsuite/gas/arm/archv8m_1m-cmse-main.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/gas/testsuite/gas/arm/archv8m_1m-cmse-main.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/archv8m_1m-cmse-main.s?ref=32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66",
+      "patch": "@@ -18,3 +18,37 @@ vscclrm {s0-s31, VPR} @ Accept all single-precision VFP registers and VPR\n \t\t      @ together\n vscclrm {d0-d15, VPR} @ Likewise for double-precision VFP registers\n vscclrmne {s3, VPR} @ Accepts conditional execution\n+\n+vldr FPSCR, [r2] @ Accepts offset variant without immediate\n+vldr FPSCR, [r2, #8] @ Likewise but with immediate without sign\n+vldr FPSCR, [r2, #+8] @ Likewise but with positive sign\n+vldr FPSCR, [r2, #-8] @ Likewise but with negative sign\n+vldr FPSCR, [r2, #8]! @ Accepts pre-index variant with immediate without sign\n+vldr FPSCR, [r2, #+8]! @ Likewise but with positive sign\n+vldr FPSCR, [r2, #-8]! @ Likewise but with negative sign\n+vldr FPSCR, [r2], #8 @ Accepts post-index variant with immediate without sign\n+vldr FPSCR, [r2], #+8 @ Likewise but with positive sign\n+vldr FPSCR, [r2], #-8 @ Likewise but with negative sign\n+vldr FPSCR_nzcvqc, [r3] @ Accepts FPSCR_nzcvqc system register\n+vldr VPR, [r3] @ Accepts VPR system register\n+vldr P0,  [r3] @ Accepts P0 system register\n+vldr FPCXTNS, [r3] @ Accepts FPCXTNS system register\n+vldr FPCXTS, [r3] @ Accepts FPCXTS system register\n+vldrge FPCXTS, [r3] @ Accepts conditional execution\n+\n+vstr FPSCR, [r2] @ Accepts offset variant without immediate\n+vstr FPSCR, [r2, #8] @ Likewise but with immediate without sign\n+vstr FPSCR, [r2, #+8] @ Likewise but with positive sign\n+vstr FPSCR, [r2, #-8] @ Likewise but with negative sign\n+vstr FPSCR, [r2, #8]! @ Accepts pre-index variant with immediate without sign\n+vstr FPSCR, [r2, #+8]! @ Likewise but with positive sign\n+vstr FPSCR, [r2, #-8]! @ Likewise but with negative sign\n+vstr FPSCR, [r2], #8 @ Accepts post-index variant with immediate without sign\n+vstr FPSCR, [r2], #+8 @ Likewise but with positive sign\n+vstr FPSCR, [r2], #-8 @ Likewise but with negative sign\n+vstr FPSCR_nzcvqc, [r3] @ Accepts FPSCR_nzcvqc system register\n+vstr VPR, [r3] @ Accepts VPR system register\n+vstr P0,  [r3] @ Accepts P0 system register\n+vstr FPCXTNS, [r3] @ Accepts FPCXTNS system register\n+vstr FPCXTS, [r3] @ Accepts FPCXTS system register\n+vstrge FPCXTS, [r3] @ Accepts conditional execution"
+    },
+    {
+      "sha": "05d211b644546dc63ca2601a76cfc7afbe87cb1c",
+      "filename": "opcodes/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/opcodes/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/opcodes/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/ChangeLog?ref=32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66",
+      "patch": "@@ -1,3 +1,11 @@\n+2019-04-15  Thomas Preud'homme  <thomas.preudhomme@arm.com>\n+\n+\t* arm-dis.c (coprocessor_opcodes): Document new %J and %K format\n+\tspecifier.  Add entries for VLDR and VSTR of system registers.\n+\t(print_insn_coprocessor): Forbid coprocessor numbers 8, 14 and 15 in\n+\tcoprocessor instructions on Armv8.1-M Mainline targets.  Add handling\n+\tof %J and %K format specifier.\n+\n 2019-04-15  Thomas Preud'homme  <thomas.preudhomme@arm.com>\n \n \t* arm-dis.c (coprocessor_opcodes): Document new %C format control code."
+    },
+    {
+      "sha": "c2a8a5f324b020e0a65bce45a02c46e321c4dd4c",
+      "filename": "opcodes/arm-dis.c",
+      "status": "modified",
+      "additions": 51,
+      "deletions": 1,
+      "changes": 52,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/opcodes/arm-dis.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66/opcodes/arm-dis.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/arm-dis.c?ref=32c36c3ce94becbf0b8e1adad6ff28aa9d5e0b66",
+      "patch": "@@ -111,6 +111,8 @@ struct opcode16\n    %B\t\t\tprint vstm/vldm register list\n    %C\t\t\tprint vscclrm register list\n    %I                   print cirrus signed shift immediate: bits 0..3|4..6\n+   %J\t\t\tprint register for VLDR instruction\n+   %K\t\t\tprint address for VLDR instruction\n    %F\t\t\tprint the COUNT field of a LFM/SFM instruction.\n    %P\t\t\tprint floating point precision in arithmetic insn\n    %Q\t\t\tprint floating point precision in ldf/stf insn\n@@ -471,6 +473,10 @@ static const struct sopcode32 coprocessor_opcodes[] =\n     0x0d000a00, 0x0f300f00, \"vstr%c\\t%y1, %A\"},\n   {ANY, ARM_FEATURE_COPROC (FPU_VFP_EXT_V1xD),\n     0x0d100a00, 0x0f300f00, \"vldr%c\\t%y1, %A\"},\n+  {ANY, ARM_FEATURE_COPROC (ARM_EXT2_V8_1M_MAIN),\n+    0xec100f80, 0xfe101f80, \"vldr%c\\t%J, %K\"},\n+  {ANY, ARM_FEATURE_COPROC (ARM_EXT2_V8_1M_MAIN),\n+    0xec000f80, 0xfe101f80, \"vstr%c\\t%J, %K\"},\n \n   {ANY, ARM_FEATURE_COPROC (FPU_VFP_EXT_V1xD),\n     0x0d200b01, 0x0fb00f01, \"fstmdbx%c\\t%16-19r!, %z3\\t;@ Deprecated\"},\n@@ -3462,6 +3468,8 @@ print_insn_coprocessor (bfd_vma pc,\n   int cp_num;\n   struct arm_private_data *private_data = info->private_data;\n   arm_feature_set allowed_arches = ARM_ARCH_NONE;\n+  arm_feature_set arm_ext_v8_1m_main =\n+    ARM_FEATURE_CORE_HIGH (ARM_EXT2_V8_1M_MAIN);\n \n   allowed_arches = private_data->features;\n \n@@ -3557,23 +3565,34 @@ print_insn_coprocessor (bfd_vma pc,\n \t  /* Floating-point instructions.  */\n \t  if (cp_num == 9 || cp_num == 10 || cp_num == 11)\n \t    continue;\n+\n+\t  /* Armv8.1-M Mainline FP & MVE instructions.  */\n+\t  if (ARM_CPU_HAS_FEATURE (arm_ext_v8_1m_main, allowed_arches)\n+\t      && !ARM_CPU_IS_ANY (allowed_arches)\n+\t      && (cp_num == 8 || cp_num == 14 || cp_num == 15))\n+\t    continue;\n \t}\n \n       for (c = insn->assembler; *c; c++)\n \t{\n \t  if (*c == '%')\n \t    {\n-\t      switch (*++c)\n+\t      const char mod = *++c;\n+\t      switch (mod)\n \t\t{\n \t\tcase '%':\n \t\t  func (stream, \"%%\");\n \t\t  break;\n \n \t\tcase 'A':\n+\t\tcase 'K':\n \t\t  {\n \t\t    int rn = (given >> 16) & 0xf;\n \t\t    bfd_vma offset = given & 0xff;\n \n+\t\t    if (mod == 'K')\n+\t\t      offset = given & 0x7f;\n+\n \t\t    func (stream, \"[%s\", arm_regnames [(given >> 16) & 0xf]);\n \n \t\t    if (PRE_BIT_SET || WRITEBACK_BIT_SET)\n@@ -3705,6 +3724,37 @@ print_insn_coprocessor (bfd_vma pc,\n \n \t\t  break;\n \n+\t\tcase 'J':\n+\t\t  {\n+\t\t    int regno = ((given >> 19) & 0x8) | ((given >> 13) & 0x7);\n+\n+\t\t    switch (regno)\n+\t\t      {\n+\t\t      case 0x1:\n+\t\t\tfunc (stream, \"FPSCR\");\n+\t\t\tbreak;\n+\t\t      case 0x2:\n+\t\t\tfunc (stream, \"FPSCR_nzcvqc\");\n+\t\t\tbreak;\n+\t\t      case 0xc:\n+\t\t\tfunc (stream, \"VPR\");\n+\t\t\tbreak;\n+\t\t      case 0xd:\n+\t\t\tfunc (stream, \"P0\");\n+\t\t\tbreak;\n+\t\t      case 0xe:\n+\t\t\tfunc (stream, \"FPCXTNS\");\n+\t\t\tbreak;\n+\t\t      case 0xf:\n+\t\t\tfunc (stream, \"FPCXTS\");\n+\t\t\tbreak;\n+\t\t      default:\n+\t\t\tfunc (stream, \"<invalid reg %d>\", regno);\n+\t\t\tbreak;\n+\t\t      }\n+\t\t  }\n+\t\t  break;\n+\n \t\tcase 'F':\n \t\t  switch (given & 0x00408000)\n \t\t    {"
+    }
+  ]
+}

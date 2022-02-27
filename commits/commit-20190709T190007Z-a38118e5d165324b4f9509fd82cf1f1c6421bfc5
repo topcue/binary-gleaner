@@ -1,0 +1,134 @@
+{
+  "sha": "a38118e5d165324b4f9509fd82cf1f1c6421bfc5",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YTM4MTE4ZTVkMTY1MzI0YjRmOTUwOWZkODJjZjFmMWM2NDIxYmZjNQ==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "palves@redhat.com",
+      "date": "2019-07-09T18:26:16Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "palves@redhat.com",
+      "date": "2019-07-09T19:00:07Z"
+    },
+    "message": "Make \"maint info breakpoints\" show \"catch catch/throw/rethrow\" locations\n\nThis commit makes \"maint info breakpoints\" show the internal locations\nof C++ exception catchpoints:\n\n (gdb) info breakpoints\n Num     Type           Disp Enb Address            What\n 2       catchpoint     keep y                      exception catch\n\nWith multiple locations:\n\n (gdb) maint info breakpoints\n Num     Type           Disp Enb Address            What\n 2       catchpoint     keep y                      exception catch\n 2.1                         y   0x000000000040545f <__cxa_begin_catch+95> inf 1\n 2.2                         y   0x00007ffff71dbe0f <__cxxabiv1::__cxa_begin_catch(void*)+95> inf 1\n (gdb)\n\nWith a single location:\n\n (gdb) maint info breakpoints 2\n Num     Type           Disp Enb Address            What\n 2       catchpoint     keep y                      exception catch inf 1\n 2.1                         y   0x00007ffff7bc0b7f <__cxa_begin_catch+95> inf 1\n\nWith no locations:\n\n (gdb) maint info breakpoints 2\n Num     Type           Disp Enb Address            What\n 2       catchpoint     keep y                      exception catch inf 1\n\n\nOther catchpoints still show the same way, here a catch signal:\n\n (gdb) info breakpoints\n Num     Type           Disp Enb Address            What\n 3       catchpoint     keep y                      signal \"<standard signals>\"\n\n (gdb) maint info breakpoints\n Num     Type           Disp Enb Address            What\n 3       catchpoint     keep y                      signal \"<standard signals>\"  inf 1\n (gdb)\n\nNote: I considered making the locations be printed from within\nbreakpoint_ops::print_one(), but gave up given the handling for the\nbroken MI v2 output:\n\n /* The mi2 broken format: the main breakpoint tuple ends here, the locations\n     are outside.  */\n  if (!use_fixed_output)\n    bkpt_tuple_emitter.reset ();\n\nin print_one_breakpoint.\n\ngdb/ChangeLog:\n2019-07-09  Pedro Alves  <palves@redhat.com>\n\n\t* break-catch-throw.c (is_exception_catchpoint): New.\n\t* breakpoint.c (print_one_breakpoint_location): New parameter\n\t'raw_loc'.  Handle it.  Use\n\tis_watchpoint/is_catchpoint/is_exception_catchpoint instead of\n\tlooking at the breakpoint's type.\n\t(print_one_breakpoint): If handling \"maint info breakpoints\", also\n\tprint locations of exception catchpoints.\n\t* breakpoint.h (is_exception_catchpoint): Declare.",
+    "tree": {
+      "sha": "d35099288efed6eb392144307dd0bbc76867d26e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/d35099288efed6eb392144307dd0bbc76867d26e"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/a38118e5d165324b4f9509fd82cf1f1c6421bfc5",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a38118e5d165324b4f9509fd82cf1f1c6421bfc5",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/a38118e5d165324b4f9509fd82cf1f1c6421bfc5",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a38118e5d165324b4f9509fd82cf1f1c6421bfc5/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "cb1e4e32c2d9588e1d77ea49bafb5dcdc1cff764",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cb1e4e32c2d9588e1d77ea49bafb5dcdc1cff764",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/cb1e4e32c2d9588e1d77ea49bafb5dcdc1cff764"
+    }
+  ],
+  "stats": {
+    "total": 139,
+    "additions": 69,
+    "deletions": 70
+  },
+  "files": [
+    {
+      "sha": "112b460288d02bcd2e37062d8dc69146d20c2a1c",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a38118e5d165324b4f9509fd82cf1f1c6421bfc5/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a38118e5d165324b4f9509fd82cf1f1c6421bfc5/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=a38118e5d165324b4f9509fd82cf1f1c6421bfc5",
+      "patch": "@@ -1,3 +1,14 @@\n+2019-07-09  Pedro Alves  <palves@redhat.com>\n+\n+\t* break-catch-throw.c (is_exception_catchpoint): New.\n+\t* breakpoint.c (print_one_breakpoint_location): New parameter\n+\t'raw_loc'.  Handle it.  Use\n+\tis_watchpoint/is_catchpoint/is_exception_catchpoint instead of\n+\tlooking at the breakpoint's type.\n+\t(print_one_breakpoint): If handling \"maint info breakpoints\", also\n+\tprint locations of exception catchpoints.\n+\t* breakpoint.h (is_exception_catchpoint): Declare.\n+\n 2019-07-09  Pedro Alves  <palves@redhat.com>\n \n \t* break-catch-throw.c (print_one_exception_catchpoint): Skip the"
+    },
+    {
+      "sha": "17e3d26d376906e61caa1fcdc91e474b9f93b59e",
+      "filename": "gdb/break-catch-throw.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a38118e5d165324b4f9509fd82cf1f1c6421bfc5/gdb/break-catch-throw.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a38118e5d165324b4f9509fd82cf1f1c6421bfc5/gdb/break-catch-throw.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/break-catch-throw.c?ref=a38118e5d165324b4f9509fd82cf1f1c6421bfc5",
+      "patch": "@@ -83,6 +83,14 @@ struct exception_catchpoint : public breakpoint\n   std::unique_ptr<compiled_regex> pattern;\n };\n \n+/* See breakpoint.h.  */\n+\n+bool\n+is_exception_catchpoint (breakpoint *bp)\n+{\n+  return bp->ops == &gnu_v3_exception_catchpoint_ops;\n+}\n+\n \f\n \n /* A helper function that fetches exception probe arguments.  This"
+    },
+    {
+      "sha": "5435de1601a4e8064c5bfaf53e89bc7b55113073",
+      "filename": "gdb/breakpoint.c",
+      "status": "modified",
+      "additions": 45,
+      "deletions": 70,
+      "changes": 115,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a38118e5d165324b4f9509fd82cf1f1c6421bfc5/gdb/breakpoint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a38118e5d165324b4f9509fd82cf1f1c6421bfc5/gdb/breakpoint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/breakpoint.c?ref=a38118e5d165324b4f9509fd82cf1f1c6421bfc5",
+      "patch": "@@ -5974,14 +5974,18 @@ output_thread_groups (struct ui_out *uiout,\n     }\n }\n \n-/* Print B to gdb_stdout.  */\n+/* Print B to gdb_stdout.  If RAW_LOC, print raw breakpoint locations\n+   instead of going via breakpoint_ops::print_one.  This makes \"maint\n+   info breakpoints\" show the software breakpoint locations of\n+   catchpoints, which are considered internal implementation\n+   detail.  */\n \n static void\n print_one_breakpoint_location (struct breakpoint *b,\n \t\t\t       struct bp_location *loc,\n \t\t\t       int loc_number,\n \t\t\t       struct bp_location **last_loc,\n-\t\t\t       int allflag)\n+\t\t\t       int allflag, bool raw_loc)\n {\n   struct command_line *l;\n   static char bpenables[] = \"nynny\";\n@@ -6034,20 +6038,11 @@ print_one_breakpoint_location (struct breakpoint *b,\n     uiout->field_fmt (\"enabled\", \"%c\", bpenables[(int) b->enable_state]);\n \n   /* 5 and 6 */\n-  if (b->ops != NULL && b->ops->print_one != NULL)\n+  if (!raw_loc && b->ops != NULL && b->ops->print_one != NULL)\n     b->ops->print_one (b, last_loc);\n   else\n-    switch (b->type)\n-      {\n-      case bp_none:\n-\tinternal_error (__FILE__, __LINE__,\n-\t\t\t_(\"print_one_breakpoint: bp_none encountered\\n\"));\n-\tbreak;\n-\n-      case bp_watchpoint:\n-      case bp_hardware_watchpoint:\n-      case bp_read_watchpoint:\n-      case bp_access_watchpoint:\n+    {\n+      if (is_watchpoint (b))\n \t{\n \t  struct watchpoint *w = (struct watchpoint *) b;\n \n@@ -6059,55 +6054,26 @@ print_one_breakpoint_location (struct breakpoint *b,\n \t  annotate_field (5);\n \t  uiout->field_string (\"what\", w->exp_string);\n \t}\n-\tbreak;\n-\n-      case bp_breakpoint:\n-      case bp_hardware_breakpoint:\n-      case bp_single_step:\n-      case bp_until:\n-      case bp_finish:\n-      case bp_longjmp:\n-      case bp_longjmp_resume:\n-      case bp_longjmp_call_dummy:\n-      case bp_exception:\n-      case bp_exception_resume:\n-      case bp_step_resume:\n-      case bp_hp_step_resume:\n-      case bp_watchpoint_scope:\n-      case bp_call_dummy:\n-      case bp_std_terminate:\n-      case bp_shlib_event:\n-      case bp_thread_event:\n-      case bp_overlay_event:\n-      case bp_longjmp_master:\n-      case bp_std_terminate_master:\n-      case bp_exception_master:\n-      case bp_tracepoint:\n-      case bp_fast_tracepoint:\n-      case bp_static_tracepoint:\n-      case bp_dprintf:\n-      case bp_jit_event:\n-      case bp_gnu_ifunc_resolver:\n-      case bp_gnu_ifunc_resolver_return:\n-\tif (opts.addressprint)\n-\t  {\n-\t    annotate_field (4);\n-\t    if (header_of_multiple)\n-\t      uiout->field_string (\"addr\", \"<MULTIPLE>\");\n-\t    else if (b->loc == NULL || loc->shlib_disabled)\n-\t      uiout->field_string (\"addr\", \"<PENDING>\");\n-\t    else\n-\t      uiout->field_core_addr (\"addr\",\n-\t\t\t\t      loc->gdbarch, loc->address);\n-\t  }\n-\tannotate_field (5);\n-\tif (!header_of_multiple)\n-\t  print_breakpoint_location (b, loc);\n-\tif (b->loc)\n-\t  *last_loc = b->loc;\n-\tbreak;\n-      }\n-\n+      else if (!is_catchpoint (b) || is_exception_catchpoint (b))\n+\t{\n+\t  if (opts.addressprint)\n+\t    {\n+\t      annotate_field (4);\n+\t      if (header_of_multiple)\n+\t\tuiout->field_string (\"addr\", \"<MULTIPLE>\");\n+\t      else if (b->loc == NULL || loc->shlib_disabled)\n+\t\tuiout->field_string (\"addr\", \"<PENDING>\");\n+\t      else\n+\t\tuiout->field_core_addr (\"addr\",\n+\t\t\t\t\tloc->gdbarch, loc->address);\n+\t    }\n+\t  annotate_field (5);\n+\t  if (!header_of_multiple)\n+\t    print_breakpoint_location (b, loc);\n+\t  if (b->loc)\n+\t    *last_loc = b->loc;\n+\t}\n+    }\n \n   if (loc != NULL && !header_of_multiple)\n     {\n@@ -6336,7 +6302,7 @@ print_one_breakpoint (struct breakpoint *b,\n        || fix_multi_location_breakpoint_output_globally);\n \n   gdb::optional<ui_out_emit_tuple> bkpt_tuple_emitter (gdb::in_place, uiout, \"bkpt\");\n-  print_one_breakpoint_location (b, NULL, 0, last_loc, allflag);\n+  print_one_breakpoint_location (b, NULL, 0, last_loc, allflag, false);\n \n   /* The mi2 broken format: the main breakpoint tuple ends here, the locations\n      are outside.  */\n@@ -6346,18 +6312,26 @@ print_one_breakpoint (struct breakpoint *b,\n   /* If this breakpoint has custom print function,\n      it's already printed.  Otherwise, print individual\n      locations, if any.  */\n-  if (b->ops == NULL || b->ops->print_one == NULL)\n+  if (b->ops == NULL\n+      || b->ops->print_one == NULL\n+      || allflag)\n     {\n       /* If breakpoint has a single location that is disabled, we\n \t print it as if it had several locations, since otherwise it's\n \t hard to represent \"breakpoint enabled, location disabled\"\n \t situation.\n \n \t Note that while hardware watchpoints have several locations\n-\t internally, that's not a property exposed to user.  */\n-      if (b->loc \n-\t  && !is_hardware_watchpoint (b)\n-\t  && (b->loc->next || !b->loc->enabled))\n+\t internally, that's not a property exposed to users.\n+\n+\t Likewise, while catchpoints may be implemented with\n+\t breakpoints (e.g., catch throw), that's not a property\n+\t exposed to users.  We do however display the internal\n+\t breakpoint locations with \"maint info breakpoints\".  */\n+      if (!is_hardware_watchpoint (b)\n+\t  && (!is_catchpoint (b) || is_exception_catchpoint (b))\n+\t  && (allflag\n+\t      || (b->loc && (b->loc->next || !b->loc->enabled))))\n \t{\n \t  gdb::optional<ui_out_emit_list> locations_list;\n \n@@ -6371,7 +6345,8 @@ print_one_breakpoint (struct breakpoint *b,\n \t  for (bp_location *loc = b->loc; loc != NULL; loc = loc->next, ++n)\n \t    {\n \t      ui_out_emit_tuple loc_tuple_emitter (uiout, NULL);\n-\t      print_one_breakpoint_location (b, loc, n, last_loc, allflag);\n+\t      print_one_breakpoint_location (b, loc, n, last_loc,\n+\t\t\t\t\t     allflag, allflag);\n \t    }\n \t}\n     }"
+    },
+    {
+      "sha": "e25acfa7c2ec14b3850a05c80327ba34382e0ba0",
+      "filename": "gdb/breakpoint.h",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a38118e5d165324b4f9509fd82cf1f1c6421bfc5/gdb/breakpoint.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a38118e5d165324b4f9509fd82cf1f1c6421bfc5/gdb/breakpoint.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/breakpoint.h?ref=a38118e5d165324b4f9509fd82cf1f1c6421bfc5",
+      "patch": "@@ -872,6 +872,11 @@ extern int is_breakpoint (const struct breakpoint *bpt);\n \n extern int is_watchpoint (const struct breakpoint *bpt);\n \n+/* Return true if BPT is a C++ exception catchpoint (catch\n+   catch/throw/rethrow).  */\n+\n+extern bool is_exception_catchpoint (breakpoint *bp);\n+\n /* An instance of this type is used to represent all kinds of\n    tracepoints.  */\n "
+    }
+  ]
+}

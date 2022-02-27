@@ -1,0 +1,110 @@
+{
+  "sha": "75f06e9dc59d3f810e2afe2f47afbcb74204ef61",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NzVmMDZlOWRjNTlkM2Y4MTBlMmFmZTJmNDdhZmJjYjc0MjA0ZWY2MQ==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2019-05-07T08:58:57Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2019-05-07T08:58:57Z"
+    },
+    "message": "[gdb/testsuite] Fix .debug_aranges in watch-loc.c\n\nWhen running gdb.dlang/watch-loc.exp with target board cc-with-debug-names, we\nrun into:\n...\nFAIL: gdb.dlang/watch-loc.exp: disassemble _Dmain (GDB internal error)\n...\nin more detail:\n...\n(gdb) disassemble _Dmain\ngdb/dwarf2read.c:5293: internal-error: \\\n  compunit_symtab* dw2_find_pc_sect_compunit_symtab(objfile*, \\\n  bound_minimal_symbol, CORE_ADDR, obj_section*, int): \\\n  Assertion `result != NULL' failed.\n...\n\nThe problem is that the .debug_aranges section in watch-loc.c contains a\ndebug_info_offset which is set to 0:\n...\nasm (\n  \"      .pushsection    .debug_aranges,\\\"\\\",%progbits\\n\"\n  \"      .4byte  .Laranges_end - .Laranges_start\\n\"\n  \".Laranges_start:\\n\"\n  \"      .2byte  0x2\\n\"\n  \"      .4byte  0\\n\"\n...\nwhile the compilation unit at offset 0 in the .debug_section in the executable\nis in fact not the compilation unit generated from watch-loc-dw.S.\n\n[ Note: this is a non-trivial test-case.  The file watch-loc-dw.S contains a\n.debug_info section, but not an .debug_aranges section or any actual code.\nThe file watch-loc.c contains code and a .debug_aranges section, but no other\ndebug section.  So, the intent for the .debug_aranges section in watch-loc.c\nis to refer to a compilation unit in the .debug_info section in\nwatch-loc-dw.S. ]\n\nThis happens when linked in object files contain dwarf info and are placed in\nthe .debug_info section before the compilation units generated from\nwatch-loc.c and watch-loc-dw.S.\n\nFix this by defining the debug_info_offset field using a label .Lcu1_begin\nthat defines the start of an empty .debug_section compilation unit:\n...\n asm (\n+  \"      .pushsection    .debug_info,\\\"\\\",%progbits\\n\"\n+  \".Lcu1_begin:\"\n+  \"      .popsection\\n\"\n   \"      .pushsection    .debug_aranges,\\\"\\\",%progbits\\n\"\n   \"      .4byte  .Laranges_end - .Laranges_start \\n\"\n   \".Laranges_start:\\n\"\n   \"      .2byte  0x2\\n\"\n-  \"      .4byte  0\\n\"\n+  \"      .4byte  .Lcu1_begin\\n\"\n...\nwhich during linking merges with the start of the .debug_info section of\nwatch-loc-dw.S.\n\nTested on x86_64-linux with native, cc-with-gdb-index and cc-with-debug-names.\n\ngdb/testsuite/ChangeLog:\n\n2019-05-07  Tom de Vries  <tdevries@suse.de>\n\n\tPR testsuite/24522\n\t* gdb.dlang/watch-loc.c: Fix debug_info_offset in .debug_aranges\n\tsection.",
+    "tree": {
+      "sha": "c9a86eeea660fb77211284ddef6526d9a8222158",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c9a86eeea660fb77211284ddef6526d9a8222158"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/75f06e9dc59d3f810e2afe2f47afbcb74204ef61",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/75f06e9dc59d3f810e2afe2f47afbcb74204ef61",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/75f06e9dc59d3f810e2afe2f47afbcb74204ef61",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/75f06e9dc59d3f810e2afe2f47afbcb74204ef61/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "77e7aaa4bd980fb96244b874bc867e20b399fe60",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/77e7aaa4bd980fb96244b874bc867e20b399fe60",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/77e7aaa4bd980fb96244b874bc867e20b399fe60"
+    }
+  ],
+  "stats": {
+    "total": 11,
+    "additions": 10,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "0af0d371f1ae696184fd5fb2395ee1526036d78d",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/75f06e9dc59d3f810e2afe2f47afbcb74204ef61/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/75f06e9dc59d3f810e2afe2f47afbcb74204ef61/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=75f06e9dc59d3f810e2afe2f47afbcb74204ef61",
+      "patch": "@@ -1,3 +1,9 @@\n+2019-05-07  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR testsuite/24522\n+\t* gdb.dlang/watch-loc.c: Fix debug_info_offset in .debug_aranges\n+\tsection.\n+\n 2019-05-07  Tom de Vries  <tdevries@suse.de>\n \n \tPR testsuite/24522"
+    },
+    {
+      "sha": "5dd05b4dfe4a2d0c85ab6abe10abc6c71171183c",
+      "filename": "gdb/testsuite/gdb.dlang/watch-loc.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 1,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/75f06e9dc59d3f810e2afe2f47afbcb74204ef61/gdb/testsuite/gdb.dlang/watch-loc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/75f06e9dc59d3f810e2afe2f47afbcb74204ef61/gdb/testsuite/gdb.dlang/watch-loc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dlang/watch-loc.c?ref=75f06e9dc59d3f810e2afe2f47afbcb74204ef61",
+      "patch": "@@ -38,11 +38,14 @@ main (void)\n    generated by GCC.  (.gdb_index includes a gdb-generated map\n    instead.)  */\n asm (\n+\"\t.pushsection\t.debug_info,\\\"\\\",%progbits \\n\"\n+\".Lcu1_begin:\"\n+\"\t.popsection \\n\"\n \"\t.pushsection\t.debug_aranges,\\\"\\\",%progbits \\n\"\n \"\t.4byte\t.Laranges_end - .Laranges_start \\n\"\t// Length of Address Ranges Info\n \".Laranges_start: \\n\"\n \"\t.2byte\t0x2 \\n\"\t// DWARF Version\n-\"\t.4byte\t0 \\n\" // .Ldebug_info0 - Offset of Compilation Unit Info\n+\"\t.4byte\t.Lcu1_begin\\n\" // .Ldebug_info0 - Offset of Compilation Unit Info\n \"\t.byte\t4 \\n\"\t// Size of Address\n \"\t.byte\t0 \\n\"\t// Size of Segment Descriptor\n \"\t.2byte\t0 \\n\"\t// Pad to 16 byte boundary"
+    }
+  ]
+}

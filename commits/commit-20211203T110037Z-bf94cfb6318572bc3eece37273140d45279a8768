@@ -1,0 +1,91 @@
+{
+  "sha": "bf94cfb6318572bc3eece37273140d45279a8768",
+  "node_id": "C_kwDOANOeidoAKGJmOTRjZmI2MzE4NTcyYmMzZWVjZTM3MjczMTQwZDQ1Mjc5YTg3Njg",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-10-15T14:14:58Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-12-03T11:00:37Z"
+    },
+    "message": "gdb: make value_subscripted_rvalue static\n\nThe function value_subscripted_rvalue is only used in valarith.c, so\nlets make it a static function.\n\nThere should be no user visible change after this commit.",
+    "tree": {
+      "sha": "48acb8541d0e50644aa93da289b34cc512c2b256",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/48acb8541d0e50644aa93da289b34cc512c2b256"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/bf94cfb6318572bc3eece37273140d45279a8768",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bf94cfb6318572bc3eece37273140d45279a8768",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/bf94cfb6318572bc3eece37273140d45279a8768",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bf94cfb6318572bc3eece37273140d45279a8768/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": null,
+  "parents": [
+    {
+      "sha": "cc7ea7504c49baae6853c4f6b926271a2029c73d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cc7ea7504c49baae6853c4f6b926271a2029c73d",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/cc7ea7504c49baae6853c4f6b926271a2029c73d"
+    }
+  ],
+  "stats": {
+    "total": 14,
+    "additions": 8,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "11acec6f1676894c5ea68078c5df01db305ea728",
+      "filename": "gdb/valarith.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 2,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bf94cfb6318572bc3eece37273140d45279a8768/gdb/valarith.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bf94cfb6318572bc3eece37273140d45279a8768/gdb/valarith.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/valarith.c?ref=bf94cfb6318572bc3eece37273140d45279a8768",
+      "patch": "@@ -29,6 +29,11 @@\n #include \"gdbsupport/byte-vector.h\"\n #include \"gdbarch.h\"\n \n+/* Forward declarations.  */\n+static struct value *value_subscripted_rvalue (struct value *array,\n+\t\t\t\t\t       LONGEST index,\n+\t\t\t\t\t       LONGEST lowerbound);\n+\n /* Define whether or not the C operator '/' truncates towards zero for\n    differently signed operands (truncation direction is undefined in C).  */\n \n@@ -190,8 +195,9 @@ value_subscript (struct value *array, LONGEST index)\n    (eg, a vector register).  This routine used to promote floats\n    to doubles, but no longer does.  */\n \n-struct value *\n-value_subscripted_rvalue (struct value *array, LONGEST index, LONGEST lowerbound)\n+static struct value *\n+value_subscripted_rvalue (struct value *array, LONGEST index,\n+\t\t\t  LONGEST lowerbound)\n {\n   struct type *array_type = check_typedef (value_type (array));\n   struct type *elt_type = check_typedef (TYPE_TARGET_TYPE (array_type));"
+    },
+    {
+      "sha": "6fa57e0da6036f8ef2e343e049a1d1835ab2e84d",
+      "filename": "gdb/value.h",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 4,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bf94cfb6318572bc3eece37273140d45279a8768/gdb/value.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bf94cfb6318572bc3eece37273140d45279a8768/gdb/value.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/value.h?ref=bf94cfb6318572bc3eece37273140d45279a8768",
+      "patch": "@@ -1165,10 +1165,6 @@ extern struct value *find_function_in_inferior (const char *,\n \n extern struct value *value_allocate_space_in_inferior (int);\n \n-extern struct value *value_subscripted_rvalue (struct value *array,\n-\t\t\t\t\t       LONGEST index,\n-\t\t\t\t\t       LONGEST lowerbound);\n-\n /* User function handler.  */\n \n typedef struct value *(*internal_function_fn) (struct gdbarch *gdbarch,"
+    }
+  ]
+}

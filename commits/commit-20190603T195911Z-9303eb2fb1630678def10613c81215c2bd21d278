@@ -1,0 +1,108 @@
+{
+  "sha": "9303eb2fb1630678def10613c81215c2bd21d278",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OTMwM2ViMmZiMTYzMDY3OGRlZjEwNjEzYzgxMjE1YzJiZDIxZDI3OA==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-05-31T11:47:37Z"
+    },
+    "committer": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-06-03T19:59:11Z"
+    },
+    "message": "Add highlight style, title style, fputs_highlighted. Improve 'show style'\n\nHave 'show style' and its subcommands using a style to style its output.\nThis allows the GDB user or developer to use 'show style' to visually see\nwith one command how all the current styles look like.\n\nAdd 2 new styles highlight style, title style and fputs_highlighted function.\n\nHighlight style is used by fputs_highlighted to highlight the parts of\nits char *STR argument that match a HIGHLIGHT regexp.\nThis (and the title style) will be used in a following patch.",
+    "tree": {
+      "sha": "a2282608bb0422631678012ddfe7ee36c1c1fef4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/a2282608bb0422631678012ddfe7ee36c1c1fef4"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/9303eb2fb1630678def10613c81215c2bd21d278",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9303eb2fb1630678def10613c81215c2bd21d278",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/9303eb2fb1630678def10613c81215c2bd21d278",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9303eb2fb1630678def10613c81215c2bd21d278/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "79b377b3cf3a0e71e1e4710c4ee1e65e7a27a5d4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/79b377b3cf3a0e71e1e4710c4ee1e65e7a27a5d4",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/79b377b3cf3a0e71e1e4710c4ee1e65e7a27a5d4"
+    }
+  ],
+  "stats": {
+    "total": 195,
+    "additions": 161,
+    "deletions": 34
+  },
+  "files": [
+    {
+      "sha": "d13b44e9cb4188c3818ed8a5b2c9141f07cac61f",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9303eb2fb1630678def10613c81215c2bd21d278/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9303eb2fb1630678def10613c81215c2bd21d278/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=9303eb2fb1630678def10613c81215c2bd21d278",
+      "patch": "@@ -1,3 +1,18 @@\n+2019-06-03  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n+\n+\t* cli/cli-style.h (cli_style_option): Add name in constructor,\n+\tadd m_name class member, add constructor with intensity,\n+\tadd name class function.\n+\t(cli_style_option::add_setshow_commands): Remove name argument.\n+\t(highlight_style, title_style): New styles.\n+\t* cli/cli-style.c (do_show): New function that shows a style\n+\tcharacteristic styling the style name with itself.\n+\t(set_style_name): New function.\n+\t(STYLE_ADD_SETSHOW_COMMANDS): Remove NAME arguments.\n+\tUpdate all callers according to the changes in cli/cli-style.h.\n+\t* utils.h (fputs_highlighted): New function.\n+\t* utils.c (fputs_highlighted): Likewise.\n+\n 2019-05-31  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n \n \t* NEWS: Mention new pipe command and new convenience variables."
+    },
+    {
+      "sha": "fb6486bfdfb6bd285d09e205ed7a6aaa3fe9ea82",
+      "filename": "gdb/cli/cli-style.c",
+      "status": "modified",
+      "additions": 86,
+      "deletions": 31,
+      "changes": 117,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9303eb2fb1630678def10613c81215c2bd21d278/gdb/cli/cli-style.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9303eb2fb1630678def10613c81215c2bd21d278/gdb/cli/cli-style.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cli/cli-style.c?ref=9303eb2fb1630678def10613c81215c2bd21d278",
+      "patch": "@@ -61,29 +61,50 @@ static const char * const cli_intensities[] = {\n \n /* See cli-style.h.  */\n \n-cli_style_option file_name_style (ui_file_style::GREEN);\n+cli_style_option file_name_style (\"filename\", ui_file_style::GREEN);\n \n /* See cli-style.h.  */\n \n-cli_style_option function_name_style (ui_file_style::YELLOW);\n+cli_style_option function_name_style (\"function\", ui_file_style::YELLOW);\n \n /* See cli-style.h.  */\n \n-cli_style_option variable_name_style (ui_file_style::CYAN);\n+cli_style_option variable_name_style (\"variable\", ui_file_style::CYAN);\n \n /* See cli-style.h.  */\n \n-cli_style_option address_style (ui_file_style::BLUE);\n+cli_style_option address_style (\"address\", ui_file_style::BLUE);\n \n /* See cli-style.h.  */\n \n-cli_style_option::cli_style_option (ui_file_style::basic_color fg)\n-  : m_foreground (cli_colors[fg - ui_file_style::NONE]),\n+cli_style_option highlight_style (\"highlight\", ui_file_style::RED);\n+\n+/* See cli-style.h.  */\n+\n+cli_style_option title_style (\"title\", ui_file_style::BOLD);\n+\n+/* See cli-style.h.  */\n+\n+cli_style_option::cli_style_option (const char *name,\n+\t\t\t\t    ui_file_style::basic_color fg)\n+  : m_name (name),\n+    m_foreground (cli_colors[fg - ui_file_style::NONE]),\n     m_background (cli_colors[0]),\n     m_intensity (cli_intensities[ui_file_style::NORMAL])\n {\n }\n \n+/* See cli-style.h.  */\n+\n+cli_style_option::cli_style_option (const char *name,\n+\t\t\t\t    ui_file_style::intensity i)\n+  : m_name (name),\n+    m_foreground (cli_colors[0]),\n+    m_background (cli_colors[0]),\n+    m_intensity (cli_intensities[i])\n+{\n+}\n+\n /* Return the color number corresponding to COLOR.  */\n \n static int\n@@ -118,16 +139,29 @@ cli_style_option::style () const\n   return ui_file_style (fg, bg, intensity);\n }\n \n+/* Implements the cli_style_option::do_show_* functions.\n+   WHAT and VALUE are the property and value to show.\n+   The style for which WHAT is shown is retrieved from CMD context.  */\n+\n+static void\n+do_show (const char *what, struct ui_file *file,\n+\t struct cmd_list_element *cmd,\n+\t const char *value)\n+{\n+  cli_style_option *cso = (cli_style_option *) get_cmd_context (cmd);\n+  fputs_filtered (_(\"The \"), file);\n+  fprintf_styled (file, cso->style (), _(\"\\\"%s\\\" style\"), cso->name ());\n+  fprintf_filtered (file, _(\" %s is: %s\\n\"), what, value);\n+}\n+\n /* See cli-style.h.  */\n \n void\n cli_style_option::do_show_foreground (struct ui_file *file, int from_tty,\n \t\t\t\t      struct cmd_list_element *cmd,\n \t\t\t\t      const char *value)\n {\n-  const char *name = (const char *) get_cmd_context (cmd);\n-  fprintf_filtered (file, _(\"The \\\"%s\\\" foreground color is: %s\\n\"),\n-\t\t    name, value);\n+  do_show (_(\"foreground color\"), file, cmd, value);\n }\n \n /* See cli-style.h.  */\n@@ -137,9 +171,7 @@ cli_style_option::do_show_background (struct ui_file *file, int from_tty,\n \t\t\t\t      struct cmd_list_element *cmd,\n \t\t\t\t      const char *value)\n {\n-  const char *name = (const char *) get_cmd_context (cmd);\n-  fprintf_filtered (file, _(\"The \\\"%s\\\" background color is: %s\\n\"),\n-\t\t    name, value);\n+  do_show (_(\"background color\"), file, cmd, value);\n }\n \n /* See cli-style.h.  */\n@@ -149,16 +181,13 @@ cli_style_option::do_show_intensity (struct ui_file *file, int from_tty,\n \t\t\t\t     struct cmd_list_element *cmd,\n \t\t\t\t     const char *value)\n {\n-  const char *name = (const char *) get_cmd_context (cmd);\n-  fprintf_filtered (file, _(\"The \\\"%s\\\" display intensity is: %s\\n\"),\n-\t\t    name, value);\n+  do_show (_(\"display intensity\"), file, cmd, value);\n }\n \n /* See cli-style.h.  */\n \n void\n-cli_style_option::add_setshow_commands (const char *name,\n-\t\t\t\t\tenum command_class theclass,\n+cli_style_option::add_setshow_commands (enum command_class theclass,\n \t\t\t\t\tconst char *prefix_doc,\n \t\t\t\t\tstruct cmd_list_element **set_list,\n \t\t\t\t\tvoid (*do_set) (const char *args,\n@@ -167,12 +196,12 @@ cli_style_option::add_setshow_commands (const char *name,\n \t\t\t\t\tvoid (*do_show) (const char *args,\n \t\t\t\t\t\t\t int from_tty))\n {\n-  m_set_prefix = std::string (\"set style \") + name + \" \";\n-  m_show_prefix = std::string (\"show style \") + name + \" \";\n+  m_set_prefix = std::string (\"set style \") + m_name + \" \";\n+  m_show_prefix = std::string (\"show style \") + m_name + \" \";\n \n-  add_prefix_cmd (name, no_class, do_set, prefix_doc, &m_set_list,\n+  add_prefix_cmd (m_name, no_class, do_set, prefix_doc, &m_set_list,\n \t\t  m_set_prefix.c_str (), 0, set_list);\n-  add_prefix_cmd (name, no_class, do_show, prefix_doc, &m_show_list,\n+  add_prefix_cmd (m_name, no_class, do_show, prefix_doc, &m_show_list,\n \t\t  m_show_prefix.c_str (), 0, show_list);\n \n   add_setshow_enum_cmd (\"foreground\", theclass, cli_colors,\n@@ -182,23 +211,23 @@ cli_style_option::add_setshow_commands (const char *name,\n \t\t\tnullptr,\n \t\t\tnullptr,\n \t\t\tdo_show_foreground,\n-\t\t\t&m_set_list, &m_show_list, (void *) name);\n+\t\t\t&m_set_list, &m_show_list, (void *) this);\n   add_setshow_enum_cmd (\"background\", theclass, cli_colors,\n \t\t\t&m_background,\n \t\t\t_(\"Set the background color for this property\"),\n \t\t\t_(\"Show the background color for this property\"),\n \t\t\tnullptr,\n \t\t\tnullptr,\n \t\t\tdo_show_background,\n-\t\t\t&m_set_list, &m_show_list, (void *) name);\n+\t\t\t&m_set_list, &m_show_list, (void *) this);\n   add_setshow_enum_cmd (\"intensity\", theclass, cli_intensities,\n \t\t\t&m_intensity,\n \t\t\t_(\"Set the display intensity for this property\"),\n \t\t\t_(\"Show the display intensity for this property\"),\n \t\t\tnullptr,\n \t\t\tnullptr,\n \t\t\tdo_show_intensity,\n-\t\t\t&m_set_list, &m_show_list, (void *) name);\n+\t\t\t&m_set_list, &m_show_list, (void *) this);\n }\n \n static cmd_list_element *style_set_list;\n@@ -245,6 +274,18 @@ show_style_sources (struct ui_file *file, int from_tty,\n     fprintf_filtered (file, _(\"Source code styling is disabled.\\n\"));\n }\n \n+/* Builds the \"set style NAME \" prefix.  */\n+\n+static std::string\n+set_style_name (const char *name)\n+{\n+  std::string result (\"set style \");\n+\n+  result += name;\n+  result += \" \";\n+  return result;\n+}\n+\n void\n _initialize_cli_style ()\n {\n@@ -278,14 +319,14 @@ it was not linked against GNU Source Highlight.\"\n \t\t\t   ), set_style_enabled, show_style_sources,\n \t\t\t   &style_set_list, &style_show_list);\n \n-#define STYLE_ADD_SETSHOW_COMMANDS(STYLE, NAME, PREFIX_DOC)\t  \\\n-  STYLE.add_setshow_commands (NAME, no_class, PREFIX_DOC,\t\t\\\n+#define STYLE_ADD_SETSHOW_COMMANDS(STYLE, PREFIX_DOC)\t  \\\n+  STYLE.add_setshow_commands (no_class, PREFIX_DOC,\t\t\\\n \t\t\t      &style_set_list,\t\t\t\t\\\n \t\t\t      [] (const char *args, int from_tty)\t\\\n \t\t\t      {\t\t\t\t\t\t\\\n \t\t\t\thelp_list\t\t\t\t\\\n \t\t\t\t  (STYLE.set_list (),\t\t\t\\\n-\t\t\t\t   \"set style \" NAME \" \",\t\t\\\n+\t\t\t\t   set_style_name (STYLE.name ()).c_str (), \\\n \t\t\t\t   all_commands,\t\t\t\\\n \t\t\t\t   gdb_stdout);\t\t\t\t\\\n \t\t\t      },\t\t\t\t\t\\\n@@ -298,23 +339,37 @@ it was not linked against GNU Source Highlight.\"\n \t\t\t\t   \"\");\t\t\t\t\t\\\n \t\t\t      })\n \n-  STYLE_ADD_SETSHOW_COMMANDS (file_name_style, \"filename\",\n+  STYLE_ADD_SETSHOW_COMMANDS (file_name_style,\n \t\t\t      _(\"\\\n Filename display styling\\n\\\n Configure filename colors and display intensity.\"));\n \n-  STYLE_ADD_SETSHOW_COMMANDS (function_name_style, \"function\",\n+  STYLE_ADD_SETSHOW_COMMANDS (function_name_style,\n \t\t\t      _(\"\\\n Function name display styling\\n\\\n Configure function name colors and display intensity\"));\n \n-  STYLE_ADD_SETSHOW_COMMANDS (variable_name_style, \"variable\",\n+  STYLE_ADD_SETSHOW_COMMANDS (variable_name_style,\n \t\t\t      _(\"\\\n Variable name display styling\\n\\\n Configure variable name colors and display intensity\"));\n \n-  STYLE_ADD_SETSHOW_COMMANDS (address_style, \"address\",\n+  STYLE_ADD_SETSHOW_COMMANDS (address_style,\n \t\t\t      _(\"\\\n Address display styling\\n\\\n Configure address colors and display intensity\"));\n+\n+  STYLE_ADD_SETSHOW_COMMANDS (title_style,\n+\t\t\t      _(\"\\\n+Title display styling\\n\\\n+Configure title colors and display intensity\\n\\\n+Some commands (such as \\\"apropos -v REGEXP\\\") use the title style to improve\\n\\\n+readability.\"));\n+\n+  STYLE_ADD_SETSHOW_COMMANDS (highlight_style,\n+\t\t\t      _(\"\\\n+Highlight display styling\\n\\\n+Configure highlight colors and display intensity\\n\\\n+Some commands use the highlight style to draw the attention to a part\\n\\\n+of their output.\"));\n }"
+    },
+    {
+      "sha": "6ae265e6ef48319842c402b496ff2c2e70417c0e",
+      "filename": "gdb/cli/cli-style.h",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 3,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9303eb2fb1630678def10613c81215c2bd21d278/gdb/cli/cli-style.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9303eb2fb1630678def10613c81215c2bd21d278/gdb/cli/cli-style.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cli/cli-style.h?ref=9303eb2fb1630678def10613c81215c2bd21d278",
+      "patch": "@@ -28,15 +28,20 @@ class cli_style_option\n public:\n \n   /* Construct a CLI style option with a foreground color.  */\n-  cli_style_option (ui_file_style::basic_color fg);\n+  cli_style_option (const char *name, ui_file_style::basic_color fg);\n+\n+  /* Construct a CLI style option with an intensity.  */\n+  cli_style_option (const char *name, ui_file_style::intensity i);\n \n   /* Return a ui_file_style corresponding to the settings in this CLI\n      style.  */\n   ui_file_style style () const;\n \n+  /* Return the style name.  */\n+  const char *name () { return m_name; };\n+\n   /* Call once to register this CLI style with the CLI engine.  */\n-  void add_setshow_commands (const char *name,\n-\t\t\t     enum command_class theclass,\n+  void add_setshow_commands (enum command_class theclass,\n \t\t\t     const char *prefix_doc,\n \t\t\t     struct cmd_list_element **set_list,\n \t\t\t     void (*do_set) (const char *args, int from_tty),\n@@ -52,6 +57,9 @@ class cli_style_option\n \n private:\n \n+  /* The style name.  */\n+  const char *m_name;\n+\n   /* The foreground.  */\n   const char *m_foreground;\n   /* The background.  */\n@@ -93,6 +101,13 @@ extern cli_style_option variable_name_style;\n /* The address style.  */\n extern cli_style_option address_style;\n \n+/* The highlight style.  */\n+extern cli_style_option highlight_style;\n+\n+/* The title style.  */\n+extern cli_style_option title_style;\n+\n+\n /* True if source styling is enabled.  */\n extern int source_styling;\n "
+    },
+    {
+      "sha": "f55661287eb5d1b7c40e1019c58637151577868c",
+      "filename": "gdb/utils.c",
+      "status": "modified",
+      "additions": 36,
+      "deletions": 0,
+      "changes": 36,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9303eb2fb1630678def10613c81215c2bd21d278/gdb/utils.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9303eb2fb1630678def10613c81215c2bd21d278/gdb/utils.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/utils.c?ref=9303eb2fb1630678def10613c81215c2bd21d278",
+      "patch": "@@ -1869,6 +1869,42 @@ fputs_styled (const char *linebuffer, const ui_file_style &style,\n     }\n }\n \n+/* See utils.h.  */\n+\n+void\n+fputs_highlighted (const char *str, const compiled_regex &highlight,\n+\t\t   struct ui_file *stream)\n+{\n+  regmatch_t pmatch;\n+\n+  while (*str && highlight.exec (str, 1, &pmatch, 0) == 0)\n+    {\n+      size_t n_highlight = pmatch.rm_eo - pmatch.rm_so;\n+\n+      /* Output the part before pmatch with current style.  */\n+      while (pmatch.rm_so > 0)\n+\t{\n+\t  fputc_filtered (*str, stream);\n+\t  pmatch.rm_so--;\n+\t  str++;\n+\t}\n+\n+      /* Output pmatch with the highlight style.  */\n+      set_output_style (stream, highlight_style.style ());\n+      while (n_highlight > 0)\n+\t{\n+\t  fputc_filtered (*str, stream);\n+\t  n_highlight--;\n+\t  str++;\n+\t}\n+      set_output_style (stream, ui_file_style ());\n+    }\n+\n+  /* Output the trailing part of STR not matching HIGHLIGHT.  */\n+  if (*str)\n+    fputs_filtered (str, stream);\n+}\n+\n int\n putchar_unfiltered (int c)\n {"
+    },
+    {
+      "sha": "58b4a283447e03829274ed8e9c6370172274227e",
+      "filename": "gdb/utils.h",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9303eb2fb1630678def10613c81215c2bd21d278/gdb/utils.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9303eb2fb1630678def10613c81215c2bd21d278/gdb/utils.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/utils.h?ref=9303eb2fb1630678def10613c81215c2bd21d278",
+      "patch": "@@ -436,6 +436,12 @@ extern void fputs_styled (const char *linebuffer,\n \t\t\t  const ui_file_style &style,\n \t\t\t  struct ui_file *stream);\n \n+/* Like fputs_styled, but uses highlight_style to highlight the\n+   parts of STR that match HIGHLIGHT.  */\n+\n+extern void fputs_highlighted (const char *str, const compiled_regex &highlight,\n+\t\t\t       struct ui_file *stream);\n+\n /* Reset the terminal style to the default, if needed.  */\n \n extern void reset_terminal_style (struct ui_file *stream);"
+    }
+  ]
+}

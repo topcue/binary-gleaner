@@ -1,0 +1,170 @@
+{
+  "sha": "bef382e61aeff32e46ce987e2af9b7c636dcf038",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YmVmMzgyZTYxYWVmZjMyZTQ2Y2U5ODdlMmFmOWI3YzYzNmRjZjAzOA==",
+  "commit": {
+    "author": {
+      "name": "Luis Machado",
+      "email": "luis.machado@linaro.org",
+      "date": "2020-06-15T18:50:55Z"
+    },
+    "committer": {
+      "name": "Luis Machado",
+      "email": "luis.machado@linaro.org",
+      "date": "2021-03-24T17:59:19Z"
+    },
+    "message": "Extend \"x\" and \"print\" commands to support memory tagging\n\nExtend the \"x\" and \"print\" commands to make use of memory tagging\nfunctionality, if supported by the architecture.\n\nThe \"print\" command will point out any possible tag mismatches it finds\nwhen dealing with pointers, in case such a pointer is tagged.  No additional\nmodifiers are needed.\n\nSuppose we have a pointer \"p\" with value 0x1234 (logical tag 0x0) and that we\nhave an allocation tag of 0x1 for that particular area of memory. This is the\nexpected output:\n\n(gdb) p/x p\nLogical tag (0x0) does not match the allocation tag (0x1).\n$1 = 0x1234\n\nThe \"x\" command has a new 'm' modifier that will enable displaying of\nallocation tags alongside the data dump.  It will display one allocation\ntag per line.\n\nAArch64 has a tag granule of 16 bytes, which means we can have one tag for\nevery 16 bytes of memory. In this case, this is what the \"x\" command will\ndisplay with the new 'm' modifier:\n\n(gdb) x/32bxm p\n<Allocation Tag 0x1 for range [0x1230,0x1240)>\n0x1234:\t0x01\t0x02\t0x00\t0x00\t0x00\t0x00\t0x00\t0x00\n0x123c:\t0x00\t0x00\t0x00\t0x00\t0x00\t0x00\t0x00\t0x00\n<Allocation Tag 0x1 for range [0x1240,0x1250)>\n0x1244:\t0x00\t0x00\t0x00\t0x00\t0x00\t0x00\t0x00\t0x00\n0x124c:\t0x00\t0x00\t0x00\t0x00\t0x00\t0x00\t0x00\t0x00\n\n(gdb) x/4gxm a\n<Allocation Tag 0x1 for range [0x1230,0x1240)>\n0x1234:\t0x0000000000000201\t0x0000000000000000\n<Allocation Tag 0x1 for range [0x1240,0x1250)>\n0x1244:\t0x0000000000000000\t0x0000000000000000\n\ngdb/ChangeLog:\n\n2021-03-24  Luis Machado  <luis.machado@linaro.org>\n\n\t* printcmd.c (decode_format): Handle the 'm' modifier.\n\t(do_examine): Display allocation tags when required/supported.\n\t(should_validate_memtags): New function.\n\t(print_command_1): Display memory tag mismatches.\n\t* valprint.c (show_memory_tag_violations): New function.\n\t(value_print_option_defs): Add new option \"memory-tag-violations\".\n\t(user_print_options) <memory_tag_violations>: Initialize to 1.\n\t* valprint.h (struct format_data) <print_tags>: New field.\n\t(value_print_options) <memory_tag_violations>: New field.\n\ngdb/testsuite/ChangeLog:\n\n2021-03-24  Luis Machado  <luis.machado@linaro.org>\n\n\t* gdb.base/options.exp: Adjust for new print options.\n\t* gdb.base/with.exp: Likewise.",
+    "tree": {
+      "sha": "02de46a5bda21cd0e3ee49f49594acc86c2d83dc",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/02de46a5bda21cd0e3ee49f49594acc86c2d83dc"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/bef382e61aeff32e46ce987e2af9b7c636dcf038",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bef382e61aeff32e46ce987e2af9b7c636dcf038",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/bef382e61aeff32e46ce987e2af9b7c636dcf038",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bef382e61aeff32e46ce987e2af9b7c636dcf038/comments",
+  "author": {
+    "login": "luislinaro",
+    "id": 53092780,
+    "node_id": "MDQ6VXNlcjUzMDkyNzgw",
+    "avatar_url": "https://avatars.githubusercontent.com/u/53092780?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/luislinaro",
+    "html_url": "https://github.com/luislinaro",
+    "followers_url": "https://api.github.com/users/luislinaro/followers",
+    "following_url": "https://api.github.com/users/luislinaro/following{/other_user}",
+    "gists_url": "https://api.github.com/users/luislinaro/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/luislinaro/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/luislinaro/subscriptions",
+    "organizations_url": "https://api.github.com/users/luislinaro/orgs",
+    "repos_url": "https://api.github.com/users/luislinaro/repos",
+    "events_url": "https://api.github.com/users/luislinaro/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/luislinaro/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "luislinaro",
+    "id": 53092780,
+    "node_id": "MDQ6VXNlcjUzMDkyNzgw",
+    "avatar_url": "https://avatars.githubusercontent.com/u/53092780?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/luislinaro",
+    "html_url": "https://github.com/luislinaro",
+    "followers_url": "https://api.github.com/users/luislinaro/followers",
+    "following_url": "https://api.github.com/users/luislinaro/following{/other_user}",
+    "gists_url": "https://api.github.com/users/luislinaro/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/luislinaro/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/luislinaro/subscriptions",
+    "organizations_url": "https://api.github.com/users/luislinaro/orgs",
+    "repos_url": "https://api.github.com/users/luislinaro/repos",
+    "events_url": "https://api.github.com/users/luislinaro/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/luislinaro/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "362a07001900888b37d54523aa010806bd754e18",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/362a07001900888b37d54523aa010806bd754e18",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/362a07001900888b37d54523aa010806bd754e18"
+    }
+  ],
+  "stats": {
+    "total": 149,
+    "additions": 147,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "5d7069a7223f375f6791574193f8ade118b847c9",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bef382e61aeff32e46ce987e2af9b7c636dcf038/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bef382e61aeff32e46ce987e2af9b7c636dcf038/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=bef382e61aeff32e46ce987e2af9b7c636dcf038",
+      "patch": "@@ -1,3 +1,15 @@\n+2021-03-24  Luis Machado  <luis.machado@linaro.org>\n+\n+\t* printcmd.c (decode_format): Handle the 'm' modifier.\n+\t(do_examine): Display allocation tags when required/supported.\n+\t(should_validate_memtags): New function.\n+\t(print_command_1): Display memory tag mismatches.\n+\t* valprint.c (show_memory_tag_violations): New function.\n+\t(value_print_option_defs): Add new option \"memory-tag-violations\".\n+\t(user_print_options) <memory_tag_violations>: Initialize to 1.\n+\t* valprint.h (struct format_data) <print_tags>: New field.\n+\t(value_print_options) <memory_tag_violations>: New field.\n+\n 2021-03-24  Luis Machado  <luis.machado@linaro.org>\n \n \t* printcmd.c: Include gdbsupport/rsp-low.h."
+    },
+    {
+      "sha": "c82f709136f9909c48954e85c6d528e93f34862d",
+      "filename": "gdb/printcmd.c",
+      "status": "modified",
+      "additions": 101,
+      "deletions": 1,
+      "changes": 102,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bef382e61aeff32e46ce987e2af9b7c636dcf038/gdb/printcmd.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bef382e61aeff32e46ce987e2af9b7c636dcf038/gdb/printcmd.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/printcmd.c?ref=bef382e61aeff32e46ce987e2af9b7c636dcf038",
+      "patch": "@@ -72,6 +72,10 @@ static char last_size = 'w';\n \n static int last_count;\n \n+/* Last specified tag-printing option.  */\n+\n+static bool last_print_tags = false;\n+\n /* Default address to examine next, and associated architecture.  */\n \n static struct gdbarch *next_gdbarch;\n@@ -193,6 +197,7 @@ decode_format (const char **string_ptr, int oformat, int osize)\n   val.size = '?';\n   val.count = 1;\n   val.raw = 0;\n+  val.print_tags = false;\n \n   if (*p == '-')\n     {\n@@ -215,6 +220,11 @@ decode_format (const char **string_ptr, int oformat, int osize)\n \t  val.raw = 1;\n \t  p++;\n \t}\n+      else if (*p == 'm')\n+\t{\n+\t  val.print_tags = true;\n+\t  p++;\n+\t}\n       else if (*p >= 'a' && *p <= 'z')\n \tval.format = *p++;\n       else\n@@ -1100,12 +1110,50 @@ do_examine (struct format_data fmt, struct gdbarch *gdbarch, CORE_ADDR addr)\n       need_to_update_next_address = 1;\n     }\n \n+  /* Whether we need to print the memory tag information for the current\n+     address range.  */\n+  bool print_range_tag = true;\n+  uint32_t gsize = gdbarch_memtag_granule_size (gdbarch);\n+\n   /* Print as many objects as specified in COUNT, at most maxelts per line,\n      with the address of the next one at the start of each line.  */\n \n   while (count > 0)\n     {\n       QUIT;\n+\n+      CORE_ADDR tag_laddr = 0, tag_haddr = 0;\n+\n+      /* Print the memory tag information if requested.  */\n+      if (fmt.print_tags && print_range_tag\n+\t  && target_supports_memory_tagging ())\n+\t{\n+\t  tag_laddr = align_down (next_address, gsize);\n+\t  tag_haddr = align_down (next_address + gsize, gsize);\n+\n+\t  struct value *v_addr\n+\t    = value_from_ulongest (builtin_type (gdbarch)->builtin_data_ptr,\n+\t\t\t\t   tag_laddr);\n+\n+\t  if (gdbarch_tagged_address_p (target_gdbarch (), v_addr))\n+\t    {\n+\t      /* Fetch the allocation tag.  */\n+\t      struct value *tag\n+\t\t= gdbarch_get_memtag (gdbarch, v_addr, memtag_type::allocation);\n+\t      std::string atag\n+\t\t= gdbarch_memtag_to_string (gdbarch, tag);\n+\n+\t      if (!atag.empty ())\n+\t\t{\n+\t\t  printf_filtered (_(\"<Allocation Tag %s for range [%s,%s)>\\n\"),\n+\t\t\t\t   atag.c_str (),\n+\t\t\t\t   paddress (gdbarch, tag_laddr),\n+\t\t\t\t   paddress (gdbarch, tag_haddr));\n+\t\t}\n+\t    }\n+\t  print_range_tag = false;\n+\t}\n+\n       if (format == 'i')\n \tfputs_filtered (pc_prefix (next_address), gdb_stdout);\n       print_address (next_gdbarch, next_address, gdb_stdout);\n@@ -1136,6 +1184,11 @@ do_examine (struct format_data fmt, struct gdbarch *gdbarch, CORE_ADDR addr)\n \t  /* Display any branch delay slots following the final insn.  */\n \t  if (format == 'i' && count == 1)\n \t    count += branch_delay_insns;\n+\n+\t  /* Update the tag range based on the current address being\n+\t     processed.  */\n+\t  if (tag_haddr <= next_address)\n+\t      print_range_tag = true;\n \t}\n       printf_filtered (\"\\n\");\n     }\n@@ -1208,6 +1261,26 @@ print_value (value *val, const value_print_options &opts)\n   annotate_value_history_end ();\n }\n \n+/* Returns true if memory tags should be validated.  False otherwise.  */\n+\n+static bool\n+should_validate_memtags (struct value *value)\n+{\n+  if (target_supports_memory_tagging ()\n+      && gdbarch_tagged_address_p (target_gdbarch (), value))\n+    {\n+      gdb_assert (value != nullptr && value_type (value) != nullptr);\n+\n+      enum type_code code = value_type (value)->code ();\n+\n+      return (code == TYPE_CODE_PTR\n+\t      || code == TYPE_CODE_REF\n+\t      || code == TYPE_CODE_METHODPTR\n+\t      || code == TYPE_CODE_MEMBERPTR);\n+    }\n+  return false;\n+}\n+\n /* Helper for parsing arguments for print_command_1.  */\n \n static struct value *\n@@ -1246,7 +1319,30 @@ print_command_1 (const char *args, int voidprint)\n \n   if (voidprint || (val && value_type (val) &&\n \t\t    value_type (val)->code () != TYPE_CODE_VOID))\n-    print_value (val, print_opts);\n+    {\n+      /* If memory tagging validation is on, check if the tag is valid.  */\n+      if (print_opts.memory_tag_violations && should_validate_memtags (val)\n+\t  && !gdbarch_memtag_matches_p (target_gdbarch (), val))\n+\t{\n+\t  /* Fetch the logical tag.  */\n+\t  struct value *tag\n+\t    = gdbarch_get_memtag (target_gdbarch (), val,\n+\t\t\t\t  memtag_type::logical);\n+\t  std::string ltag\n+\t    = gdbarch_memtag_to_string (target_gdbarch (), tag);\n+\n+\t  /* Fetch the allocation tag.  */\n+\t  tag = gdbarch_get_memtag (target_gdbarch (), val,\n+\t\t\t\t    memtag_type::allocation);\n+\t  std::string atag\n+\t    = gdbarch_memtag_to_string (target_gdbarch (), tag);\n+\n+\t  printf_filtered (_(\"Logical tag (%s) does not match the \"\n+\t\t\t     \"allocation tag (%s).\\n\"),\n+\t\t\t   ltag.c_str (), atag.c_str ());\n+\t}\n+      print_value (val, print_opts);\n+    }\n }\n \n /* Called from command completion function to skip over /FMT\n@@ -1741,6 +1837,7 @@ x_command (const char *exp, int from_tty)\n   struct value *val;\n \n   fmt.format = last_format ? last_format : 'x';\n+  fmt.print_tags = last_print_tags;\n   fmt.size = last_size;\n   fmt.count = 1;\n   fmt.raw = 0;\n@@ -1797,6 +1894,9 @@ x_command (const char *exp, int from_tty)\n     last_size = fmt.size;\n   last_format = fmt.format;\n \n+  /* Remember tag-printing setting.  */\n+  last_print_tags = fmt.print_tags;\n+\n   /* Set a couple of internal variables if appropriate.  */\n   if (last_examine_value != nullptr)\n     {"
+    },
+    {
+      "sha": "8513f32e19f7a53423a61e056c8c0ce5801ca896",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bef382e61aeff32e46ce987e2af9b7c636dcf038/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bef382e61aeff32e46ce987e2af9b7c636dcf038/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=bef382e61aeff32e46ce987e2af9b7c636dcf038",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-03-24  Luis Machado  <luis.machado@linaro.org>\n+\n+\t* gdb.base/options.exp: Adjust for new print options.\n+\t* gdb.base/with.exp: Likewise.\n+\n 2021-03-22  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.dwarf2/dw2-missing-cu-tag.c: New file."
+    },
+    {
+      "sha": "78ec54502c0a4ce15df81770101a723fd8d716d5",
+      "filename": "gdb/testsuite/gdb.base/options.exp",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bef382e61aeff32e46ce987e2af9b7c636dcf038/gdb/testsuite/gdb.base/options.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bef382e61aeff32e46ce987e2af9b7c636dcf038/gdb/testsuite/gdb.base/options.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/options.exp?ref=bef382e61aeff32e46ce987e2af9b7c636dcf038",
+      "patch": "@@ -165,6 +165,7 @@ proc_with_prefix test-print {{prefix \"\"}} {\n \t\"-array-indexes\"\n \t\"-elements\"\n \t\"-max-depth\"\n+\t\"-memory-tag-violations\"\n \t\"-null-stop\"\n \t\"-object\"\n \t\"-pretty\""
+    },
+    {
+      "sha": "0d53dbebba31aedae863ba7022f370dae49b72e1",
+      "filename": "gdb/testsuite/gdb.base/with.exp",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bef382e61aeff32e46ce987e2af9b7c636dcf038/gdb/testsuite/gdb.base/with.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bef382e61aeff32e46ce987e2af9b7c636dcf038/gdb/testsuite/gdb.base/with.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/with.exp?ref=bef382e61aeff32e46ce987e2af9b7c636dcf038",
+      "patch": "@@ -238,7 +238,7 @@ with_test_prefix \"errors\" {\n     gdb_test \"with w\" \\\n \t\"Ambiguous set command \\\"w\\\": watchdog, width, write\\\\.\"\n     gdb_test \"with print m\" \\\n-\t\"Ambiguous set print command \\\"m\\\": max-depth, max-symbolic-offset\\\\.\"\n+\t\"Ambiguous set print command \\\"m\\\": max-depth, max-symbolic-offset, memory-tag-violations\\\\.\"\n \n     gdb_test \"with variable xxx=1\" \\\n \t\"Cannot use this setting with the \\\"with\\\" command\""
+    },
+    {
+      "sha": "c089ee27a23a0623311ae3050a4a7371ccdc508e",
+      "filename": "gdb/valprint.c",
+      "status": "modified",
+      "additions": 23,
+      "deletions": 0,
+      "changes": 23,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bef382e61aeff32e46ce987e2af9b7c636dcf038/gdb/valprint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bef382e61aeff32e46ce987e2af9b7c636dcf038/gdb/valprint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/valprint.c?ref=bef382e61aeff32e46ce987e2af9b7c636dcf038",
+      "patch": "@@ -110,6 +110,7 @@ struct value_print_options user_print_options =\n   10,\t\t\t\t/* repeat_count_threshold */\n   0,\t\t\t\t/* output_format */\n   0,\t\t\t\t/* format */\n+  1,\t\t\t\t/* memory_tag_violations */\n   0,\t\t\t\t/* stop_print_at_null */\n   0,\t\t\t\t/* print_array_indexes */\n   0,\t\t\t\t/* deref_ref */\n@@ -203,6 +204,17 @@ show_repeat_count_threshold (struct ui_file *file, int from_tty,\n \t\t    value);\n }\n \n+/* If nonzero, prints memory tag violations for pointers.  */\n+\n+static void\n+show_memory_tag_violations (struct ui_file *file, int from_tty,\n+\t\t\t    struct cmd_list_element *c, const char *value)\n+{\n+  fprintf_filtered (file,\n+\t\t    _(\"Printing of memory tag violations is %s.\\n\"),\n+\t\t    value);\n+}\n+\n /* If nonzero, stops printing of char arrays at first null.  */\n \n static void\n@@ -3023,6 +3035,17 @@ will be replaced with either '{...}' or '(...)' depending on the language.\\n\\\n Use \\\"unlimited\\\" to print the complete structure.\")\n   },\n \n+  boolean_option_def {\n+    \"memory-tag-violations\",\n+    [] (value_print_options *opt) { return &opt->memory_tag_violations; },\n+    show_memory_tag_violations, /* show_cmd_cb */\n+    N_(\"Set printing of memory tag violations for pointers.\"),\n+    N_(\"Show printing of memory tag violations for pointers.\"),\n+    N_(\"Issue a warning when the printed value is a pointer\\n\\\n+whose logical tag doesn't match the allocation tag of the memory\\n\\\n+location it points to.\"),\n+  },\n+\n   boolean_option_def {\n     \"null-stop\",\n     [] (value_print_options *opt) { return &opt->stop_print_at_null; },"
+    },
+    {
+      "sha": "e1dae2cc8fcc9b75b6bde3a8ee1f184414fb3755",
+      "filename": "gdb/valprint.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bef382e61aeff32e46ce987e2af9b7c636dcf038/gdb/valprint.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bef382e61aeff32e46ce987e2af9b7c636dcf038/gdb/valprint.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/valprint.h?ref=bef382e61aeff32e46ce987e2af9b7c636dcf038",
+      "patch": "@@ -65,6 +65,9 @@ struct value_print_options\n      e.g. when the user passes a format to \"print\".  */\n   int format;\n \n+  /* Print memory tag violations for pointers.  */\n+  bool memory_tag_violations;\n+\n   /* Stop printing at null character?  */\n   bool stop_print_at_null;\n \n@@ -252,6 +255,7 @@ struct format_data\n     int count;\n     char format;\n     char size;\n+    bool print_tags;\n \n     /* True if the value should be printed raw -- that is, bypassing\n        python-based formatters.  */"
+    }
+  ]
+}

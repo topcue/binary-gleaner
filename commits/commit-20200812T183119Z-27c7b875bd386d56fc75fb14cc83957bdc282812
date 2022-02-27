@@ -1,0 +1,110 @@
+{
+  "sha": "27c7b875bd386d56fc75fb14cc83957bdc282812",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MjdjN2I4NzViZDM4NmQ1NmZjNzVmYjE0Y2M4Mzk1N2JkYzI4MjgxMg==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-08-12T18:31:19Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-08-12T18:31:19Z"
+    },
+    "message": "gdb.base/corefile.exp regression for unix/-m32 on x86_64 (PR 26336)\n\ngdb.base/corefile.exp is showing an unexpected failure and an\nunresolved testcase when testing against unix/-m32:\n\n (gdb) PASS: gdb.base/corefile.exp: attach: sanity check we see the core file\n attach 15741\n gdb/dwarf2-frame.c:1009: internal-error: dwarf2_frame_cache* dwarf2_frame_cache(frame_info*, void**): Assertion `fde != NULL' failed.\n A problem internal to GDB has been detected,\n further debugging may prove unreliable.\n Quit this debugging session? (y or n) FAIL: gdb.base/corefile.exp: attach: with core (GDB internal error)\n Resyncing due to internal error.\n\nThis regressed with:\n\n From 5b6d1e4fa4fc6827c7b3f0e99ff120dfa14d65d2 Mon Sep 17 00:00:00 2001\n From: Pedro Alves <palves@redhat.com>\n Date: Fri, 10 Jan 2020 20:06:08 +0000\n Subject: [PATCH] Multi-target support\n\nThe assertion is here:\n\n #0  internal_error (file=0xbffffccb0 <error: Cannot access memory at address 0xbffffccb0>, line=0, fmt=0x555556327320 \"en_US.UTF-8\") at sr\n c/gdbsupport/errors.cc:51\n #1  0x00005555557d4e45 in dwarf2_frame_cache (this_frame=0x55555672f950, this_cache=0x55555672f968) at src/gdb/dwarf2/frame.c:1013\n #2  0x00005555557d5886 in dwarf2_frame_this_id (this_frame=0x55555672f950, this_cache=0x55555672f968, this_id=0x55555672f9b0) at src/gdb/d\n warf2/frame.c:1226\n #3  0x00005555558b184e in compute_frame_id (fi=0x55555672f950) at src/gdb/frame.c:558\n #4  0x00005555558b19b2 in get_frame_id (fi=0x55555672f950) at src/gdb/frame.c:588\n #5  0x0000555555bda338 in scoped_restore_current_thread::scoped_restore_current_thread (this=0x7fffffffd0d8) at src/gdb/thread.c:1458\n #6  0x00005555556ce41f in scoped_restore_current_pspace_and_thread::scoped_restore_current_pspace_and_thread (During symbol reading: .debug_line address at offset 0x1db2d3\n is 0 [in module /home/pedro/gdb/cascais-builds/binutils-gdb/gdb/gdb]\n this=0x7fffffffd0d0) at src/gdb/progspace-and-thread.h:29\n #7  0x0000555555898ea6 in remove_target_sections (owner=0x555556935550) at src/gdb/exec.c:798\n #8  0x0000555555b700b6 in symfile_free_objfile (objfile=0x555556935550) at src/gdb/symfile.c:3742\n #9  0x000055555565050e in std::_Function_handler<void (objfile*), void (*)(objfile*)>::_M_invoke(std::_Any_data const&, objfile*&&) (__functor=..., __args#0=@0x7fffffffd190\n : 0x555556935550) at /usr/include/c++/9/bits/std_function.h:300\n #10 0x0000555555a3053d in std::function<void (objfile*)>::operator()(objfile*) const (this=0x555556752a20, __args#0=0x555556935550) at /usr/include/c++/9/bits/std_function.\n h:688\n #11 0x0000555555a2ff01 in gdb::observers::observable<objfile*>::notify (this=0x5555562eaa80 <gdb::observers::free_objfile>, args#0=0x555556935550) at /net/cascais.nfs/gdb/b\n inutils-gdb/src/gdb/../gdbsupport/observable.h:106\n #12 0x0000555555a2c56a in objfile::~objfile (this=0x555556935550, __in_chrg=<optimized out>) at src/gdb/objfiles.c:521\n #13 0x0000555555a31d46 in std::_Sp_counted_ptr<objfile*, (__gnu_cxx::_Lock_policy)2>::_M_dispose (this=0x555556c1f6f0) at /usr/include/c++/9/bits/shared_ptr_base.h:377\n #14 0x00005555556d3444 in std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release (this=0x555556c1f6f0) at /usr/include/c++/9/bits/shared_ptr_base.h:155\n #15 0x00005555556cec77 in std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count (this=0x555556b99ee8, __in_chrg=<optimized out>) at /usr/include/c++/9/bits/shared_ptr_base.h:730\n #16 0x0000555555a2f8da in std::__shared_ptr<objfile, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr (this=0x555556b99ee0, __in_chrg=<optimized out>) at /usr/include/c++/9/bits/shared_ptr_base.h:1169\n #17 0x0000555555a2f8fa in std::shared_ptr<objfile>::~shared_ptr (this=0x555556b99ee0, __in_chrg=<optimized out>) at /usr/include/c++/9/bits/shared_ptr.h:103\n #18 0x0000555555a63fba in __gnu_cxx::new_allocator<std::_List_node<std::shared_ptr<objfile> > >::destroy<std::shared_ptr<objfile> > (this=0x55555679f0c0, __p=0x555556b99ee0) at /usr/include/c++/9/ext/new_allocator.h:153\n #19 0x0000555555a638fb in std::allocator_traits<std::allocator<std::_List_node<std::shared_ptr<objfile> > > >::destroy<std::shared_ptr<objfile> > (__a=..., __p=0x555556b99ee0) at /usr/include/c++/9/bits/alloc_traits.h:497\n #20 0x0000555555a6351c in std::__cxx11::list<std::shared_ptr<objfile>, std::allocator<std::shared_ptr<objfile> > >::_M_erase (this=0x55555679f0c0, __position=std::shared_ptr<objfile> (expired, weak count 1) = {get() = 0x555556935550}) at /usr/include/c++/9/bits/stl_list.h:1921\n #21 0x0000555555a62dab in std::__cxx11::list<std::shared_ptr<objfile>, std::allocator<std::shared_ptr<objfile> > >::erase (this=0x55555679f0c0, __position=std::shared_ptr<objfile> (expired, weak count 1) = {get() = 0x555556935550}) at /usr/include/c++/9/bits/list.tcc:158\n #22 0x0000555555a614dd in program_space::remove_objfile (this=0x55555679f080, objfile=0x555556935550) at src/gdb/progspace.c:207\n #23 0x0000555555a2c4dc in objfile::unlink (this=0x555556935550) at src/gdb/objfiles.c:497\n #24 0x0000555555a2da65 in objfile_purge_solibs () at src/gdb/objfiles.c:904\n #25 0x0000555555b3af74 in no_shared_libraries (ignored=0x0, from_tty=1) at src/gdb/solib.c:1236\n #26 0x0000555555bbafc7 in target_pre_inferior (from_tty=1) at src/gdb/target.c:1900\n #27 0x0000555555940afb in attach_command (args=0x5555563277c7 \"15741\", from_tty=1) at src/gdb/infcmd.c:2582\n ...\n\n\nThe problem is that the multi-target commit added a\nscoped_restore_current_thread to remove_target_sections (frame #7\nabove).  scoped_restore_current_thread's ctor fetches the selected\nframe's frame id.  If the frame had not had its frame id computed yet,\nit is computed then (frame #4 above).  Because it has been determined\nearlier that the frame's unwinder is the DWARF unwinder, we end up\nhere:\n\n static struct dwarf2_frame_cache *\n dwarf2_frame_cache (struct frame_info *this_frame, void **this_cache)\n {\n ...\n   /* Find the correct FDE.  */\n   fde = dwarf2_frame_find_fde (&pc1, &cache->per_objfile);\n   gdb_assert (fde != NULL);\n\nAnd, that assertion fails.  The assertion is reasonable, because the\nDWARF unwinder only claims the frame if it managed to find the FDE\nearlier (in dwarf2_frame_sniffer).\n\n(unix/-m32 is thus really a red herring here -- it's just that on\nx86_64 -m64, the frame is not claimed by the DWARF unwinder.)\n\nThe reason the assertion is failing, is because the objfile that\ncontains the FDE has been removed from the objfiles list already when\nwe get here (frame #22 above).  This suggests that the fix should be\nto invalidate DWARF frames when their objfile is removed.  Or to keep\nit simple and safe, invalidate the frame cache when an objfile is\nremoved.  That is what this commit does.\n\nOOC, I checked why is it that when you unload a file with plain \"(gdb)\nfile\", we don't hit the assertion.  It must be because we're already\nflushing the frame cache somewhere else in that case.  And indeed, we\nflush the frame cache here:\n\n (gdb) bt\n #0  reinit_frame_cache () at src/gdb/frame.c:1857\n #1  0x0000555555ad1ad6 in registers_changed_ptid (target=0x0, ptid=...) at src/gdb/regcache.c:470\n #2  0x0000555555ad1b58 in registers_changed () at src/gdb/regcache.c:485\n #3  0x00005555558d095e in set_target_gdbarch (new_gdbarch=0x555556d5f5b0) at src/gdb/gdbarch.c:5528\n #4  0x0000555555677175 in set_gdbarch_from_file (abfd=0x0) at src/gdb/arch-utils.c:601\n #5  0x0000555555897c6b in exec_file_attach (filename=0x0, from_tty=1) at src/gdb/exec.c:409\n #6  0x000055555589852d in exec_file_command (args=0x0, from_tty=1) at src/gdb/exec.c:571\n #7  0x00005555558985a1 in file_command (arg=0x0, from_tty=1) at src/gdb/exec.c:583\n #8  0x000055555572b55f in do_const_cfunc (c=0x55555672e200, args=0x0, from_tty=1) at src/gdb/cli/cli-decode.c:95\n #9  0x000055555572f3d3 in cmd_func (cmd=0x55555672e200, args=0x0, from_tty=1) at src/gdb/cli/cli-decode.c:2181\n #10 0x0000555555be1ecc in execute_command (p=0x555556327804 \"\", from_tty=1) at src/gdb/top.c:668\n #11 0x0000555555895427 in command_handler (command=0x555556327800 \"file\") at src/gdb/event-top.c:588\n #12 0x00005555558958af in command_line_handler (rl=...) at src/gdb/event-top.c:773\n #13 0x0000555555894b3e in gdb_rl_callback_handler (rl=0x55555a09e240 \"file\") at src/gdb/event-top.c:219\n #14 0x0000555555ccfeec in rl_callback_read_char () at src/readline/readline/callback.c:281\n #15 0x000055555589495a in gdb_rl_callback_read_char_wrapper_noexcept () at src/gdb/event-top.c:177\n #16 0x0000555555894a08 in gdb_rl_callback_read_char_wrapper (client_data=0x555556327520) at src/gdb/event-top.c:194\n #17 0x00005555558952a5 in stdin_event_handler (error=0, client_data=0x555556327520) at src/gdb/event-top.c:516\n #18 0x0000555555e027d6 in handle_file_event (file_ptr=0x555558d20840, ready_mask=1) at src/gdbsupport/event-loop.cc:548\n #19 0x0000555555e02d88 in gdb_wait_for_event (block=1) at src/gdbsupport/event-loop.cc:673\n #20 0x0000555555e01c42 in gdb_do_one_event () at src/gdbsupport/event-loop.cc:215\n #21 0x00005555559c47c2 in start_event_loop () at src/gdb/main.c:356\n #22 0x00005555559c490d in captured_command_loop () at src/gdb/main.c:416\n #23 0x00005555559c6217 in captured_main (data=0x7fffffffdc00) at src/gdb/main.c:1253\n #24 0x00005555559c6289 in gdb_main (args=0x7fffffffdc00) at src/gdb/main.c:1268\n #25 0x0000555555621756 in main (argc=3, argv=0x7fffffffdd18) at src/gdb/gdb.c:32\n\ngdb/ChangeLog:\n\n\tPR gdb/26336\n\t* progspace.c (program_space::remove_objfile): Invalidate the\n\tframe cache.",
+    "tree": {
+      "sha": "6dba7666db20e824ab99d6aaa2fcc8fafd8b424e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/6dba7666db20e824ab99d6aaa2fcc8fafd8b424e"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/27c7b875bd386d56fc75fb14cc83957bdc282812",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/27c7b875bd386d56fc75fb14cc83957bdc282812",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/27c7b875bd386d56fc75fb14cc83957bdc282812",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/27c7b875bd386d56fc75fb14cc83957bdc282812/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "225f1684514d875f46291ecc595c479b4934a3d6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/225f1684514d875f46291ecc595c479b4934a3d6",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/225f1684514d875f46291ecc595c479b4934a3d6"
+    }
+  ],
+  "stats": {
+    "total": 12,
+    "additions": 12,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "1e2aa8d697b8a1879f221ca31cb71648f93e3675",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/27c7b875bd386d56fc75fb14cc83957bdc282812/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/27c7b875bd386d56fc75fb14cc83957bdc282812/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=27c7b875bd386d56fc75fb14cc83957bdc282812",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-08-12  Pedro Alves  <palves@redhat.com>\n+\n+\tPR gdb/26336\n+\t* progspace.c (program_space::remove_objfile): Invalidate the\n+\tframe cache.\n+\n 2020-08-11  Tom de Vries  <tdevries@suse.de>\n \n \t* MAINTAINERS: Mark ms1 as deleted."
+    },
+    {
+      "sha": "462083ce1f6d444789950434f2b0b8ce556694be",
+      "filename": "gdb/progspace.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/27c7b875bd386d56fc75fb14cc83957bdc282812/gdb/progspace.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/27c7b875bd386d56fc75fb14cc83957bdc282812/gdb/progspace.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/progspace.c?ref=27c7b875bd386d56fc75fb14cc83957bdc282812",
+      "patch": "@@ -198,6 +198,12 @@ program_space::add_objfile (std::shared_ptr<objfile> &&objfile,\n void\n program_space::remove_objfile (struct objfile *objfile)\n {\n+  /* Removing an objfile from the objfile list invalidates any frame\n+     that was built using frame info found in the objfile.  Reinit the\n+     frame cache to get rid of any frame that might otherwise\n+     reference stale info.  */\n+  reinit_frame_cache ();\n+\n   auto iter = std::find_if (objfiles_list.begin (), objfiles_list.end (),\n \t\t\t    [=] (const std::shared_ptr<::objfile> &objf)\n \t\t\t    {"
+    }
+  ]
+}

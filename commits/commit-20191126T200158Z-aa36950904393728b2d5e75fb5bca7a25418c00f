@@ -1,0 +1,72 @@
+{
+  "sha": "aa36950904393728b2d5e75fb5bca7a25418c00f",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YWEzNjk1MDkwNDM5MzcyOGIyZDVlNzVmYjViY2E3YTI1NDE4YzAwZg==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-11-23T10:08:12Z"
+    },
+    "committer": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-11-26T20:01:58Z"
+    },
+    "message": "Fix crashes due to python GIL released too early\n\nWhen running GDB tests under Valgrind, various tests are failing due\nto invalid memory access.\nHere is the stack trace reported by Valgrind, for gdb.base/freebpcmd.exp :\n  ==18658== Invalid read of size 8\n  ==18658==    at 0x7F9107: is_main (signalmodule.c:195)\n  ==18658==    by 0x7F9107: PyOS_InterruptOccurred (signalmodule.c:1730)\n  ==18658==    by 0x3696E2: check_quit_flag() (extension.c:829)\n  ==18658==    by 0x36980B: restore_active_ext_lang(active_ext_lang_state*) (extension.c:782)\n  ==18658==    by 0x48F617: gdbpy_enter::~gdbpy_enter() (python.c:235)\n  ==18658==    by 0x47BB71: add_thread_object(thread_info*) (object.h:470)\n  ==18658==    by 0x53A84D: operator() (std_function.h:687)\n  ==18658==    by 0x53A84D: notify (observable.h:106)\n  ==18658==    by 0x53A84D: add_thread_silent(ptid_t) (thread.c:311)\n  ==18658==    by 0x3CD954: inf_ptrace_target::create_inferior(char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&\n  , char**, int) (inf-ptrace.c:139)\n  ==18658==    by 0x3FE644: linux_nat_target::create_inferior(char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&,\n   char**, int) (linux-nat.c:1094)\n  ==18658==    by 0x3D5727: run_command_1(char const*, int, run_how) (infcmd.c:633)\n  ==18658==    by 0x2C05D1: cmd_func(cmd_list_element*, char const*, int) (cli-decode.c:1948)\n  ==18658==    by 0x53F29F: execute_command(char const*, int) (top.c:639)\n  ==18658==    by 0x3638EB: command_handler(char const*) (event-top.c:586)\n  ==18658==    by 0x36468C: command_line_handler(std::unique_ptr<char, gdb::xfree_deleter<char> >&&) (event-top.c:771)\n  ==18658==    by 0x36407C: gdb_rl_callback_handler(char*) (event-top.c:217)\n  ==18658==    by 0x5B2A1F: rl_callback_read_char (callback.c:281)\n  ==18658==    by 0x36346D: gdb_rl_callback_read_char_wrapper_noexcept() (event-top.c:175)\n  ==18658==    by 0x363F70: gdb_rl_callback_read_char_wrapper(void*) (event-top.c:192)\n  ==18658==    by 0x3633AF: stdin_event_handler(int, void*) (event-top.c:514)\n  ==18658==    by 0x362504: gdb_wait_for_event (event-loop.c:857)\n  ==18658==    by 0x362504: gdb_wait_for_event(int) (event-loop.c:744)\n  ==18658==    by 0x362676: gdb_do_one_event() [clone .part.11] (event-loop.c:321)\n  ==18658==    by 0x3627AD: gdb_do_one_event (event-loop.c:303)\n  ==18658==    by 0x3627AD: start_event_loop() (event-loop.c:370)\n  ==18658==    by 0x41D35A: captured_command_loop() (main.c:381)\n  ==18658==    by 0x41F2A4: captured_main (main.c:1224)\n  ==18658==    by 0x41F2A4: gdb_main(captured_main_args*) (main.c:1239)\n  ==18658==    by 0x227D0A: main (gdb.c:32)\n  ==18658==  Address 0x10 is not stack'd, malloc'd or (recently) free'd\n\nThe problem seems to be created by gdbpy_enter::~gdbpy_enter () releasing the GIL lock\ntoo early:\n~gdbpy_enter () does:\n      ...\n      PyGILState_Release (m_state);\n      python_gdbarch = m_gdbarch;\n      python_language = m_language;\n\n      restore_active_ext_lang (m_previous_active);\n    }\n\nSo, it releases the GIL lock, does 2 assignments and then leads to the following\ncall sequence:\n  restore_active_ext_lang => check_quit_flag => python.c gdbpy_check_quit_flag\n     => PyOS_InterruptOccurred => is_main.\nis_main code is:\n    static int\n    is_main(_PyRuntimeState *runtime)\n    {\n        unsigned long thread = PyThread_get_thread_ident();\n        PyInterpreterState *interp = _PyRuntimeState_GetThreadState(runtime)->interp;\n        return (thread == runtime->main_thread\n                && interp == runtime->interpreters.main);\n    }\n\nThe macros and functions to access the thread state are documented as:\n    /* Variable and macro for in-line access to current thread\n       and interpreter state */\n\n    #define _PyRuntimeState_GetThreadState(runtime) \\\n        ((PyThreadState*)_Py_atomic_load_relaxed(&(runtime)->gilstate.tstate_current))\n\n    /* Get the current Python thread state.\n\n       Efficient macro reading directly the 'gilstate.tstate_current' atomic\n       variable. The macro is unsafe: it does not check for error and it can\n       return NULL.\n\n       The caller must hold the GIL.\n\n       See also PyThreadState_Get() and PyThreadState_GET(). */\n    #define _PyThreadState_GET() _PyRuntimeState_GetThreadState(&_PyRuntime)\n\nSo, we see that GDB releases the GIL and then potentially calls\n_PyRuntimeState_GetThreadState that needs the GIL.\n\nIt is not very clear why the problem is only observed when running under\nValgrind.  Probably caused by the slowdown due to Valgrind and/or to the 'single\nthread' scheduling by Valgrind.\n\nThis patch fixes the crashes by releasing the GIT lock later.\n\n2019-11-26  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n\n\t* python/python.c (gdbpy_enter::~gdbpy_enter): Release GIL after\n\trestore_active_ext_lang, as GIL is needed for (indirectly)\n\tcalled PyOS_InterruptOccurred.",
+    "tree": {
+      "sha": "f004d57b99d63f4f0f62b8bb5ccdf0cccf27f5b2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f004d57b99d63f4f0f62b8bb5ccdf0cccf27f5b2"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/aa36950904393728b2d5e75fb5bca7a25418c00f",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/aa36950904393728b2d5e75fb5bca7a25418c00f",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/aa36950904393728b2d5e75fb5bca7a25418c00f",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/aa36950904393728b2d5e75fb5bca7a25418c00f/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "cadc9cb88871b636a967b98a2ba86c30a759f544",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cadc9cb88871b636a967b98a2ba86c30a759f544",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/cadc9cb88871b636a967b98a2ba86c30a759f544"
+    }
+  ],
+  "stats": {
+    "total": 8,
+    "additions": 7,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "b061e887f5716dda586e6cd19c10a49a56126f7c",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/aa36950904393728b2d5e75fb5bca7a25418c00f/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/aa36950904393728b2d5e75fb5bca7a25418c00f/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=aa36950904393728b2d5e75fb5bca7a25418c00f",
+      "patch": "@@ -1,3 +1,9 @@\n+2019-11-26  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n+\n+\t* python/python.c (gdbpy_enter::~gdbpy_enter): Release GIL after\n+\trestore_active_ext_lang, as GIL is needed for (indirectly)\n+\tcalled PyOS_InterruptOccurred.\n+\n 2019-11-26  Simon Marchi  <simon.marchi@efficios.com>\n \n \t* sparc-nat.c (sparc_xfer_wcookie): Sync declaration with"
+    },
+    {
+      "sha": "1cc5ebb7a733c83e03645cb00475c4b4c8c778b0",
+      "filename": "gdb/python/python.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/aa36950904393728b2d5e75fb5bca7a25418c00f/gdb/python/python.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/aa36950904393728b2d5e75fb5bca7a25418c00f/gdb/python/python.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/python.c?ref=aa36950904393728b2d5e75fb5bca7a25418c00f",
+      "patch": "@@ -228,11 +228,11 @@ gdbpy_enter::~gdbpy_enter ()\n \n   m_error->restore ();\n \n-  PyGILState_Release (m_state);\n   python_gdbarch = m_gdbarch;\n   python_language = m_language;\n \n   restore_active_ext_lang (m_previous_active);\n+  PyGILState_Release (m_state);\n }\n \n /* Set the quit flag.  */"
+    }
+  ]
+}

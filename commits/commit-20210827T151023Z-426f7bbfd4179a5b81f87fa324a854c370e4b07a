@@ -1,0 +1,110 @@
+{
+  "sha": "426f7bbfd4179a5b81f87fa324a854c370e4b07a",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NDI2ZjdiYmZkNDE3OWE1YjgxZjg3ZmEzMjRhODU0YzM3MGU0YjA3YQ==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-08-27T15:10:23Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-08-27T15:10:23Z"
+    },
+    "message": "[gdb/testsuite] Generate .debug_aranges in gdb.dlang/watch-loc.exp\n\nBefore commit 5ef670d81fd \"[gdb/testsuite] Add dummy start and end CUs in\ndwarf assembly\" we had in exec outputs/gdb.dlang/watch-loc/watch-loc a D\ncompilation unit at offset 0xc7:\n...\n  Compilation Unit @ offset 0xc7:\n   Length:        0x4c (32-bit)\n   Version:       4\n   Abbrev Offset: 0x64\n   Pointer Size:  8\n <0><d2>: Abbrev Number: 2 (DW_TAG_compile_unit)\n    <d3>   DW_AT_language    : 19       (D)\n...\nwith a corresponding .debug_aranges entry:\n...\nOffset into .debug_info:  0xc7\n  Pointer Size:             4\n  Segment Size:             0\n\n    Address    Length\n    004004a7 0000000b\n    00000000 00000000\n...\n\nAfter that commit we have a dummy CU at offset 0xc7 and the D compilation unit\nat offset 0xd2:\n...\n  Compilation Unit @ offset 0xc7:\n   Length:        0x7 (32-bit)\n   Version:       4\n   Abbrev Offset: 0x64\n   Pointer Size:  8\n  Compilation Unit @ offset 0xd2:\n   Length:        0x4c (32-bit)\n   Version:       4\n   Abbrev Offset: 0x65\n   Pointer Size:  8\n <0><dd>: Abbrev Number: 2 (DW_TAG_compile_unit)\n    <de>   DW_AT_language    : 19       (D)\n...\nwhile the .debug_aranges entry still points to 0xc7.\n\nThe problem is that the test-case uses a hack (quoting from\ncommit 75f06e9dc59):\n...\n[ Note: this is a non-trivial test-case.  The file watch-loc-dw.S contains a\n.debug_info section, but not an .debug_aranges section or any actual code.\nThe file watch-loc.c contains code and a .debug_aranges section, but no other\ndebug section.  So, the intent for the .debug_aranges section in watch-loc.c\nis to refer to a compilation unit in the .debug_info section in\nwatch-loc-dw.S. ]\n...\nand adding the dummy CU caused that hack to stop working.\n\nFix this by moving the generation of .debug_aranges from watch-loc.c to\nwatch-loc.exp, such that we have:\n...\n  Offset into .debug_info:  0xd2\n  Pointer Size:             4\n  Segment Size:             0\n\n    Address    Length\n    004004a7 0000000b\n    00000000 00000000\n...\n\nTested on x86_64-linux.",
+    "tree": {
+      "sha": "3f2fe0306d13d19a37ed01483bbb42a0dcb1eb36",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/3f2fe0306d13d19a37ed01483bbb42a0dcb1eb36"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/426f7bbfd4179a5b81f87fa324a854c370e4b07a",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/426f7bbfd4179a5b81f87fa324a854c370e4b07a",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/426f7bbfd4179a5b81f87fa324a854c370e4b07a",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/426f7bbfd4179a5b81f87fa324a854c370e4b07a/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "6a6429e19b0aa87f95cd20cb9df2715e6d3df6f1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6a6429e19b0aa87f95cd20cb9df2715e6d3df6f1",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/6a6429e19b0aa87f95cd20cb9df2715e6d3df6f1"
+    }
+  ],
+  "stats": {
+    "total": 49,
+    "additions": 8,
+    "deletions": 41
+  },
+  "files": [
+    {
+      "sha": "b008967381bf5cdc47230fc991a65d7b56577919",
+      "filename": "gdb/testsuite/gdb.dlang/watch-loc.c",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 28,
+      "changes": 28,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/426f7bbfd4179a5b81f87fa324a854c370e4b07a/gdb/testsuite/gdb.dlang/watch-loc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/426f7bbfd4179a5b81f87fa324a854c370e4b07a/gdb/testsuite/gdb.dlang/watch-loc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dlang/watch-loc.c?ref=426f7bbfd4179a5b81f87fa324a854c370e4b07a",
+      "patch": "@@ -35,31 +35,3 @@ main (void)\n {\n   return _Dmain ();\n }\n-\n-#ifdef WITH_DEBUG_SECTIONS\n-#define xstr(s) str(s)\n-#define str(s) #s\n-/* The .debug_names-based index support depends on .debug_aranges\n-   generated by GCC.  (.gdb_index includes a gdb-generated map\n-   instead.)  */\n-asm (\n-\"\t.pushsection\t.debug_info,\\\"\\\",%progbits \\n\"\n-\".Lcu1_begin:\"\n-\"\t.popsection \\n\"\n-\"\t.pushsection\t.debug_aranges,\\\"\\\",%progbits \\n\"\n-\"\t.4byte\t.Laranges_end - .Laranges_start \\n\"\t// Length of Address Ranges Info\n-\".Laranges_start: \\n\"\n-\"\t.2byte\t0x2 \\n\"\t// DWARF Version\n-\"\t.4byte\t.Lcu1_begin\\n\" // .Ldebug_info0 - Offset of Compilation Unit Info\n-\"\t.byte\t4 \\n\"\t// Size of Address\n-\"\t.byte\t0 \\n\"\t// Size of Segment Descriptor\n-\"\t.2byte\t0 \\n\"\t// Pad to 16 byte boundary\n-\"\t.2byte\t0 \\n\"\n-\"\t.4byte\t\" xstr(DMAIN_START_0) xstr(DMAIN_START_1) xstr(DMAIN_START_2) \"\\n\"\t\t// Address\n-\"\t.4byte\t\" xstr(DMAIN_LENGTH) \"\\n\"\t// Length\n-\"\t.4byte\t0 \\n\"\n-\"\t.4byte\t0 \\n\"\n-\".Laranges_end: \\n\"\n-\"\t.popsection \\n\"\n-);\n-#endif"
+    },
+    {
+      "sha": "6e8b26e3109569818cca740ea740185bf0ce6a18",
+      "filename": "gdb/testsuite/gdb.dlang/watch-loc.exp",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 13,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/426f7bbfd4179a5b81f87fa324a854c370e4b07a/gdb/testsuite/gdb.dlang/watch-loc.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/426f7bbfd4179a5b81f87fa324a854c370e4b07a/gdb/testsuite/gdb.dlang/watch-loc.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dlang/watch-loc.exp?ref=426f7bbfd4179a5b81f87fa324a854c370e4b07a",
+      "patch": "@@ -34,7 +34,9 @@ lassign [function_range _Dmain ${srcdir}/${subdir}/${srcfile}] \\\n # Make some DWARF for the test.\n set asm_file [standard_output_file $srcfile2]\n Dwarf::assemble $asm_file {\n-    cu {} {\n+    global dmain_start dmain_length\n+\n+    cu { label cu_start } {\n \tcompile_unit {\n \t    {language @DW_LANG_D}\n \t} {\n@@ -64,21 +66,14 @@ Dwarf::assemble $asm_file {\n \t    }\n \t}\n     }\n-}\n \n-set dmain_start_list [split $dmain_start]\n-set dmain_start_0 [lindex $dmain_start_list 0]\n-set dmain_start_1 [lindex $dmain_start_list 1]\n-set dmain_start_2 [lindex $dmain_start_list 2]\n+    aranges {} cu_start {\n+\tarange $dmain_start $dmain_length\n+    }\n+}\n \n if { [prepare_for_testing \"failed to prepare\" ${testfile} \\\n-          [list $srcfile $asm_file] \\\n-\t  \"nodebug \\\n-\t       additional_flags=-DWITH_DEBUG_SECTIONS \\\n-\t       additional_flags=-DDMAIN_START_0=$dmain_start_0 \\\n-\t       additional_flags=-DDMAIN_START_1=$dmain_start_1 \\\n-\t       additional_flags=-DDMAIN_START_2=$dmain_start_2 \\\n-\t       additional_flags=-DDMAIN_LENGTH=$dmain_length\"] } {\n+          [list $srcfile $asm_file] {nodebug}] } {\n     return -1\n }\n "
+    }
+  ]
+}

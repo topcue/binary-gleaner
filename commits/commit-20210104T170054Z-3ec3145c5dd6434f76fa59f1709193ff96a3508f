@@ -1,0 +1,254 @@
+{
+  "sha": "3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6M2VjMzE0NWM1ZGQ2NDM0Zjc2ZmE1OWYxNzA5MTkzZmY5NmEzNTA4Zg==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2021-01-04T16:56:10Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-01-04T17:00:54Z"
+    },
+    "message": "gdb: introduce scoped debug prints\n\nI spent a lot of time reading infrun debug logs recently, and I think\nthey could be made much more readable by being indented, to clearly see\nwhat operation is done as part of what other operation.  In the current\nformat, there are no visual cues to tell where things start and end,\nit's just a big flat list.  It's also difficult to understand what\ncaused a given operation (e.g. a call to resume_1) to be done.\n\nTo help with this, I propose to add the new scoped_debug_start_end\nstructure, along with a bunch of macros to make it convenient to use.\n\nThe idea of scoped_debug_start_end is simply to print a start and end\nmessage at construction and destruction.  It also increments/decrements\na depth counter in order to make debug statements printed during this\nrange use some indentation.  Some care is taken to handle the fact that\ndebug can be turned on or off in the middle of such a range.  For\nexample, a \"set debug foo 1\" command in a breakpoint command, or a\nsuperior GDB manually changing the debug_foo variable.\n\nTwo macros are added in gdbsupport/common-debug.h, which are helpers to\ndefine module-specific macros:\n\n  - scoped_debug_start_end: takes a message that is printed both at\n    construction / destruction, with \"start: \" and \"end: \" prefixes.\n  - scoped_debug_enter_exit: prints hard-coded \"enter\" and \"exit\"\n    messages, to denote the entry and exit of a function.\n\nI added some examples in the infrun module to give an idea of how it can\nbe used and what the result looks like.  The macros are in capital\nletters (INFRUN_SCOPED_DEBUG_START_END and\nINFRUN_SCOPED_DEBUG_ENTER_EXIT) to mimic the existing SCOPE_EXIT, but\nthat can be changed if you prefer something else.\n\nHere's an excerpt of the debug\nstatements printed when doing \"continue\", where a displaced step is\nstarted:\n\n    [infrun] proceed: enter\n      [infrun] proceed: addr=0xffffffffffffffff, signal=GDB_SIGNAL_DEFAULT\n      [infrun] global_thread_step_over_chain_enqueue: enqueueing thread Thread 0x7ffff75a5640 (LWP 2289301) in global step over chain\n      [infrun] start_step_over: enter\n        [infrun] start_step_over: stealing global queue of threads to step, length = 1\n        [infrun] start_step_over: resuming [Thread 0x7ffff75a5640 (LWP 2289301)] for step-over\n        [infrun] resume_1: step=1, signal=GDB_SIGNAL_0, trap_expected=1, current thread [Thread 0x7ffff75a5640 (LWP 2289301)] at 0x5555555551bd\n        [displaced] displaced_step_prepare_throw: displaced-stepping Thread 0x7ffff75a5640 (LWP 2289301) now\n        [displaced] prepare: selected buffer at 0x5555555550c2\n        [displaced] prepare: saved 0x5555555550c2: 1e fa 31 ed 49 89 d1 5e 48 89 e2 48 83 e4 f0 50\n        [displaced] amd64_displaced_step_copy_insn: copy 0x5555555551bd->0x5555555550c2: c7 45 fc 00 00 00 00 eb 13 8b 05 d4 2e 00 00 83\n        [displaced] displaced_step_prepare_throw: prepared successfully thread=Thread 0x7ffff75a5640 (LWP 2289301), original_pc=0x5555555551bd, displaced_pc=0x5555555550c2\n        [displaced] resume_1: run 0x5555555550c2: c7 45 fc 00\n        [infrun] infrun_async: enable=1\n        [infrun] prepare_to_wait: prepare_to_wait\n        [infrun] start_step_over: [Thread 0x7ffff75a5640 (LWP 2289301)] was resumed.\n        [infrun] operator(): step-over queue now empty\n      [infrun] start_step_over: exit\n      [infrun] proceed: start: resuming threads, all-stop-on-top-of-non-stop\n        [infrun] proceed: resuming Thread 0x7ffff7da7740 (LWP 2289296)\n        [infrun] resume_1: step=0, signal=GDB_SIGNAL_0, trap_expected=0, current thread [Thread 0x7ffff7da7740 (LWP 2289296)] at 0x7ffff7f7d9b7\n        [infrun] prepare_to_wait: prepare_to_wait\n        [infrun] proceed: resuming Thread 0x7ffff7da6640 (LWP 2289300)\n        [infrun] resume_1: thread Thread 0x7ffff7da6640 (LWP 2289300) has pending wait status status->kind = stopped, signal = GDB_SIGNAL_TRAP (currently_stepping=0).\n        [infrun] prepare_to_wait: prepare_to_wait\n        [infrun] proceed: [Thread 0x7ffff75a5640 (LWP 2289301)] resumed\n        [infrun] proceed: resuming Thread 0x7ffff6da4640 (LWP 2289302)\n        [infrun] resume_1: thread Thread 0x7ffff6da4640 (LWP 2289302) has pending wait status status->kind = stopped, signal = GDB_SIGNAL_TRAP (currently_stepping=0).\n        [infrun] prepare_to_wait: prepare_to_wait\n      [infrun] proceed: end: resuming threads, all-stop-on-top-of-non-stop\n    [infrun] proceed: exit\n\nWe can easily see where the call to `proceed` starts and end.  We can\nalso see why there are a bunch of resume_1 calls, it's because we are\nresuming threads, emulating all-stop on top of a non-stop target.\n\nWe also see that debug statements nest well with other modules that have\nbeen migrated to use the \"new\" debug statement helpers (because they all\nuse debug_prefixed_vprintf in the end.  I think this is desirable, for\nexample we could see the debug statements about reading the DWARF info\nof a library nested under the debug statements about loading that\nlibrary.\n\nOf course, modules that haven't been migrated to use the \"new\" helpers\nwill still print without indentations.  This will be one good reason to\nmigrate them.\n\nI think the runtime cost (when debug statements are disabled) of this is\nreasonable, given the improvement in readability.  There is the cost of\nthe conditionals (like standard debug statements), one more condition\n(if (m_must_decrement_print_depth)) and the cost of constructing a stack\nobject, which means copying a fews pointers.\n\nAdding the print in fetch_inferior_event breaks some tests that use \"set\ndebug infrun\", because it prints a debug statement after the prompt.  I\nadapted these tests to cope with it, by using the \"-prompt\" switch of\ngdb_test_multiple to as if this debug statement is part of the expected\nprompt.  It's unfortunate that we have to do this, but I think the debug\nprint is useful, and I don't want a few tests to get in the way of\nadding good debug output.\n\ngdbsupport/ChangeLog:\n\n\t* common-debug.h (debug_print_depth): New.\n\t(struct scoped_debug_start_end): New.\n\t(scoped_debug_start_end): New.\n\t(scoped_debug_enter_exit): New.\n\t* common-debug.cc (debug_prefixed_vprintf): Print indentation.\n\ngdb/ChangeLog:\n\n\t* debug.c (debug_print_depth): New.\n\t* infrun.h (INFRUN_SCOPED_DEBUG_START_END): New.\n\t(INFRUN_SCOPED_DEBUG_ENTER_EXIT): New.\n\t* infrun.c (start_step_over): Use\n\tINFRUN_SCOPED_DEBUG_ENTER_EXIT.\n\t(proceed): Use INFRUN_SCOPED_DEBUG_ENTER_EXIT and\n\tINFRUN_SCOPED_DEBUG_START_END.\n\t(fetch_inferior_event): Use INFRUN_SCOPED_DEBUG_ENTER_EXIT.\n\ngdbserver/ChangeLog:\n\n\t* debug.cc (debug_print_depth): New.\n\ngdb/testsuite/ChangeLog:\n\n        * gdb.base/ui-redirect.exp: Expect infrun debug print after\n\tprompt.\n        * gdb.threads/ia64-sigill.exp: Likewise.\n        * gdb.threads/watchthreads-reorder.exp: Likewise.\n\nChange-Id: I7c3805e6487807aa63a1bae318876a0c69dce949",
+    "tree": {
+      "sha": "2409dec31f64c5a58be92ea01787034a44495da0",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/2409dec31f64c5a58be92ea01787034a44495da0"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3ec3145c5dd6434f76fa59f1709193ff96a3508f/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "e71daf80d338e536597fa1c3cd1029aadbaa2a67",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e71daf80d338e536597fa1c3cd1029aadbaa2a67",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/e71daf80d338e536597fa1c3cd1029aadbaa2a67"
+    }
+  ],
+  "stats": {
+    "total": 174,
+    "additions": 162,
+    "deletions": 12
+  },
+  "files": [
+    {
+      "sha": "0d1c5a864c791690b1f47cb23e8cf19d65805737",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+      "patch": "@@ -1,3 +1,14 @@\n+2021-01-04  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\t* debug.c (debug_print_depth): New.\n+\t* infrun.h (INFRUN_SCOPED_DEBUG_START_END): New.\n+\t(INFRUN_SCOPED_DEBUG_ENTER_EXIT): New.\n+\t* infrun.c (start_step_over): Use\n+\tINFRUN_SCOPED_DEBUG_ENTER_EXIT.\n+\t(proceed): Use INFRUN_SCOPED_DEBUG_ENTER_EXIT and\n+\tINFRUN_SCOPED_DEBUG_START_END.\n+\t(fetch_inferior_event): Use INFRUN_SCOPED_DEBUG_ENTER_EXIT.\n+\n 2021-01-04  Simon Marchi  <simon.marchi@efficios.com>\n \n \t* infrun.c (print_target_wait_results): Use infrun_debug_printf."
+    },
+    {
+      "sha": "f7dfee1cfeb28556fb3d6727f242175467441983",
+      "filename": "gdb/debug.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdb/debug.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdb/debug.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/debug.c?ref=3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+      "patch": "@@ -23,6 +23,10 @@\n \n /* See gdbsupport/common-debug.h.  */\n \n+int debug_print_depth = 0;\n+\n+/* See gdbsupport/common-debug.h.  */\n+\n void\n debug_vprintf (const char *fmt, va_list ap)\n {"
+    },
+    {
+      "sha": "45bedf89641968184214e34b91c287c35161d12e",
+      "filename": "gdb/infrun.c",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdb/infrun.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdb/infrun.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infrun.c?ref=3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+      "patch": "@@ -1833,6 +1833,8 @@ static step_over_what thread_still_needs_step_over (struct thread_info *tp);\n static bool\n start_step_over (void)\n {\n+  INFRUN_SCOPED_DEBUG_ENTER_EXIT;\n+\n   thread_info *next;\n \n   /* Don't start a new step-over if we already have an in-line\n@@ -2849,6 +2851,8 @@ check_multi_target_resumption (process_stratum_target *resume_target)\n void\n proceed (CORE_ADDR addr, enum gdb_signal siggnal)\n {\n+  INFRUN_SCOPED_DEBUG_ENTER_EXIT;\n+\n   struct regcache *regcache;\n   struct gdbarch *gdbarch;\n   CORE_ADDR pc;\n@@ -3018,6 +3022,9 @@ proceed (CORE_ADDR addr, enum gdb_signal siggnal)\n       }\n     else if (!non_stop && target_is_non_stop_p ())\n       {\n+\tINFRUN_SCOPED_DEBUG_START_END\n+\t  (\"resuming threads, all-stop-on-top-of-non-stop\");\n+\n \t/* In all-stop, but the target is always in non-stop mode.\n \t   Start all other threads that are implicitly resumed too.  */\n \tfor (thread_info *tp : all_non_exited_threads (resume_target,\n@@ -3771,6 +3778,8 @@ all_uis_on_sync_execution_starting (void)\n void\n fetch_inferior_event ()\n {\n+  INFRUN_SCOPED_DEBUG_ENTER_EXIT;\n+\n   struct execution_control_state ecss;\n   struct execution_control_state *ecs = &ecss;\n   int cmd_done = 0;"
+    },
+    {
+      "sha": "7160b60f1368bb1dbc0fe06459d2ffafcc6613a6",
+      "filename": "gdb/infrun.h",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdb/infrun.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdb/infrun.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infrun.h?ref=3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+      "patch": "@@ -36,6 +36,16 @@ extern bool debug_infrun;\n #define infrun_debug_printf(fmt, ...) \\\n   debug_prefixed_printf_cond (debug_infrun, \"infrun\",fmt, ##__VA_ARGS__)\n \n+/* Print \"infrun\" start/end debug statements.  */\n+\n+#define INFRUN_SCOPED_DEBUG_START_END(msg) \\\n+  scoped_debug_start_end (debug_infrun, \"infrun\", msg)\n+\n+/* Print \"infrun\" enter/exit debug statements.  */\n+\n+#define INFRUN_SCOPED_DEBUG_ENTER_EXIT \\\n+  scoped_debug_enter_exit (debug_infrun, \"infrun\")\n+\n /* Nonzero if we want to give control to the user when we're notified\n    of shared library events by the dynamic linker.  */\n extern int stop_on_solib_events;"
+    },
+    {
+      "sha": "92675799d1292da1b3cf442733708dee5c021d9c",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+      "patch": "@@ -1,3 +1,7 @@\n+2021-01-04  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\n+\n 2021-01-04  Simon Marchi  <simon.marchi@efficios.com>\n \n \t* gdb.server/abspath.exp: Append \"set sysroot\" to GDBFLAGS."
+    },
+    {
+      "sha": "af428000607051c3b072f601cb4dcc9c419e0f57",
+      "filename": "gdb/testsuite/gdb.base/ui-redirect.exp",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 1,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdb/testsuite/gdb.base/ui-redirect.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdb/testsuite/gdb.base/ui-redirect.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/ui-redirect.exp?ref=3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+      "patch": "@@ -117,7 +117,14 @@ with_test_prefix \"debugging\" {\n     gdb_test \"set debug infrun 1\"\n     gdb_test \"set logging on\" \\\n     \"Copying output to /dev/null.*Copying debug output to /dev/null\\\\.\"\n-    gdb_test \"continue\" {Continuing.*\\[infrun\\] .*\\[infrun\\] .*Breakpoint [0-9]+, foo.*}\n+\n+    set prompt \"$gdb_prompt \\\\\\[infrun\\\\\\] fetch_inferior_event: exit\\r\\n$\"\n+    gdb_test_multiple \"continue\" \"continue\" -prompt $prompt {\n+\t-re \"Continuing.*\\\\\\[infrun\\\\\\] .*\\\\\\[infrun\\\\\\] .*Breakpoint \\[0-9\\]+, foo.*$prompt$\" {\n+\t    pass $gdb_test_name\n+\t}\n+    }\n+\n     gdb_test \"set debug infrun 0\"\n     gdb_test \"set logging off\" \"Done logging to /dev/null\\\\.\"\n     gdb_test \"help\" \"List of classes of commands:.*\""
+    },
+    {
+      "sha": "636b387d38871eb3eb59218091e986138053acc5",
+      "filename": "gdb/testsuite/gdb.threads/ia64-sigill.exp",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 6,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdb/testsuite/gdb.threads/ia64-sigill.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdb/testsuite/gdb.threads/ia64-sigill.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/ia64-sigill.exp?ref=3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+      "patch": "@@ -57,17 +57,21 @@ gdb_test_no_output \"set debug infrun 1\"\n \n # The ia64 SIGILL signal is visible only in the lin-lwp debug.\n \n-gdb_test \"continue\" \"Breakpoint \\[0-9\\]+,( .* in)? thread_func .*\"\n+set prompt \"$gdb_prompt \\\\\\[infrun\\\\\\] fetch_inferior_event: exit\\r\\n$\"\n+gdb_test_multiple \"continue\" \"continue\" -prompt $prompt {\n+    -re \"Breakpoint \\[0-9\\]+,( .* in)? thread_func .*$prompt$\" {\n+\tpass $gdb_test_name\n+    }\n+}\n \n gdb_test_no_output {delete $sigill_bpnum}\n \n-set test \"continue for the pending signal\"\n-gdb_test_multiple \"continue\" $test {\n-    -re \"Breakpoint \\[0-9\\]+, .*break-at-exit.*\\r\\n$gdb_prompt $\" {\n+gdb_test_multiple \"continue\" \"continue for the pending signal\" -prompt $prompt {\n+    -re \"Breakpoint \\[0-9\\]+, .*break-at-exit.*\\r\\n$prompt$\" {\n \t# Breakpoint has been skipped in the other thread.\n-\tpass $test\n+\tpass $gdb_test_name\n     }\n     -re \" received signal .*\\r\\n$gdb_prompt $\" {\n-\tfail $test\n+\tfail $gdb_test_name\n     }\n }"
+    },
+    {
+      "sha": "6a474e1e400522fda5c49951064df10992b222ec",
+      "filename": "gdb/testsuite/gdb.threads/stepi-random-signal.exp",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdb/testsuite/gdb.threads/stepi-random-signal.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdb/testsuite/gdb.threads/stepi-random-signal.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/stepi-random-signal.exp?ref=3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+      "patch": "@@ -86,12 +86,13 @@ if {$prev_addr == \"\"} {\n set seen 0\n \n set test \"stepi\"\n-if {[gdb_test_multiple \"stepi\" \"$test\" {\n+set prompt \"$gdb_prompt \\\\\\[infrun\\\\\\] fetch_inferior_event: exit\\r\\n$\"\n+if {[gdb_test_multiple \"stepi\" \"$test\" -prompt $prompt {\n     -re {\\[infrun\\] handle_signal_stop: random signal} {\n \tset seen 1\n \texp_continue\n     }\n-    -re \"$gdb_prompt $\" {\n+    -re \"$prompt$\" {\n     }\n }] != 0} {\n     return"
+    },
+    {
+      "sha": "98c6af75213af5ce9c4e724f39842fbf61d745c2",
+      "filename": "gdb/testsuite/gdb.threads/watchthreads-reorder.exp",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 1,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdb/testsuite/gdb.threads/watchthreads-reorder.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdb/testsuite/gdb.threads/watchthreads-reorder.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/watchthreads-reorder.exp?ref=3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+      "patch": "@@ -90,5 +90,10 @@ foreach reorder {0 1} { with_test_prefix \"reorder$reorder\" {\n     # found in the DEBUG_INFRUN code path.\n     gdb_test \"set debug infrun 1\"\n \n-    gdb_continue_to_breakpoint \"break-at-exit\" \".*break-at-exit.*\"\n+    set prompt \"$gdb_prompt \\\\\\[infrun\\\\\\] fetch_inferior_event: exit\\r\\n$\"\n+    gdb_test_multiple \"continue\" \"continue to breakpoint: break-at-exit\" -prompt $prompt {\n+        -re \".*break-at-exit.*$prompt$\" {\n+\t    pass $gdb_test_name\n+\t}\n+    }\n }}"
+    },
+    {
+      "sha": "6c7738e8077efc078d4b598a0c9df83d7156cc98",
+      "filename": "gdbserver/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdbserver/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdbserver/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/ChangeLog?ref=3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+      "patch": "@@ -1,3 +1,7 @@\n+2021-01-04  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\t* debug.cc (debug_print_depth): New.\n+\n 2021-01-01  Joel Brobecker  <brobecker@adacore.com>\n \n \t* server.cc (gdbserver_version): Update copyright year."
+    },
+    {
+      "sha": "b3a5fe1b15c8c79b658b4d01f836b900017592a9",
+      "filename": "gdbserver/debug.cc",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdbserver/debug.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdbserver/debug.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/debug.cc?ref=3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+      "patch": "@@ -64,6 +64,10 @@ debug_set_output (const char *new_debug_file)\n \n #endif\n \n+/* See gdbsupport/common-debug.h.  */\n+\n+int debug_print_depth = 0;\n+\n /* Print a debugging message.\n    If the text begins a new line it is preceded by a timestamp.\n    We don't get fancy with newline checking, we just check whether the"
+    },
+    {
+      "sha": "2c69581fbced41576a880f864e47c3977f657aea",
+      "filename": "gdbsupport/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdbsupport/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdbsupport/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/ChangeLog?ref=3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+      "patch": "@@ -1,3 +1,11 @@\n+2021-01-04  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\t* common-debug.h (debug_print_depth): New.\n+\t(struct scoped_debug_start_end): New.\n+\t(scoped_debug_start_end): New.\n+\t(scoped_debug_enter_exit): New.\n+\t* common-debug.cc (debug_prefixed_vprintf): Print indentation.\n+\n 2020-12-11  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdbsupport/common-utils.cc: Change 'ctype.h' include to"
+    },
+    {
+      "sha": "0d3e9198921c1e7697528037fc122e3125df75ed",
+      "filename": "gdbsupport/common-debug.cc",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdbsupport/common-debug.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdbsupport/common-debug.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/common-debug.cc?ref=3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+      "patch": "@@ -55,7 +55,7 @@ void\n debug_prefixed_vprintf (const char *module, const char *func,\n \t\t\tconst char *format, va_list args)\n {\n-  debug_printf (\"[%s] %s: \", module, func);\n+  debug_printf (\"%*s[%s] %s: \", debug_print_depth * 2, \"\", module, func);\n   debug_vprintf (format, args);\n   debug_printf (\"\\n\");\n }"
+    },
+    {
+      "sha": "f3137870ffc3743b620c5d86e3b60cba344dfe42",
+      "filename": "gdbsupport/common-debug.h",
+      "status": "modified",
+      "additions": 80,
+      "deletions": 1,
+      "changes": 81,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdbsupport/common-debug.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ec3145c5dd6434f76fa59f1709193ff96a3508f/gdbsupport/common-debug.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/common-debug.h?ref=3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+      "patch": "@@ -50,7 +50,6 @@ extern void ATTRIBUTE_PRINTF (3, 4) debug_prefixed_printf\n extern void ATTRIBUTE_PRINTF (3, 0) debug_prefixed_vprintf\n   (const char *module, const char *func, const char *format, va_list args);\n \n-\n /* Helper to define \"_debug_print\" macros.\n \n    DEBUG_ENABLED_COND is an expression that evaluates to true if the debugging\n@@ -67,4 +66,84 @@ extern void ATTRIBUTE_PRINTF (3, 0) debug_prefixed_vprintf\n     } \\\n   while (0)\n \n+/* Nesting depth of scoped_debug_start_end objects.  */\n+\n+extern int debug_print_depth;\n+\n+/* Print a message on construction and destruction, to denote the start and end\n+   of an operation.  Increment DEBUG_PRINT_DEPTH on construction and decrement\n+   it on destruction, such that nested debug statements will be printed with\n+   an indent and appear \"inside\" this one.  */\n+\n+struct scoped_debug_start_end\n+{\n+  /* DEBUG_ENABLED is a reference to a variable that indicates whether debugging\n+     is enabled, so if the debug statements should be printed.  Is is read\n+     separately at construction and destruction, such that the start statement\n+     could be printed but not the end statement, or vice-versa.\n+\n+     MODULE and FUNC are forwarded to debug_prefixed_printf.\n+\n+     START_MSG and END_MSG are the statements to print on construction and\n+     destruction, respectively.  */\n+\n+  scoped_debug_start_end (bool &debug_enabled, const char *module,\n+\t\t\t  const char *func, const char *start_msg,\n+\t\t\t  const char *end_msg)\n+    : m_debug_enabled (debug_enabled),\n+      m_module (module),\n+      m_func (func),\n+      m_end_msg (end_msg)\n+  {\n+    if (m_debug_enabled)\n+      {\n+\tdebug_prefixed_printf (m_module, m_func, \"%s\", start_msg);\n+\t++debug_print_depth;\n+\tm_must_decrement_print_depth = true;\n+      }\n+  }\n+\n+  DISABLE_COPY_AND_ASSIGN (scoped_debug_start_end);\n+\n+  ~scoped_debug_start_end ()\n+  {\n+    if (m_must_decrement_print_depth)\n+      {\n+\tgdb_assert (debug_print_depth > 0);\n+\t--debug_print_depth;\n+      }\n+\n+    if (m_debug_enabled)\n+      {\n+\tdebug_prefixed_printf (m_module, m_func, \"%s\", m_end_msg);\n+      }\n+  }\n+\n+private:\n+  bool &m_debug_enabled;\n+  const char *m_module;\n+  const char *m_func;\n+  const char *m_end_msg;\n+\n+  /* This is used to handle the case where debugging is enabled during\n+     construction but not during destruction, or vice-versa.  We want to make\n+     sure there are as many increments are there are decrements.  */\n+\n+  bool m_must_decrement_print_depth = false;\n+};\n+\n+/* Helper to define a module-specific start/end debug macro.  */\n+\n+#define scoped_debug_start_end(debug_enabled, module, msg) \\\n+  scoped_debug_start_end CONCAT(scoped_debug_start_end, __LINE__) \\\n+    (debug_enabled, module, __func__, \"start: \" msg, \"end: \" msg)\n+\n+/* Helper to define a module-specific enter/exit debug macro.  This is a special\n+   case of `scoped_debug_start_end` where the start and end messages are \"enter\"\n+   and \"exit\", to denote entry and exit of a function.  */\n+\n+#define scoped_debug_enter_exit(debug_enabled, module) \\\n+  scoped_debug_start_end CONCAT(scoped_debug_start_end, __LINE__) \\\n+    (debug_enabled, module, __func__, \"enter\", \"exit\")\n+\n #endif /* COMMON_COMMON_DEBUG_H */"
+    }
+  ]
+}

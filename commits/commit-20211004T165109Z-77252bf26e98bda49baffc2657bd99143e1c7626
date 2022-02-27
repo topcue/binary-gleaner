@@ -1,0 +1,134 @@
+{
+  "sha": "77252bf26e98bda49baffc2657bd99143e1c7626",
+  "node_id": "C_kwDOANOeidoAKDc3MjUyYmYyNmU5OGJkYTQ5YmFmZmMyNjU3YmQ5OTE0M2UxYzc2MjY",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-10-04T16:51:09Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-10-04T16:51:09Z"
+    },
+    "message": "[gdb/build] Add CXX_DIALECT to CXX\n\nSay we use a gcc version that (while supporting c++11) does not support c++11\nby default, and needs an -std setting to enable it.\n\nIf gdb would use the default AX_CXX_COMPILE_STDCXX from autoconf-archive, then\nwe'd have:\n...\nCXX=\"g++ -std=gnu++11\"\n...\n\nThat mechanism however has the following problem (quoting from commit\n0bcda685399):\n...\nthe top level Makefile passes CXX down to subdirs, and that overrides whatever\ngdb/Makefile may set CXX to.  The result would be that a make invocation from\nthe build/gdb/ directory would use \"g++ -std=gnu++11\" as expected, while a\nmake invocation at the top level would not.\n...\n\nCommit 0bcda685399 fixes this by using a custom AX_CXX_COMPILE_STDCXX which\ndoes:\n...\nCXX=g++\nCXX_DIALECT=-std=gnu++11\n...\n\nThe problem reported in PR28318 is that using the custom instead of the\ndefault AX_CXX_COMPILE_STDCXX makes the configure test for std::thread\nsupport fail.\n\nWe could simply add $CXX_DIALECT to the test for std::thread support, but\nthat would have to be repeated for each added c++ support test.\n\nInstead, fix this by doing:\n...\nCXX=\"g++ -std=gnu++11\"\nCXX_DIALECT=-std=gnu++11\n...\n\nThis is somewhat awkward, since it results in -std=gnu++11 occuring twice in\nsome situations:\n...\n$ touch src/gdb/dwarf2/read.c\n$ ( cd build/gdb; make V=1 dwarf2/read.o )\ng++-4.8 -std=gnu++11 -x c++ -std=gnu++11 ...\n...\n\nHowever, both settings are needed:\n - the switch in CXX for the std::thread tests (and other tests)\n - the switch in CXX_DIALECT so it can be appended in Makefiles, to\n   counteract the fact that the top-level Makefile overrides CXX\n\nThe code added in gdb/ax_cxx_compile_stdcxx.m4 is copied from the default\nAX_CXX_COMPILE_STDCXX from autoconf-archive.\n\nTested on x86_64-linux.\n\nBug: https://sourceware.org/bugzilla/show_bug.cgi?id=28318",
+    "tree": {
+      "sha": "869b7066cea9501daae69b61babe6046188e55d1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/869b7066cea9501daae69b61babe6046188e55d1"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/77252bf26e98bda49baffc2657bd99143e1c7626",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/77252bf26e98bda49baffc2657bd99143e1c7626",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/77252bf26e98bda49baffc2657bd99143e1c7626",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/77252bf26e98bda49baffc2657bd99143e1c7626/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "b0b8879e292218bfb27584515e98a46379c9c666",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b0b8879e292218bfb27584515e98a46379c9c666",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b0b8879e292218bfb27584515e98a46379c9c666"
+    }
+  ],
+  "stats": {
+    "total": 32,
+    "additions": 32,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "29d8e10bcc4017624d468d4820589cee0fbfacb3",
+      "filename": "gdb/ax_cxx_compile_stdcxx.m4",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77252bf26e98bda49baffc2657bd99143e1c7626/gdb/ax_cxx_compile_stdcxx.m4",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77252bf26e98bda49baffc2657bd99143e1c7626/gdb/ax_cxx_compile_stdcxx.m4",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ax_cxx_compile_stdcxx.m4?ref=77252bf26e98bda49baffc2657bd99143e1c7626",
+      "patch": "@@ -94,6 +94,10 @@ AC_DEFUN([AX_CXX_COMPILE_STDCXX], [dnl\n          CXX=\"$ac_save_CXX\"])\n       if eval test x\\$$cachevar = xyes; then\n         CXX_DIALECT=\"$switch\"\n+        CXX=\"$CXX $switch\"\n+        if test -n \"$CXXCPP\" ; then\n+          CXXCPP=\"$CXXCPP $switch\"\n+        fi\n         ac_success=yes\n         break\n       fi\n@@ -118,6 +122,10 @@ AC_DEFUN([AX_CXX_COMPILE_STDCXX], [dnl\n            CXX=\"$ac_save_CXX\"])\n         if eval test x\\$$cachevar = xyes; then\n           CXX_DIALECT=\"$switch\"\n+          CXX=\"$CXX $switch\"\n+          if test -n \"$CXXCPP\" ; then\n+            CXXCPP=\"$CXXCPP $switch\"\n+          fi\n           ac_success=yes\n           break\n         fi"
+    },
+    {
+      "sha": "1876cbfefa43090eca2c9cfce9899fe4ce7a9a6b",
+      "filename": "gdb/configure",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77252bf26e98bda49baffc2657bd99143e1c7626/gdb/configure",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77252bf26e98bda49baffc2657bd99143e1c7626/gdb/configure",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/configure?ref=77252bf26e98bda49baffc2657bd99143e1c7626",
+      "patch": "@@ -5846,6 +5846,10 @@ eval ac_res=\\$$cachevar\n $as_echo \"$ac_res\" >&6; }\n       if eval test x\\$$cachevar = xyes; then\n         CXX_DIALECT=\"$switch\"\n+        CXX=\"$CXX $switch\"\n+        if test -n \"$CXXCPP\" ; then\n+          CXXCPP=\"$CXXCPP $switch\"\n+        fi\n         ac_success=yes\n         break\n       fi\n@@ -6165,6 +6169,10 @@ eval ac_res=\\$$cachevar\n $as_echo \"$ac_res\" >&6; }\n         if eval test x\\$$cachevar = xyes; then\n           CXX_DIALECT=\"$switch\"\n+          CXX=\"$CXX $switch\"\n+          if test -n \"$CXXCPP\" ; then\n+            CXXCPP=\"$CXXCPP $switch\"\n+          fi\n           ac_success=yes\n           break\n         fi"
+    },
+    {
+      "sha": "f05c1a9b9761e47144b37150ef38eebcbebdf642",
+      "filename": "gdbserver/configure",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77252bf26e98bda49baffc2657bd99143e1c7626/gdbserver/configure",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77252bf26e98bda49baffc2657bd99143e1c7626/gdbserver/configure",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/configure?ref=77252bf26e98bda49baffc2657bd99143e1c7626",
+      "patch": "@@ -5625,6 +5625,10 @@ eval ac_res=\\$$cachevar\n $as_echo \"$ac_res\" >&6; }\n       if eval test x\\$$cachevar = xyes; then\n         CXX_DIALECT=\"$switch\"\n+        CXX=\"$CXX $switch\"\n+        if test -n \"$CXXCPP\" ; then\n+          CXXCPP=\"$CXXCPP $switch\"\n+        fi\n         ac_success=yes\n         break\n       fi\n@@ -5944,6 +5948,10 @@ eval ac_res=\\$$cachevar\n $as_echo \"$ac_res\" >&6; }\n         if eval test x\\$$cachevar = xyes; then\n           CXX_DIALECT=\"$switch\"\n+          CXX=\"$CXX $switch\"\n+          if test -n \"$CXXCPP\" ; then\n+            CXXCPP=\"$CXXCPP $switch\"\n+          fi\n           ac_success=yes\n           break\n         fi"
+    },
+    {
+      "sha": "f13ae76641f99e3c6a88366830b7adb4463c4976",
+      "filename": "gdbsupport/configure",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77252bf26e98bda49baffc2657bd99143e1c7626/gdbsupport/configure",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77252bf26e98bda49baffc2657bd99143e1c7626/gdbsupport/configure",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/configure?ref=77252bf26e98bda49baffc2657bd99143e1c7626",
+      "patch": "@@ -6520,6 +6520,10 @@ eval ac_res=\\$$cachevar\n $as_echo \"$ac_res\" >&6; }\n       if eval test x\\$$cachevar = xyes; then\n         CXX_DIALECT=\"$switch\"\n+        CXX=\"$CXX $switch\"\n+        if test -n \"$CXXCPP\" ; then\n+          CXXCPP=\"$CXXCPP $switch\"\n+        fi\n         ac_success=yes\n         break\n       fi\n@@ -6839,6 +6843,10 @@ eval ac_res=\\$$cachevar\n $as_echo \"$ac_res\" >&6; }\n         if eval test x\\$$cachevar = xyes; then\n           CXX_DIALECT=\"$switch\"\n+          CXX=\"$CXX $switch\"\n+          if test -n \"$CXXCPP\" ; then\n+            CXXCPP=\"$CXXCPP $switch\"\n+          fi\n           ac_success=yes\n           break\n         fi"
+    }
+  ]
+}

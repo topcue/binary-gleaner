@@ -1,0 +1,72 @@
+{
+  "sha": "e4df087431f10f6d9079d8f0c78ad0414e814b92",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZTRkZjA4NzQzMWYxMGY2ZDkwNzlkOGYwYzc4YWQwNDE0ZTgxNGI5Mg==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-09-07T18:54:44Z"
+    },
+    "committer": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-09-09T21:50:37Z"
+    },
+    "message": "Fix leak detected in python.c initialization code.\n\nValgrind reports the below leak.\nMake the variable progname_copy static, so that Valgrind continues\nto find a pointer to the memory given to Python.\nNote that the comment in do_start_initialization and the Python documentation\nindicates that the progname given to Py_SetProgramName cannot be freed.\nHowever, in Python 3.7.4, Py_SetProgramName does:\nvoid\nPy_SetProgramName(const wchar_t *program_name)\n{\n    ...\n    PyMem_RawFree(_Py_path_config.program_name);\n    _Py_path_config.program_name = _PyMem_RawWcsdup(program_name);\n\nSo, it looks like 3.7.4 Python duplicates its argument, which explains\nthe leak found by Valgrind.\nIt looks better to respect the doc and not have GDB freeing the string\ngiven to Py_SetProgramName, and avoid the leak error by declaring\nthe progname_copy static.\nThis will work with Python versions that really use this string without\nduplicating it, and avoids a leak report for Python version that duplicates\nit.\n\n==4023== 200 bytes in 1 blocks are definitely lost in loss record 4,545 of 7,116^M\n==4023==    at 0x4C29F33: malloc (vg_replace_malloc.c:307)^M\n==4023==    by 0x446D27: xmalloc (alloc.c:60)^M\n==4023==    by 0x657C77: do_start_initialization (python.c:1610)^M\n==4023==    by 0x657C77: _initialize_python() (python.c:1823)^M\n==4023==    by 0x75FE24: initialize_all_files() (init.c:231)^M\n==4023==    by 0x708A94: gdb_init(char*) (top.c:2242)^M\n==4023==    by 0x5E7460: captured_main_1 (main.c:857)^M\n==4023==    by 0x5E7460: captured_main (main.c:1161)^M\n==4023==    by 0x5E7460: gdb_main(captured_main_args*) (main.c:1186)^M\n==4023==    by 0x4122D4: main (gdb.c:32)^M\n\ngdb/ChangeLog\n2019-09-09  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n\n\t* python/python.c (do_start_initialization): Make progname_copy static,\n\tto avoid a leak report.",
+    "tree": {
+      "sha": "59bd44816253a1866118c853a5fad95871f7838c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/59bd44816253a1866118c853a5fad95871f7838c"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/e4df087431f10f6d9079d8f0c78ad0414e814b92",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e4df087431f10f6d9079d8f0c78ad0414e814b92",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/e4df087431f10f6d9079d8f0c78ad0414e814b92",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e4df087431f10f6d9079d8f0c78ad0414e814b92/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "6715fe29ffcdbef026908fed62e993b238d04d77",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6715fe29ffcdbef026908fed62e993b238d04d77",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/6715fe29ffcdbef026908fed62e993b238d04d77"
+    }
+  ],
+  "stats": {
+    "total": 14,
+    "additions": 13,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "eb6d06281212c99308d5efa4d04edf3593b6643f",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e4df087431f10f6d9079d8f0c78ad0414e814b92/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e4df087431f10f6d9079d8f0c78ad0414e814b92/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=e4df087431f10f6d9079d8f0c78ad0414e814b92",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-09-09  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n+\n+\t* python/python.c (do_start_initialization): Make progname_copy static,\n+\tto avoid a leak report.\n+\n 2019-09-08  Tom Tromey  <tom@tromey.com>\n \n \t* tui/tui-wingeneral.c (box_win): Truncate long window titles."
+    },
+    {
+      "sha": "9c49151db38655b54e56ec387faffc2d04e178dd",
+      "filename": "gdb/python/python.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 1,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e4df087431f10f6d9079d8f0c78ad0414e814b92/gdb/python/python.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e4df087431f10f6d9079d8f0c78ad0414e814b92/gdb/python/python.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/python.c?ref=e4df087431f10f6d9079d8f0c78ad0414e814b92",
+      "patch": "@@ -1590,7 +1590,14 @@ do_start_initialization ()\n {\n #ifdef IS_PY3K\n   size_t progsize, count;\n-  wchar_t *progname_copy;\n+  /* Python documentation indicates that the memory given\n+     to Py_SetProgramName cannot be freed.  However, it seems that\n+     at least Python 3.7.4 Py_SetProgramName takes a copy of the\n+     given program_name.  Making progname_copy static and not release\n+     the memory avoids a leak report for Python versions that duplicate\n+     program_name, and respect the requirement of Py_SetProgramName\n+     for Python versions that do not duplicate program_name.  */\n+  static wchar_t *progname_copy;\n #endif\n \n #ifdef WITH_PYTHON_PATH"
+    }
+  ]
+}

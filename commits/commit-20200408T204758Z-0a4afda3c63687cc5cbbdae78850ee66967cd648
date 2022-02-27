@@ -1,0 +1,134 @@
+{
+  "sha": "0a4afda3c63687cc5cbbdae78850ee66967cd648",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MGE0YWZkYTNjNjM2ODdjYzVjYmJkYWU3ODg1MGVlNjY5NjdjZDY0OA==",
+  "commit": {
+    "author": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2020-04-08T20:33:35Z"
+    },
+    "committer": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2020-04-08T20:47:58Z"
+    },
+    "message": "Handle pending stops from the Windows kernel\n\nPR gdb/22992 concerns an assertion failure in gdb when debugging a\ncertain inferior:\n\n    int finish_step_over(execution_control_state*): Assertion `ecs->event_thread->control.trap_expected' failed.\n\nInitially the investigation centered on the discovery that gdb was not\nsuspending other threads when attempting to single-step.  This\noversight is corrected in this patch: now, when stepping a thread, gdb\nwill call SuspendThread on all other threads.\n\nHowever, the bug persisted even after this change.  In particular,\nWaitForDebugEvent could see a stop for a thread that was ostensibly\nsuspended.  Our theory of what is happening here is that there are\nactually simultaneous breakpoint hits, and the Windows kernel queues\nthe events, causing the second stop to be reported on a suspended\nthread.\n\nIn Windows 10 or later gdb could use the DBG_REPLY_LATER flag to\nContinueDebugEvent to request that such events be re-reported later.\nHowever, relying on that did not seem advisable, so this patch instead\narranges to queue such \"pending\" stops, and then to report them later,\nonce the step has completed.\n\nIn the PR, Pedro pointed out that it's best in this scenario to\nimplement the stopped_by_sw_breakpoint method, so this patch does this\nas well.\n\ngdb/ChangeLog\n2020-04-08  Tom Tromey  <tromey@adacore.com>\n\n\tPR gdb/22992\n\t* windows-nat.c (current_event): Update comment.\n\t(last_wait_event, desired_stop_thread_id): New globals.\n\t(struct pending_stop): New.\n\t(pending_stops): New global.\n\t(windows_nat_target) <stopped_by_sw_breakpoint>\n\t<supports_stopped_by_sw_breakpoint>: New methods.\n\t(windows_fetch_one_register): Add assertions.  Adjust PC.\n\t(windows_continue): Handle pending stops.  Suspend other threads\n\twhen stepping.  Use last_wait_event\n\t(wait_for_debug_event): New function.\n\t(get_windows_debug_event): Use wait_for_debug_event.  Handle\n\tpending stops.  Queue spurious stops.\n\t(windows_nat_target::wait): Set stopped_at_software_breakpoint.\n\t(windows_nat_target::kill): Use wait_for_debug_event.\n\t* nat/windows-nat.h (struct windows_thread_info)\n\t<stopped_at_software_breakpoint>: New field.\n\t* nat/windows-nat.c (windows_thread_info::resume): Clear\n\tstopped_at_software_breakpoint.",
+    "tree": {
+      "sha": "c86d14210cc989e50755349f2cc147c5baf7164b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c86d14210cc989e50755349f2cc147c5baf7164b"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/0a4afda3c63687cc5cbbdae78850ee66967cd648",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0a4afda3c63687cc5cbbdae78850ee66967cd648",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/0a4afda3c63687cc5cbbdae78850ee66967cd648",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0a4afda3c63687cc5cbbdae78850ee66967cd648/comments",
+  "author": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "8e61ebec34674445bd5ea8df627f5ba2afb57d79",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8e61ebec34674445bd5ea8df627f5ba2afb57d79",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/8e61ebec34674445bd5ea8df627f5ba2afb57d79"
+    }
+  ],
+  "stats": {
+    "total": 228,
+    "additions": 215,
+    "deletions": 13
+  },
+  "files": [
+    {
+      "sha": "83aa877c0378bcdf5b35d966a811d0c77673a518",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0a4afda3c63687cc5cbbdae78850ee66967cd648/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0a4afda3c63687cc5cbbdae78850ee66967cd648/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=0a4afda3c63687cc5cbbdae78850ee66967cd648",
+      "patch": "@@ -1,3 +1,25 @@\n+2020-04-08  Tom Tromey  <tromey@adacore.com>\n+\n+\tPR gdb/22992\n+\t* windows-nat.c (current_event): Update comment.\n+\t(last_wait_event, desired_stop_thread_id): New globals.\n+\t(struct pending_stop): New.\n+\t(pending_stops): New global.\n+\t(windows_nat_target) <stopped_by_sw_breakpoint>\n+\t<supports_stopped_by_sw_breakpoint>: New methods.\n+\t(windows_fetch_one_register): Add assertions.  Adjust PC.\n+\t(windows_continue): Handle pending stops.  Suspend other threads\n+\twhen stepping.  Use last_wait_event\n+\t(wait_for_debug_event): New function.\n+\t(get_windows_debug_event): Use wait_for_debug_event.  Handle\n+\tpending stops.  Queue spurious stops.\n+\t(windows_nat_target::wait): Set stopped_at_software_breakpoint.\n+\t(windows_nat_target::kill): Use wait_for_debug_event.\n+\t* nat/windows-nat.h (struct windows_thread_info)\n+\t<stopped_at_software_breakpoint>: New field.\n+\t* nat/windows-nat.c (windows_thread_info::resume): Clear\n+\tstopped_at_software_breakpoint.\n+\n 2020-04-08  Tom Tromey  <tromey@adacore.com>\n \n \t* windows-nat.c (enum thread_disposition_type): New."
+    },
+    {
+      "sha": "767ed8c192fa84534ebd22286e4772757291a295",
+      "filename": "gdb/nat/windows-nat.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0a4afda3c63687cc5cbbdae78850ee66967cd648/gdb/nat/windows-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0a4afda3c63687cc5cbbdae78850ee66967cd648/gdb/nat/windows-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/nat/windows-nat.c?ref=0a4afda3c63687cc5cbbdae78850ee66967cd648",
+      "patch": "@@ -49,6 +49,8 @@ windows_thread_info::resume ()\n {\n   if (suspended > 0)\n     {\n+      stopped_at_software_breakpoint = false;\n+\n       if (ResumeThread (h) == (DWORD) -1)\n \t{\n \t  DWORD err = GetLastError ();"
+    },
+    {
+      "sha": "224ae5c536cbd65803170b81bf8203df9f18eb6b",
+      "filename": "gdb/nat/windows-nat.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0a4afda3c63687cc5cbbdae78850ee66967cd648/gdb/nat/windows-nat.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0a4afda3c63687cc5cbbdae78850ee66967cd648/gdb/nat/windows-nat.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/nat/windows-nat.h?ref=0a4afda3c63687cc5cbbdae78850ee66967cd648",
+      "patch": "@@ -77,6 +77,10 @@ struct windows_thread_info\n      inferior thread.  */\n   bool reload_context = false;\n \n+  /* True if this thread is currently stopped at a software\n+     breakpoint.  This is used to offset the PC when needed.  */\n+  bool stopped_at_software_breakpoint = false;\n+\n   /* The name of the thread, allocated by xmalloc.  */\n   gdb::unique_xmalloc_ptr<char> name;\n };"
+    },
+    {
+      "sha": "ef900ea1ebde1bffeb3c8f006c55ecb28167ad2b",
+      "filename": "gdb/windows-nat.c",
+      "status": "modified",
+      "additions": 187,
+      "deletions": 13,
+      "changes": 200,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0a4afda3c63687cc5cbbdae78850ee66967cd648/gdb/windows-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0a4afda3c63687cc5cbbdae78850ee66967cd648/gdb/windows-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/windows-nat.c?ref=0a4afda3c63687cc5cbbdae78850ee66967cd648",
+      "patch": "@@ -249,8 +249,17 @@ static std::vector<windows_thread_info *> thread_list;\n \n /* The process and thread handles for the above context.  */\n \n-static DEBUG_EVENT current_event;\t/* The current debug event from\n-\t\t\t\t\t   WaitForDebugEvent */\n+/* The current debug event from WaitForDebugEvent or from a pending\n+   stop.  */\n+static DEBUG_EVENT current_event;\n+\n+/* The most recent event from WaitForDebugEvent.  Unlike\n+   current_event, this is guaranteed never to come from a pending\n+   stop.  This is important because only data from the most recent\n+   event from WaitForDebugEvent can be used when calling\n+   ContinueDebugEvent.  */\n+static DEBUG_EVENT last_wait_event;\n+\n static HANDLE current_process_handle;\t/* Currently executing process */\n static windows_thread_info *current_thread;\t/* Info on currently selected thread */\n static EXCEPTION_RECORD siginfo_er;\t/* Contents of $_siginfo */\n@@ -325,6 +334,37 @@ static const struct xlate_exception xlate[] =\n \n #endif /* 0 */\n \n+/* The ID of the thread for which we anticipate a stop event.\n+   Normally this is -1, meaning we'll accept an event in any\n+   thread.  */\n+static DWORD desired_stop_thread_id = -1;\n+\n+/* A single pending stop.  See \"pending_stops\" for more\n+   information.  */\n+struct pending_stop\n+{\n+  /* The thread id.  */\n+  DWORD thread_id;\n+\n+  /* The target waitstatus we computed.  */\n+  target_waitstatus status;\n+\n+  /* The event.  A few fields of this can be referenced after a stop,\n+     and it seemed simplest to store the entire event.  */\n+  DEBUG_EVENT event;\n+};\n+\n+/* A vector of pending stops.  Sometimes, Windows will report a stop\n+   on a thread that has been ostensibly suspended.  We believe what\n+   happens here is that two threads hit a breakpoint simultaneously,\n+   and the Windows kernel queues the stop events.  However, this can\n+   result in the strange effect of trying to single step thread A --\n+   leaving all other threads suspended -- and then seeing a stop in\n+   thread B.  To handle this scenario, we queue all such \"pending\"\n+   stops here, and then process them once the step has completed.  See\n+   PR gdb/22992.  */\n+static std::vector<pending_stop> pending_stops;\n+\n struct windows_nat_target final : public x86_nat_target<inf_child_target>\n {\n   void close () override;\n@@ -343,6 +383,16 @@ struct windows_nat_target final : public x86_nat_target<inf_child_target>\n   void fetch_registers (struct regcache *, int) override;\n   void store_registers (struct regcache *, int) override;\n \n+  bool stopped_by_sw_breakpoint () override\n+  {\n+    return current_thread->stopped_at_software_breakpoint;\n+  }\n+\n+  bool supports_stopped_by_sw_breakpoint () override\n+  {\n+    return true;\n+  }\n+\n   enum target_xfer_status xfer_partial (enum target_object object,\n \t\t\t\t\tconst char *annex,\n \t\t\t\t\tgdb_byte *readbuf,\n@@ -613,6 +663,10 @@ windows_fetch_one_register (struct regcache *regcache,\n   struct gdbarch *gdbarch = regcache->arch ();\n   struct gdbarch_tdep *tdep = gdbarch_tdep (gdbarch);\n \n+  gdb_assert (!gdbarch_read_pc_p (gdbarch));\n+  gdb_assert (gdbarch_pc_regnum (gdbarch) >= 0);\n+  gdb_assert (!gdbarch_write_pc_p (gdbarch));\n+\n   if (r == I387_FISEG_REGNUM (tdep))\n     {\n       long l = *((long *) context_offset) & 0xffff;\n@@ -632,7 +686,29 @@ windows_fetch_one_register (struct regcache *regcache,\n       regcache->raw_supply (r, (char *) &l);\n     }\n   else\n-    regcache->raw_supply (r, context_offset);\n+    {\n+      if (th->stopped_at_software_breakpoint\n+\t  && r == gdbarch_pc_regnum (gdbarch))\n+\t{\n+\t  int size = register_size (gdbarch, r);\n+\t  if (size == 4)\n+\t    {\n+\t      uint32_t value;\n+\t      memcpy (&value, context_offset, size);\n+\t      value -= gdbarch_decr_pc_after_break (gdbarch);\n+\t      memcpy (context_offset, &value, size);\n+\t    }\n+\t  else\n+\t    {\n+\t      gdb_assert (size == 8);\n+\t      uint64_t value;\n+\t      memcpy (&value, context_offset, size);\n+\t      value -= gdbarch_decr_pc_after_break (gdbarch);\n+\t      memcpy (context_offset, &value, size);\n+\t    }\n+\t}\n+      regcache->raw_supply (r, context_offset);\n+    }\n }\n \n void\n@@ -1450,16 +1526,36 @@ windows_continue (DWORD continue_status, int id, int killed)\n {\n   BOOL res;\n \n+  desired_stop_thread_id = id;\n+\n+  /* If there are pending stops, and we might plausibly hit one of\n+     them, we don't want to actually continue the inferior -- we just\n+     want to report the stop.  In this case, we just pretend to\n+     continue.  See the comment by the definition of \"pending_stops\"\n+     for details on why this is needed.  */\n+  for (const auto &item : pending_stops)\n+    {\n+      if (desired_stop_thread_id == -1\n+\t  || desired_stop_thread_id == item.thread_id)\n+\t{\n+\t  DEBUG_EVENTS ((\"windows_continue - pending stop anticipated, \"\n+\t\t\t \"desired=0x%x, item=0x%x\\n\",\n+\t\t\t desired_stop_thread_id, item.thread_id));\n+\t  return TRUE;\n+\t}\n+    }\n+\n   DEBUG_EVENTS ((\"ContinueDebugEvent (cpid=%d, ctid=0x%x, %s);\\n\",\n-\t\t  (unsigned) current_event.dwProcessId,\n-\t\t  (unsigned) current_event.dwThreadId,\n+\t\t  (unsigned) last_wait_event.dwProcessId,\n+\t\t  (unsigned) last_wait_event.dwThreadId,\n \t\t  continue_status == DBG_CONTINUE ?\n \t\t  \"DBG_CONTINUE\" : \"DBG_EXCEPTION_NOT_HANDLED\"));\n \n   for (windows_thread_info *th : thread_list)\n-    if ((id == -1 || id == (int) th->tid)\n-\t&& th->suspended)\n+    if (id == -1 || id == (int) th->tid)\n       {\n+\tif (!th->suspended)\n+\t  continue;\n #ifdef __x86_64__\n \tif (wow64_process)\n \t  {\n@@ -1519,9 +1615,15 @@ windows_continue (DWORD continue_status, int id, int killed)\n \t  }\n \tth->resume ();\n       }\n+    else\n+      {\n+\t/* When single-stepping a specific thread, other threads must\n+\t   be suspended.  */\n+\tth->suspend ();\n+      }\n \n-  res = ContinueDebugEvent (current_event.dwProcessId,\n-\t\t\t    current_event.dwThreadId,\n+  res = ContinueDebugEvent (last_wait_event.dwProcessId,\n+\t\t\t    last_wait_event.dwThreadId,\n \t\t\t    continue_status);\n \n   if (!res)\n@@ -1704,6 +1806,17 @@ ctrl_c_handler (DWORD event_type)\n   return TRUE;\n }\n \n+/* A wrapper for WaitForDebugEvent that sets \"last_wait_event\"\n+   appropriately.  */\n+static BOOL\n+wait_for_debug_event (DEBUG_EVENT *event, DWORD timeout)\n+{\n+  BOOL result = WaitForDebugEvent (event, timeout);\n+  if (result)\n+    last_wait_event = *event;\n+  return result;\n+}\n+\n /* Get the next event from the child.  Returns a non-zero thread id if the event\n    requires handling by WFI (or whatever).  */\n \n@@ -1717,9 +1830,36 @@ windows_nat_target::get_windows_debug_event (int pid,\n   static windows_thread_info dummy_thread_info (0, 0, 0);\n   DWORD thread_id = 0;\n \n+  /* If there is a relevant pending stop, report it now.  See the\n+     comment by the definition of \"pending_stops\" for details on why\n+     this is needed.  */\n+  for (auto iter = pending_stops.begin ();\n+       iter != pending_stops.end ();\n+       ++iter)\n+    {\n+      if (desired_stop_thread_id == -1\n+\t  || desired_stop_thread_id == iter->thread_id)\n+\t{\n+\t  thread_id = iter->thread_id;\n+\t  *ourstatus = iter->status;\n+\t  current_event = iter->event;\n+\n+\t  inferior_ptid = ptid_t (current_event.dwProcessId, thread_id, 0);\n+\t  current_thread = thread_rec (thread_id, INVALIDATE_CONTEXT);\n+\t  current_thread->reload_context = 1;\n+\n+\t  DEBUG_EVENTS ((\"get_windows_debug_event - \"\n+\t\t\t \"pending stop found in 0x%x (desired=0x%x)\\n\",\n+\t\t\t thread_id, desired_stop_thread_id));\n+\n+\t  pending_stops.erase (iter);\n+\t  return thread_id;\n+\t}\n+    }\n+\n   last_sig = GDB_SIGNAL_0;\n \n-  if (!(debug_event = WaitForDebugEvent (&current_event, 1000)))\n+  if (!(debug_event = wait_for_debug_event (&current_event, 1000)))\n     goto out;\n \n   event_count++;\n@@ -1903,7 +2043,27 @@ windows_nat_target::get_windows_debug_event (int pid,\n \n   if (!thread_id || saw_create != 1)\n     {\n-      CHECK (windows_continue (continue_status, -1, 0));\n+      CHECK (windows_continue (continue_status, desired_stop_thread_id, 0));\n+    }\n+  else if (desired_stop_thread_id != -1 && desired_stop_thread_id != thread_id)\n+    {\n+      /* Pending stop.  See the comment by the definition of\n+\t \"pending_stops\" for details on why this is needed.  */\n+      DEBUG_EVENTS ((\"get_windows_debug_event - \"\n+\t\t     \"unexpected stop in 0x%x (expecting 0x%x)\\n\",\n+\t\t     thread_id, desired_stop_thread_id));\n+\n+      if (current_event.dwDebugEventCode == EXCEPTION_DEBUG_EVENT\n+\t  && (current_event.u.Exception.ExceptionRecord.ExceptionCode\n+\t      == EXCEPTION_BREAKPOINT)\n+\t  && windows_initialization_done)\n+\t{\n+\t  th = thread_rec (thread_id, INVALIDATE_CONTEXT);\n+\t  th->stopped_at_software_breakpoint = true;\n+\t}\n+      pending_stops.push_back ({thread_id, *ourstatus, current_event});\n+      thread_id = 0;\n+      CHECK (windows_continue (continue_status, desired_stop_thread_id, 0));\n     }\n   else\n     {\n@@ -1965,7 +2125,21 @@ windows_nat_target::wait (ptid_t ptid, struct target_waitstatus *ourstatus,\n       SetConsoleCtrlHandler (&ctrl_c_handler, FALSE);\n \n       if (retval)\n-\treturn ptid_t (current_event.dwProcessId, retval, 0);\n+\t{\n+\t  ptid_t result = ptid_t (current_event.dwProcessId, retval, 0);\n+\n+\t  if (current_thread != nullptr)\n+\t    {\n+\t      current_thread->stopped_at_software_breakpoint = false;\n+\t      if (current_event.dwDebugEventCode == EXCEPTION_DEBUG_EVENT\n+\t\t  && (current_event.u.Exception.ExceptionRecord.ExceptionCode\n+\t\t      == EXCEPTION_BREAKPOINT)\n+\t\t  && windows_initialization_done)\n+\t\tcurrent_thread->stopped_at_software_breakpoint = true;\n+\t    }\n+\n+\t  return result;\n+\t}\n       else\n \t{\n \t  int detach = 0;\n@@ -3217,7 +3391,7 @@ windows_nat_target::kill ()\n     {\n       if (!windows_continue (DBG_CONTINUE, -1, 1))\n \tbreak;\n-      if (!WaitForDebugEvent (&current_event, INFINITE))\n+      if (!wait_for_debug_event (&current_event, INFINITE))\n \tbreak;\n       if (current_event.dwDebugEventCode == EXIT_PROCESS_DEBUG_EVENT)\n \tbreak;"
+    }
+  ]
+}

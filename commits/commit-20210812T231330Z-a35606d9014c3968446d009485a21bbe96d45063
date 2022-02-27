@@ -1,0 +1,134 @@
+{
+  "sha": "a35606d9014c3968446d009485a21bbe96d45063",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YTM1NjA2ZDkwMTRjMzk2ODQ0NmQwMDk0ODVhMjFiYmU5NmQ0NTA2Mw==",
+  "commit": {
+    "author": {
+      "name": "Lancelot SIX",
+      "email": "lsix@lancelotsix.com",
+      "date": "2021-08-02T22:53:07Z"
+    },
+    "committer": {
+      "name": "Lancelot SIX",
+      "email": "lsix@lancelotsix.com",
+      "date": "2021-08-12T23:13:30Z"
+    },
+    "message": "gdb: riscv_scan_prologue: handle LD and LW instructions\n\nWhile working on the testsuite, I ended up noticing that GDB fails to\nproduce a full backtrace from a thread waiting in pthread_join.  When\nselecting the waiting thread and using the 'bt' command, the following\nresult can be observed:\n\n\t(gdb) bt\n\t#0  0x0000003ff7fccd20 in __futex_abstimed_wait_common64 () from /lib/riscv64-linux-gnu/libpthread.so.0\n\t#1  0x0000003ff7fc43da in __pthread_clockjoin_ex () from /lib/riscv64-linux-gnu/libpthread.so.0\n\tBacktrace stopped: frame did not save the PC\n\nOn my platform, I do not have debug symbols for glibc, so I need to rely\non prologue analysis in order to unwind stack.\n\nHere is what the function prologue looks like:\n\n\t(gdb) disassemble __pthread_clockjoin_ex\n\tDump of assembler code for function __pthread_clockjoin_ex:\n\t   0x0000003ff7fc42de <+0>:     addi    sp,sp,-144\n\t   0x0000003ff7fc42e0 <+2>:     sd      s5,88(sp)\n\t   0x0000003ff7fc42e2 <+4>:     auipc   s5,0xd\n\t   0x0000003ff7fc42e6 <+8>:     ld      s5,-2(s5) # 0x3ff7fd12e0\n\t   0x0000003ff7fc42ea <+12>:    ld      a5,0(s5)\n\t   0x0000003ff7fc42ee <+16>:    sd      ra,136(sp)\n\t   0x0000003ff7fc42f0 <+18>:    sd      s0,128(sp)\n\t   0x0000003ff7fc42f2 <+20>:    sd      s1,120(sp)\n\t   0x0000003ff7fc42f4 <+22>:    sd      s2,112(sp)\n\t   0x0000003ff7fc42f6 <+24>:    sd      s3,104(sp)\n\t   0x0000003ff7fc42f8 <+26>:    sd      s4,96(sp)\n\t   0x0000003ff7fc42fa <+28>:    sd      s6,80(sp)\n\t   0x0000003ff7fc42fc <+30>:    sd      s7,72(sp)\n\t   0x0000003ff7fc42fe <+32>:    sd      s8,64(sp)\n\t   0x0000003ff7fc4300 <+34>:    sd      s9,56(sp)\n\t   0x0000003ff7fc4302 <+36>:    sd      a5,40(sp)\n\nAs far as prologue analysis is concerned, the most interesting part is\ndone at address 0x0000003ff7fc42ee (<+16>): 'sd ra,136(sp)'. This stores\nthe RA (return address) register on the stack, which is the information\nwe are looking for in order to identify the caller.\n\nIn the current implementation of the prologue scanner, GDB stops when\nhitting 0x0000003ff7fc42e6 (<+8>) because it does not know what to do\nwith the 'ld' instruction.  GDB thinks it reached the end of the\nprologue but have not yet reached the important part, which explain\nGDB's inability to unwind past this point.\n\nThe section of the prologue starting at <+4> until <+12> is used to load\nthe stack canary[1], which will then be placed on the stack at <+36> at\nthe end of the prologue.\n\nIn order to have the prologue properly handled, this commit proposes to\nadd support for the ld instruction in the RISC-V prologue scanner.\nI\u00a0guess riscv32 would use lw in such situation so this patch also adds\nsupport for this instruction.\n\nWith this patch applied, gdb is now able to unwind past pthread_join:\n\n\t(gdb) bt\n\t#0  0x0000003ff7fccd20 in __futex_abstimed_wait_common64 () from /lib/riscv64-linux-gnu/libpthread.so.0\n\t#1  0x0000003ff7fc43da in __pthread_clockjoin_ex () from /lib/riscv64-linux-gnu/libpthread.so.0\n\t#2  0x0000002aaaaaa88e in bar() ()\n\t#3  0x0000002aaaaaa8c4 in foo() ()\n\t#4  0x0000002aaaaaa8da in main ()\n\nI have had a look to see if I could reproduce this easily, but in my\nsimple testcases using '-fstack-protector-all', the canary is loaded\nafter the RA register is saved.  I do not have a reliable way of\ngenerating a prologue similar to the problematic one so I\u00a0forged one\ninstead.\n\nThe testsuite have been run on riscv64 ubuntu 21.01 with no regression\nobserved.\n\n[1] https://en.wikipedia.org/wiki/Buffer_overflow_protection#Canaries",
+    "tree": {
+      "sha": "ece5180e8ffa1b586f42a66b6eeda48e6bd54f2f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/ece5180e8ffa1b586f42a66b6eeda48e6bd54f2f"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/a35606d9014c3968446d009485a21bbe96d45063",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a35606d9014c3968446d009485a21bbe96d45063",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/a35606d9014c3968446d009485a21bbe96d45063",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a35606d9014c3968446d009485a21bbe96d45063/comments",
+  "author": {
+    "login": "lsix",
+    "id": 724339,
+    "node_id": "MDQ6VXNlcjcyNDMzOQ==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/724339?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/lsix",
+    "html_url": "https://github.com/lsix",
+    "followers_url": "https://api.github.com/users/lsix/followers",
+    "following_url": "https://api.github.com/users/lsix/following{/other_user}",
+    "gists_url": "https://api.github.com/users/lsix/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/lsix/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/lsix/subscriptions",
+    "organizations_url": "https://api.github.com/users/lsix/orgs",
+    "repos_url": "https://api.github.com/users/lsix/repos",
+    "events_url": "https://api.github.com/users/lsix/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/lsix/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "lsix",
+    "id": 724339,
+    "node_id": "MDQ6VXNlcjcyNDMzOQ==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/724339?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/lsix",
+    "html_url": "https://github.com/lsix",
+    "followers_url": "https://api.github.com/users/lsix/followers",
+    "following_url": "https://api.github.com/users/lsix/following{/other_user}",
+    "gists_url": "https://api.github.com/users/lsix/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/lsix/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/lsix/subscriptions",
+    "organizations_url": "https://api.github.com/users/lsix/orgs",
+    "repos_url": "https://api.github.com/users/lsix/repos",
+    "events_url": "https://api.github.com/users/lsix/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/lsix/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "6a33fa0efec5aa87230a84bcab3c097237dd7f90",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6a33fa0efec5aa87230a84bcab3c097237dd7f90",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/6a33fa0efec5aa87230a84bcab3c097237dd7f90"
+    }
+  ],
+  "stats": {
+    "total": 182,
+    "additions": 182,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "8b55bc33dedd956928937b3af4f11471ba81ace6",
+      "filename": "gdb/riscv-tdep.c",
+      "status": "modified",
+      "additions": 33,
+      "deletions": 0,
+      "changes": 33,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a35606d9014c3968446d009485a21bbe96d45063/gdb/riscv-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a35606d9014c3968446d009485a21bbe96d45063/gdb/riscv-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/riscv-tdep.c?ref=a35606d9014c3968446d009485a21bbe96d45063",
+      "patch": "@@ -1409,6 +1409,8 @@ class riscv_insn\n       LUI,\n       SD,\n       SW,\n+      LD,\n+      LW,\n       /* These are needed for software breakpoint support.  */\n       JAL,\n       JALR,\n@@ -1519,6 +1521,15 @@ class riscv_insn\n     m_imm.s = EXTRACT_CITYPE_IMM (ival);\n   }\n \n+  /* Helper for DECODE, decode 16-bit compressed CL-type instruction.  */\n+  void decode_cl_type_insn (enum opcode opcode, ULONGEST ival)\n+  {\n+    m_opcode = opcode;\n+    m_rd = decode_register_index_short (ival, OP_SH_CRS2S);\n+    m_rs1 = decode_register_index_short (ival, OP_SH_CRS1S);\n+    m_imm.s = EXTRACT_CLTYPE_IMM (ival);\n+  }\n+\n   /* Helper for DECODE, decode 32-bit S-type instruction.  */\n   void decode_s_type_insn (enum opcode opcode, ULONGEST ival)\n   {\n@@ -1715,6 +1726,10 @@ riscv_insn::decode (struct gdbarch *gdbarch, CORE_ADDR pc)\n \tdecode_r_type_insn (SC, ival);\n       else if (is_ecall_insn (ival))\n \tdecode_i_type_insn (ECALL, ival);\n+      else if (is_ld_insn (ival))\n+\tdecode_i_type_insn (LD, ival);\n+      else if (is_lw_insn (ival))\n+\tdecode_i_type_insn (LW, ival);\n       else\n \t/* None of the other fields are valid in this case.  */\n \tm_opcode = OTHER;\n@@ -1783,6 +1798,10 @@ riscv_insn::decode (struct gdbarch *gdbarch, CORE_ADDR pc)\n \tdecode_cb_type_insn (BEQ, ival);\n       else if (is_c_bnez_insn (ival))\n \tdecode_cb_type_insn (BNE, ival);\n+      else if (is_c_ld_insn (ival))\n+\tdecode_cl_type_insn (LD, ival);\n+      else if (is_c_lw_insn (ival))\n+\tdecode_cl_type_insn (LW, ival);\n       else\n \t/* None of the other fields of INSN are valid in this case.  */\n \tm_opcode = OTHER;\n@@ -1931,6 +1950,20 @@ riscv_scan_prologue (struct gdbarch *gdbarch,\n \t  gdb_assert (insn.rs2 () < RISCV_NUM_INTEGER_REGS);\n \t  regs[insn.rd ()] = pv_add (regs[insn.rs1 ()], regs[insn.rs2 ()]);\n \t}\n+      else if (insn.opcode () == riscv_insn::LD\n+\t       || insn.opcode () == riscv_insn::LW)\n+\t{\n+\t  /* Handle: ld reg, offset(rs1)\n+\t     or:     c.ld reg, offset(rs1)\n+\t     or:     lw reg, offset(rs1)\n+\t     or:     c.lw reg, offset(rs1)  */\n+\t  gdb_assert (insn.rd () < RISCV_NUM_INTEGER_REGS);\n+\t  gdb_assert (insn.rs1 () < RISCV_NUM_INTEGER_REGS);\n+\t  regs[insn.rd ()]\n+\t    = stack.fetch (pv_add_constant (regs[insn.rs1 ()],\n+\t\t\t\t\t    insn.imm_signed ()),\n+\t\t\t   (insn.opcode () == riscv_insn::LW ? 4 : 8));\n+\t}\n       else\n \t{\n \t  end_prologue_addr = cur_pc;"
+    },
+    {
+      "sha": "ebc27ff1e8c0ced194d5310f11e8bdf25a80ba5a",
+      "filename": "gdb/testsuite/gdb.arch/riscv64-unwind-prologue-with-ld-lw-foo.s",
+      "status": "added",
+      "additions": 74,
+      "deletions": 0,
+      "changes": 74,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a35606d9014c3968446d009485a21bbe96d45063/gdb/testsuite/gdb.arch/riscv64-unwind-prologue-with-ld-lw-foo.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a35606d9014c3968446d009485a21bbe96d45063/gdb/testsuite/gdb.arch/riscv64-unwind-prologue-with-ld-lw-foo.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/riscv64-unwind-prologue-with-ld-lw-foo.s?ref=a35606d9014c3968446d009485a21bbe96d45063",
+      "patch": "@@ -0,0 +1,74 @@\n+/* Copyright 2021 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+/* This testcase contains a function where the 'ld', 'c.ld', 'lw' or 'c.lw'\n+   instruction is used in the prologue before the RA register have been saved\n+   on the stack.\n+\n+   This mimics a pattern observed in the __pthread_clockjoin_ex function\n+   in libpthread.so.0 (from glibc-2.33-0ubuntu5) where a canary value is\n+   loaded and placed on the stack in order to detect stack smashing.\n+\n+   The skeleton for this file was generated using the following command:\n+\n+      gcc -x c -S -c -o - - <<EOT\n+        static long int __canary = 42;\n+        extern int bar ();\n+        int foo () { return bar(); }\n+      EOT\n+\n+   The result of this command is modified in the following way:\n+     - The prologue is adapted to reserve 16 more bytes on the stack.\n+     - A part that simulates the installation of a canary on the stack is\n+       added.  The canary is loaded multiple times to simulate the use of\n+       various instructions that could do the work (ld or c.ld for a 64 bit\n+       canary, lw or c.lw for a 32 bit canary).\n+     - The epilogue is adjusted to be able to return properly.  The epilogue\n+       does not check the canary value since this testcase is only interested\n+       in ensuring GDB can scan the prologue.  */\n+\n+\t.option pic\n+\t.text\n+\t.data\n+\t.align\t3\n+\t.type\t__canary, @object\n+\t.size\t__canary, 8\n+__canary:\n+\t.dword\t42\n+\t.text\n+\t.align\t1\n+\t.globl\tfoo\n+\t.type\tfoo, @function\n+foo:\n+\taddi\tsp,sp,-32\n+\tlla\ta5,__canary  # Load the fake canary address.\n+\tlw\tt4,0(a5)     # Load a 32 bit canary (use t4 to force the use of\n+\t\t\t     # the non compressed instruction).\n+\tld\tt4,0(a5)     # Load a 64 bit canary (use t4\u00a0to force the use of\n+\t\t\t     # the non compressed instruction).\n+\tc.lw \ta4,0(a5)     # Load a 32 bit canary using the compressed insn.\n+\tc.ld \ta4,0(a5)     # Load a 64 bit canary using the compressed insn.\n+\tsd\ta4,0(sp)     # Place the fake canary on the stack.\n+\tsd\tra,16(sp)\n+\tsd\ts0,8(sp)\n+\taddi\ts0,sp,32\n+\tcall\tbar@plt\n+\tmv\ta5,a0\n+\tmv\ta0,a5\n+\tld\tra,16(sp)\n+\tld\ts0,8(sp)\n+\taddi\tsp,sp,32\n+\tjr\tra\n+\t.size\tfoo, .-foo"
+    },
+    {
+      "sha": "c329d2f72e0936c34426914c79cb70df45bd6e22",
+      "filename": "gdb/testsuite/gdb.arch/riscv64-unwind-prologue-with-ld-lw.exp",
+      "status": "added",
+      "additions": 45,
+      "deletions": 0,
+      "changes": 45,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a35606d9014c3968446d009485a21bbe96d45063/gdb/testsuite/gdb.arch/riscv64-unwind-prologue-with-ld-lw.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a35606d9014c3968446d009485a21bbe96d45063/gdb/testsuite/gdb.arch/riscv64-unwind-prologue-with-ld-lw.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/riscv64-unwind-prologue-with-ld-lw.exp?ref=a35606d9014c3968446d009485a21bbe96d45063",
+      "patch": "@@ -0,0 +1,45 @@\n+# Copyright 2021 Free Software Foundation, Inc.\n+#\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# This tests GDB's ability to use the RISC-V prologue scanner in order to\n+# unwind through a function that uses the 'ld' instruction in its prologue.\n+\n+if {![istarget \"riscv64-*-*\"]} {\n+    verbose \"Skipping ${gdb_test_file_name}.\"\n+    return\n+}\n+\n+standard_testfile riscv64-unwind-prologue-with-ld.c \\\n+\t\t  riscv64-unwind-prologue-with-ld-lw-foo.s\n+if {[prepare_for_testing \"failed to prepare\" $testfile \\\n+\t\t\t \"$srcfile $srcfile2\"  nodebug]} {\n+    return -1\n+}\n+\n+if ![runto_main] then {\n+    fail \"can't run to main\"\n+    return 0\n+}\n+\n+gdb_breakpoint \"bar\"\n+gdb_continue_to_breakpoint \"bar\"\n+gdb_test \"bt\" \\\n+    [multi_line \\\n+         \"#0\\[ \\t\\]*$hex in bar \\\\\\(\\\\\\)\" \\\n+         \"#1\\[ \\t\\]*$hex in foo \\\\\\(\\\\\\)\" \\\n+         \"#2\\[ \\t\\]*$hex in main \\\\\\(\\\\\\)\"] \\\n+    \"Backtrace to the main frame\"\n+gdb_test \"finish\" \"foo \\\\\\(\\\\\\)\" \"finish bar\"\n+gdb_test \"finish\" \"main \\\\\\(\\\\\\)\" \"finish foo\""
+    },
+    {
+      "sha": "9ff950df2731181c97707a4ba35c8de06d03110c",
+      "filename": "gdb/testsuite/gdb.arch/riscv64-unwind-prologue-with-ld.c",
+      "status": "added",
+      "additions": 30,
+      "deletions": 0,
+      "changes": 30,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a35606d9014c3968446d009485a21bbe96d45063/gdb/testsuite/gdb.arch/riscv64-unwind-prologue-with-ld.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a35606d9014c3968446d009485a21bbe96d45063/gdb/testsuite/gdb.arch/riscv64-unwind-prologue-with-ld.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/riscv64-unwind-prologue-with-ld.c?ref=a35606d9014c3968446d009485a21bbe96d45063",
+      "patch": "@@ -0,0 +1,30 @@\n+/* Copyright 2021 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+/* See riscv64-unwind-prologue-with-ld-foo.s for implementation.  */\n+extern int foo (void);\n+\n+int\n+bar ()\n+{\n+  return 0;\n+}\n+\n+int\n+main ()\n+{\n+  return foo ();\n+}\n+"
+    }
+  ]
+}

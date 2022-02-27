@@ -1,0 +1,72 @@
+{
+  "sha": "934a1764071ebe9d6e148e741b55bafb036a7cc6",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OTM0YTE3NjQwNzFlYmU5ZDZlMTQ4ZTc0MWI1NWJhZmIwMzZhN2NjNg==",
+  "commit": {
+    "author": {
+      "name": "Gary Benson",
+      "email": "gbenson@redhat.com",
+      "date": "2020-10-27T17:02:39Z"
+    },
+    "committer": {
+      "name": "Gary Benson",
+      "email": "gbenson@redhat.com",
+      "date": "2020-10-27T17:02:39Z"
+    },
+    "message": "Fix gdb.python/py-format-string.exp with Clang\n\nGDB includes the virtual table pointer when formatting polymorphic\nC++ objects for printing, but GCC and Clang name these differently:\nGCC emits a DW_AT_name of \"_vptr.Base\" when describing the virtual\ntable pointer of a type derived from type \"Base\", whereas Clang\nwill emit \"_vptr$Base\" in this situation.  This commit fixes a\ntestcase which failed because of this.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.python/py-format-string.exp (test_deref_refs): Treat\n\t\"_vptr$Base\" as correct, in addition to \"_vptr.Base\".\n\t(test_mixed): Likewise.",
+    "tree": {
+      "sha": "045b137cc07e905b8fa76eb4c79cfc7da3cbe5f6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/045b137cc07e905b8fa76eb4c79cfc7da3cbe5f6"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/934a1764071ebe9d6e148e741b55bafb036a7cc6",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/934a1764071ebe9d6e148e741b55bafb036a7cc6",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/934a1764071ebe9d6e148e741b55bafb036a7cc6",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/934a1764071ebe9d6e148e741b55bafb036a7cc6/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "0bf21fbd79477304e7fd99869b823da19289e5ba",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0bf21fbd79477304e7fd99869b823da19289e5ba",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/0bf21fbd79477304e7fd99869b823da19289e5ba"
+    }
+  ],
+  "stats": {
+    "total": 10,
+    "additions": 8,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "a260377b9faca793fed6174fa43a45fa8302acbf",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/934a1764071ebe9d6e148e741b55bafb036a7cc6/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/934a1764071ebe9d6e148e741b55bafb036a7cc6/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=934a1764071ebe9d6e148e741b55bafb036a7cc6",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-10-14  Gary Benson <gbenson@redhat.com>\n+\n+\t* gdb.python/py-format-string.exp (test_deref_refs): Treat\n+\t\"_vptr$Base\" as correct, in addition to \"_vptr.Base\".\n+\t(test_mixed): Likewise.\n+\n 2020-10-27  Gary Benson <gbenson@redhat.com>\n \n \t* gdb.mi/mi-fortran-modules.exp: Check skip_fortran_tests."
+    },
+    {
+      "sha": "b7acc242ed320cb1ce2ad53930b5962f0bc4bf44",
+      "filename": "gdb/testsuite/gdb.python/py-format-string.exp",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/934a1764071ebe9d6e148e741b55bafb036a7cc6/gdb/testsuite/gdb.python/py-format-string.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/934a1764071ebe9d6e148e741b55bafb036a7cc6/gdb/testsuite/gdb.python/py-format-string.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.python/py-format-string.exp?ref=934a1764071ebe9d6e148e741b55bafb036a7cc6",
+      "patch": "@@ -509,7 +509,7 @@ proc test_deref_refs {} {\n   if { $current_lang == \"c++\" } {\n     check_var_with_bool_opt \"deref_refs\" \"a_point_t_ref\"\n     check_var_with_bool_opt \"deref_refs\" \"a_base_ref\" \\\n-      \"${default_ref_regexp}: \\\\{_vptr\\\\.Base = ${default_pointer_regexp} <vtable for Deriv\\\\+16>, a = 42, static a_static_member = 2019\\\\}\"\n+\t\"${default_ref_regexp}: \\\\{_vptr\\[.\\$\\]Base = ${default_pointer_regexp} <vtable for Deriv\\\\+16>, a = 42, static a_static_member = 2019\\\\}\"\n   }\n }\n \n@@ -905,7 +905,7 @@ proc test_mixed {} {\n \n     check_format_string \"a_base_ref\" \\\n       \"deref_refs=True, static_members=False\" \\\n-      \"${default_ref_regexp}: \\\\{_vptr\\\\.Base = ${default_pointer_regexp} <vtable for Deriv\\\\+16>, a = 42\\\\}\"\n+      \"${default_ref_regexp}: \\\\{_vptr\\[.\\$\\]Base = ${default_pointer_regexp} <vtable for Deriv\\\\+16>, a = 42\\\\}\"\n   }\n }\n "
+    }
+  ]
+}

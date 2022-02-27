@@ -1,0 +1,146 @@
+{
+  "sha": "ff5075202958f78e1a0bb77405e19c347d1d0bbd",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZmY1MDc1MjAyOTU4Zjc4ZTFhMGJiNzc0MDVlMTljMzQ3ZDFkMGJiZA==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-04-21T19:54:03Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-04-21T19:54:03Z"
+    },
+    "message": "[gdb/build] Hardcode --with-included-regex\n\nCurrently gdb has a configure option:\n...\n$ ./src/gdb/configure --help\n  ...\n  --without-included-regex\n                          don't use included regex; this is the default on\n                          systems with version 2 of the GNU C library (use\n                          with caution on other system)\n...\n\nThe configure option controls config.h macro USE_INCLUDED_REGEX, which is\nused in gdb/gdb_regex.h to choose between:\n- using regex from libiberty (which is included in the binutils-gdb.git repo,\n  hence the 'included' in USE_INCLUDED_REGEX), or\n- using regex.h.\n\nIn the former case, the symbol regcomp is remapped to a symbol xregcomp, which\nis then provided by libiberty.\n\nIn the latter case, the symbol regcomp is resolved at runtime, usually binding\nto libc.  However, there is no mechanism in place to enforce this.\n\nPR27681 is an example of where that causes problems.  On openSUSE Tumbleweed,\nthe ncurses package got the --with-pcre2 configure switch enabled, and solved\nthe resulting dependencies using:\n...\n $ cat /usr/lib64/libncursesw.so\n /* GNU ld script */\n-INPUT(/lib64/libncursesw.so.6 AS_NEEDED(-ltinfo -ldl))\n+INPUT(/lib64/libncursesw.so.6 AS_NEEDED(-ltinfo -ldl -lpcre2-posix -lpcre2-8))\n...\n\nThis lead to regcomp being bound to libpcre2-posix instead of libc.\n\nThis causes problems in several ways:\n- by compiling using regex.h, we've already chosen a specific regex_t\n  implementation, and the one from pcre2-posix is not the same.\n- in gdb_regex.c we use GNU regex function re_search, which pcre2-posix\n  doesn't provide, so while regcomp binds to pcre2-posix, re_search binds to\n  libc.\n\nA note on the latter: it's actually a bug to compile a regex using regcomp and\nthen pass it to re_search.  The GNU regex interface requires one to use\nre_compile_pattern or re_compile_fastmap.  But as long we're using one of the\nGNU regex incarnations in gnulib, glibc or libiberty, we get away with this.\n\nThe PR could be fixed by adding -lc in a specific position in the link line,\nto force regcomp to be bound to glibc.  But this solution was considered\nin the discussion in the PR as being brittle, and possibly causing problems\nelsewhere.\n\nAnother solution offered was to restrict regex usage to posix, and no longer\nuse the GNU regex API.  This however could mean having to reproduce some of\nthat functionality locally, which would mean maintaining the same\nfunctionality in more than one place.\n\nThe solution chosen here, is to hardcode --with-included-regex, that is, using\nlibiberty.\n\nThe option of using glibc for regex was introduced because glibc became the\nauthorative source for GNU regex, so it offered the possibility to link\nagainst a more up-to-date regex version.\n\nIn that aspect, this patch is a step back.  But we have the option of using a\nmore up-to-date regex version as a follow-up step: by using the regex from\ngnulib.\n\nTested on x86_64-linux.\n\ngdb/ChangeLog:\n\n2021-04-21  Tom de Vries  <tdevries@suse.de>\n\n\tPR build/27681\n\t* configure.ac: Remove --without-included-regex/--with-included-regex.\n\t* config.in: Regenerate.\n\t* configure: Regenerate.\n\t* gdb_regex.h: Assume USE_INCLUDED_REGEX is defined.",
+    "tree": {
+      "sha": "249d9977387c8f6c777d8c78f633c9bbef8f421f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/249d9977387c8f6c777d8c78f633c9bbef8f421f"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ff5075202958f78e1a0bb77405e19c347d1d0bbd",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ff5075202958f78e1a0bb77405e19c347d1d0bbd",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ff5075202958f78e1a0bb77405e19c347d1d0bbd",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ff5075202958f78e1a0bb77405e19c347d1d0bbd/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "18e9a809e864e68ed999f3a9a06dce55b7a2c0f4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/18e9a809e864e68ed999f3a9a06dce55b7a2c0f4",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/18e9a809e864e68ed999f3a9a06dce55b7a2c0f4"
+    }
+  ],
+  "stats": {
+    "total": 109,
+    "additions": 8,
+    "deletions": 101
+  },
+  "files": [
+    {
+      "sha": "5e7971211db1c0fc16e4a0efa504d032eff1e3be",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ff5075202958f78e1a0bb77405e19c347d1d0bbd/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ff5075202958f78e1a0bb77405e19c347d1d0bbd/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=ff5075202958f78e1a0bb77405e19c347d1d0bbd",
+      "patch": "@@ -1,3 +1,11 @@\n+2021-04-21  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR build/27681\n+\t* configure.ac: Remove --without-included-regex/--with-included-regex.\n+\t* config.in: Regenerate.\n+\t* configure: Regenerate.\n+\t* gdb_regex.h: Assume USE_INCLUDED_REGEX is defined.\n+\n 2021-04-21  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n \n \t* breakpoint.h (create_breakpoint): Add a new parameter,"
+    },
+    {
+      "sha": "5d10377b73633b2ebf3afc7777ae0a6b2b53c112",
+      "filename": "gdb/config.in",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ff5075202958f78e1a0bb77405e19c347d1d0bbd/gdb/config.in",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ff5075202958f78e1a0bb77405e19c347d1d0bbd/gdb/config.in",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/config.in?ref=ff5075202958f78e1a0bb77405e19c347d1d0bbd",
+      "patch": "@@ -725,9 +725,6 @@\n /* Define if <thread_db.h> has the TD_VERSION error code. */\n #undef THREAD_DB_HAS_TD_VERSION\n \n-/* Define to 1 if the regex included in libiberty should be used. */\n-#undef USE_INCLUDED_REGEX\n-\n /* Enable extensions on AIX 3, Interix.  */\n #ifndef _ALL_SOURCE\n # undef _ALL_SOURCE"
+    },
+    {
+      "sha": "b47de77bf64c1dace6b6e15a2b4f249fb3206d4d",
+      "filename": "gdb/configure",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 59,
+      "changes": 59,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ff5075202958f78e1a0bb77405e19c347d1d0bbd/gdb/configure",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ff5075202958f78e1a0bb77405e19c347d1d0bbd/gdb/configure",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/configure?ref=ff5075202958f78e1a0bb77405e19c347d1d0bbd",
+      "patch": "@@ -911,7 +911,6 @@ enable_source_highlight\n with_intel_pt\n with_libipt_prefix\n with_libipt_type\n-with_included_regex\n with_sysroot\n with_system_gdbinit\n with_system_gdbinit_dir\n@@ -1661,10 +1660,6 @@ Optional Packages:\n   --with-libipt-prefix[=DIR]  search for libipt in DIR/include and DIR/lib\n   --without-libipt-prefix     don't search for libipt in includedir and libdir\n   --with-libipt-type=TYPE     type of library to search for (auto/static/shared)\n-  --without-included-regex\n-                          don't use included regex; this is the default on\n-                          systems with version 2 of the GNU C library (use\n-                          with caution on other system)\n   --with-sysroot[=DIR]    search for usr/lib et al within DIR\n   --with-system-gdbinit=PATH\n                           automatically load a system-wide gdbinit file\n@@ -15891,60 +15886,6 @@ if test \"$ac_cv_func_setpgrp_void\" = yes; then\n fi\n fi\n \n-# Assume we'll default to using the included libiberty regex.\n-gdb_use_included_regex=yes\n-\n-# However, if the system regex is GNU regex, then default to *not*\n-# using the included regex.\n-{ $as_echo \"$as_me:${as_lineno-$LINENO}: checking for GNU regex\" >&5\n-$as_echo_n \"checking for GNU regex... \" >&6; }\n-if ${gdb_cv_have_gnu_regex+:} false; then :\n-  $as_echo_n \"(cached) \" >&6\n-else\n-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext\n-/* end confdefs.h.  */\n-#include <gnu-versions.h>\n-int\n-main ()\n-{\n-#define REGEX_INTERFACE_VERSION 1\n-\t #if _GNU_REGEX_INTERFACE_VERSION != REGEX_INTERFACE_VERSION\n-\t # error \"Version mismatch\"\n-\t #endif\n-\n-  ;\n-  return 0;\n-}\n-_ACEOF\n-if ac_fn_c_try_compile \"$LINENO\"; then :\n-  gdb_cv_have_gnu_regex=yes\n-else\n-  gdb_cv_have_gnu_regex=no\n-\n-fi\n-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext\n-\n-fi\n-{ $as_echo \"$as_me:${as_lineno-$LINENO}: result: $gdb_cv_have_gnu_regex\" >&5\n-$as_echo \"$gdb_cv_have_gnu_regex\" >&6; }\n-if test \"$gdb_cv_have_gnu_regex\" = yes; then\n-  gdb_use_included_regex=no\n-fi\n-\n-\n-# Check whether --with-included-regex was given.\n-if test \"${with_included_regex+set}\" = set; then :\n-  withval=$with_included_regex; gdb_with_regex=$withval\n-else\n-  gdb_with_regex=$gdb_use_included_regex\n-fi\n-\n-if test \"$gdb_with_regex\" = yes; then\n-\n-$as_echo \"#define USE_INCLUDED_REGEX 1\" >>confdefs.h\n-\n-fi\n-\n # Check if <sys/proc.h> defines `struct thread' with a td_pcb member.\n ac_fn_c_check_member \"$LINENO\" \"struct thread\" \"td_pcb\" \"ac_cv_member_struct_thread_td_pcb\" \"#include <sys/param.h>\n #include <sys/proc.h>"
+    },
+    {
+      "sha": "acfbe4a9a6cc779f86df6ba4175c70a0d8319656",
+      "filename": "gdb/configure.ac",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 33,
+      "changes": 33,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ff5075202958f78e1a0bb77405e19c347d1d0bbd/gdb/configure.ac",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ff5075202958f78e1a0bb77405e19c347d1d0bbd/gdb/configure.ac",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/configure.ac?ref=ff5075202958f78e1a0bb77405e19c347d1d0bbd",
+      "patch": "@@ -1363,39 +1363,6 @@ if test \"$ac_cv_func_setpgrp_void\" = yes; then\n fi\n fi\n \n-# Assume we'll default to using the included libiberty regex.\n-gdb_use_included_regex=yes\n-\n-# However, if the system regex is GNU regex, then default to *not*\n-# using the included regex.\n-AC_CACHE_CHECK(\n-  [for GNU regex],\n-  [gdb_cv_have_gnu_regex],\n-  [AC_COMPILE_IFELSE(\n-     [AC_LANG_PROGRAM(\n-\t[#include <gnu-versions.h>],\n-\t[#define REGEX_INTERFACE_VERSION 1\n-\t #if _GNU_REGEX_INTERFACE_VERSION != REGEX_INTERFACE_VERSION\n-\t # error \"Version mismatch\"\n-\t #endif]\n-      )],\n-     [gdb_cv_have_gnu_regex=yes],\n-     [gdb_cv_have_gnu_regex=no]\n-   )]\n-)\n-if test \"$gdb_cv_have_gnu_regex\" = yes; then\n-  gdb_use_included_regex=no\n-fi\n-\n-AC_ARG_WITH(included-regex,\n-  AS_HELP_STRING([--without-included-regex], [don't use included regex; this is the default on systems with version 2 of the GNU C library (use with caution on other system)]),\n-  gdb_with_regex=$withval,\n-  gdb_with_regex=$gdb_use_included_regex)\n-if test \"$gdb_with_regex\" = yes; then\n-  AC_DEFINE(USE_INCLUDED_REGEX, 1,\n-    [Define to 1 if the regex included in libiberty should be used.])\n-fi\n-\n # Check if <sys/proc.h> defines `struct thread' with a td_pcb member.\n AC_CHECK_MEMBERS([struct thread.td_pcb], [], [],\n [#include <sys/param.h>"
+    },
+    {
+      "sha": "0cac96e85c1a866e3aa9db30a47bc4e930f6c1d9",
+      "filename": "gdb/gdb_regex.h",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 6,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ff5075202958f78e1a0bb77405e19c347d1d0bbd/gdb/gdb_regex.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ff5075202958f78e1a0bb77405e19c347d1d0bbd/gdb/gdb_regex.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdb_regex.h?ref=ff5075202958f78e1a0bb77405e19c347d1d0bbd",
+      "patch": "@@ -19,13 +19,7 @@\n #ifndef GDB_REGEX_H\n #define GDB_REGEX_H 1\n \n-#ifdef USE_INCLUDED_REGEX\n # include \"xregex.h\"\n-#else\n-/* Request 4.2 BSD regex functions.  */\n-# define _REGEX_RE_COMP\n-# include <regex.h>\n-#endif\n \n /* A compiled regex.  This is mainly a wrapper around regex_t.  The\n    the constructor throws on regcomp error and the destructor is"
+    }
+  ]
+}

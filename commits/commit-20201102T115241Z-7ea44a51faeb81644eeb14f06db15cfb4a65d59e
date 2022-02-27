@@ -1,0 +1,108 @@
+{
+  "sha": "7ea44a51faeb81644eeb14f06db15cfb4a65d59e",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6N2VhNDRhNTFmYWViODE2NDRlZWIxNGYwNmRiMTVjZmI0YTY1ZDU5ZQ==",
+  "commit": {
+    "author": {
+      "name": "Gary Benson",
+      "email": "gbenson@redhat.com",
+      "date": "2020-11-02T11:52:41Z"
+    },
+    "committer": {
+      "name": "Gary Benson",
+      "email": "gbenson@redhat.com",
+      "date": "2020-11-02T11:52:41Z"
+    },
+    "message": "Fix testcases using __attribute__((noclone)) with Clang\n\nClang fails to compile a number of files with the following warning:\nunknown attribute 'noclone' ignored [-Wunknown-attributes].  This\ncommit adds a new header, lib/noclone.h, which defines the macro\nATTRIBUTE_NOCLONE accordingly, and updates the relevant testcases\nto use it.\n\ngdb/testsuite/ChangeLog:\n\n\t* lib/attributes.h: New header.\n\t* gdb.base/backtrace.c: Include the above. Replace\n\t__attribute__(noclone)) with ATTRIBUTE_NOCLONE.\n\t* gdb.base/infcall-nested-structs.c: Likewise.\n\t* gdb.base/vla-optimized-out.c: Likewise.",
+    "tree": {
+      "sha": "296dff3206b8fc96bfca3fa0a8f8d690d98f9fb4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/296dff3206b8fc96bfca3fa0a8f8d690d98f9fb4"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/7ea44a51faeb81644eeb14f06db15cfb4a65d59e",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7ea44a51faeb81644eeb14f06db15cfb4a65d59e",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/7ea44a51faeb81644eeb14f06db15cfb4a65d59e",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7ea44a51faeb81644eeb14f06db15cfb4a65d59e/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "ab8f783d7ad51895d961b1bc6b82abcd8118e9a1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ab8f783d7ad51895d961b1bc6b82abcd8118e9a1",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/ab8f783d7ad51895d961b1bc6b82abcd8118e9a1"
+    }
+  ],
+  "stats": {
+    "total": 125,
+    "additions": 89,
+    "deletions": 36
+  },
+  "files": [
+    {
+      "sha": "be14e5a433ac2140c447fa75b8c8cc951ed1e334",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ea44a51faeb81644eeb14f06db15cfb4a65d59e/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ea44a51faeb81644eeb14f06db15cfb4a65d59e/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=7ea44a51faeb81644eeb14f06db15cfb4a65d59e",
+      "patch": "@@ -1,3 +1,11 @@\n+2020-11-02  Gary Benson <gbenson@redhat.com>\n+\n+\t* lib/attributes.h: New header.\n+\t* gdb.base/backtrace.c: Include the above. Replace\n+\t__attribute__(noclone)) with ATTRIBUTE_NOCLONE.\n+\t* gdb.base/infcall-nested-structs.c: Likewise.\n+\t* gdb.base/vla-optimized-out.c: Likewise.\n+\n 2020-11-02  Tom de Vries  <tdevries@suse.de>\n \n \t* gdb.dwarf2/fission-multi-cu.S: Remove .debug_line.dwo section."
+    },
+    {
+      "sha": "ce63e334f98dbe8457175a406f35d8128cc4c181",
+      "filename": "gdb/testsuite/gdb.base/backtrace.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 3,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ea44a51faeb81644eeb14f06db15cfb4a65d59e/gdb/testsuite/gdb.base/backtrace.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ea44a51faeb81644eeb14f06db15cfb4a65d59e/gdb/testsuite/gdb.base/backtrace.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/backtrace.c?ref=7ea44a51faeb81644eeb14f06db15cfb4a65d59e",
+      "patch": "@@ -15,19 +15,21 @@\n    You should have received a copy of the GNU General Public License\n    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n \n-int __attribute__((noinline,noclone))\n+#include \"../lib/attributes.h\"\n+\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n baz ()\n {\n   return 0;\t/* Break here.  */\n }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n bar ()\n {\n   return baz ();\n }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n foo ()\n {\n   return bar ();"
+    },
+    {
+      "sha": "ee347d495fa32736f44bb0a69469282e0e65345c",
+      "filename": "gdb/testsuite/gdb.base/infcall-nested-structs.c",
+      "status": "modified",
+      "additions": 33,
+      "deletions": 32,
+      "changes": 65,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ea44a51faeb81644eeb14f06db15cfb4a65d59e/gdb/testsuite/gdb.base/infcall-nested-structs.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ea44a51faeb81644eeb14f06db15cfb4a65d59e/gdb/testsuite/gdb.base/infcall-nested-structs.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/infcall-nested-structs.c?ref=7ea44a51faeb81644eeb14f06db15cfb4a65d59e",
+      "patch": "@@ -33,6 +33,7 @@\n    in the structs.exp test script.  */\n \n #include <string.h>\n+#include \"../lib/attributes.h\"\n \n /* Useful abreviations.  */\n typedef char tc;\n@@ -51,13 +52,13 @@ typedef long double _Complex tldc;\n #endif /* TEST_COMPLEX */\n \n #define MAKE_CHECK_FUNCS(TYPE)\t\t\t\t\t\\\n-  int __attribute__((noinline,noclone))\t\t\t\t\\\n+  int __attribute__((noinline)) ATTRIBUTE_NOCLONE\t\t\\\n   check_arg_ ## TYPE (struct TYPE arg)\t\t\t\t\\\n   {\t\t\t\t\t\t\t\t\\\n     return cmp_ ## TYPE (arg, ref_val_ ## TYPE);\t\t\\\n   }\t\t\t\t\t\t\t\t\\\n \t\t\t\t\t\t\t\t\\\n-  struct TYPE __attribute__((noinline,noclone))\t\t\t\\\n+  struct TYPE __attribute__((noinline)) ATTRIBUTE_NOCLONE\t\\\n   rtn_str_ ## TYPE (void)\t\t\t\t\t\\\n   {\t\t\t\t\t\t\t\t\\\n     return (ref_val_ ## TYPE);\t\t\t\t\t\\\n@@ -128,141 +129,141 @@ struct struct_static_06_04 { ES(es1); ES(es2); static tA a; ES(es3); static tB b\n \n #endif\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_01_01 (struct struct_01_01 a, struct struct_01_01 b)\n { return a.s2.s1.a == b.s2.s1.a; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_01_02 (struct struct_01_02 a, struct struct_01_02 b)\n { return a.a == b.a; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_01_03 (struct struct_01_03 a, struct struct_01_03 b)\n { return a.s4.s3.a == b.s4.s3.a; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_01_04 (struct struct_01_04 a, struct struct_01_04 b)\n { return a.a == b.a; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_02_01 (struct struct_02_01 a, struct struct_02_01 b)\n { return a.s2.s1.a == b.s2.s1.a && a.s2.s1.b == b.s2.s1.b; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_02_02 (struct struct_02_02 a, struct struct_02_02 b)\n { return a.a == b.a && a.b == b.b; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_02_03 (struct struct_02_03 a, struct struct_02_03 b)\n { return a.s4.s3.a == b.s4.s3.a && a.s6.s5.b == b.s6.s5.b; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_02_04 (struct struct_02_04 a, struct struct_02_04 b)\n { return a.a == b.a && a.b == b.b; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_04_01 (struct struct_04_01 a, struct struct_04_01 b)\n { return a.s2.s1.a == b.s2.s1.a && a.s2.s1.b == b.s2.s1.b\n \t && a.s2.s1.c == b.s2.s1.c && a.s2.s1.d == b.s2.s1.d; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_04_02 (struct struct_04_02 a, struct struct_04_02 b)\n { return a.a == b.a && a.b == b.b && a.c == b.c && a.d == b.d; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_04_03 (struct struct_04_03 a, struct struct_04_03 b)\n { return a.s4.s3.a == b.s4.s3.a && a.s6.s5.b == b.s6.s5.b\n \t && a.s8.s7.c == b.s8.s7.c && a.s10.s9.d == b.s10.s9.d; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_04_04 (struct struct_04_04 a, struct struct_04_04 b)\n { return a.a == b.a && a.b == b.b && a.c == b.c && a.d == b.d; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_05_01 (struct struct_05_01 a, struct struct_05_01 b)\n { return a.s2.s1.a == b.s2.s1.a && a.s2.s1.b == b.s2.s1.b\n \t && a.s2.s1.c == b.s2.s1.c && a.s2.s1.d == b.s2.s1.d\n \t && a.s2.s1.e == b.s2.s1.e; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_05_02 (struct struct_05_02 a, struct struct_05_02 b)\n { return a.a == b.a && a.b == b.b && a.c == b.c && a.d == b.d && a.e == b.e; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_05_03 (struct struct_05_03 a, struct struct_05_03 b)\n { return a.s4.s3.a == b.s4.s3.a && a.s6.s5.b == b.s6.s5.b\n \t && a.s8.s7.c == b.s8.s7.c && a.s10.s9.d == b.s10.s9.d\n \t && a.s12.s11.e == b.s12.s11.e; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_05_04 (struct struct_05_04 a, struct struct_05_04 b)\n { return a.a == b.a && a.b == b.b && a.c == b.c && a.d == b.d && a.e == b.e; }\n \n #ifdef __cplusplus\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_static_02_01 (struct struct_static_02_01 a,\n \t\t\t struct struct_static_02_01 b)\n { return a.s2.s1.a == b.s2.s1.a && a.s2.s1.b == b.s2.s1.b; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_static_02_02 (struct struct_static_02_02 a,\n \t\t\t struct struct_static_02_02 b)\n { return a.a == b.a && a.b == b.b; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_static_02_03 (struct struct_static_02_03 a,\n \t\t\t struct struct_static_02_03 b)\n { return a.s4.s3.a == b.s4.s3.a && a.s6.s5.b == b.s6.s5.b; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_static_02_04 (struct struct_static_02_04 a,\n \t\t\t     struct struct_static_02_04 b)\n { return a.a == b.a && a.b == b.b; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_static_04_01 (struct struct_static_04_01 a,\n \t\t\t struct struct_static_04_01 b)\n { return a.s2.s1.a == b.s2.s1.a && a.s2.s1.b == b.s2.s1.b\n \t && a.s2.s1.c == b.s2.s1.c && a.s2.s1.d == b.s2.s1.d; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_static_04_02 (struct struct_static_04_02 a,\n \t\t\t struct struct_static_04_02 b)\n { return a.a == b.a && a.b == b.b && a.c == b.c && a.d == b.d; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_static_04_03 (struct struct_static_04_03 a,\n \t\t\t struct struct_static_04_03 b)\n { return a.s4.s3.a == b.s4.s3.a && a.s6.s5.b == b.s6.s5.b\n \t && a.s8.s7.c == b.s8.s7.c && a.s10.s9.d == b.s10.s9.d; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_static_04_04 (struct struct_static_04_04 a,\n \t\t\t struct struct_static_04_04 b)\n { return a.a == b.a && a.b == b.b && a.c == b.c && a.d == b.d; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_static_06_01 (struct struct_static_06_01 a,\n \t\t\t struct struct_static_06_01 b)\n { return a.s2.s1.a == b.s2.s1.a && a.s2.s1.b == b.s2.s1.b\n \t && a.s2.s1.c == b.s2.s1.c && a.s2.s1.d == b.s2.s1.d\n \t && a.s2.s1.e == b.s2.s1.e && a.f == b.f; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_static_06_02 (struct struct_static_06_02 a,\n \t\t\t struct struct_static_06_02 b)\n { return a.a == b.a && a.b == b.b && a.c == b.c && a.d == b.d && a.e == b.e\n \t && a.f == b.f; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_static_06_03 (struct struct_static_06_03 a,\n \t\t\t struct struct_static_06_03 b)\n { return a.s4.s3.a == b.s4.s3.a && a.s6.s5.b == b.s6.s5.b\n \t && a.s8.s7.c == b.s8.s7.c && a.s10.s9.d == b.s10.s9.d\n \t && a.s12.s11.e == b.s12.s11.e && a.s12.s11.f == b.s12.s11.f; }\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n cmp_struct_static_06_04 (struct struct_static_06_04 a,\n \t\t\t struct struct_static_06_04 b)\n { return a.a == b.a && a.b == b.b && a.c == b.c && a.d == b.d && a.e == b.e\n@@ -366,7 +367,7 @@ MAKE_CHECK_FUNCS(struct_static_06_04)\n \n #define CALL_LINE(NAME) val += check_arg_ ## NAME (rtn_str_ ## NAME ())\n \n-int __attribute__((noinline,noclone))\n+int __attribute__((noinline)) ATTRIBUTE_NOCLONE\n call_all ()\n {\n   int val = 0;\n@@ -407,7 +408,7 @@ call_all ()\n \n int volatile v = 1;\n \n-void __attribute__((noinline, noclone))\n+void __attribute__((noinline)) ATTRIBUTE_NOCLONE\n breakpt (void)\n {\n   v++;"
+    },
+    {
+      "sha": "d21df7a153e94c940fdb6853966100b03d6ba7c6",
+      "filename": "gdb/testsuite/gdb.base/vla-optimized-out.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ea44a51faeb81644eeb14f06db15cfb4a65d59e/gdb/testsuite/gdb.base/vla-optimized-out.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ea44a51faeb81644eeb14f06db15cfb4a65d59e/gdb/testsuite/gdb.base/vla-optimized-out.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/vla-optimized-out.c?ref=7ea44a51faeb81644eeb14f06db15cfb4a65d59e",
+      "patch": "@@ -18,9 +18,11 @@\n /* The version of this test-case with f1 tagged with noinline only is equivalent\n    to gcc/testsuite/gcc.dg/guality/vla-1.c.  */\n \n+#include \"../lib/attributes.h\"\n+\n int\n #ifdef NOCLONE\n-__attribute__((noinline, noclone))\n+__attribute__((noinline)) ATTRIBUTE_NOCLONE\n #else\n __attribute__((noinline))\n #endif"
+    },
+    {
+      "sha": "b66567c9c1dc60394d649f74941cfd98d93dca5d",
+      "filename": "gdb/testsuite/lib/attributes.h",
+      "status": "added",
+      "additions": 40,
+      "deletions": 0,
+      "changes": 40,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ea44a51faeb81644eeb14f06db15cfb4a65d59e/gdb/testsuite/lib/attributes.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ea44a51faeb81644eeb14f06db15cfb4a65d59e/gdb/testsuite/lib/attributes.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/attributes.h?ref=7ea44a51faeb81644eeb14f06db15cfb4a65d59e",
+      "patch": "@@ -0,0 +1,40 @@\n+/* This file is part of GDB, the GNU debugger.\n+\n+   Copyright (C) 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+/* Compatibility macro for __attribute__((noclone)).  */\n+\n+#ifndef ATTRIBUTES_H\n+#define ATTRIBUTES_H\n+\n+#ifdef __cplusplus\n+extern \"C\" {\n+#endif\n+\n+#ifdef __has_attribute\n+# if !__has_attribute (noclone)\n+#  define ATTRIBUTE_NOCLONE\n+# endif\n+#endif\n+#ifndef ATTRIBUTE_NOCLONE\n+# define ATTRIBUTE_NOCLONE __attribute__((noclone))\n+#endif\n+\n+#ifdef __cplusplus\n+}\n+#endif\n+\n+#endif /* ATTRIBUTES_H */"
+    }
+  ]
+}

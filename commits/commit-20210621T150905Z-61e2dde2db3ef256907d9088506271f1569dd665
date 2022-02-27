@@ -1,0 +1,158 @@
+{
+  "sha": "61e2dde2db3ef256907d9088506271f1569dd665",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NjFlMmRkZTJkYjNlZjI1NjkwN2Q5MDg4NTA2MjcxZjE1NjlkZDY2NQ==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-05-26T14:24:04Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-06-21T15:09:05Z"
+    },
+    "message": "gdb/python: handle saving user registers in a frame  unwinder\n\nThis patch came about because I wanted to write a frame unwinder that\nwould corrupt the backtrace in a particular way.  In order to achieve\nwhat I wanted I ended up trying to write an unwinder like this:\n\n  class FrameId(object):\n      .... snip class definition ....\n\n  class TestUnwinder(Unwinder):\n      def __init__(self):\n          Unwinder.__init__(self, \"some name\")\n\n      def __call__(self, pending_frame):\n          pc_desc = pending_frame.architecture().registers().find(\"pc\")\n          pc = pending_frame.read_register(pc_desc)\n\n          sp_desc = pending_frame.architecture().registers().find(\"sp\")\n          sp = pending_frame.read_register(sp_desc)\n\n          # ... snip code to decide if this unwinder applies or not.\n\n          fid = FrameId(pc, sp)\n          unwinder = pending_frame.create_unwind_info(fid)\n          unwinder.add_saved_register(pc_desc, pc)\n          unwinder.add_saved_register(sp_desc, sp)\n          return unwinder\n\nThe important things here are the two calls:\n\n          unwinder.add_saved_register(pc_desc, pc)\n          unwinder.add_saved_register(sp_desc, sp)\n\nOn x86-64 these would fail with an assertion error:\n\n  gdb/regcache.c:168: internal-error: int register_size(gdbarch*, int): Assertion `regnum >= 0 && regnum < gdbarch_num_cooked_regs (gdbarch)' failed.\n\nWhat happens is that in unwind_infopy_add_saved_register (py-unwind.c)\nwe call register_size, as register_size should only be called on\ncooked (real or pseudo) registers, and 'pc' and 'sp' are implemented\nas user registers (at least on x86-64), we trigger the assertion.\n\nA simple fix would be to check in unwind_infopy_add_saved_register if\nthe register number we are handling is a cooked register or not, if\nnot we can throw a 'Bad register' error back to the Python code.\n\nHowever, I think we can do better.\n\nConsider that at the CLI we can do this:\n\n  (gdb) set $pc=0x1234\n\nThis works because GDB first evaluates '$pc' to get a register value,\nthen evaluates '0x1234' to create a value encapsulating the\nimmediate.  The contents of the immediate value are then copied back\nto the location of the register value representing '$pc'.\n\nThe value location for a user-register will (usually) be the location\nof the real register that was accessed, so on x86-64 we'd expect this\nto be $rip.\n\nSo, in this patch I propose that in the unwinder code, when\nadd_saved_register is called, if it is passed a\nuser-register (i.e. non-cooked) then we first fetch the register,\nextract the real register number from the value's location, and use\nthat new register number when handling the add_saved_register call.\n\nIf either the value location that we get for the user-register is not\na cooked register then we can throw a 'Bad register' error back to the\nPython code, but in most cases this will not happen.\n\ngdb/ChangeLog:\n\n\t* python/py-unwind.c (unwind_infopy_add_saved_register): Handle\n\tsaving user registers.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.python/py-unwind-user-regs.c: New file.\n\t* gdb.python/py-unwind-user-regs.exp: New file.\n\t* gdb.python/py-unwind-user-regs.py: New file.",
+    "tree": {
+      "sha": "de09bd49f4c2525e0f896f4eff0148ed6c7be361",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/de09bd49f4c2525e0f896f4eff0148ed6c7be361"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/61e2dde2db3ef256907d9088506271f1569dd665",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/61e2dde2db3ef256907d9088506271f1569dd665",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/61e2dde2db3ef256907d9088506271f1569dd665",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/61e2dde2db3ef256907d9088506271f1569dd665/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "1b40d569a861eb8b290faaad05ae8a6152e0b2ee",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1b40d569a861eb8b290faaad05ae8a6152e0b2ee",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/1b40d569a861eb8b290faaad05ae8a6152e0b2ee"
+    }
+  ],
+  "stats": {
+    "total": 239,
+    "additions": 239,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "a221a841e0afd2dcd648003542e77fd3126d2201",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/61e2dde2db3ef256907d9088506271f1569dd665/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/61e2dde2db3ef256907d9088506271f1569dd665/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=61e2dde2db3ef256907d9088506271f1569dd665",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-06-21  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* python/py-unwind.c (unwind_infopy_add_saved_register): Handle\n+\tsaving user registers.\n+\n 2021-06-19  Mike Frysinger  <vapier@gentoo.org>\n \n \t* acinclude.m4: Delete most m4_include's of ../config files."
+    },
+    {
+      "sha": "d6e2f85dbc1928ef3d605273adbd98129dd50c10",
+      "filename": "gdb/python/py-unwind.c",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 0,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/61e2dde2db3ef256907d9088506271f1569dd665/gdb/python/py-unwind.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/61e2dde2db3ef256907d9088506271f1569dd665/gdb/python/py-unwind.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/py-unwind.c?ref=61e2dde2db3ef256907d9088506271f1569dd665",
+      "patch": "@@ -27,6 +27,7 @@\n #include \"python-internal.h\"\n #include \"regcache.h\"\n #include \"valprint.h\"\n+#include \"user-regs.h\"\n \n /* Debugging of Python unwinders.  */\n \n@@ -265,6 +266,26 @@ unwind_infopy_add_saved_register (PyObject *self, PyObject *args)\n       PyErr_SetString (PyExc_ValueError, \"Bad register\");\n       return NULL;\n     }\n+\n+  /* If REGNUM identifies a user register then *maybe* we can convert this\n+     to a real (i.e. non-user) register.  The maybe qualifier is because we\n+     don't know what user registers each target might add, however, the\n+     following logic should work for the usual style of user registers,\n+     where the read function just forwards the register read on to some\n+     other register with no adjusting the value.  */\n+  if (regnum >= gdbarch_num_cooked_regs (pending_frame->gdbarch))\n+    {\n+      struct value *user_reg_value\n+\t= value_of_user_reg (regnum, pending_frame->frame_info);\n+      if (VALUE_LVAL (user_reg_value) == lval_register)\n+\tregnum = VALUE_REGNUM (user_reg_value);\n+      if (regnum >= gdbarch_num_cooked_regs (pending_frame->gdbarch))\n+\t{\n+\t  PyErr_SetString (PyExc_ValueError, \"Bad register\");\n+\t  return NULL;\n+\t}\n+    }\n+\n   {\n     struct value *value;\n     size_t data_size;"
+    },
+    {
+      "sha": "ddd8b1391d15c0b322687c9443b493c08ce826db",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/61e2dde2db3ef256907d9088506271f1569dd665/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/61e2dde2db3ef256907d9088506271f1569dd665/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=61e2dde2db3ef256907d9088506271f1569dd665",
+      "patch": "@@ -1,3 +1,9 @@\n+2021-06-21  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.python/py-unwind-user-regs.c: New file.\n+\t* gdb.python/py-unwind-user-regs.exp: New file.\n+\t* gdb.python/py-unwind-user-regs.py: New file.\n+\n 2021-06-17  Carl Love  <cel@us.ibm.com>\n \n \t* gdb.arch/powerpc-power8.exp(bctar, bctarl): Update mnemonics"
+    },
+    {
+      "sha": "8d1efd1a85d3a649fbec9ddcb9203b69f5fccfe0",
+      "filename": "gdb/testsuite/gdb.python/py-unwind-user-regs.c",
+      "status": "added",
+      "additions": 37,
+      "deletions": 0,
+      "changes": 37,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/61e2dde2db3ef256907d9088506271f1569dd665/gdb/testsuite/gdb.python/py-unwind-user-regs.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/61e2dde2db3ef256907d9088506271f1569dd665/gdb/testsuite/gdb.python/py-unwind-user-regs.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.python/py-unwind-user-regs.c?ref=61e2dde2db3ef256907d9088506271f1569dd665",
+      "patch": "@@ -0,0 +1,37 @@\n+/* This test program is part of GDB, the GNU debugger.\n+\n+   Copyright 2021 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+volatile int global_var;\n+\n+void __attribute__ ((noinline))\n+foo (void)\n+{\n+  ++global_var;\t\t/* Break here.  */\n+}\n+\n+void __attribute__ ((noinline))\n+bar (void)\n+{\n+  foo ();\n+}\n+\n+int\n+main (void)\n+{\n+  bar ();\n+  return 0;\n+}"
+    },
+    {
+      "sha": "7ae3a5bb19f505edd4f417049db6c154afc5abc0",
+      "filename": "gdb/testsuite/gdb.python/py-unwind-user-regs.exp",
+      "status": "added",
+      "additions": 98,
+      "deletions": 0,
+      "changes": 98,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/61e2dde2db3ef256907d9088506271f1569dd665/gdb/testsuite/gdb.python/py-unwind-user-regs.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/61e2dde2db3ef256907d9088506271f1569dd665/gdb/testsuite/gdb.python/py-unwind-user-regs.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.python/py-unwind-user-regs.exp?ref=61e2dde2db3ef256907d9088506271f1569dd665",
+      "patch": "@@ -0,0 +1,98 @@\n+# Copyright (C) 2021 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Setup an unwinder that uses gdb.UnwindInfo.add_saved_register with\n+# the register's 'pc' and 'sp'.  On some (all?) targets, these\n+# registers are implemented as user-registers, and so can't normally\n+# be written to directly.\n+#\n+# The Python unwinder now includes code similar to how the expression\n+# evaluator would handle something like 'set $pc=0x1234', we fetch the\n+# value of '$pc', and then use the value's location to tell us which\n+# register to write to.\n+#\n+# The unwinder defined here deliberately breaks the unwind by setting\n+# the unwound $pc and $sp to be equal to the current frame's $pc and\n+# $sp.  GDB will spot this as a loop in the backtrace and terminate\n+# the unwind.\n+#\n+# However, by the time the unwind terminates we have already shown\n+# that it is possible to call add_saved_register with a user-register,\n+# so the test is considered passed.\n+#\n+# For completeness this test checks two cases, calling\n+# add_saved_register with a gdb.RegisterDescriptor and calling\n+# add_saved_register with a string containing the register name.\n+\n+load_lib gdb-python.exp\n+\n+standard_testfile\n+\n+if { [prepare_for_testing \"failed to prepare\" ${testfile} ${srcfile}] } {\n+    return -1\n+}\n+\n+# Skip all tests if Python scripting is not enabled.\n+if { [skip_python_tests] } { continue }\n+\n+if ![runto_main] then {\n+    fail \"can't run to main\"\n+    return 0\n+}\n+\n+set pyfile [gdb_remote_download host ${srcdir}/${subdir}/${testfile}.py]\n+\n+gdb_breakpoint [gdb_get_line_number \"Break here\"]\n+gdb_continue_to_breakpoint \"stop at test breakpoint\"\n+\n+# Load the script containing the unwinders.  There are actually two\n+# unwinders defined here that will catch the same function, so we\n+# immediately disable one of the unwinders.\n+gdb_test_no_output \"source ${pyfile}\"\\\n+    \"import python scripts\"\n+gdb_test \"disable unwinder global \\\"break unwinding using strings\\\"\" \\\n+    \"1 unwinder disabled\" \"disable the unwinder that uses strings\"\n+\n+# At this point we are using the unwinder that passes a\n+# gdb.RegisterDescriptor to add_saved_register.\n+gdb_test_sequence \"bt\"  \"Backtrace corrupted by descriptor based unwinder\" {\n+    \"\\\\r\\\\n#0 \\[^\\r\\n\\]* foo \\\\(\\\\) at \"\n+    \"\\\\r\\\\n#1 \\[^\\r\\n\\]* bar \\\\(\\\\) at \"\n+    \"Backtrace stopped: previous frame inner to this frame \\\\(corrupt stack\\\\?\\\\)\"\n+}\n+\n+# Disable the unwinder that calls add_saved_register with a\n+# gdb.RegisterDescriptor, and enable the unwinder that calls\n+# add_saved_register with a string (containing the register name).\n+gdb_test \"disable unwinder global \\\"break unwinding using descriptors\\\"\" \\\n+    \"1 unwinder disabled\" \"disable the unwinder that uses descriptors\"\n+gdb_test \"enable unwinder global \\\"break unwinding using strings\\\"\" \\\n+    \"1 unwinder enabled\" \"enable the unwinder that uses strings\"\n+gdb_test_sequence \"bt\"  \"Backtrace corrupted by string based unwinder\" {\n+    \"\\\\r\\\\n#0 \\[^\\r\\n\\]* foo \\\\(\\\\) at \"\n+    \"\\\\r\\\\n#1 \\[^\\r\\n\\]* bar \\\\(\\\\) at \"\n+    \"Backtrace stopped: previous frame inner to this frame \\\\(corrupt stack\\\\?\\\\)\"\n+}\n+\n+# Just for completeness, disable the string unwinder again (neither of\n+# our special unwinders are now enabled), and check the backtrace.  We\n+# now get the complete stack back to main.\n+gdb_test \"disable unwinder global \\\"break unwinding using strings\\\"\" \\\n+    \"1 unwinder disabled\" \"disable the unwinder that uses strings again\"\n+gdb_test_sequence \"bt\"  \"Backtrace not corrupted when using no unwinder\" {\n+    \"\\\\r\\\\n#0 \\[^\\r\\n\\]* foo \\\\(\\\\) at \"\n+    \"\\\\r\\\\n#1 \\[^\\r\\n\\]* bar \\\\(\\\\) at \"\n+    \"\\\\r\\\\n#2 \\[^\\r\\n\\]* main \\\\(\\\\) at \"\n+}"
+    },
+    {
+      "sha": "c64c6c0e210bc5cde394f621e4e1c2ba4f6083d2",
+      "filename": "gdb/testsuite/gdb.python/py-unwind-user-regs.py",
+      "status": "added",
+      "additions": 72,
+      "deletions": 0,
+      "changes": 72,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/61e2dde2db3ef256907d9088506271f1569dd665/gdb/testsuite/gdb.python/py-unwind-user-regs.py",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/61e2dde2db3ef256907d9088506271f1569dd665/gdb/testsuite/gdb.python/py-unwind-user-regs.py",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.python/py-unwind-user-regs.py?ref=61e2dde2db3ef256907d9088506271f1569dd665",
+      "patch": "@@ -0,0 +1,72 @@\n+# Copyright (C) 2021 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+import gdb\n+from gdb.unwinder import Unwinder\n+\n+\n+class FrameId(object):\n+    def __init__(self, sp, pc):\n+        self._sp = sp\n+        self._pc = pc\n+\n+    @property\n+    def sp(self):\n+        return self._sp\n+\n+    @property\n+    def pc(self):\n+        return self._pc\n+\n+\n+class TestUnwinder(Unwinder):\n+    def __init__(self, use_descriptors):\n+        if use_descriptors:\n+            tag = \"using descriptors\"\n+        else:\n+            tag = \"using strings\"\n+\n+        Unwinder.__init__(self, \"break unwinding %s\" % tag)\n+        self._use_descriptors = use_descriptors\n+\n+    def __call__(self, pending_frame):\n+        pc_desc = pending_frame.architecture().registers().find(\"pc\")\n+        pc = pending_frame.read_register(pc_desc)\n+\n+        sp_desc = pending_frame.architecture().registers().find(\"sp\")\n+        sp = pending_frame.read_register(sp_desc)\n+\n+        block = gdb.block_for_pc(int(pc))\n+        if block is None:\n+            return None\n+        func = block.function\n+        if func is None:\n+            return None\n+        if str(func) != \"bar\":\n+            return None\n+\n+        fid = FrameId(pc, sp)\n+        unwinder = pending_frame.create_unwind_info(fid)\n+        if self._use_descriptors:\n+            unwinder.add_saved_register(pc_desc, pc)\n+            unwinder.add_saved_register(sp_desc, sp)\n+        else:\n+            unwinder.add_saved_register(\"pc\", pc)\n+            unwinder.add_saved_register(\"sp\", sp)\n+        return unwinder\n+\n+\n+gdb.unwinder.register_unwinder(None, TestUnwinder(True), True)\n+gdb.unwinder.register_unwinder(None, TestUnwinder(False), True)"
+    }
+  ]
+}

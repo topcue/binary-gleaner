@@ -1,0 +1,72 @@
+{
+  "sha": "ff371ec99988662e16b061fe0f66e989340f129a",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZmYzNzFlYzk5OTg4NjYyZTE2YjA2MWZlMGY2NmU5ODkzNDBmMTI5YQ==",
+  "commit": {
+    "author": {
+      "name": "Jim Wilson",
+      "email": "jimw@sifive.com",
+      "date": "2019-10-16T17:58:37Z"
+    },
+    "committer": {
+      "name": "Jim Wilson",
+      "email": "jimw@sifive.com",
+      "date": "2019-10-16T17:58:37Z"
+    },
+    "message": "Add initial compile command support to RISC-V port.\n\nThis adds initial compile command support to the RISC-V port.  This fixes\nabout 228 testsuite failures on a riscv64-linux machine.  We need to get\nthe triplet right which is normally riscv64 or riscv32 instead of the\ndefault riscv.  Also, we need to get the compiler options right, since we\ndon't accept the default -m64 and -mcmodel=large options, so we need to\nconstruct -march and -mabi options which are correct for the target.  We\ncurrently don't have info about all extensions used by the target, so this\nmay need to be adjusted later.  For now, I'm assuming that we have all\nextensions required by the linux platform spec.\n\n\tgdb/\n\t* riscv-tdep.c (riscv_gcc_target_options): New.\n\t(riscv_gnu_triplet_regexp): New.\n\t(riscv_gdbarch_init): Call set_gdbarch_gcc_triplet_options and\n\tset_gdbarch_gnu_triplet_regexp.\n\nChange-Id: I315ce8de7789ddf7bdd3b532f917519464941294",
+    "tree": {
+      "sha": "b578c650e2ef593e209d865994d051517067eda3",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/b578c650e2ef593e209d865994d051517067eda3"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ff371ec99988662e16b061fe0f66e989340f129a",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ff371ec99988662e16b061fe0f66e989340f129a",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ff371ec99988662e16b061fe0f66e989340f129a",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ff371ec99988662e16b061fe0f66e989340f129a/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "fec4e896d6834bc6d23b9d666910dce43f2a2184",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/fec4e896d6834bc6d23b9d666910dce43f2a2184",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/fec4e896d6834bc6d23b9d666910dce43f2a2184"
+    }
+  ],
+  "stats": {
+    "total": 63,
+    "additions": 63,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "6de9f3d01f4c343f9a17ccf0916023f062b571f5",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ff371ec99988662e16b061fe0f66e989340f129a/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ff371ec99988662e16b061fe0f66e989340f129a/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=ff371ec99988662e16b061fe0f66e989340f129a",
+      "patch": "@@ -1,3 +1,10 @@\n+2019-10-16  Jim Wilson  <jimw@sifive.com>\n+\n+\t* riscv-tdep.c (riscv_gcc_target_options): New.\n+\t(riscv_gnu_triplet_regexp): New.\n+\t(riscv_gdbarch_init): Call set_gdbarch_gcc_triplet_options and\n+\tset_gdbarch_gnu_triplet_regexp.\n+\n 2019-10-16  Christian Biesinger  <cbiesinger@google.com>\n \n \t* Makefile.in: Add xml-builtin.h."
+    },
+    {
+      "sha": "031fc8f9edec235847998268716b9e1ec1df6371",
+      "filename": "gdb/riscv-tdep.c",
+      "status": "modified",
+      "additions": 56,
+      "deletions": 0,
+      "changes": 56,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ff371ec99988662e16b061fe0f66e989340f129a/gdb/riscv-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ff371ec99988662e16b061fe0f66e989340f129a/gdb/riscv-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/riscv-tdep.c?ref=ff371ec99988662e16b061fe0f66e989340f129a",
+      "patch": "@@ -3055,6 +3055,58 @@ riscv_dwarf_reg_to_regnum (struct gdbarch *gdbarch, int reg)\n   return -1;\n }\n \n+/* Implement the gcc_target_options method.  We have to select the arch and abi\n+   from the feature info.  We have enough feature info to select the abi, but\n+   not enough info for the arch given all of the possible architecture\n+   extensions.  So choose reasonable defaults for now.  */\n+\n+static std::string\n+riscv_gcc_target_options (struct gdbarch *gdbarch)\n+{\n+  int isa_xlen = riscv_isa_xlen (gdbarch);\n+  int isa_flen = riscv_isa_flen (gdbarch);\n+  int abi_xlen = riscv_abi_xlen (gdbarch);\n+  int abi_flen = riscv_abi_flen (gdbarch);\n+  std::string target_options;\n+\n+  target_options = \"-march=rv\";\n+  if (isa_xlen == 8)\n+    target_options += \"64\";\n+  else\n+    target_options += \"32\";\n+  if (isa_flen == 8)\n+    target_options += \"gc\";\n+  else if (isa_flen == 4)\n+    target_options += \"imafc\";\n+  else\n+    target_options += \"imac\";\n+\n+  target_options += \" -mabi=\";\n+  if (abi_xlen == 8)\n+    target_options += \"lp64\";\n+  else\n+    target_options += \"ilp32\";\n+  if (abi_flen == 8)\n+    target_options += \"d\";\n+  else if (abi_flen == 4)\n+    target_options += \"f\";\n+\n+  /* The gdb loader doesn't handle link-time relaxation relocations.  */\n+  target_options += \" -mno-relax\";\n+\n+  return target_options;\n+}\n+\n+/* Implement the gnu_triplet_regexp method.  A single compiler supports both\n+   32-bit and 64-bit code, and may be named riscv32 or riscv64 or (not\n+   recommended) riscv.  */\n+\n+static const char *\n+riscv_gnu_triplet_regexp (struct gdbarch *gdbarch)\n+{\n+  return \"riscv(32|64)?\";\n+}\n+\n /* Initialize the current architecture based on INFO.  If possible,\n    re-use an architecture from ARCHES, which is a list of\n    architectures already created during this debugging session.\n@@ -3299,6 +3351,10 @@ riscv_gdbarch_init (struct gdbarch_info info,\n     riscv_setup_register_aliases (gdbarch, &riscv_freg_feature);\n   riscv_setup_register_aliases (gdbarch, &riscv_csr_feature);\n \n+  /* Compile command hooks.  */\n+  set_gdbarch_gcc_target_options (gdbarch, riscv_gcc_target_options);\n+  set_gdbarch_gnu_triplet_regexp (gdbarch, riscv_gnu_triplet_regexp);\n+\n   /* Hook in OS ABI-specific overrides, if they have been registered.  */\n   gdbarch_init_osabi (info, gdbarch);\n "
+    }
+  ]
+}

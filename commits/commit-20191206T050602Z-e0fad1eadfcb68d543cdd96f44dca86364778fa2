@@ -1,0 +1,120 @@
+{
+  "sha": "e0fad1eadfcb68d543cdd96f44dca86364778fa2",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZTBmYWQxZWFkZmNiNjhkNTQzY2RkOTZmNDRkY2E4NjM2NDc3OGZhMg==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-12-05T22:41:58Z"
+    },
+    "committer": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-12-06T05:06:02Z"
+    },
+    "message": "Fix crash when command arg is missing in faas/taas/tfaas commands.\n\nGDB crashes when doing:\n  (gdb) faas\n  Aborted\n\nDo the needed check to avoid crashing.\n\ngdb/ChangeLog\n2019-12-06  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n\t* stack.c (faas_command): Check a command is provided.\n\t* thread.c (taas_command, tfaas_command): Likewise.\n\ngdb/testsuite/ChangeLog\n2019-12-06  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n\n\t* gdb.threads/pthreads.exp: Test taas and tfaas without command.\n\t* gdb.base/frameapply.exp: Test faas without command.",
+    "tree": {
+      "sha": "68b36fc2f7ffd19d3bc886bac5e9ef0bea5bc1c1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/68b36fc2f7ffd19d3bc886bac5e9ef0bea5bc1c1"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/e0fad1eadfcb68d543cdd96f44dca86364778fa2",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e0fad1eadfcb68d543cdd96f44dca86364778fa2",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/e0fad1eadfcb68d543cdd96f44dca86364778fa2",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e0fad1eadfcb68d543cdd96f44dca86364778fa2/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "8fc52a054bb7954813ff62adc6187c1072f09e8b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8fc52a054bb7954813ff62adc6187c1072f09e8b",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/8fc52a054bb7954813ff62adc6187c1072f09e8b"
+    }
+  ],
+  "stats": {
+    "total": 23,
+    "additions": 22,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "7646214ca8a3dab296b73898fa0bcf816496dd02",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e0fad1eadfcb68d543cdd96f44dca86364778fa2/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e0fad1eadfcb68d543cdd96f44dca86364778fa2/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=e0fad1eadfcb68d543cdd96f44dca86364778fa2",
+      "patch": "@@ -1,3 +1,7 @@\n+2019-12-06  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n+\t* stack.c (faas_command): Check a command is provided.\n+\t* thread.c (taas_command, tfaas_command): Likewise.\n+\n 2019-12-05  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n \t* inferior.c (prune_inferiors):  Only call delete_inferior,\n \tDo not modify the inferior list."
+    },
+    {
+      "sha": "cc7b7e5bbe0a855faf84dbc3471ba516a51694a2",
+      "filename": "gdb/stack.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e0fad1eadfcb68d543cdd96f44dca86364778fa2/gdb/stack.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e0fad1eadfcb68d543cdd96f44dca86364778fa2/gdb/stack.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/stack.c?ref=e0fad1eadfcb68d543cdd96f44dca86364778fa2",
+      "patch": "@@ -3281,6 +3281,8 @@ frame_apply_command (const char* cmd, int from_tty)\n static void\n faas_command (const char *cmd, int from_tty)\n {\n+  if (cmd == NULL || *cmd == '\\0')\n+    error (_(\"Please specify a command to apply on all frames\"));\n   std::string expanded = std::string (\"frame apply all -s \") + cmd;\n   execute_command (expanded.c_str (), from_tty);\n }"
+    },
+    {
+      "sha": "79b124b8198fed96f0b45b8047db8148028f06a3",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e0fad1eadfcb68d543cdd96f44dca86364778fa2/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e0fad1eadfcb68d543cdd96f44dca86364778fa2/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=e0fad1eadfcb68d543cdd96f44dca86364778fa2",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-12-06  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n+\n+\t* gdb.threads/pthreads.exp: Test taas and tfaas without command.\n+\t* gdb.base/frameapply.exp: Test faas without command.\n+\n 2019-12-04  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* lib/gdb.exp (gdb_compile): Add -J compiler option when building"
+    },
+    {
+      "sha": "30314876d182928f50d81539af4ceea9471553af",
+      "filename": "gdb/testsuite/gdb.base/frameapply.exp",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e0fad1eadfcb68d543cdd96f44dca86364778fa2/gdb/testsuite/gdb.base/frameapply.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e0fad1eadfcb68d543cdd96f44dca86364778fa2/gdb/testsuite/gdb.base/frameapply.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/frameapply.exp?ref=e0fad1eadfcb68d543cdd96f44dca86364778fa2",
+      "patch": "@@ -215,3 +215,5 @@ gdb_test \"frame apply level 4-2 p 1\" \"inverted range\" \"inverted range\"\n gdb_test \"frame apply level 0-3\" \\\n     \"Please specify a command to apply on the selected frames\" \\\n     \"missing command\"\n+gdb_test \"faas\" \"Please specify a command to apply on all frames\" \\\n+    \"missing command for faas\""
+    },
+    {
+      "sha": "f633b5ec8e495001e4eb917113c8306c91b3d26d",
+      "filename": "gdb/testsuite/gdb.threads/pthreads.exp",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 1,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e0fad1eadfcb68d543cdd96f44dca86364778fa2/gdb/testsuite/gdb.threads/pthreads.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e0fad1eadfcb68d543cdd96f44dca86364778fa2/gdb/testsuite/gdb.threads/pthreads.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/pthreads.exp?ref=e0fad1eadfcb68d543cdd96f44dca86364778fa2",
+      "patch": "@@ -334,10 +334,14 @@ proc check_qcs {} {\n \t    ] \\\n \t\"run a failing command except in one frame of thread 2,3, -s to silently continue.  Do not show thread and frame info\"\n \n-    # Check invalid flag combinations.\n+    # Check invalid flag combinations and errors.\n     gdb_test \"thread apply all -c -s p 1\" \\\n \t\"thread apply all: -c and -s are mutually exclusive\" \\\n \t\"check -c and -s cannot be used simultaneously\"\n+    gdb_test \"taas\" \"Please specify a command to apply on all threads\" \\\n+\t\"missing command for taas\"\n+    gdb_test \"tfaas\" \"Please specify a command to apply on all frames of all threads\" \\\n+\t\"missing command for tfaas\"\n \n }\n "
+    },
+    {
+      "sha": "a210d328ed0e9ec148a7ec52aa8fcc7c8cac05cc",
+      "filename": "gdb/thread.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e0fad1eadfcb68d543cdd96f44dca86364778fa2/gdb/thread.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e0fad1eadfcb68d543cdd96f44dca86364778fa2/gdb/thread.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/thread.c?ref=e0fad1eadfcb68d543cdd96f44dca86364778fa2",
+      "patch": "@@ -1818,6 +1818,8 @@ thread_apply_command (const char *tidlist, int from_tty)\n static void\n taas_command (const char *cmd, int from_tty)\n {\n+  if (cmd == NULL || *cmd == '\\0')\n+    error (_(\"Please specify a command to apply on all threads\"));\n   std::string expanded = std::string (\"thread apply all -s \") + cmd;\n   execute_command (expanded.c_str (), from_tty);\n }\n@@ -1827,6 +1829,8 @@ taas_command (const char *cmd, int from_tty)\n static void\n tfaas_command (const char *cmd, int from_tty)\n {\n+  if (cmd == NULL || *cmd == '\\0')\n+    error (_(\"Please specify a command to apply on all frames of all threads\"));\n   std::string expanded\n     = std::string (\"thread apply all -s -- frame apply all -s \") + cmd;\n   execute_command (expanded.c_str (), from_tty);"
+    }
+  ]
+}

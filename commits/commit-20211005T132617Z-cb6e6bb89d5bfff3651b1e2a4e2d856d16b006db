@@ -1,0 +1,134 @@
+{
+  "sha": "cb6e6bb89d5bfff3651b1e2a4e2d856d16b006db",
+  "node_id": "C_kwDOANOeidoAKGNiNmU2YmI4OWQ1YmZmZjM2NTFiMWUyYTRlMmQ4NTZkMTZiMDA2ZGI",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-09-03T08:23:35Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-10-05T13:26:17Z"
+    },
+    "message": "gdb/python: fix memory leak in python inferior code\n\nWhen a user creates a gdb.Inferior object for the first time a new\nPython object is created.  This object is then cached within GDB's\ninferior object using the registry mechanism (see\ninferior_to_inferior_object in py-inferior.c, specifically the calls\nto inferior_data and set_inferior_data).\n\nThe Python Reference to the gdb.Inferior object held within the real\ninferior object ensures that the reference count on the Python\ngdb.Inferior object never reaches zero while the GDB inferior object\ncontinues to exist.\n\nAt the same time, the gdb.Inferior object maintains a C++ pointer back\nto GDB's real inferior object.  We therefore end up with a system that\nlooks like this:\n\n                   Python Reference\n                         |\n                         |\n    .----------.         |          .--------------.\n    |          |------------------->|              |\n    | inferior |                    | gdb.Inferior |\n    |          |<-------------------|              |\n    '----------'         |          '--------------'\n                         |\n                         |\n                    C++ Pointer\n\nWhen GDB's inferior object is deleted (say the inferior exits) then\npy_free_inferior is called (thanks to the registry system), this\nfunction looks up the Python gdb.Inferior object and sets the C++\npointer to nullptr and finally reduces the reference count on the\nPython gdb.Inferior object.\n\nIf at this point the user still holds a reference to the Python\ngdb.Inferior object then nothing happens.  However, the gdb.Inferior\nobject is now in the non-valid state (see infpy_is_valid in\npy-inferior.c), but otherwise, everything is fine.\n\nHowever, if there are no further references to the Python gdb.Inferior\nobject, or, once the user has given up all their references to the\ngdb.Inferior object, then infpy_dealloc is called.\n\nThis function currently checks to see if the inferior pointer within\nthe gdb.Inferior object is nullptr or not.  If the pointer is nullptr\nthen infpy_dealloc immediately returns.\n\nOnly when the inferior point in the gdb.Inferior is not nullptr do\nwe (a) set the gdb.Inferior reference inside GDB's inferior to\nnullptr, and (b) call the underlying Python tp_free function.\n\nThere are a number things wrong here:\n\n  1.  The Python gdb.Inferior reference within GDB's inferior object\n  holds a reference count, thus, setting this reference to nullptr\n  without first decrementing the reference count would leak a\n  reference, however...\n\n  2. As GDB's inferior holds a reference then infpy_dealloc will never\n  be called until GDB's inferior object is deleted.  Deleting a GDB\n  inferior ohject calls py_free_inferior, and so gives up the\n  reference.  At this point there is no longer a need to call\n  set_inferior_data to set the field back to NULL, that field must\n  have been cleared in order to get the reference count to zero, which\n  means...\n\n  3. If we know that py_free_inferior must be called before\n  infpy_dealloc, then we know that the inferior pointer in\n  gdb.Inferior will always be nullptr when infpy_dealloc is called,\n  this means that the call to the underlying tp_free function will\n  always be skipped.  Skipping this call will cause Python to leak the\n  memory associated with the gdb.Inferior object, which is what we\n  currently always do.\n\nGiven all of the above, I assert that the C++ pointer within\ngdb.Inferior will always be nullptr when infpy_dealloc is called.\nThat's what this patch does.\n\nI wrote a test for this issue making use of Pythons tracemalloc\nmodule, which allows us to spot this memory leak.",
+    "tree": {
+      "sha": "db4134de5b0db4d0684bf077a537d069a06f8c5e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/db4134de5b0db4d0684bf077a537d069a06f8c5e"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/cb6e6bb89d5bfff3651b1e2a4e2d856d16b006db",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cb6e6bb89d5bfff3651b1e2a4e2d856d16b006db",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/cb6e6bb89d5bfff3651b1e2a4e2d856d16b006db",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cb6e6bb89d5bfff3651b1e2a4e2d856d16b006db/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "a5ea23036d8a85d2ef133458a4c54a339857c152",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a5ea23036d8a85d2ef133458a4c54a339857c152",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/a5ea23036d8a85d2ef133458a4c54a339857c152"
+    }
+  ],
+  "stats": {
+    "total": 180,
+    "additions": 176,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "c8de41dd009c144bae743bb42ed16e1cf515896f",
+      "filename": "gdb/python/py-inferior.c",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 4,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cb6e6bb89d5bfff3651b1e2a4e2d856d16b006db/gdb/python/py-inferior.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cb6e6bb89d5bfff3651b1e2a4e2d856d16b006db/gdb/python/py-inferior.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/py-inferior.c?ref=cb6e6bb89d5bfff3651b1e2a4e2d856d16b006db",
+      "patch": "@@ -864,12 +864,20 @@ static void\n infpy_dealloc (PyObject *obj)\n {\n   inferior_object *inf_obj = (inferior_object *) obj;\n-  struct inferior *inf = inf_obj->inferior;\n \n-  if (! inf)\n-    return;\n+  /* The inferior itself holds a reference to this Python object, which\n+     will keep the reference count of this object above zero until GDB\n+     deletes the inferior and py_free_inferior is called.\n+\n+     Once py_free_inferior has been called then the link between this\n+     Python object and the inferior is set to nullptr, and then the\n+     reference count on this Python object is decremented.\n+\n+     The result of all this is that the link between this Python object and\n+     the inferior should always have been set to nullptr before this\n+     function is called.  */\n+  gdb_assert (inf_obj->inferior == nullptr);\n \n-  set_inferior_data (inf, infpy_inf_data_key, NULL);\n   Py_TYPE (obj)->tp_free (obj);\n }\n "
+    },
+    {
+      "sha": "bfe52c018d47899c142e2c03b70c11a73db0eac6",
+      "filename": "gdb/testsuite/gdb.python/py-inferior-leak.c",
+      "status": "added",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cb6e6bb89d5bfff3651b1e2a4e2d856d16b006db/gdb/testsuite/gdb.python/py-inferior-leak.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cb6e6bb89d5bfff3651b1e2a4e2d856d16b006db/gdb/testsuite/gdb.python/py-inferior-leak.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.python/py-inferior-leak.c?ref=cb6e6bb89d5bfff3651b1e2a4e2d856d16b006db",
+      "patch": "@@ -0,0 +1,22 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2021 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+int\n+main (void)\n+{\n+  return 0;\n+}"
+    },
+    {
+      "sha": "9cd1ebf243333e068316f32b52bc19b339242428",
+      "filename": "gdb/testsuite/gdb.python/py-inferior-leak.exp",
+      "status": "added",
+      "additions": 33,
+      "deletions": 0,
+      "changes": 33,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cb6e6bb89d5bfff3651b1e2a4e2d856d16b006db/gdb/testsuite/gdb.python/py-inferior-leak.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cb6e6bb89d5bfff3651b1e2a4e2d856d16b006db/gdb/testsuite/gdb.python/py-inferior-leak.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.python/py-inferior-leak.exp?ref=cb6e6bb89d5bfff3651b1e2a4e2d856d16b006db",
+      "patch": "@@ -0,0 +1,33 @@\n+# Copyright (C) 2021 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# This file is part of the GDB testsuite.  It checks for memory leaks\n+# associated with allocating and deallocation gdb.Inferior objects.\n+\n+load_lib gdb-python.exp\n+\n+standard_testfile\n+\n+clean_restart\n+\n+# Skip all tests if Python scripting is not enabled.\n+if { [skip_python_tests] } { continue }\n+\n+set pyfile [gdb_remote_download host ${srcdir}/${subdir}/${testfile}.py]\n+\n+# Source the Python script, this runs the test (which is written\n+# completely in Python), and either prints PASS, or throws an\n+# exception.\n+gdb_test \"source ${pyfile}\" \"PASS\" \"source python script\""
+    },
+    {
+      "sha": "914fb3ecc08411148a702ce9aa707cb57b145dc3",
+      "filename": "gdb/testsuite/gdb.python/py-inferior-leak.py",
+      "status": "added",
+      "additions": 109,
+      "deletions": 0,
+      "changes": 109,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cb6e6bb89d5bfff3651b1e2a4e2d856d16b006db/gdb/testsuite/gdb.python/py-inferior-leak.py",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cb6e6bb89d5bfff3651b1e2a4e2d856d16b006db/gdb/testsuite/gdb.python/py-inferior-leak.py",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.python/py-inferior-leak.py?ref=cb6e6bb89d5bfff3651b1e2a4e2d856d16b006db",
+      "patch": "@@ -0,0 +1,109 @@\n+# Copyright (C) 2021 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+import tracemalloc\n+import gdb\n+import re\n+\n+# A global variable in which we store a reference to the gdb.Inferior\n+# object sent to us in the new_inferior event.\n+inf = None\n+\n+# Register the new_inferior event handler.\n+def new_inferior_handler(event):\n+    global inf\n+    inf = event.inferior\n+\n+\n+gdb.events.new_inferior.connect(new_inferior_handler)\n+\n+# A global filters list, we only care about memory allocations\n+# originating from this script.\n+filters = [tracemalloc.Filter(True, \"*py-inferior-leak.py\")]\n+\n+# Add a new inferior, and return the number of the new inferior.\n+def add_inferior():\n+    output = gdb.execute(\"add-inferior\", False, True)\n+    m = re.search(r\"Added inferior (\\d+)\", output)\n+    if m:\n+        num = int(m.group(1))\n+    else:\n+        raise RuntimeError(\"no match\")\n+    return num\n+\n+\n+# Run the test.  When CLEAR is True we clear the global INF variable\n+# before comparing the before and after memory allocation traces.\n+# When CLEAR is False we leave INF set to reference the gdb.Inferior\n+# object, thus preventing the gdb.Inferior from being deallocated.\n+def test(clear):\n+    global filters, inf\n+\n+    # Start tracing, and take a snapshot of the current allocations.\n+    tracemalloc.start()\n+    snapshot1 = tracemalloc.take_snapshot()\n+\n+    # Create an inferior, this triggers the new_inferior event, which\n+    # in turn holds a reference to the new gdb.Inferior object in the\n+    # global INF variable.\n+    num = add_inferior()\n+    gdb.execute(\"remove-inferiors %s\" % num)\n+\n+    # Possibly clear the global INF variable.\n+    if clear:\n+        inf = None\n+\n+    # Now grab a second snapshot of memory allocations, and stop\n+    # tracing memory allocations.\n+    snapshot2 = tracemalloc.take_snapshot()\n+    tracemalloc.stop()\n+\n+    # Filter the snapshots; we only care about allocations originating\n+    # from this file.\n+    snapshot1 = snapshot1.filter_traces(filters)\n+    snapshot2 = snapshot2.filter_traces(filters)\n+\n+    # Compare the snapshots, this leaves only things that were\n+    # allocated, but not deallocated since the first snapshot.\n+    stats = snapshot2.compare_to(snapshot1, \"traceback\")\n+\n+    # Total up all the deallocated things.\n+    total = 0\n+    for stat in stats:\n+        total += stat.size_diff\n+    return total\n+\n+\n+# The first time we run this some global state will be allocated which\n+# shows up as memory that is allocated, but not released.  So, run the\n+# test once and discard the result.\n+test(True)\n+\n+# Now run the test twice, the first time we clear our global reference\n+# to the gdb.Inferior object, which should allow Python to deallocate\n+# the object.  The second time we hold onto the global reference,\n+# preventing Python from performing the deallocation.\n+bytes_with_clear = test(True)\n+bytes_without_clear = test(False)\n+\n+# The bug that used to exist in GDB was that even when we released the\n+# global reference the gdb.Inferior object would not be deallocated.\n+if bytes_with_clear > 0:\n+    raise gdb.GdbError(\"memory leak when gdb.Inferior should be released\")\n+if bytes_without_clear == 0:\n+    raise gdb.GdbError(\"gdb.Inferior object is no longer allocated\")\n+\n+# Print a PASS message that the test script can see.\n+print(\"PASS\")"
+    }
+  ]
+}

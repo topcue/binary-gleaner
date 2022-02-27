@@ -1,0 +1,110 @@
+{
+  "sha": "d33228c946ec7c153bc09b05c8fc64b7628040bf",
+  "node_id": "C_kwDOANOeidoAKGQzMzIyOGM5NDZlYzdjMTUzYmMwOWIwNWM4ZmM2NGI3NjI4MDQwYmY",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-09-22T14:15:41Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-09-28T11:21:21Z"
+    },
+    "message": "top-level configure: setup target_configdirs based on repository\n\nThe top-level configure script is shared between the gcc repository\nand the binutils-gdb repository.\n\nThe target_configdirs variable in the configure.ac script, defines\nsub-directories that contain components that should be built for the\ntarget using the target tools.\n\nSome components, e.g. zlib, are built as both host and target\nlibraries.\n\nThis causes problems for binutils-gdb.  If we run 'make all' in the\nbinutils-gdb repository we end up trying to build a target version of\nthe zlib library, which requires the target compiler be available.\nOften the target compiler isn't immediately available, and so the\nbuild fails.\n\nThe problem with zlib impacted a previous attempt to synchronise the\ntop-level configure scripts from gcc to binutils-gdb, see this thread:\n\n  https://sourceware.org/pipermail/binutils/2019-May/107094.html\n\nAnd I'm in the process of importing libbacktrace in to binutils-gdb,\nwhich is also a host and target library, and triggers the same issues.\n\nI believe that for binutils-gdb, at least at the moment, there are no\ntarget libraries that we need to build.\n\nIn the configure script we build three lists of things we want to\nbuild, $configdirs, $build_configdirs, and $target_configdirs, we also\nbuild two lists of things we don't want to build, $skipdirs and\n$noconfigdirs.  We then remove anything that is in the lists of things\nnot to build, from the list of things that should be built.\n\nMy proposal is to add everything in target_configdirs into skipdirs,\nif the source tree doesn't contain a gcc/ sub-directory.  The result\nis that for binutils-gdb no target tools or libraries will be built,\nwhile for the gcc repository, nothing should change.\n\nIf a user builds a unified source tree, then the target tools and\nlibraries should still be built as the gcc/ directory will be present.\n\nI've tested a build of gcc on x86-64, and the same set of target\nlibraries still seem to get built.  On binutils-gdb this change\nresolves the issues with 'make all'.\n\nChangeLog:\n\n\t* configure: Regenerate.\n\t* configure.ac (skipdirs): Add the contents of target_configdirs if\n\twe are not building gcc.",
+    "tree": {
+      "sha": "7ac92b5026d6a87b5c1dce776f0b20e775f81f9f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/7ac92b5026d6a87b5c1dce776f0b20e775f81f9f"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/d33228c946ec7c153bc09b05c8fc64b7628040bf",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d33228c946ec7c153bc09b05c8fc64b7628040bf",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/d33228c946ec7c153bc09b05c8fc64b7628040bf",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d33228c946ec7c153bc09b05c8fc64b7628040bf/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "0d62064867c74286360e821b75ef6799bedc4b34",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0d62064867c74286360e821b75ef6799bedc4b34",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/0d62064867c74286360e821b75ef6799bedc4b34"
+    }
+  ],
+  "stats": {
+    "total": 20,
+    "additions": 20,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "787fcf891004a6145663d56d7566895e38f0b6c4",
+      "filename": "configure",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d33228c946ec7c153bc09b05c8fc64b7628040bf/configure",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d33228c946ec7c153bc09b05c8fc64b7628040bf/configure",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/configure?ref=d33228c946ec7c153bc09b05c8fc64b7628040bf",
+      "patch": "@@ -6848,6 +6848,16 @@ case ,${enable_languages}, in\n     ;;\n esac\n \n+# If gcc/ is not in the source tree then we'll not be building a\n+# target compiler, assume in that case we don't want to build any\n+# target libraries or tools.\n+#\n+# This was added primarily for the benefit for binutils-gdb who reuse\n+# this configure script, but don't always have target tools available.\n+if test ! -d ${srcdir}/gcc; then\n+   skipdirs=\"${skipdirs} ${target_configdirs}\"\n+fi\n+\n # Remove the entries in $skipdirs and $noconfigdirs from $configdirs,\n # $build_configdirs and $target_configdirs.\n # If we have the source for $noconfigdirs entries, add them to $notsupp."
+    },
+    {
+      "sha": "2b10e9a1b0260668cc3851ecfa04d59210d6eca0",
+      "filename": "configure.ac",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d33228c946ec7c153bc09b05c8fc64b7628040bf/configure.ac",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d33228c946ec7c153bc09b05c8fc64b7628040bf/configure.ac",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/configure.ac?ref=d33228c946ec7c153bc09b05c8fc64b7628040bf",
+      "patch": "@@ -2233,6 +2233,16 @@ case ,${enable_languages}, in\n     ;;\n esac\n \n+# If gcc/ is not in the source tree then we'll not be building a\n+# target compiler, assume in that case we don't want to build any\n+# target libraries or tools.\n+#\n+# This was added primarily for the benefit for binutils-gdb who reuse\n+# this configure script, but don't always have target tools available.\n+if test ! -d ${srcdir}/gcc; then\n+   skipdirs=\"${skipdirs} ${target_configdirs}\"\n+fi\n+\n # Remove the entries in $skipdirs and $noconfigdirs from $configdirs,\n # $build_configdirs and $target_configdirs.\n # If we have the source for $noconfigdirs entries, add them to $notsupp."
+    }
+  ]
+}

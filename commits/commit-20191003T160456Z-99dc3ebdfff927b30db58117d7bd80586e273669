@@ -1,0 +1,134 @@
+{
+  "sha": "99dc3ebdfff927b30db58117d7bd80586e273669",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OTlkYzNlYmRmZmY5MjdiMzBkYjU4MTE3ZDdiZDgwNTg2ZTI3MzY2OQ==",
+  "commit": {
+    "author": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2019-08-07T17:01:08Z"
+    },
+    "committer": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2019-10-03T16:04:56Z"
+    },
+    "message": "libctf: properly handle ctf_add_type of forwards and self-reffing structs\n\nThe code to handle structures (and unions) that refer to themselves in\nctf_add_type is extremely dodgy.  It works by looking through the list\nof not-yet-committed types for a structure with the same name as the\nstructure in question and assuming, if it finds it, that this must be a\nreference to the same type.  This is a linear search that gets ever\nslower as the dictionary grows, requiring you to call ctf_update at\nintervals to keep performance tolerable: but if you do that, you run\ninto the problem that if a forward declared before the ctf_update is\nchanged to a structure afterwards, ctf_update explodes.\n\nThe last commit fixed most of this: this commit can use it, adding a new\nctf_add_processing hash that tracks source type IDs that are currently\nbeing processed and uses it to avoid infinite recursion rather than the\ndynamic type list: we split ctf_add_type into a ctf_add_type_internal,\nso that ctf_add_type itself can become a wrapper that empties out this\nbeing-processed hash once the entire recursive type addition is over.\nStructure additions themselves avoid adding their dependent types\nquite so much by checking the type mapping and avoiding re-adding types\nwe already know we have added.\n\nWe also add support for adding forwards to dictionaries that already\ncontain the thing they are a forward to: we just silently return the\noriginal type.\n\nv4: return existing struct/union/enum types properly, rather than using\n    an uninitialized variable: shrinks sizes of CTF sections back down\n    to roughly where they were in v1/v2 of this patch series.\nv5: fix tabdamage.\n\nlibctf/\n\t* ctf-impl.h (ctf_file_t) <ctf_add_processing>: New.\n\t* ctf-open.c (ctf_file_close): Free it.\n\t* ctf-create.c (ctf_serialize): Adjust.\n\t(membcmp): When reporting a conflict due to an error, report the\n\terror.\n\t(ctf_add_type): Turn into a ctf_add_processing wrapper.  Rename to...\n\t(ctf_add_type_internal): ... this.  Hand back types we are already\n\tin the middle of adding immediately.  Hand back structs/unions with\n\tthe same number of members immediately.  Do not walk the dynamic\n\tlist.  Call ctf_add_type_internal, not ctf_add_type.  Handle\n\tforwards promoted to other types and the inverse case identically.\n\tAdd structs to the mapping as soon as we intern them, before they\n\tgain any members.",
+    "tree": {
+      "sha": "8d96f1ae0a335ee1485e9faaaf2a570422347183",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/8d96f1ae0a335ee1485e9faaaf2a570422347183"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/99dc3ebdfff927b30db58117d7bd80586e273669",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/99dc3ebdfff927b30db58117d7bd80586e273669",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/99dc3ebdfff927b30db58117d7bd80586e273669",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/99dc3ebdfff927b30db58117d7bd80586e273669/comments",
+  "author": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "676c3ecbad6e9c41b906b0f882ef2ce23f49976a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/676c3ecbad6e9c41b906b0f882ef2ce23f49976a",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/676c3ecbad6e9c41b906b0f882ef2ce23f49976a"
+    }
+  ],
+  "stats": {
+    "total": 219,
+    "additions": 134,
+    "deletions": 85
+  },
+  "files": [
+    {
+      "sha": "106955385dbeb947845db0ec06382999db40fda0",
+      "filename": "libctf/ChangeLog",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 0,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/99dc3ebdfff927b30db58117d7bd80586e273669/libctf/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/99dc3ebdfff927b30db58117d7bd80586e273669/libctf/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ChangeLog?ref=99dc3ebdfff927b30db58117d7bd80586e273669",
+      "patch": "@@ -1,3 +1,19 @@\n+2019-08-07  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-impl.h (ctf_file_t) <ctf_add_processing>: New.\n+\t* ctf-open.c (ctf_file_close): Free it.\n+\t* ctf-create.c (ctf_serialize): Adjust.\n+\t(membcmp): When reporting a conflict due to an error, report the\n+\terror.\n+\t(ctf_add_type): Turn into a ctf_add_processing wrapper.  Rename to...\n+\t(ctf_add_type_internal): ... this.  Hand back types we are already\n+\tin the middle of adding immediately.  Hand back structs/unions with\n+\tthe same number of members immediately.  Do not walk the dynamic\n+\tlist.  Call ctf_add_type_internal, not ctf_add_type.  Handle\n+\tforwards promoted to other types and the inverse case identically.\n+\tAdd structs to the mapping as soon as we intern them, before they\n+\tgain any members.\n+\n 2019-08-09  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctf-impl.h (ctf_names_t): New."
+    },
+    {
+      "sha": "22635af61f19e5ba0b607a5da0f9a611aacb41c3",
+      "filename": "libctf/ctf-create.c",
+      "status": "modified",
+      "additions": 116,
+      "deletions": 85,
+      "changes": 201,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/99dc3ebdfff927b30db58117d7bd80586e273669/libctf/ctf-create.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/99dc3ebdfff927b30db58117d7bd80586e273669/libctf/ctf-create.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-create.c?ref=99dc3ebdfff927b30db58117d7bd80586e273669",
+      "patch": "@@ -525,6 +525,7 @@ ctf_serialize (ctf_file_t *fp)\n   nfp->ctf_dvhash = fp->ctf_dvhash;\n   nfp->ctf_dvdefs = fp->ctf_dvdefs;\n   nfp->ctf_dtoldid = fp->ctf_dtoldid;\n+  nfp->ctf_add_processing = fp->ctf_add_processing;\n   nfp->ctf_snapshots = fp->ctf_snapshots + 1;\n   nfp->ctf_specific = fp->ctf_specific;\n   nfp->ctf_ptrtab = fp->ctf_ptrtab;\n@@ -553,6 +554,7 @@ ctf_serialize (ctf_file_t *fp)\n   fp->ctf_str_atoms = NULL;\n   fp->ctf_prov_strtab = NULL;\n   memset (&fp->ctf_dtdefs, 0, sizeof (ctf_list_t));\n+  fp->ctf_add_processing = NULL;\n   fp->ctf_ptrtab = NULL;\n   fp->ctf_link_inputs = NULL;\n   fp->ctf_link_outputs = NULL;\n@@ -1527,7 +1529,8 @@ enumcmp (const char *name, int value, void *arg)\n \n   if (ctf_enum_value (ctb->ctb_file, ctb->ctb_type, name, &bvalue) < 0)\n     {\n-      ctf_dprintf (\"Conflict due to member %s iteration error.\\n\", name);\n+      ctf_dprintf (\"Conflict due to member %s iteration error: %s.\\n\", name,\n+\t\t   ctf_errmsg (ctf_errno (ctb->ctb_file)));\n       return 1;\n     }\n   if (value != bvalue)\n@@ -1557,7 +1560,8 @@ membcmp (const char *name, ctf_id_t type _libctf_unused_, unsigned long offset,\n \n   if (ctf_member_info (ctb->ctb_file, ctb->ctb_type, name, &ctm) < 0)\n     {\n-      ctf_dprintf (\"Conflict due to member %s iteration error.\\n\", name);\n+      ctf_dprintf (\"Conflict due to member %s iteration error: %s.\\n\", name,\n+\t\t   ctf_errmsg (ctf_errno (ctb->ctb_file)));\n       return 1;\n     }\n   if (ctm.ctm_offset != offset)\n@@ -1603,11 +1607,13 @@ membadd (const char *name, ctf_id_t type, unsigned long offset, void *arg)\n    following the source type's links and embedded member types.  If the\n    destination container already contains a named type which has the same\n    attributes, then we succeed and return this type but no changes occur.  */\n-ctf_id_t\n-ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n+static ctf_id_t\n+ctf_add_type_internal (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type,\n+\t\t       ctf_file_t *proc_tracking_fp)\n {\n   ctf_id_t dst_type = CTF_ERR;\n   uint32_t dst_kind = CTF_K_UNKNOWN;\n+  ctf_file_t *tmp_fp = dst_fp;\n   ctf_id_t tmp;\n \n   const char *name;\n@@ -1618,7 +1624,6 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n   ctf_encoding_t src_en, dst_en;\n   ctf_arinfo_t src_ar, dst_ar;\n \n-  ctf_dtdef_t *dtd;\n   ctf_funcinfo_t ctc;\n \n   ctf_id_t orig_src_type = src_type;\n@@ -1638,6 +1643,33 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n   flag = LCTF_INFO_ISROOT (src_fp, src_tp->ctt_info);\n   vlen = LCTF_INFO_VLEN (src_fp, src_tp->ctt_info);\n \n+  /* If this is a type we are currently in the middle of adding, hand it\n+     straight back.  (This lets us handle self-referential structures without\n+     considering forwards and empty structures the same as their completed\n+     forms.)  */\n+\n+  tmp = ctf_type_mapping (src_fp, src_type, &tmp_fp);\n+\n+  if (tmp != 0)\n+    {\n+      if (ctf_dynhash_lookup (proc_tracking_fp->ctf_add_processing,\n+\t\t\t      (void *) (uintptr_t) src_type))\n+\treturn tmp;\n+\n+      /* If this type has already been added from this container, and is the same\n+\t kind and (if a struct or union) has the same number of members, hand it\n+\t straight back.  */\n+\n+      if ((ctf_type_kind_unsliced (tmp_fp, tmp) == (int) kind)\n+\t  && (kind == CTF_K_STRUCT || kind == CTF_K_UNION\n+\t      || kind == CTF_K_ENUM))\n+\t{\n+\t  if ((dst_tp = ctf_lookup_by_id (&tmp_fp, dst_type)) != NULL)\n+\t    if (vlen == LCTF_INFO_VLEN (tmp_fp, dst_tp->ctt_info))\n+\t      return tmp;\n+\t}\n+    }\n+\n   forward_kind = kind;\n   if (kind == CTF_K_FORWARD)\n     forward_kind = src_tp->ctt_type;\n@@ -1697,6 +1729,9 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n \t  if ((dst_tp = ctf_lookup_by_id (&fp, dst_type)) == NULL)\n \t    return CTF_ERR;\n \n+\t  if (ctf_type_encoding (dst_fp, dst_type, &dst_en) != 0)\n+\t    return CTF_ERR;\t\t\t/* errno set for us.  */\n+\n \t  if (LCTF_INFO_ISROOT (fp, dst_tp->ctt_info) & CTF_ADD_ROOT)\n \t    {\n \t      /* The type that we found in the hash is also root-visible.  If\n@@ -1705,9 +1740,6 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n \t\t even if there is no conflict: we must check the contained type\n \t\t too.  */\n \n-\t      if (ctf_type_encoding (dst_fp, dst_type, &dst_en) != 0)\n-\t\treturn CTF_ERR;\t\t\t/* errno set for us.  */\n-\n \t      if (memcmp (&src_en, &dst_en, sizeof (ctf_encoding_t)) == 0)\n \t\t{\n \t\t  if (kind != CTF_K_SLICE)\n@@ -1723,71 +1755,17 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n \t    }\n \t  else\n \t    {\n-\t      /* We found a non-root-visible type in the hash.  We reset\n-\t         dst_type to ensure that we continue to look for a possible\n-\t         conflict in the pending list.  */\n-\n-\t      dst_type = CTF_ERR;\n-\t    }\n-\t}\n-    }\n-\n-  /* If the non-empty name was not found in the appropriate hash, search\n-     the list of pending dynamic definitions that are not yet committed.\n-     If a matching name and kind are found, assume this is the type that\n-     we are looking for.  This is necessary to permit ctf_add_type() to\n-     operate recursively on entities such as a struct that contains a\n-     pointer member that refers to the same struct type.  */\n-\n-  if (dst_type == CTF_ERR && name[0] != '\\0')\n-    {\n-      for (dtd = ctf_list_prev (&dst_fp->ctf_dtdefs); dtd != NULL\n-\t     && LCTF_TYPE_TO_INDEX (src_fp, dtd->dtd_type) > dst_fp->ctf_dtoldid;\n-\t   dtd = ctf_list_prev (dtd))\n-\t{\n-\t  const char *ctt_name;\n-\n-\t  if (LCTF_INFO_KIND (src_fp, dtd->dtd_data.ctt_info) == kind\n-\t      && dtd->dtd_data.ctt_name\n-\t      && ((ctt_name = ctf_strraw (src_fp, dtd->dtd_data.ctt_name)) != NULL)\n-\t      && strcmp (ctt_name, name) == 0)\n-\t    {\n-\t      int sroot;\t/* Is the src root-visible?  */\n-\t      int droot;\t/* Is the dst root-visible?  */\n-\t      int match;\t/* Do the encodings match?  */\n-\n-\t      if (kind != CTF_K_INTEGER && kind != CTF_K_FLOAT && kind != CTF_K_SLICE)\n-\t\t{\n-\t\t  ctf_add_type_mapping (src_fp, src_type, dst_fp, dtd->dtd_type);\n-\t\t  return dtd->dtd_type;\n-\t\t}\n-\n-\t      sroot = (flag & CTF_ADD_ROOT);\n-\t      droot = (LCTF_INFO_ISROOT (dst_fp,\n-\t\t\t\t\t dtd->dtd_data.\n-\t\t\t\t\t ctt_info) & CTF_ADD_ROOT);\n-\n-\t      match = (memcmp (&src_en, &dtd->dtd_u.dtu_enc,\n-\t\t\t       sizeof (ctf_encoding_t)) == 0);\n-\n-\t      /* If the types share the same encoding then return the id of the\n-\t\t first unless one type is root-visible and the other is not; in\n-\t\t that case the new type must get a new id if a match is never\n-\t\t found.  Note: slices are not certain to match even if there is\n-\t\t no conflict: we must check the contained type too. */\n+\t      /* We found a non-root-visible type in the hash.  If its encoding\n+\t\t is the same, we can reuse it, unless it is a slice.  */\n \n-\t      if (match && sroot == droot)\n+\t      if (memcmp (&src_en, &dst_en, sizeof (ctf_encoding_t)) == 0)\n \t\t{\n \t\t  if (kind != CTF_K_SLICE)\n \t\t    {\n-\t\t      ctf_add_type_mapping (src_fp, src_type, dst_fp, dtd->dtd_type);\n-\t\t      return dtd->dtd_type;\n+\t\t      ctf_add_type_mapping (src_fp, src_type, dst_fp, dst_type);\n+\t\t      return dst_type;\n \t\t    }\n \t\t}\n-\t      else if (!match && sroot && droot)\n-\t\t{\n-\t\t  return (ctf_set_errno (dst_fp, ECTF_CONFLICT));\n-\t\t}\n \t    }\n \t}\n     }\n@@ -1800,10 +1778,18 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n   dst.ctb_type = dst_type;\n   dst.ctb_dtd = NULL;\n \n-  /* Now perform kind-specific processing.  If dst_type is CTF_ERR, then\n-     we add a new type with the same properties as src_type to dst_fp.\n-     If dst_type is not CTF_ERR, then we verify that dst_type has the\n-     same attributes as src_type.  We recurse for embedded references.  */\n+  /* Now perform kind-specific processing.  If dst_type is CTF_ERR, then we add\n+     a new type with the same properties as src_type to dst_fp.  If dst_type is\n+     not CTF_ERR, then we verify that dst_type has the same attributes as\n+     src_type.  We recurse for embedded references.  Before we start, we note\n+     that we are processing this type, to prevent infinite recursion: we do not\n+     re-process any type that appears in this list.  The list is emptied\n+     wholesale at the end of processing everything in this recursive stack.  */\n+\n+  if (ctf_dynhash_insert (proc_tracking_fp->ctf_add_processing,\n+\t\t\t  (void *) (uintptr_t) src_type, (void *) 1) < 0)\n+    return ctf_set_errno (dst_fp, ENOMEM);\n+\n   switch (kind)\n     {\n     case CTF_K_INTEGER:\n@@ -1822,7 +1808,8 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n       /* We have checked for conflicting encodings: now try to add the\n \t contained type.  */\n       src_type = ctf_type_reference (src_fp, src_type);\n-      dst_type = ctf_add_type (dst_fp, src_fp, src_type);\n+      src_type = ctf_add_type_internal (dst_fp, src_fp, src_type,\n+\t\t\t\t\tproc_tracking_fp);\n \n       if (src_type == CTF_ERR)\n \treturn CTF_ERR;\t\t\t\t/* errno is set for us.  */\n@@ -1835,7 +1822,8 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n     case CTF_K_CONST:\n     case CTF_K_RESTRICT:\n       src_type = ctf_type_reference (src_fp, src_type);\n-      src_type = ctf_add_type (dst_fp, src_fp, src_type);\n+      src_type = ctf_add_type_internal (dst_fp, src_fp, src_type,\n+\t\t\t\t\tproc_tracking_fp);\n \n       if (src_type == CTF_ERR)\n \treturn CTF_ERR;\t\t\t\t/* errno is set for us.  */\n@@ -1848,8 +1836,11 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n \treturn (ctf_set_errno (dst_fp, ctf_errno (src_fp)));\n \n       src_ar.ctr_contents =\n-\tctf_add_type (dst_fp, src_fp, src_ar.ctr_contents);\n-      src_ar.ctr_index = ctf_add_type (dst_fp, src_fp, src_ar.ctr_index);\n+\tctf_add_type_internal (dst_fp, src_fp, src_ar.ctr_contents,\n+\t\t\t       proc_tracking_fp);\n+      src_ar.ctr_index = ctf_add_type_internal (dst_fp, src_fp,\n+\t\t\t\t\t\tsrc_ar.ctr_index,\n+\t\t\t\t\t\tproc_tracking_fp);\n       src_ar.ctr_nelems = src_ar.ctr_nelems;\n \n       if (src_ar.ctr_contents == CTF_ERR || src_ar.ctr_index == CTF_ERR)\n@@ -1876,7 +1867,9 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n       break;\n \n     case CTF_K_FUNCTION:\n-      ctc.ctc_return = ctf_add_type (dst_fp, src_fp, src_tp->ctt_type);\n+      ctc.ctc_return = ctf_add_type_internal (dst_fp, src_fp,\n+\t\t\t\t\t      src_tp->ctt_type,\n+\t\t\t\t\t      proc_tracking_fp);\n       ctc.ctc_argc = 0;\n       ctc.ctc_flags = 0;\n \n@@ -1893,6 +1886,7 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n \tint errs = 0;\n \tsize_t size;\n \tssize_t ssize;\n+\tctf_dtdef_t *dtd;\n \n \t/* Technically to match a struct or union we need to check both\n \t   ways (src members vs. dst, dst members vs. src) but we make\n@@ -1902,7 +1896,8 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n \t   This optimization can be defeated for unions, but is so\n \t   pathological as to render it irrelevant for our purposes.  */\n \n-\tif (dst_type != CTF_ERR && dst_kind != CTF_K_FORWARD)\n+\tif (dst_type != CTF_ERR && kind != CTF_K_FORWARD\n+\t    && dst_kind != CTF_K_FORWARD)\n \t  {\n \t    if (ctf_type_size (src_fp, src_type) !=\n \t\tctf_type_size (dst_fp, dst_type))\n@@ -1936,6 +1931,10 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n \tdst.ctb_type = dst_type;\n \tdst.ctb_dtd = dtd;\n \n+\t/* Pre-emptively add this struct to the type mapping so that\n+\t   structures that refer to themselves work.  */\n+\tctf_add_type_mapping (src_fp, src_type, dst_fp, dst_type);\n+\n \tif (ctf_member_iter (src_fp, src_type, membadd, &dst) != 0)\n \t  errs++;\t       /* Increment errs and fail at bottom of case.  */\n \n@@ -1963,12 +1962,22 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n \tfor (dmd = ctf_list_next (&dtd->dtd_u.dtu_members);\n \t     dmd != NULL; dmd = ctf_list_next (dmd))\n \t  {\n-\t    if ((dmd->dmd_type = ctf_add_type (dst_fp, src_fp,\n-\t\t\t\t\t       dmd->dmd_type)) == CTF_ERR)\n+\t    ctf_file_t *dst = dst_fp;\n+\t    ctf_id_t memb_type;\n+\n+\t    memb_type = ctf_type_mapping (src_fp, dmd->dmd_type, &dst);\n+\t    if (memb_type == 0)\n \t      {\n-\t\tif (ctf_errno (dst_fp) != ECTF_NONREPRESENTABLE)\n-\t\t  errs++;\n+\t\tif ((dmd->dmd_type =\n+\t\t     ctf_add_type_internal (dst_fp, src_fp, dmd->dmd_type,\n+\t\t\t\t\t    proc_tracking_fp)) == CTF_ERR)\n+\t\t  {\n+\t\t    if (ctf_errno (dst_fp) != ECTF_NONREPRESENTABLE)\n+\t\t      errs++;\n+\t\t  }\n \t      }\n+\t    else\n+\t      dmd->dmd_type = memb_type;\n \t  }\n \n \tif (errs)\n@@ -1977,7 +1986,8 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n       }\n \n     case CTF_K_ENUM:\n-      if (dst_type != CTF_ERR && dst_kind != CTF_K_FORWARD)\n+      if (dst_type != CTF_ERR && kind != CTF_K_FORWARD\n+\t  && dst_kind != CTF_K_FORWARD)\n \t{\n \t  if (ctf_enum_iter (src_fp, src_type, enumcmp, &dst)\n \t      || ctf_enum_iter (dst_fp, dst_type, enumcmp, &src))\n@@ -2003,7 +2013,8 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n \n     case CTF_K_TYPEDEF:\n       src_type = ctf_type_reference (src_fp, src_type);\n-      src_type = ctf_add_type (dst_fp, src_fp, src_type);\n+      src_type = ctf_add_type_internal (dst_fp, src_fp, src_type,\n+\t\t\t\t\tproc_tracking_fp);\n \n       if (src_type == CTF_ERR)\n \treturn CTF_ERR;\t\t\t\t/* errno is set for us.  */\n@@ -2017,9 +2028,8 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n \t equivalent.  */\n \n       if (dst_type == CTF_ERR)\n-\t{\n \t  dst_type = ctf_add_typedef (dst_fp, flag, name, src_type);\n-\t}\n+\n       break;\n \n     default:\n@@ -2031,6 +2041,27 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n   return dst_type;\n }\n \n+ctf_id_t\n+ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n+{\n+  ctf_id_t id;\n+\n+  if (!src_fp->ctf_add_processing)\n+    src_fp->ctf_add_processing = ctf_dynhash_create (ctf_hash_integer,\n+\t\t\t\t\t\t     ctf_hash_eq_integer,\n+\t\t\t\t\t\t     NULL, NULL);\n+\n+  /* We store the hash on the source, because it contains only source type IDs:\n+     but callers will invariably expect errors to appear on the dest.  */\n+  if (!src_fp->ctf_add_processing)\n+    return (ctf_set_errno (dst_fp, ENOMEM));\n+\n+  id = ctf_add_type_internal (dst_fp, src_fp, src_type, src_fp);\n+  ctf_dynhash_empty (src_fp->ctf_add_processing);\n+\n+  return id;\n+}\n+\n /* Write the compressed CTF data stream to the specified gzFile descriptor.  */\n int\n ctf_gzwrite (ctf_file_t *fp, gzFile fd)"
+    },
+    {
+      "sha": "f8e9a7788adee27f39c81f175275f7306a8da8a8",
+      "filename": "libctf/ctf-impl.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/99dc3ebdfff927b30db58117d7bd80586e273669/libctf/ctf-impl.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/99dc3ebdfff927b30db58117d7bd80586e273669/libctf/ctf-impl.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-impl.h?ref=99dc3ebdfff927b30db58117d7bd80586e273669",
+      "patch": "@@ -294,6 +294,7 @@ struct ctf_file\n   /* Allow the caller to Change the name of link archive members.  */\n   ctf_link_memb_name_changer_f *ctf_link_memb_name_changer;\n   void *ctf_link_memb_name_changer_arg; /* Argument for it.  */\n+  ctf_dynhash_t *ctf_add_processing; /* Types ctf_add_type is working on now.  */\n   char *ctf_tmp_typeslice;\t  /* Storage for slicing up type names.  */\n   size_t ctf_tmp_typeslicelen;\t  /* Size of the typeslice.  */\n   void *ctf_specific;\t\t  /* Data for ctf_get/setspecific().  */"
+    },
+    {
+      "sha": "b6989579465d22a9478811697ecdcaaf4794d54d",
+      "filename": "libctf/ctf-open.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/99dc3ebdfff927b30db58117d7bd80586e273669/libctf/ctf-open.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/99dc3ebdfff927b30db58117d7bd80586e273669/libctf/ctf-open.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-open.c?ref=99dc3ebdfff927b30db58117d7bd80586e273669",
+      "patch": "@@ -1665,6 +1665,7 @@ ctf_file_close (ctf_file_t *fp)\n   ctf_dynhash_destroy (fp->ctf_link_outputs);\n   ctf_dynhash_destroy (fp->ctf_link_type_mapping);\n   ctf_dynhash_destroy (fp->ctf_link_cu_mapping);\n+  ctf_dynhash_destroy (fp->ctf_add_processing);\n \n   ctf_free (fp->ctf_sxlate);\n   ctf_free (fp->ctf_txlate);"
+    }
+  ]
+}

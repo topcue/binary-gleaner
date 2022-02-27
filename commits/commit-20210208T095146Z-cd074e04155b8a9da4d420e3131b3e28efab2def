@@ -1,0 +1,158 @@
+{
+  "sha": "cd074e04155b8a9da4d420e3131b3e28efab2def",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6Y2QwNzRlMDQxNTViOGE5ZGE0ZDQyMGUzMTMxYjNlMjhlZmFiMmRlZg==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-01-22T17:40:19Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-02-08T09:51:46Z"
+    },
+    "message": "gdb/tui: fix issue with handling the return character\n\nMy initial goal was to fix our gdb/testsuite/lib/tuiterm.exp such that\nit would correctly support (some limited) scrolling of the command\nwindow.\n\nWhat I observe is that when sending commands to the tui command window\nin a test script with:\n\n  Term::command \"p 1\"\n\nThe command window would be left looking like this:\n\n  (gdb)\n  (gdb) p 1$1 = 1\n  (gdb)\n\nWhen I would have expected it to look like this:\n\n  (gdb) p 1\n  $1 = 1\n  (gdb)\n\nObviously a bug in our tuiterm.exp library, right???\n\nWrong!\n\nTurns out there's a bug in GDB.\n\nIf in GDB I enable the tui and then type (slowly) the 'p 1\\r' (the \\r\nis pressing the return key at the end of the string), then you do\nindeed get the \"expected\" terminal output.\n\nHowever, if instead I copy the 'p 1\\r' string and paste it into the\ntui in one go then I now see the same corrupted output as we do when\nusing tuiterm.exp.\n\nIt turns out the problem is that GDB fails when handling lots of input\narriving quickly with a \\r (or \\n) on the end.\n\nThe reason for this bug is as follows:\n\nWhen the tui is active the terminal is in no-echo mode, so characters\nsent to the terminal are not echoed out again.  This means that when\nthe user types \\r, this is not echoed to the terminal.\n\nThe characters read in are passed to readline and \\r indicates that\nthe command line is complete and ready to be processed.  However, the\n\\r is not included in readlines command buffer, and is NOT printed by\nreadline when is displays its buffer to the screen.\n\nSo, in GDB we have to manually spot the \\r when it is read in and\nupdate the display.  Printing a newline character to the output and\nmoving the cursor to the next line.  This is done in tui_getc_1.\n\nNow readline tries to reduce the number of write calls.  So if we very\nquickly (as in paste in one go) the text 'p 1' to readline (this time\nwith no \\r on the end), then readline will fetch the fist character\nand add it to its internal buffer.  But before printing the character\nout readline checks to see if there's more input incoming.  As we\npasted multiple characters, then yes, readline sees the ' ' and adds\nthis to its buffer, and finally the '1', this too is added to the\nbuffer.\n\nNow if at this point we take a break, readline sees there is no more\ninput available, and so prints its buffer out.\n\nNow when we press \\r the code in tui_getc_1 kicks in, adds a \\n to the\noutput and moves the cursor to the next line.\n\nBut, if instead we paste 'p 1\\r' in one go then readline adds 'p 1' to\nits buffer as before, but now it sees that there is still more input\navailable.  Now it fetches the '\\r', but this triggers the newline\nbehaviour, we print '\\n' and move to the next line - however readline\nhas not printed its buffer yet!\n\nSo finally we end up on the next line.  There's no more input\navailable so readline prints its buffer, then GDB gets passed the\nbuffer, handles it, and prints the result.\n\nThe solution I think is to put of our special newline insertion code\nuntil we know that readline has finished printing its buffer.  Handily\nwe know when this is - the next thing readline does is pass us the\ncommand line buffer for processing.  So all we need to do is hook in\nto the command line processing, and before we pass the command line to\nGDB's internals we do all of the magic print a newline and move the\ncursor to the next line stuff.\n\nLuckily, GDB's interpreter mechanism already provides the hooks we\nneed to do this.  So all I do here is move the newline printing code\nfrom tui_getc_1 into a new function, setup a new input_handler hook\nfor the tui, and call my new newline printing function.\n\nAfter this I can enable the tui and paste in 'p 1\\r' and see the\ncorrect output.\n\nAlso the tuiterm.exp library will now see non-corrupted output.\n\ngdb/ChangeLog:\n\n\t* tui/tui-interp.c (tui_command_line_handler): New function.\n\t(tui_interp::resume): Register tui_command_line_handler as the\n\tinput_handler.\n\t* tui/tui-io.c (tui_inject_newline_into_command_window): New\n\tfunction.\n\t(tui_getc_1): Delete handling of '\\n' and '\\r'.\n\t* tui-io.h (tui_inject_newline_into_command_window): Declare.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.tui/scroll.exp: Tighten expected results.  Remove comment\n\tabout bug in GDB, update expected results, and add more tests.",
+    "tree": {
+      "sha": "d6e83847818b4756a52d104244871c654ede2ea7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/d6e83847818b4756a52d104244871c654ede2ea7"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/cd074e04155b8a9da4d420e3131b3e28efab2def",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cd074e04155b8a9da4d420e3131b3e28efab2def",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/cd074e04155b8a9da4d420e3131b3e28efab2def",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cd074e04155b8a9da4d420e3131b3e28efab2def/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "5fb97639911a4ab55f0287b5deea2f06d83a5f8c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5fb97639911a4ab55f0287b5deea2f06d83a5f8c",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/5fb97639911a4ab55f0287b5deea2f06d83a5f8c"
+    }
+  ],
+  "stats": {
+    "total": 164,
+    "additions": 110,
+    "deletions": 54
+  },
+  "files": [
+    {
+      "sha": "634d272dbdffc94ca1b67f7132f6012b82d21407",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd074e04155b8a9da4d420e3131b3e28efab2def/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd074e04155b8a9da4d420e3131b3e28efab2def/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=cd074e04155b8a9da4d420e3131b3e28efab2def",
+      "patch": "@@ -1,3 +1,13 @@\n+2021-02-08  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* tui/tui-interp.c (tui_command_line_handler): New function.\n+\t(tui_interp::resume): Register tui_command_line_handler as the\n+\tinput_handler.\n+\t* tui/tui-io.c (tui_inject_newline_into_command_window): New\n+\tfunction.\n+\t(tui_getc_1): Delete handling of '\\n' and '\\r'.\n+\t* tui-io.h (tui_inject_newline_into_command_window): Declare.\n+\n 2021-02-07  Hannes Domani  <ssbssa@yahoo.de>\n \n \t* tui/tui-regs.c (tui_data_window::display_registers_from):"
+    },
+    {
+      "sha": "ed496e4305ef78e71923170d5d14412454e9fe22",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd074e04155b8a9da4d420e3131b3e28efab2def/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd074e04155b8a9da4d420e3131b3e28efab2def/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=cd074e04155b8a9da4d420e3131b3e28efab2def",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-02-08  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.tui/scroll.exp: Tighten expected results.  Remove comment\n+\tabout bug in GDB, update expected results, and add more tests.\n+\n 2021-02-08  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.tui/scroll.exp: New file."
+    },
+    {
+      "sha": "2e85e4e2503ec82563b2d6da031134a2b5bd4e2c",
+      "filename": "gdb/testsuite/gdb.tui/scroll.exp",
+      "status": "modified",
+      "additions": 29,
+      "deletions": 19,
+      "changes": 48,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd074e04155b8a9da4d420e3131b3e28efab2def/gdb/testsuite/gdb.tui/scroll.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd074e04155b8a9da4d420e3131b3e28efab2def/gdb/testsuite/gdb.tui/scroll.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.tui/scroll.exp?ref=cd074e04155b8a9da4d420e3131b3e28efab2def",
+      "patch": "@@ -38,25 +38,35 @@ for {set i 0} {$i < 10} {incr i 1} {\n }\n \n # Now check that the contents of the command window are as expected.\n-#\n-# Well, we would if there wasn't a massive bug in GDB!!  The command\n-# window contents will not be exactly what you'd expect after this\n-# test has run.\n-#\n-# The expected output pattern given here is crafted so that it matches\n-# those bits of the GDB output that will be correct, and ignores those\n-# parts of the output that are known to be incorrect.\n-#\n-# If/when GDB is fixed it is expected that this test will continue to\n-# pass, though it is possible that at that point the pattern here\n-# could be improved.\n Term::check_region_contents \"check cmd window\" 0 16 80 8 \\\n     [multi_line \\\n-\t \"\\[^\\r\\n\\]*\\\\\\$7 = 6\\[^\\r\\n\\]+\" \\\n-\t \"\\\\(gdb\\\\)\\[^\\r\\n\\]+\" \\\n-\t \"\\[^\\r\\n\\]*\\\\\\$8 = 7\\[^\\r\\n\\]+\" \\\n-\t \"\\\\(gdb\\\\)\\[^\\r\\n\\]+\" \\\n-\t \"\\[^\\r\\n\\]*\\\\\\$9 = 8\\[^\\r\\n\\]+\" \\\n-\t \"\\\\(gdb\\\\)\\[^\\r\\n\\]+\" \\\n-\t \"\\[^\\r\\n\\]*\\\\\\$10 = 9\\[^\\r\\n\\]+\" \\\n+\t \"\\\\\\$7 = 6\\\\s+\" \\\n+\t \"\\\\(gdb\\\\) p 7\\\\s+\" \\\n+\t \"\\\\\\$8 = 7\\\\s+\" \\\n+\t \"\\\\(gdb\\\\) p 8\\\\s+\" \\\n+\t \"\\\\\\$9 = 8\\\\s+\" \\\n+\t \"\\\\(gdb\\\\) p 9\\\\s+\" \\\n+\t \"\\\\\\$10 = 9\\\\s+\" \\\n+\t \"\\\\(gdb\\\\)\"]\n+\n+# Now create a new layout where the CMD window is at the top of the\n+# screen.  Sitch to this layout and ensure that scrolling still works\n+# as expected.\n+Term::command \"tui new-layout flip cmd 1 src 1\"\n+Term::command \"layout flip\"\n+\n+for {set i 10} {$i < 20} {incr i 1} {\n+    Term::command \"p $i\"\n+}\n+\n+# Now check that the contents of the command window are as expected.\n+Term::check_region_contents \"check cmd window in flip layout\" 0 0 80 8 \\\n+    [multi_line \\\n+\t \"\\\\\\$17 = 16\\\\s+\" \\\n+\t \"\\\\(gdb\\\\) p 17\\\\s+\" \\\n+\t \"\\\\\\$18 = 17\\\\s+\" \\\n+\t \"\\\\(gdb\\\\) p 18\\\\s+\" \\\n+\t \"\\\\\\$19 = 18\\\\s+\" \\\n+\t \"\\\\(gdb\\\\) p 19\\\\s+\" \\\n+\t \"\\\\\\$20 = 19\\\\s+\" \\\n \t \"\\\\(gdb\\\\)\"]"
+    },
+    {
+      "sha": "f70e1a7b4c21b9affdb5b3ed18ff1c4a219ddf6b",
+      "filename": "gdb/tui/tui-interp.c",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 1,
+      "changes": 23,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd074e04155b8a9da4d420e3131b3e28efab2def/gdb/tui/tui-interp.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd074e04155b8a9da4d420e3131b3e28efab2def/gdb/tui/tui-interp.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/tui/tui-interp.c?ref=cd074e04155b8a9da4d420e3131b3e28efab2def",
+      "patch": "@@ -247,6 +247,27 @@ tui_interp::init (bool top_level)\n     tui_ensure_readline_initialized ();\n }\n \n+/* Used as the command handler for the tui.  */\n+\n+static void\n+tui_command_line_handler (gdb::unique_xmalloc_ptr<char> &&rl)\n+{\n+  /* When a tui enabled GDB is running in either tui mode or cli mode then\n+     it is always the tui interpreter that is in use.  As a result we end\n+     up in here even in standard cli mode.\n+\n+     We only need to do any special actions when the tui is in use\n+     though.  When the tui is active the users return is not echoed to the\n+     screen as a result the display will not automatically move us to the\n+     next line.  Here we manually insert a newline character and move the\n+     cursor.  */\n+  if (tui_active)\n+    tui_inject_newline_into_command_window ();\n+\n+  /* Now perform GDB's standard CLI command line handling.  */\n+  command_line_handler (std::move (rl));\n+}\n+\n void\n tui_interp::resume ()\n {\n@@ -266,7 +287,7 @@ tui_interp::resume ()\n \n   gdb_setup_readline (1);\n \n-  ui->input_handler = command_line_handler;\n+  ui->input_handler = tui_command_line_handler;\n \n   if (stream != NULL)\n     tui_old_uiout->set_stream (gdb_stdout);"
+    },
+    {
+      "sha": "a2be4d4353e736963479b5a50d0e5823f49af3bf",
+      "filename": "gdb/tui/tui-io.c",
+      "status": "modified",
+      "additions": 39,
+      "deletions": 34,
+      "changes": 73,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd074e04155b8a9da4d420e3131b3e28efab2def/gdb/tui/tui-io.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd074e04155b8a9da4d420e3131b3e28efab2def/gdb/tui/tui-io.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/tui/tui-io.c?ref=cd074e04155b8a9da4d420e3131b3e28efab2def",
+      "patch": "@@ -991,6 +991,45 @@ tui_dispatch_ctrl_char (unsigned int ch)\n   return 0;\n }\n \n+/* See tui-io.h.   */\n+\n+void\n+tui_inject_newline_into_command_window ()\n+{\n+  gdb_assert (tui_active);\n+\n+  WINDOW *w= TUI_CMD_WIN->handle.get ();\n+\n+  /* When hitting return with an empty input, gdb executes the last\n+     command.  If we emit a newline, this fills up the command window\n+     with empty lines with gdb prompt at beginning.  Instead of that,\n+     stay on the same line but provide a visual effect to show the\n+     user we recognized the command.  */\n+  if (rl_end == 0 && !gdb_in_secondary_prompt_p (current_ui))\n+    {\n+      wmove (w, getcury (w), 0);\n+\n+      /* Clear the line.  This will blink the gdb prompt since\n+\t it will be redrawn at the same line.  */\n+      wclrtoeol (w);\n+      wrefresh (w);\n+      napms (20);\n+    }\n+  else\n+    {\n+      /* Move cursor to the end of the command line before emitting the\n+\t newline.  We need to do so because when ncurses outputs a newline\n+\t it truncates any text that appears past the end of the cursor.  */\n+      int px, py;\n+      getyx (w, py, px);\n+      px += rl_end - rl_point;\n+      py += px / TUI_CMD_WIN->width;\n+      px %= TUI_CMD_WIN->width;\n+      wmove (w, py, px);\n+      tui_putc ('\\n');\n+    }\n+}\n+\n /* Main worker for tui_getc.  Get a character from the command window.\n    This is called from the readline package, but wrapped in a\n    try/catch by tui_getc.  */\n@@ -1010,40 +1049,6 @@ tui_getc_1 (FILE *fp)\n \n   ch = gdb_wgetch (w);\n \n-  /* The \\n must be echoed because it will not be printed by\n-     readline.  */\n-  if (ch == '\\n' || ch == '\\r')\n-    {\n-      /* When hitting return with an empty input, gdb executes the last\n-\t command.  If we emit a newline, this fills up the command window\n-\t with empty lines with gdb prompt at beginning.  Instead of that,\n-\t stay on the same line but provide a visual effect to show the\n-\t user we recognized the command.  */\n-      if (rl_end == 0 && !gdb_in_secondary_prompt_p (current_ui))\n-\t{\n-\t  wmove (w, getcury (w), 0);\n-\n-\t  /* Clear the line.  This will blink the gdb prompt since\n-\t     it will be redrawn at the same line.  */\n-\t  wclrtoeol (w);\n-\t  wrefresh (w);\n-\t  napms (20);\n-\t}\n-      else\n-\t{\n-\t  /* Move cursor to the end of the command line before emitting the\n-\t     newline.  We need to do so because when ncurses outputs a newline\n-\t     it truncates any text that appears past the end of the cursor.  */\n-\t  int px, py;\n-\t  getyx (w, py, px);\n-\t  px += rl_end - rl_point;\n-\t  py += px / TUI_CMD_WIN->width;\n-\t  px %= TUI_CMD_WIN->width;\n-\t  wmove (w, py, px);\n-\t  tui_putc ('\\n');\n-\t}\n-    }\n-  \n   /* Handle prev/next/up/down here.  */\n   ch = tui_dispatch_ctrl_char (ch);\n   "
+    },
+    {
+      "sha": "760532140f1b33f9690d6c3cef819e2a691a25da",
+      "filename": "gdb/tui/tui-io.h",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cd074e04155b8a9da4d420e3131b3e28efab2def/gdb/tui/tui-io.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cd074e04155b8a9da4d420e3131b3e28efab2def/gdb/tui/tui-io.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/tui/tui-io.h?ref=cd074e04155b8a9da4d420e3131b3e28efab2def",
+      "patch": "@@ -55,4 +55,9 @@ extern void tui_apply_style (WINDOW *w, ui_file_style style);\n extern struct ui_out *tui_out;\n extern cli_ui_out *tui_old_uiout;\n \n+/* This should be called when the user has entered a command line in tui\n+   mode.  Inject the newline into the output and move the cursor to the\n+   next line.  */\n+extern void tui_inject_newline_into_command_window ();\n+\n #endif /* TUI_TUI_IO_H */"
+    }
+  ]
+}

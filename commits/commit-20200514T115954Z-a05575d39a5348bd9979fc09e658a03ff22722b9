@@ -1,0 +1,194 @@
+{
+  "sha": "a05575d39a5348bd9979fc09e658a03ff22722b9",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YTA1NTc1ZDM5YTUzNDhiZDk5NzlmYzA5ZTY1OGEwM2ZmMjI3MjJiOQ==",
+  "commit": {
+    "author": {
+      "name": "Tankut Baris Aktemur",
+      "email": "tankut.baris.aktemur@intel.com",
+      "date": "2020-05-14T11:59:54Z"
+    },
+    "committer": {
+      "name": "Tankut Baris Aktemur",
+      "email": "tankut.baris.aktemur@intel.com",
+      "date": "2020-05-14T11:59:54Z"
+    },
+    "message": "gdb/infrun: handle already-exited threads when attempting to stop\n\nIn stop_all_threads, GDB sends signals to other threads in an attempt\nto stop them.  While in a typical scenario the expected wait status is\nTARGET_WAITKIND_STOPPED, it is possible that the thread GDB attempted\nto stop has already terminated.  If so, a waitstatus other than\nTARGET_WAITKIND_STOPPED would be received.  Handle this case\nappropriately.\n\nIf a wait status that denotes thread termination is ignored, GDB goes\ninto an infinite loop in stop_all_threads.\nE.g.:\n\n  $ gdb ./a.out\n  (gdb) start\n  ...\n  (gdb) add-inferior -exec ./a.out\n  ...\n  (gdb) inferior 2\n  ...\n  (gdb) start\n  ...\n  (gdb) set schedule-multiple on\n  (gdb) set debug infrun 2\n  (gdb) continue\n  Continuing.\n  infrun: clear_proceed_status_thread (process 10449)\n  infrun: clear_proceed_status_thread (process 10453)\n  infrun: proceed (addr=0xffffffffffffffff, signal=GDB_SIGNAL_DEFAULT)\n  infrun: proceed: resuming process 10449\n  infrun: resume (step=0, signal=GDB_SIGNAL_0), trap_expected=0, current thread [process 10449] at 0x55555555514e\n  infrun: infrun_async(1)\n  infrun: prepare_to_wait\n  infrun: proceed: resuming process 10453\n  infrun: resume (step=0, signal=GDB_SIGNAL_0), trap_expected=0, current thread [process 10453] at 0x55555555514e\n  infrun: prepare_to_wait\n  infrun: Found 2 inferiors, starting at #0\n  infrun: target_wait (-1.0.0, status) =\n  infrun:   10449.10449.0 [process 10449],\n  infrun:   status->kind = exited, status = 0\n  infrun: handle_inferior_event status->kind = exited, status = 0\n  [Inferior 1 (process 10449) exited normally]\n  infrun: stop_waiting\n  infrun: stop_all_threads\n  infrun: stop_all_threads, pass=0, iterations=0\n  infrun:   process 10453 executing, need stop\n  infrun: target_wait (-1.0.0, status) =\n  infrun:   10453.10453.0 [process 10453],\n  infrun:   status->kind = exited, status = 0\n  infrun: stop_all_threads status->kind = exited, status = 0 process 10453\n  infrun:   process 10453 executing, already stopping\n  infrun: target_wait (-1.0.0, status) =\n  infrun:   -1.0.0 [process -1],\n  infrun:   status->kind = no-resumed\n  infrun: infrun_async(0)\n  infrun: stop_all_threads status->kind = no-resumed process -1\n  infrun:   process 10453 executing, already stopping\n  infrun: stop_all_threads status->kind = no-resumed process -1\n  infrun:   process 10453 executing, already stopping\n  infrun: stop_all_threads status->kind = no-resumed process -1\n  infrun:   process 10453 executing, already stopping\n  infrun: stop_all_threads status->kind = no-resumed process -1\n  infrun:   process 10453 executing, already stopping\n  infrun: stop_all_threads status->kind = no-resumed process -1\n  infrun:   process 10453 executing, already stopping\n  infrun: stop_all_threads status->kind = no-resumed process -1\n  infrun:   process 10453 executing, already stopping\n  infrun: stop_all_threads status->kind = no-resumed process -1\n  infrun:   process 10453 executing, already stopping\n  infrun: stop_all_threads status->kind = no-resumed process -1\n  infrun:   process 10453 executing, already stopping\n  infrun: stop_all_threads status->kind = no-resumed process -1\n  infrun:   process 10453 executing, already stopping\n  infrun: stop_all_threads status->kind = no-resumed process -1\n  infrun:   process 10453 executing, already stopping\n  ...\n\nAnd this polling goes on forever.  This patch prevents the infinite\nlooping behavior.  For the same scenario above, we obtain the\nfollowing behavior:\n\n  ...\n  (gdb) continue\n  Continuing.\n  infrun: clear_proceed_status_thread (process 31229)\n  infrun: clear_proceed_status_thread (process 31233)\n  infrun: proceed (addr=0xffffffffffffffff, signal=GDB_SIGNAL_DEFAULT)\n  infrun: proceed: resuming process 31229\n  infrun: resume (step=0, signal=GDB_SIGNAL_0), trap_expected=0, current thread [process 31229] at 0x55555555514e\n  infrun: infrun_async(1)\n  infrun: prepare_to_wait\n  infrun: proceed: resuming process 31233\n  infrun: resume (step=0, signal=GDB_SIGNAL_0), trap_expected=0, current thread [process 31233] at 0x55555555514e\n  infrun: prepare_to_wait\n  infrun: Found 2 inferiors, starting at #0\n  infrun: target_wait (-1.0.0, status) =\n  infrun:   31229.31229.0 [process 31229],\n  infrun:   status->kind = exited, status = 0\n  infrun: handle_inferior_event status->kind = exited, status = 0\n  [Inferior 1 (process 31229) exited normally]\n  infrun: stop_waiting\n  infrun: stop_all_threads\n  infrun: stop_all_threads, pass=0, iterations=0\n  infrun:   process 31233 executing, need stop\n  infrun: target_wait (-1.0.0, status) =\n  infrun:   31233.31233.0 [process 31233],\n  infrun:   status->kind = exited, status = 0\n  infrun: stop_all_threads status->kind = exited, status = 0 process 31233\n  infrun: saving status status->kind = exited, status = 0 for 31233.31233.0\n  infrun:   process 31233 not executing\n  infrun: stop_all_threads, pass=1, iterations=1\n  infrun:   process 31233 not executing\n  infrun: stop_all_threads done\n  (gdb)\n\nThe exit event from Inferior 1 is received and shown to the user.\nThe exit event from Inferior 2 is not displayed, but kept pending.\n\n  (gdb) info inferiors\n    Num  Description       Connection           Executable\n  * 1    <null>                                 a.out\n    2    process 31233     1 (native)           a.out\n  (gdb) inferior 2\n  [Switching to inferior 2 [process 31233] (a.out)]\n  [Switching to thread 2.1 (process 31233)]\n  Couldn't get registers: No such process.\n  (gdb) continue\n  Continuing.\n  infrun: clear_proceed_status_thread (process 31233)\n  infrun: clear_proceed_status_thread: thread process 31233 has pending wait status status->kind = exited, status = 0 (currently_stepping=0).\n  infrun: proceed (addr=0xffffffffffffffff, signal=GDB_SIGNAL_DEFAULT)\n  infrun: proceed: resuming process 31233\n  infrun: resume: thread process 31233 has pending wait status status->kind = exited, status = 0 (currently_stepping=0).\n  infrun: prepare_to_wait\n  infrun: Using pending wait status status->kind = exited, status = 0 for process 31233.\n  infrun: target_wait (-1.0.0, status) =\n  infrun:   31233.31233.0 [process 31233],\n  infrun:   status->kind = exited, status = 0\n  infrun: handle_inferior_event status->kind = exited, status = 0\n  [Inferior 2 (process 31233) exited normally]\n  infrun: stop_waiting\n  (gdb) info inferiors\n    Num  Description       Connection           Executable\n    1    <null>                                 a.out\n  * 2    <null>                                 a.out\n  (gdb)\n\nWhen a process exits and we leave the process exit event pending, we\nneed to make sure that at least one thread is left listed in the\ninferior's thread list.  This is necessary in order to make sure we\nhave a thread that we can later resume, so the process exit event can\nbe collected/reported.\n\nWhen native debugging, the GNU/Linux back end already makes sure that\nthe last LWP isn't deleted.\n\nWhen remote debugging against GNU/Linux GDBserver, the GNU/Linux\nGDBserver backend also makes sure that the last thread isn't deleted\nuntil the process exit event is reported to GDBserver core.\n\nHowever, between the backend reporting the process exit event to\nGDBserver core, and GDB consuming the event, GDB may update the thread\nlist and find no thread left in the process.  The process exit event\nwill be pending somewhere in GDBserver's stop reply queue, or\ngdb/remote.c's queue, or whathever other event queue inbetween\nGDBserver and infrun.c's handle_inferior_event.\n\nThis patch tweaks remote.c's target_update_thread_list implementation\nto avoid deleting the last thread of an inferior.\n\nIn the past, this case of inferior-with-no-threads led to a special\ncase at the bottom of handle_no_resumed, where it reads:\n\n  /* Note however that we may find no resumed thread because the whole\n     process exited meanwhile (thus updating the thread list results\n     in an empty thread list).  In this case we know we'll be getting\n     a process exit event shortly.  */\n  for (inferior *inf : all_non_exited_inferiors (ecs->target))\n\nIn current master, that code path is still reachable with the\ngdb.threads/continue-pending-after-query.exp testcase, when tested\nagainst GDBserver, with \"maint set target-non-stop\" forced \"on\".\n\nWith this patch, the scenario that loop was concerned about is still\nproperly handled, because the loop above it finds the process's last\nthread with \"executing\" set to true, and thus the handle_no_resumed\nfunction still returns true.\n\nSince GNU/Linux native and remote are the only targets that support\nnon-stop mode, and with this patch, we always make sure the inferior\nhas at least one thread, this patch also removes that \"inferior with\nno threads\" special case handling from handle_no_resumed.\n\nSince remote.c now has a special case where we treat a thread that has\nalready exited as if it was still alive, we might need to tweak\nremote.c's target_thread_alive implementation to return true for that\nthread without querying the remote side (which would say \"no, not\nalive\").  After inspecting all the target_thread_alive calls in the\ncodebase, it seems that only the one from prune_threads could result\nin that thread being accidentally deleted.  There's only one call to\nprune_threads in GDB's common code, so this patch handles this by\nreplacing the prune_threads call with a delete_exited_threads call.\nThis seems like an improvement anyway, because we'll still be doing\nwhat the comment suggests we want to do, and, we avoid remote protocol\ntraffic.\n\nRegression-tested on X86_64 Linux.\n\ngdb/ChangeLog:\n2020-05-14  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n\t    Tom de Vries  <tdevries@suse.de>\n\t    Pedro Alves  <palves@redhat.com>\n\n\tPR threads/25478\n\t* infrun.c (stop_all_threads): Do NOT ignore\n\tTARGET_WAITKIND_NO_RESUMED, TARGET_WAITKIND_THREAD_EXITED,\n\tTARGET_WAITKIND_EXITED, TARGET_WAITKIND_SIGNALLED wait statuses\n\treceived.\n\t(handle_no_resumed): Remove code handling a live inferior with no\n\tthreads.\n\t* remote.c (has_single_non_exited_thread): New.\n\t(remote_target::update_thread_list): Do not delete a thread if is\n\tthe last thread of the process.\n\t* thread.c (thread_select): Call delete_exited_threads instead of\n\tprune_threads.\n\ngdb/testsuite/ChangeLog:\n2020-05-14  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n\t    Pedro Alves  <palves@redhat.com>\n\n\t* gdb.multi/multi-exit.c: New file.\n\t* gdb.multi/multi-exit.exp: New file.\n\t* gdb.multi/multi-kill.c: New file.\n\t* gdb.multi/multi-kill.exp: New file.",
+    "tree": {
+      "sha": "aef52631b191e91cd0e852dd01ca1bbb77d04721",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/aef52631b191e91cd0e852dd01ca1bbb77d04721"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/a05575d39a5348bd9979fc09e658a03ff22722b9",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a05575d39a5348bd9979fc09e658a03ff22722b9",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/a05575d39a5348bd9979fc09e658a03ff22722b9",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a05575d39a5348bd9979fc09e658a03ff22722b9/comments",
+  "author": {
+    "login": "barisaktemur",
+    "id": 55686642,
+    "node_id": "MDQ6VXNlcjU1Njg2NjQy",
+    "avatar_url": "https://avatars.githubusercontent.com/u/55686642?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/barisaktemur",
+    "html_url": "https://github.com/barisaktemur",
+    "followers_url": "https://api.github.com/users/barisaktemur/followers",
+    "following_url": "https://api.github.com/users/barisaktemur/following{/other_user}",
+    "gists_url": "https://api.github.com/users/barisaktemur/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/barisaktemur/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/barisaktemur/subscriptions",
+    "organizations_url": "https://api.github.com/users/barisaktemur/orgs",
+    "repos_url": "https://api.github.com/users/barisaktemur/repos",
+    "events_url": "https://api.github.com/users/barisaktemur/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/barisaktemur/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "barisaktemur",
+    "id": 55686642,
+    "node_id": "MDQ6VXNlcjU1Njg2NjQy",
+    "avatar_url": "https://avatars.githubusercontent.com/u/55686642?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/barisaktemur",
+    "html_url": "https://github.com/barisaktemur",
+    "followers_url": "https://api.github.com/users/barisaktemur/followers",
+    "following_url": "https://api.github.com/users/barisaktemur/following{/other_user}",
+    "gists_url": "https://api.github.com/users/barisaktemur/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/barisaktemur/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/barisaktemur/subscriptions",
+    "organizations_url": "https://api.github.com/users/barisaktemur/orgs",
+    "repos_url": "https://api.github.com/users/barisaktemur/repos",
+    "events_url": "https://api.github.com/users/barisaktemur/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/barisaktemur/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "6ad82919702b60dee9f9a98047233e5374888e47",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6ad82919702b60dee9f9a98047233e5374888e47",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/6ad82919702b60dee9f9a98047233e5374888e47"
+    }
+  ],
+  "stats": {
+    "total": 458,
+    "additions": 432,
+    "deletions": 26
+  },
+  "files": [
+    {
+      "sha": "c4da2a92f9ac8fc52ae3e855361a0f03db73cf5b",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 0,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a05575d39a5348bd9979fc09e658a03ff22722b9/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a05575d39a5348bd9979fc09e658a03ff22722b9/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=a05575d39a5348bd9979fc09e658a03ff22722b9",
+      "patch": "@@ -1,3 +1,20 @@\n+2020-05-14  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n+\t    Tom de Vries  <tdevries@suse.de>\n+\t    Pedro Alves  <palves@redhat.com>\n+\n+\tPR threads/25478\n+\t* infrun.c (stop_all_threads): Do NOT ignore\n+\tTARGET_WAITKIND_NO_RESUMED, TARGET_WAITKIND_THREAD_EXITED,\n+\tTARGET_WAITKIND_EXITED, TARGET_WAITKIND_SIGNALLED wait statuses\n+\treceived.\n+\t(handle_no_resumed): Remove code handling a live inferior with no\n+\tthreads.\n+\t* remote.c (has_single_non_exited_thread): New.\n+\t(remote_target::update_thread_list): Do not delete a thread if is\n+\tthe last thread of the process.\n+\t* thread.c (thread_select): Call delete_exited_threads instead of\n+\tprune_threads.\n+\n 2020-05-14  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n \n \t* infrun.c (stop_all_threads): Enable/disable thread events of all"
+    },
+    {
+      "sha": "c3e23a28bdf163cf12d8b4292d94f52e1a998d31",
+      "filename": "gdb/infrun.c",
+      "status": "modified",
+      "additions": 61,
+      "deletions": 25,
+      "changes": 86,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a05575d39a5348bd9979fc09e658a03ff22722b9/gdb/infrun.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a05575d39a5348bd9979fc09e658a03ff22722b9/gdb/infrun.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infrun.c?ref=a05575d39a5348bd9979fc09e658a03ff22722b9",
+      "patch": "@@ -4804,7 +4804,11 @@ stop_all_threads (void)\n \t{\n \t  int need_wait = 0;\n \n-\t  update_thread_list ();\n+\t  for (auto *target : all_non_exited_process_targets ())\n+\t    {\n+\t      switch_to_target_no_thread (target);\n+\t      update_thread_list ();\n+\t    }\n \n \t  /* Go through all threads looking for threads that we need\n \t     to tell the target to stop.  */\n@@ -4879,13 +4883,63 @@ stop_all_threads (void)\n \t\t\t\t  target_pid_to_str (event.ptid).c_str ());\n \t    }\n \n-\t  if (event.ws.kind == TARGET_WAITKIND_NO_RESUMED\n-\t      || event.ws.kind == TARGET_WAITKIND_THREAD_EXITED\n-\t      || event.ws.kind == TARGET_WAITKIND_EXITED\n-\t      || event.ws.kind == TARGET_WAITKIND_SIGNALLED)\n+\t  if (event.ws.kind == TARGET_WAITKIND_NO_RESUMED)\n+\t    {\n+\t      /* All resumed threads exited.  */\n+\t    }\n+\t  else if (event.ws.kind == TARGET_WAITKIND_THREAD_EXITED\n+\t\t   || event.ws.kind == TARGET_WAITKIND_EXITED\n+\t\t   || event.ws.kind == TARGET_WAITKIND_SIGNALLED)\n \t    {\n-\t      /* All resumed threads exited\n-\t\t or one thread/process exited/signalled.  */\n+\t      /* One thread/process exited/signalled.  */\n+\n+\t      thread_info *t = nullptr;\n+\n+\t      /* The target may have reported just a pid.  If so, try\n+\t\t the first non-exited thread.  */\n+\t      if (event.ptid.is_pid ())\n+\t\t{\n+\t\t  int pid  = event.ptid.pid ();\n+\t\t  inferior *inf = find_inferior_pid (event.target, pid);\n+\t\t  for (thread_info *tp : inf->non_exited_threads ())\n+\t\t    {\n+\t\t      t = tp;\n+\t\t      break;\n+\t\t    }\n+\n+\t\t  /* If there is no available thread, the event would\n+\t\t     have to be appended to a per-inferior event list,\n+\t\t     which does not exist (and if it did, we'd have\n+\t\t     to adjust run control command to be able to\n+\t\t     resume such an inferior).  We assert here instead\n+\t\t     of going into an infinite loop.  */\n+\t\t  gdb_assert (t != nullptr);\n+\n+\t\t  if (debug_infrun)\n+\t\t    fprintf_unfiltered (gdb_stdlog,\n+\t\t\t\t\t\"infrun: stop_all_threads, using %s\\n\",\n+\t\t\t\t\ttarget_pid_to_str (t->ptid).c_str ());\n+\t\t}\n+\t      else\n+\t\t{\n+\t\t  t = find_thread_ptid (event.target, event.ptid);\n+\t\t  /* Check if this is the first time we see this thread.\n+\t\t     Don't bother adding if it individually exited.  */\n+\t\t  if (t == nullptr\n+\t\t      && event.ws.kind != TARGET_WAITKIND_THREAD_EXITED)\n+\t\t    t = add_thread (event.target, event.ptid);\n+\t\t}\n+\n+\t      if (t != nullptr)\n+\t\t{\n+\t\t  /* Set the threads as non-executing to avoid\n+\t\t     another stop attempt on them.  */\n+\t\t  switch_to_thread_no_regs (t);\n+\t\t  mark_non_executing_threads (event.target, event.ptid,\n+\t\t\t\t\t      event.ws);\n+\t\t  save_waitstatus (t, &event.ws);\n+\t\t  t->stop_requested = false;\n+\t\t}\n \t    }\n \t  else\n \t    {\n@@ -5063,24 +5117,6 @@ handle_no_resumed (struct execution_control_state *ecs)\n \t}\n     }\n \n-  /* Note however that we may find no resumed thread because the whole\n-     process exited meanwhile (thus updating the thread list results\n-     in an empty thread list).  In this case we know we'll be getting\n-     a process exit event shortly.  */\n-  for (inferior *inf : all_non_exited_inferiors (ecs->target))\n-    {\n-      thread_info *thread = any_live_thread_of_inferior (inf);\n-      if (thread == NULL)\n-\t{\n-\t  if (debug_infrun)\n-\t    fprintf_unfiltered (gdb_stdlog,\n-\t\t\t\t\"infrun: TARGET_WAITKIND_NO_RESUMED \"\n-\t\t\t\t\"(expect process exit)\\n\");\n-\t  prepare_to_wait (ecs);\n-\t  return 1;\n-\t}\n-    }\n-\n   /* Go ahead and report the event.  */\n   return 0;\n }"
+    },
+    {
+      "sha": "5b1fa848536aa5fd07c690551f35e8d5826ee2de",
+      "filename": "gdb/remote.c",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 0,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a05575d39a5348bd9979fc09e658a03ff22722b9/gdb/remote.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a05575d39a5348bd9979fc09e658a03ff22722b9/gdb/remote.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/remote.c?ref=a05575d39a5348bd9979fc09e658a03ff22722b9",
+      "patch": "@@ -3785,6 +3785,18 @@ remote_target::remote_get_threads_with_qthreadinfo (threads_listing_context *con\n   return 0;\n }\n \n+/* Return true if INF only has one non-exited thread.  */\n+\n+static bool\n+has_single_non_exited_thread (inferior *inf)\n+{\n+  int count = 0;\n+  for (thread_info *tp ATTRIBUTE_UNUSED : inf->non_exited_threads ())\n+    if (++count > 1)\n+      break;\n+  return count == 1;\n+}\n+\n /* Implement the to_update_thread_list function for the remote\n    targets.  */\n \n@@ -3824,6 +3836,14 @@ remote_target::update_thread_list ()\n \n \t  if (!context.contains_thread (tp->ptid))\n \t    {\n+\t      /* Do not remove the thread if it is the last thread in\n+\t\t the inferior.  This situation happens when we have a\n+\t\t pending exit process status to process.  Otherwise we\n+\t\t may end up with a seemingly live inferior (i.e.  pid\n+\t\t != 0) that has no threads.  */\n+\t      if (has_single_non_exited_thread (tp->inf))\n+\t\tcontinue;\n+\n \t      /* Not found.  */\n \t      delete_thread (tp);\n \t    }"
+    },
+    {
+      "sha": "c987c829c45d92d1cf16872ff23b0b3df17325e9",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a05575d39a5348bd9979fc09e658a03ff22722b9/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a05575d39a5348bd9979fc09e658a03ff22722b9/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=a05575d39a5348bd9979fc09e658a03ff22722b9",
+      "patch": "@@ -1,3 +1,11 @@\n+2020-05-14  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n+\t    Pedro Alves  <palves@redhat.com>\n+\n+\t* gdb.multi/multi-exit.c: New file.\n+\t* gdb.multi/multi-exit.exp: New file.\n+\t* gdb.multi/multi-kill.c: New file.\n+\t* gdb.multi/multi-kill.exp: New file.\n+\n 2020-05-14  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n \n \t* gdb.base/annota1.exp: Update the expected output."
+    },
+    {
+      "sha": "f4825c8a7c1186e3fc77e381a89369df031109f1",
+      "filename": "gdb/testsuite/gdb.multi/multi-exit.c",
+      "status": "added",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a05575d39a5348bd9979fc09e658a03ff22722b9/gdb/testsuite/gdb.multi/multi-exit.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a05575d39a5348bd9979fc09e658a03ff22722b9/gdb/testsuite/gdb.multi/multi-exit.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.multi/multi-exit.c?ref=a05575d39a5348bd9979fc09e658a03ff22722b9",
+      "patch": "@@ -0,0 +1,22 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+int\n+main ()\n+{\n+  return 0;\n+}"
+    },
+    {
+      "sha": "393093b3784ac4efc76eaecd3428c2fc5d1ee1a9",
+      "filename": "gdb/testsuite/gdb.multi/multi-exit.exp",
+      "status": "added",
+      "additions": 134,
+      "deletions": 0,
+      "changes": 134,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a05575d39a5348bd9979fc09e658a03ff22722b9/gdb/testsuite/gdb.multi/multi-exit.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a05575d39a5348bd9979fc09e658a03ff22722b9/gdb/testsuite/gdb.multi/multi-exit.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.multi/multi-exit.exp?ref=a05575d39a5348bd9979fc09e658a03ff22722b9",
+      "patch": "@@ -0,0 +1,134 @@\n+# This testcase is part of GDB, the GNU debugger.\n+\n+# Copyright 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test receiving TARGET_WAITKIND_EXITED events from multiple\n+# inferiors.  In all stop-mode, upon receiving the exit event from one\n+# of the inferiors, GDB will try to stop the other inferior, too.  So,\n+# a stop request will be sent.  Receiving a TARGET_WAITKIND_EXITED\n+# status kind as a response to that stop request instead of a\n+# TARGET_WAITKIND_STOPPED should be handled by GDB without problems.\n+\n+standard_testfile\n+\n+if {[use_gdb_stub]} {\n+    return 0\n+}\n+\n+if {[build_executable \"failed to prepare\" $testfile $srcfile]} {\n+    return -1\n+}\n+\n+# We are testing GDB's ability to stop all threads.\n+# Hence, go with the all-stop-on-top-of-non-stop mode.\n+save_vars { GDBFLAGS } {\n+    append GDBFLAGS \" -ex \\\"maint set target-non-stop on\\\"\"\n+    clean_restart ${binfile}\n+}\n+\n+# Start inferior NUM.\n+\n+proc start_inferior {num} {\n+    with_test_prefix \"start_inferior $num\" {\n+\tglobal srcfile binfile\n+\n+\tif {$num != 1} {\n+\t    gdb_test \"add-inferior\" \"Added inferior $num.*\" \\\n+\t\t\"add empty inferior\"\n+\t    gdb_test \"inferior $num\" \"Switching to inferior $num.*\" \\\n+\t\t\"switch to inferior\"\n+\t}\n+\n+\tgdb_load $binfile\n+\n+\tif {[gdb_start_cmd] < 0} {\n+\t    fail \"could not start\"\n+\t    return -1\n+\t}\n+\tgdb_test \"\" \".*reakpoint .*, main .*${srcfile}.*\" \"start\"\n+    }\n+\n+    return 0\n+}\n+\n+# Sufficient inferiors to make sure that at least some other inferior\n+# exits while we're handling a process exit event.\n+set NUM_INFS 10\n+\n+for {set i 1} {$i <= $NUM_INFS} {incr i} {\n+    if {[start_inferior $i] < 0} {\n+\treturn -1\n+    }\n+}\n+\n+# We want to continue all processes.\n+gdb_test_no_output \"set schedule-multiple on\"\n+\n+# Check that \"continue\" continues to the end of an inferior, as many\n+# times as we have inferiors.\n+\n+for {set i 1} {$i <= $NUM_INFS} {incr i} {\n+    with_test_prefix \"inf $i\" {\n+\tset live_inferior \"\"\n+\n+\t# Pick any live inferior.\n+\tgdb_test_multiple \"info inferiors\" \"\" {\n+\t    -re \"($decimal) *process.*$gdb_prompt $\" {\n+\t\tset live_inferior $expect_out(1,string)\n+\t    }\n+\t}\n+\n+\tif {$live_inferior == \"\"} {\n+\t    return -1\n+\t}\n+\n+\tgdb_test \"inferior $live_inferior\" \\\n+\t    \".*Switching to inferior $live_inferior.*\" \\\n+\t    \"switch to another inferior\"\n+\n+\tset exited_inferior \"\"\n+\n+\t# We want GDB to complete the command and return the prompt\n+\t# instead of going into an infinite loop.\n+\tgdb_test_multiple \"continue\" \"continue\" {\n+\t    -re \"Inferior ($decimal) \\[^\\n\\r\\]+ exited normally.*$gdb_prompt $\" {\n+\t\tset exited_inferior $expect_out(1,string)\n+\t\tpass $gdb_test_name\n+\t    }\n+\t}\n+\n+\tif {$exited_inferior == \"\"} {\n+\t    return -1\n+\t}\n+    }\n+}\n+\n+# Finally, check that we can re-run all inferiors.  Note that if any\n+# inferior was still alive this would catch it, as \"run\" would query\n+# \"Start it from the beginning?\".\n+\n+delete_breakpoints\n+\n+for {set i 1} {$i <= $NUM_INFS} {incr i} {\n+    with_test_prefix \"inf $i\" {\n+\tgdb_test \"inferior $i\" \\\n+\t    \".*Switching to inferior $i.*\" \\\n+\t    \"switch to inferior for re-run\"\n+\n+\tgdb_test \"run\" \"$inferior_exited_re normally\\]\" \\\n+\t    \"re-run inferior\"\n+    }\n+}"
+    },
+    {
+      "sha": "66642bbb0e63cce20fc1879971d0c840dea6f817",
+      "filename": "gdb/testsuite/gdb.multi/multi-kill.c",
+      "status": "added",
+      "additions": 42,
+      "deletions": 0,
+      "changes": 42,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a05575d39a5348bd9979fc09e658a03ff22722b9/gdb/testsuite/gdb.multi/multi-kill.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a05575d39a5348bd9979fc09e658a03ff22722b9/gdb/testsuite/gdb.multi/multi-kill.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.multi/multi-kill.c?ref=a05575d39a5348bd9979fc09e658a03ff22722b9",
+      "patch": "@@ -0,0 +1,42 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#include <sys/types.h>\n+#include <unistd.h>\n+\n+static pid_t pid;\n+\n+static void\n+initialized ()\n+{\n+}\n+\n+int\n+main ()\n+{\n+  pid = getpid ();\n+  initialized ();\n+\n+  /* Don't run forever in case GDB crashes and DejaGNU fails to kill\n+     this program.  */\n+  alarm (10);\n+\n+  while (1)\n+    ;\n+\n+  return 0;\n+}"
+    },
+    {
+      "sha": "ce6075045fc4a9e99987067bc22e4a86e089f9d5",
+      "filename": "gdb/testsuite/gdb.multi/multi-kill.exp",
+      "status": "added",
+      "additions": 127,
+      "deletions": 0,
+      "changes": 127,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a05575d39a5348bd9979fc09e658a03ff22722b9/gdb/testsuite/gdb.multi/multi-kill.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a05575d39a5348bd9979fc09e658a03ff22722b9/gdb/testsuite/gdb.multi/multi-kill.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.multi/multi-kill.exp?ref=a05575d39a5348bd9979fc09e658a03ff22722b9",
+      "patch": "@@ -0,0 +1,127 @@\n+# This testcase is part of GDB, the GNU debugger.\n+\n+# Copyright 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test receiving TARGET_WAITKIND_SIGNALLED events from multiple\n+# inferiors.  In all stop-mode, upon receiving the exit event from one\n+# of the inferiors, GDB will try to stop the other inferior, too.  So,\n+# a stop request will be sent.  Receiving a TARGET_WAITKIND_SIGNALLED\n+# status kind as a response to that stop request instead of a\n+# TARGET_WAITKIND_STOPPED should be handled by GDB without problems.\n+\n+standard_testfile\n+\n+if {[use_gdb_stub]} {\n+    return 0\n+}\n+\n+if {[build_executable \"failed to prepare\" $testfile $srcfile {debug}]} {\n+    return -1\n+}\n+\n+# We are testing GDB's ability to stop all threads.\n+# Hence, go with the all-stop-on-top-of-non-stop mode.\n+save_vars { GDBFLAGS } {\n+    append GDBFLAGS \" -ex \\\"maint set target-non-stop on\\\"\"\n+    clean_restart ${binfile}\n+}\n+\n+# Start inferior NUM and record its PID in the TESTPID array.\n+\n+proc start_inferior {num} {\n+    with_test_prefix \"start_inferior $num\" {\n+\tglobal testpid binfile srcfile\n+\n+\tif {$num != 1} {\n+\t    gdb_test \"add-inferior\" \"Added inferior .*\" \\\n+\t\t\"add empty inferior\"\n+\t    gdb_test \"inferior $num\" \"Switching to inferior .*\" \\\n+\t\t\"switch to inferior\"\n+\t}\n+\n+\tgdb_load $binfile\n+\n+\tgdb_breakpoint \"initialized\" {temporary}\n+\tgdb_run_cmd\n+\tgdb_test \"\" \".*reakpoint .*, initialized .*${srcfile}.*\" \"run\"\n+\n+\tset testpid($num) [get_integer_valueof \"pid\" -1]\n+\tif {$testpid($num) == -1} {\n+\t    return -1\n+\t}\n+\n+\treturn 0\n+    }\n+}\n+\n+# Sufficient inferiors to make sure that at least some other inferior\n+# is killed while we're handling a killed event.\n+set NUM_INFS 10\n+\n+for {set i 1} {$i <= $NUM_INFS} {incr i} {\n+    if {[start_inferior $i] < 0} {\n+\treturn -1\n+    }\n+}\n+\n+# We want to continue all processes.\n+gdb_test_no_output \"set schedule-multiple on\"\n+\n+# Resume, but then kill all from outside.\n+gdb_test_multiple \"continue\" \"continue processes\" {\n+    -re \"Continuing.\\[\\r\\n\\]+\" {\n+\t# Kill all processes at once.\n+\n+\tset kill_cmd \"kill -9\"\n+\tfor {set i 1} {$i <= $NUM_INFS} {incr i} {\n+\t    append kill_cmd \" $testpid($i)\"\n+\t}\n+\n+\tremote_exec target $kill_cmd\n+\texp_continue\n+    }\n+    -re \"Program terminated with signal.*$gdb_prompt $\" {\n+\tpass $gdb_test_name\n+    }\n+}\n+\n+# Check that \"continue\" collects the process kill event, as many times\n+# as we have inferiors left.\n+\n+for {set i 2} {$i <= $NUM_INFS} {incr i} {\n+    with_test_prefix \"inf $i\" {\n+\tset live_inferior \"\"\n+\n+\t# Pick any live inferior.\n+\tgdb_test_multiple \"info inferiors\" \"\" {\n+\t    -re \"($decimal) *process.*$gdb_prompt $\" {\n+\t\tset live_inferior $expect_out(1,string)\n+\t    }\n+\t}\n+\n+\tif {$live_inferior == \"\"} {\n+\t    return -1\n+\t}\n+\n+\tgdb_test \"inferior $live_inferior\" \\\n+\t    \".*Switching to inferior $live_inferior.*\" \\\n+\t    \"switch to inferior\"\n+\n+\tgdb_test \"continue\" \\\n+\t    \"Program terminated with signal SIGKILL, .*\" \\\n+\t    \"continue to SIGKILL\"\n+    }\n+}"
+    },
+    {
+      "sha": "02672f01fcf13aed1a5d4571d3e6d15002233e7d",
+      "filename": "gdb/thread.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a05575d39a5348bd9979fc09e658a03ff22722b9/gdb/thread.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a05575d39a5348bd9979fc09e658a03ff22722b9/gdb/thread.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/thread.c?ref=a05575d39a5348bd9979fc09e658a03ff22722b9",
+      "patch": "@@ -2043,7 +2043,7 @@ thread_select (const char *tidstr, thread_info *tp)\n \n   /* Since the current thread may have changed, see if there is any\n      exited thread we can now delete.  */\n-  prune_threads ();\n+  delete_exited_threads ();\n }\n \n /* Print thread and frame switch command response.  */"
+    }
+  ]
+}

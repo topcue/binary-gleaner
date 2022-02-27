@@ -1,0 +1,110 @@
+{
+  "sha": "d6cc5d980a902d273d424c49fc55e77757c3a05d",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZDZjYzVkOTgwYTkwMmQyNzNkNDI0YzQ5ZmM1NWU3Nzc1N2MzYTA1ZA==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-07-04T19:51:36Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "palves@redhat.com",
+      "date": "2020-07-10T22:50:39Z"
+    },
+    "message": "Make handle_no_resumed transfer terminal\n\nLet's consider the same use case as in the previous commit:\n\nSay you have two inferiors 1 and 2, each connected to a different\ntarget, A and B.\n\nNow say you set inferior 2 running, with \"continue &\".\n\nNow you select a thread of inferior 1, say thread 1.2, and continue in\nthe foreground.  All other threads of inferior 1 are left stopped.\nThread 1.2 exits, and thus target A has no other resumed thread, so it\nreports TARGET_WAITKIND_NO_RESUMED.\n\nAt this point, because the threads of inferior 2 are still executing\nthe TARGET_WAITKIND_NO_RESUMED event is ignored.\n\nNow, the user types Ctrl-C.  Because GDB had previously put inferior 1\nin the foreground, the kernel sends the SIGINT to that inferior.\nHowever, no thread in that inferior is executing right now, so ptrace\nnever intercepts the SIGINT -- it is never dequeued by any thread.\nThe result is that GDB's CLI is stuck.  There's no way to get back the\nprompt (unless inferior 2 happens to report some event).\n\nThe fix in this commit is to make handle_no_resumed give the terminal\nto some other inferior that still has threads executing so that a\nsubsequent Ctrl-C reaches that target first (and then GDB intercepts\nthe SIGINT).  This is a bit hacky, but seems like the best we can do\nwith the current design.\n\nI think that putting all native inferiors in their own session would\nhelp fixing this in a clean way, since with that a Ctrl-C on GDB's\nterminal will _always_ reach GDB first, and then GDB can decide how to\npause the inferior.  But that's a much larger change.\n\nThe testcase added by the following patch needs this fix.\n\ngdb/ChangeLog:\n\n\tPR gdb/26199\n\t* infrun.c (handle_no_resumed): Transfer terminal to inferior with\n\texecuting threads.",
+    "tree": {
+      "sha": "4c08ab5c21adbe84c357e708b682e9be6a974c65",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/4c08ab5c21adbe84c357e708b682e9be6a974c65"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/d6cc5d980a902d273d424c49fc55e77757c3a05d",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d6cc5d980a902d273d424c49fc55e77757c3a05d",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/d6cc5d980a902d273d424c49fc55e77757c3a05d",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d6cc5d980a902d273d424c49fc55e77757c3a05d/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "7d3badc6a88b510f96c9aa0bab8f3375292d23bf",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7d3badc6a88b510f96c9aa0bab8f3375292d23bf",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/7d3badc6a88b510f96c9aa0bab8f3375292d23bf"
+    }
+  ],
+  "stats": {
+    "total": 72,
+    "additions": 60,
+    "deletions": 12
+  },
+  "files": [
+    {
+      "sha": "e35b276309d54caca3759b14bfe29632ae0e6417",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d6cc5d980a902d273d424c49fc55e77757c3a05d/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d6cc5d980a902d273d424c49fc55e77757c3a05d/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=d6cc5d980a902d273d424c49fc55e77757c3a05d",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-07-10  Pedro Alves  <pedro@palves.net>\n+\n+\tPR gdb/26199\n+\t* infrun.c (handle_no_resumed): Transfer terminal to inferior with\n+\texecuting threads.\n+\n 2020-07-10  Pedro Alves  <pedro@palves.net>\n \n \tPR gdb/26199"
+    },
+    {
+      "sha": "158b1990694be41093b2f862389e68f6f0d3c6df",
+      "filename": "gdb/infrun.c",
+      "status": "modified",
+      "additions": 54,
+      "deletions": 12,
+      "changes": 66,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d6cc5d980a902d273d424c49fc55e77757c3a05d/gdb/infrun.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d6cc5d980a902d273d424c49fc55e77757c3a05d/gdb/infrun.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infrun.c?ref=d6cc5d980a902d273d424c49fc55e77757c3a05d",
+      "patch": "@@ -5071,20 +5071,52 @@ handle_no_resumed (struct execution_control_state *ecs)\n      the synchronous command and show \"no unwaited-for \" to the\n      user.  */\n \n-  {\n-    scoped_restore_current_thread restore_thread;\n+  inferior *curr_inf = current_inferior ();\n \n-    for (auto *target : all_non_exited_process_targets ())\n-      {\n-\tswitch_to_target_no_thread (target);\n-\tupdate_thread_list ();\n-      }\n-  }\n+  scoped_restore_current_thread restore_thread;\n+\n+  for (auto *target : all_non_exited_process_targets ())\n+    {\n+      switch_to_target_no_thread (target);\n+      update_thread_list ();\n+    }\n+\n+  /* If:\n+\n+       - the current target has no thread executing, and\n+       - the current inferior is native, and\n+       - the current inferior is the one which has the terminal, and\n+       - we did nothing,\n+\n+     then a Ctrl-C from this point on would remain stuck in the\n+     kernel, until a thread resumes and dequeues it.  That would\n+     result in the GDB CLI not reacting to Ctrl-C, not able to\n+     interrupt the program.  To address this, if the current inferior\n+     no longer has any thread executing, we give the terminal to some\n+     other inferior that has at least one thread executing.  */\n+  bool swap_terminal = true;\n+\n+  /* Whether to ignore this TARGET_WAITKIND_NO_RESUMED event, or\n+     whether to report it to the user.  */\n+  bool ignore_event = false;\n \n   for (thread_info *thread : all_non_exited_threads ())\n     {\n-      if (thread->executing\n-\t  || thread->suspend.waitstatus_pending_p)\n+      if (swap_terminal && thread->executing)\n+\t{\n+\t  if (thread->inf != curr_inf)\n+\t    {\n+\t      target_terminal::ours ();\n+\n+\t      switch_to_thread (thread);\n+\t      target_terminal::inferior ();\n+\t    }\n+\t  swap_terminal = false;\n+\t}\n+\n+      if (!ignore_event\n+\t  && (thread->executing\n+\t      || thread->suspend.waitstatus_pending_p))\n \t{\n \t  /* Either there were no unwaited-for children left in the\n \t     target at some point, but there are now, or some target\n@@ -5094,9 +5126,19 @@ handle_no_resumed (struct execution_control_state *ecs)\n \t    fprintf_unfiltered (gdb_stdlog,\n \t\t\t\t\"infrun: TARGET_WAITKIND_NO_RESUMED \"\n \t\t\t\t\"(ignoring: found resumed)\\n\");\n-\t  prepare_to_wait (ecs);\n-\t  return 1;\n+\n+\t  ignore_event = true;\n \t}\n+\n+      if (ignore_event && !swap_terminal)\n+\tbreak;\n+    }\n+\n+  if (ignore_event)\n+    {\n+      switch_to_inferior_no_thread (curr_inf);\n+      prepare_to_wait (ecs);\n+      return 1;\n     }\n \n   /* Go ahead and report the event.  */"
+    }
+  ]
+}

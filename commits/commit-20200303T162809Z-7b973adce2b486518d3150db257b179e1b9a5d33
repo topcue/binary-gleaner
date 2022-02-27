@@ -1,0 +1,96 @@
+{
+  "sha": "7b973adce2b486518d3150db257b179e1b9a5d33",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6N2I5NzNhZGNlMmI0ODY1MThkMzE1MGRiMjU3YjE3OWUxYjlhNWQzMw==",
+  "commit": {
+    "author": {
+      "name": "Sergio Durigan Junior",
+      "email": "sergiodj@redhat.com",
+      "date": "2020-03-01T23:15:53Z"
+    },
+    "committer": {
+      "name": "Sergio Durigan Junior",
+      "email": "sergiodj@redhat.com",
+      "date": "2020-03-03T16:28:09Z"
+    },
+    "message": "Fix printf of a convenience variable holding an inferior address\n\nBack at:\n\ncommit 1f6f6e21fa86dc3411a6498608f32e9eb24b7851\nAuthor: Philippe Waroquiers <philippe.waroquiers@skynet.be>\nDate:   Mon Jun 10 21:41:51 2019 +0200\n\n    Ensure GDB printf command can print convenience var strings without a target.\n\nGDB was extended in order to allow the printing of convenience\nvariables that are strings without a target.  However, this introduced\na regression that hasn't been caught by our testsuite (because there\nwere no tests for it).\n\nThe problem happens when we try to print a convenience variable that\nholds the address of a string in the inferior.  The following\ntwo-liners can reproduce the issue:\n\n$ echo -e 'int main(){const char a[]=\"test\";return 0;}' | gcc -x c - -O0-g3\n$ ./gdb/gdb --data-directory ./gdb/data-directory -q ./a.out -ex 'start' -ex 'set $x = (const char *) (&a[0] + 2)' -ex 'printf \"%s\\n\", $x'\n\nAfter some investigation, I found that the problem happens on\nprintcmd.c:printf_c_string.  In the case above, we're taking the first\nbranch of the 'if' condition, which assumes that there will be a value\nto be printed at \"value_contents (value)\".  There isn't.  We actually\nneed to obtain the address that the variable points to, and read the\ncontents from memory.\n\nIt seems to me that we should avoid this branch if the TYPE_CODE of\n\"value_type (value)\" is TYPE_CODE_PTR (i.e., a pointer to the\ninferior's memory).  This is what this patch does.\n\nI took the liberty to extend the current testcase under\ngdb.base/printcmds.exp and create a test that exercises this scenario.\n\nNo regressions have been found on Buildbot.\n\ngdb/ChangeLog:\n2020-03-03  Sergio Durigan Junior  <sergiodj@redhat.com>\n\n\t* printcmd.c (print_c_string): Check also for TYPE_CODE_PTR\n\twhen verifying if dealing with a convenience variable.\n\ngdb/testsuite/ChangeLog:\n2020-03-03  Sergio Durigan Junior  <sergiodj@redhat.com>\n\n\t* gdb.base/printcmds.exp: Add test to verify printf of a\n\tvariable holding an address.",
+    "tree": {
+      "sha": "de4cfc353682bb8fbb59c2ae77f4025386ecf3df",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/de4cfc353682bb8fbb59c2ae77f4025386ecf3df"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/7b973adce2b486518d3150db257b179e1b9a5d33",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7b973adce2b486518d3150db257b179e1b9a5d33",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/7b973adce2b486518d3150db257b179e1b9a5d33",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7b973adce2b486518d3150db257b179e1b9a5d33/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "5be2b2f549b0ba0743938d1d74708d79cf42dc0f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5be2b2f549b0ba0743938d1d74708d79cf42dc0f",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/5be2b2f549b0ba0743938d1d74708d79cf42dc0f"
+    }
+  ],
+  "stats": {
+    "total": 21,
+    "additions": 20,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "291e83af8e76484a6c91c9d3708e63c463af059c",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7b973adce2b486518d3150db257b179e1b9a5d33/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7b973adce2b486518d3150db257b179e1b9a5d33/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=7b973adce2b486518d3150db257b179e1b9a5d33",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-03-03  Sergio Durigan Junior  <sergiodj@redhat.com>\n+\n+\t* printcmd.c (print_c_string): Check also for TYPE_CODE_PTR\n+\twhen verifying if dealing with a convenience variable.\n+\n 2020-03-03  Luis Machado  <luis.machado@linaro.org>\n \n \t* auxv.c (default_print_auxv_entry): Add new AUXV entries."
+    },
+    {
+      "sha": "78d8d3d81e1863e7698c2ecfc68a80a1760d13de",
+      "filename": "gdb/printcmd.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7b973adce2b486518d3150db257b179e1b9a5d33/gdb/printcmd.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7b973adce2b486518d3150db257b179e1b9a5d33/gdb/printcmd.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/printcmd.c?ref=7b973adce2b486518d3150db257b179e1b9a5d33",
+      "patch": "@@ -2260,7 +2260,8 @@ printf_c_string (struct ui_file *stream, const char *format,\n {\n   const gdb_byte *str;\n \n-  if (VALUE_LVAL (value) == lval_internalvar\n+  if (TYPE_CODE (value_type (value)) != TYPE_CODE_PTR\n+      && VALUE_LVAL (value) == lval_internalvar\n       && c_is_string_type_p (value_type (value)))\n     {\n       size_t len = TYPE_LENGTH (value_type (value));"
+    },
+    {
+      "sha": "28726b8fcb308b8520e8ab88968864668c1c1803",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7b973adce2b486518d3150db257b179e1b9a5d33/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7b973adce2b486518d3150db257b179e1b9a5d33/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=7b973adce2b486518d3150db257b179e1b9a5d33",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-03-03  Sergio Durigan Junior  <sergiodj@redhat.com>\n+\n+\t* gdb.base/printcmds.exp: Add test to verify printf of a\n+\tvariable holding an address.\n+\n 2020-03-03  Tom de Vries  <tdevries@suse.de>\n \n \t* gdb.mi/gdb2549.exp: Fix \"register values t\" check-read1 timeout."
+    },
+    {
+      "sha": "c87a1517f0b747d60519e9746e633b40839a32bb",
+      "filename": "gdb/testsuite/gdb.base/printcmds.exp",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7b973adce2b486518d3150db257b179e1b9a5d33/gdb/testsuite/gdb.base/printcmds.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7b973adce2b486518d3150db257b179e1b9a5d33/gdb/testsuite/gdb.base/printcmds.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/printcmds.exp?ref=7b973adce2b486518d3150db257b179e1b9a5d33",
+      "patch": "@@ -1039,6 +1039,14 @@ gdb_test_no_output \"set may-call-functions off\"\n test_printf_convenience_var \"with target, may-call-functions off\"\n gdb_test_no_output \"set may-call-functions on\"\n \n+# Test printf of a variable that holds the address to a substring in\n+# the inferior.  This test will not work without a target.\n+gdb_test_no_output \"set var \\$test_substr = \\(char \\*\\) \\(&teststring\\[0\\] + 4\\)\" \\\n+    \"set \\$test_substr var\"\n+gdb_test \"printf \\\"test_substr val = %s\\\\n\\\", \\$test_substr\" \\\n+    \"test_substr val = string contents\" \\\n+    \"print \\$test_substr\"\n+\n test_integer_literals_accepted\n test_integer_literals_rejected\n test_float_accepted"
+    }
+  ]
+}

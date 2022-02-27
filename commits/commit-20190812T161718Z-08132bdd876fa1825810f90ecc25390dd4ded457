@@ -1,0 +1,163 @@
+{
+  "sha": "08132bdd876fa1825810f90ecc25390dd4ded457",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MDgxMzJiZGQ4NzZmYTE4MjU4MTBmOTBlY2MyNTM5MGRkNGRlZDQ1Nw==",
+  "commit": {
+    "author": {
+      "name": "Srinath Parvathaneni",
+      "email": "srinath.parvathaneni@arm.com",
+      "date": "2019-08-12T16:17:18Z"
+    },
+    "committer": {
+      "name": "Nick Clifton",
+      "email": "nickc@redhat.com",
+      "date": "2019-08-12T16:17:18Z"
+    },
+    "message": "Modify the ARM encoding and decoding of SQRSHRL and UQRSHLL MVE instructions.\n\nThis is a change to the first published specifications [1][a] but since there is no hardware\nout there that uses the old instructions we do not want to support the old variant.\nThis changes are done based on the latest published specifications [1][b].\n\n[1] https://developer.arm.com/architectures/cpu-architecture/m-profile/docs/ddi0553/latest/armv81-m-architecture-reference-manual\n    [a] version bf\n    [b] version bh\n\ngas\t* config/tc-arm.c (enum operand_parse_code): Add the entry OP_I48_I64.\n\t(po_imm1_or_imm2_or_fail): Marco to check the immediate is either of\n        48 or 64.\n\t(parse_operands): Add case OP_I48_I64.\n\t(do_mve_scalar_shift1): Add function to encode the MVE shift\n        instructions with 4 arguments.\n\t* testsuite/gas/arm/mve-shift-bad.l: Modify.\n\t* testsuite/gas/arm/mve-shift-bad.s: Likewise.\n\t* testsuite/gas/arm/mve-shift.d: Likewise.\n\t* testsuite/gas/arm/mve-shift.s: Likewise.\n\nopcodes\t* arm-dis.c (struct mopcode32 mve_opcodes): Modify the mask for\n\tcases MVE_SQRSHRL and MVE_UQRSHLL.\n\t(print_insn_mve): Add case for specifier 'k' to check\n\tspecific bit of the instruction.",
+    "tree": {
+      "sha": "2a803c56103c18a109093c5be9176efb05eee657",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/2a803c56103c18a109093c5be9176efb05eee657"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/08132bdd876fa1825810f90ecc25390dd4ded457",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/08132bdd876fa1825810f90ecc25390dd4ded457",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/08132bdd876fa1825810f90ecc25390dd4ded457",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/08132bdd876fa1825810f90ecc25390dd4ded457/comments",
+  "author": null,
+  "committer": {
+    "login": "nickclifton",
+    "id": 31441682,
+    "node_id": "MDQ6VXNlcjMxNDQxNjgy",
+    "avatar_url": "https://avatars.githubusercontent.com/u/31441682?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickclifton",
+    "html_url": "https://github.com/nickclifton",
+    "followers_url": "https://api.github.com/users/nickclifton/followers",
+    "following_url": "https://api.github.com/users/nickclifton/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickclifton/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickclifton/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickclifton/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickclifton/orgs",
+    "repos_url": "https://api.github.com/users/nickclifton/repos",
+    "events_url": "https://api.github.com/users/nickclifton/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickclifton/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "5312fe52e9ae6fd108f161a271315eb2821246eb",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5312fe52e9ae6fd108f161a271315eb2821246eb",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/5312fe52e9ae6fd108f161a271315eb2821246eb"
+    }
+  ],
+  "stats": {
+    "total": 105,
+    "additions": 93,
+    "deletions": 12
+  },
+  "files": [
+    {
+      "sha": "a60b9d20616127d0473ff1a9250b0a463b1968e2",
+      "filename": "gas/ChangeLog",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08132bdd876fa1825810f90ecc25390dd4ded457/gas/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08132bdd876fa1825810f90ecc25390dd4ded457/gas/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/ChangeLog?ref=08132bdd876fa1825810f90ecc25390dd4ded457",
+      "patch": "@@ -1,3 +1,16 @@\n+2019-08-12  Srinath Parvathaneni  <srinath.parvathaneni@arm.com>\n+\n+\t* config/tc-arm.c (enum operand_parse_code): Add the entry OP_I48_I64.\n+\t(po_imm1_or_imm2_or_fail): Marco to check the immediate is either of\n+        48 or 64.\n+\t(parse_operands): Add case OP_I48_I64.\n+\t(do_mve_scalar_shift1): Add function to encode the MVE shift\n+        instructions with 4 arguments.\n+\t* testsuite/gas/arm/mve-shift-bad.l: Modify.\n+\t* testsuite/gas/arm/mve-shift-bad.s: Likewise.\n+\t* testsuite/gas/arm/mve-shift.d: Likewise.\n+\t* testsuite/gas/arm/mve-shift.s: Likewise.\n+\n 2019-08-12  Barnaby Wilks  <barnaby.wilks@arm.com>\n \n \t* config/tc-arm.c (enum fp_16bit_format): Add enum to represent the 2 float16 encodings."
+    },
+    {
+      "sha": "e2b21ed915f4ede69ef926d6144d7a87e2dacdf4",
+      "filename": "gas/config/tc-arm.c",
+      "status": "modified",
+      "additions": 41,
+      "deletions": 2,
+      "changes": 43,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08132bdd876fa1825810f90ecc25390dd4ded457/gas/config/tc-arm.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08132bdd876fa1825810f90ecc25390dd4ded457/gas/config/tc-arm.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-arm.c?ref=08132bdd876fa1825810f90ecc25390dd4ded457",
+      "patch": "@@ -7050,6 +7050,7 @@ enum operand_parse_code\n   OP_I31w,\t/*\t\t   0 .. 31, optional trailing ! */\n   OP_I32,\t/*\t\t   1 .. 32 */\n   OP_I32z,\t/*\t\t   0 .. 32 */\n+  OP_I48_I64,\t/*\t\t   48 or 64 */\n   OP_I63,\t/*\t\t   0 .. 63 */\n   OP_I63s,\t/*\t\t -64 .. 63 */\n   OP_I64,\t/*\t\t   1 .. 64 */\n@@ -7201,6 +7202,25 @@ parse_operands (char *str, const unsigned int *pattern, bfd_boolean thumb)\n     }\t\t\t\t\t\t\t\t\\\n   while (0)\n \n+#define po_imm1_or_imm2_or_fail(imm1, imm2, popt)\t\t\\\n+  do\t\t\t\t\t\t\t\t\\\n+    {\t\t\t\t\t\t\t\t\\\n+      expressionS exp;\t\t\t\t\t\t\\\n+      my_get_expression (&exp, &str, popt);\t\t\t\\\n+      if (exp.X_op != O_constant)\t\t\t\t\\\n+\t{\t\t\t\t\t\t\t\\\n+\t  inst.error = _(\"constant expression required\");\t\\\n+\t  goto failure;\t\t\t\t\t\t\\\n+\t}\t\t\t\t\t\t\t\\\n+      if (exp.X_add_number != imm1 && exp.X_add_number != imm2) \\\n+\t{\t\t\t\t\t\t\t\\\n+\t  inst.error = _(\"immediate value 48 or 64 expected\");\t\\\n+\t  goto failure;\t\t\t\t\t\t\\\n+\t}\t\t\t\t\t\t\t\\\n+      inst.operands[i].imm = exp.X_add_number;\t\t\t\\\n+    }\t\t\t\t\t\t\t\t\\\n+  while (0)\n+\n #define po_scalar_or_goto(elsz, label, reg_type)\t\t\t\\\n   do\t\t\t\t\t\t\t\t\t\\\n     {\t\t\t\t\t\t\t\t\t\\\n@@ -7545,6 +7565,7 @@ parse_operands (char *str, const unsigned int *pattern, bfd_boolean thumb)\n \tcase OP_I31:\t po_imm_or_fail (  0,\t  31, FALSE);\tbreak;\n \tcase OP_I32:\t po_imm_or_fail (  1,\t  32, FALSE);\tbreak;\n \tcase OP_I32z:\t po_imm_or_fail (  0,     32, FALSE);   break;\n+\tcase OP_I48_I64: po_imm1_or_imm2_or_fail (48, 64, FALSE); break;\n \tcase OP_I63s:\t po_imm_or_fail (-64,\t  63, FALSE);\tbreak;\n \tcase OP_I63:\t po_imm_or_fail (  0,     63, FALSE);   break;\n \tcase OP_I64:\t po_imm_or_fail (  1,     64, FALSE);   break;\n@@ -14345,6 +14366,24 @@ v8_1_loop_reloc (int is_le)\n     }\n }\n \n+/* For shifts with four operands in MVE.  */\n+static void\n+do_mve_scalar_shift1 (void)\n+{\n+  unsigned int value = inst.operands[2].imm;\n+\n+  inst.instruction |= inst.operands[0].reg << 16;\n+  inst.instruction |= inst.operands[1].reg << 8;\n+\n+  /* Setting the bit for saturation.  */\n+  inst.instruction |= ((value == 64) ? 0: 1) << 7;\n+\n+  /* Assuming Rm is already checked not to be 11x1.  */\n+  constraint (inst.operands[3].reg == inst.operands[0].reg, BAD_OVERLAP);\n+  constraint (inst.operands[3].reg == inst.operands[1].reg, BAD_OVERLAP);\n+  inst.instruction |= inst.operands[3].reg << 12;\n+}\n+\n /* For shifts in MVE.  */\n static void\n do_mve_scalar_shift (void)\n@@ -25405,8 +25444,8 @@ static const struct asm_opcode insns[] =\n  ToC(\"lsll\",\tea50010d, 3, (RRe, RRo, RRnpcsp_I32), mve_scalar_shift),\n  ToC(\"lsrl\",\tea50011f, 3, (RRe, RRo, I32),\t      mve_scalar_shift),\n  ToC(\"asrl\",\tea50012d, 3, (RRe, RRo, RRnpcsp_I32), mve_scalar_shift),\n- ToC(\"uqrshll\",\tea51010d, 3, (RRe, RRo, RRnpcsp),     mve_scalar_shift),\n- ToC(\"sqrshrl\",\tea51012d, 3, (RRe, RRo, RRnpcsp),     mve_scalar_shift),\n+ ToC(\"uqrshll\",\tea51010d, 4, (RRe, RRo, I48_I64, RRnpcsp), mve_scalar_shift1),\n+ ToC(\"sqrshrl\",\tea51012d, 4, (RRe, RRo, I48_I64, RRnpcsp), mve_scalar_shift1),\n  ToC(\"uqshll\",\tea51010f, 3, (RRe, RRo, I32),\t      mve_scalar_shift),\n  ToC(\"urshrl\",\tea51011f, 3, (RRe, RRo, I32),\t      mve_scalar_shift),\n  ToC(\"srshrl\",\tea51012f, 3, (RRe, RRo, I32),\t      mve_scalar_shift),"
+    },
+    {
+      "sha": "835d0e37f41162defb447f6285eb17f346893867",
+      "filename": "gas/testsuite/gas/arm/mve-shift-bad.l",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 2,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08132bdd876fa1825810f90ecc25390dd4ded457/gas/testsuite/gas/arm/mve-shift-bad.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08132bdd876fa1825810f90ecc25390dd4ded457/gas/testsuite/gas/arm/mve-shift-bad.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/mve-shift-bad.l?ref=08132bdd876fa1825810f90ecc25390dd4ded457",
+      "patch": "@@ -5,8 +5,14 @@\n .*: Error: Even register not allowed here -- `lsll r2,r4,#5'\n .*: Error: r15 not allowed here -- `lsll r2,r15,r5'\n .*: Warning: instruction is UNPREDICTABLE with SP operand\n-.*: Error: registers may not be the same -- `sqrshrl r2,r3,r3'\n+.*: Error: registers may not be the same -- `sqrshrl r2,r3,#64,r3'\n+.*: Error: registers may not be the same -- `sqrshrl r2,r3,#48,r3'\n+.*: Error: constant expression required -- `sqrshrl r2,r3,r3'\n+.*: Error: immediate value 48 or 64 expected -- `sqrshrl r2,r3,#40,r3'\n .*: Error: registers may not be the same -- `sqrshr r2,r2'\n-.*: Error: registers may not be the same -- `uqrshll r2,r3,r2'\n+.*: Error: registers may not be the same -- `uqrshll r2,r3,#64,r2'\n+.*: Error: registers may not be the same -- `uqrshll r2,r3,#48,r2'\n+.*: Error: constant expression required -- `uqrshll r2,r3,r2'\n+.*: Error: immediate value 48 or 64 expected -- `uqrshll r2,r3,#40,r2'\n .*: Error: thumb conditional instruction should be in IT block -- `uqshlgt r2,#32'\n .*: Error: constant expression required -- `urshrlle r2,r3,r5'"
+    },
+    {
+      "sha": "0470487978816cef4810c210de7138f55c2f6923",
+      "filename": "gas/testsuite/gas/arm/mve-shift-bad.s",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08132bdd876fa1825810f90ecc25390dd4ded457/gas/testsuite/gas/arm/mve-shift-bad.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08132bdd876fa1825810f90ecc25390dd4ded457/gas/testsuite/gas/arm/mve-shift-bad.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/mve-shift-bad.s?ref=08132bdd876fa1825810f90ecc25390dd4ded457",
+      "patch": "@@ -8,8 +8,14 @@ foo:\n \tlsll\tr2, r4, #5\n \tlsll\tr2, r15, r5\n \tlsrl\tr2, r13, #5\n+\tsqrshrl\tr2, r3, #64, r3\n+\tsqrshrl\tr2, r3, #48, r3\n \tsqrshrl\tr2, r3, r3\n+\tsqrshrl\tr2, r3, #40,r3\n \tsqrshr\tr2, r2\n+\tuqrshll\tr2, r3, #64, r2\n+\tuqrshll\tr2, r3, #48, r2\n \tuqrshll\tr2, r3, r2\n+\tuqrshll\tr2, r3, #40, r2\n \tuqshlgt\t\tr2, #32\n \turshrlle\tr2, r3, r5"
+    },
+    {
+      "sha": "94172adea0c024ffab190ffac6e2069599d0ccdc",
+      "filename": "gas/testsuite/gas/arm/mve-shift.d",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08132bdd876fa1825810f90ecc25390dd4ded457/gas/testsuite/gas/arm/mve-shift.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08132bdd876fa1825810f90ecc25390dd4ded457/gas/testsuite/gas/arm/mve-shift.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/mve-shift.d?ref=08132bdd876fa1825810f90ecc25390dd4ded457",
+      "patch": "@@ -11,13 +11,15 @@ Disassembly of section .text:\n 0[0-9a-f]+ <[^>]+> ea52 134f \tlsll\tr2, r3, #5\n 0[0-9a-f]+ <[^>]+> ea52 530d \tlsll\tr2, r3, r5\n 0[0-9a-f]+ <[^>]+> ea52 135f \tlsrl\tr2, r3, #5\n-0[0-9a-f]+ <[^>]+> ea53 532d \tsqrshrl\tr2, r3, r5\n+0[0-9a-f]+ <[^>]+> ea53 53ad \tsqrshrl\tr2, r3, #48, r5\n+0[0-9a-f]+ <[^>]+> ea53 532d \tsqrshrl\tr2, r3, #64, r5\n 0[0-9a-f]+ <[^>]+> ea52 5f2d \tsqrshr\tr2, r5\n 0[0-9a-f]+ <[^>]+> ea53 137f \tsqshll\tr2, r3, #5\n 0[0-9a-f]+ <[^>]+> ea52 1f7f \tsqshl\tr2, #5\n 0[0-9a-f]+ <[^>]+> ea53 73ef \tsrshrl\tr2, r3, #31\n 0[0-9a-f]+ <[^>]+> ea52 7fef \tsrshr\tr2, #31\n-0[0-9a-f]+ <[^>]+> ea53 530d \tuqrshll\tr2, r3, r5\n+0[0-9a-f]+ <[^>]+> ea53 538d \tuqrshll\tr2, r3, #48, r5\n+0[0-9a-f]+ <[^>]+> ea53 530d \tuqrshll\tr2, r3, #64, r5\n 0[0-9a-f]+ <[^>]+> ea52 5f0d \tuqrshl\tr2, r5\n 0[0-9a-f]+ <[^>]+> ea53 73cf \tuqshll\tr2, r3, #31\n 0[0-9a-f]+ <[^>]+> bfce      \titee\tgt"
+    },
+    {
+      "sha": "3038a0df9cbd5ef2fac74ed6f16721247e6e18e4",
+      "filename": "gas/testsuite/gas/arm/mve-shift.s",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08132bdd876fa1825810f90ecc25390dd4ded457/gas/testsuite/gas/arm/mve-shift.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08132bdd876fa1825810f90ecc25390dd4ded457/gas/testsuite/gas/arm/mve-shift.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/arm/mve-shift.s?ref=08132bdd876fa1825810f90ecc25390dd4ded457",
+      "patch": "@@ -6,13 +6,15 @@ foo:\n \tlsll\tr2, r3, #5\n \tlsll\tr2, r3, r5\n \tlsrl\tr2, r3, #5\n-\tsqrshrl\tr2, r3, r5\n+\tsqrshrl\tr2, r3, #48, r5\n+\tsqrshrl\tr2, r3, #64, r5\n \tsqrshr\tr2, r5\n \tsqshll\tr2, r3, #5\n \tsqshl\tr2, #5\n \tsrshrl\tr2, r3, #31\n \tsrshr\tr2, #31\n-\tuqrshll\tr2, r3, r5\n+\tuqrshll\tr2, r3, #48, r5\n+\tuqrshll\tr2, r3, #64, r5\n \tuqrshl\tr2, r5\n \tuqshll\tr2, r3, #31\n \titee\tgt"
+    },
+    {
+      "sha": "2cd22183bc78307a756391942c652c67b54deecc",
+      "filename": "opcodes/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08132bdd876fa1825810f90ecc25390dd4ded457/opcodes/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08132bdd876fa1825810f90ecc25390dd4ded457/opcodes/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/ChangeLog?ref=08132bdd876fa1825810f90ecc25390dd4ded457",
+      "patch": "@@ -1,3 +1,10 @@\n+2019-08-12  Srinath Parvathaneni  <srinath.parvathaneni@arm.com>\n+\n+\t* arm-dis.c (struct mopcode32 mve_opcodes): Modify the mask for\n+\tcases MVE_SQRSHRL and MVE_UQRSHLL.\n+\t(print_insn_mve): Add case for specifier 'k' to check\n+\tspecific bit of the instruction.\n+\n 2019-08-07  Phillipe Antoine  <p.antoine@catenacyber.fr>\n \n \tPR 24854"
+    },
+    {
+      "sha": "50d1306c19d950ba0c22cb72fcb2ccfd317795c8",
+      "filename": "opcodes/arm-dis.c",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 4,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08132bdd876fa1825810f90ecc25390dd4ded457/opcodes/arm-dis.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08132bdd876fa1825810f90ecc25390dd4ded457/opcodes/arm-dis.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/arm-dis.c?ref=08132bdd876fa1825810f90ecc25390dd4ded457",
+      "patch": "@@ -2073,6 +2073,7 @@ static const struct opcode32 neon_opcodes[] =\n    %u\t\t\tprint 'U' (unsigned) or 'S' for various mve instructions\n    %i\t\t\tprint MVE predicate(s) for vpt and vpst\n    %j\t\t\tprint a 5-bit immediate from hw2[14:12,7:6]\n+   %k\t\t\tprint 48 if the 7th position bit is set else print 64.\n    %m\t\t\tprint rounding mode for vcvt and vrint\n    %n\t\t\tprint vector comparison code for predicated instruction\n    %s\t\t\tprint size for various vcvt instructions\n@@ -3373,8 +3374,8 @@ static const struct mopcode32 mve_opcodes[] =\n \n   {ARM_FEATURE_COPROC (FPU_MVE),\n    MVE_SQRSHRL,\n-   0xea51012d, 0xfff101ff,\n-   \"sqrshrl%c\\t%17-19l, %9-11h, %12-15S\"},\n+   0xea51012d, 0xfff1017f,\n+   \"sqrshrl%c\\t%17-19l, %9-11h, %k, %12-15S\"},\n \n   {ARM_FEATURE_COPROC (FPU_MVE),\n    MVE_SQRSHR,\n@@ -3403,8 +3404,8 @@ static const struct mopcode32 mve_opcodes[] =\n \n   {ARM_FEATURE_COPROC (FPU_MVE),\n    MVE_UQRSHLL,\n-   0xea51010d, 0xfff101ff,\n-   \"uqrshll%c\\t%17-19l, %9-11h, %12-15S\"},\n+   0xea51010d, 0xfff1017f,\n+   \"uqrshll%c\\t%17-19l, %9-11h, %k, %12-15S\"},\n \n   {ARM_FEATURE_COPROC (FPU_MVE),\n    MVE_UQRSHL,\n@@ -9254,6 +9255,11 @@ print_insn_mve (struct disassemble_info *info, long given)\n \t\t      }\n \t\t      break;\n \n+\t\t    case 'k':\n+\t\t      func (stream, \"#%u\",\n+\t\t\t    (arm_decode_field (given, 7, 7) == 0) ? 64 : 48);\n+\t\t      break;\n+\n \t\t    case 'n':\n \t\t      print_vec_condition (info, given, insn->mve_op);\n \t\t      break;"
+    }
+  ]
+}

@@ -1,0 +1,290 @@
+{
+  "sha": "cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6Y2Y4OGJlNjg1NWU1YmIzZDQzZTFmZDc4ZjI4YWViMmVjNWZjMTFhMQ==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2020-07-13T03:05:08Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2020-07-13T03:06:12Z"
+    },
+    "message": "gdb: make type::bounds work for array and string types\n\nGetting the bounds of an array (or string) type is a common operation,\nand is currently done through its index type:\n\n    my_array_type->index_type ()->bounds ()\n\nI think it would make sense to let the `type::bounds` methods work for\narrays and strings, as a shorthand for this.  It's natural that when\nasking for the bounds of an array, we get the bounds of the range type\nused as its index type.  In a way, it's equivalent as the now-removed\nTYPE_ARRAY_{LOWER,UPPER}_BOUND_IS_UNDEFINED and\nTYPE_ARRAY_{LOWER,UPPER}_BOUND_VALUE, except it returns the\n`range_bounds` object.  The caller is then responsible for getting the\nproperty it needs in it.\n\nI updated all the spots I could find that could take advantage of this.\n\nNote that this also makes `type::bit_stride` work on array types, since\n`type::bit_stride` uses `type::bounds`.  `my_array_type->bit_stride ()`\nnow returns the bit stride of the array's index type.  So some spots\nare also changed to take advantage of this.\n\ngdb/ChangeLog:\n\n\t* gdbtypes.h (struct type) <bounds>: Handle array and string\n\ttypes.\n\t* ada-lang.c (assign_aggregate): Use type::bounds on\n\tarray/string type.\n\t* c-typeprint.c (c_type_print_varspec_suffix): Likewise.\n\t* c-varobj.c (c_number_of_children): Likewise.\n\t(c_describe_child): Likewise.\n\t* eval.c (evaluate_subexp_for_sizeof): Likewise.\n\t* f-typeprint.c (f_type_print_varspec_suffix): Likewise.\n\t(f_type_print_base): Likewise.\n\t* f-valprint.c (f77_array_offset_tbl): Likewise.\n\t(f77_get_upperbound): Likewise.\n\t(f77_print_array_1): Likewise.\n\t* guile/scm-type.c (gdbscm_type_range): Likewise.\n\t* m2-typeprint.c (m2_array): Likewise.\n\t(m2_is_long_set_of_type): Likewise.\n\t* m2-valprint.c (get_long_set_bounds): Likewise.\n\t* p-typeprint.c (pascal_type_print_varspec_prefix): Likewise.\n\t* python/py-type.c (typy_range): Likewise.\n\t* rust-lang.c (rust_internal_print_type): Likewise.\n\t* type-stack.c (type_stack::follow_types): Likewise.\n\t* valarith.c (value_subscripted_rvalue): Likewise.\n\t* valops.c (value_cast): Likewise.\n\nChange-Id: I5c0c08930bffe42fd69cb4bfcece28944dd88d1f",
+    "tree": {
+      "sha": "7934180bead39035aa5c7f5c00fbbfb2d4d79277",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/7934180bead39035aa5c7f5c00fbbfb2d4d79277"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "509971ae766fdba08437cbd8bc266aae8d2aa9e9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/509971ae766fdba08437cbd8bc266aae8d2aa9e9",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/509971ae766fdba08437cbd8bc266aae8d2aa9e9"
+    }
+  ],
+  "stats": {
+    "total": 113,
+    "additions": 69,
+    "deletions": 44
+  },
+  "files": [
+    {
+      "sha": "57b37b8872b95956e86786ef0172996b14a3014b",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 26,
+      "deletions": 0,
+      "changes": 26,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+      "patch": "@@ -1,3 +1,29 @@\n+2020-07-12  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\t* gdbtypes.h (struct type) <bounds>: Handle array and string\n+\ttypes.\n+\t* ada-lang.c (assign_aggregate): Use type::bounds on\n+\tarray/string type.\n+\t* c-typeprint.c (c_type_print_varspec_suffix): Likewise.\n+\t* c-varobj.c (c_number_of_children): Likewise.\n+\t(c_describe_child): Likewise.\n+\t* eval.c (evaluate_subexp_for_sizeof): Likewise.\n+\t* f-typeprint.c (f_type_print_varspec_suffix): Likewise.\n+\t(f_type_print_base): Likewise.\n+\t* f-valprint.c (f77_array_offset_tbl): Likewise.\n+\t(f77_get_upperbound): Likewise.\n+\t(f77_print_array_1): Likewise.\n+\t* guile/scm-type.c (gdbscm_type_range): Likewise.\n+\t* m2-typeprint.c (m2_array): Likewise.\n+\t(m2_is_long_set_of_type): Likewise.\n+\t* m2-valprint.c (get_long_set_bounds): Likewise.\n+\t* p-typeprint.c (pascal_type_print_varspec_prefix): Likewise.\n+\t* python/py-type.c (typy_range): Likewise.\n+\t* rust-lang.c (rust_internal_print_type): Likewise.\n+\t* type-stack.c (type_stack::follow_types): Likewise.\n+\t* valarith.c (value_subscripted_rvalue): Likewise.\n+\t* valops.c (value_cast): Likewise.\n+\n 2020-07-12  Simon Marchi  <simon.marchi@efficios.com>\n \n \t* gdbtypes.c (TYPE_ARRAY_BIT_STRIDE): Remove.  Update all"
+    },
+    {
+      "sha": "8b437a2a9cdc2382f80f9c81071e71afcb0be4cf",
+      "filename": "gdb/ada-lang.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/ada-lang.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/ada-lang.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ada-lang.c?ref=cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+      "patch": "@@ -9492,8 +9492,8 @@ assign_aggregate (struct value *container,\n     {\n       lhs = ada_coerce_to_simple_array (lhs);\n       lhs_type = check_typedef (value_type (lhs));\n-      low_index = lhs_type->index_type ()->bounds ()->low.const_val ();\n-      high_index = lhs_type->index_type ()->bounds ()->high.const_val ();\n+      low_index = lhs_type->bounds ()->low.const_val ();\n+      high_index = lhs_type->bounds ()->high.const_val ();\n     }\n   else if (lhs_type->code () == TYPE_CODE_STRUCT)\n     {"
+    },
+    {
+      "sha": "91d9ef8209e8ada82e646fe4677bff2f582f9fa2",
+      "filename": "gdb/c-typeprint.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/c-typeprint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/c-typeprint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/c-typeprint.c?ref=cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+      "patch": "@@ -780,8 +780,8 @@ c_type_print_varspec_suffix (struct type *type,\n \tfprintf_filtered (stream, (is_vector ?\n \t\t\t\t   \" __attribute__ ((vector_size(\" : \"[\"));\n \t/* Bounds are not yet resolved, print a bounds placeholder instead.  */\n-\tif (type->index_type ()->bounds ()->high.kind () == PROP_LOCEXPR\n-\t    || type->index_type ()->bounds ()->high.kind () == PROP_LOCLIST)\n+\tif (type->bounds ()->high.kind () == PROP_LOCEXPR\n+\t    || type->bounds ()->high.kind () == PROP_LOCLIST)\n \t  fprintf_filtered (stream, \"variable length\");\n \telse if (get_array_bounds (type, &low_bound, &high_bound))\n \t  fprintf_filtered (stream, \"%s\", "
+    },
+    {
+      "sha": "56354e5f06656a6f280a744a0cdc51192a982664",
+      "filename": "gdb/c-varobj.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 5,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/c-varobj.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/c-varobj.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/c-varobj.c?ref=cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+      "patch": "@@ -192,7 +192,7 @@ c_number_of_children (const struct varobj *var)\n     {\n     case TYPE_CODE_ARRAY:\n       if (TYPE_LENGTH (type) > 0 && TYPE_LENGTH (target) > 0\n-\t  && (type->index_type ()->bounds ()->high.kind () != PROP_UNDEFINED))\n+\t  && (type->bounds ()->high.kind () != PROP_UNDEFINED))\n \tchildren = TYPE_LENGTH (type) / TYPE_LENGTH (target);\n       else\n \t/* If we don't know how many elements there are, don't display\n@@ -306,14 +306,13 @@ c_describe_child (const struct varobj *parent, int index,\n     {\n     case TYPE_CODE_ARRAY:\n       if (cname)\n-\t*cname = int_string (index\n-\t\t\t     + type->index_type ()->bounds ()->low.const_val (),\n+\t*cname = int_string (index + type->bounds ()->low.const_val (),\n \t\t\t     10, 1, 0, 0);\n \n       if (cvalue && value)\n \t{\n \t  int real_index\n-\t    = index + type->index_type ()->bounds ()->low.const_val ();\n+\t    = index + type->bounds ()->low.const_val ();\n \n \t  try\n \t    {\n@@ -330,7 +329,7 @@ c_describe_child (const struct varobj *parent, int index,\n       if (cfull_expression)\n \t*cfull_expression = string_printf\n \t  (\"(%s)[%s]\", parent_expression.c_str (),\n-\t   int_string (index + type->index_type ()->bounds ()->low.const_val (),\n+\t   int_string (index + type->bounds ()->low.const_val (),\n \t\t       10, 1, 0, 0));\n \n       break;"
+    },
+    {
+      "sha": "c62c35f31835e33cd7d817aa921d7cdce0ebee8b",
+      "filename": "gdb/eval.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/eval.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/eval.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/eval.c?ref=cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+      "patch": "@@ -3212,8 +3212,7 @@ evaluate_subexp_for_sizeof (struct expression *exp, int *pos,\n \t  type = value_type (val);\n \t  if (type->code () == TYPE_CODE_ARRAY\n               && is_dynamic_type (type->index_type ())\n-              && (type->index_type ()->bounds ()->high.kind ()\n-\t\t  == PROP_UNDEFINED))\n+              && type->bounds ()->high.kind () == PROP_UNDEFINED)\n \t    return allocate_optimized_out_value (size_type);\n \t}\n       else"
+    },
+    {
+      "sha": "80dbfe1116742aada78cd02d22d3e0dfcac45ca9",
+      "filename": "gdb/f-typeprint.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/f-typeprint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/f-typeprint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/f-typeprint.c?ref=cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+      "patch": "@@ -223,7 +223,7 @@ f_type_print_varspec_suffix (struct type *type, struct ui_file *stream,\n \t  /* Make sure that, if we have an assumed size array, we\n \t       print out a warning and print the upperbound as '*'.  */\n \n-\t  if (type->index_type ()->bounds ()->high.kind () == PROP_UNDEFINED)\n+\t  if (type->bounds ()->high.kind () == PROP_UNDEFINED)\n \t    fprintf_filtered (stream, \"*\");\n \t  else\n \t    {\n@@ -408,7 +408,7 @@ f_type_print_base (struct type *type, struct ui_file *stream, int show,\n     case TYPE_CODE_STRING:\n       /* Strings may have dynamic upperbounds (lengths) like arrays.  */\n \n-      if (type->index_type ()->bounds ()->high.kind () == PROP_UNDEFINED)\n+      if (type->bounds ()->high.kind () == PROP_UNDEFINED)\n \tfprintfi_filtered (level, stream, \"character*(*)\");\n       else\n \t{"
+    },
+    {
+      "sha": "fabdf4586168d17dc4dc944ce14bc9e194fa2f6b",
+      "filename": "gdb/f-valprint.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 6,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/f-valprint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/f-valprint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/f-valprint.c?ref=cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+      "patch": "@@ -46,16 +46,16 @@ int f77_array_offset_tbl[MAX_FORTRAN_DIMS + 1][2];\n LONGEST\n f77_get_lowerbound (struct type *type)\n {\n-  if (type->index_type ()->bounds ()->low.kind () == PROP_UNDEFINED)\n+  if (type->bounds ()->low.kind () == PROP_UNDEFINED)\n     error (_(\"Lower bound may not be '*' in F77\"));\n \n-  return type->index_type ()->bounds ()->low.const_val ();\n+  return type->bounds ()->low.const_val ();\n }\n \n LONGEST\n f77_get_upperbound (struct type *type)\n {\n-  if (type->index_type ()->bounds ()->high.kind () == PROP_UNDEFINED)\n+  if (type->bounds ()->high.kind () == PROP_UNDEFINED)\n     {\n       /* We have an assumed size array on our hands.  Assume that\n \t upper_bound == lower_bound so that we show at least 1 element.\n@@ -65,7 +65,7 @@ f77_get_upperbound (struct type *type)\n       return f77_get_lowerbound (type);\n     }\n \n-  return type->index_type ()->bounds ()->high.const_val ();\n+  return type->bounds ()->high.const_val ();\n }\n \n /* Obtain F77 adjustable array dimensions.  */\n@@ -124,8 +124,7 @@ f77_print_array_1 (int nss, int ndimensions, struct type *type,\n       struct gdbarch *gdbarch = get_type_arch (type);\n       size_t dim_size = type_length_units (TYPE_TARGET_TYPE (type));\n       int unit_size = gdbarch_addressable_memory_unit_size (gdbarch);\n-      size_t byte_stride\n-\t= type->index_type ()->bounds ()->bit_stride () / (unit_size * 8);\n+      size_t byte_stride = type->bit_stride () / (unit_size * 8);\n       if (byte_stride == 0)\n \tbyte_stride = dim_size;\n       size_t offs = 0;"
+    },
+    {
+      "sha": "eaa4cff608d7754f1c2cc4aeb1a299bd0b57496d",
+      "filename": "gdb/gdbtypes.h",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 3,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/gdbtypes.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/gdbtypes.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbtypes.h?ref=cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+      "patch": "@@ -1040,9 +1040,19 @@ struct type\n   /* Get the bounds bounds of this type.  The type must be a range type.  */\n   range_bounds *bounds () const\n   {\n-    gdb_assert (this->code () == TYPE_CODE_RANGE);\n-\n-    return this->main_type->flds_bnds.bounds;\n+    switch (this->code ())\n+      {\n+      case TYPE_CODE_RANGE:\n+\treturn this->main_type->flds_bnds.bounds;\n+\n+      case TYPE_CODE_ARRAY:\n+      case TYPE_CODE_STRING:\n+\treturn this->index_type ()->bounds ();\n+\n+      default:\n+\tgdb_assert_not_reached\n+\t  (\"type::bounds called on type with invalid code\");\n+      }\n   }\n \n   /* Set the bounds of this type.  The type must be a range type.  */"
+    },
+    {
+      "sha": "19b7996c9467a301a0eb30cba719bee02cc2c651",
+      "filename": "gdb/guile/scm-type.c",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/guile/scm-type.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/guile/scm-type.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/guile/scm-type.c?ref=cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+      "patch": "@@ -826,9 +826,6 @@ gdbscm_type_range (SCM self)\n     {\n     case TYPE_CODE_ARRAY:\n     case TYPE_CODE_STRING:\n-      low = type->index_type ()->bounds ()->low.const_val ();\n-      high = type->index_type ()->bounds ()->high.const_val ();\n-      break;\n     case TYPE_CODE_RANGE:\n       low = type->bounds ()->low.const_val ();\n       high = type->bounds ()->high.const_val ();"
+    },
+    {
+      "sha": "521d9260322ad8cb806e389966ea2c45450a9ab4",
+      "filename": "gdb/m2-typeprint.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/m2-typeprint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/m2-typeprint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/m2-typeprint.c?ref=cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+      "patch": "@@ -226,7 +226,7 @@ static void m2_array (struct type *type, struct ui_file *stream,\n {\n   fprintf_filtered (stream, \"ARRAY [\");\n   if (TYPE_LENGTH (TYPE_TARGET_TYPE (type)) > 0\n-      && type->index_type ()->bounds ()->high.kind () != PROP_UNDEFINED)\n+      && type->bounds ()->high.kind () != PROP_UNDEFINED)\n     {\n       if (type->index_type () != 0)\n \t{\n@@ -416,8 +416,8 @@ m2_is_long_set_of_type (struct type *type, struct type **of_type)\n       range = type->field (i).type ()->index_type ();\n       target = TYPE_TARGET_TYPE (range);\n \n-      l1 = type->field (i).type ()->index_type ()->bounds ()->low.const_val ();\n-      h1 = type->field (len - 1).type ()->index_type ()->bounds ()->high.const_val ();\n+      l1 = type->field (i).type ()->bounds ()->low.const_val ();\n+      h1 = type->field (len - 1).type ()->bounds ()->high.const_val ();\n       *of_type = target;\n       if (m2_get_discrete_bounds (target, &l2, &h2) >= 0)\n \treturn (l1 == l2 && h1 == h2);"
+    },
+    {
+      "sha": "b0a3ce3ec3e072af7acf2db2632640c743e365d6",
+      "filename": "gdb/m2-valprint.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 3,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/m2-valprint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/m2-valprint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/m2-valprint.c?ref=cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+      "patch": "@@ -55,9 +55,8 @@ get_long_set_bounds (struct type *type, LONGEST *low, LONGEST *high)\n       i = TYPE_N_BASECLASSES (type);\n       if (len == 0)\n \treturn 0;\n-      *low = type->field (i).type ()->index_type ()->bounds ()->low.const_val ();\n-      *high = (type->field (len - 1).type ()->index_type ()->bounds ()\n-\t       ->high.const_val ());\n+      *low = type->field (i).type ()->bounds ()->low.const_val ();\n+      *high = type->field (len - 1).type ()->bounds ()->high.const_val ();\n       return 1;\n     }\n   error (_(\"expecting long_set\"));"
+    },
+    {
+      "sha": "7842b63081c73cf5bbc329f2da5adfcf1954c3e5",
+      "filename": "gdb/p-typeprint.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/p-typeprint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/p-typeprint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/p-typeprint.c?ref=cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+      "patch": "@@ -274,10 +274,10 @@ pascal_type_print_varspec_prefix (struct type *type, struct ui_file *stream,\n \tfprintf_filtered (stream, \"(\");\n       fprintf_filtered (stream, \"array \");\n       if (TYPE_LENGTH (TYPE_TARGET_TYPE (type)) > 0\n-\t  && type->index_type ()->bounds ()->high.kind () != PROP_UNDEFINED)\n+\t  && type->bounds ()->high.kind () != PROP_UNDEFINED)\n \tfprintf_filtered (stream, \"[%s..%s] \",\n-\t\t\t  plongest (type->index_type ()->bounds ()->low.const_val ()),\n-\t\t\t  plongest (type->index_type ()->bounds ()->high.const_val ()));\n+\t\t\t  plongest (type->bounds ()->low.const_val ()),\n+\t\t\t  plongest (type->bounds ()->high.const_val ()));\n       fprintf_filtered (stream, \"of \");\n       break;\n "
+    },
+    {
+      "sha": "d0dfb52811b272d22013dccb6e0bda8844b5f441",
+      "filename": "gdb/python/py-type.c",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/python/py-type.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/python/py-type.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/py-type.c?ref=cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+      "patch": "@@ -592,9 +592,6 @@ typy_range (PyObject *self, PyObject *args)\n     {\n     case TYPE_CODE_ARRAY:\n     case TYPE_CODE_STRING:\n-      low = type->index_type ()->bounds ()->low.const_val ();\n-      high = type->index_type ()->bounds ()->high.const_val ();\n-      break;\n     case TYPE_CODE_RANGE:\n       low = type->bounds ()->low.const_val ();\n       high = type->bounds ()->high.const_val ();;"
+    },
+    {
+      "sha": "ddd4b57d29442f9702eecc9c058b009115fedd32",
+      "filename": "gdb/rust-lang.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/rust-lang.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/rust-lang.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/rust-lang.c?ref=cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+      "patch": "@@ -813,8 +813,8 @@ rust_internal_print_type (struct type *type, const char *varstring,\n \t\t\t\t  stream, show - 1, level, flags, false,\n \t\t\t\t  podata);\n \n-\tif (type->index_type ()->bounds ()->high.kind () == PROP_LOCEXPR\n-\t    || type->index_type ()->bounds ()->high.kind () == PROP_LOCLIST)\n+\tif (type->bounds ()->high.kind () == PROP_LOCEXPR\n+\t    || type->bounds ()->high.kind () == PROP_LOCLIST)\n \t  fprintf_filtered (stream, \"; variable length\");\n \telse if (get_array_bounds (type, &low_bound, &high_bound))\n \t  fprintf_filtered (stream, \"; %s\","
+    },
+    {
+      "sha": "f8661d756534ff5187b3dee371cd58fbb52cf311",
+      "filename": "gdb/type-stack.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/type-stack.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/type-stack.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/type-stack.c?ref=cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+      "patch": "@@ -172,7 +172,7 @@ type_stack::follow_types (struct type *follow_type)\n \t  lookup_array_range_type (follow_type,\n \t\t\t\t   0, array_size >= 0 ? array_size - 1 : 0);\n \tif (array_size < 0)\n-\t  follow_type->index_type ()->bounds ()->high.set_undefined ();\n+\t  follow_type->bounds ()->high.set_undefined ();\n \tbreak;\n       case tp_function:\n \t/* FIXME-type-allocation: need a way to free this type when we are"
+    },
+    {
+      "sha": "0221bc6e939e6e18ef485deec27719a8257910c4",
+      "filename": "gdb/valarith.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/valarith.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/valarith.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/valarith.c?ref=cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+      "patch": "@@ -191,7 +191,7 @@ value_subscripted_rvalue (struct value *array, LONGEST index, LONGEST lowerbound\n \n   /* Fetch the bit stride and convert it to a byte stride, assuming 8 bits\n      in a byte.  */\n-  LONGEST stride = array_type->index_type ()->bounds ()->bit_stride ();\n+  LONGEST stride = array_type->bit_stride ();\n   if (stride != 0)\n     {\n       struct gdbarch *arch = get_type_arch (elt_type);\n@@ -201,7 +201,7 @@ value_subscripted_rvalue (struct value *array, LONGEST index, LONGEST lowerbound\n \n   LONGEST elt_offs = elt_size * (index - lowerbound);\n   bool array_upper_bound_undefined\n-    = array_type->index_type ()->bounds ()->high.kind () == PROP_UNDEFINED;\n+    = array_type->bounds ()->high.kind () == PROP_UNDEFINED;\n \n   if (index < lowerbound\n       || (!array_upper_bound_undefined"
+    },
+    {
+      "sha": "033fd42036ac0692ef4ceb14d19d3389090a8738",
+      "filename": "gdb/valops.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/valops.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1/gdb/valops.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/valops.c?ref=cf88be6855e5bb3d43e1fd78f28aeb2ec5fc11a1",
+      "patch": "@@ -388,8 +388,7 @@ value_cast (struct type *type, struct value *arg2)\n       struct type *element_type = TYPE_TARGET_TYPE (type);\n       unsigned element_length = TYPE_LENGTH (check_typedef (element_type));\n \n-      if (element_length > 0\n-\t  && type->index_type ()->bounds ()->high.kind () == PROP_UNDEFINED)\n+      if (element_length > 0 && type->bounds ()->high.kind () == PROP_UNDEFINED)\n \t{\n \t  struct type *range_type = type->index_type ();\n \t  int val_length = TYPE_LENGTH (type2);"
+    }
+  ]
+}

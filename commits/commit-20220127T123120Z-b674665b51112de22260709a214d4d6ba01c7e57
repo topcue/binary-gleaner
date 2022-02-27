@@ -1,0 +1,98 @@
+{
+  "sha": "b674665b51112de22260709a214d4d6ba01c7e57",
+  "node_id": "C_kwDOANOeidoAKGI2NzQ2NjViNTExMTJkZTIyMjYwNzA5YTIxNGQ0ZDZiYTAxYzdlNTc",
+  "commit": {
+    "author": {
+      "name": "Markus Metzger",
+      "email": "markus.t.metzger@intel.com",
+      "date": "2021-11-25T06:33:20Z"
+    },
+    "committer": {
+      "name": "Markus Metzger",
+      "email": "markus.t.metzger@intel.com",
+      "date": "2022-01-27T12:31:20Z"
+    },
+    "message": "gdb, btrace: switch threads in remote_btrace_maybe_reopen()\n\nIn remote_btrace_maybe_reopen() we iterate over threads and use\nset_general_thread() to set the thread from which to transfer the btrace\nconfiguration.\n\nThis sets the remote general thread but does not affect inferior_ptid.  On\nthe xfer request later on, remote_target::xfer_partial() again sets the\nremote general thread to inferior_ptid, overwriting what\nremote_btrace_maybe_reopen() had done.\n\nIn one case, this led to inferior_ptid being null_ptid when we tried to\nenable tracing on a newly created thread inside a newly created process\nduring attach.\n\nThis, in turn, led to find_inferior_pid() asserting when we iterated over\nthreads in record_btrace_is_replaying(), which was called from\nrecord_btrace_target::xfer_partial() when reading the btrace configuration\nof the new thread to check whether it was already being recorded.\n\nThe bug was exposed by\n\n    0618ae41497 gdb: optimize all_matching_threads_iterator\n\nand found by\n\n    FAIL: gdb.btrace/enable-new-thread.exp: ... (GDB internal error)\n\nUse switch_to_thread() in remote_btrace_maybe_reopen().",
+    "tree": {
+      "sha": "f9bb4fa3b2b177d28770eeb875d1e74537e7e6e7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f9bb4fa3b2b177d28770eeb875d1e74537e7e6e7"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/b674665b51112de22260709a214d4d6ba01c7e57",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b674665b51112de22260709a214d4d6ba01c7e57",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/b674665b51112de22260709a214d4d6ba01c7e57",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b674665b51112de22260709a214d4d6ba01c7e57/comments",
+  "author": {
+    "login": "markus-metzger",
+    "id": 5424725,
+    "node_id": "MDQ6VXNlcjU0MjQ3MjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/5424725?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/markus-metzger",
+    "html_url": "https://github.com/markus-metzger",
+    "followers_url": "https://api.github.com/users/markus-metzger/followers",
+    "following_url": "https://api.github.com/users/markus-metzger/following{/other_user}",
+    "gists_url": "https://api.github.com/users/markus-metzger/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/markus-metzger/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/markus-metzger/subscriptions",
+    "organizations_url": "https://api.github.com/users/markus-metzger/orgs",
+    "repos_url": "https://api.github.com/users/markus-metzger/repos",
+    "events_url": "https://api.github.com/users/markus-metzger/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/markus-metzger/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "markus-metzger",
+    "id": 5424725,
+    "node_id": "MDQ6VXNlcjU0MjQ3MjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/5424725?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/markus-metzger",
+    "html_url": "https://github.com/markus-metzger",
+    "followers_url": "https://api.github.com/users/markus-metzger/followers",
+    "following_url": "https://api.github.com/users/markus-metzger/following{/other_user}",
+    "gists_url": "https://api.github.com/users/markus-metzger/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/markus-metzger/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/markus-metzger/subscriptions",
+    "organizations_url": "https://api.github.com/users/markus-metzger/orgs",
+    "repos_url": "https://api.github.com/users/markus-metzger/repos",
+    "events_url": "https://api.github.com/users/markus-metzger/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/markus-metzger/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "b02b09623dfd4e75a9f172e9d0a917e3b856b471",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b02b09623dfd4e75a9f172e9d0a917e3b856b471",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b02b09623dfd4e75a9f172e9d0a917e3b856b471"
+    }
+  ],
+  "stats": {
+    "total": 2,
+    "additions": 1,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "f19a2f7c1f9e47fc696ed1243afb0b65896eee0b",
+      "filename": "gdb/remote.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b674665b51112de22260709a214d4d6ba01c7e57/gdb/remote.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b674665b51112de22260709a214d4d6ba01c7e57/gdb/remote.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/remote.c?ref=b674665b51112de22260709a214d4d6ba01c7e57",
+      "patch": "@@ -14136,7 +14136,7 @@ remote_target::remote_btrace_maybe_reopen ()\n \n   for (thread_info *tp : all_non_exited_threads (this))\n     {\n-      set_general_thread (tp->ptid);\n+      switch_to_thread (tp);\n \n       memset (&rs->btrace_config, 0x00, sizeof (struct btrace_config));\n       btrace_read_config (&rs->btrace_config);"
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "sha": "d264c39e8b3eba663c8f09f228ca44eb36eac778",
+  "node_id": "C_kwDOANOeidoAKGQyNjRjMzllOGIzZWJhNjYzYzhmMDlmMjI4Y2E0NGViMzZlYWM3Nzg",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-09-23T20:42:10Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-09-23T20:42:10Z"
+    },
+    "message": "[gdb/testsuite] Improve probe detection in gdb.base/break-probes.exp\n\nWhen running test-case gdb.base/break-probes.exp on ubuntu 18.04.5, we have:\n...\n (gdb) run^M\n Starting program: break-probes^M\n Stopped due to shared library event (no libraries added or removed)^M\n (gdb) bt^M\n #0  0x00007ffff7dd6e12 in ?? () from /lib64/ld-linux-x86-64.so.2^M\n #1  0x00007ffff7dedf50 in ?? () from /lib64/ld-linux-x86-64.so.2^M\n #2  0x00007ffff7dd5128 in ?? () from /lib64/ld-linux-x86-64.so.2^M\n #3  0x00007ffff7dd4098 in ?? () from /lib64/ld-linux-x86-64.so.2^M\n #4  0x0000000000000001 in ?? ()^M\n #5  0x00007fffffffdaac in ?? ()^M\n #6  0x0000000000000000 in ?? ()^M\n (gdb) UNSUPPORTED: gdb.base/break-probes.exp: probes not present on this system\n...\n\nUsing the backtrace, the test-case tries to establish that we're stopped in\ndl_main, which is used as proof that we're using probes.\n\nHowever, the backtrace only shows an address, because:\n- the dynamic linker contains no minimal symbols and no debug info, and\n- gdb is build without --with-separate-debug-dir so it can't find the\n  corresponding .debug file, which does contain the mimimal symbols and\n  debug info.\n\nFix this by instead printing the pc and grepping for the value in the\ninfo probes output:\n...\n(gdb) p /x $pc^M\n$1 = 0x7ffff7dd6e12^M\n(gdb) info probes^M\nType Provider Name           Where              Object                      ^M\n  ...\nstap rtld     init_start     0x00007ffff7dd6e12 /lib64/ld-linux-x86-64.so.2 ^M\n  ...\n(gdb)\n...\n\nTested on x86_64-linux.",
+    "tree": {
+      "sha": "c8cbd03e3148b377e66ef27d030067dfbc69fcca",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c8cbd03e3148b377e66ef27d030067dfbc69fcca"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/d264c39e8b3eba663c8f09f228ca44eb36eac778",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d264c39e8b3eba663c8f09f228ca44eb36eac778",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/d264c39e8b3eba663c8f09f228ca44eb36eac778",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d264c39e8b3eba663c8f09f228ca44eb36eac778/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "108e60844c6c517895011f46b74db6b10273be56",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/108e60844c6c517895011f46b74db6b10273be56",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/108e60844c6c517895011f46b74db6b10273be56"
+    }
+  ],
+  "stats": {
+    "total": 32,
+    "additions": 19,
+    "deletions": 13
+  },
+  "files": [
+    {
+      "sha": "b633ae6f4e9a82fa3a95e0d10bf887cd4a5cb7d2",
+      "filename": "gdb/testsuite/gdb.base/break-probes.exp",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 13,
+      "changes": 32,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d264c39e8b3eba663c8f09f228ca44eb36eac778/gdb/testsuite/gdb.base/break-probes.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d264c39e8b3eba663c8f09f228ca44eb36eac778/gdb/testsuite/gdb.base/break-probes.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/break-probes.exp?ref=d264c39e8b3eba663c8f09f228ca44eb36eac778",
+      "patch": "@@ -23,13 +23,6 @@ set libname $testfile-solib\n set srcfile_lib $srcdir/$subdir/$libname.c\n set binfile_lib [standard_output_file $libname.so]\n \n-if { [istarget \"*bsd*\"] } {\n-  set normal_bp \"r_debug_state\"\n-} else {\n-  set normal_bp \"_dl_debug_state\"\n-}\n-set probes_bp \"dl_main\"\n-\n if { [gdb_compile_shlib $srcfile_lib $binfile_lib {}] != \"\" } {\n     untested \"failed to compile shared library\"\n     return -1\n@@ -47,14 +40,27 @@ gdb_test_no_output \"set stop-on-solib-events 1\"\n gdb_run_cmd\n gdb_test \"\" \".*Stopped due to shared library event.*\"\n \n-# XFAIL if we are not using probes\n-set test \"ensure using probes\"\n+# Check if we're using probes.\n set using_probes 0\n-gdb_test_multiple \"bt\" $test {\n-    -re \"#0 +\\[^\\r\\n\\]*\\\\m(__GI_)?$normal_bp\\\\M.*$gdb_prompt $\" {\n+\n+# Get PC.\n+set pc \"\"\n+gdb_test_multiple \"p /x \\$pc\" \"\" {\n+    -re -wrap \" = ($hex)\" {\n+\tset pc $expect_out(1,string)\n+    }\n+    -re -wrap \"\" {\n     }\n-    -re \"#0 +\\[^\\r\\n\\]*\\\\m(__GI_)?$probes_bp\\\\M.*$gdb_prompt $\" {\n-\tpass $test\n+}\n+if { $pc == \"\" } {\n+    unsupported \"Couldn't get $pc\"\n+    return -1\n+}\n+regsub \"0x0*\" $pc \"\" pc\n+\n+# Verify that pc is at info_start probe address.\n+gdb_test_multiple \"info probes stap rtld\" \"\" {\n+    -re -wrap \"init_start +0x0*$pc .*\" {\n \tset using_probes 1\n     }\n     -re -wrap \"\" {"
+    }
+  ]
+}

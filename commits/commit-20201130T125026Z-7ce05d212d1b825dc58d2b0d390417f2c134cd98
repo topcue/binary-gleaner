@@ -1,0 +1,134 @@
+{
+  "sha": "7ce05d212d1b825dc58d2b0d390417f2c134cd98",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6N2NlMDVkMjEyZDFiODI1ZGM1OGQyYjBkMzkwNDE3ZjJjMTM0Y2Q5OA==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-11-30T12:50:26Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-11-30T12:50:26Z"
+    },
+    "message": "[gdb/symtab] Fix gdb.base/vla-optimized-out.exp with clang\n\nConsider test-case gdb.base/vla-optimized-out.exp, compiled using clang-10.\n\nGDB fails to get the size of the vla a:\n...\n(gdb) p sizeof (a)^M\nCannot access memory at address 0x6^M\n(gdb) FAIL: gdb.base/vla-optimized-out.exp: o1: printed size of \\\n  optimized out vla\n...\n\nThe relevant DWARF looks like this: the variable a:\n...\n <2><12b>: Abbrev Number: 5 (DW_TAG_variable)\n    <12c>   DW_AT_name        : a\n    <132>   DW_AT_type        : <0x189>\n...\nhas type:\n...\n <1><189>: Abbrev Number: 10 (DW_TAG_array_type)\n    <18a>   DW_AT_type        : <0x198>\n <2><18e>: Abbrev Number: 11 (DW_TAG_subrange_type)\n    <18f>   DW_AT_type        : <0x19f>\n    <193>   DW_AT_count       : <0x117>\n...\nwith the count attribute equated to the value of this artificial variable:\n...\n <2><117>: Abbrev Number: 4 (DW_TAG_variable)\n    <118>   DW_AT_location    : 10 byte block: 75 1 10 ff ff ff ff f 1a 9f \\\n              (DW_OP_breg5 (rdi): 1;\n\t       DW_OP_constu: 4294967295;\n\t       DW_OP_and;\n\t       DW_OP_stack_value)\n    <123>   DW_AT_name        : __vla_expr0\n    <127>   DW_AT_type        : <0x182>\n    <12b>   DW_AT_artificial  : 1\n...\n\nThe location description of the variable is terminated with DW_OP_stack_value,\nwhich according to the DWARF spec means that \"the DWARF expression represents\nthe actual value of the object, rather than its location\".\n\nHowever, in attr_to_dynamic_prop, we set is_reference to true:\n...\n               baton->locexpr.is_reference = true;\n...\nand use it in dwarf2_evaluate_property to dereference the value of the DWARF\nexpression, which causes the access to memory at address 0x6.\n\nFix this by ignoring the baton->locexpr.is_reference == true setting if\nthe expression evaluation has ctx.location == DWARF_VALUE_STACK, such that we\nget:\n...\n(gdb) p sizeof (a)^M\n$2 = 6^M\n(gdb) PASS: gdb.base/vla-optimized-out.exp: o1: printed size of \\\n  optimized out vla\n...\n\nTested on x86_64-linux, with gcc.\n\nTested the following test-cases (the ones mentioned in PR26905) on\nx86_64-linux with clang-10:\n- gdb.base/vla-optimized-out.exp\n- gdb.base/vla-ptr.exp\n- gdb.mi/mi-vla-c99\n\ngdb/ChangeLog:\n\n2020-11-30  Tom de Vries  <tdevries@suse.de>\n\n\tPR symtab/26905\n\t* dwarf2/loc.c (dwarf2_locexpr_baton_eval): Add and handle\n\tis_reference parameter.\n\t(dwarf2_evaluate_property): Update dwarf2_locexpr_baton_eval call.\n\ngdb/testsuite/ChangeLog:\n\n2020-11-30  Tom de Vries  <tdevries@suse.de>\n\n\tPR symtab/26905\n\t* gdb.dwarf2/count.exp: Remove kfails.",
+    "tree": {
+      "sha": "e0ea14b8917a8f330f604c8847cf4d18218bf73b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/e0ea14b8917a8f330f604c8847cf4d18218bf73b"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/7ce05d212d1b825dc58d2b0d390417f2c134cd98",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7ce05d212d1b825dc58d2b0d390417f2c134cd98",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/7ce05d212d1b825dc58d2b0d390417f2c134cd98",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7ce05d212d1b825dc58d2b0d390417f2c134cd98/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "61049d1ee59905589b2ad3f8140a2582e01add7a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/61049d1ee59905589b2ad3f8140a2582e01add7a",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/61049d1ee59905589b2ad3f8140a2582e01add7a"
+    }
+  ],
+  "stats": {
+    "total": 29,
+    "additions": 21,
+    "deletions": 8
+  },
+  "files": [
+    {
+      "sha": "c80416b5297a3f383f1bf97b2c731b4de738b28f",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ce05d212d1b825dc58d2b0d390417f2c134cd98/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ce05d212d1b825dc58d2b0d390417f2c134cd98/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=7ce05d212d1b825dc58d2b0d390417f2c134cd98",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-11-30  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR symtab/26905\n+\t* dwarf2/loc.c (dwarf2_locexpr_baton_eval): Add and handle\n+\tis_reference parameter.\n+\t(dwarf2_evaluate_property): Update dwarf2_locexpr_baton_eval call.\n+\n 2020-11-30  Tom de Vries  <tdevries@suse.de>\n \n \t* debuginfod-support.c (debuginfod_source_query)"
+    },
+    {
+      "sha": "fea49c340ff8f2984bc6a6f33bc69e3e4f45340f",
+      "filename": "gdb/dwarf2/loc.c",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 4,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ce05d212d1b825dc58d2b0d390417f2c134cd98/gdb/dwarf2/loc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ce05d212d1b825dc58d2b0d390417f2c134cd98/gdb/dwarf2/loc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/loc.c?ref=7ce05d212d1b825dc58d2b0d390417f2c134cd98",
+      "patch": "@@ -2499,7 +2499,8 @@ dwarf2_locexpr_baton_eval (const struct dwarf2_locexpr_baton *dlbaton,\n \t\t\t   struct frame_info *frame,\n \t\t\t   const struct property_addr_info *addr_stack,\n \t\t\t   CORE_ADDR *valp,\n-\t\t\t   bool push_initial_value)\n+\t\t\t   bool push_initial_value,\n+\t\t\t   bool *is_reference)\n {\n   if (dlbaton == NULL || dlbaton->size == 0)\n     return 0;\n@@ -2546,9 +2547,12 @@ dwarf2_locexpr_baton_eval (const struct dwarf2_locexpr_baton *dlbaton,\n \n   switch (ctx.location)\n     {\n+    case DWARF_VALUE_STACK:\n+      *is_reference = false;\n+      /* FALLTHROUGH */\n+\n     case DWARF_VALUE_REGISTER:\n     case DWARF_VALUE_MEMORY:\n-    case DWARF_VALUE_STACK:\n       *valp = ctx.fetch_address (0);\n       if (ctx.location == DWARF_VALUE_REGISTER)\n \t*valp = ctx.read_addr_from_reg (*valp);\n@@ -2589,10 +2593,11 @@ dwarf2_evaluate_property (const struct dynamic_prop *prop,\n \t  = (const struct dwarf2_property_baton *) prop->baton ();\n \tgdb_assert (baton->property_type != NULL);\n \n+\tbool is_reference = baton->locexpr.is_reference;\n \tif (dwarf2_locexpr_baton_eval (&baton->locexpr, frame, addr_stack,\n-\t\t\t\t       value, push_initial_value))\n+\t\t\t\t       value, push_initial_value, &is_reference))\n \t  {\n-\t    if (baton->locexpr.is_reference)\n+\t    if (is_reference)\n \t      {\n \t\tstruct value *val = value_at (baton->property_type, *value);\n \t\t*value = value_as_address (val);"
+    },
+    {
+      "sha": "77ac55258eefcc33e92a2d03f2d3cae498533d9a",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ce05d212d1b825dc58d2b0d390417f2c134cd98/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ce05d212d1b825dc58d2b0d390417f2c134cd98/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=7ce05d212d1b825dc58d2b0d390417f2c134cd98",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-11-30  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR symtab/26905\n+\t* gdb.dwarf2/count.exp: Remove kfails.\n+\n 2020-11-30  Tom de Vries  <tdevries@suse.de>\n \n \t* gdb.ada/enum_idx_packed.exp: Limit setup_kfail to gnat 9 and 10."
+    },
+    {
+      "sha": "ff11958827b7867c6a9c267c6377d4ee9e116ad3",
+      "filename": "gdb/testsuite/gdb.dwarf2/count.exp",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 4,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ce05d212d1b825dc58d2b0d390417f2c134cd98/gdb/testsuite/gdb.dwarf2/count.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ce05d212d1b825dc58d2b0d390417f2c134cd98/gdb/testsuite/gdb.dwarf2/count.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/count.exp?ref=7ce05d212d1b825dc58d2b0d390417f2c134cd98",
+      "patch": "@@ -166,11 +166,7 @@ gdb_test \"whatis static_array\" \"type = char \\\\\\[5\\\\\\]\"\n gdb_test \"print static_array\" \" = \\\"world\\\"\"\n gdb_test \"print sizeof static_array\" \" = 5\"\n \n-setup_kfail \"gdb/26905\" *-*-*\n gdb_test \"ptype vla_array\" \"type = char \\\\\\[6\\\\\\]\"\n-setup_kfail \"gdb/26905\" *-*-*\n gdb_test \"whatis vla_array\" \"type = char \\\\\\[6\\\\\\]\"\n-setup_kfail \"gdb/26905\" *-*-*\n gdb_test \"print vla_array\" \" = \\\"saluto\\\"\"\n-setup_kfail \"gdb/26905\" *-*-*\n gdb_test \"print sizeof vla_array\" \" = 6\""
+    }
+  ]
+}

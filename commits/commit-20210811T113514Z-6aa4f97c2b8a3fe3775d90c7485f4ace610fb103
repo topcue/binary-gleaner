@@ -1,0 +1,194 @@
+{
+  "sha": "6aa4f97c2b8a3fe3775d90c7485f4ace610fb103",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NmFhNGY5N2MyYjhhM2ZlMzc3NWQ5MGM3NDg1ZjRhY2U2MTBmYjEwMw==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-06-10T15:57:24Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-08-11T11:35:14Z"
+    },
+    "message": "gdb: print backtrace on fatal SIGSEGV\n\nThis commit adds a new maintenance feature, the ability to print\na (limited) backtrace if GDB dies due to a fatal signal.\n\nThe backtrace is produced using the backtrace and backtrace_symbols_fd\nfunctions which are declared in the execinfo.h header, and both of\nwhich are async signal safe.  A configure check has been added to\ncheck for these features, if they are not available then the new code\nis not compiled into GDB and the backtrace will not be printed.\n\nThe motivation for this new feature is to aid in debugging GDB in\nsituations where GDB has crashed at a users site, but the user is\nreluctant to share core files, possibly due to concerns about what\nmight be in the memory image within the core file.  Such a user might\nbe happy to share a simple backtrace that was written to stderr.\n\nThe production of the backtrace is on by default, but can switched off\nusing the new commands:\n\n  maintenance set backtrace-on-fatal-signal on|off\n  maintenance show backtrace-on-fatal-signal\n\nRight now, I have hooked this feature in to GDB's existing handling of\nSIGSEGV only, but this will be extended to more signals in a later\ncommit.\n\nOne additional change I have made in this commit is that, when we\ndecide GDB should terminate due to the fatal signal, we now\nraise the same fatal signal rather than raising SIGABRT.\n\nCurrently, this is only effecting our handling of SIGSEGV.  So,\npreviously, if GDB hit a SEGV then we would terminate GDB with a\nSIGABRT.  After this commit we will terminate GDB with a SIGSEGV.\n\nThis feels like an improvement to me, we should still get a core dump,\nbut in many shells, the user will see a more specific message once GDB\nexits, in bash for example \"Segmentation fault\" rather than \"Aborted\".\n\nFinally then, here is an example of the output a user would see if GDB\nshould hit an internal SIGSEGV:\n\n  Fatal signal: Segmentation fault\n  ----- Backtrace -----\n  ./gdb/gdb[0x8078e6]\n  ./gdb/gdb[0x807b20]\n  /lib64/libpthread.so.0(+0x14b20)[0x7f6648c92b20]\n  /lib64/libc.so.6(__poll+0x4f)[0x7f66484d3a5f]\n  ./gdb/gdb[0x1540f4c]\n  ./gdb/gdb[0x154034a]\n  ./gdb/gdb[0x9b002d]\n  ./gdb/gdb[0x9b014d]\n  ./gdb/gdb[0x9b1aa6]\n  ./gdb/gdb[0x9b1b0c]\n  ./gdb/gdb[0x41756d]\n  /lib64/libc.so.6(__libc_start_main+0xf3)[0x7f66484041a3]\n  ./gdb/gdb[0x41746e]\n  ---------------------\n  A fatal error internal to GDB has been detected, further\n  debugging is not possible.  GDB will now terminate.\n\n  This is a bug, please report it.  For instructions, see:\n  <https://www.gnu.org/software/gdb/bugs/>.\n\n  Segmentation fault (core dumped)\n\nIt is disappointing that backtrace_symbols_fd does not actually map\nthe addresses back to symbols, this appears, in part, to be due to GDB\nnot being built with -rdynamic as the manual page for\nbacktrace_symbols_fd suggests, however, even when I do add -rdynamic\nto the build of GDB I only see symbols for some addresses.\n\nWe could potentially look at alternative libraries to provide the\nbacktrace (e.g. libunwind) however, the solution presented here, which\nis available as part of glibc is probably a good baseline from which\nwe might improve things in future.",
+    "tree": {
+      "sha": "095dbbd8f4f9cde32549e2f8d38ab919199684c6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/095dbbd8f4f9cde32549e2f8d38ab919199684c6"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "270135645b50a2fb8a4dac216584e8056167ffcc",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/270135645b50a2fb8a4dac216584e8056167ffcc",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/270135645b50a2fb8a4dac216584e8056167ffcc"
+    }
+  ],
+  "stats": {
+    "total": 409,
+    "additions": 398,
+    "deletions": 11
+  },
+  "files": [
+    {
+      "sha": "ec3058ea1187b39c6b510f57b4fafdd0563c4382",
+      "filename": "gdb/NEWS",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103/gdb/NEWS",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103/gdb/NEWS",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/NEWS?ref=6aa4f97c2b8a3fe3775d90c7485f4ace610fb103",
+      "patch": "@@ -3,6 +3,13 @@\n \n *** Changes since GDB 11\n \n+maint set backtrace-on-fatal-signal on|off\n+maint show backtrace-on-fatal-signal\n+  This setting is 'on' by default.  When 'on' GDB will print a limited\n+  backtrace to stderr in the situation where GDB terminates with a\n+  fatal signal.  This only supported on some platforms where the\n+  backtrace and backtrace_symbols_fd functions are available.\n+\n *** Changes in GDB 11\n \n * The 'set disassembler-options' command now supports specifying options"
+    },
+    {
+      "sha": "af3680c6d9524f99c52e48f1b4c30c57856efe04",
+      "filename": "gdb/config.in",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103/gdb/config.in",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103/gdb/config.in",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/config.in?ref=6aa4f97c2b8a3fe3775d90c7485f4ace610fb103",
+      "patch": "@@ -162,6 +162,12 @@\n /* Define to 1 if your system has the etext variable. */\n #undef HAVE_ETEXT\n \n+/* Define to 1 if execinfo.h backtrace functions are available. */\n+#undef HAVE_EXECINFO_BACKTRACE\n+\n+/* Define to 1 if you have the <execinfo.h> header file. */\n+#undef HAVE_EXECINFO_H\n+\n /* Define to 1 if you have the `fdwalk' function. */\n #undef HAVE_FDWALK\n "
+    },
+    {
+      "sha": "f0b1af4a6ea5e303525db8dcea98c45a4ef5b28d",
+      "filename": "gdb/configure",
+      "status": "modified",
+      "additions": 51,
+      "deletions": 0,
+      "changes": 51,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103/gdb/configure",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103/gdb/configure",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/configure?ref=6aa4f97c2b8a3fe3775d90c7485f4ace610fb103",
+      "patch": "@@ -12315,6 +12315,18 @@ fi\n \n done\n \n+for ac_header in execinfo.h\n+do :\n+  ac_fn_c_check_header_mongrel \"$LINENO\" \"execinfo.h\" \"ac_cv_header_execinfo_h\" \"$ac_includes_default\"\n+if test \"x$ac_cv_header_execinfo_h\" = xyes; then :\n+  cat >>confdefs.h <<_ACEOF\n+#define HAVE_EXECINFO_H 1\n+_ACEOF\n+\n+fi\n+\n+done\n+\n \n # ------------------------- #\n # Checks for declarations.  #\n@@ -16484,6 +16496,45 @@ fi\n { $as_echo \"$as_me:${as_lineno-$LINENO}: result: $found\" >&5\n $as_echo \"$found\" >&6; }\n \n+{ $as_echo \"$as_me:${as_lineno-$LINENO}: checking whether execinfo.h backtrace is available\" >&5\n+$as_echo_n \"checking whether execinfo.h backtrace is available... \" >&6; }\n+if ${gdb_cv_execinfo_backtrace+:} false; then :\n+  $as_echo_n \"(cached) \" >&6\n+else\n+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext\n+/* end confdefs.h.  */\n+\n+         #include <execinfo.h>\n+\n+int\n+main ()\n+{\n+\n+         int f;\n+         void *b[2];\n+         f = backtrace (b, 2);\n+         backtrace_symbols_fd (b, f, 2);\n+\n+  ;\n+  return 0;\n+}\n+_ACEOF\n+if ac_fn_c_try_link \"$LINENO\"; then :\n+  gdb_cv_execinfo_backtrace=yes\n+else\n+  gdb_cv_execinfo_backtrace=no\n+fi\n+rm -f core conftest.err conftest.$ac_objext \\\n+    conftest$ac_exeext conftest.$ac_ext\n+fi\n+{ $as_echo \"$as_me:${as_lineno-$LINENO}: result: $gdb_cv_execinfo_backtrace\" >&5\n+$as_echo \"$gdb_cv_execinfo_backtrace\" >&6; }\n+if test \"$gdb_cv_execinfo_backtrace\" = yes; then\n+\n+$as_echo \"#define HAVE_EXECINFO_BACKTRACE 1\" >>confdefs.h\n+\n+fi\n+\n \n if test \"${build}\" = \"${host}\" -a \"${host}\" = \"${target}\" ; then\n    case ${host_os} in"
+    },
+    {
+      "sha": "93f11316a142476dbf62f2ee7999f3eb742f07d7",
+      "filename": "gdb/configure.ac",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103/gdb/configure.ac",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103/gdb/configure.ac",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/configure.ac?ref=6aa4f97c2b8a3fe3775d90c7485f4ace610fb103",
+      "patch": "@@ -1291,6 +1291,7 @@ AC_CHECK_HEADERS(term.h, [], [],\n \n AC_CHECK_HEADERS([sys/socket.h])\n AC_CHECK_HEADERS([ws2tcpip.h])\n+AC_CHECK_HEADERS([execinfo.h])\n \n # ------------------------- #\n # Checks for declarations.  #\n@@ -1682,6 +1683,27 @@ fi\n AC_SUBST(RDYNAMIC)\n AC_MSG_RESULT($found)\n \n+AC_CACHE_CHECK(\n+  [whether execinfo.h backtrace is available],\n+  gdb_cv_execinfo_backtrace,\n+  [AC_LINK_IFELSE(\n+     [AC_LANG_PROGRAM(\n+        [\n+         #include <execinfo.h>\n+        ],\n+        [\n+         int f;\n+         void *b[[2]];\n+         f = backtrace (b, 2);\n+         backtrace_symbols_fd (b, f, 2);\n+        ])],\n+   [gdb_cv_execinfo_backtrace=yes],\n+   [gdb_cv_execinfo_backtrace=no])])\n+if test \"$gdb_cv_execinfo_backtrace\" = yes; then\n+  AC_DEFINE(HAVE_EXECINFO_BACKTRACE, 1,\n+            [Define to 1 if execinfo.h backtrace functions are available.])\n+fi\n+\n dnl For certain native configurations, we need to check whether thread\n dnl support can be built in or not.\n dnl"
+    },
+    {
+      "sha": "e39f99369f491b84446eec0ecde759f298f12b95",
+      "filename": "gdb/doc/gdb.texinfo",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 0,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103/gdb/doc/gdb.texinfo",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103/gdb/doc/gdb.texinfo",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/gdb.texinfo?ref=6aa4f97c2b8a3fe3775d90c7485f4ace610fb103",
+      "patch": "@@ -39716,6 +39716,24 @@ These are representative commands for each @var{kind} of setting type\n @value{GDBN} supports.  They are used by the testsuite for exercising\n the settings infrastructure.\n \n+@kindex maint set backtrace-on-fatal-signal\n+@kindex maint show backtrace-on-fatal-signal\n+@item maint set backtrace-on-fatal-signal [on|off]\n+@itemx maint show backtrace-on-fatal-signal\n+When this setting is @code{on}, if @value{GDBN} itself terminates with\n+a fatal signal (e.g.@: SIGSEGV), then a limited backtrace will be\n+printed to stderr.  This backtrace can be used to help diagnose\n+crashes within @value{GDBN} in situations where a user is unable to\n+share a corefile with the @value{GDBN} developers.\n+\n+If the functionality to provide this backtrace is not available for\n+the platform on which GDB is running then this feature will be\n+@code{off} by default, and attempting to turn this feature on will\n+give an error.\n+\n+For platforms that do support creating the backtrace this feature is\n+@code{on} by default.\n+\n @kindex maint with\n @item maint with @var{setting} [@var{value}] [-- @var{command}]\n Like the @code{with} command, but works with @code{maintenance set}"
+    },
+    {
+      "sha": "210440ad80bfd2c7c564752a39a22fe90334a57e",
+      "filename": "gdb/event-top.c",
+      "status": "modified",
+      "additions": 129,
+      "deletions": 11,
+      "changes": 140,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103/gdb/event-top.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103/gdb/event-top.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/event-top.c?ref=6aa4f97c2b8a3fe3775d90c7485f4ace610fb103",
+      "patch": "@@ -46,6 +46,10 @@\n #include \"readline/readline.h\"\n #include \"readline/history.h\"\n \n+#ifdef HAVE_EXECINFO_H\n+# include <execinfo.h>\n+#endif /* HAVE_EXECINFO_H */\n+\n /* readline defines this.  */\n #undef savestring\n \n@@ -96,6 +100,38 @@ bool exec_done_display_p = false;\n    run again.  */\n int call_stdin_event_handler_again_p;\n \n+/* When true GDB will produce a minimal backtrace when a fatal signal is\n+   reached (within GDB code).  */\n+static bool bt_on_fatal_signal\n+#ifdef HAVE_EXECINFO_BACKTRACE\n+  = true;\n+#else\n+  = false;\n+#endif /* HAVE_EXECINFO_BACKTRACE */\n+\n+/* Implement 'maintenance show backtrace-on-fatal-signal'.  */\n+\n+static void\n+show_bt_on_fatal_signal (struct ui_file *file, int from_tty,\n+\t\t\t struct cmd_list_element *cmd, const char *value)\n+{\n+  fprintf_filtered (file, _(\"Backtrace on a fatal signal is %s.\\n\"), value);\n+}\n+\n+/* Implement 'maintenance set backtrace-on-fatal-signal'.  */\n+\n+static void\n+set_bt_on_fatal_signal (const char *args, int from_tty, cmd_list_element *c)\n+{\n+#ifndef HAVE_EXECINFO_BACKTRACE\n+  if (bt_on_fatal_signal)\n+    {\n+      bt_on_fatal_signal = false;\n+      error (_(\"support for this feature is not compiled into GDB\"));\n+    }\n+#endif\n+}\n+\n /* Signal handling variables.  */\n /* Each of these is a pointer to a function that the event loop will\n    invoke if the corresponding signal has received.  The real signal\n@@ -846,6 +882,84 @@ gdb_readline_no_editing_callback (gdb_client_data client_data)\n }\n \f\n \n+/* Attempt to unblock signal SIG, return true if the signal was unblocked,\n+   otherwise, return false.  */\n+\n+static bool\n+unblock_signal (int sig)\n+{\n+#if HAVE_SIGPROCMASK\n+  sigset_t sigset;\n+  sigemptyset (&sigset);\n+  sigaddset (&sigset, sig);\n+  gdb_sigmask (SIG_UNBLOCK, &sigset, 0);\n+  return true;\n+#endif\n+\n+  return false;\n+}\n+\n+/* Called to handle fatal signals.  SIG is the signal number.  */\n+\n+static void ATTRIBUTE_NORETURN\n+handle_fatal_signal (int sig)\n+{\n+#ifdef HAVE_EXECINFO_BACKTRACE\n+  const auto sig_write = [] (const char *msg) -> void\n+  {\n+    gdb_stderr->write_async_safe (msg, strlen (msg));\n+  };\n+\n+  if (bt_on_fatal_signal)\n+    {\n+      sig_write (\"\\n\\n\");\n+      sig_write (_(\"Fatal signal: \"));\n+      sig_write (strsignal (sig));\n+      sig_write (\"\\n\");\n+\n+      /* Allow up to 25 frames of backtrace.  */\n+      void *buffer[25];\n+      int frames = backtrace (buffer, ARRAY_SIZE (buffer));\n+      sig_write (_(\"----- Backtrace -----\\n\"));\n+      if (gdb_stderr->fd () > -1)\n+\t{\n+\t  backtrace_symbols_fd (buffer, frames, gdb_stderr->fd ());\n+\t  if (frames == ARRAY_SIZE (buffer))\n+\t    sig_write (_(\"Backtrace might be incomplete.\\n\"));\n+\t}\n+      else\n+\tsig_write (_(\"Backtrace unavailable\\n\"));\n+      sig_write (\"---------------------\\n\");\n+      sig_write (_(\"A fatal error internal to GDB has been detected, \"\n+\t\t   \"further\\ndebugging is not possible.  GDB will now \"\n+\t\t   \"terminate.\\n\\n\"));\n+      sig_write (_(\"This is a bug, please report it.\"));\n+      if (REPORT_BUGS_TO[0] != '\\0')\n+\t{\n+\t  sig_write (_(\"  For instructions, see:\\n\"));\n+\t  sig_write (REPORT_BUGS_TO);\n+\t  sig_write (\".\");\n+\t}\n+      sig_write (\"\\n\\n\");\n+\n+      gdb_stderr->flush ();\n+    }\n+#endif /* HAVE_EXECINF_BACKTRACE */\n+\n+  /* If possible arrange for SIG to have its default behaviour (which\n+     should be to terminate the current process), unblock SIG, and reraise\n+     the signal.  This ensures GDB terminates with the expected signal.  */\n+  if (signal (sig, SIG_DFL) != SIG_ERR\n+      && unblock_signal (sig))\n+    raise (sig);\n+\n+  /* The above failed, so try to use SIGABRT to terminate GDB.  */\n+#ifdef SIGABRT\n+  signal (SIGABRT, SIG_DFL);\n+#endif\n+  abort ();\t\t/* ARI: abort */\n+}\n+\n /* The SIGSEGV handler for this thread, or NULL if there is none.  GDB\n    always installs a global SIGSEGV handler, and then lets threads\n    indicate their interest in handling the signal by setting this\n@@ -887,7 +1001,7 @@ handle_sigsegv (int sig)\n   install_handle_sigsegv ();\n \n   if (thread_local_segv_handler == nullptr)\n-    abort ();\t\t\t/* ARI: abort */\n+    handle_fatal_signal (sig);\n   thread_local_segv_handler (sig);\n }\n \n@@ -1160,16 +1274,7 @@ async_sigtstp_handler (gdb_client_data arg)\n   char *prompt = get_prompt ();\n \n   signal (SIGTSTP, SIG_DFL);\n-#if HAVE_SIGPROCMASK\n-  {\n-    sigset_t zero;\n-\n-    sigemptyset (&zero);\n-    gdb_sigmask (SIG_SETMASK, &zero, 0);\n-  }\n-#elif HAVE_SIGSETMASK\n-  sigsetmask (0);\n-#endif\n+  unblock_signal (SIGTSTP);\n   raise (SIGTSTP);\n   signal (SIGTSTP, handle_sigtstp);\n   printf_unfiltered (\"%s\", prompt);\n@@ -1320,4 +1425,17 @@ Control whether to show event loop-related debug messages.\"),\n \t\t\tset_debug_event_loop_command,\n \t\t\tshow_debug_event_loop_command,\n \t\t\t&setdebuglist, &showdebuglist);\n+\n+  add_setshow_boolean_cmd (\"backtrace-on-fatal-signal\", class_maintenance,\n+\t\t\t   &bt_on_fatal_signal, _(\"\\\n+Set whether to produce a backtrace if GDB receives a fatal signal.\"), _(\"\\\n+Show whether GDB will produce a backtrace if it receives a fatal signal.\"), _(\"\\\n+Use \\\"on\\\" to enable, \\\"off\\\" to disable.\\n\\\n+If enabled, GDB will produce a minimal backtrace if it encounters a fatal\\n\\\n+signal from within GDB itself.  This is a mechanism to help diagnose\\n\\\n+crashes within GDB, not a mechanism for debugging inferiors.\"),\n+\t\t\t   set_bt_on_fatal_signal,\n+\t\t\t   show_bt_on_fatal_signal,\n+\t\t\t   &maintenance_set_cmdlist,\n+\t\t\t   &maintenance_show_cmdlist);\n }"
+    },
+    {
+      "sha": "d9d56c3700f36faf7f486998fc06397d6f1a7d34",
+      "filename": "gdb/testsuite/gdb.base/bt-on-fatal-signal.c",
+      "status": "added",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103/gdb/testsuite/gdb.base/bt-on-fatal-signal.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103/gdb/testsuite/gdb.base/bt-on-fatal-signal.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/bt-on-fatal-signal.c?ref=6aa4f97c2b8a3fe3775d90c7485f4ace610fb103",
+      "patch": "@@ -0,0 +1,22 @@\n+/* Copyright 2021 Free Software Foundation, Inc.\n+\n+   This file is part of GDB.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+int\n+main (void)\n+{\n+  return 0;\n+}"
+    },
+    {
+      "sha": "7a9f8e45fde346c8958dd530f503cc3d0aa246f2",
+      "filename": "gdb/testsuite/gdb.base/bt-on-fatal-signal.exp",
+      "status": "added",
+      "additions": 134,
+      "deletions": 0,
+      "changes": 134,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103/gdb/testsuite/gdb.base/bt-on-fatal-signal.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103/gdb/testsuite/gdb.base/bt-on-fatal-signal.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/bt-on-fatal-signal.exp?ref=6aa4f97c2b8a3fe3775d90c7485f4ace610fb103",
+      "patch": "@@ -0,0 +1,134 @@\n+# Copyright 2021 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test the 'maint set backtrace-on-fatal-signal' behaviour.  Start up\n+# GDB, turn on backtrace-on-fatal-signal, then send fatal signals to\n+# GDB and ensure we see the backtrace.\n+\n+standard_testfile\n+\n+# The logic for sending signals to GDB might now work when using a\n+# remote host (will the signal go to GDB, or the program that\n+# established the connection to the remote host?), so just skip this\n+# test for remote host setups.\n+if {[is_remote host]} {\n+    untested $testfile\n+    return -1\n+}\n+\n+if {[prepare_for_testing \"failed to prepare\" $testfile $srcfile]} {\n+    return -1\n+}\n+\n+# Check we can run to main.  If this works this time then we just\n+# assume that it will work later on (when we repeatedly restart GDB).\n+if ![runto_main] then {\n+    untested $testfile\n+    return -1\n+}\n+\n+# Check that the backtrace-on-fatal-signal feature is supported.  If\n+# this target doesn't have the backtrace function available then\n+# trying to turn this on will give an error, in which case we just\n+# skip this test.\n+gdb_test_multiple \"maint set backtrace-on-fatal-signal on\" \"\" {\n+    -re \"support for this feature is not compiled into GDB\" {\n+\tuntested $testfile\n+\treturn -1\n+    }\n+    -re \"$gdb_prompt $\" {\n+\tpass $gdb_test_name\n+    }\n+}\n+\n+# Now the actual test loop.\n+foreach test_data {{SEGV \"Segmentation fault\"}} {\n+    set sig [lindex ${test_data} 0]\n+    set msg [lindex ${test_data} 1]\n+    with_test_prefix ${sig} {\n+\n+\t# Restart GDB.\n+\tclean_restart $binfile\n+\n+\t# Capture the pid of GDB.\n+\tset testpid [spawn_id_get_pid $gdb_spawn_id]\n+\n+\t# Start the inferior.\n+\trunto_main\n+\n+\t# Turn on the backtrace-on-fatal-signal feature.\n+\tgdb_test_no_output \"maint set backtrace-on-fatal-signal on\"\n+\n+\t# Flags for various bits of the output we expect to see, we\n+\t# check for these in the gdb_test_multiple below.\n+\tset saw_fatal_msg false\n+\tset saw_bt_start false\n+\tset saw_bt_end false\n+\tset internal_error_msg_count 0\n+\n+\t# Send the fatal signal to GDB.\n+\tremote_exec host \"kill -${sig} ${testpid}\"\n+\n+\t# Scan GDB's output for the backtrace.  As the output we get\n+\t# here includes the standard \"internal error\" message, which\n+\t# gdb_test_multiple will usually handle, we are forced to make\n+\t# extensive use of the \"-early\" flag here so that all our\n+\t# patterns are applied before gdb_test_multiple can check for\n+\t# the internal error pattern.\n+\tgdb_test_multiple \"\" \"scan for backtrace\" {\n+\t    -early -re \"^\\r\\n\" {\n+\t\texp_continue\n+\t    }\n+\t    -early -re \"^Fatal signal: ${msg}\\r\\n\" {\n+\t\tset saw_fatal_msg true\n+\t\texp_continue\n+\t    }\n+\t    -early -re \"^----- Backtrace -----\\r\\n\" {\n+\t\tset saw_bt_start true\n+\t\texp_continue\n+\t    }\n+\t    -early -re \".+\\r\\n---------------------\\r\\n\" {\n+\t\tset saw_bt_end true\n+\t\texp_continue\n+\t    }\n+\t    -early -re \"^A fatal error internal to GDB has been detected, further\\r\\n\" {\n+\t\tincr internal_error_msg_count\n+\t\texp_continue\n+\t    }\n+\t    -early -re \"^debugging is not possible.  GDB will now terminate\\\\.\\r\\n\" {\n+\t\tincr internal_error_msg_count\n+\t\texp_continue\n+\t    }\n+\t    eof {\n+\t\t# Catch the eof case as this indicates that GDB has\n+\t\t# gone away, which in this case, is what we expect to\n+\t\t# happen.\n+\t\tgdb_assert { $saw_fatal_msg }\n+\t\tgdb_assert { $saw_bt_start }\n+\t\tgdb_assert { $saw_bt_end }\n+\t\tgdb_assert { [expr $internal_error_msg_count == 2] }\n+\t    }\n+\t    -re \"$gdb_prompt $\" {\n+\t\t# GDB should terminate, we should never get back to\n+\t\t# the prompt.\n+\t\tfail $gdb_test_name\n+\t    }\n+\t}\n+\n+\t# GDB should be dead and gone by this point, but just to be\n+\t# sure, force an exit.\n+\tgdb_exit\n+    }\n+}"
+    },
+    {
+      "sha": "9593c94e673e3b58029f68ba906a3d0196844470",
+      "filename": "gdb/ui-file.h",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103/gdb/ui-file.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6aa4f97c2b8a3fe3775d90c7485f4ace610fb103/gdb/ui-file.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ui-file.h?ref=6aa4f97c2b8a3fe3775d90c7485f4ace610fb103",
+      "patch": "@@ -83,6 +83,11 @@ class ui_file\n \n   virtual void flush ()\n   {}\n+\n+  /* If this object has an underlying file descriptor, then return it.\n+     Otherwise, return -1.  */\n+  virtual int fd () const\n+  { return -1; }\n };\n \n typedef std::unique_ptr<ui_file> ui_file_up;\n@@ -195,6 +200,10 @@ class stdio_file : public ui_file\n \n   bool can_emit_style_escape () override;\n \n+  /* Return the underlying file descriptor.  */\n+  int fd () const override\n+  { return m_fd; }\n+\n private:\n   /* Sets the internal stream to FILE, and saves the FILE's file\n      descriptor in M_FD.  */"
+    }
+  ]
+}

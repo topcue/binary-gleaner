@@ -1,0 +1,72 @@
+{
+  "sha": "82f910ea9cce04b0faabfcd022d9d8949567541e",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ODJmOTEwZWE5Y2NlMDRiMGZhYWJmY2QwMjJkOWQ4OTQ5NTY3NTQxZQ==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-12-01T16:24:41Z"
+    },
+    "committer": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-12-03T20:30:12Z"
+    },
+    "message": "Fix leak of symbol name in block_symbol_cache\n\nA symbol not found inserted in the cache has a xstrdup-ed name\nthat must be freed, but only the struct block_symbol_cache is freed.\nAdd a function destroy_block_symbol_cache that clears all slots\nbefore releasing the cache.\n\n2019-12-03  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n\t* symtab.c (symbol_cache_clear_slot):  Move close to cleared type.\n\t(destroy_block_symbol_cache): New function.\n\t(symbol_cache:~symbol_cache) Call destroy_block_symbol_cache.\n\t(resize_symbol_cache): Likewise.",
+    "tree": {
+      "sha": "5e7a057817a4cd1b27e0a733ebd45609d10814db",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/5e7a057817a4cd1b27e0a733ebd45609d10814db"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/82f910ea9cce04b0faabfcd022d9d8949567541e",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/82f910ea9cce04b0faabfcd022d9d8949567541e",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/82f910ea9cce04b0faabfcd022d9d8949567541e",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/82f910ea9cce04b0faabfcd022d9d8949567541e/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "e63ef0954d02bec8ecb9cf7ff9fc14adc45e8010",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e63ef0954d02bec8ecb9cf7ff9fc14adc45e8010",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/e63ef0954d02bec8ecb9cf7ff9fc14adc45e8010"
+    }
+  ],
+  "stats": {
+    "total": 47,
+    "additions": 33,
+    "deletions": 14
+  },
+  "files": [
+    {
+      "sha": "5ece68835230a35665b23699bb17aede4b3b6dc1",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/82f910ea9cce04b0faabfcd022d9d8949567541e/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/82f910ea9cce04b0faabfcd022d9d8949567541e/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=82f910ea9cce04b0faabfcd022d9d8949567541e",
+      "patch": "@@ -1,3 +1,9 @@\n+2019-12-03  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n+\t* symtab.c (symbol_cache_clear_slot):  Move close to cleared type.\n+\t(destroy_block_symbol_cache): New function.\n+\t(symbol_cache:~symbol_cache) Call destroy_block_symbol_cache.\n+\t(resize_symbol_cache): Likewise.\n+\n 2019-12-02  Tom Tromey  <tom@tromey.com>\n \n \t* unittests/tui-selftests.c (run_tests): Make conditional."
+    },
+    {
+      "sha": "5c33fbf9ab742371ac8ac6ac952484ee278c36ab",
+      "filename": "gdb/symtab.c",
+      "status": "modified",
+      "additions": 27,
+      "deletions": 14,
+      "changes": 41,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/82f910ea9cce04b0faabfcd022d9d8949567541e/gdb/symtab.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/82f910ea9cce04b0faabfcd022d9d8949567541e/gdb/symtab.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/symtab.c?ref=82f910ea9cce04b0faabfcd022d9d8949567541e",
+      "patch": "@@ -183,6 +183,16 @@ struct symbol_cache_slot\n   } value;\n };\n \n+/* Clear out SLOT.  */\n+\n+static void\n+symbol_cache_clear_slot (struct symbol_cache_slot *slot)\n+{\n+  if (slot->state == SYMBOL_SLOT_NOT_FOUND)\n+    xfree (slot->value.not_found.name);\n+  slot->state = SYMBOL_SLOT_UNUSED;\n+}\n+\n /* Symbols don't specify global vs static block.\n    So keep them in separate caches.  */\n \n@@ -201,6 +211,19 @@ struct block_symbol_cache\n   struct symbol_cache_slot symbols[1];\n };\n \n+/* Clear all slots of BSC and free BSC.  */\n+\n+static void\n+destroy_block_symbol_cache (struct block_symbol_cache *bsc)\n+{\n+  if (bsc != nullptr)\n+    {\n+      for (unsigned int i = 0; i < bsc->size; i++)\n+\tsymbol_cache_clear_slot (&bsc->symbols[i]);\n+      xfree (bsc);\n+    }\n+}\n+\n /* The symbol cache.\n \n    Searching for symbols in the static and global blocks over multiple objfiles\n@@ -217,8 +240,8 @@ struct symbol_cache\n \n   ~symbol_cache ()\n   {\n-    xfree (global_symbols);\n-    xfree (static_symbols);\n+    destroy_block_symbol_cache (global_symbols);\n+    destroy_block_symbol_cache (static_symbols);\n   }\n \n   struct block_symbol_cache *global_symbols = nullptr;\n@@ -1234,8 +1257,8 @@ resize_symbol_cache (struct symbol_cache *cache, unsigned int new_size)\n \t  && new_size == 0))\n     return;\n \n-  xfree (cache->global_symbols);\n-  xfree (cache->static_symbols);\n+  destroy_block_symbol_cache (cache->global_symbols);\n+  destroy_block_symbol_cache (cache->static_symbols);\n \n   if (new_size == 0)\n     {\n@@ -1373,16 +1396,6 @@ symbol_cache_lookup (struct symbol_cache *cache,\n   return {};\n }\n \n-/* Clear out SLOT.  */\n-\n-static void\n-symbol_cache_clear_slot (struct symbol_cache_slot *slot)\n-{\n-  if (slot->state == SYMBOL_SLOT_NOT_FOUND)\n-    xfree (slot->value.not_found.name);\n-  slot->state = SYMBOL_SLOT_UNUSED;\n-}\n-\n /* Mark SYMBOL as found in SLOT.\n    OBJFILE_CONTEXT is the current objfile when the lookup was done, or NULL\n    if it's not needed to distinguish lookups (STATIC_BLOCK).  It is *not*"
+    }
+  ]
+}

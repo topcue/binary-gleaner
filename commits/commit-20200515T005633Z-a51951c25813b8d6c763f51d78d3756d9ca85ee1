@@ -1,0 +1,134 @@
+{
+  "sha": "a51951c25813b8d6c763f51d78d3756d9ca85ee1",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YTUxOTUxYzI1ODEzYjhkNmM3NjNmNTFkNzhkMzc1NmQ5Y2E4NWVlMQ==",
+  "commit": {
+    "author": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2020-05-14T18:10:14Z"
+    },
+    "committer": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2020-05-15T00:56:33Z"
+    },
+    "message": "Disable record btrace bts support for AMD processors\n\nSome Intel processors implement a Branch Trace Store (BTS) which GDB\nuses for reverse execution support via the \"record btrace bts\"\ncommand.\n\nI have been unable to find a description of a similar feature in a\nrecent (April 2020) AMD64 architecture reference:\n\n    https://www.amd.com/system/files/TechDocs/40332.pdf\n\nWhile it is the case that AMD processors have an LBR (last branch\nrecord) bit in the DebugCtl MSR, it seems that it affects only four\nMSRs when enabled.  The names of these MSRs are LastBranchToIP,\nLastBranchFromIP, LastIntToIP, and LastIntFromIP.  I can find no\nmention of anything more extensive.  While looking at an Intel\narchitecture document, I noticed that Intel's P6 family from the\nmid-90s had registers of the same name.\n\nTherefore...\n\nThis commit disables \"record btrace bts\" support in GDB for AMD\nprocessors.\n\nUsing the test case from gdb.base/break.exp, the sessions\nbelow show the expected behavior (run on a machine with an\nIntel processor) versus that on a machine with an AMD processor.\nThe AMD processor in question is reported as follows by \"lscpu\":\nAMD Ryzen Threadripper 2950X 16-Core Processor .  Finally, I'll\nnote that the AMD machine is actually a VM, but I see similar\nbehavior on both the virtualization host and the VM.\n\nIntel machine - Desired behavior:\n\n[kevinb@mohave gdb]$ ./gdb -q testsuite/outputs/gdb.base/break/break\nReading symbols from testsuite/outputs/gdb.base/break/break...\n(gdb) start\nTemporary breakpoint 1 at 0x401179: file /home/kevinb/sourceware-git/native-build/bld/../../binutils-gdb/gdb/testsuite/gdb.base/break.c, line 43.\nStarting program: /home/kevinb/sourceware-git/native-build/bld/gdb/testsuite/outputs/gdb.base/break/break\n\nTemporary breakpoint 1, main (argc=1, argv=0x7fffffffd748, envp=0x7fffffffd758)\n    at /home/kevinb/sourceware-git/native-build/bld/../../binutils-gdb/gdb/testsuite/gdb.base/break.c:43\n43\t    if (argc == 12345) {  /* an unlikely value < 2^16, in case uninited */ /* set breakpoint 6 here */\n(gdb) record btrace\n(gdb) b factorial\nBreakpoint 2 at 0x40121b: file /home/kevinb/sourceware-git/native-build/bld/../../binutils-gdb/gdb/testsuite/gdb.base/break.c, line 63.\n(gdb) c\nContinuing.\n\nBreakpoint 2, factorial (value=6)\n    at /home/kevinb/sourceware-git/native-build/bld/../../binutils-gdb/gdb/testsuite/gdb.base/break.c:63\n63\t  if (value > 1) {  /* set breakpoint 7 here */\n(gdb) info record\nActive record target: record-btrace\nRecording format: Branch Trace Store.\nBuffer size: 64kB.\nRecorded 768 instructions in 22 functions (0 gaps) for thread 1 (process 19215).\n(gdb) record function-call-history\n13\tdo_lookup_x\n14\t_dl_lookup_symbol_x\n15\t_dl_fixup\n16\t_dl_runtime_resolve_xsavec\n17\tatoi\n18\tstrtoq\n19\t____strtoll_l_internal\n20\tatoi\n21\tmain\n22\tfactorial\n(gdb) record instruction-history\n759\t   0x00007ffff7ce0917 <____strtoll_l_internal+647>:\tpop    %r15\n760\t   0x00007ffff7ce0919 <____strtoll_l_internal+649>:\tretq\n761\t   0x00007ffff7cdd064 <atoi+20>:\tadd    $0x8,%rsp\n762\t   0x00007ffff7cdd068 <atoi+24>:\tretq\n763\t   0x00000000004011b1 <main+75>:\tmov    %eax,%edi\n764\t   0x00000000004011b3 <main+77>:\tcallq  0x401210 <factorial>\n765\t   0x0000000000401210 <factorial+0>:\tpush   %rbp\n766\t   0x0000000000401211 <factorial+1>:\tmov    %rsp,%rbp\n767\t   0x0000000000401214 <factorial+4>:\tsub    $0x10,%rsp\n768\t   0x0000000000401218 <factorial+8>:\tmov    %edi,-0x4(%rbp)\n\nAMD machine - Wrong behavior:\n\n[kev@f32-1 gdb]$ ./gdb -q testsuite/outputs/gdb.base/break/break\nReading symbols from testsuite/outputs/gdb.base/break/break...\n(gdb) start\nTemporary breakpoint 1 at 0x401179: file /ironwood1/sourceware-git/f32-master/bld/../../worktree-master/gdb/testsuite/gdb.base/break.c, line 43.\nStarting program: /mesquite2/sourceware-git/f32-master/bld/gdb/testsuite/outputs/gdb.base/break/break\n\nTemporary breakpoint 1, main (argc=1, argv=0x7fffffffd5b8, envp=0x7fffffffd5c8)\n    at /ironwood1/sourceware-git/f32-master/bld/../../worktree-master/gdb/testsuite/gdb.base/break.c:43\n43\t    if (argc == 12345) {  /* an unlikely value < 2^16, in case uninited */ /* set breakpoint 6 here */\n(gdb) record btrace\n(gdb) b factorial\nBreakpoint 2 at 0x40121b: file /ironwood1/sourceware-git/f32-master/bld/../../worktree-master/gdb/testsuite/gdb.base/break.c, line 63.\n(gdb) c\nContinuing.\n\nBreakpoint 2, factorial (value=6)\n    at /ironwood1/sourceware-git/f32-master/bld/../../worktree-master/gdb/testsuite/gdb.base/break.c:63\n63\t  if (value > 1) {  /* set breakpoint 7 here */\n(gdb) info record\nActive record target: record-btrace\nRecording format: Branch Trace Store.\nBuffer size: 64kB.\nwarning: Recorded trace may be incomplete at instruction 7737 (pc = 0x405000).\nwarning: Recorded trace may be incomplete at instruction 7739 (pc = 0x0).\nRecorded 7740 instructions in 46 functions (2 gaps) for thread 1 (process 1402911).\n(gdb) record function-call-history\n37\t??\n38\tvalues\n39\tsome_enum_global\n40\t??\n41\tsome_union_global\n42\tsome_variable\n43\t??\n44\t[decode error (2): unknown instruction]\n45\t??\n46\t[decode error (2): unknown instruction]\n(gdb) record instruction-history\n7730\t   0x0000000000404ff3:\tadd    %al,(%rax)\n7731\t   0x0000000000404ff5:\tadd    %al,(%rax)\n7732\t   0x0000000000404ff7:\tadd    %al,(%rax)\n7733\t   0x0000000000404ff9:\tadd    %al,(%rax)\n7734\t   0x0000000000404ffb:\tadd    %al,(%rax)\n7735\t   0x0000000000404ffd:\tadd    %al,(%rax)\n7736\t   0x0000000000404fff:\t.byte 0x0\n7737\t   0x0000000000405000:\tCannot access memory at address 0x405000\n\nLastly, I'll note that I see a lot of gdb.btrace failures without\nthis commit.  Worse still, the results aren't always the same which\ncauses a lot of noise when comparing test results.\n\ngdbsupport/ChangeLog:\n\n\t* btrace-common.h (btrace_cpu_vendor): Add CV_AMD.\n\ngdb/ChangeLog:\n\n\t* nat/linux-btrace.c (btrace_this_cpu): Add check for AMD\n\tprocessors.\n\t(cpu_supports_bts): Add CV_AMD case.",
+    "tree": {
+      "sha": "dbd5cad606741de29c1c989f6808e6eaec07d975",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/dbd5cad606741de29c1c989f6808e6eaec07d975"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/a51951c25813b8d6c763f51d78d3756d9ca85ee1",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a51951c25813b8d6c763f51d78d3756d9ca85ee1",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/a51951c25813b8d6c763f51d78d3756d9ca85ee1",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a51951c25813b8d6c763f51d78d3756d9ca85ee1/comments",
+  "author": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "29d6859f0927bf92fcddb4d519379992399e2ac9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/29d6859f0927bf92fcddb4d519379992399e2ac9",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/29d6859f0927bf92fcddb4d519379992399e2ac9"
+    }
+  ],
+  "stats": {
+    "total": 21,
+    "additions": 20,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "44ccc180d2a1ceb74ea4a0d4e4f032f5685ddf70",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a51951c25813b8d6c763f51d78d3756d9ca85ee1/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a51951c25813b8d6c763f51d78d3756d9ca85ee1/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=a51951c25813b8d6c763f51d78d3756d9ca85ee1",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-05-14  Kevin Buettner  <kevinb@redhat.com>\n+\n+\t* nat/linux-btrace.c (btrace_this_cpu): Add check for AMD\n+\tprocessors.\n+\t(cpu_supports_bts): Add CV_AMD case.\n+\n 2020-05-14  Laurent Morichetti  <Laurent.Morichetti@amd.com>\n \t    Simon Marchi  <simon.marchi@efficios.com>\n "
+    },
+    {
+      "sha": "b87faf98b2c2db42979b9164d530a8ea2871fd8f",
+      "filename": "gdb/nat/linux-btrace.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a51951c25813b8d6c763f51d78d3756d9ca85ee1/gdb/nat/linux-btrace.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a51951c25813b8d6c763f51d78d3756d9ca85ee1/gdb/nat/linux-btrace.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/nat/linux-btrace.c?ref=a51951c25813b8d6c763f51d78d3756d9ca85ee1",
+      "patch": "@@ -90,6 +90,9 @@ btrace_this_cpu (void)\n \t\tcpu.model += (cpuid >> 12) & 0xf0;\n \t    }\n \t}\n+      else if (ebx == signature_AMD_ebx && ecx == signature_AMD_ecx\n+\t       && edx == signature_AMD_edx)\n+\tcpu.vendor = CV_AMD;\n     }\n \n   return cpu;\n@@ -406,6 +409,9 @@ cpu_supports_bts (void)\n \n     case CV_INTEL:\n       return intel_supports_bts (&cpu);\n+\n+    case CV_AMD:\n+      return 0;\n     }\n }\n "
+    },
+    {
+      "sha": "e7374abfc262514013706a6423827ba0cbed0692",
+      "filename": "gdbsupport/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a51951c25813b8d6c763f51d78d3756d9ca85ee1/gdbsupport/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a51951c25813b8d6c763f51d78d3756d9ca85ee1/gdbsupport/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/ChangeLog?ref=a51951c25813b8d6c763f51d78d3756d9ca85ee1",
+      "patch": "@@ -1,3 +1,7 @@\n+2020-05-14  Kevin Buettner  <kevinb@redhat.com>\n+\n+\t* btrace-common.h (btrace_cpu_vendor): Add CV_AMD.\n+\n 2020-05-14  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n \n \t* common-regcache.h (regcache_read_pc_protected): New function"
+    },
+    {
+      "sha": "226c67b297d507bbdb3026ec1baa0e5cfbd2823c",
+      "filename": "gdbsupport/btrace-common.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 1,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a51951c25813b8d6c763f51d78d3756d9ca85ee1/gdbsupport/btrace-common.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a51951c25813b8d6c763f51d78d3756d9ca85ee1/gdbsupport/btrace-common.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/btrace-common.h?ref=a51951c25813b8d6c763f51d78d3756d9ca85ee1",
+      "patch": "@@ -74,7 +74,10 @@ enum btrace_cpu_vendor\n   CV_UNKNOWN,\n \n   /* Intel.  */\n-  CV_INTEL\n+  CV_INTEL,\n+\n+  /* AMD.  */\n+  CV_AMD\n };\n \n /* A cpu identifier.  */"
+    }
+  ]
+}

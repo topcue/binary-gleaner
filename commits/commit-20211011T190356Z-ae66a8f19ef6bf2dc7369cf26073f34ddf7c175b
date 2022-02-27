@@ -1,0 +1,175 @@
+{
+  "sha": "ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b",
+  "node_id": "C_kwDOANOeidoAKGFlNjZhOGYxOWVmNmJmMmRjNzM2OWNmMjYwNzNmMzRkZGY3YzE3NWI",
+  "commit": {
+    "author": {
+      "name": "Srinath Parvathaneni",
+      "email": "srinath.parvathaneni@arm.com",
+      "date": "2021-07-21T15:33:44Z"
+    },
+    "committer": {
+      "name": "Luis Machado",
+      "email": "luis.machado@linaro.org",
+      "date": "2021-10-11T19:03:56Z"
+    },
+    "message": "[ARM] Add support for M-profile MVE extension\n\nThis patch adds support for the M-profile MVE extension, which includes the\nfollowing:\n\n- New M-profile XML feature m-profile-mve\n- MVE vector predication status and control register (VPR)\n- p0 pseudo register (contained in the VPR)\n- q0 ~ q7 pseudo vector registers\n- New feature bits\n- Documentation update\n\nPseudo register p0 is the least significant bits of vpr and can be accessed\nas $p0 or displayed through $vpr.  For more information about the register\nlayout, please refer to [1].\n\nThe q0 ~ q7 registers map back to the d0 ~ d15 registers, two d registers\nper q register.\n\nThe register dump looks like this:\n\n(gdb) info reg all\nr0             0x0                 0\nr1             0x0                 0\nr2             0x0                 0\nr3             0x0                 0\nr4             0x0                 0\nr5             0x0                 0\nr6             0x0                 0\nr7             0x0                 0\nr8             0x0                 0\nr9             0x0                 0\nr10            0x0                 0\nr11            0x0                 0\nr12            0x0                 0\nsp             0x0                 0x0 <__Vectors>\nlr             0xffffffff          -1\npc             0xd0c               0xd0c <Reset_Handler>\nxpsr           0x1000000           16777216\nd0             0                   (raw 0x0000000000000000)\nd1             0                   (raw 0x0000000000000000)\nd2             0                   (raw 0x0000000000000000)\nd3             0                   (raw 0x0000000000000000)\nd4             0                   (raw 0x0000000000000000)\nd5             0                   (raw 0x0000000000000000)\nd6             0                   (raw 0x0000000000000000)\nd7             0                   (raw 0x0000000000000000)\nd8             0                   (raw 0x0000000000000000)\nd9             0                   (raw 0x0000000000000000)\nd10            0                   (raw 0x0000000000000000)\nd11            0                   (raw 0x0000000000000000)\nd12            0                   (raw 0x0000000000000000)\nd13            0                   (raw 0x0000000000000000)\nd14            0                   (raw 0x0000000000000000)\nd15            0                   (raw 0x0000000000000000)\nfpscr          0x0                 0\nvpr            0x0                 [ P0=0 MASK01=0 MASK23=0 ]\ns0             0                   (raw 0x00000000)\ns1             0                   (raw 0x00000000)\ns2             0                   (raw 0x00000000)\ns3             0                   (raw 0x00000000)\ns4             0                   (raw 0x00000000)\ns5             0                   (raw 0x00000000)\ns6             0                   (raw 0x00000000)\ns7             0                   (raw 0x00000000)\ns8             0                   (raw 0x00000000)\ns9             0                   (raw 0x00000000)\ns10            0                   (raw 0x00000000)\ns11            0                   (raw 0x00000000)\ns12            0                   (raw 0x00000000)\ns13            0                   (raw 0x00000000)\ns14            0                   (raw 0x00000000)\ns15            0                   (raw 0x00000000)\ns16            0                   (raw 0x00000000)\ns17            0                   (raw 0x00000000)\ns18            0                   (raw 0x00000000)\ns19            0                   (raw 0x00000000)\ns20            0                   (raw 0x00000000)\ns21            0                   (raw 0x00000000)\ns22            0                   (raw 0x00000000)\ns23            0                   (raw 0x00000000)\ns24            0                   (raw 0x00000000)\ns25            0                   (raw 0x00000000)\ns26            0                   (raw 0x00000000)\ns27            0                   (raw 0x00000000)\ns28            0                   (raw 0x00000000)\ns29            0                   (raw 0x00000000)\ns30            0                   (raw 0x00000000)\ns31            0                   (raw 0x00000000)\nq0             {u8 = {0x0 <repeats 16 times>}, u16 = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, u32 = {0x0, 0x0, 0x0, 0x0}, u64 = {0x0, 0x0}, f32 = {0x0, 0x0, 0x0, 0x0}, f64 = {0x0, 0x0}}\nq1             {u8 = {0x0 <repeats 16 times>}, u16 = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, u32 = {0x0, 0x0, 0x0, 0x0}, u64 = {0x0, 0x0}, f32 = {0x0, 0x0, 0x0, 0x0}, f64 = {0x0, 0x0}}\nq2             {u8 = {0x0 <repeats 16 times>}, u16 = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, u32 = {0x0, 0x0, 0x0, 0x0}, u64 = {0x0, 0x0}, f32 = {0x0, 0x0, 0x0, 0x0}, f64 = {0x0, 0x0}}\nq3             {u8 = {0x0 <repeats 16 times>}, u16 = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, u32 = {0x0, 0x0, 0x0, 0x0}, u64 = {0x0, 0x0}, f32 = {0x0, 0x0, 0x0, 0x0}, f64 = {0x0, 0x0}}\nq4             {u8 = {0x0 <repeats 16 times>}, u16 = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, u32 = {0x0, 0x0, 0x0, 0x0}, u64 = {0x0, 0x0}, f32 = {0x0, 0x0, 0x0, 0x0}, f64 = {0x0, 0x0}}\nq5             {u8 = {0x0 <repeats 16 times>}, u16 = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, u32 = {0x0, 0x0, 0x0, 0x0}, u64 = {0x0, 0x0}, f32 = {0x0, 0x0, 0x0, 0x0}, f64 = {0x0, 0x0}}\nq6             {u8 = {0x0 <repeats 16 times>}, u16 = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, u32 = {0x0, 0x0, 0x0, 0x0}, u64 = {0x0, 0x0}, f32 = {0x0, 0x0, 0x0, 0x0}, f64 = {0x0, 0x0}}\nq7             {u8 = {0x0 <repeats 16 times>}, u16 = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, u32 = {0x0, 0x0, 0x0, 0x0}, u64 = {0x0, 0x0}, f32 = {0x0, 0x0, 0x0, 0x0}, f64 = {0x0, 0x0}}\np0             0x0                 0\n\nBuilt and regtested with a simulator.\n\n[1] https://developer.arm.com/documentation/ddi0553/bn\n\nCo-Authored-By: Luis Machado <luis.machado@linaro.org>",
+    "tree": {
+      "sha": "f3b480e48c9d4d7cef64a49764ce9a9415933f64",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f3b480e48c9d4d7cef64a49764ce9a9415933f64"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b/comments",
+  "author": null,
+  "committer": {
+    "login": "luislinaro",
+    "id": 53092780,
+    "node_id": "MDQ6VXNlcjUzMDkyNzgw",
+    "avatar_url": "https://avatars.githubusercontent.com/u/53092780?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/luislinaro",
+    "html_url": "https://github.com/luislinaro",
+    "followers_url": "https://api.github.com/users/luislinaro/followers",
+    "following_url": "https://api.github.com/users/luislinaro/following{/other_user}",
+    "gists_url": "https://api.github.com/users/luislinaro/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/luislinaro/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/luislinaro/subscriptions",
+    "organizations_url": "https://api.github.com/users/luislinaro/orgs",
+    "repos_url": "https://api.github.com/users/luislinaro/repos",
+    "events_url": "https://api.github.com/users/luislinaro/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/luislinaro/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "ecbf5d4f9b716c50908f62cbb9917ed42d45a254",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ecbf5d4f9b716c50908f62cbb9917ed42d45a254",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/ecbf5d4f9b716c50908f62cbb9917ed42d45a254"
+    }
+  ],
+  "stats": {
+    "total": 210,
+    "additions": 206,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "bd26d2b1ec2e012ad104b406d9ee1b7eb7157ae9",
+      "filename": "gdb/NEWS",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b/gdb/NEWS",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b/gdb/NEWS",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/NEWS?ref=ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b",
+      "patch": "@@ -152,6 +152,10 @@ maint show internal-warning backtrace\n   registers of a target.  The precise requirements of this register\n   feature are documented in the GDB manual.\n \n+* For ARM targets, the \"org.gnu.gdb.arm.m-profile-mve\" feature is now\n+  supported by GDB and describes a new VPR register from the ARM MVE\n+  (Helium) extension. See the GDB manual for more information.\n+\n * TUI improvements\n \n   ** TUI windows now support mouse actions.  The mouse wheel scrolls"
+    },
+    {
+      "sha": "a18b38b9d8115be89e9780a7ffffac2624b212b6",
+      "filename": "gdb/arch/arm.c",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b/gdb/arch/arm.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b/gdb/arch/arm.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/arch/arm.c?ref=ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b",
+      "patch": "@@ -27,6 +27,7 @@\n #include \"../features/arm/xscale-iwmmxt.c\"\n #include \"../features/arm/arm-m-profile.c\"\n #include \"../features/arm/arm-m-profile-with-fpa.c\"\n+#include \"../features/arm/arm-m-profile-mve.c\"\n \n /* See arm.h.  */\n \n@@ -439,6 +440,12 @@ arm_create_mprofile_target_description (arm_m_profile_type m_type)\n       regnum = create_feature_arm_arm_m_profile_with_fpa (tdesc, regnum);\n       break;\n \n+    case ARM_M_TYPE_MVE:\n+      regnum = create_feature_arm_arm_m_profile (tdesc, regnum);\n+      regnum = create_feature_arm_arm_vfpv2 (tdesc, regnum);\n+      regnum = create_feature_arm_arm_m_profile_mve (tdesc, regnum);\n+      break;\n+\n     default:\n       error (_(\"Invalid Arm M type: %d\"), m_type);\n     }"
+    },
+    {
+      "sha": "eabcb434f1f4263c5ecc8068d5356678916e42c2",
+      "filename": "gdb/arch/arm.h",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b/gdb/arch/arm.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b/gdb/arch/arm.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/arch/arm.h?ref=ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b",
+      "patch": "@@ -59,6 +59,8 @@ enum gdb_regnum {\n \n /* Register count constants.  */\n enum arm_register_counts {\n+  /* Number of Q registers for MVE.  */\n+  ARM_MVE_NUM_Q_REGS = 8,\n   /* Number of argument registers.  */\n   ARM_NUM_ARG_REGS = 4,\n   /* Number of floating point argument registers.  */\n@@ -89,6 +91,7 @@ enum arm_m_profile_type {\n    ARM_M_TYPE_M_PROFILE,\n    ARM_M_TYPE_VFP_D16,\n    ARM_M_TYPE_WITH_FPA,\n+   ARM_M_TYPE_MVE,\n    ARM_M_TYPE_INVALID\n };\n "
+    },
+    {
+      "sha": "d7493f15700a9472b59c825151d7080144db1fac",
+      "filename": "gdb/arm-tdep.c",
+      "status": "modified",
+      "additions": 136,
+      "deletions": 4,
+      "changes": 140,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b/gdb/arm-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b/gdb/arm-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/arm-tdep.c?ref=ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b",
+      "patch": "@@ -4133,7 +4133,8 @@ is_q_pseudo (struct gdbarch *gdbarch, int regnum)\n {\n   struct gdbarch_tdep *tdep = gdbarch_tdep (gdbarch);\n \n-  /* Q pseudo registers are available for NEON (Q0~Q15).  */\n+  /* Q pseudo registers are available for both NEON (Q0~Q15) and\n+     MVE (Q0~Q7) features.  */\n   if (tdep->have_q_pseudos\n       && regnum >= tdep->q_pseudo_base\n       && regnum < (tdep->q_pseudo_base + tdep->q_pseudo_count))\n@@ -4161,6 +4162,25 @@ is_s_pseudo (struct gdbarch *gdbarch, int regnum)\n   return false;\n }\n \n+/* Return true if REGNUM is a MVE pseudo register (P0).  Return false\n+   otherwise.\n+\n+   REGNUM is the raw register number and not a pseudo-relative register\n+   number.  */\n+\n+static bool\n+is_mve_pseudo (struct gdbarch *gdbarch, int regnum)\n+{\n+  struct gdbarch_tdep *tdep = gdbarch_tdep (gdbarch);\n+\n+  if (tdep->have_mve\n+      && regnum >= tdep->mve_pseudo_base\n+      && regnum < tdep->mve_pseudo_base + tdep->mve_pseudo_count)\n+    return true;\n+\n+  return false;\n+}\n+\n /* Return the GDB type object for the \"standard\" data type of data in\n    register N.  */\n \n@@ -4175,6 +4195,9 @@ arm_register_type (struct gdbarch *gdbarch, int regnum)\n   if (is_q_pseudo (gdbarch, regnum))\n     return arm_neon_quad_type (gdbarch);\n \n+  if (is_mve_pseudo (gdbarch, regnum))\n+    return builtin_type (gdbarch)->builtin_int16;\n+\n   /* If the target description has register information, we are only\n      in this function so that we can override the types of\n      double-precision registers for NEON.  */\n@@ -8612,6 +8635,9 @@ arm_register_name (struct gdbarch *gdbarch, int i)\n       return q_pseudo_names[i - tdep->q_pseudo_base];\n     }\n \n+  if (is_mve_pseudo (gdbarch, i))\n+    return \"p0\";\n+\n   if (i >= ARRAY_SIZE (arm_register_names))\n     /* These registers are only supported on targets which supply\n        an XML description.  */\n@@ -8745,6 +8771,19 @@ arm_neon_quad_read (struct gdbarch *gdbarch, readable_regcache *regcache,\n   return REG_VALID;\n }\n \n+/* Read the contents of the MVE pseudo register REGNUM and store it\n+   in BUF.  */\n+\n+static enum register_status\n+arm_mve_pseudo_read (struct gdbarch *gdbarch, readable_regcache *regcache,\n+\t\t     int regnum, gdb_byte *buf)\n+{\n+  struct gdbarch_tdep *tdep = gdbarch_tdep (gdbarch);\n+\n+  /* P0 is the first 16 bits of VPR.  */\n+  return regcache->raw_read_part (tdep->mve_vpr_regnum, 0, 2, buf);\n+}\n+\n static enum register_status\n arm_pseudo_read (struct gdbarch *gdbarch, readable_regcache *regcache,\n \t\t int regnum, gdb_byte *buf)\n@@ -8764,6 +8803,8 @@ arm_pseudo_read (struct gdbarch *gdbarch, readable_regcache *regcache,\n       return arm_neon_quad_read (gdbarch, regcache,\n \t\t\t\t regnum - tdep->q_pseudo_base, buf);\n     }\n+  else if (is_mve_pseudo (gdbarch, regnum))\n+    return arm_mve_pseudo_read (gdbarch, regcache, regnum, buf);\n   else\n     {\n       enum register_status status;\n@@ -8818,6 +8859,18 @@ arm_neon_quad_write (struct gdbarch *gdbarch, struct regcache *regcache,\n   regcache->raw_write (double_regnum + 1, buf + offset);\n }\n \n+/* Store the contents of BUF to the MVE pseudo register REGNUM.  */\n+\n+static void\n+arm_mve_pseudo_write (struct gdbarch *gdbarch, struct regcache *regcache,\n+\t\t      int regnum, const gdb_byte *buf)\n+{\n+  struct gdbarch_tdep *tdep = gdbarch_tdep (gdbarch);\n+\n+  /* P0 is the first 16 bits of VPR.  */\n+  regcache->raw_write_part (tdep->mve_vpr_regnum, 0, 2, buf);\n+}\n+\n static void\n arm_pseudo_write (struct gdbarch *gdbarch, struct regcache *regcache,\n \t\t  int regnum, const gdb_byte *buf)\n@@ -8837,6 +8890,8 @@ arm_pseudo_write (struct gdbarch *gdbarch, struct regcache *regcache,\n       arm_neon_quad_write (gdbarch, regcache,\n \t\t\t   regnum - tdep->q_pseudo_base, buf);\n     }\n+  else if (is_mve_pseudo (gdbarch, regnum))\n+    arm_mve_pseudo_write (gdbarch, regcache, regnum, buf);\n   else\n     {\n       regnum -= tdep->s_pseudo_base;\n@@ -8935,6 +8990,11 @@ arm_register_g_packet_guesses (struct gdbarch *gdbarch)\n       register_remote_g_packet_guess (gdbarch,\n \t\t\t\t      ARM_CORE_REGS_SIZE + ARM_VFP2_REGS_SIZE,\n \t\t\t\t      tdesc);\n+      /* M-profile plus MVE.  */\n+      tdesc = arm_read_mprofile_description (ARM_M_TYPE_MVE);\n+      register_remote_g_packet_guess (gdbarch, ARM_CORE_REGS_SIZE\n+\t\t\t\t      + ARM_VFP2_REGS_SIZE\n+\t\t\t\t      + ARM_INT_REGISTER_SIZE, tdesc);\n     }\n \n   /* Otherwise we don't have a useful guess.  */\n@@ -8991,6 +9051,9 @@ arm_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)\n   bool have_neon = false;\n   bool have_fpa_registers = true;\n   const struct target_desc *tdesc = info.target_desc;\n+  bool have_vfp = false;\n+  bool have_mve = false;\n+  int mve_vpr_regnum = -1;\n   int register_count = ARM_NUM_REGS;\n \n   /* If we have an object to base this architecture on, try to determine\n@@ -9106,6 +9169,7 @@ arm_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)\n \t      if (!tdesc_has_registers (tdesc)\n \t\t  && (attr_arch == TAG_CPU_ARCH_V6_M\n \t\t      || attr_arch == TAG_CPU_ARCH_V6S_M\n+\t\t      || attr_arch == TAG_CPU_ARCH_V8_1M_MAIN\n \t\t      || attr_profile == 'M'))\n \t\tis_m = true;\n #endif\n@@ -9275,6 +9339,8 @@ arm_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)\n \t  if (!valid_p)\n \t    return NULL;\n \n+\t  have_vfp = true;\n+\n \t  if (tdesc_unnumbered_register (feature, \"s0\") == 0)\n \t    have_s_pseudos = true;\n \n@@ -9296,8 +9362,41 @@ arm_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)\n \t\t the default type.  */\n \t      if (tdesc_unnumbered_register (feature, \"q0\") == 0)\n \t\thave_q_pseudos = true;\n+\t    }\n+\t}\n+\n+      /* Check for MVE after all the checks for GPR's, VFP and Neon.\n+\t MVE (Helium) is an M-profile extension.  */\n+      if (is_m)\n+\t{\n+\t  /* Do we have the MVE feature?  */\n+\t  feature = tdesc_find_feature (tdesc,\"org.gnu.gdb.arm.m-profile-mve\");\n+\n+\t  if (feature != nullptr)\n+\t    {\n+\t      /* If we have MVE, we must always have the VPR register.  */\n+\t      valid_p &= tdesc_numbered_register (feature, tdesc_data.get (),\n+\t\t\t\t\t\t  register_count, \"vpr\");\n+\t      if (!valid_p)\n+\t\t{\n+\t\t  warning (_(\"MVE feature is missing required register vpr.\"));\n+\t\t  return nullptr;\n+\t\t}\n \n-\t      have_neon = true;\n+\t      have_mve = true;\n+\t      mve_vpr_regnum = register_count;\n+\t      register_count++;\n+\n+\t      /* We can't have Q pseudo registers available here, as that\n+\t\t would mean we have NEON features, and that is only available\n+\t\t on A and R profiles.  */\n+\t      gdb_assert (!have_q_pseudos);\n+\n+\t      /* Given we have a M-profile target description, if MVE is\n+\t\t enabled and there are VFP registers, we should have Q\n+\t\t pseudo registers (Q0 ~ Q7).  */\n+\t      if (have_vfp)\n+\t\thave_q_pseudos = true;\n \t    }\n \t}\n     }\n@@ -9349,6 +9448,13 @@ arm_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)\n   tdep->have_q_pseudos = have_q_pseudos;\n   tdep->have_neon = have_neon;\n \n+  /* Adjust the MVE feature settings.  */\n+  if (have_mve)\n+    {\n+      tdep->have_mve = true;\n+      tdep->mve_vpr_regnum = mve_vpr_regnum;\n+    }\n+\n   arm_register_g_packet_guesses (gdbarch);\n \n   /* Breakpoints.  */\n@@ -9530,21 +9636,39 @@ arm_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)\n     }\n \n   /* Initialize the pseudo register data.  */\n+  int num_pseudos = 0;\n   if (tdep->have_s_pseudos)\n     {\n       /* VFP single precision pseudo registers (S0~S31).  */\n       tdep->s_pseudo_base = register_count;\n       tdep->s_pseudo_count = 32;\n-      int num_pseudos = tdep->s_pseudo_count;\n+      num_pseudos += tdep->s_pseudo_count;\n \n       if (tdep->have_q_pseudos)\n \t{\n \t  /* NEON quad precision pseudo registers (Q0~Q15).  */\n \t  tdep->q_pseudo_base = register_count + num_pseudos;\n-\t  tdep->q_pseudo_count = 16;\n+\n+\t  if (have_neon)\n+\t    tdep->q_pseudo_count = 16;\n+\t  else if (have_mve)\n+\t    tdep->q_pseudo_count = ARM_MVE_NUM_Q_REGS;\n+\n \t  num_pseudos += tdep->q_pseudo_count;\n \t}\n+    }\n \n+  /* Do we have any MVE pseudo registers?  */\n+  if (have_mve)\n+    {\n+      tdep->mve_pseudo_base = register_count + num_pseudos;\n+      tdep->mve_pseudo_count = 1;\n+      num_pseudos += tdep->mve_pseudo_count;\n+    }\n+\n+  /* Set some pseudo register hooks, if we have pseudo registers.  */\n+  if (tdep->have_s_pseudos || have_mve)\n+    {\n       set_gdbarch_num_pseudo_regs (gdbarch, num_pseudos);\n       set_gdbarch_pseudo_register_read (gdbarch, arm_pseudo_read);\n       set_gdbarch_pseudo_register_write (gdbarch, arm_pseudo_write);\n@@ -9595,6 +9719,14 @@ arm_dump_tdep (struct gdbarch *gdbarch, struct ui_file *file)\n \t\t      (int) tdep->q_pseudo_count);\n   fprintf_unfiltered (file, _(\"arm_dump_tdep: have_neon = %i\\n\"),\n \t\t      (int) tdep->have_neon);\n+  fprintf_unfiltered (file, _(\"arm_dump_tdep: have_mve = %s\\n\"),\n+\t\t      tdep->have_mve? \"yes\" : \"no\");\n+  fprintf_unfiltered (file, _(\"arm_dump_tdep: mve_vpr_regnum = %i\\n\"),\n+\t\t      tdep->mve_vpr_regnum);\n+  fprintf_unfiltered (file, _(\"arm_dump_tdep: mve_pseudo_base = %i\\n\"),\n+\t\t      tdep->mve_pseudo_base);\n+  fprintf_unfiltered (file, _(\"arm_dump_tdep: mve_pseudo_count = %i\\n\"),\n+\t\t      tdep->mve_pseudo_count);\n   fprintf_unfiltered (file, _(\"arm_dump_tdep: Lowest pc = 0x%lx\\n\"),\n \t\t      (unsigned long) tdep->lowest_pc);\n }"
+    },
+    {
+      "sha": "705aa77a0ed65f4f6f008152e8fdf2b12f8759a4",
+      "filename": "gdb/arm-tdep.h",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b/gdb/arm-tdep.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b/gdb/arm-tdep.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/arm-tdep.h?ref=ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b",
+      "patch": "@@ -114,6 +114,11 @@ struct gdbarch_tdep\n \t\t\t\t   registers.  */\n   bool have_neon;\t\t/* Do we have a NEON unit?  */\n \n+  bool have_mve;\t\t/* Do we have a MVE extension?  */\n+  int mve_vpr_regnum;\t\t/* MVE VPR register number.  */\n+  int mve_pseudo_base;\t\t/* Number of the first MVE pseudo register.  */\n+  int mve_pseudo_count;\t\t/* Total number of MVE pseudo registers.  */\n+\n   bool is_m;\t\t\t/* Does the target follow the \"M\" profile.  */\n   CORE_ADDR lowest_pc;\t\t/* Lowest address at which instructions \n \t\t\t\t   will appear.  */"
+    },
+    {
+      "sha": "631a7c03b31e39404a71e1668b87278ea1b6e05b",
+      "filename": "gdb/doc/gdb.texinfo",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b/gdb/doc/gdb.texinfo",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b/gdb/doc/gdb.texinfo",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/gdb.texinfo?ref=ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b",
+      "patch": "@@ -46212,6 +46212,17 @@ and @samp{xpsr}.\n The @samp{org.gnu.gdb.arm.fpa} feature is optional.  If present, it\n should contain registers @samp{f0} through @samp{f7} and @samp{fps}.\n \n+The @samp{org.gnu.gdb.arm.m-profile-mve} feature is optional.  If present, it\n+must contain register @samp{vpr}.\n+\n+If the @samp{org.gnu.gdb.arm.m-profile-mve} feature is available, @value{GDBN}\n+will synthesize the @samp{p0} pseudo register from @samp{vpr} contents.\n+\n+If the @samp{org.gnu.gdb.arm.vfp} feature is available alongside the\n+@samp{org.gnu.gdb.arm.m-profile-mve} feature, @value{GDBN} will\n+synthesize the @samp{q} pseudo registers from @samp{d} register\n+contents.\n+\n The @samp{org.gnu.gdb.xscale.iwmmxt} feature is optional.  If present,\n it should contain at least registers @samp{wR0} through @samp{wR15} and\n @samp{wCGR0} through @samp{wCGR3}.  The @samp{wCID}, @samp{wCon},"
+    },
+    {
+      "sha": "e478bf838b7844191c0580c3a742d5da82fbaed8",
+      "filename": "gdb/features/Makefile",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b/gdb/features/Makefile",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b/gdb/features/Makefile",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/features/Makefile?ref=ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b",
+      "patch": "@@ -203,6 +203,7 @@ FEATURE_XMLFILES = aarch64-core.xml \\\n \tarm/arm-core.xml \\\n \tarm/arm-fpa.xml \\\n \tarm/arm-m-profile.xml \\\n+\tarm/arm-m-profile-mve.xml \\\n \tarm/arm-m-profile-with-fpa.xml \\\n \tarm/arm-vfpv2.xml \\\n \tarm/arm-vfpv3.xml \\"
+    },
+    {
+      "sha": "532ae3ba1d1c05737732ed4f49ec128b42f79951",
+      "filename": "gdb/features/arm/arm-m-profile-mve.c",
+      "status": "added",
+      "additions": 20,
+      "deletions": 0,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b/gdb/features/arm/arm-m-profile-mve.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b/gdb/features/arm/arm-m-profile-mve.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/features/arm/arm-m-profile-mve.c?ref=ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b",
+      "patch": "@@ -0,0 +1,20 @@\n+/* THIS FILE IS GENERATED.  -*- buffer-read-only: t -*- vi:set ro:\n+  Original: arm-m-profile-mve.xml */\n+\n+#include \"gdbsupport/tdesc.h\"\n+\n+static int\n+create_feature_arm_arm_m_profile_mve (struct target_desc *result, long regnum)\n+{\n+  struct tdesc_feature *feature;\n+\n+  feature = tdesc_create_feature (result, \"org.gnu.gdb.arm.m-profile-mve\");\n+  tdesc_type_with_fields *type_with_fields;\n+  type_with_fields = tdesc_create_flags (feature, \"vpr_reg\", 4);\n+  tdesc_add_bitfield (type_with_fields, \"P0\", 0, 15);\n+  tdesc_add_bitfield (type_with_fields, \"MASK01\", 16, 19);\n+  tdesc_add_bitfield (type_with_fields, \"MASK23\", 20, 23);\n+\n+  tdesc_create_reg (feature, \"vpr\", regnum++, 1, NULL, 32, \"vpr_reg\");\n+  return regnum;\n+}"
+    },
+    {
+      "sha": "cba664c4c5b6a6d18a12cb0ff03e30f61f8002c3",
+      "filename": "gdb/features/arm/arm-m-profile-mve.xml",
+      "status": "added",
+      "additions": 19,
+      "deletions": 0,
+      "changes": 19,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b/gdb/features/arm/arm-m-profile-mve.xml",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b/gdb/features/arm/arm-m-profile-mve.xml",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/features/arm/arm-m-profile-mve.xml?ref=ae66a8f19ef6bf2dc7369cf26073f34ddf7c175b",
+      "patch": "@@ -0,0 +1,19 @@\n+<?xml version=\"1.0\"?>\n+<!-- Copyright (C) 2021 Free Software Foundation, Inc.\n+\n+     Copying and distribution of this file, with or without modification,\n+     are permitted in any medium without royalty provided the copyright\n+     notice and this notice are preserved.  -->\n+\n+<!DOCTYPE feature SYSTEM \"gdb-target.dtd\">\n+<feature name=\"org.gnu.gdb.arm.m-profile-mve\">\n+  <flags id=\"vpr_reg\" size=\"4\">\n+    <!-- ARMv8.1-M and MVE: Unprivileged and privileged Access.  -->\n+    <field name=\"P0\" start=\"0\" end=\"15\"/>\n+    <!-- ARMv8.1-M: Privileged Access only.  -->\n+    <field name=\"MASK01\" start=\"16\" end=\"19\"/>\n+    <!-- ARMv8.1-M: Privileged Access only.  -->\n+    <field name=\"MASK23\" start=\"20\" end=\"23\"/>\n+  </flags>\n+  <reg name=\"vpr\" bitsize=\"32\" type=\"vpr_reg\"/>\n+</feature>"
+    }
+  ]
+}

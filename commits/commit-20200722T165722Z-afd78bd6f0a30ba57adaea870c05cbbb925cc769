@@ -1,0 +1,134 @@
+{
+  "sha": "afd78bd6f0a30ba57adaea870c05cbbb925cc769",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YWZkNzhiZDZmMGEzMGJhNTdhZGFlYTg3MGMwNWNiYmI5MjVjYzc2OQ==",
+  "commit": {
+    "author": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2020-06-02T19:17:51Z"
+    },
+    "committer": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2020-07-22T16:57:22Z"
+    },
+    "message": "libctf, create: do not corrupt function types' arglists at insertion time\n\nctf_add_function assumes that function types' arglists are of type\nctf_id_t.  Since they are CTF IDs, they are 32 bits wide, a uint32_t:\nunfortunately ctf_id_t is a forward-compatible user-facing 64 bits wide,\nand should never ever reach the CTF storage level.\n\nAll the CTF code other than ctf_add_function correctly assumes that\nfunction arglists outside dynamic containers are 32 bits wide, so the\nserialization machinery ends up cutting off half the arglist, corrupting\nall args but the first (a good sign is a bunch of args of ID 0, the\nunimplemented type, popping up).\n\nFix this by copying the arglist into place item by item, casting it\nproperly, at the same time as we validate the arg types.  Fix the type\nof the dtu_argv in the dynamic container and drop the now-unnecessary\ncast in the serializer.\n\nlibctf/\n\t* ctf-impl.h (ctf_dtdef_t) <dtu_argv>: Fix type.\n\t* ctf-create.c (ctf_add_function): Check for unimplemented type\n\tand populate at the same time.  Populate one-by-one, not via\n\tmemcpy.\n\t(ctf_serialize): Remove unnecessary cast.\n\t* ctf-types.c (ctf_func_type_info): Likewise.\n\t(ctf_func_type_args): Likewise.  Fix comment typo.",
+    "tree": {
+      "sha": "5aa833e003150dab85ed8b1c9a544bf1dce64691",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/5aa833e003150dab85ed8b1c9a544bf1dce64691"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/afd78bd6f0a30ba57adaea870c05cbbb925cc769",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/afd78bd6f0a30ba57adaea870c05cbbb925cc769",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/afd78bd6f0a30ba57adaea870c05cbbb925cc769",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/afd78bd6f0a30ba57adaea870c05cbbb925cc769/comments",
+  "author": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "2361f1c85913a0ff0955069bf3182011765a8ae8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2361f1c85913a0ff0955069bf3182011765a8ae8",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/2361f1c85913a0ff0955069bf3182011765a8ae8"
+    }
+  ],
+  "stats": {
+    "total": 41,
+    "additions": 27,
+    "deletions": 14
+  },
+  "files": [
+    {
+      "sha": "39cf47d0b3685ad503f2bd9a31894d1ed3fbd35e",
+      "filename": "libctf/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/afd78bd6f0a30ba57adaea870c05cbbb925cc769/libctf/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/afd78bd6f0a30ba57adaea870c05cbbb925cc769/libctf/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ChangeLog?ref=afd78bd6f0a30ba57adaea870c05cbbb925cc769",
+      "patch": "@@ -1,3 +1,13 @@\n+2020-07-22  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-impl.h (ctf_dtdef_t) <dtu_argv>: Fix type.\n+\t* ctf-create.c (ctf_add_function): Check for unimplemented type\n+\tand populate at the same time.  Populate one-by-one, not via\n+\tmemcpy.\n+\t(ctf_serialize): Remove unnecessary cast.\n+\t* ctf-types.c (ctf_func_type_info): Likewise.\n+\t(ctf_func_type_args): Likewise.  Fix comment typo.\n+\n 2020-07-22  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctf-create.c (ctf_add_reftype): Support refs to type zero."
+    },
+    {
+      "sha": "f91da6ea15951ec0864bc28d60178acaa9a0dd6c",
+      "filename": "libctf/ctf-create.c",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 10,
+      "changes": 23,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/afd78bd6f0a30ba57adaea870c05cbbb925cc769/libctf/ctf-create.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/afd78bd6f0a30ba57adaea870c05cbbb925cc769/libctf/ctf-create.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-create.c?ref=afd78bd6f0a30ba57adaea870c05cbbb925cc769",
+      "patch": "@@ -448,7 +448,7 @@ ctf_serialize (ctf_file_t *fp)\n \t    uint32_t argc;\n \n \t    for (argc = 0; argc < vlen; argc++)\n-\t      *argv++ = (uint32_t) dtd->dtd_u.dtu_argv[argc];\n+\t      *argv++ = dtd->dtd_u.dtu_argv[argc];\n \n \t    if (vlen & 1)\n \t      *argv++ = 0;\t/* Pad to 4-byte boundary.  */\n@@ -1052,7 +1052,7 @@ ctf_add_function (ctf_file_t *fp, uint32_t flag,\n   ctf_dtdef_t *dtd;\n   ctf_id_t type;\n   uint32_t vlen;\n-  ctf_id_t *vdat = NULL;\n+  uint32_t *vdat = NULL;\n   ctf_file_t *tmp = fp;\n   size_t i;\n \n@@ -1068,19 +1068,23 @@ ctf_add_function (ctf_file_t *fp, uint32_t flag,\n       && ctf_lookup_by_id (&tmp, ctc->ctc_return) == NULL)\n     return CTF_ERR;\t\t/* errno is set for us.  */\n \n-  for (i = 0; i < ctc->ctc_argc; i++)\n-    {\n-      tmp = fp;\n-      if (argv[i] != 0 && ctf_lookup_by_id (&tmp, argv[i]) == NULL)\n-\treturn CTF_ERR;\t\t/* errno is set for us.  */\n-    }\n-\n   if (vlen > CTF_MAX_VLEN)\n     return (ctf_set_errno (fp, EOVERFLOW));\n \n   if (vlen != 0 && (vdat = malloc (sizeof (ctf_id_t) * vlen)) == NULL)\n     return (ctf_set_errno (fp, EAGAIN));\n \n+  for (i = 0; i < ctc->ctc_argc; i++)\n+    {\n+      tmp = fp;\n+      if (argv[i] != 0 && ctf_lookup_by_id (&tmp, argv[i]) == NULL)\n+\t{\n+\t  free (vdat);\n+\t  return CTF_ERR;\t   /* errno is set for us.  */\n+\t}\n+      vdat[i] = (uint32_t) argv[i];\n+    }\n+\n   if ((type = ctf_add_generic (fp, flag, NULL, CTF_K_FUNCTION,\n \t\t\t       &dtd)) == CTF_ERR)\n     {\n@@ -1091,7 +1095,6 @@ ctf_add_function (ctf_file_t *fp, uint32_t flag,\n   dtd->dtd_data.ctt_info = CTF_TYPE_INFO (CTF_K_FUNCTION, flag, vlen);\n   dtd->dtd_data.ctt_type = (uint32_t) ctc->ctc_return;\n \n-  memcpy (vdat, argv, sizeof (ctf_id_t) * ctc->ctc_argc);\n   if (ctc->ctc_flags & CTF_FUNC_VARARG)\n     vdat[vlen - 1] = 0;\t\t   /* Add trailing zero to indicate varargs.  */\n   dtd->dtd_u.dtu_argv = vdat;"
+    },
+    {
+      "sha": "fdd48f0d3316b3313143a6bed1560222f329de01",
+      "filename": "libctf/ctf-impl.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/afd78bd6f0a30ba57adaea870c05cbbb925cc769/libctf/ctf-impl.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/afd78bd6f0a30ba57adaea870c05cbbb925cc769/libctf/ctf-impl.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-impl.h?ref=afd78bd6f0a30ba57adaea870c05cbbb925cc769",
+      "patch": "@@ -172,7 +172,7 @@ typedef struct ctf_dtdef\n     ctf_list_t dtu_members;\t/* struct, union, or enum */\n     ctf_arinfo_t dtu_arr;\t/* array */\n     ctf_encoding_t dtu_enc;\t/* integer or float */\n-    ctf_id_t *dtu_argv;\t\t/* function */\n+    uint32_t *dtu_argv;\t\t/* function */\n     ctf_slice_t dtu_slice;\t/* slice */\n   } dtd_u;\n } ctf_dtdef_t;"
+    },
+    {
+      "sha": "35253cb3cbc4d802c3c66e702e5120cacea871e2",
+      "filename": "libctf/ctf-types.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/afd78bd6f0a30ba57adaea870c05cbbb925cc769/libctf/ctf-types.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/afd78bd6f0a30ba57adaea870c05cbbb925cc769/libctf/ctf-types.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-types.c?ref=afd78bd6f0a30ba57adaea870c05cbbb925cc769",
+      "patch": "@@ -1163,7 +1163,7 @@ ctf_func_type_info (ctf_file_t *fp, ctf_id_t type, ctf_funcinfo_t *fip)\n   if ((dtd = ctf_dynamic_type (fp, type)) == NULL)\n     args = (uint32_t *) ((uintptr_t) tp + increment);\n   else\n-    args = (uint32_t *) dtd->dtd_u.dtu_argv;\n+    args = dtd->dtd_u.dtu_argv;\n \n   if (fip->ctc_argc != 0 && args[fip->ctc_argc - 1] == 0)\n     {\n@@ -1174,7 +1174,7 @@ ctf_func_type_info (ctf_file_t *fp, ctf_id_t type, ctf_funcinfo_t *fip)\n   return 0;\n }\n \n-/* Given a type ID relating to a function type,, return the arguments for the\n+/* Given a type ID relating to a function type, return the arguments for the\n    function.  */\n \n int\n@@ -1200,7 +1200,7 @@ ctf_func_type_args (ctf_file_t *fp, ctf_id_t type, uint32_t argc, ctf_id_t *argv\n   if ((dtd = ctf_dynamic_type (fp, type)) == NULL)\n     args = (uint32_t *) ((uintptr_t) tp + increment);\n   else\n-    args = (uint32_t *) dtd->dtd_u.dtu_argv;\n+    args = dtd->dtd_u.dtu_argv;\n \n   for (argc = MIN (argc, f.ctc_argc); argc != 0; argc--)\n     *argv++ = *args++;"
+    }
+  ]
+}

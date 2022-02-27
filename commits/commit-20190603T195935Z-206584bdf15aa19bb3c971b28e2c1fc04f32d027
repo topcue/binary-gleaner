@@ -1,0 +1,144 @@
+{
+  "sha": "206584bdf15aa19bb3c971b28e2c1fc04f32d027",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MjA2NTg0YmRmMTVhYTE5YmIzYzk3MWIyOGUyYzFmYzA0ZjMyZDAyNw==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-06-03T19:50:22Z"
+    },
+    "committer": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-06-03T19:59:35Z"
+    },
+    "message": "Update tests following changes to \"help\" and \"apropos\"\n\nFactorizes the testing of the help output, by having a single place\nthat defines the common help trailer and/or prefix messages.",
+    "tree": {
+      "sha": "81236031111474486173150fdd44bbea572008ec",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/81236031111474486173150fdd44bbea572008ec"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/206584bdf15aa19bb3c971b28e2c1fc04f32d027",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/206584bdf15aa19bb3c971b28e2c1fc04f32d027",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/206584bdf15aa19bb3c971b28e2c1fc04f32d027",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/206584bdf15aa19bb3c971b28e2c1fc04f32d027/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "66d8c862859ab241c1db9b40c3981f8a71951bd4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/66d8c862859ab241c1db9b40c3981f8a71951bd4",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/66d8c862859ab241c1db9b40c3981f8a71951bd4"
+    }
+  ],
+  "stats": {
+    "total": 131,
+    "additions": 102,
+    "deletions": 29
+  },
+  "files": [
+    {
+      "sha": "75f87f51b9b434bf99fb5ad0f537a44420f68305",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/206584bdf15aa19bb3c971b28e2c1fc04f32d027/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/206584bdf15aa19bb3c971b28e2c1fc04f32d027/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=206584bdf15aa19bb3c971b28e2c1fc04f32d027",
+      "patch": "@@ -1,3 +1,18 @@\n+2019-06-03  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n+\n+\t* lib/gdb.exp (help_list_trailer): New regexp variable\n+\tfactorizing the help trailer message.\n+\t(test_class_help): Use help_list_trailer.  Add LIST_OF_COMMANDS\n+\targ to allow to better factorize various tests.\n+\t(test_user_defined_class_help): Factorizes testing 'help user-defined'.\n+\t(test_prefix_command_help): Use help_list_trailer.\n+\t* gdb.python/py-cmd.exp: Use test_user_defined_class_help.\n+\t* gdb.guile/scm-cmd.exp: Likewise.\n+\t* gdb.trace/tracecmd.exp: Update caller of test_class_help.\n+\t* gdb.base/help.exp: Use test_user_defined_class_help.\n+\t* gdb.base/style.exp: Add tests for styling of help and apropos.\n+\t* lib/gdb-utils.exp (style): Add title and highlight styles.\n+\n 2019-05-31  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n \n \t* gdb.base/shell.exp: Test pipe command, $_shell_exitcode,"
+    },
+    {
+      "sha": "e65f7c875f6908bf2b65469cdf007d5974690da1",
+      "filename": "gdb/testsuite/gdb.base/help.exp",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 5,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/206584bdf15aa19bb3c971b28e2c1fc04f32d027/gdb/testsuite/gdb.base/help.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/206584bdf15aa19bb3c971b28e2c1fc04f32d027/gdb/testsuite/gdb.base/help.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/help.exp?ref=206584bdf15aa19bb3c971b28e2c1fc04f32d027",
+      "patch": "@@ -51,11 +51,8 @@ test_class_help \"support\" {\"Support facilities\\.\\[\\r\\n\\]+\"}\n test_class_help \"tracepoints\" {\n     \"Tracing of program execution without stopping the program\\.\\[\\r\\n\\]+\"\n }\n-test_class_help \"user-defined\" {\n-    \"User-defined commands\\.\\[\\r\\n\\]+\"\n-    \"The commands in this class are those defined by the user\\.\\[\\r\\n\\]+\"\n-    \"Use the \\\"define\\\" command to define a command\\.\\[\\r\\n\\]+\"\n-}\n+\n+test_user_defined_class_help\n \n # Test help of an abbreviated command.  \"break\" is picked at random.\n set help_breakpoint_text \"Set breakpoint at specified location\\..*\""
+    },
+    {
+      "sha": "a17f201486548e7883dd3f34150696b89077893d",
+      "filename": "gdb/testsuite/gdb.base/style.exp",
+      "status": "modified",
+      "additions": 33,
+      "deletions": 0,
+      "changes": 33,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/206584bdf15aa19bb3c971b28e2c1fc04f32d027/gdb/testsuite/gdb.base/style.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/206584bdf15aa19bb3c971b28e2c1fc04f32d027/gdb/testsuite/gdb.base/style.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/style.exp?ref=206584bdf15aa19bb3c971b28e2c1fc04f32d027",
+      "patch": "@@ -90,6 +90,39 @@ save_vars { env(TERM) } {\n     gdb_test \"\" \"${vers}.*\" \\\n \t\"version is styled\"\n \n+    set address_style_expr [style \"\\\"address\\\" style\" address]\n+    gdb_test \"show style address foreground\" \\\n+\t\"The ${address_style_expr} foreground color is: blue\" \\\n+\t\"style name and style word styled using its own style in show style\"\n+\n+    set aliases_expr [style \"aliases\" title]\n+    set breakpoints_expr [style \"breakpoints\" title]\n+    gdb_test \"help\" \\\n+\t[multi_line \\\n+\t     \"List of classes of commands:\" \\\n+\t     \"\" \\\n+\t     \"${aliases_expr} -- Aliases of other commands\" \\\n+\t     \"${breakpoints_expr} -- Making program stop at certain points\" \\\n+\t     \".*\" \\\n+\t    ] \\\n+\t\"help classes of commands styled with title\"\n+\n+    set taas_expr  [style \"taas\" title]\n+    set tfaas_expr  [style \"tfaas\" title]\n+    set cut_for_thre_expr [style \"cut for 'thre\" highlight]\n+    gdb_test \"apropos -v cut for 'thre\" \\\n+\t[multi_line \\\n+\t     \"\" \\\n+\t     \"${taas_expr} --.*\" \\\n+\t     \"Usage:.*\" \\\n+\t     \"short${cut_for_thre_expr}ad apply.*\" \\\n+\t     \"\" \\\n+\t     \"${tfaas_expr} --.*\" \\\n+\t     \"Usage:.*\" \\\n+\t     \"short${cut_for_thre_expr}ad apply.*\" \\\n+\t    ] \\\n+\t\"apropos -v cut for 'thre\"\n+\n     set quoted [string_to_regexp $binfile]\n     gdb_test \"file $binfile\" \\\n \t\"Reading symbols from [style $quoted file]...\" \\"
+    },
+    {
+      "sha": "518da660c2d56c89da64f795a75f89b3a002be7b",
+      "filename": "gdb/testsuite/gdb.guile/scm-cmd.exp",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 3,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/206584bdf15aa19bb3c971b28e2c1fc04f32d027/gdb/testsuite/gdb.guile/scm-cmd.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/206584bdf15aa19bb3c971b28e2c1fc04f32d027/gdb/testsuite/gdb.guile/scm-cmd.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.guile/scm-cmd.exp?ref=206584bdf15aa19bb3c971b28e2c1fc04f32d027",
+      "patch": "@@ -130,9 +130,7 @@ gdb_test \"test-help ugh\" \"test-cmd output, arg = ugh\" \\\n     \"call simple user-defined command\"\n \n # Make sure the command shows up in `help user-defined`.\n-gdb_test \"help user-defined\" \\\n-    \"User-defined commands.\\[\\r\\n\\]+The commands in this class are those defined by the user.\\[\\r\\n\\]+Use the \\\"define\\\" command to define a command.\\[\\r\\n\\]+List of commands:\\[\\r\\n\\]+test-help -- Docstring\\[\\r\\n\\]+Type \\\"help\\\" followed by command name for full documentation.\\[\\r\\n\\]+Type \\\"apropos word\\\" to search for commands related to \\\"word\\\".\\[\\r\\n\\]+Command name abbreviations are allowed if unambiguous.\\[\\r\\n\\]+\" \\\n-    \"see user-defined command in `help user-defined`\"\n+test_user_defined_class_help {\"test-help -- Docstring[\\r\\n]\"}\n \n # Make sure the command does not show up in `show user`.\n gdb_test \"show user test-help\" \"Not a user command\\.\" \\"
+    },
+    {
+      "sha": "c7c7b8c8998047c70ae8ea1e72fc938a123b368f",
+      "filename": "gdb/testsuite/gdb.python/py-cmd.exp",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/206584bdf15aa19bb3c971b28e2c1fc04f32d027/gdb/testsuite/gdb.python/py-cmd.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/206584bdf15aa19bb3c971b28e2c1fc04f32d027/gdb/testsuite/gdb.python/py-cmd.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.python/py-cmd.exp?ref=206584bdf15aa19bb3c971b28e2c1fc04f32d027",
+      "patch": "@@ -159,7 +159,7 @@ gdb_py_test_multiple \"input simple user-defined command\" \\\n gdb_test \"test_help ugh\" \"test_cmd output, arg = ugh\" \"call simple user-defined command\"\n \n # Make sure the command shows up in `help user-defined`.\n-gdb_test \"help user-defined\" \"User-defined commands.\\[\\r\\n\\]+The commands in this class are those defined by the user.\\[\\r\\n\\]+Use the \\\"define\\\" command to define a command.\\[\\r\\n\\]+\\[\\r\\n\\]+List of commands:\\[\\r\\n\\]+\\[\\r\\n\\]+test_help -- Docstring\\[\\r\\n\\]+\\[\\r\\n\\]+Type \\\"help\\\" followed by command name for full documentation.\\[\\r\\n\\]+Type \\\"apropos word\\\" to search for commands related to \\\"word\\\".\\[\\r\\n\\]+Command name abbreviations are allowed if unambiguous.\\[\\r\\n\\]+\" \"see user-defined command in `help user-defined`\"\n+test_user_defined_class_help {\"test_help -- Docstring[\\r\\n]\"}\n \n # Make sure the command does not show up in `show user`.\n gdb_test \"show user test_help\" \"Not a user command\\.\" \\"
+    },
+    {
+      "sha": "05350665db629c365e56624619059ddeb244516f",
+      "filename": "gdb/testsuite/gdb.trace/tracecmd.exp",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/206584bdf15aa19bb3c971b28e2c1fc04f32d027/gdb/testsuite/gdb.trace/tracecmd.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/206584bdf15aa19bb3c971b28e2c1fc04f32d027/gdb/testsuite/gdb.trace/tracecmd.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.trace/tracecmd.exp?ref=206584bdf15aa19bb3c971b28e2c1fc04f32d027",
+      "patch": "@@ -55,7 +55,7 @@ set testline2 [expr $baseline + 3]\n set helpcnt 0\n test_class_help \"tracepoints\" {\n     \"Tracing of program execution without stopping the program\\.[\\r\\n\\]+\" \n-} \"1.0: help tracepoints\"\n+} {} \"1.0: help tracepoints\"\n \n #\n # test trace command:"
+    },
+    {
+      "sha": "89767dc51c4ed350c6cce947b075db5c56aa3d16",
+      "filename": "gdb/testsuite/lib/gdb-utils.exp",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/206584bdf15aa19bb3c971b28e2c1fc04f32d027/gdb/testsuite/lib/gdb-utils.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/206584bdf15aa19bb3c971b28e2c1fc04f32d027/gdb/testsuite/lib/gdb-utils.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/gdb-utils.exp?ref=206584bdf15aa19bb3c971b28e2c1fc04f32d027",
+      "patch": "@@ -48,8 +48,10 @@ proc string_to_regexp {str} {\n \n proc style {str style} {\n     switch -exact -- $style {\n+\ttitle { set style 1 }\n \tfile { set style 32 }\n \tfunction { set style 33 }\n+\thighlight { set style 31 }\n \tvariable { set style 36 }\n \taddress { set style 34 }\n     }"
+    },
+    {
+      "sha": "da36ec0d4aa8587758c5d9516b40d09d02abdbd9",
+      "filename": "gdb/testsuite/lib/gdb.exp",
+      "status": "modified",
+      "additions": 47,
+      "deletions": 19,
+      "changes": 66,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/206584bdf15aa19bb3c971b28e2c1fc04f32d027/gdb/testsuite/lib/gdb.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/206584bdf15aa19bb3c971b28e2c1fc04f32d027/gdb/testsuite/lib/gdb.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/gdb.exp?ref=206584bdf15aa19bb3c971b28e2c1fc04f32d027",
+      "patch": "@@ -5550,35 +5550,64 @@ proc gdb_gnu_strip_debug { dest args } {\n # Test the output of GDB_COMMAND matches the pattern obtained\n # by concatenating all elements of EXPECTED_LINES.  This makes\n # it possible to split otherwise very long string into pieces.\n-# If third argument is not empty, it's used as the name of the\n+# If third argument TESTNAME is not empty, it's used as the name of the\n # test to be printed on pass/fail.\n-proc help_test_raw { gdb_command expected_lines args } {\n-    set message $gdb_command\n-    if [llength $args]>0 then {\n-\tset message [lindex $args 0]\n-    } \n+proc help_test_raw { gdb_command expected_lines {testname {}} } {\n+    if {$testname == {}} {\n+\tset message $gdb_command\n+    } else {\n+\tset message $testname\n+    }\n     set expected_output [join $expected_lines \"\"]\n     gdb_test \"${gdb_command}\" \"${expected_output}\" $message\n }\n \n-# Test the output of \"help COMMAND_CLASS\". EXPECTED_INITIAL_LINES\n+# A regexp that matches the end of help CLASS|PREFIX_COMMAND\n+set help_list_trailer {\n+    \"Type \\\"apropos word\\\" to search for commands related to \\\"word\\\"\\.[\\r\\n]+\"\n+    \"Type \\\"apropos -v word\\\" for full documentation of commands related to \\\"word\\\"\\.[\\r\\n]+\"\n+    \"Command name abbreviations are allowed if unambiguous\\.\"\n+}\n+\n+# Test the output of \"help COMMAND_CLASS\".  EXPECTED_INITIAL_LINES\n # are regular expressions that should match the beginning of output,\n-# before the list of commands in that class.  The presence of \n-# command list and standard epilogue will be tested automatically.\n+# before the list of commands in that class.\n+# LIST_OF_COMMANDS are regular expressions that should match the\n+# list of commands in that class.  If empty, the command list will be\n+# matched automatically.  The presence of standard epilogue will be tested\n+# automatically.\n+# If last argument TESTNAME is not empty, it's used as the name of the\n+# test to be printed on pass/fail.\n # Notice that the '[' and ']' characters don't need to be escaped for strings\n # wrapped in {} braces.\n-proc test_class_help { command_class expected_initial_lines args } {\n+proc test_class_help { command_class expected_initial_lines {list_of_commands {}} {testname {}} } {\n+    global help_list_trailer\n+    if {[llength $list_of_commands]>0} {\n+\tset l_list_of_commands {\"List of commands:[\\r\\n]+[\\r\\n]+\"}\n+        set l_list_of_commands [concat $l_list_of_commands $list_of_commands]\n+\tset l_list_of_commands [concat $l_list_of_commands {\"[\\r\\n]+[\\r\\n]+\"}]\n+    } else {\n+        set l_list_of_commands {\"List of commands\\:.*[\\r\\n]+\"}\n+    }\n     set l_stock_body {\n-        \"List of commands\\:.*[\\r\\n]+\"\n         \"Type \\\"help\\\" followed by command name for full documentation\\.[\\r\\n]+\"\n-        \"Type \\\"apropos word\\\" to search for commands related to \\\"word\\\"\\.[\\r\\n]+\"\n-        \"Command name abbreviations are allowed if unambiguous\\.\" \n     }\n-    set l_entire_body [concat $expected_initial_lines $l_stock_body]\n+    set l_entire_body [concat $expected_initial_lines $l_list_of_commands \\\n+\t\t       $l_stock_body $help_list_trailer]\n \n-    eval [list help_test_raw \"help ${command_class}\" $l_entire_body] $args\n+    help_test_raw \"help ${command_class}\" $l_entire_body $testname\n }\n \n+# Like test_class_help but specialised to test \"help user-defined\".\n+proc test_user_defined_class_help { {list_of_commands {}} {testname {}} } {\n+    test_class_help \"user-defined\" {\n+\t\"User-defined commands\\.[\\r\\n]+\"\n+\t\"The commands in this class are those defined by the user\\.[\\r\\n]+\"\n+\t\"Use the \\\"define\\\" command to define a command\\.[\\r\\n]+\"\n+    } $list_of_commands $testname\n+}\n+\n+\n # COMMAND_LIST should have either one element -- command to test, or\n # two elements -- abbreviated command to test, and full command the first\n # element is abbreviation of.\n@@ -5587,6 +5616,7 @@ proc test_class_help { command_class expected_initial_lines args } {\n # before the list of subcommands.  The presence of \n # subcommand list and standard epilogue will be tested automatically.\n proc test_prefix_command_help { command_list expected_initial_lines args } {\n+    global help_list_trailer\n     set command [lindex $command_list 0]   \n     if {[llength $command_list]>1} {        \n         set full_command [lindex $command_list 1]\n@@ -5597,10 +5627,8 @@ proc test_prefix_command_help { command_list expected_initial_lines args } {\n     # be expanded in this list.\n     set l_stock_body [list\\\n          \"List of $full_command subcommands\\:.*\\[\\r\\n\\]+\"\\\n-         \"Type \\\"help $full_command\\\" followed by $full_command subcommand name for full documentation\\.\\[\\r\\n\\]+\"\\\n-         \"Type \\\"apropos word\\\" to search for commands related to \\\"word\\\"\\.\\[\\r\\n\\]+\"\\\n-         \"Command name abbreviations are allowed if unambiguous\\.\"]\n-    set l_entire_body [concat $expected_initial_lines $l_stock_body]\n+         \"Type \\\"help $full_command\\\" followed by $full_command subcommand name for full documentation\\.\\[\\r\\n\\]+\"]\n+    set l_entire_body [concat $expected_initial_lines $l_stock_body $help_list_trailer]\n     if {[llength $args]>0} {\n         help_test_raw \"help ${command}\" $l_entire_body [lindex $args 0]\n     } else {"
+    }
+  ]
+}

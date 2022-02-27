@@ -1,0 +1,72 @@
+{
+  "sha": "3c5fcec6dccb0e598d1e64640e55d50ed3ddedb6",
+  "node_id": "C_kwDOANOeidoAKDNjNWZjZWM2ZGNjYjBlNTk4ZDFlNjQ2NDBlNTVkNTBlZDNkZGVkYjY",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-12-07T14:01:23Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-02-02T16:27:36Z"
+    },
+    "message": "gdb: handle calls to list command passing only a linespec condition\n\nIn PR cli/28665, it was reported that GDB would crash when given a\ncommand like:\n\n  (gdb) list task 123\n\nThe problem here is that in cli/cli-cmd.c:list_command, the string\n'task 123' is passed to string_to_event_location in find a location\nspecification.  However, this location parsing understands about\nbreakpoint conditions, and so, will stop parsing when it sees\nsomething that looks like a condition, in this case, the 'task 123'\nlooks like a breakpoint condition.\n\nAs a result, the location we get back from string_to_event_location\nhas no actual location specification attached to it.  The actual call\npath is:\n\n  list_command\n    string_to_event_location\n      string_to_event_location_basic\n        new_linespec_location\n\nIn new_linespec_location we call linespec_lex_to_end, which looks at\n'task 123' and decides that there's nothing there that describes a\nlocation.  As such, in new_linespec_location, the spec_string field of\nthe location is left as nullptr.\n\nBack in list_command we then call decode_line_1, which calls\nevent_location_to_sals, which calls parse_linespec, which takes the\nspec_string we found earlier, and tries to converts this into a list\nof sals.\n\nHowever, parse_linespec is not intended to be passed a nullptr, for\nexample, calling is_ada_operator will try to access through the\nnullptr, causing undefined behaviour.  But there are other cases\nwithin parse_linespec which don't expect to see a nullptr.\n\nWhen looking at how to fix this issue, I first considered having\nlinespec_lex_to_end detect the problem.  That function understands\nwhen the first thing in the linespec is a condition keyword, and so,\ncould throw an error saying something like: \"no linespec before\ncondition keyword\", however, this is not going to work, at least, not\nwithout additional changes to GDB, it is valid to place a breakpoint\nlike:\n\n  (gdb) break task 123\n\nThis will place a breakpoint at the current location with the\ncondition 'task 123', and changing linespec_lex_to_end breaks this\nbehaviour.\n\nSo, next, I considered what would happen if I added a condition to an\notherwise valid list command, this is what I see:\n\n  (gdb) list file.c:1 task 123\n  Junk at end of line specification.\n  (gdb)\n\nSo, then I wondered, could we just pull the \"Junk\" detection forward,\nso that we throw the error earlier, before we call decode_line_1?\n\nIt turns out that yes we can.  Well, sort of.\n\nIt is simpler, I think, to add a separate check into the list_command\nfunction, after calling string_to_event_location, but before calling\ndecode_line_1.  We know when we call string_to_event_location that the\nstring in question is not empty, so, after calling\nstring_to_event_location, if non of the string has been consumed, then\nthe content of the string must be junk - it clearly doesn't look like\na location specification.\n\nI've reused the same \"Junk at end of line specification.\" error for\nconsistency, and added a few tests to cover this issue.\n\nWhile the first version of this patch was on the mailing list, a\nsecond bug PR gdb/28797 was raised.  This was for a very similar\nissue, but this time the problem command was:\n\n  (gdb) list ,,\n\nHere the list command understands about the first comma, list can have\ntwo arguments separated by a comma, and the first argument can be\nmissing.  So we end up trying to parse the second command \",\" as a\nlinespec.\n\nHowever, in linespec_lex_to_end, we will stop parsing a linespec at a\ncomma, so, in the above case we end up with an empty linespec (between\nthe two commas), and, like above, this results in the spec_string\nbeing nullptr.\n\nAs with the previous case, I've resolved this issue by adding an extra\ncheck for junk at the end of the line - after parsing (or failing to\nparse) the nothing between the two commas, we still have the \",\" left\nat the end of the list command line - when we see this we can throw\nthe same \"junk at the end of the line\" error, and all is good.\n\nI've added tests for this case too.\n\nBug: https://sourceware.org/bugzilla/show_bug.cgi?id=28665\nBug: https://sourceware.org/bugzilla/show_bug.cgi?id=28797",
+    "tree": {
+      "sha": "dfdaf5edb8dbd051f0c4700f689479bb0321e07b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/dfdaf5edb8dbd051f0c4700f689479bb0321e07b"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/3c5fcec6dccb0e598d1e64640e55d50ed3ddedb6",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3c5fcec6dccb0e598d1e64640e55d50ed3ddedb6",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/3c5fcec6dccb0e598d1e64640e55d50ed3ddedb6",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3c5fcec6dccb0e598d1e64640e55d50ed3ddedb6/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "ed2a947856f959a9c52c82a67f781df9909187a8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ed2a947856f959a9c52c82a67f781df9909187a8",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/ed2a947856f959a9c52c82a67f781df9909187a8"
+    }
+  ],
+  "stats": {
+    "total": 24,
+    "additions": 24,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "648005ffdfe680cdacd436b0e1882827fa34fd77",
+      "filename": "gdb/cli/cli-cmds.c",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3c5fcec6dccb0e598d1e64640e55d50ed3ddedb6/gdb/cli/cli-cmds.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3c5fcec6dccb0e598d1e64640e55d50ed3ddedb6/gdb/cli/cli-cmds.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cli/cli-cmds.c?ref=3c5fcec6dccb0e598d1e64640e55d50ed3ddedb6",
+      "patch": "@@ -1238,6 +1238,15 @@ list_command (const char *arg, int from_tty)\n     {\n       event_location_up location = string_to_event_location (&arg1,\n \t\t\t\t\t\t\t     current_language);\n+\n+      /* We know that the ARG string is not empty, yet the attempt to parse\n+\t a location from the string consumed no characters.  This most\n+\t likely means that the first thing in ARG looks like a location\n+\t condition, and so the string_to_event_location call stopped\n+\t parsing.  */\n+      if (arg1 == arg)\n+\terror (_(\"Junk at end of line specification.\"));\n+\n       sals = decode_line_1 (location.get (), DECODE_LINE_LIST_MODE,\n \t\t\t    NULL, NULL, 0);\n       filter_sals (sals);\n@@ -1286,6 +1295,9 @@ list_command (const char *arg, int from_tty)\n \t  event_location_up location\n \t    = string_to_event_location (&arg1, current_language);\n \n+\t  if (*arg1)\n+\t    error (_(\"Junk at end of line specification.\"));\n+\n \t  std::vector<symtab_and_line> sals_end\n \t    = (dummy_beg\n \t       ? decode_line_1 (location.get (), DECODE_LINE_LIST_MODE,"
+    },
+    {
+      "sha": "e258f6bb98c82429515293c5f66cb53108cb6529",
+      "filename": "gdb/testsuite/gdb.linespec/errors.exp",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3c5fcec6dccb0e598d1e64640e55d50ed3ddedb6/gdb/testsuite/gdb.linespec/errors.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3c5fcec6dccb0e598d1e64640e55d50ed3ddedb6/gdb/testsuite/gdb.linespec/errors.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.linespec/errors.exp?ref=3c5fcec6dccb0e598d1e64640e55d50ed3ddedb6",
+      "patch": "@@ -27,3 +27,15 @@ gdb_test \"list c:/foo/bar/baz.c:1\" \"No source file named c:/foo/bar/baz.c.\"\n gdb_test \"list c:/foo/bar/baz.c\" \"Function \\\"c:/foo/bar/baz.c\\\" not defined.\"\n gdb_test \"list fooc:/foo/bar/baz.c:1\" \"No source file named fooc.\"\n gdb_test \"list fooc:/foo/bar/baz.c\" \"No source file named fooc.\"\n+\n+# PR cli/28665, gdb/28797\n+gdb_test \"list task 123\" \\\n+    \"Junk at end of line specification\\\\.\"\n+gdb_test \"list if (0)\" \\\n+    \"Junk at end of line specification\\\\.\"\n+gdb_test \"list thread 1\" \\\n+    \"Junk at end of line specification\\\\.\"\n+gdb_test \"list -force-condition\" \\\n+    \"Junk at end of line specification\\\\.\"\n+gdb_test \"list ,,\" \\\n+    \"Junk at end of line specification\\\\.\""
+    }
+  ]
+}

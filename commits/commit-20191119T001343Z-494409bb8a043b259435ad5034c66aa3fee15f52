@@ -1,0 +1,96 @@
+{
+  "sha": "494409bb8a043b259435ad5034c66aa3fee15f52",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NDk0NDA5YmI4YTA0M2IyNTk0MzVhZDUwMzRjNjZhYTNmZWUxNWY1Mg==",
+  "commit": {
+    "author": {
+      "name": "Sergio Durigan Junior",
+      "email": "sergiodj@redhat.com",
+      "date": "2019-10-30T17:58:29Z"
+    },
+    "committer": {
+      "name": "Sergio Durigan Junior",
+      "email": "sergiodj@redhat.com",
+      "date": "2019-11-19T00:13:43Z"
+    },
+    "message": "Fix crash with core + TUI + run\n\nRef.: https://bugzilla.redhat.com/show_bug.cgi?id=1765117\n\nA segfault can happen in a specific scenario when using TUI + a\ncorefile, as explained in the bug mentioned above.  The problem\nhappens when opening a corefile on GDB:\n\n  $ gdb ./core program\n\nentering TUI (C-x a), and then issuing a \"run\" command.  GDB segfaults\nwith the following stack trace:\n\n  (top-gdb) bt\n  #0  0x00000000004cd5da in target_ops::shortname (this=0x0) at ../../binutils-gdb/gdb/target.h:449\n  #1  0x0000000000ac08fb in target_shortname () at ../../binutils-gdb/gdb/target.h:1323\n  #2  0x0000000000ac09ae in tui_locator_window::make_status_line[abi:cxx11]() const (this=0x23e1fa0 <_locator>) at ../../binutils-gdb/gdb/tui/tui-stack.c:86\n  #3  0x0000000000ac1043 in tui_locator_window::rerender (this=0x23e1fa0 <_locator>) at ../../binutils-gdb/gdb/tui/tui-stack.c:231\n  #4  0x0000000000ac1632 in tui_show_locator_content () at ../../binutils-gdb/gdb/tui/tui-stack.c:369\n  #5  0x0000000000ac63b6 in tui_set_key_mode (mode=TUI_COMMAND_MODE) at ../../binutils-gdb/gdb/tui/tui.c:321\n  #6  0x0000000000aaf9be in tui_inferior_exit (inf=0x2d446a0) at ../../binutils-gdb/gdb/tui/tui-hooks.c:181\n  #7  0x000000000044cddf in std::_Function_handler<void (inferior*), void (*)(inferior*)>::_M_invoke(std::_Any_data const&, inferior*&&) (__functor=..., __args#0=@0x7fffffffd650: 0x2d446a0)\n      at /usr/include/c++/9/bits/std_function.h:300\n  #8  0x0000000000757db9 in std::function<void (inferior*)>::operator()(inferior*) const (this=0x2cf3168, __args#0=0x2d446a0) at /usr/include/c++/9/bits/std_function.h:690\n  #9  0x0000000000757876 in gdb::observers::observable<inferior*>::notify (this=0x23de0c0 <gdb::observers::inferior_exit>, args#0=0x2d446a0)\n      at ../../binutils-gdb/gdb/gdbsupport/observable.h:106\n  #10 0x000000000075532d in exit_inferior_1 (inftoex=0x2d446a0, silent=1) at ../../binutils-gdb/gdb/inferior.c:191\n  #11 0x0000000000755460 in exit_inferior_silent (inf=0x2d446a0) at ../../binutils-gdb/gdb/inferior.c:234\n  #12 0x000000000059f47c in core_target::close (this=0x2d68590) at ../../binutils-gdb/gdb/corelow.c:265\n  #13 0x0000000000a7688c in target_close (targ=0x2d68590) at ../../binutils-gdb/gdb/target.c:3293\n  #14 0x0000000000a63d74 in target_stack::push (this=0x23e1800 <g_target_stack>, t=0x23c38c8 <the_amd64_linux_nat_target>) at ../../binutils-gdb/gdb/target.c:568\n  #15 0x0000000000a63dbf in push_target (t=0x23c38c8 <the_amd64_linux_nat_target>) at ../../binutils-gdb/gdb/target.c:583\n  #16 0x0000000000748088 in inf_ptrace_target::create_inferior (this=0x23c38c8 <the_amd64_linux_nat_target>, exec_file=0x2d58d30 \"/usr/bin/cat\", allargs=\"\", env=0x25f12b0, from_tty=1)\n      at ../../binutils-gdb/gdb/inf-ptrace.c:128\n  #17 0x0000000000795ccb in linux_nat_target::create_inferior (this=0x23c38c8 <the_amd64_linux_nat_target>, exec_file=0x2d58d30 \"/usr/bin/cat\", allargs=\"\", env=0x25f12b0, from_tty=1)\n      at ../../binutils-gdb/gdb/linux-nat.c:1094\n  #18 0x000000000074eae9 in run_command_1 (args=0x0, from_tty=1, run_how=RUN_NORMAL) at ../../binutils-gdb/gdb/infcmd.c:639\n  ...\n\nThe problem happens because 'tui_locator_window::make_status_line'\nneeds the value of 'target_shortname' in order to update the status\nline.  'target_shortname' is a macro which expands to:\n\n  #define\ttarget_shortname\t(current_top_target ()->shortname ())\n\nand, in our scenario, 'current_top_target ()' returns NULL, which\nobviously causes a segfault.  But why does it return NULL, since,\naccording to its comment on target.h, it should never do that?\n\nWhat is happening is that we're being caught in the middle of a\n\"target switch\".  We had the 'core_target' on top, because we were\ninspecting a corefile, but when the user decided to invoke \"run\" GDB\nhad to actually create the inferior, which ends up detecting that we\nhave a target already, and tries to close it (from target.c):\n\n  /* See target.h.  */\n\n  void\n  target_stack::push (target_ops *t)\n  {\n    /* If there's already a target at this stratum, remove it.  */\n    strata stratum = t->stratum ();\n\n    if (m_stack[stratum] != NULL)\n      {\n\ttarget_ops *prev = m_stack[stratum];\n\tm_stack[stratum] = NULL;\n\ttarget_close (prev); // <-- here\n      }\n  ...\n\nWhen the current target ('core_target') is being closed, it checks for\npossible observers registered with it and calls them.  TUI is one of\nthose observers, it gets called, tries to update the status line, and\nGDB crashes.\n\nThe real problem is that we are clearing 'm_stack[stratum]', but\nforgetting to adjust 'm_top'.  Interestingly, this scenario is covered\nin 'target_stack::unpush', but Pedro said he forgot to call it here..\nThe fix, therefore, is to call '::unpush' if there's a target on the\nstack.\n\nThis patch has been tested on the Buildbot and no regressions have\nbeen found.  I'm also submitting a testcase for it.\n\ngdb/ChangeLog:\n2019-11-18  Sergio Durigan Junior  <sergiodj@redhat.com>\n\t    Pedro Alves  <palves@redhat.com>\n\n\thttps://bugzilla.redhat.com/show_bug.cgi?id=1765117\n\t* target.c (target_stack::push): Call 'unpush' if there's a\n\ttarget on top of the stack.\n\ngdb/testsuite/ChangeLog:\n2019-11-18  Sergio Durigan Junior  <sergiodj@redhat.com>\n\n\thttps://bugzilla.redhat.com/show_bug.cgi?id=1765117\n\t* gdb.tui/corefile-run.exp: New file.\n\nChange-Id: I39e2f8b538c580c8ea5bf1d657ee877e47746c8f",
+    "tree": {
+      "sha": "bb89778241c0db0003d3ec28a429284495b3ee9b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/bb89778241c0db0003d3ec28a429284495b3ee9b"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/494409bb8a043b259435ad5034c66aa3fee15f52",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/494409bb8a043b259435ad5034c66aa3fee15f52",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/494409bb8a043b259435ad5034c66aa3fee15f52",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/494409bb8a043b259435ad5034c66aa3fee15f52/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "58bd3702d7aad95e08bcd05efc4ef4f1585305a9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/58bd3702d7aad95e08bcd05efc4ef4f1585305a9",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/58bd3702d7aad95e08bcd05efc4ef4f1585305a9"
+    }
+  ],
+  "stats": {
+    "total": 79,
+    "additions": 74,
+    "deletions": 5
+  },
+  "files": [
+    {
+      "sha": "80ec8f352283ff2bc8698e36b97124ce509aec67",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/494409bb8a043b259435ad5034c66aa3fee15f52/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/494409bb8a043b259435ad5034c66aa3fee15f52/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=494409bb8a043b259435ad5034c66aa3fee15f52",
+      "patch": "@@ -1,3 +1,10 @@\n+2019-11-18  Sergio Durigan Junior  <sergiodj@redhat.com>\n+\t    Pedro Alves  <palves@redhat.com>\n+\n+\thttps://bugzilla.redhat.com/show_bug.cgi?id=1765117\n+\t* target.c (target_stack::push): Call 'unpush' if there's a\n+\ttarget on top of the stack.\n+\n 2019-11-18  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n \n \t* python/py-block.c (blpy_dealloc): Call tp_free."
+    },
+    {
+      "sha": "5a3764e5e8b47aabf1a073ec1768d81372912ad1",
+      "filename": "gdb/target.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 5,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/494409bb8a043b259435ad5034c66aa3fee15f52/gdb/target.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/494409bb8a043b259435ad5034c66aa3fee15f52/gdb/target.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/target.c?ref=494409bb8a043b259435ad5034c66aa3fee15f52",
+      "patch": "@@ -562,11 +562,7 @@ target_stack::push (target_ops *t)\n   strata stratum = t->stratum ();\n \n   if (m_stack[stratum] != NULL)\n-    {\n-      target_ops *prev = m_stack[stratum];\n-      m_stack[stratum] = NULL;\n-      target_close (prev);\n-    }\n+    unpush (m_stack[stratum]);\n \n   /* Now add the new one.  */\n   m_stack[stratum] = t;"
+    },
+    {
+      "sha": "de8712a7a1732fe579a7ab4999934fba58b04ded",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/494409bb8a043b259435ad5034c66aa3fee15f52/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/494409bb8a043b259435ad5034c66aa3fee15f52/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=494409bb8a043b259435ad5034c66aa3fee15f52",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-11-18  Sergio Durigan Junior  <sergiodj@redhat.com>\n+\n+\thttps://bugzilla.redhat.com/show_bug.cgi?id=1765117\n+\t* gdb.tui/corefile-run.exp: New file.\n+\n 2019-11-14  Tom Tromey  <tromey@adacore.com>\n \n \t* gdb.base/gdbvars.exp (test_convenience_variables): Add"
+    },
+    {
+      "sha": "05fcc246fbcd14479f44f33b6d80546580838f4f",
+      "filename": "gdb/testsuite/gdb.tui/corefile-run.exp",
+      "status": "added",
+      "additions": 61,
+      "deletions": 0,
+      "changes": 61,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/494409bb8a043b259435ad5034c66aa3fee15f52/gdb/testsuite/gdb.tui/corefile-run.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/494409bb8a043b259435ad5034c66aa3fee15f52/gdb/testsuite/gdb.tui/corefile-run.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.tui/corefile-run.exp?ref=494409bb8a043b259435ad5034c66aa3fee15f52",
+      "patch": "@@ -0,0 +1,61 @@\n+# Copyright 2019 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test whether we can load a corefile, enable TUI and then invoke\n+# \"run\" without having a segfault.\n+#\n+# Ref.: https://bugzilla.redhat.com/show_bug.cgi?id=1765117\n+\n+load_lib \"tuiterm.exp\"\n+\n+standard_testfile tui-layout.c\n+\n+set core \"${testfile}.core\"\n+\n+if { [prepare_for_testing \"failed to prepare\" $testfile $srcfile debug] } {\n+    return -1\n+}\n+\n+# Only run on native boards.\n+if { [use_gdb_stub] || [target_info gdb_protocol] == \"extended-remote\" } {\n+    untested \"not supported\"\n+    return\n+}\n+\n+if { ![runto_main] } {\n+    untested \"could not run to main\"\n+    return -1\n+}\n+\n+if { ![gdb_gcore_cmd \"$core\" \"save a corefile\"] } {\n+    untested \"could not generate a corefile\"\n+    return -1\n+}\n+\n+Term::clean_restart 24 80 $testfile\n+if {![Term::enter_tui]} {\n+    unsupported \"TUI not supported\"\n+}\n+\n+set text [Term::get_all_lines]\n+gdb_assert {![string match \"No Source Available\" $text]} \\\n+    \"initial source listing\"\n+\n+Term::command \"core-file $core\"\n+Term::check_contents \"load corefile\" \"21 *return 0\"\n+\n+Term::command \"run\"\n+Term::check_contents \"run until the end\" \\\n+    \"\\\\\\[Inferior $decimal \\\\\\(process $decimal\\\\\\) exited normally\\\\]\""
+    }
+  ]
+}

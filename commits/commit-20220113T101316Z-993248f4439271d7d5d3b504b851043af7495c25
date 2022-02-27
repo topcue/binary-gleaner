@@ -1,0 +1,84 @@
+{
+  "sha": "993248f4439271d7d5d3b504b851043af7495c25",
+  "node_id": "C_kwDOANOeidoAKDk5MzI0OGY0NDM5MjcxZDdkNWQzYjUwNGI4NTEwNDNhZjc0OTVjMjU",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-01-11T17:31:16Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-01-13T10:13:16Z"
+    },
+    "message": "gdb: add some extra debug information to attach_command\n\nWhile working on another patch I wanted to add some extra debug\ninformation to the attach_command function.  This required me to add a\nnew function to convert the thread_info::state variable to a string.\n\nThe new debug might be useful to others, and the state to string\nfunction might be useful in other locations, so I thought I'd merge\nit.",
+    "tree": {
+      "sha": "a9876640edb51cd02e4ff247bf7777cbfa3dd5a5",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/a9876640edb51cd02e4ff247bf7777cbfa3dd5a5"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/993248f4439271d7d5d3b504b851043af7495c25",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/993248f4439271d7d5d3b504b851043af7495c25",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/993248f4439271d7d5d3b504b851043af7495c25",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/993248f4439271d7d5d3b504b851043af7495c25/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "1ffce3f87dc6e62d49b5aaa0bc29c6d4cfbc6db6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1ffce3f87dc6e62d49b5aaa0bc29c6d4cfbc6db6",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/1ffce3f87dc6e62d49b5aaa0bc29c6d4cfbc6db6"
+    }
+  ],
+  "stats": {
+    "total": 36,
+    "additions": 36,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "9921dae7a712bc807540118e7f42f9a5e478ab67",
+      "filename": "gdb/gdbthread.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/993248f4439271d7d5d3b504b851043af7495c25/gdb/gdbthread.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/993248f4439271d7d5d3b504b851043af7495c25/gdb/gdbthread.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbthread.h?ref=993248f4439271d7d5d3b504b851043af7495c25",
+      "patch": "@@ -1003,4 +1003,8 @@ extern void thread_try_catch_cmd (thread_info *thr,\n \t\t\t\t  const char *cmd, int from_tty,\n \t\t\t\t  const qcs_flags &flags);\n \n+/* Return a string representation of STATE.  */\n+\n+extern const char *thread_state_string (enum thread_state state);\n+\n #endif /* GDBTHREAD_H */"
+    },
+    {
+      "sha": "9f4ed8bff1383476e0dfdb65d65064de8de769eb",
+      "filename": "gdb/infcmd.c",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/993248f4439271d7d5d3b504b851043af7495c25/gdb/infcmd.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/993248f4439271d7d5d3b504b851043af7495c25/gdb/infcmd.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infcmd.c?ref=993248f4439271d7d5d3b504b851043af7495c25",
+      "patch": "@@ -2541,6 +2541,18 @@ attach_command (const char *args, int from_tty)\n      shouldn't refer to attach_target again.  */\n   attach_target = NULL;\n \n+  if (debug_infrun)\n+    {\n+      infrun_debug_printf (\"immediately after attach:\");\n+      for (thread_info *thread : inferior->non_exited_threads ())\n+\tinfrun_debug_printf (\"  thread %s, executing = %d, resumed = %d, \"\n+\t\t\t     \"state = %s\",\n+\t\t\t     thread->ptid.to_string ().c_str (),\n+\t\t\t     thread->executing (),\n+\t\t\t     thread->resumed (),\n+\t\t\t     thread_state_string (thread->state));\n+    }\n+\n   /* Set up the \"saved terminal modes\" of the inferior\n      based on what modes we are starting it with.  */\n   target_terminal::init ();"
+    },
+    {
+      "sha": "c43f6613145378c00df952f56e67b8762e3382fc",
+      "filename": "gdb/thread.c",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 0,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/993248f4439271d7d5d3b504b851043af7495c25/gdb/thread.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/993248f4439271d7d5d3b504b851043af7495c25/gdb/thread.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/thread.c?ref=993248f4439271d7d5d3b504b851043af7495c25",
+      "patch": "@@ -2050,6 +2050,26 @@ thread_name (thread_info *thread)\n   return target_thread_name (thread);\n }\n \n+/* See gdbthread.h.  */\n+\n+const char *\n+thread_state_string (enum thread_state state)\n+{\n+  switch (state)\n+    {\n+    case THREAD_STOPPED:\n+      return \"STOPPED\";\n+\n+    case THREAD_RUNNING:\n+      return \"RUNNING\";\n+\n+    case THREAD_EXITED:\n+      return \"EXITED\";\n+    }\n+\n+  gdb_assert_not_reached (\"unknown thread state\");\n+}\n+\n /* Return a new value for the selected thread's id.  Return a value of\n    0 if no thread is selected.  If GLOBAL is true, return the thread's\n    global number.  Otherwise return the per-inferior number.  */"
+    }
+  ]
+}

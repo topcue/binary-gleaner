@@ -1,0 +1,218 @@
+{
+  "sha": "bd742128ba3b0eebda581a26c5bfa52ac0995584",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YmQ3NDIxMjhiYTNiMGVlYmRhNTgxYTI2YzViZmE1MmFjMDk5NTU4NA==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-05-18T13:27:25Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-06-25T19:54:29Z"
+    },
+    "message": "gdb: change info sources to group results by objfile\n\nCurrently the 'info sources' command lists all of the known source\nfiles together, regardless of their source, e.g. here is a session\ndebugging a test application that makes use of a shared library:\n\n  (gdb) info sources\n  Source files for which symbols have been read in:\n\n  /tmp/info-sources/test.c, /usr/include/stdc-predef.h,\n  /tmp/info-sources/header.h, /tmp/info-sources/helper.c\n\n  Source files for which symbols will be read in on demand:\n\n  (gdb)\n\nIn this commit I change the format of the 'info sources' results so\nthat the results are grouped by the object file that uses that source\nfile.  Here's the same session with the new output format:\n\n  (gdb) info sources\n  /tmp/info-sources/test.x:\n\n  /tmp/info-sources/test.c, /usr/include/stdc-predef.h,\n  /tmp/info-sources/header.h\n\n  /lib64/ld-linux-x86-64.so.2:\n  (Objfile has no debug information.)\n\n  system-supplied DSO at 0x7ffff7fcf000:\n  (Objfile has no debug information.)\n\n  /tmp/info-sources/libhelper.so:\n\n  /tmp/info-sources/helper.c, /usr/include/stdc-predef.h,\n  /tmp/info-sources/header.h\n\n  /lib64/libc.so.6:\n  (Objfile has no debug information.)\n\n  (gdb)\n\nNotice that in the new output some source files are repeated,\ne.g. /tmp/info-sources/header.h, as multiple objfiles use this source\nfile.\n\nFurther, some object files are tagged with the message '(Objfile has\nno debug information.)', it is also possible to see the message '(Full\ndebug information has not yet been read for this file.)', which is\nprinted when some symtabs within an objfile have not yet been\nexpanded.\n\nAll of the existing regular expression based filtering still works.\n\nAn original version of this patch added the new format as an option to\n'info sources', however, it was felt that the new layout was so much\nbetter than the old style that GDB should just switch to the new\nresult format completely.\n\ngdb/ChangeLog:\n\n\t* NEWS: Mention changes to 'info sources'.\n\t* symtab.c (info_sources_filter::print): Delete.\n\t(struct output_source_filename_data) <print_header>: Delete\n\tdeclaration.  <printed_filename_p>: New member function.\n\t(output_source_filename_data::print_header): Delete.\n\t(info_sources_worker): Update group-by-objfile style output to\n\tmake it CLI suitable, simplify non-group-by-objfile now this is\n\tonly used from the MI.\n\t(info_sources_command): Make group-by-objfile be the default for\n\tCLI info sources command.\n\t* symtab.h (struct info_sources_filter) <print>: Delete.\n\ngdb/doc/ChangeLog:\n\n\t* gdb.texinfo (Symbols): Document new output format for 'info\n\tsources'.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.base/info_sources_2-header.h: New file.\n\t* gdb.base/info_sources_2-lib.c: New file.\n\t* gdb.base/info_sources_2-test.c: New file.\n\t* gdb.base/info_sources_2.exp: New file.",
+    "tree": {
+      "sha": "da0044bc2b93ad6a437c37247f79deedcfab4818",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/da0044bc2b93ad6a437c37247f79deedcfab4818"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/bd742128ba3b0eebda581a26c5bfa52ac0995584",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bd742128ba3b0eebda581a26c5bfa52ac0995584",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/bd742128ba3b0eebda581a26c5bfa52ac0995584",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bd742128ba3b0eebda581a26c5bfa52ac0995584/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d"
+    }
+  ],
+  "stats": {
+    "total": 423,
+    "additions": 342,
+    "deletions": 81
+  },
+  "files": [
+    {
+      "sha": "41f98e81287fae70ef7ebef6cd9c0dd99b709076",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=bd742128ba3b0eebda581a26c5bfa52ac0995584",
+      "patch": "@@ -1,3 +1,17 @@\n+2021-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* NEWS: Mention changes to 'info sources'.\n+\t* symtab.c (info_sources_filter::print): Delete.\n+\t(struct output_source_filename_data) <print_header>: Delete\n+\tdeclaration.  <printed_filename_p>: New member function.\n+\t(output_source_filename_data::print_header): Delete.\n+\t(info_sources_worker): Update group-by-objfile style output to\n+\tmake it CLI suitable, simplify non-group-by-objfile now this is\n+\tonly used from the MI.\n+\t(info_sources_command): Make group-by-objfile be the default for\n+\tCLI info sources command.\n+\t* symtab.h (struct info_sources_filter) <print>: Delete.\n+\n 2021-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* NEWS: Mention additions to -file-list-exec-source-files."
+    },
+    {
+      "sha": "7f3ed4f02f08fe7c5b68fc9ae256dbfe48626034",
+      "filename": "gdb/NEWS",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/NEWS",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/NEWS",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/NEWS?ref=bd742128ba3b0eebda581a26c5bfa52ac0995584",
+      "patch": "@@ -221,6 +221,12 @@ ptype[/FLAGS] TYPE | EXPRESSION\n   offsets of struct members.  Default behavior is given by 'show print\n   type hex'.\n \n+info sources\n+  The info sources command output has been restructured.  The results\n+  are now based around a list of objfiles (executable and libraries),\n+  and for each objfile the source files that are part of that objfile\n+  are listed.\n+\n * Removed targets and native configurations\n \n ARM Symbian\t\t\tarm*-*-symbianelf*"
+    },
+    {
+      "sha": "c9f30e565e1ee8d3bf18e4c65e7fd80597074796",
+      "filename": "gdb/doc/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/doc/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/doc/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/ChangeLog?ref=bd742128ba3b0eebda581a26c5bfa52ac0995584",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.texinfo (Symbols): Document new output format for 'info\n+\tsources'.\n+\n 2021-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.texinfo (GDB/MI File Commands): Document --group-by-objfile"
+    },
+    {
+      "sha": "f1c3e7ba847df4afa526a75921dada2840b477d3",
+      "filename": "gdb/doc/gdb.texinfo",
+      "status": "modified",
+      "additions": 30,
+      "deletions": 14,
+      "changes": 44,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/doc/gdb.texinfo",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/doc/gdb.texinfo",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/gdb.texinfo?ref=bd742128ba3b0eebda581a26c5bfa52ac0995584",
+      "patch": "@@ -19334,20 +19334,36 @@ preprocessor macros.\n \n \n @kindex info sources\n-@item info sources\n-Print the names of all source files in your program for which there is\n-debugging information, organized into two lists: files whose symbols\n-have already been read, and files whose symbols will be read when needed.\n-\n-@item info sources [-dirname | -basename] [--] [@var{regexp}]\n-Like @samp{info sources}, but only print the names of the files\n-matching the provided @var{regexp}.\n-By default, the @var{regexp} is used to match anywhere in the filename.\n-If @code{-dirname}, only files having a dirname matching @var{regexp} are shown.\n-If  @code{-basename}, only files having a basename matching @var{regexp}\n-are shown.\n-The matching is case-sensitive, except on operating systems that\n-have case-insensitive filesystem (e.g., MS-Windows).\n+@item info sources @r{[}-dirname | -basename@r{]} @r{[}--@r{]} @r{[}@var{regexp}@r{]}\n+\n+\n+With no options @samp{info sources} prints the names of all source\n+files in your program for which there is debugging information.  The\n+source files are presented based on a list of object files\n+(executables and libraries) currently loaded into @value{GDBN}.  For\n+each object file all of the associated source files are listed.\n+\n+Each source file will only be printed once for each object file, but a\n+single source file can be repeated in the output if it is part of\n+multiple object files.\n+\n+If the optional @var{regexp} is provided, then only source files that\n+match the regular expression will be printed.  The matching is\n+case-sensitive, except on operating systems that have case-insensitive\n+filesystem (e.g., MS-Windows). @samp{--} can be used before\n+@var{regexp} to prevent @value{GDBN} interpreting @var{regexp} as a\n+command option (e.g. if @var{regexp} starts with @samp{-}).\n+\n+By default, the @var{regexp} is used to match anywhere in the\n+filename.  If @code{-dirname}, only files having a dirname matching\n+@var{regexp} are shown.  If @code{-basename}, only files having a\n+basename matching @var{regexp} are shown.\n+\n+It is possible that an object file may be printed in the list with no\n+associated source files.  This can happen when either no source files\n+match @var{regexp}, or, the object file was compiled without debug\n+information and so @value{GDBN} is unable to find any source file\n+names.\n \n @kindex info functions\n @item info functions [-q] [-n]"
+    },
+    {
+      "sha": "7fd037f970139c7516b7095fb95328fecf2a97d2",
+      "filename": "gdb/symtab.c",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 62,
+      "changes": 94,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/symtab.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/symtab.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/symtab.c?ref=bd742128ba3b0eebda581a26c5bfa52ac0995584",
+      "patch": "@@ -4252,33 +4252,6 @@ info_sources_filter::matches (const char *fullname) const\n   return true;\n }\n \n-/* See class declaration.  */\n-\n-void\n-info_sources_filter::print (struct ui_out *uiout) const\n-{\n-  if (m_c_regexp.has_value ())\n-    {\n-      gdb_assert (m_regexp != nullptr);\n-\n-      switch (m_match_type)\n-\t{\n-\tcase match_on::DIRNAME:\n-\t  uiout->message (_(\"(dirname matching regular expression \\\"%s\\\")\"),\n-\t\t\t  m_regexp);\n-\t  break;\n-\tcase match_on::BASENAME:\n-\t  uiout->message (_(\"(basename matching regular expression \\\"%s\\\")\"),\n-\t\t\t  m_regexp);\n-\t  break;\n-\tcase match_on::FULLNAME:\n-\t  printf_filtered (_(\"(filename matching regular expression \\\"%s\\\")\"),\n-\t\t\t   m_regexp);\n-\t  break;\n-\t}\n-    }\n-}\n-\n /* Data structure to maintain the state used for printing the results of\n    the 'info sources' command.  */\n \n@@ -4312,12 +4285,6 @@ struct output_source_filename_data\n      expanded symtab, otherwise false).  */\n   void output (const char *disp_name, const char *fullname, bool expanded_p);\n \n-  /* Prints the header messages for the source files that will be printed\n-     with the matching info present in the current object state.\n-     SYMBOL_MSG is a message that describes what will or has been done with\n-     the symbols of the matching source files.  */\n-  void print_header (const char *symbol_msg);\n-\n   /* An overload suitable for use as a callback to\n      quick_symbol_functions::map_symbol_filenames.  */\n   void operator() (const char *filename, const char *fullname)\n@@ -4327,6 +4294,14 @@ struct output_source_filename_data\n     output (filename, fullname, false);\n   }\n \n+  /* Return true if at least one filename has been printed (after a call to\n+     output) since either this object was created, or the last call to\n+     reset_output.  */\n+  bool printed_filename_p () const\n+  {\n+    return !m_first;\n+  }\n+\n private:\n \n   /* Flag of whether we're printing the first one.  */\n@@ -4392,16 +4367,6 @@ output_source_filename_data::output (const char *disp_name,\n     }\n }\n \n-/* See comment is class declaration above.  */\n-\n-void\n-output_source_filename_data::print_header (const char *symbol_msg)\n-{\n-  m_uiout->text (symbol_msg);\n-  m_filter.print (m_uiout);\n-  m_uiout->text (\"\\n\");\n-}\n-\n /* For the 'info sources' command, what part of the file names should we be\n    matching the user supplied regular expression against?  */\n \n@@ -4468,32 +4433,39 @@ info_sources_worker (struct ui_out *uiout,\n   gdb::optional<ui_out_emit_tuple> output_tuple;\n   gdb::optional<ui_out_emit_list> sources_list;\n \n-  gdb_assert (!group_by_objfile || uiout->is_mi_like_p ());\n-\n-  if (!group_by_objfile)\n-    {\n-      if (!uiout->is_mi_like_p ())\n-\tdata.print_header (_(\"Source files for which symbols have been read in:\\n\"));\n-    }\n+  gdb_assert (group_by_objfile || uiout->is_mi_like_p ());\n \n   for (objfile *objfile : current_program_space->objfiles ())\n     {\n       if (group_by_objfile)\n \t{\n \t  output_tuple.emplace (uiout, nullptr);\n \t  uiout->field_string (\"filename\", objfile_name (objfile));\n+\t  uiout->text (\":\\n\");\n \t  bool debug_fully_readin = !objfile->has_unexpanded_symtabs ();\n-\t  const char *debug_info_state;\n-\t  if (objfile_has_symbols (objfile))\n+\t  if (uiout->is_mi_like_p ())\n \t    {\n-\t      if (debug_fully_readin)\n-\t\tdebug_info_state = \"fully-read\";\n+\t      const char *debug_info_state;\n+\t      if (objfile_has_symbols (objfile))\n+\t\t{\n+\t\t  if (debug_fully_readin)\n+\t\t    debug_info_state = \"fully-read\";\n+\t\t  else\n+\t\t    debug_info_state = \"partially-read\";\n+\t\t}\n \t      else\n-\t\tdebug_info_state = \"partially-read\";\n+\t\tdebug_info_state = \"none\";\n+\t      current_uiout->field_string (\"debug-info\", debug_info_state);\n \t    }\n \t  else\n-\t    debug_info_state = \"none\";\n-\t  current_uiout->field_string (\"debug-info\", debug_info_state);\n+\t    {\n+\t      if (!debug_fully_readin)\n+\t\tuiout->text (\"(Full debug information has not yet been read \"\n+\t\t\t     \"for this file.)\\n\");\n+\t      if (!objfile_has_symbols (objfile))\n+\t\tuiout->text (\"(Objfile has no debug information.)\\n\");\n+\t      uiout->text (\"\\n\");\n+\t    }\n \t  sources_list.emplace (uiout, \"sources\");\n \t}\n \n@@ -4510,6 +4482,8 @@ info_sources_worker (struct ui_out *uiout,\n       if (group_by_objfile)\n \t{\n \t  objfile->map_symbol_filenames (data, true /* need_fullname */);\n+\t  if (data.printed_filename_p ())\n+\t    uiout->text (\"\\n\\n\");\n \t  data.reset_output ();\n \t  sources_list.reset ();\n \t  output_tuple.reset ();\n@@ -4518,12 +4492,8 @@ info_sources_worker (struct ui_out *uiout,\n \n   if (!group_by_objfile)\n     {\n-      uiout->text (\"\\n\\n\");\n-      if (!uiout->is_mi_like_p ())\n-\tdata.print_header (_(\"Source files for which symbols will be read in on demand:\\n\"));\n       data.reset_output ();\n       map_symbol_filenames (data, true /*need_fullname*/);\n-      uiout->text (\"\\n\");\n     }\n }\n \n@@ -4559,7 +4529,7 @@ info_sources_command (const char *args, int from_tty)\n     match_type = info_sources_filter::match_on::FULLNAME;\n \n   info_sources_filter filter (match_type, regex);\n-  info_sources_worker (current_uiout, false, filter);\n+  info_sources_worker (current_uiout, true, filter);\n }\n \n /* Compare FILE against all the entries of FILENAMES.  If BASENAMES is"
+    },
+    {
+      "sha": "471ae9ef4480a8359a23f2ca0960ff4b70e2282d",
+      "filename": "gdb/symtab.h",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 5,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/symtab.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/symtab.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/symtab.h?ref=bd742128ba3b0eebda581a26c5bfa52ac0995584",
+      "patch": "@@ -2420,11 +2420,6 @@ struct info_sources_filter\n      then this function will always return true.  */\n   bool matches (const char *fullname) const;\n \n-  /* Print a single line describing this filter to UIOUT, used as part of\n-     the \"info sources\" command output.  If there is no filter in place\n-     then nothing is printed.  */\n-  void print (struct ui_out *uiout) const;\n-\n private:\n \n   /* The type of filtering in place.  */"
+    },
+    {
+      "sha": "26dcea625118407f5ed3d6097467894e068d809a",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=bd742128ba3b0eebda581a26c5bfa52ac0995584",
+      "patch": "@@ -1,3 +1,10 @@\n+2021-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.base/info_sources_2-header.h: New file.\n+\t* gdb.base/info_sources_2-lib.c: New file.\n+\t* gdb.base/info_sources_2-test.c: New file.\n+\t* gdb.base/info_sources_2.exp: New file.\n+\n 2021-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.mi/mi-info-sources.exp: Add additional tests."
+    },
+    {
+      "sha": "b3379babc0af2789090d55a633782ae62f07a9ae",
+      "filename": "gdb/testsuite/gdb.base/info_sources_2-header.h",
+      "status": "added",
+      "additions": 28,
+      "deletions": 0,
+      "changes": 28,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/testsuite/gdb.base/info_sources_2-header.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/testsuite/gdb.base/info_sources_2-header.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/info_sources_2-header.h?ref=bd742128ba3b0eebda581a26c5bfa52ac0995584",
+      "patch": "@@ -0,0 +1,28 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2021 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#ifndef INFO_SOURCES_2_HEADER\n+#define INFO_SOURCES_2_HEADER\n+\n+extern int foo (void);\n+\n+inline static int compare_values (int a, int b)\n+{\n+  return a == b;\n+}\n+\n+#endif /* INFO_SOURCES_2_HEADER */"
+    },
+    {
+      "sha": "7df1a8114ad2a7310e0c9d2ae5404beac63693ac",
+      "filename": "gdb/testsuite/gdb.base/info_sources_2-lib.c",
+      "status": "added",
+      "additions": 25,
+      "deletions": 0,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/testsuite/gdb.base/info_sources_2-lib.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/testsuite/gdb.base/info_sources_2-lib.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/info_sources_2-lib.c?ref=bd742128ba3b0eebda581a26c5bfa52ac0995584",
+      "patch": "@@ -0,0 +1,25 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2021 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+\n+#include \"info_sources_2-header.h\"\n+\n+int\n+foo ()\n+{\n+  return compare_values (0, 1);\n+}"
+    },
+    {
+      "sha": "87a030ae87d578b050dd6eef726e8645d88bbc23",
+      "filename": "gdb/testsuite/gdb.base/info_sources_2-test.c",
+      "status": "added",
+      "additions": 26,
+      "deletions": 0,
+      "changes": 26,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/testsuite/gdb.base/info_sources_2-test.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/testsuite/gdb.base/info_sources_2-test.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/info_sources_2-test.c?ref=bd742128ba3b0eebda581a26c5bfa52ac0995584",
+      "patch": "@@ -0,0 +1,26 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2021 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+\n+#include \"info_sources_2-header.h\"\n+\n+int\n+main ()\n+{\n+  int res = foo ();\n+  return compare_values (res, 1);\n+}"
+    },
+    {
+      "sha": "3aed25b07ac785fada699cac0d6217c9fee22231",
+      "filename": "gdb/testsuite/gdb.base/info_sources_2.exp",
+      "status": "added",
+      "additions": 169,
+      "deletions": 0,
+      "changes": 169,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/testsuite/gdb.base/info_sources_2.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bd742128ba3b0eebda581a26c5bfa52ac0995584/gdb/testsuite/gdb.base/info_sources_2.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/info_sources_2.exp?ref=bd742128ba3b0eebda581a26c5bfa52ac0995584",
+      "patch": "@@ -0,0 +1,169 @@\n+# Copyright 2021 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test 'info sources' when the test file makes use of a shared\n+# library.\n+\n+if { [skip_shlib_tests] } {\n+    return 0\n+}\n+\n+standard_testfile -test.c -lib.c\n+set solib_name [standard_output_file ${testfile}-lib.so]\n+\n+if { [gdb_compile_shlib ${srcdir}/${subdir}/${srcfile2} ${solib_name} \\\n+      {debug}] != \"\" } {\n+    untested \"failed to compile shared library\"\n+    return -1\n+}\n+\n+if {[gdb_compile ${srcdir}/${subdir}/${srcfile} ${binfile} executable \\\n+     [list debug shlib=${solib_name} ]] != \"\"} {\n+    untested \"failed to compile executable\"\n+    return -1\n+}\n+\n+clean_restart ${binfile}\n+\n+if ![runto foo] {\n+    untested \"failed to run to function foo\"\n+    return -1\n+}\n+\n+# Invoke 'info sources EXTRA_ARGS' and extract the results.\n+# The results are then compared to the list ARGS.\n+#\n+# The list ARGS should consist of pairs of values, the first item being the\n+# path to an object file, and the second item being the name of a source file.\n+# This proc checks that source file was listed as being a source file for the\n+# given object file.\n+#\n+# If the name of the source file starts with the character \"!\" (exclamation\n+# character, without the quotes) then the check is inverted, that the source\n+# file is NOT listed for the given object file.\n+proc run_info_sources { extra_args args } {\n+    global gdb_prompt srcdir subdir\n+\n+    with_test_prefix \"args: ${extra_args}\" {\n+\n+\t# The results of running info sources will be placed into this local.\n+\tarray set info_sources {}\n+\n+\t# The command we are going to run.\n+\tset cmd \"info sources ${extra_args}\"\n+\tset command_regex [string_to_regexp $cmd]\n+\n+\t# Run the command and extract the results into INFO_SOURCES.\n+\tset objfile_name \"\"\n+\tset source_files {}\n+\tgdb_test_multiple $cmd \"\" {\n+\t    -re \"${command_regex}\\r\\n\" {\n+\t\texp_continue\n+\t    }\n+\n+\t    -re \"^(\\[^\\r\\n\\]+):\\r\\n\" {\n+\t\tset objfile_name $expect_out(1,string)\n+\t\texp_continue\n+\t    }\n+\n+\t    -re \"^\\\\(Full debug information has not yet been read for this file\\\\.\\\\)\\r\\n\" {\n+\t\texp_continue\n+\t    }\n+\n+\t    -re \"^\\r\\n\" {\n+\t\texp_continue\n+\t    }\n+\n+\t    -re \"^$gdb_prompt $\" {\n+\t\tpass $gdb_test_name\n+\t    }\n+\n+\t    -re \"^(\\[^\\r\\n\\]+)\\r\\n\" {\n+\t\tif { $objfile_name == \"\" } {\n+\t\t    fail \"${gdb_test_name} (no objfile name)\"\n+\t\t    return\n+\t\t}\n+\n+\t\tset files {}\n+\t\tforeach f [split $expect_out(1,string) ,] {\n+\t\t    lappend files [string trim $f]\n+\t\t}\n+\t\tset info_sources($objfile_name) $files\n+\t\tset $objfile_name \"\"\n+\t\texp_continue\n+\t    }\n+\t}\n+\n+\t# Now check ARGS agaisnt the values held in INFO_SOURCES map.\n+\tforeach {objfile sourcefile} $args {\n+\t    # First, figure out if we're expecting SOURCEFILE to be present,\n+\t    # or not.\n+\t    set present True\n+\t    set match_type \"is\"\n+\t    if {[string index $sourcefile 0] == \"!\"} {\n+\t\tset present False\n+\t\tset match_type \"is not\"\n+\t\tset sourcefile [string range $sourcefile 1 end]\n+\t    }\n+\n+\t    # Figure out the path for SOURCEFILE that we're looking for.\n+\t    set sourcepath [file normalize ${srcdir}/${subdir}/${sourcefile}]\n+\n+\t    # Make sure we handle the case where there are no source files\n+\t    # associated with a particular objfile.\n+\t    set source_list {}\n+\t    if [info exists info_sources($objfile)] {\n+\t\tset source_list $info_sources($objfile)\n+\t    }\n+\n+\t    # Now perform the search, and check the results.\n+\t    set idx [lsearch -exact $source_list $sourcepath]\n+\t    gdb_assert {($present && $idx >= 0) || (!$present && $idx == -1)} \\\n+\t\t\"source file '$sourcefile' ${match_type} present for '[file tail $objfile]'\"\n+\t}\n+    }\n+}\n+\n+# The actual tests.\n+\n+run_info_sources \"\" \\\n+    ${binfile} ${srcfile} \\\n+    ${binfile} ${testfile}-header.h \\\n+    ${solib_name} ${srcfile2} \\\n+    ${solib_name} ${testfile}-header.h\n+\n+run_info_sources \"-basename info_sources_2\" \\\n+    ${binfile} ${srcfile} \\\n+    ${binfile} ${testfile}-header.h \\\n+    ${solib_name} ${srcfile2} \\\n+    ${solib_name} ${testfile}-header.h\n+\n+run_info_sources \"-basename \\\\.c\" \\\n+    ${binfile} ${srcfile} \\\n+    ${binfile} !${testfile}-header.h \\\n+    ${solib_name} ${srcfile2} \\\n+    ${solib_name} !${testfile}-header.h\n+\n+run_info_sources \"-basename -- -test\\\\.c\" \\\n+    ${binfile} ${srcfile} \\\n+    ${binfile} !${testfile}-header.h \\\n+    ${solib_name} !${srcfile2} \\\n+    ${solib_name} !${testfile}-header.h\n+\n+run_info_sources \"-basename -- -lib\\\\.c\" \\\n+    ${binfile} !${srcfile} \\\n+    ${binfile} !${testfile}-header.h \\\n+    ${solib_name} ${srcfile2} \\\n+    ${solib_name} !${testfile}-header.h"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "sha": "e4bd363f994cf12017cb17dddeb2bc35698ee349",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZTRiZDM2M2Y5OTRjZjEyMDE3Y2IxN2RkZGViMmJjMzU2OThlZTM0OQ==",
+  "commit": {
+    "author": {
+      "name": "Shahab Vahedi",
+      "email": "shahab@synopsys.com",
+      "date": "2020-10-05T15:10:47Z"
+    },
+    "committer": {
+      "name": "Shahab Vahedi",
+      "email": "shahab@synopsys.com",
+      "date": "2020-10-07T15:46:23Z"
+    },
+    "message": "arc: Rename \"arc_gdbarch_features\" struct\n\n\"arc_gdbarch_features\" is a data structure containing information\nabout the ARC architecture: ISA version, register size, etc.\nThis name is misleading, because although it carries the phrase\n\"gdbarch\", it has nothing to do with the type/interface in GDB.\nTraditionaly, \"gdbarch\" structures are only used for that purpose.\nTo rectify this, this patch changes the name to \"arc_arch_features\".\n\ngdb/ChangeLog:\n\n\t* arch/arc.h: Rename \"arc_gdbarch_features\" to\n\t\"arc_arch_features\".\n\t* arc-tdep.h: Likewise.\n\t* arc-tdep.c: Likewise.",
+    "tree": {
+      "sha": "31f7e68d86ce6f061c86920360298ff9363d8032",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/31f7e68d86ce6f061c86920360298ff9363d8032"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/e4bd363f994cf12017cb17dddeb2bc35698ee349",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e4bd363f994cf12017cb17dddeb2bc35698ee349",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/e4bd363f994cf12017cb17dddeb2bc35698ee349",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e4bd363f994cf12017cb17dddeb2bc35698ee349/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "4849105512548d9f362b7111e50ff22c3184326a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4849105512548d9f362b7111e50ff22c3184326a",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/4849105512548d9f362b7111e50ff22c3184326a"
+    }
+  ],
+  "stats": {
+    "total": 45,
+    "additions": 26,
+    "deletions": 19
+  },
+  "files": [
+    {
+      "sha": "3caea814a67e62472c1ca58cf5d0f01a5ee09665",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e4bd363f994cf12017cb17dddeb2bc35698ee349/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e4bd363f994cf12017cb17dddeb2bc35698ee349/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=e4bd363f994cf12017cb17dddeb2bc35698ee349",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-10-07  Shahab Vahedi  <shahab@synopsys.com>\n+\n+\t* arch/arc.h: Rename \"arc_gdbarch_features\" to\n+\t\"arc_arch_features\".\n+\t* arc-tdep.h: Likewise.\n+\t* arc-tdep.c: Likewise.\n+\n 2020-10-07  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n \n \t* infcmd.c (attach_command): Remove the redundant call to"
+    },
+    {
+      "sha": "ec624bcbb9b462cd3ec2d98670eebddf03a15c1a",
+      "filename": "gdb/arc-tdep.c",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 7,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e4bd363f994cf12017cb17dddeb2bc35698ee349/gdb/arc-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e4bd363f994cf12017cb17dddeb2bc35698ee349/gdb/arc-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/arc-tdep.c?ref=e4bd363f994cf12017cb17dddeb2bc35698ee349",
+      "patch": "@@ -1883,11 +1883,11 @@ mach_type_to_arc_isa (const unsigned long mach)\n     }\n }\n \n-/* Common construction code for ARC_GDBARCH_FEATURES struct.  If there\n+/* Common construction code for ARC_ARCH_FEATURES struct.  If there\n    is no ABFD, then a FEATURE with default values is returned.  */\n \n-static arc_gdbarch_features\n-arc_gdbarch_features_create (const bfd *abfd, const unsigned long mach)\n+static arc_arch_features\n+arc_arch_features_create (const bfd *abfd, const unsigned long mach)\n {\n   /* Use 4 as a fallback value.  */\n   int reg_size = 4;\n@@ -1915,7 +1915,7 @@ arc_gdbarch_features_create (const bfd *abfd, const unsigned long mach)\n      case).  */\n   arc_isa isa = mach_type_to_arc_isa (mach);\n \n-  return arc_gdbarch_features (reg_size, isa);\n+  return arc_arch_features (reg_size, isa);\n }\n \n /* Look for obsolete core feature names in TDESC.  */\n@@ -2085,9 +2085,9 @@ arc_tdesc_init (struct gdbarch_info info, const struct target_desc **tdesc,\n   /* If target doesn't provide a description, use the default ones.  */\n   if (!tdesc_has_registers (tdesc_loc))\n     {\n-      arc_gdbarch_features features\n-\t= arc_gdbarch_features_create (info.abfd,\n-\t\t\t\t       info.bfd_arch_info->mach);\n+      arc_arch_features features\n+\t= arc_arch_features_create (info.abfd,\n+\t\t\t\t    info.bfd_arch_info->mach);\n       tdesc_loc = arc_lookup_target_description (features);\n     }\n   gdb_assert (tdesc_loc != nullptr);"
+    },
+    {
+      "sha": "3808f9fe292674ac2597075efdc9cd7ddf6553c8",
+      "filename": "gdb/arch/arc.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e4bd363f994cf12017cb17dddeb2bc35698ee349/gdb/arch/arc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e4bd363f994cf12017cb17dddeb2bc35698ee349/gdb/arch/arc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/arch/arc.c?ref=e4bd363f994cf12017cb17dddeb2bc35698ee349",
+      "patch": "@@ -35,7 +35,7 @@\n #endif\n \n STATIC_IN_GDB target_desc *\n-arc_create_target_description (const struct arc_gdbarch_features &features)\n+arc_create_target_description (const struct arc_arch_features &features)\n {\n   /* Create a new target description.  */\n   target_desc *tdesc = allocate_target_description ();\n@@ -84,25 +84,25 @@ arc_create_target_description (const struct arc_gdbarch_features &features)\n #ifndef GDBSERVER\n \n /* Wrapper used by std::unordered_map to generate hash for features set.  */\n-struct arc_gdbarch_features_hasher\n+struct arc_arch_features_hasher\n {\n   std::size_t\n-  operator() (const arc_gdbarch_features &features) const noexcept\n+  operator() (const arc_arch_features &features) const noexcept\n   {\n     return features.hash ();\n   }\n };\n \n /* Cache of previously created target descriptions, indexed by the hash\n    of the features set used to create them.  */\n-static std::unordered_map<arc_gdbarch_features,\n+static std::unordered_map<arc_arch_features,\n \t\t\t  const target_desc_up,\n-\t\t\t  arc_gdbarch_features_hasher> arc_tdesc_cache;\n+\t\t\t  arc_arch_features_hasher> arc_tdesc_cache;\n \n /* See arch/arc.h.  */\n \n const target_desc *\n-arc_lookup_target_description (const struct arc_gdbarch_features &features)\n+arc_lookup_target_description (const struct arc_arch_features &features)\n {\n   /* Lookup in the cache first.  If found, return the pointer from the\n      \"target_desc_up\" type which is a \"unique_ptr\".  This should be fine"
+    },
+    {
+      "sha": "16257596748ff6c868d8e3e027bca438578d3d9e",
+      "filename": "gdb/arch/arc.h",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e4bd363f994cf12017cb17dddeb2bc35698ee349/gdb/arch/arc.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e4bd363f994cf12017cb17dddeb2bc35698ee349/gdb/arch/arc.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/arch/arc.h?ref=e4bd363f994cf12017cb17dddeb2bc35698ee349",
+      "patch": "@@ -27,9 +27,9 @@ enum arc_isa\n   ARC_ISA_ARCV2\t      /* such as ARC EM and ARC HS  */\n };\n \n-struct arc_gdbarch_features\n+struct arc_arch_features\n {\n-  arc_gdbarch_features (int reg_size, arc_isa isa)\n+  arc_arch_features (int reg_size, arc_isa isa)\n     : reg_size (reg_size), isa (isa)\n   {}\n \n@@ -41,13 +41,13 @@ struct arc_gdbarch_features\n   const arc_isa isa;\n \n   /* Equality operator.  */\n-  bool operator== (const struct arc_gdbarch_features &rhs) const\n+  bool operator== (const struct arc_arch_features &rhs) const\n   {\n     return (reg_size == rhs.reg_size && isa == rhs.isa);\n   }\n \n   /* Inequality operator.  */\n-  bool operator!= (const struct arc_gdbarch_features &rhs) const\n+  bool operator!= (const struct arc_arch_features &rhs) const\n   {\n     return !(*this == rhs);\n   }\n@@ -71,15 +71,15 @@ struct arc_gdbarch_features\n    the returned data.  */\n \n target_desc *arc_create_target_description\n-\t(const struct arc_gdbarch_features &features);\n+\t(const struct arc_arch_features &features);\n \n #else\n \n /* Lookup the cache for a target description matching the FEATURES.\n    If nothing is found, then create one and return it.  */\n \n const target_desc *arc_lookup_target_description\n-\t(const struct arc_gdbarch_features &features);\n+\t(const struct arc_arch_features &features);\n \n #endif /* GDBSERVER */\n "
+    }
+  ]
+}

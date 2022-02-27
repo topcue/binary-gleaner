@@ -1,0 +1,146 @@
+{
+  "sha": "6a9ad81c449922e8c0d3228c18422f68136eef17",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NmE5YWQ4MWM0NDk5MjJlOGMwZDMyMjhjMTg0MjJmNjgxMzZlZWYxNw==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-12-02T15:10:06Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-01-18T14:14:11Z"
+    },
+    "message": "gdb/riscv: use a single regset supply function for riscv fbsd & linux\n\nThe RISC-V x0 register is hard-coded to zero.  As such neither Linux\nor FreeBSD supply the value of the register x0 in their core dump\nfiles.\n\nFor FreeBSD we take care of this by manually supplying the value of x0\nin riscv_fbsd_supply_gregset, however we don't do this for Linux.  As\na result after loading a core file on Linux we see this behaviour:\n\n  (gdb) p $x0\n  $1 = <unavailable>\n\nIn this commit I make riscv_fbsd_supply_gregset a common function that\ncan be shared between RISC-V for FreeBSD and Linux, this resolves the\nabove issue.\n\nThere is a similar problem for the two registers `fflags` and `frm`.\nThese two floating point related CSRs are a little weird.  They are\nseparate CSRs in the RISC-V specification, but are actually sub-fields\nof the `fcsr` CSR.\n\nAs a result neither Linux or FreeBSD supply the `fflags` or `frm`\nregisters as separate fields in their core dumps, and so, after\nrestoring a core dump these register are similarly unavailable.\n\nIn this commit I supply `fflags` and `frm` by first asking for the\nvalue of `fcsr`, extracting the two fields, and using these to supply\nthe values for `fflags` and `frm`.\n\ngdb/ChangeLog:\n\n\t* riscv-fbsd-tdep.c (riscv_fbsd_supply_gregset): Delete.\n\t(riscv_fbsd_gregset): Use riscv_supply_regset.\n\t(riscv_fbsd_fpregset): Likewise.\n\t* riscv-linux-tdep.c (riscv_linux_gregset): Likewise.\n\t(riscv_linux_fregset): Likewise.\n\t* riscv-tdep.c (riscv_supply_regset): Define new function.\n\t* riscv-tdep.h (riscv_supply_regset): Declare new function.",
+    "tree": {
+      "sha": "7d9dfb01516aed307b3f1531b8a00dc12296ff0c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/7d9dfb01516aed307b3f1531b8a00dc12296ff0c"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/6a9ad81c449922e8c0d3228c18422f68136eef17",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6a9ad81c449922e8c0d3228c18422f68136eef17",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/6a9ad81c449922e8c0d3228c18422f68136eef17",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6a9ad81c449922e8c0d3228c18422f68136eef17/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "326adec374dd43086dbf9bb2b8f18d547389e678",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/326adec374dd43086dbf9bb2b8f18d547389e678",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/326adec374dd43086dbf9bb2b8f18d547389e678"
+    }
+  ],
+  "stats": {
+    "total": 107,
+    "additions": 87,
+    "deletions": 20
+  },
+  "files": [
+    {
+      "sha": "ddff589c736aa2860219dae3bf6ecdc1899f71c2",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6a9ad81c449922e8c0d3228c18422f68136eef17/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6a9ad81c449922e8c0d3228c18422f68136eef17/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=6a9ad81c449922e8c0d3228c18422f68136eef17",
+      "patch": "@@ -1,3 +1,13 @@\n+2021-01-18  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* riscv-fbsd-tdep.c (riscv_fbsd_supply_gregset): Delete.\n+\t(riscv_fbsd_gregset): Use riscv_supply_regset.\n+\t(riscv_fbsd_fpregset): Likewise.\n+\t* riscv-linux-tdep.c (riscv_linux_gregset): Likewise.\n+\t(riscv_linux_fregset): Likewise.\n+\t* riscv-tdep.c (riscv_supply_regset): Define new function.\n+\t* riscv-tdep.h (riscv_supply_regset): Declare new function.\n+\n 2021-01-18  Tom de Vries  <tdevries@suse.de>\n \n \tPR tdep/27172"
+    },
+    {
+      "sha": "b9b3ef10518821397e436b9f4fa50514cf7902da",
+      "filename": "gdb/riscv-fbsd-tdep.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 18,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6a9ad81c449922e8c0d3228c18422f68136eef17/gdb/riscv-fbsd-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6a9ad81c449922e8c0d3228c18422f68136eef17/gdb/riscv-fbsd-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/riscv-fbsd-tdep.c?ref=6a9ad81c449922e8c0d3228c18422f68136eef17",
+      "patch": "@@ -53,32 +53,16 @@ static const struct regcache_map_entry riscv_fbsd_fpregmap[] =\n     { 0 }\n   };\n \n-/* Supply the general-purpose registers stored in GREGS to REGCACHE.\n-   This function only exists to supply the always-zero x0 in addition\n-   to the registers in GREGS.  */\n-\n-static void\n-riscv_fbsd_supply_gregset (const struct regset *regset,\n-\t\t\t   struct regcache *regcache, int regnum,\n-\t\t\t   const void *gregs, size_t len)\n-{\n-  regcache->supply_regset (&riscv_fbsd_gregset, regnum, gregs, len);\n-  if (regnum == -1 || regnum == RISCV_ZERO_REGNUM)\n-    regcache->raw_supply_zeroed (RISCV_ZERO_REGNUM);\n-}\n-\n /* Register set definitions.  */\n \n const struct regset riscv_fbsd_gregset =\n   {\n-    riscv_fbsd_gregmap,\n-    riscv_fbsd_supply_gregset, regcache_collect_regset\n+    riscv_fbsd_gregmap, riscv_supply_regset, regcache_collect_regset\n   };\n \n const struct regset riscv_fbsd_fpregset =\n   {\n-    riscv_fbsd_fpregmap,\n-    regcache_supply_regset, regcache_collect_regset\n+    riscv_fbsd_fpregmap, riscv_supply_regset, regcache_collect_regset\n   };\n \n /* Implement the \"iterate_over_regset_sections\" gdbarch method.  */"
+    },
+    {
+      "sha": "ca97a60128ffe681766e7e1600d3f24048bf1f68",
+      "filename": "gdb/riscv-linux-tdep.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6a9ad81c449922e8c0d3228c18422f68136eef17/gdb/riscv-linux-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6a9ad81c449922e8c0d3228c18422f68136eef17/gdb/riscv-linux-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/riscv-linux-tdep.c?ref=6a9ad81c449922e8c0d3228c18422f68136eef17",
+      "patch": "@@ -52,14 +52,14 @@ static const struct regcache_map_entry riscv_linux_fregmap[] =\n \n static const struct regset riscv_linux_gregset =\n {\n-  riscv_linux_gregmap, regcache_supply_regset, regcache_collect_regset\n+  riscv_linux_gregmap, riscv_supply_regset, regcache_collect_regset\n };\n \n /* Define the FP register regset.  */\n \n static const struct regset riscv_linux_fregset =\n {\n-  riscv_linux_fregmap, regcache_supply_regset, regcache_collect_regset\n+  riscv_linux_fregmap, riscv_supply_regset, regcache_collect_regset\n };\n \n /* Define hook for core file support.  */"
+    },
+    {
+      "sha": "b16e7d78fc5cf0748a276bf8792da68d03f40895",
+      "filename": "gdb/riscv-tdep.c",
+      "status": "modified",
+      "additions": 50,
+      "deletions": 0,
+      "changes": 50,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6a9ad81c449922e8c0d3228c18422f68136eef17/gdb/riscv-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6a9ad81c449922e8c0d3228c18422f68136eef17/gdb/riscv-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/riscv-tdep.c?ref=6a9ad81c449922e8c0d3228c18422f68136eef17",
+      "patch": "@@ -3786,6 +3786,56 @@ riscv_init_reggroups ()\n   csr_reggroup = reggroup_new (\"csr\", USER_REGGROUP);\n }\n \n+/* See riscv-tdep.h.  */\n+\n+void\n+riscv_supply_regset (const struct regset *regset,\n+\t\t     struct regcache *regcache, int regnum,\n+\t\t     const void *regs, size_t len)\n+{\n+  regcache->supply_regset (regset, regnum, regs, len);\n+\n+  if (regnum == -1 || regnum == RISCV_ZERO_REGNUM)\n+    regcache->raw_supply_zeroed (RISCV_ZERO_REGNUM);\n+\n+  if (regnum == -1 || regnum == RISCV_CSR_FFLAGS_REGNUM\n+      || regnum == RISCV_CSR_FRM_REGNUM)\n+    {\n+      int fcsr_regnum = RISCV_CSR_FCSR_REGNUM;\n+\n+      /* Ensure that FCSR has been read into REGCACHE.  */\n+      if (regnum != -1)\n+\tregcache->supply_regset (regset, fcsr_regnum, regs, len);\n+\n+      /* Grab the FCSR value if it is now in the regcache.  We must check\n+\t the status first as, if the register was not supplied by REGSET,\n+\t this call will trigger a recursive attempt to fetch the\n+\t registers.  */\n+      if (regcache->get_register_status (fcsr_regnum) == REG_VALID)\n+\t{\n+\t  ULONGEST fcsr_val;\n+\t  regcache->raw_read (fcsr_regnum, &fcsr_val);\n+\n+\t  /* Extract the fflags and frm values.  */\n+\t  ULONGEST fflags_val = fcsr_val & 0x1f;\n+\t  ULONGEST frm_val = (fcsr_val >> 5) & 0x7;\n+\n+\t  /* And supply these if needed.  */\n+\t  if (regnum == -1 || regnum == RISCV_CSR_FFLAGS_REGNUM)\n+\t    regcache->raw_supply_integer (RISCV_CSR_FFLAGS_REGNUM,\n+\t\t\t\t\t  (gdb_byte *) &fflags_val,\n+\t\t\t\t\t  sizeof (fflags_val),\n+\t\t\t\t\t  /* is_signed */ false);\n+\n+\t  if (regnum == -1 || regnum == RISCV_CSR_FRM_REGNUM)\n+\t    regcache->raw_supply_integer (RISCV_CSR_FRM_REGNUM,\n+\t\t\t\t\t  (gdb_byte *)&frm_val,\n+\t\t\t\t\t  sizeof (fflags_val),\n+\t\t\t\t\t  /* is_signed */ false);\n+\t}\n+    }\n+}\n+\n void _initialize_riscv_tdep ();\n void\n _initialize_riscv_tdep ()"
+    },
+    {
+      "sha": "d1f1cf17ba817813c087876efe851d25886cf50d",
+      "filename": "gdb/riscv-tdep.h",
+      "status": "modified",
+      "additions": 23,
+      "deletions": 0,
+      "changes": 23,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6a9ad81c449922e8c0d3228c18422f68136eef17/gdb/riscv-tdep.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6a9ad81c449922e8c0d3228c18422f68136eef17/gdb/riscv-tdep.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/riscv-tdep.h?ref=6a9ad81c449922e8c0d3228c18422f68136eef17",
+      "patch": "@@ -137,4 +137,27 @@ extern bool riscv_abi_embedded (struct gdbarch *gdbarch);\n extern std::vector<CORE_ADDR> riscv_software_single_step\n   (struct regcache *regcache);\n \n+/* Supply register REGNUM from the buffer REGS (length LEN) into\n+   REGCACHE.  REGSET describes the layout of the buffer.  If REGNUM is -1\n+   then all registers described by REGSET are supplied.\n+\n+   The register RISCV_ZERO_REGNUM should not be described by REGSET,\n+   however, this register (which always has the value 0) will be supplied\n+   by this function if requested.\n+\n+   The registers RISCV_CSR_FFLAGS_REGNUM and RISCV_CSR_FRM_REGNUM should\n+   not be described by REGSET, however, these register will be provided if\n+   requested assuming either:\n+   (a) REGCACHE already contains the value of RISCV_CSR_FCSR_REGNUM, or\n+   (b) REGSET describes the location of RISCV_CSR_FCSR_REGNUM in the REGS\n+       buffer.\n+\n+   This function can be used as the supply function for either x-regs or\n+   f-regs when loading corefiles, and doesn't care which abi is currently\n+   in use.  */\n+\n+extern void riscv_supply_regset (const struct regset *regset,\n+\t\t\t\t  struct regcache *regcache, int regnum,\n+\t\t\t\t  const void *regs, size_t len);\n+\n #endif /* RISCV_TDEP_H */"
+    }
+  ]
+}

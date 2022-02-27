@@ -1,0 +1,122 @@
+{
+  "sha": "05558223b5b52bf41036eb80335d2e541187e78f",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MDU1NTgyMjNiNWI1MmJmNDEwMzZlYjgwMzM1ZDJlNTQxMTg3ZTc4Zg==",
+  "commit": {
+    "author": {
+      "name": "Luis Machado",
+      "email": "luis.machado@linaro.org",
+      "date": "2021-07-20T10:29:28Z"
+    },
+    "committer": {
+      "name": "Luis Machado",
+      "email": "luis.machado@linaro.org",
+      "date": "2021-07-20T10:29:28Z"
+    },
+    "message": "Fix printing of non-address types when memory tagging is enabled\n\nWhen the architecture supports memory tagging, we handle\npointer/reference types in a special way, so we can validate tags and\nshow mismatches.\n\nUnfortunately, the currently implementation errors out when the user\nprints non-address values: composite types, floats, references, member\nfunctions and other things.\n\nVector registers:\n\n (gdb) p $v0\n Value can't be converted to integer.\n\nNon-existent internal variables:\n\n (gdb) p $foo\n Value can't be converted to integer.\n\nThe same happens for complex types and printing struct/union types.\n\nThere are a few problems here.\n\nThe first one is that after print_command_1 evaluates the expression\nto print, the tag validation code call value_as_address\nunconditionally, without making sure we have have a suitable type\nwhere it makes to sense to call it.  That results in value_as_address\n(if it isn't given a pointer-like type) trying to treat the value as\nan integer and convert it to an address, which #1 - doesn't make sense\n(i.e., no sense in validating tags after \"print 1\"), and throws for\nnon-integer-convertible types.  We fix this by making sure we have a\npointer or reference type first, and only if so then proceed to check\nif the address-like value has tags.\n\nThe second is that we're calling value_as_address even if we have an\noptimized out or unavailable value, which throws, because the value's\ncontents aren't fully accessible/readable.  This error currently\nescapes out and aborts the print.  This case is fixed by checking for\noptimized out / unavailable explicitly.\n\nThird, the tag checking process does not gracefully handle exceptions.\nIf any exception is thrown from the tag validation code, we abort the\nprint.  E.g., the target may fail to access tags via a running thread.\nOr the needed /proc files aren't available.  Or some other untold\nreason.  This is a bit too rigid.  This commit changes print_command_1\nto catch errors, print them, and still continue with the normal\nexpression printing path instead of erroring out and printing nothing\nuseful.\n\nWith this patch, printing works correctly again:\n\n (gdb) p $v0\n $1 = {d = {f = {2.0546950501119882e-81, 2.0546950501119882e-81}, u = {3399988123389603631, 3399988123389603631}, s = {\n       3399988123389603631, 3399988123389603631}}, s = {f = {1.59329203e-10, 1.59329203e-10, 1.59329203e-10, 1.59329203e-10}, u = {\n       791621423, 791621423, 791621423, 791621423}, s = {791621423, 791621423, 791621423, 791621423}}, h = {bf = {1.592e-10,\n       1.592e-10, 1.592e-10, 1.592e-10, 1.592e-10, 1.592e-10, 1.592e-10, 1.592e-10}, f = {0.11224, 0.11224, 0.11224, 0.11224, 0.11224,\n       0.11224, 0.11224, 0.11224}, u = {12079, 12079, 12079, 12079, 12079, 12079, 12079, 12079}, s = {12079, 12079, 12079, 12079,\n       12079, 12079, 12079, 12079}}, b = {u = {47 <repeats 16 times>}, s = {47 <repeats 16 times>}}, q = {u = {\n       62718710765820030520700417840365121327}, s = {62718710765820030520700417840365121327}}}\n (gdb) p $foo\n $2 = void\n (gdb) p 2 + 2i\n $3 = 2 + 2i\n\nBug: https://sourceware.org/bugzilla/show_bug.cgi?id=28110",
+    "tree": {
+      "sha": "6b3e9e3d3e7304da44c5d46176adfb1d463fa4cc",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/6b3e9e3d3e7304da44c5d46176adfb1d463fa4cc"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/05558223b5b52bf41036eb80335d2e541187e78f",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/05558223b5b52bf41036eb80335d2e541187e78f",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/05558223b5b52bf41036eb80335d2e541187e78f",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/05558223b5b52bf41036eb80335d2e541187e78f/comments",
+  "author": {
+    "login": "luislinaro",
+    "id": 53092780,
+    "node_id": "MDQ6VXNlcjUzMDkyNzgw",
+    "avatar_url": "https://avatars.githubusercontent.com/u/53092780?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/luislinaro",
+    "html_url": "https://github.com/luislinaro",
+    "followers_url": "https://api.github.com/users/luislinaro/followers",
+    "following_url": "https://api.github.com/users/luislinaro/following{/other_user}",
+    "gists_url": "https://api.github.com/users/luislinaro/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/luislinaro/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/luislinaro/subscriptions",
+    "organizations_url": "https://api.github.com/users/luislinaro/orgs",
+    "repos_url": "https://api.github.com/users/luislinaro/repos",
+    "events_url": "https://api.github.com/users/luislinaro/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/luislinaro/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "luislinaro",
+    "id": 53092780,
+    "node_id": "MDQ6VXNlcjUzMDkyNzgw",
+    "avatar_url": "https://avatars.githubusercontent.com/u/53092780?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/luislinaro",
+    "html_url": "https://github.com/luislinaro",
+    "followers_url": "https://api.github.com/users/luislinaro/followers",
+    "following_url": "https://api.github.com/users/luislinaro/following{/other_user}",
+    "gists_url": "https://api.github.com/users/luislinaro/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/luislinaro/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/luislinaro/subscriptions",
+    "organizations_url": "https://api.github.com/users/luislinaro/orgs",
+    "repos_url": "https://api.github.com/users/luislinaro/repos",
+    "events_url": "https://api.github.com/users/luislinaro/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/luislinaro/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "cb959bd8956f9dfc39f7f9a5ee56c1606979d33e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cb959bd8956f9dfc39f7f9a5ee56c1606979d33e",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/cb959bd8956f9dfc39f7f9a5ee56c1606979d33e"
+    }
+  ],
+  "stats": {
+    "total": 87,
+    "additions": 56,
+    "deletions": 31
+  },
+  "files": [
+    {
+      "sha": "7db3e36d76aabfd6b47c67890b0c47e0c46b8c4f",
+      "filename": "gdb/gdbarch.h",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/05558223b5b52bf41036eb80335d2e541187e78f/gdb/gdbarch.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/05558223b5b52bf41036eb80335d2e541187e78f/gdb/gdbarch.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbarch.h?ref=05558223b5b52bf41036eb80335d2e541187e78f",
+      "patch": "@@ -730,7 +730,8 @@ typedef std::string (gdbarch_memtag_to_string_ftype) (struct gdbarch *gdbarch, s\n extern std::string gdbarch_memtag_to_string (struct gdbarch *gdbarch, struct value *tag);\n extern void set_gdbarch_memtag_to_string (struct gdbarch *gdbarch, gdbarch_memtag_to_string_ftype *memtag_to_string);\n \n-/* Return true if ADDRESS contains a tag and false otherwise. */\n+/* Return true if ADDRESS contains a tag and false otherwise.  ADDRESS\n+   must be either a pointer or a reference type. */\n \n typedef bool (gdbarch_tagged_address_p_ftype) (struct gdbarch *gdbarch, struct value *address);\n extern bool gdbarch_tagged_address_p (struct gdbarch *gdbarch, struct value *address);"
+    },
+    {
+      "sha": "9bc9de91c30bdfb30804a50eb84fdee4ff0a6740",
+      "filename": "gdb/gdbarch.sh",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/05558223b5b52bf41036eb80335d2e541187e78f/gdb/gdbarch.sh",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/05558223b5b52bf41036eb80335d2e541187e78f/gdb/gdbarch.sh",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbarch.sh?ref=05558223b5b52bf41036eb80335d2e541187e78f",
+      "patch": "@@ -608,7 +608,8 @@ v;int;significant_addr_bit;;;;;;0\n # Return a string representation of the memory tag TAG.\n m;std::string;memtag_to_string;struct value *tag;tag;;default_memtag_to_string;;0\n \n-# Return true if ADDRESS contains a tag and false otherwise.\n+# Return true if ADDRESS contains a tag and false otherwise.  ADDRESS\n+# must be either a pointer or a reference type.\n m;bool;tagged_address_p;struct value *address;address;;default_tagged_address_p;;0\n \n # Return true if the tag from ADDRESS matches the memory tag for that"
+    },
+    {
+      "sha": "416b87c69c6f575a7f1a8398e22db2a7c305772f",
+      "filename": "gdb/printcmd.c",
+      "status": "modified",
+      "additions": 52,
+      "deletions": 29,
+      "changes": 81,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/05558223b5b52bf41036eb80335d2e541187e78f/gdb/printcmd.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/05558223b5b52bf41036eb80335d2e541187e78f/gdb/printcmd.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/printcmd.c?ref=05558223b5b52bf41036eb80335d2e541187e78f",
+      "patch": "@@ -1266,19 +1266,26 @@ print_value (value *val, const value_print_options &opts)\n static bool\n should_validate_memtags (struct value *value)\n {\n-  if (target_supports_memory_tagging ()\n-      && gdbarch_tagged_address_p (target_gdbarch (), value))\n-    {\n-      gdb_assert (value != nullptr && value_type (value) != nullptr);\n+  gdb_assert (value != nullptr && value_type (value) != nullptr);\n \n-      enum type_code code = value_type (value)->code ();\n+  if (!target_supports_memory_tagging ())\n+    return false;\n \n-      return (code == TYPE_CODE_PTR\n-\t      || code == TYPE_CODE_REF\n-\t      || code == TYPE_CODE_METHODPTR\n-\t      || code == TYPE_CODE_MEMBERPTR);\n-    }\n-  return false;\n+  enum type_code code = value_type (value)->code ();\n+\n+  /* Skip non-address values.  */\n+  if (code != TYPE_CODE_PTR\n+      && !TYPE_IS_REFERENCE (value_type (value)))\n+    return false;\n+\n+  /* OK, we have an address value.  Check we have a complete value we\n+     can extract.  */\n+  if (value_optimized_out (value)\n+      || !value_entirely_available (value))\n+    return false;\n+\n+  /* We do.  Check whether it includes any tags.  */\n+  return gdbarch_tagged_address_p (target_gdbarch (), value);\n }\n \n /* Helper for parsing arguments for print_command_1.  */\n@@ -1321,26 +1328,42 @@ print_command_1 (const char *args, int voidprint)\n \t\t    value_type (val)->code () != TYPE_CODE_VOID))\n     {\n       /* If memory tagging validation is on, check if the tag is valid.  */\n-      if (print_opts.memory_tag_violations && should_validate_memtags (val)\n-\t  && !gdbarch_memtag_matches_p (target_gdbarch (), val))\n+      if (print_opts.memory_tag_violations)\n \t{\n-\t  /* Fetch the logical tag.  */\n-\t  struct value *tag\n-\t    = gdbarch_get_memtag (target_gdbarch (), val,\n-\t\t\t\t  memtag_type::logical);\n-\t  std::string ltag\n-\t    = gdbarch_memtag_to_string (target_gdbarch (), tag);\n-\n-\t  /* Fetch the allocation tag.  */\n-\t  tag = gdbarch_get_memtag (target_gdbarch (), val,\n-\t\t\t\t    memtag_type::allocation);\n-\t  std::string atag\n-\t    = gdbarch_memtag_to_string (target_gdbarch (), tag);\n-\n-\t  printf_filtered (_(\"Logical tag (%s) does not match the \"\n-\t\t\t     \"allocation tag (%s).\\n\"),\n-\t\t\t   ltag.c_str (), atag.c_str ());\n+\t  try\n+\t    {\n+\t      if (should_validate_memtags (val)\n+\t\t  && !gdbarch_memtag_matches_p (target_gdbarch (), val))\n+\t\t{\n+\t\t  /* Fetch the logical tag.  */\n+\t\t  struct value *tag\n+\t\t    = gdbarch_get_memtag (target_gdbarch (), val,\n+\t\t\t\t\t  memtag_type::logical);\n+\t\t  std::string ltag\n+\t\t    = gdbarch_memtag_to_string (target_gdbarch (), tag);\n+\n+\t\t  /* Fetch the allocation tag.  */\n+\t\t  tag = gdbarch_get_memtag (target_gdbarch (), val,\n+\t\t\t\t\t    memtag_type::allocation);\n+\t\t  std::string atag\n+\t\t    = gdbarch_memtag_to_string (target_gdbarch (), tag);\n+\n+\t\t  printf_filtered (_(\"Logical tag (%s) does not match the \"\n+\t\t\t\t     \"allocation tag (%s).\\n\"),\n+\t\t\t\t   ltag.c_str (), atag.c_str ());\n+\t\t}\n+\t    }\n+\t  catch (gdb_exception_error &ex)\n+\t    {\n+\t      if (ex.error == TARGET_CLOSE_ERROR)\n+\t\tthrow;\n+\n+\t      fprintf_filtered (gdb_stderr,\n+\t\t\t\t_(\"Could not validate memory tag: %s\\n\"),\n+\t\t\t\tex.message->c_str ());\n+\t    }\n \t}\n+\n       print_value (val, print_opts);\n     }\n }"
+    }
+  ]
+}

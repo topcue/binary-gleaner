@@ -1,0 +1,96 @@
+{
+  "sha": "44730156af5f411d2c47af22558e7bd84dc4fcea",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NDQ3MzAxNTZhZjVmNDExZDJjNDdhZjIyNTU4ZTdiZDg0ZGM0ZmNlYQ==",
+  "commit": {
+    "author": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2020-06-02T01:44:13Z"
+    },
+    "committer": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2020-06-03T01:20:59Z"
+    },
+    "message": "RISC-V: Fix the error when building RISC-V linux native gdbserver.\n\nThe original report is as follow,\nhttps://sourceware.org/pipermail/binutils/2020-June/111383.html\n\nInlcude the bfd.h in the include/opcode/riscv.h may cause gdbserver fail\nto build.  I just want to use the `bfd_boolean` in the opcodes/riscv-opc.c,\nbut I didn't realize this cause the build failed.  Fortunately, I can also\nuse the `int` as the function return types just like others in the\nopcodes/riscv-opc.c.\n\n\tinclude/\n\t* opcode/riscv.h: Remove #include \"bfd.h\".  And change the return\n\ttypes of riscv_get_isa_spec_class and riscv_get_priv_spec_class\n\tfrom bfd_boolean to int.\n\n\topcodes/\n\t* riscv-opc.c (riscv_get_isa_spec_class): Change bfd_boolean to int.\n\t(riscv_get_priv_spec_class): Likewise.",
+    "tree": {
+      "sha": "063920ff99e17f347f29225127366a795594f653",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/063920ff99e17f347f29225127366a795594f653"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/44730156af5f411d2c47af22558e7bd84dc4fcea",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/44730156af5f411d2c47af22558e7bd84dc4fcea",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/44730156af5f411d2c47af22558e7bd84dc4fcea",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/44730156af5f411d2c47af22558e7bd84dc4fcea/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "721276a249df7be8fdda2bc18c70beb5752e439e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/721276a249df7be8fdda2bc18c70beb5752e439e",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/721276a249df7be8fdda2bc18c70beb5752e439e"
+    }
+  ],
+  "stats": {
+    "total": 32,
+    "additions": 21,
+    "deletions": 11
+  },
+  "files": [
+    {
+      "sha": "5c0a82b5f8e851f68c20ceccd31dced46d5012b0",
+      "filename": "include/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/44730156af5f411d2c47af22558e7bd84dc4fcea/include/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/44730156af5f411d2c47af22558e7bd84dc4fcea/include/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ChangeLog?ref=44730156af5f411d2c47af22558e7bd84dc4fcea",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-06-03  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* opcode/riscv.h: Remove #include \"bfd.h\".  And change the return\n+\ttypes of riscv_get_isa_spec_class and riscv_get_priv_spec_class\n+\tfrom bfd_boolean to int.\n+\n 2020-05-28  Alan Modra  <amodra@gmail.com>\n \n \tPR 26044"
+    },
+    {
+      "sha": "fecf41042f48cb2c442d3d739d0ad9cd795082b9",
+      "filename": "include/opcode/riscv.h",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 3,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/44730156af5f411d2c47af22558e7bd84dc4fcea/include/opcode/riscv.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/44730156af5f411d2c47af22558e7bd84dc4fcea/include/opcode/riscv.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/opcode/riscv.h?ref=44730156af5f411d2c47af22558e7bd84dc4fcea",
+      "patch": "@@ -24,7 +24,6 @@\n #include \"riscv-opc.h\"\n #include <stdlib.h>\n #include <stdint.h>\n-#include \"bfd.h\"\n \n typedef uint64_t insn_t;\n \n@@ -490,9 +489,9 @@ extern const struct riscv_opcode riscv_opcodes[];\n extern const struct riscv_opcode riscv_insn_types[];\n extern const struct riscv_ext_version riscv_ext_version_table[];\n \n-extern bfd_boolean\n+extern int\n riscv_get_isa_spec_class (const char *, enum riscv_isa_spec_class *);\n-extern bfd_boolean\n+extern int\n riscv_get_priv_spec_class (const char *, enum riscv_priv_spec_class *);\n extern const char *\n riscv_get_priv_spec_name (enum riscv_priv_spec_class);"
+    },
+    {
+      "sha": "950819daf35e74dbe5f968277864571e39715a0b",
+      "filename": "opcodes/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/44730156af5f411d2c47af22558e7bd84dc4fcea/opcodes/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/44730156af5f411d2c47af22558e7bd84dc4fcea/opcodes/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/ChangeLog?ref=44730156af5f411d2c47af22558e7bd84dc4fcea",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-06-03  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* riscv-opc.c (riscv_get_isa_spec_class): Change bfd_boolean to int.\n+\t(riscv_get_priv_spec_class): Likewise.\n+\n 2020-06-01  Alan Modra  <amodra@gmail.com>\n \n \t* bpf-desc.c: Regenerate."
+    },
+    {
+      "sha": "4481359a876daebefd89b3478578f55420c18fdb",
+      "filename": "opcodes/riscv-opc.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 8,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/44730156af5f411d2c47af22558e7bd84dc4fcea/opcodes/riscv-opc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/44730156af5f411d2c47af22558e7bd84dc4fcea/opcodes/riscv-opc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/riscv-opc.c?ref=44730156af5f411d2c47af22558e7bd84dc4fcea",
+      "patch": "@@ -958,24 +958,24 @@ static const struct isa_spec_t isa_specs[] =\n \n /* Get the corresponding ISA spec class by giving a ISA spec string.  */\n \n-bfd_boolean\n+int\n riscv_get_isa_spec_class (const char *s,\n                          enum riscv_isa_spec_class *class)\n {\n   const struct isa_spec_t *version;\n \n   if (s == NULL)\n-    return FALSE;\n+    return 0;\n \n   for (version = &isa_specs[0]; version->name != NULL; ++version)\n     if (strcmp (version->name, s) == 0)\n       {\n        *class = version->class;\n-       return TRUE;\n+       return 1;\n       }\n \n   /* Can not find the supported ISA spec.  */\n-  return FALSE;\n+  return 0;\n }\n \n struct priv_spec_t\n@@ -999,24 +999,24 @@ static const struct priv_spec_t priv_specs[] =\n /* Get the corresponding CSR version class by giving a privilege\n    version string.  */\n \n-bfd_boolean\n+int\n riscv_get_priv_spec_class (const char *s,\n                           enum riscv_priv_spec_class *class)\n {\n   const struct priv_spec_t *version;\n \n   if (s == NULL)\n-    return FALSE;\n+    return 0;\n \n   for (version = &priv_specs[0]; version->name != NULL; ++version)\n     if (strcmp (version->name, s) == 0)\n       {\n        *class = version->class;\n-       return TRUE;\n+       return 1;\n       }\n \n   /* Can not find the supported privilege version.  */\n-  return FALSE;\n+  return 0;\n }\n \n /* Get the corresponding privilege version string by giving a CSR"
+    }
+  ]
+}

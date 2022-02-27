@@ -1,0 +1,144 @@
+{
+  "sha": "f786c359c1e3227fe8ecfcb2819bb3b80ed351ed",
+  "node_id": "C_kwDOANOeidoAKGY3ODZjMzU5YzFlMzIyN2ZlOGVjZmNiMjgxOWJiM2I4MGVkMzUxZWQ",
+  "commit": {
+    "author": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2021-11-08T08:35:25Z"
+    },
+    "committer": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2021-11-11T08:59:13Z"
+    },
+    "message": "RISC-V: Dump objects according to the elf architecture attribute.\n\nFor now we should always generate the elf architecture attribute both for\nelf and linux toolchains, so that we could dump the objects correctly\naccording to the generated architecture string.  This patch resolves the\nproblem that we probably dump an object with c.nop instructions, but\nin fact the c extension isn't allowed.  Consider the following case,\n\nnelson@LAPTOP-QFSGI1F2:~/test$ cat temp.s\n.option norvc\n.option norelax\n.text\nadd     a0, a0, a0\n.byte   0x1\n.balign 16\nnelson@LAPTOP-QFSGI1F2:~/test$ ~/binutils-dev/build-elf32-upstream/build-install/bin/riscv32-unknown-elf-as temp.s -o temp.o\nnelson@LAPTOP-QFSGI1F2:~/test$ ~/binutils-dev/build-elf32-upstream/build-install/bin/riscv32-unknown-elf-objdump -d temp.o\n\ntemp.o:     file format elf32-littleriscv\n\nDisassembly of section .text:\n\n00000000 <.text>:\n   0:   00a50533                add     a0,a0,a0\n   4:   01                      .byte   0x01\n   5:   00                      .byte   0x00\n   6:   0001                    nop\n   8:   00000013                nop\n   c:   00000013                nop\nnelson@LAPTOP-QFSGI1F2:~/test$ ~/binutils-dev/build-elf32-upstream/build-install/bin/riscv32-unknown-elf-readelf -A temp.o\nAttribute Section: riscv\nFile Attributes\n  Tag_RISCV_arch: \"rv32i2p0_m2p0_a2p0_f2p0_d2p0\"\n\nThe c.nop at address 0x6 is generated for alignment, but since the rvc isn't\nallowed for this object, dump it as a c.nop instruction looks wrong.  After\napplying this patch, I get the following result,\n\nnelson@LAPTOP-QFSGI1F2:~/test$ ~/binutils-dev/build-elf32-upstream/build-install/bin/riscv32-unknown-elf-objdump -d temp.o\n\ntemp.o:     file format elf32-littleriscv\n\nDisassembly of section .text:\n\n00000000 <.text>:\n   0:   00a50533                add     a0,a0,a0\n   4:   01                      .byte   0x01\n   5:   00                      .byte   0x00\n   6:   0001                    .2byte  0x1\n   8:   00000013                nop\n   c:   00000013                nop\n\nFor the current objdump, we dump data to .byte/.short/.word/.dword, and\ndump the unknown or unsupported instructions to .2byte/.4byte/.8byte, which\nrespectively are 2, 4 and 8 bytes instructions.  Therefore, we shouldn't\ndump the 0x0001 as a c.nop instruction in the above case, we should dump\nit to .2byte 0x1 as a unknown instruction, since the rvc is disabled.\n\nHowever, consider that some people may use the new objdump to dump the old\nobjects, which don't have any elf attributes.  We usually set the default\narchitecture string to rv64g by bfd/elfxx-riscv.c:riscv_set_default_arch.\nBut this will cause rvc instructions to be unrecognized.  Therefore, we\nset the default architecture string to rv64gc for disassembler, to keep\nthe previous behavior.\n\nThis patch pass the riscv-gnu-toolchain gcc/binutils regressions for\nrv32emc-elf, rv32gc-linux, rv32i-elf, rv64gc-elf and rv64gc-linux\ntoolchains.  Also, tested by --enable-targets=all and can build\nriscv-gdb successfully.\n\nbfd/\n\t* elfnn-riscv.c (riscv_merge_arch_attr_info): Tidy the\n\tcodes for riscv_parse_subset_t setting.\n\t* elfxx-riscv.c (riscv_get_default_ext_version): Updated.\n\t(riscv_subset_supports): Moved from gas/config/tc-riscv.c.\n\t(riscv_multi_subset_supports): Likewise.\n\t* elfxx-riscv.h: Added extern for riscv_subset_supports and\n\triscv_multi_subset_supports.\ngas/\n\t* config/tc-riscv.c (riscv_subset_supports): Moved to\n\tbfd/elfxx-riscv.c.\n\t(riscv_multi_subset_supports): Likewise.\n\t(riscv_rps_as): Defined for architectrue parser.\n\t(riscv_set_arch): Updated.\n\t(riscv_set_abi_by_arch): Likewise.\n\t(riscv_csr_address): Likewise.\n\t(reg_lookup_internal): Likewise.\n\t(riscv_ip): Likewise.\n\t(s_riscv_option): Updated.\n\t* testsuite/gas/riscv/mapping-04b.d: Updated.\n\t* testsuite/gas/riscv/mapping-norelax-03b.d: Likewise.\n\t* testsuite/gas/riscv/mapping-norelax-04b.d: Likewise.\nopcodes/\n\t* riscv-dis.c: Include elfxx-riscv.h since we need the\n\tarchitecture parser.  Also removed the cpu-riscv.h, it\n\tis already included in elfxx-riscv.h.\n\t(default_isa_spec): Defined since the parser need this\n\tto set the default architecture string.\n\t(xlen): Moved out from riscv_disassemble_insn as a global\n\tvariable, it is more convenient to initialize riscv_rps_dis.\n\t(riscv_subsets): Defined to recoed the supported\n\textensions.\n\t(riscv_rps_dis): Defined for architectrue parser.\n\t(riscv_disassemble_insn): Call riscv_multi_subset_supports\n\tto make sure if the instructions are valid or not.\n\t(print_insn_riscv): Initialize the riscv_subsets by parsing\n\tthe elf architectrue attribute.  Otherwise, set the default\n\tarchitectrue string to rv64gc.",
+    "tree": {
+      "sha": "1127cc959b674da4128873b4bb4de8a3de84c2df",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/1127cc959b674da4128873b4bb4de8a3de84c2df"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "efe113047d765b26869c3170c43678dd561027b4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/efe113047d765b26869c3170c43678dd561027b4",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/efe113047d765b26869c3170c43678dd561027b4"
+    }
+  ],
+  "stats": {
+    "total": 256,
+    "additions": 133,
+    "deletions": 123
+  },
+  "files": [
+    {
+      "sha": "36cbf1ed15f5fd100f46396744926516265ec8cc",
+      "filename": "bfd/elfnn-riscv.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 21,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed/bfd/elfnn-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed/bfd/elfnn-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfnn-riscv.c?ref=f786c359c1e3227fe8ecfcb2819bb3b80ed351ed",
+      "patch": "@@ -3574,37 +3574,22 @@ riscv_merge_arch_attr_info (bfd *ibfd, char *in_arch, char *out_arch)\n   merged_subsets.head = NULL;\n   merged_subsets.tail = NULL;\n \n-  riscv_parse_subset_t rpe_in;\n-  riscv_parse_subset_t rpe_out;\n-\n-  /* Only assembler needs to check the default version of ISA, so just set\n-     the rpe_in.get_default_version and rpe_out.get_default_version to NULL.  */\n-  rpe_in.subset_list = &in_subsets;\n-  rpe_in.error_handler = _bfd_error_handler;\n-  rpe_in.xlen = &xlen_in;\n-  rpe_in.isa_spec = ISA_SPEC_CLASS_NONE;\n-  rpe_in.check_unknown_prefixed_ext = false;\n-\n-  rpe_out.subset_list = &out_subsets;\n-  rpe_out.error_handler = _bfd_error_handler;\n-  rpe_out.xlen = &xlen_out;\n-  rpe_out.isa_spec = ISA_SPEC_CLASS_NONE;\n-  rpe_out.check_unknown_prefixed_ext = false;\n+  riscv_parse_subset_t riscv_rps_ld_in =\n+    {&in_subsets, _bfd_error_handler, &xlen_in, NULL, false};\n+  riscv_parse_subset_t riscv_rps_ld_out =\n+    {&out_subsets, _bfd_error_handler, &xlen_out, NULL, false};\n \n   if (in_arch == NULL && out_arch == NULL)\n     return NULL;\n-\n   if (in_arch == NULL && out_arch != NULL)\n     return out_arch;\n-\n   if (in_arch != NULL && out_arch == NULL)\n     return in_arch;\n \n   /* Parse subset from ISA string.  */\n-  if (!riscv_parse_subset (&rpe_in, in_arch))\n+  if (!riscv_parse_subset (&riscv_rps_ld_in, in_arch))\n     return NULL;\n-\n-  if (!riscv_parse_subset (&rpe_out, out_arch))\n+  if (!riscv_parse_subset (&riscv_rps_ld_out, out_arch))\n     return NULL;\n \n   /* Checking XLEN.  */"
+    },
+    {
+      "sha": "3ffbaad66dd77830a5b3f6a152dd5913b0e30851",
+      "filename": "bfd/elfxx-riscv.c",
+      "status": "modified",
+      "additions": 66,
+      "deletions": 3,
+      "changes": 69,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed/bfd/elfxx-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed/bfd/elfxx-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfxx-riscv.c?ref=f786c359c1e3227fe8ecfcb2819bb3b80ed351ed",
+      "patch": "@@ -1418,12 +1418,14 @@ riscv_add_subset (riscv_subset_list_t *subset_list,\n /* Get the default versions from the riscv_supported_*ext tables.  */\n \n static void\n-riscv_get_default_ext_version (enum riscv_spec_class default_isa_spec,\n+riscv_get_default_ext_version (enum riscv_spec_class *default_isa_spec,\n \t\t\t       const char *name,\n \t\t\t       int *major_version,\n \t\t\t       int *minor_version)\n {\n-  if (name == NULL || default_isa_spec == ISA_SPEC_CLASS_NONE)\n+  if (name == NULL\n+      || default_isa_spec == NULL\n+      || *default_isa_spec == ISA_SPEC_CLASS_NONE)\n     return;\n \n   struct riscv_supported_ext *table = NULL;\n@@ -1445,7 +1447,7 @@ riscv_get_default_ext_version (enum riscv_spec_class default_isa_spec,\n     {\n       if (strcmp (table[i].name, name) == 0\n \t  && (table[i].isa_spec_class == ISA_SPEC_CLASS_DRAFT\n-\t      || table[i].isa_spec_class == default_isa_spec))\n+\t      || table[i].isa_spec_class == *default_isa_spec))\n \t{\n \t  *major_version = table[i].major_version;\n \t  *minor_version = table[i].minor_version;\n@@ -2095,3 +2097,64 @@ riscv_update_subset (riscv_parse_subset_t *rps,\n   riscv_parse_add_implicit_subsets (rps);\n   return riscv_parse_check_conflicts (rps);\n }\n+\n+/* Check if the FEATURE subset is supported or not in the subset list.\n+   Return true if it is supported; Otherwise, return false.  */\n+\n+bool\n+riscv_subset_supports (riscv_parse_subset_t *rps,\n+\t\t       const char *feature)\n+{\n+  struct riscv_subset_t *subset;\n+  return riscv_lookup_subset (rps->subset_list, feature, &subset);\n+}\n+\n+/* Each instuction is belonged to an instruction class INSN_CLASS_*.\n+   Call riscv_subset_supports to make sure if the instuction is valid.  */\n+\n+bool\n+riscv_multi_subset_supports (riscv_parse_subset_t *rps,\n+\t\t\t     enum riscv_insn_class insn_class)\n+{\n+  switch (insn_class)\n+    {\n+    case INSN_CLASS_I:\n+      return riscv_subset_supports (rps, \"i\");\n+    case INSN_CLASS_ZICSR:\n+      return riscv_subset_supports (rps, \"zicsr\");\n+    case INSN_CLASS_ZIFENCEI:\n+      return riscv_subset_supports (rps, \"zifencei\");\n+    case INSN_CLASS_ZIHINTPAUSE:\n+      return riscv_subset_supports (rps, \"zihintpause\");\n+    case INSN_CLASS_M:\n+      return riscv_subset_supports (rps, \"m\");\n+    case INSN_CLASS_A:\n+      return riscv_subset_supports (rps, \"a\");\n+    case INSN_CLASS_F:\n+      return riscv_subset_supports (rps, \"f\");\n+    case INSN_CLASS_D:\n+      return riscv_subset_supports (rps, \"d\");\n+    case INSN_CLASS_Q:\n+      return riscv_subset_supports (rps, \"q\");\n+    case INSN_CLASS_C:\n+      return riscv_subset_supports (rps, \"c\");\n+    case INSN_CLASS_F_AND_C:\n+      return (riscv_subset_supports (rps, \"f\")\n+\t      && riscv_subset_supports (rps, \"c\"));\n+    case INSN_CLASS_D_AND_C:\n+      return (riscv_subset_supports (rps, \"d\")\n+\t      && riscv_subset_supports (rps, \"c\"));\n+    case INSN_CLASS_ZBA:\n+      return riscv_subset_supports (rps, \"zba\");\n+    case INSN_CLASS_ZBB:\n+      return riscv_subset_supports (rps, \"zbb\");\n+    case INSN_CLASS_ZBC:\n+      return riscv_subset_supports (rps, \"zbc\");\n+    case INSN_CLASS_ZBS:\n+      return riscv_subset_supports (rps, \"zbs\");\n+    default:\n+      rps->error_handler\n+        (_(\"internal: unreachable INSN_CLASS_*\"));\n+      return false;\n+    }\n+}"
+    },
+    {
+      "sha": "8de9adca0b175b7c4b23e94ec95c72d886b2b6ec",
+      "filename": "bfd/elfxx-riscv.h",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 1,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed/bfd/elfxx-riscv.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed/bfd/elfxx-riscv.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfxx-riscv.h?ref=f786c359c1e3227fe8ecfcb2819bb3b80ed351ed",
+      "patch": "@@ -72,7 +72,7 @@ typedef struct\n   void (*error_handler) (const char *,\n \t\t\t ...) ATTRIBUTE_PRINTF_1;\n   unsigned *xlen;\n-  enum riscv_spec_class isa_spec;\n+  enum riscv_spec_class *isa_spec;\n   bool check_unknown_prefixed_ext;\n } riscv_parse_subset_t;\n \n@@ -95,6 +95,12 @@ riscv_compare_subsets (const char *, const char *);\n extern bool\n riscv_update_subset (riscv_parse_subset_t *, const char *, bool);\n \n+extern bool\n+riscv_subset_supports (riscv_parse_subset_t *, const char *);\n+\n+extern bool\n+riscv_multi_subset_supports (riscv_parse_subset_t *, enum riscv_insn_class);\n+\n extern void\n bfd_elf32_riscv_set_data_segment_info (struct bfd_link_info *, int *);\n extern void"
+    },
+    {
+      "sha": "8cea72a902585612e2c3bd54a39879f19bac7197",
+      "filename": "gas/config/tc-riscv.c",
+      "status": "modified",
+      "additions": 23,
+      "deletions": 87,
+      "changes": 110,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed/gas/config/tc-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed/gas/config/tc-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-riscv.c?ref=f786c359c1e3227fe8ecfcb2819bb3b80ed351ed",
+      "patch": "@@ -234,77 +234,20 @@ riscv_set_rvc (bool rvc_value)\n    -march option, the elf architecture attributes, and the --with-arch\n    configure option.  */\n static riscv_subset_list_t riscv_subsets;\n-\n-/* Check if the FEATURE subset is supported or not in the subset list.\n-   Return true if it is supported; Otherwise, return false.  */\n-\n-static bool\n-riscv_subset_supports (const char *feature)\n-{\n-  struct riscv_subset_t *subset;\n-  return riscv_lookup_subset (&riscv_subsets, feature, &subset);\n-}\n-\n-/* Each instuction is belonged to an instruction class INSN_CLASS_*.\n-   Call riscv_subset_supports to make sure if the instuction is valid.  */\n-\n-static bool\n-riscv_multi_subset_supports (enum riscv_insn_class insn_class)\n+static riscv_parse_subset_t riscv_rps_as =\n {\n-  switch (insn_class)\n-    {\n-    case INSN_CLASS_I:\n-      return riscv_subset_supports (\"i\");\n-    case INSN_CLASS_ZICSR:\n-      return riscv_subset_supports (\"zicsr\");\n-    case INSN_CLASS_ZIFENCEI:\n-      return riscv_subset_supports (\"zifencei\");\n-    case INSN_CLASS_ZIHINTPAUSE:\n-      return riscv_subset_supports (\"zihintpause\");\n-    case INSN_CLASS_M:\n-      return riscv_subset_supports (\"m\");\n-    case INSN_CLASS_A:\n-      return riscv_subset_supports (\"a\");\n-    case INSN_CLASS_F:\n-      return riscv_subset_supports (\"f\");\n-    case INSN_CLASS_D:\n-      return riscv_subset_supports (\"d\");\n-    case INSN_CLASS_Q:\n-      return riscv_subset_supports (\"q\");\n-    case INSN_CLASS_C:\n-      return riscv_subset_supports (\"c\");\n-    case INSN_CLASS_F_AND_C:\n-      return (riscv_subset_supports (\"f\")\n-\t      && riscv_subset_supports (\"c\"));\n-    case INSN_CLASS_D_AND_C:\n-      return (riscv_subset_supports (\"d\")\n-\t      && riscv_subset_supports (\"c\"));\n-    case INSN_CLASS_ZBA:\n-      return riscv_subset_supports (\"zba\");\n-    case INSN_CLASS_ZBB:\n-      return riscv_subset_supports (\"zbb\");\n-    case INSN_CLASS_ZBC:\n-      return riscv_subset_supports (\"zbc\");\n-    case INSN_CLASS_ZBS:\n-      return riscv_subset_supports (\"zbs\");\n-    default:\n-      as_fatal (\"internal: unreachable\");\n-      return false;\n-    }\n-}\n+  &riscv_subsets,\t/* subset_list.  */\n+  as_bad,\t\t/* error_handler.  */\n+  &xlen,\t\t/* xlen.  */\n+  &default_isa_spec,\t/* isa_spec.  */\n+  true,\t\t\t/* check_unknown_prefixed_ext.  */\n+};\n \n /* Set which ISA and extensions are available.  */\n \n static void\n riscv_set_arch (const char *s)\n {\n-  riscv_parse_subset_t rps;\n-  rps.subset_list = &riscv_subsets;\n-  rps.error_handler = as_bad;\n-  rps.xlen = &xlen;\n-  rps.isa_spec = default_isa_spec;\n-  rps.check_unknown_prefixed_ext = true;\n-\n   if (s != NULL && strcmp (s, \"\") == 0)\n     {\n       as_bad (_(\"the architecture string of -march and elf architecture \"\n@@ -313,10 +256,10 @@ riscv_set_arch (const char *s)\n     }\n \n   riscv_release_subset_list (&riscv_subsets);\n-  riscv_parse_subset (&rps, s);\n+  riscv_parse_subset (&riscv_rps_as, s);\n \n   riscv_set_rvc (false);\n-  if (riscv_subset_supports (\"c\"))\n+  if (riscv_subset_supports (&riscv_rps_as, \"c\"))\n     riscv_set_rvc (true);\n }\n \n@@ -341,11 +284,11 @@ riscv_set_abi_by_arch (void)\n {\n   if (!explicit_mabi)\n     {\n-      if (riscv_subset_supports (\"q\"))\n+      if (riscv_subset_supports (&riscv_rps_as, \"q\"))\n \triscv_set_abi (xlen, FLOAT_ABI_QUAD, false);\n-      else if (riscv_subset_supports (\"d\"))\n+      else if (riscv_subset_supports (&riscv_rps_as, \"d\"))\n \triscv_set_abi (xlen, FLOAT_ABI_DOUBLE, false);\n-      else if (riscv_subset_supports (\"e\"))\n+      else if (riscv_subset_supports (&riscv_rps_as, \"e\"))\n \triscv_set_abi (xlen, FLOAT_ABI_SOFT, true);\n       else\n \triscv_set_abi (xlen, FLOAT_ABI_SOFT, false);\n@@ -358,19 +301,19 @@ riscv_set_abi_by_arch (void)\n       else if (abi_xlen < xlen)\n \tas_bad (\"%d-bit ABI not yet supported on %d-bit ISA\", abi_xlen, xlen);\n \n-      if (riscv_subset_supports (\"e\") && !rve_abi)\n+      if (riscv_subset_supports (&riscv_rps_as, \"e\") && !rve_abi)\n \tas_bad (\"only the ilp32e ABI is supported for e extension\");\n \n       if (float_abi == FLOAT_ABI_SINGLE\n-\t  && !riscv_subset_supports (\"f\"))\n+\t  && !riscv_subset_supports (&riscv_rps_as, \"f\"))\n \tas_bad (\"ilp32f/lp64f ABI can't be used when f extension \"\n \t\t\"isn't supported\");\n       else if (float_abi == FLOAT_ABI_DOUBLE\n-\t       && !riscv_subset_supports (\"d\"))\n+\t       && !riscv_subset_supports (&riscv_rps_as, \"d\"))\n \tas_bad (\"ilp32d/lp64d ABI can't be used when d extension \"\n \t\t\"isn't supported\");\n       else if (float_abi == FLOAT_ABI_QUAD\n-\t       && !riscv_subset_supports (\"q\"))\n+\t       && !riscv_subset_supports (&riscv_rps_as, \"q\"))\n \tas_bad (\"ilp32q/lp64q ABI can't be used when q extension \"\n \t\t\"isn't supported\");\n     }\n@@ -923,13 +866,13 @@ riscv_csr_address (const char *csr_name,\n   switch (csr_class)\n     {\n     case CSR_CLASS_I:\n-      result = riscv_subset_supports (\"i\");\n+      result = riscv_subset_supports (&riscv_rps_as, \"i\");\n       break;\n     case CSR_CLASS_I_32:\n-      result = (xlen == 32 && riscv_subset_supports (\"i\"));\n+      result = (xlen == 32 && riscv_subset_supports (&riscv_rps_as, \"i\"));\n       break;\n     case CSR_CLASS_F:\n-      result = riscv_subset_supports (\"f\");\n+      result = riscv_subset_supports (&riscv_rps_as, \"f\");\n       need_check_version = false;\n       break;\n     case CSR_CLASS_DEBUG:\n@@ -995,7 +938,7 @@ reg_lookup_internal (const char *s, enum reg_class class)\n   if (r == NULL || DECODE_REG_CLASS (r) != class)\n     return -1;\n \n-  if (riscv_subset_supports (\"e\")\n+  if (riscv_subset_supports (&riscv_rps_as, \"e\")\n       && class == RCLASS_GPR\n       && DECODE_REG_NUM (r) > 15)\n     return -1;\n@@ -2061,7 +2004,7 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,\n       if ((insn->xlen_requirement != 0) && (xlen != insn->xlen_requirement))\n \tcontinue;\n \n-      if (!riscv_multi_subset_supports (insn->insn_class))\n+      if (!riscv_multi_subset_supports (&riscv_rps_as, insn->insn_class))\n \tcontinue;\n \n       create_insn (ip, insn);\n@@ -3364,21 +3307,14 @@ s_riscv_option (int x ATTRIBUTE_UNUSED)\n   ch = *input_line_pointer;\n   *input_line_pointer = '\\0';\n \n-  riscv_parse_subset_t rps;\n-  rps.subset_list = &riscv_subsets;\n-  rps.error_handler = as_bad;\n-  rps.xlen = &xlen;\n-  rps.isa_spec = default_isa_spec;\n-  rps.check_unknown_prefixed_ext = true;\n-\n   if (strcmp (name, \"rvc\") == 0)\n     {\n-      riscv_update_subset (&rps, \"c\", false);\n+      riscv_update_subset (&riscv_rps_as, \"c\", false);\n       riscv_set_rvc (true);\n     }\n   else if (strcmp (name, \"norvc\") == 0)\n     {\n-      riscv_update_subset (&rps, \"c\", true);\n+      riscv_update_subset (&riscv_rps_as, \"c\", true);\n       riscv_set_rvc (false);\n     }\n   else if (strcmp (name, \"pic\") == 0)"
+    },
+    {
+      "sha": "54bd0afb6c42413939975ab8a4b6d463dce37e66",
+      "filename": "gas/testsuite/gas/riscv/mapping-04b.d",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed/gas/testsuite/gas/riscv/mapping-04b.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed/gas/testsuite/gas/riscv/mapping-04b.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/mapping-04b.d?ref=f786c359c1e3227fe8ecfcb2819bb3b80ed351ed",
+      "patch": "@@ -18,6 +18,6 @@ Disassembly of section .text:\n [ \t]+19:[ \t]+20022002[ \t]+.word[ \t]+0x20022002\n [ \t]+1d:[ \t]+2002[ \t]+.short[ \t]+0x2002\n [ \t]+1f:[ \t]+00b585b3[ \t]+add[ \t]+a1,a1,a1\n-[ \t]+23:[ \t]+0000[ \t]+unimp\n-[ \t]+25:[ \t]+0000[ \t]+unimp\n+[ \t]+23:[ \t]+0000[ \t]+.2byte[ \t]+0x0\n+[ \t]+25:[ \t]+0000[ \t]+.2byte[ \t]+0x0\n #..."
+    },
+    {
+      "sha": "9e777351d1d09515ab86d7d6f75cf206ed3ab211",
+      "filename": "gas/testsuite/gas/riscv/mapping-norelax-03b.d",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed/gas/testsuite/gas/riscv/mapping-norelax-03b.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed/gas/testsuite/gas/riscv/mapping-norelax-03b.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/mapping-norelax-03b.d?ref=f786c359c1e3227fe8ecfcb2819bb3b80ed351ed",
+      "patch": "@@ -17,7 +17,7 @@ Disassembly of section .text:\n [ \t]+18:[ \t]+00000302[ \t]+.word[ \t]+0x00000302\n [ \t]+1c:[ \t]+00[ \t]+.byte[ \t]+0x00\n [ \t]+1d:[ \t]+00[ \t]+.byte[ \t]+0x00\n-[ \t]+1e:[ \t]+0001[ \t]+nop\n+[ \t]+1e:[ \t]+0001[ \t]+.2byte[ \t]+0x1\n [ \t]+20:[ \t]+00000005[ \t]+.word[ \t]+0x00000005\n [ \t]+24:[ \t]+00000013[ \t]+nop\n [ \t]+28:[ \t]+00000013[ \t]+nop"
+    },
+    {
+      "sha": "be668f292204bca0c099950f94145ed0ce5b3d00",
+      "filename": "gas/testsuite/gas/riscv/mapping-norelax-04b.d",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed/gas/testsuite/gas/riscv/mapping-norelax-04b.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed/gas/testsuite/gas/riscv/mapping-norelax-04b.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/mapping-norelax-04b.d?ref=f786c359c1e3227fe8ecfcb2819bb3b80ed351ed",
+      "patch": "@@ -13,12 +13,12 @@ Disassembly of section .text:\n [ \t]+8:[ \t]+00000001[ \t]+.word[ \t]+0x00000001\n [ \t]+c:[ \t]+00[ \t]+.byte[ \t]+0x00\n [ \t]+d:[ \t]+00[ \t]+.byte[ \t]+0x00\n-[ \t]+e:[ \t]+0001[ \t]+nop\n+[ \t]+e:[ \t]+0001[ \t]+.2byte[ \t]+0x1\n [ \t]+10:[ \t]+00a50533[ \t]+add[ \t]+a0,a0,a0\n [ \t]+14:[ \t]+20022002[ \t]+.word[ \t]+0x20022002\n [ \t]+18:[ \t]+20022002[ \t]+.word[ \t]+0x20022002\n [ \t]+1c:[ \t]+2002[ \t]+.short[ \t]+0x2002\n [ \t]+1e:[ \t]+00b585b3[ \t]+add[ \t]+a1,a1,a1\n-[ \t]+22:[ \t]+0001[ \t]+nop\n+[ \t]+22:[ \t]+0001[ \t]+.2byte[ \t]+0x1\n [ \t]+24:[ \t]+00000013[ \t]+nop\n #..."
+    },
+    {
+      "sha": "d097c167d1bdbe9fa05d9b18a75bc3c6f6813bd4",
+      "filename": "opcodes/riscv-dis.c",
+      "status": "modified",
+      "additions": 26,
+      "deletions": 6,
+      "changes": 32,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed/opcodes/riscv-dis.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f786c359c1e3227fe8ecfcb2819bb3b80ed351ed/opcodes/riscv-dis.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/riscv-dis.c?ref=f786c359c1e3227fe8ecfcb2819bb3b80ed351ed",
+      "patch": "@@ -27,13 +27,26 @@\n #include \"opintl.h\"\n #include \"elf-bfd.h\"\n #include \"elf/riscv.h\"\n-#include \"cpu-riscv.h\"\n+#include \"elfxx-riscv.h\"\n \n #include <stdint.h>\n #include <ctype.h>\n \n+static enum riscv_spec_class default_isa_spec = ISA_SPEC_CLASS_DRAFT - 1;\n static enum riscv_spec_class default_priv_spec = PRIV_SPEC_CLASS_NONE;\n \n+unsigned xlen = 0;\n+\n+static riscv_subset_list_t riscv_subsets;\n+static riscv_parse_subset_t riscv_rps_dis =\n+{\n+  &riscv_subsets,\t/* subset_list.  */\n+  opcodes_error_handler,/* error_handler.  */\n+  &xlen,\t\t/* xlen.  */\n+  &default_isa_spec,\t/* isa_spec.  */\n+  false,\t\t/* check_unknown_prefixed_ext.  */\n+};\n+\n struct riscv_private_data\n {\n   bfd_vma gp;\n@@ -502,8 +515,6 @@ riscv_disassemble_insn (bfd_vma memaddr, insn_t word, disassemble_info *info)\n   op = riscv_hash[OP_HASH_IDX (word)];\n   if (op != NULL)\n     {\n-      unsigned xlen = 0;\n-\n       /* If XLEN is not known, get its value from the ELF class.  */\n       if (info->mach == bfd_mach_riscv64)\n \txlen = 64;\n@@ -527,6 +538,9 @@ riscv_disassemble_insn (bfd_vma memaddr, insn_t word, disassemble_info *info)\n \t  if ((op->xlen_requirement != 0) && (op->xlen_requirement != xlen))\n \t    continue;\n \n+\t  if (!riscv_multi_subset_supports (&riscv_rps_dis, op->insn_class))\n+\t    continue;\n+\n \t  /* It's a match.  */\n \t  (*info->fprintf_func) (info->stream, \"%s\", op->name);\n \t  print_insn_args (op->args, word, memaddr, info);\n@@ -852,11 +866,13 @@ print_insn_riscv (bfd_vma memaddr, struct disassemble_info *info)\n disassembler_ftype\n riscv_get_disassembler (bfd *abfd)\n {\n+  const char *default_arch = \"rv64gc\";\n+\n   if (abfd)\n     {\n       const struct elf_backend_data *ebd = get_elf_backend_data (abfd);\n       if (ebd)\n-        {\n+\t{\n \t  const char *sec_name = ebd->obj_attrs_section;\n \t  if (bfd_get_section_by_name (abfd, sec_name) != NULL)\n \t    {\n@@ -868,10 +884,14 @@ riscv_get_disassembler (bfd *abfd)\n \t\t\t\t\t\t      attr[Tag_b].i,\n \t\t\t\t\t\t      attr[Tag_c].i,\n \t\t\t\t\t\t      &default_priv_spec);\n+\t      default_arch = attr[Tag_RISCV_arch].s;\n \t    }\n-        }\n+\t}\n     }\n-   return print_insn_riscv;\n+\n+  riscv_release_subset_list (&riscv_subsets);\n+  riscv_parse_subset (&riscv_rps_dis, default_arch);\n+  return print_insn_riscv;\n }\n \n /* Prevent use of the fake labels that are generated as part of the DWARF"
+    }
+  ]
+}

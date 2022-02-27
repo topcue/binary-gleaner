@@ -1,0 +1,134 @@
+{
+  "sha": "81f839676d98024f6c0a6609866bfa81b5f35325",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ODFmODM5Njc2ZDk4MDI0ZjZjMGE2NjA5ODY2YmZhODFiNWYzNTMyNQ==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-05-19T10:46:47Z"
+    },
+    "committer": {
+      "name": "Mike Frysinger",
+      "email": "vapier@gentoo.org",
+      "date": "2021-09-09T03:33:25Z"
+    },
+    "message": "sim: ppc: enable -Wpointer-sign warnings\n\nWhen compiling with --enable-werror and CFLAGS=\"-O0 -g -Wall\", we run into:\n...\nsrc/sim/ppc/hw_memory.c: In function 'hw_memory_init_address':\nsrc/sim/ppc/hw_memory.c:204:7: error: pointer targets in passing argument 4 \\\n  of 'device_find_integer_array_property' differ in signedness \\\n  [-Werror=pointer-sign]\n       &new_chunk->size);\n       ^\n...\n\nFix these by adding an explicit pointer cast.  It's a bit ugly to use APIs\nbased on signed integers to read out unsigned values, but in practice, this\nis par for the course in the ppc code.\n\nWe already use signed APIs and assign the result to unsigned values a lot:\nsee how device_find_integer_property returns a signed integer (cell), but\nthen assign it to unsigned types.  The array APIs are not used that often\nwhich is why we don't see many warnings, and we disable warnings when we\nassign signed integers to unsigned integers in general.\n\nThe dtc/libfdt project (which is the standard in other projects) processes\nthe fdt blob as a series of bytes without any type information.  Typing is\nleft to the caller.  They have core APIs that read/write bytes, and a few\nhelper functions to cast/convert those bytes to the right value (e.g. u32).\nIn this ppc sim code, the core APIs use signed integers, and the callers\nconvert to unsigned, usually implicitly.\n\nWe could add some core APIs to the ppc sim that deal with raw bytes and then\nadd some helpers to convert to the right type, but that seems like a lot of\nlifting for what boils down to a cast, and is effectively equivalent to all\nthe implicit assignments we use elsewhere.  Long term, a lot of the ppc code\nshould either get converted to existing sim common code, or we should stand\nup proper APIs in the common code first, or use standard libraries to do all\nthe processing (e.g. libfdt).  Either way, this device.c code would all get\ndeleted, and callers (like these hw_*.c files) would get converted.  Which\nis also why we go with a cast rather new (but largely unused) APIs.",
+    "tree": {
+      "sha": "56d5d325eb60adb1e831e9918b36e04db26ba788",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/56d5d325eb60adb1e831e9918b36e04db26ba788"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/81f839676d98024f6c0a6609866bfa81b5f35325",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/81f839676d98024f6c0a6609866bfa81b5f35325",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/81f839676d98024f6c0a6609866bfa81b5f35325",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/81f839676d98024f6c0a6609866bfa81b5f35325/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vapier",
+    "id": 176950,
+    "node_id": "MDQ6VXNlcjE3Njk1MA==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/176950?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vapier",
+    "html_url": "https://github.com/vapier",
+    "followers_url": "https://api.github.com/users/vapier/followers",
+    "following_url": "https://api.github.com/users/vapier/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vapier/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vapier/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vapier/subscriptions",
+    "organizations_url": "https://api.github.com/users/vapier/orgs",
+    "repos_url": "https://api.github.com/users/vapier/repos",
+    "events_url": "https://api.github.com/users/vapier/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vapier/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "0c320e1bdcb45e0d46f69a1567a06be326529c34",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0c320e1bdcb45e0d46f69a1567a06be326529c34",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/0c320e1bdcb45e0d46f69a1567a06be326529c34"
+    }
+  ],
+  "stats": {
+    "total": 14,
+    "additions": 8,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "a53a30f7fd41b6a901e8edb224b72321597f6055",
+      "filename": "sim/ppc/configure",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/81f839676d98024f6c0a6609866bfa81b5f35325/sim/ppc/configure",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/81f839676d98024f6c0a6609866bfa81b5f35325/sim/ppc/configure",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/sim/ppc/configure?ref=81f839676d98024f6c0a6609866bfa81b5f35325",
+      "patch": "@@ -3486,7 +3486,7 @@ sim_warnings=\"-Wall -Wdeclaration-after-statement -Wpointer-arith\n -Wmissing-declarations\n -Wmissing-prototypes\n -Wdeclaration-after-statement -Wmissing-parameter-type\n--Wno-pointer-sign\n+-Wpointer-sign\n -Wold-style-declaration -Wold-style-definition\n \"\n # Enable -Wno-format by default when using gcc on mingw since many"
+    },
+    {
+      "sha": "d1e9c09e9cd9350e8df9737b15dbbd90822da240",
+      "filename": "sim/ppc/configure.ac",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/81f839676d98024f6c0a6609866bfa81b5f35325/sim/ppc/configure.ac",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/81f839676d98024f6c0a6609866bfa81b5f35325/sim/ppc/configure.ac",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/sim/ppc/configure.ac?ref=81f839676d98024f6c0a6609866bfa81b5f35325",
+      "patch": "@@ -427,7 +427,7 @@ sim_warnings=\"-Wall -Wdeclaration-after-statement -Wpointer-arith\n -Wmissing-declarations\n -Wmissing-prototypes\n -Wdeclaration-after-statement -Wmissing-parameter-type\n--Wno-pointer-sign\n+-Wpointer-sign\n -Wold-style-declaration -Wold-style-definition\n \"\n # Enable -Wno-format by default when using gcc on mingw since many"
+    },
+    {
+      "sha": "c0826b711395806cfab81e86d1ad7376b7df19b8",
+      "filename": "sim/ppc/hw_memory.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/81f839676d98024f6c0a6609866bfa81b5f35325/sim/ppc/hw_memory.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/81f839676d98024f6c0a6609866bfa81b5f35325/sim/ppc/hw_memory.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/sim/ppc/hw_memory.c?ref=81f839676d98024f6c0a6609866bfa81b5f35325",
+      "patch": "@@ -199,9 +199,9 @@ hw_memory_init_address(device *me)\n \t cell_nr += 2) {\n       hw_memory_chunk *new_chunk = ZALLOC(hw_memory_chunk);\n       device_find_integer_array_property(me, \"available\", cell_nr,\n-\t\t\t\t\t &new_chunk->address);\n+\t\t\t\t\t (signed_cell *)&new_chunk->address);\n       device_find_integer_array_property(me, \"available\", cell_nr + 1,\n-\t\t\t\t\t &new_chunk->size);\n+\t\t\t\t\t (signed_cell *)&new_chunk->size);\n       new_chunk->available = 1;\n       *curr_chunk = new_chunk;\n       curr_chunk = &new_chunk->next;"
+    },
+    {
+      "sha": "9404204aa2f37928e80244933e3842990779b8a7",
+      "filename": "sim/ppc/hw_opic.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/81f839676d98024f6c0a6609866bfa81b5f35325/sim/ppc/hw_opic.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/81f839676d98024f6c0a6609866bfa81b5f35325/sim/ppc/hw_opic.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/sim/ppc/hw_opic.c?ref=81f839676d98024f6c0a6609866bfa81b5f35325",
+      "patch": "@@ -417,10 +417,12 @@ hw_opic_init_data(device *me)\n       }\n       if (!device_find_integer_array_property(me, \"interrupt-ranges\",\n \t\t\t\t\t      reg_nr * 2,\n-\t\t\t\t\t      &opic->isu_block[isb].int_number)\n+\t\t\t\t\t      (signed_cell *)\n+\t\t\t\t\t        &opic->isu_block[isb].int_number)\n \t  || !device_find_integer_array_property(me, \"interrupt-ranges\",\n \t\t\t\t\t\t reg_nr * 2 + 1,\n-\t\t\t\t\t\t &opic->isu_block[isb].range))\n+\t\t\t\t\t\t (signed_cell *)\n+\t\t\t\t\t\t   &opic->isu_block[isb].range))\n \tdevice_error(me, \"missing or invalid interrupt-ranges property entry %d\", reg_nr);\n       /* first reg entry specifies the address of both the IDU and the\n          first set of ISU registers, adjust things accordingly */"
+    }
+  ]
+}

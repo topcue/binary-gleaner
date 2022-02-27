@@ -1,0 +1,122 @@
+{
+  "sha": "f809832224cc45eb58812f6d4bb03cbf52fad980",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZjgwOTgzMjIyNGNjNDVlYjU4ODEyZjZkNGJiMDNjYmY1MmZhZDk4MA==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "palves@redhat.com",
+      "date": "2020-06-22T09:54:08Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "palves@redhat.com",
+      "date": "2020-06-22T10:10:49Z"
+    },
+    "message": "Solaris, target_wait(), don't rely on inferior_ptid\n\nDebugging on Solaris is broken, with the procfs target backend failing\nwith:\n\n procfs: couldn't find pid 0 in procinfo list.\n\nas soon as you start a program.\n\nThe problem is procfs_target::wait assuming that inferior_ptid is\nmeaningful on entry, but, since the multi-target series, inferior_ptid\nis null_ptid before we call target_wait, in infrun.c:\n\n  static ptid_t\n  do_target_wait_1 (inferior *inf, ptid_t ptid,\n\t\t    target_waitstatus *status, int options)\n  {\n...\n    /* We know that we are looking for an event in the target of inferior\n       INF, but we don't know which thread the event might come from.  As\n       such we want to make sure that INFERIOR_PTID is reset so that none of\n       the wait code relies on it - doing so is always a mistake.  */\n    switch_to_inferior_no_thread (inf);\n\nThis patch tweaks the backend to remove the assumption that\ninferior_ptid points at something.  sol-thread.c (the thread_stratum\nthat sits on top of procfs.c) also has the same issue.\n\nSome spots in procfs_target::wait were returning\nTARGET_WAITKIND_SPURIOUS+inferior_ptid.  This commit replaces those\nwith waiting again without returning to the core.  This fixes the\nrelying on inferior_ptid, and also should fix the issue discussed\nhere:\n  https://sourceware.org/pipermail/gdb/2020-May/048616.html\n  https://sourceware.org/pipermail/gdb/2020-June/048660.html\n\ngdb/ChangeLog:\n2020-06-22  Pedro Alves  <palves@redhat.com>\n\n\tPR gdb/25939\n\t* procfs.c (procfs_target::wait): Don't reference inferior_ptid.\n\tUse the current inferior instead.  Don't return\n\tTARGET_WAITKIND_SPURIOUS/inferior_ptid -- instead continue and\n\twait again.\n\t* sol-thread.c (sol_thread_target::wait): Don't reference\n\tinferior_ptid.\n\t(ps_lgetregs, ps_lsetregs, ps_lgetfpregs, ps_lsetfpregs)\n\t(sol_update_thread_list_callback): Use the current inferior's pid\n\tinstead of inferior_ptid.",
+    "tree": {
+      "sha": "18c54e3f54aeb3178283c2407617f17bc4386726",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/18c54e3f54aeb3178283c2407617f17bc4386726"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/f809832224cc45eb58812f6d4bb03cbf52fad980",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f809832224cc45eb58812f6d4bb03cbf52fad980",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/f809832224cc45eb58812f6d4bb03cbf52fad980",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f809832224cc45eb58812f6d4bb03cbf52fad980/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "39ff0b812324f4b050bb0b367b269db6d4d0cb8b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/39ff0b812324f4b050bb0b367b269db6d4d0cb8b",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/39ff0b812324f4b050bb0b367b269db6d4d0cb8b"
+    }
+  ],
+  "stats": {
+    "total": 88,
+    "additions": 40,
+    "deletions": 48
+  },
+  "files": [
+    {
+      "sha": "b4473f8bd1b422f09eeed084e5206d179a38dd4d",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f809832224cc45eb58812f6d4bb03cbf52fad980/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f809832224cc45eb58812f6d4bb03cbf52fad980/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=f809832224cc45eb58812f6d4bb03cbf52fad980",
+      "patch": "@@ -1,3 +1,16 @@\n+2020-06-22  Pedro Alves  <palves@redhat.com>\n+\n+\tPR gdb/25939\n+\t* procfs.c (procfs_target::wait): Don't reference inferior_ptid.\n+\tUse the current inferior instead.  Don't return\n+\tTARGET_WAITKIND_SPURIOUS/inferior_ptid -- instead continue and\n+\twait again.\n+\t* sol-thread.c (sol_thread_target::wait): Don't reference\n+\tinferior_ptid.\n+\t(ps_lgetregs, ps_lsetregs, ps_lgetfpregs, ps_lsetfpregs)\n+\t(sol_update_thread_list_callback): Use the current inferior's pid\n+\tinstead of inferior_ptid.\n+\n 2020-06-21  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>\n \n \t* procfs.c: Cleanup many comments."
+    },
+    {
+      "sha": "65243b1e7c584a3f2a70ad5289faadd3a51265c9",
+      "filename": "gdb/procfs.c",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 28,
+      "changes": 45,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f809832224cc45eb58812f6d4bb03cbf52fad980/gdb/procfs.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f809832224cc45eb58812f6d4bb03cbf52fad980/gdb/procfs.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/procfs.c?ref=f809832224cc45eb58812f6d4bb03cbf52fad980",
+      "patch": "@@ -2052,7 +2052,11 @@ procfs_target::wait (ptid_t ptid, struct target_waitstatus *status,\n   retval   = ptid_t (-1);\n \n   /* Find procinfo for main process.  */\n-  pi = find_procinfo_or_die (inferior_ptid.pid (), 0);\n+\n+  /* procfs_target currently only supports one inferior.  */\n+  inferior *inf = current_inferior ();\n+\n+  pi = find_procinfo_or_die (inf->pid, 0);\n   if (pi)\n     {\n       /* We must assume that the status is stale now...  */\n@@ -2079,10 +2083,10 @@ procfs_target::wait (ptid_t ptid, struct target_waitstatus *status,\n \t      wait_retval = ::wait (&wstat); /* \"wait\" for the child's exit.  */\n \n \t      /* Wrong child?  */\n-\t      if (wait_retval != inferior_ptid.pid ())\n+\t      if (wait_retval != inf->pid)\n \t\terror (_(\"procfs: couldn't stop \"\n \t\t\t \"process %d: wait returned %d.\"),\n-\t\t       inferior_ptid.pid (), wait_retval);\n+\t\t       inf->pid, wait_retval);\n \t      /* FIXME: might I not just use waitpid?\n \t\t Or try find_procinfo to see if I know about this child?  */\n \t      retval = ptid_t (wait_retval);\n@@ -2137,13 +2141,11 @@ procfs_target::wait (ptid_t ptid, struct target_waitstatus *status,\n \t\t      printf_unfiltered (_(\"[%s exited]\\n\"),\n \t\t\t\t\t target_pid_to_str (retval).c_str ());\n \t\t    delete_thread (find_thread_ptid (this, retval));\n-\t\t    status->kind = TARGET_WAITKIND_SPURIOUS;\n-\t\t    return retval;\n+\t\t    target_continue_no_signal (ptid);\n+\t\t    goto wait_again;\n \t\t  }\n \t\telse if (what == SYS_exit)\n \t\t  {\n-\t\t    struct inferior *inf;\n-\n \t\t    /* Handle SYS_exit call only.  */\n \t\t    /* Stopped at entry to SYS_exit.\n \t\t       Make it runnable, resume it, then use\n@@ -2158,14 +2160,13 @@ procfs_target::wait (ptid_t ptid, struct target_waitstatus *status,\n \t\t    if (!proc_run_process (pi, 0, 0))\n \t\t      proc_error (pi, \"target_wait, run_process\", __LINE__);\n \n-\t\t    inf = find_inferior_pid (this, pi->pid);\n \t\t    if (inf->attach_flag)\n \t\t      {\n \t\t\t/* Don't call wait: simulate waiting for exit,\n \t\t\t   return a \"success\" exit code.  Bogus: what if\n \t\t\t   it returns something else?  */\n \t\t\twstat = 0;\n-\t\t\tretval = inferior_ptid;  /* ? ? ? */\n+\t\t\tretval = ptid_t (inf->pid);  /* ? ? ? */\n \t\t      }\n \t\t    else\n \t\t      {\n@@ -2204,19 +2205,9 @@ procfs_target::wait (ptid_t ptid, struct target_waitstatus *status,\n \t\t\t\t\t   i, sysargs[i]);\n \t\t      }\n \n-\t\t    if (status)\n-\t\t      {\n-\t\t\t/* How to exit gracefully, returning \"unknown\n-\t\t\t   event\".  */\n-\t\t\tstatus->kind = TARGET_WAITKIND_SPURIOUS;\n-\t\t\treturn inferior_ptid;\n-\t\t      }\n-\t\t    else\n-\t\t      {\n-\t\t\t/* How to keep going without returning to wfi: */\n-\t\t\ttarget_continue_no_signal (ptid);\n-\t\t\tgoto wait_again;\n-\t\t      }\n+\t\t    /* How to keep going without returning to wfi: */\n+\t\t    target_continue_no_signal (ptid);\n+\t\t    goto wait_again;\n \t\t  }\n \t\tbreak;\n \t      case PR_SYSEXIT:\n@@ -2248,9 +2239,8 @@ procfs_target::wait (ptid_t ptid, struct target_waitstatus *status,\n \t\t    if (!in_thread_list (this, temp_ptid))\n \t\t      add_thread (this, temp_ptid);\n \n-\t\t    /* Return to WFI, but tell it to immediately resume.  */\n-\t\t    status->kind = TARGET_WAITKIND_SPURIOUS;\n-\t\t    return inferior_ptid;\n+\t\t    target_continue_no_signal (ptid);\n+\t\t    goto wait_again;\n \t\t  }\n \t\telse if (what == SYS_lwp_exit)\n \t\t  {\n@@ -2281,8 +2271,8 @@ procfs_target::wait (ptid_t ptid, struct target_waitstatus *status,\n \t\t\t\t\t   i, sysargs[i]);\n \t\t      }\n \n-\t\t    status->kind = TARGET_WAITKIND_SPURIOUS;\n-\t\t    return inferior_ptid;\n+\t\t    target_continue_no_signal (ptid);\n+\t\t    goto wait_again;\n \t\t  }\n \t\tbreak;\n \t      case PR_REQUESTED:\n@@ -2333,7 +2323,6 @@ procfs_target::wait (ptid_t ptid, struct target_waitstatus *status,\n \t      /* Got this far without error: If retval isn't in the\n \t\t threads database, add it.  */\n \t      if (retval.pid () > 0\n-\t\t  && retval != inferior_ptid\n \t\t  && !in_thread_list (this, retval))\n \t\t{\n \t\t  /* We have a new thread.  We need to add it both to"
+    },
+    {
+      "sha": "a24d51d1db23d43f5b489760885e7d8838636575",
+      "filename": "gdb/sol-thread.c",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 20,
+      "changes": 30,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f809832224cc45eb58812f6d4bb03cbf52fad980/gdb/sol-thread.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f809832224cc45eb58812f6d4bb03cbf52fad980/gdb/sol-thread.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/sol-thread.c?ref=f809832224cc45eb58812f6d4bb03cbf52fad980",
+      "patch": "@@ -427,16 +427,6 @@ ptid_t\n sol_thread_target::wait (ptid_t ptid, struct target_waitstatus *ourstatus,\n \t\t\t int options)\n {\n-  ptid_t rtnval;\n-  ptid_t save_ptid;\n-\n-  save_ptid = inferior_ptid;\n-  scoped_restore save_inferior_ptid = make_scoped_restore (&inferior_ptid);\n-\n-  inferior_ptid = thread_to_lwp (inferior_ptid, main_ph.ptid.pid ());\n-  if (inferior_ptid.pid () == -1)\n-    inferior_ptid = procfs_first_available ();\n-\n   if (ptid.pid () != -1)\n     {\n       ptid_t ptid_for_warning = ptid;\n@@ -449,17 +439,17 @@ sol_thread_target::wait (ptid_t ptid, struct target_waitstatus *ourstatus,\n \t\t ptid_for_warning.tid ());\n     }\n \n-  rtnval = beneath ()->wait (ptid, ourstatus, options);\n+  ptid_t rtnval = beneath ()->wait (ptid, ourstatus, options);\n \n   if (ourstatus->kind != TARGET_WAITKIND_EXITED)\n     {\n       /* Map the LWP of interest back to the appropriate thread ID.  */\n-      rtnval = lwp_to_thread (rtnval);\n-      if (rtnval.pid () == -1)\n-\trtnval = save_ptid;\n+      ptid_t thr_ptid = lwp_to_thread (rtnval);\n+      if (thr_ptid.pid () != -1)\n+\trtnval = thr_ptid;\n \n       /* See if we have a new thread.  */\n-      if (rtnval.tid_p () && rtnval != save_ptid)\n+      if (rtnval.tid_p ())\n \t{\n \t  thread_info *thr = find_thread_ptid (current_inferior (), rtnval);\n \t  if (thr == NULL || thr->state == THREAD_EXITED)\n@@ -855,7 +845,7 @@ ps_ptwrite (struct ps_prochandle *ph, psaddr_t addr,\n ps_err_e\n ps_lgetregs (struct ps_prochandle *ph, lwpid_t lwpid, prgregset_t gregset)\n {\n-  ptid_t ptid = ptid_t (inferior_ptid.pid (), lwpid, 0);\n+  ptid_t ptid = ptid_t (current_inferior ()->pid, lwpid, 0);\n   struct regcache *regcache\n     = get_thread_arch_regcache (current_inferior ()->process_target (),\n \t\t\t\tptid, target_gdbarch ());\n@@ -872,7 +862,7 @@ ps_err_e\n ps_lsetregs (struct ps_prochandle *ph, lwpid_t lwpid,\n \t     const prgregset_t gregset)\n {\n-  ptid_t ptid = ptid_t (inferior_ptid.pid (), lwpid, 0);\n+  ptid_t ptid = ptid_t (current_inferior ()->pid, lwpid, 0);\n   struct regcache *regcache\n     = get_thread_arch_regcache (current_inferior ()->process_target (),\n \t\t\t\tptid, target_gdbarch ());\n@@ -925,7 +915,7 @@ ps_err_e\n ps_lgetfpregs (struct ps_prochandle *ph, lwpid_t lwpid,\n \t       prfpregset_t *fpregset)\n {\n-  ptid_t ptid = ptid_t (inferior_ptid.pid (), lwpid, 0);\n+  ptid_t ptid = ptid_t (current_inferior ()->pid, lwpid, 0);\n   struct regcache *regcache\n     = get_thread_arch_regcache (current_inferior ()->process_target (),\n \t\t\t\tptid, target_gdbarch ());\n@@ -942,7 +932,7 @@ ps_err_e\n ps_lsetfpregs (struct ps_prochandle *ph, lwpid_t lwpid,\n \t       const prfpregset_t * fpregset)\n {\n-  ptid_t ptid = ptid_t (inferior_ptid.pid (), lwpid, 0);\n+  ptid_t ptid = ptid_t (current_inferior ()->pid, lwpid, 0);\n   struct regcache *regcache\n     = get_thread_arch_regcache (current_inferior ()->process_target (),\n \t\t\t\tptid, target_gdbarch ());\n@@ -1012,7 +1002,7 @@ sol_update_thread_list_callback (const td_thrhandle_t *th, void *ignored)\n   if (retval != TD_OK)\n     return -1;\n \n-  ptid_t ptid = ptid_t (inferior_ptid.pid (), 0, ti.ti_tid);\n+  ptid_t ptid = ptid_t (current_inferior ()->pid, 0, ti.ti_tid);\n   thread_info *thr = find_thread_ptid (current_inferior (), ptid);\n   if (thr == NULL || thr->state == THREAD_EXITED)\n     {"
+    }
+  ]
+}

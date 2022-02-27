@@ -1,0 +1,158 @@
+{
+  "sha": "7928d571c5f742a10d98b0de0ef85284c5959845",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NzkyOGQ1NzFjNWY3NDJhMTBkOThiMGRlMGVmODUyODRjNTk1OTg0NQ==",
+  "commit": {
+    "author": {
+      "name": "Hannes Domani",
+      "email": "ssbssa@yahoo.de",
+      "date": "2020-01-17T14:28:09Z"
+    },
+    "committer": {
+      "name": "Hannes Domani",
+      "email": "ssbssa@yahoo.de",
+      "date": "2020-02-09T11:14:51Z"
+    },
+    "message": "Display ExceptionRecord for $_siginfo\n\nUses the $_siginfo convenience variable to show the last exception.\n\nThe type looks like this:\n\n(gdb) pt $_siginfo\ntype = struct EXCEPTION_RECORD {\n    DWORD ExceptionCode;\n    DWORD ExceptionFlags;\n    struct EXCEPTION_RECORD *ExceptionRecord;\n    PVOID ExceptionAddress;\n    DWORD NumberParameters;\n    ULONG_PTR ExceptionInformation[15];\n}\n\nEXCEPTION_RECORD is documented at [1].\n\nExample:\n\nProgram received signal SIGSEGV, Segmentation fault.\nmain () at crasher.c:4\n4         *(int*)0x123 = 0;\n(gdb) p $_siginfo\n$1 = {\n  ExceptionCode = 3221225477,\n  ExceptionFlags = 0,\n  ExceptionRecord = 0x0,\n  ExceptionAddress = 0x401632 <main+18>,\n  NumberParameters = 2,\n  ExceptionInformation = {1, 291, 0 <repeats 13 times>}\n}\n(gdb) p/x $_siginfo.ExceptionCode\n$2 = 0xc0000005\n(gdb) p/x $_siginfo.ExceptionInformation[1]\n$3 = 0x123\n\nAnd 0xc0000005 is the value of EXCEPTION_ACCESS_VIOLATION.\n\n[1] https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-exception_record\n\ngdb/ChangeLog:\n\n2020-02-09  Hannes Domani  <ssbssa@yahoo.de>\n\n\t* NEWS: Mention $_siginfo support for Windows.\n\t* windows-nat.c (handle_exception): Set siginfo_er.\n\t(windows_nat_target::mourn_inferior): Reset siginfo_er.\n\t(windows_xfer_siginfo): New function.\n\t(windows_nat_target::xfer_partial): Call windows_xfer_siginfo.\n\t* windows-tdep.c (struct windows_gdbarch_data): New struct.\n\t(init_windows_gdbarch_data): New function.\n\t(get_windows_gdbarch_data): New function.\n\t(windows_get_siginfo_type): New function.\n\t(windows_init_abi): Register windows_get_siginfo_type.\n\t(_initialize_windows_tdep): Register init_windows_gdbarch_data.\n\ngdbserver/ChangeLog:\n\n2020-02-09  Hannes Domani  <ssbssa@yahoo.de>\n\n\t* win32-low.c (win32_clear_inferiors): Reset siginfo_er.\n\t(handle_exception): Set siginfo_er.\n\t(win32_xfer_siginfo): New function.",
+    "tree": {
+      "sha": "3a728942f516e96dc543fc73b17b848f7aa9849d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/3a728942f516e96dc543fc73b17b848f7aa9849d"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/7928d571c5f742a10d98b0de0ef85284c5959845",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7928d571c5f742a10d98b0de0ef85284c5959845",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/7928d571c5f742a10d98b0de0ef85284c5959845",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7928d571c5f742a10d98b0de0ef85284c5959845/comments",
+  "author": {
+    "login": "ssbssa",
+    "id": 40947,
+    "node_id": "MDQ6VXNlcjQwOTQ3",
+    "avatar_url": "https://avatars.githubusercontent.com/u/40947?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/ssbssa",
+    "html_url": "https://github.com/ssbssa",
+    "followers_url": "https://api.github.com/users/ssbssa/followers",
+    "following_url": "https://api.github.com/users/ssbssa/following{/other_user}",
+    "gists_url": "https://api.github.com/users/ssbssa/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/ssbssa/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/ssbssa/subscriptions",
+    "organizations_url": "https://api.github.com/users/ssbssa/orgs",
+    "repos_url": "https://api.github.com/users/ssbssa/repos",
+    "events_url": "https://api.github.com/users/ssbssa/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/ssbssa/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "ssbssa",
+    "id": 40947,
+    "node_id": "MDQ6VXNlcjQwOTQ3",
+    "avatar_url": "https://avatars.githubusercontent.com/u/40947?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/ssbssa",
+    "html_url": "https://github.com/ssbssa",
+    "followers_url": "https://api.github.com/users/ssbssa/followers",
+    "following_url": "https://api.github.com/users/ssbssa/following{/other_user}",
+    "gists_url": "https://api.github.com/users/ssbssa/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/ssbssa/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/ssbssa/subscriptions",
+    "organizations_url": "https://api.github.com/users/ssbssa/orgs",
+    "repos_url": "https://api.github.com/users/ssbssa/repos",
+    "events_url": "https://api.github.com/users/ssbssa/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/ssbssa/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "98d3eb9390ef5eca14200c424f22812982c06b19",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/98d3eb9390ef5eca14200c424f22812982c06b19",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/98d3eb9390ef5eca14200c424f22812982c06b19"
+    }
+  ],
+  "stats": {
+    "total": 156,
+    "additions": 155,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "6de07a90c157f167bdec4ea78beaf90631b707d7",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7928d571c5f742a10d98b0de0ef85284c5959845/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7928d571c5f742a10d98b0de0ef85284c5959845/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=7928d571c5f742a10d98b0de0ef85284c5959845",
+      "patch": "@@ -1,3 +1,17 @@\n+2020-02-09  Hannes Domani  <ssbssa@yahoo.de>\n+\n+\t* NEWS: Mention $_siginfo support for Windows.\n+\t* windows-nat.c (handle_exception): Set siginfo_er.\n+\t(windows_nat_target::mourn_inferior): Reset siginfo_er.\n+\t(windows_xfer_siginfo): New function.\n+\t(windows_nat_target::xfer_partial): Call windows_xfer_siginfo.\n+\t* windows-tdep.c (struct windows_gdbarch_data): New struct.\n+\t(init_windows_gdbarch_data): New function.\n+\t(get_windows_gdbarch_data): New function.\n+\t(windows_get_siginfo_type): New function.\n+\t(windows_init_abi): Register windows_get_siginfo_type.\n+\t(_initialize_windows_tdep): Register init_windows_gdbarch_data.\n+\n 2020-02-08  Tom Tromey  <tom@tromey.com>\n \n \t* dwarf2/read.c (class cutu_reader) <cutu_reader,"
+    },
+    {
+      "sha": "c202fe06de21f4d74dde2b5aa86ab44de6661eed",
+      "filename": "gdb/NEWS",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7928d571c5f742a10d98b0de0ef85284c5959845/gdb/NEWS",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7928d571c5f742a10d98b0de0ef85284c5959845/gdb/NEWS",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/NEWS?ref=7928d571c5f742a10d98b0de0ef85284c5959845",
+      "patch": "@@ -10,6 +10,9 @@\n   that support it (see entry for GDB 9, below), providing faster\n   performance for programs with many symbols.\n \n+* The $_siginfo convenience variable now also works on Windows targets,\n+  and will display the EXCEPTION_RECORD of the last handled exception.\n+\n * New commands\n \n set exec-file-mismatch -- Set exec-file-mismatch handling (ask|warn|off)."
+    },
+    {
+      "sha": "76fcdd6bd47b0634830b42dd6ec4ba3500fc13af",
+      "filename": "gdb/windows-nat.c",
+      "status": "modified",
+      "additions": 31,
+      "deletions": 0,
+      "changes": 31,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7928d571c5f742a10d98b0de0ef85284c5959845/gdb/windows-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7928d571c5f742a10d98b0de0ef85284c5959845/gdb/windows-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/windows-nat.c?ref=7928d571c5f742a10d98b0de0ef85284c5959845",
+      "patch": "@@ -236,6 +236,7 @@ static DEBUG_EVENT current_event;\t/* The current debug event from\n \t\t\t\t\t   WaitForDebugEvent */\n static HANDLE current_process_handle;\t/* Currently executing process */\n static windows_thread_info *current_thread;\t/* Info on currently selected thread */\n+static EXCEPTION_RECORD siginfo_er;\t/* Contents of $_siginfo */\n \n /* Counts of things.  */\n static int exception_count = 0;\n@@ -1167,6 +1168,8 @@ handle_exception (struct target_waitstatus *ourstatus)\n   DWORD code = rec->ExceptionCode;\n   handle_exception_result result = HANDLE_EXCEPTION_HANDLED;\n \n+  memcpy (&siginfo_er, rec, sizeof siginfo_er);\n+\n   ourstatus->kind = TARGET_WAITKIND_STOPPED;\n \n   /* Record the context of the current thread.  */\n@@ -2863,6 +2866,7 @@ windows_nat_target::mourn_inferior ()\n       CHECK (CloseHandle (current_process_handle));\n       open_process_used = 0;\n     }\n+  siginfo_er.ExceptionCode = 0;\n   inf_child_target::mourn_inferior ();\n }\n \n@@ -2996,6 +3000,30 @@ windows_xfer_shared_libraries (struct target_ops *ops,\n   return len != 0 ? TARGET_XFER_OK : TARGET_XFER_EOF;\n }\n \n+/* Helper for windows_nat_target::xfer_partial that handles signal info.  */\n+\n+static enum target_xfer_status\n+windows_xfer_siginfo (gdb_byte *readbuf, ULONGEST offset, ULONGEST len,\n+\t\t      ULONGEST *xfered_len)\n+{\n+  if (siginfo_er.ExceptionCode == 0)\n+    return TARGET_XFER_E_IO;\n+\n+  if (readbuf == nullptr)\n+    return TARGET_XFER_E_IO;\n+\n+  if (offset > sizeof (siginfo_er))\n+    return TARGET_XFER_E_IO;\n+\n+  if (offset + len > sizeof (siginfo_er))\n+    len = sizeof (siginfo_er) - offset;\n+\n+  memcpy (readbuf, (char *) &siginfo_er + offset, len);\n+  *xfered_len = len;\n+\n+  return TARGET_XFER_OK;\n+}\n+\n enum target_xfer_status\n windows_nat_target::xfer_partial (enum target_object object,\n \t\t\t\t  const char *annex, gdb_byte *readbuf,\n@@ -3011,6 +3039,9 @@ windows_nat_target::xfer_partial (enum target_object object,\n       return windows_xfer_shared_libraries (this, object, annex, readbuf,\n \t\t\t\t\t    writebuf, offset, len, xfered_len);\n \n+    case TARGET_OBJECT_SIGNAL_INFO:\n+      return windows_xfer_siginfo (readbuf, offset, len, xfered_len);\n+\n     default:\n       if (beneath () == NULL)\n \t{"
+    },
+    {
+      "sha": "ad65b1b40305ed3c8372399e282bf6bfbdea6510",
+      "filename": "gdb/windows-tdep.c",
+      "status": "modified",
+      "additions": 72,
+      "deletions": 0,
+      "changes": 72,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7928d571c5f742a10d98b0de0ef85284c5959845/gdb/windows-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7928d571c5f742a10d98b0de0ef85284c5959845/gdb/windows-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/windows-tdep.c?ref=7928d571c5f742a10d98b0de0ef85284c5959845",
+      "patch": "@@ -153,6 +153,30 @@ static const int FULL_TIB_SIZE = 0x1000;\n \n static bool maint_display_all_tib = false;\n \n+static struct gdbarch_data *windows_gdbarch_data_handle;\n+\n+struct windows_gdbarch_data\n+{\n+  struct type *siginfo_type;\n+};\n+\n+/* Allocate windows_gdbarch_data for an arch.  */\n+\n+static void *\n+init_windows_gdbarch_data (struct gdbarch *gdbarch)\n+{\n+  return GDBARCH_OBSTACK_ZALLOC (gdbarch, struct windows_gdbarch_data);\n+}\n+\n+/* Get windows_gdbarch_data of an arch.  */\n+\n+static struct windows_gdbarch_data *\n+get_windows_gdbarch_data (struct gdbarch *gdbarch)\n+{\n+  return ((struct windows_gdbarch_data *)\n+\t  gdbarch_data (gdbarch, windows_gdbarch_data_handle));\n+}\n+\n /* Define Thread Local Base pointer type.  */\n \n static struct type *\n@@ -656,6 +680,49 @@ windows_gdb_signal_to_target (struct gdbarch *gdbarch, enum gdb_signal signal)\n   return -1;\n }\n \n+/* Implement the \"get_siginfo_type\" gdbarch method.  */\n+\n+static struct type *\n+windows_get_siginfo_type (struct gdbarch *gdbarch)\n+{\n+  struct windows_gdbarch_data *windows_gdbarch_data;\n+  struct type *dword_type, *pvoid_type, *ulongptr_type;\n+  struct type *siginfo_ptr_type, *siginfo_type;\n+\n+  windows_gdbarch_data = get_windows_gdbarch_data (gdbarch);\n+  if (windows_gdbarch_data->siginfo_type != NULL)\n+    return windows_gdbarch_data->siginfo_type;\n+\n+  dword_type = arch_integer_type (gdbarch, gdbarch_int_bit (gdbarch),\n+\t\t\t\t  1, \"DWORD\");\n+  pvoid_type = arch_pointer_type (gdbarch, gdbarch_ptr_bit (gdbarch), \"PVOID\",\n+\t\t\t\t  builtin_type (gdbarch)->builtin_void);\n+  ulongptr_type = arch_integer_type (gdbarch, gdbarch_ptr_bit (gdbarch),\n+\t\t\t\t     1, \"ULONG_PTR\");\n+\n+  siginfo_type = arch_composite_type (gdbarch, \"EXCEPTION_RECORD\",\n+\t\t\t\t      TYPE_CODE_STRUCT);\n+  siginfo_ptr_type = arch_pointer_type (gdbarch, gdbarch_ptr_bit (gdbarch),\n+\t\t\t\t\tNULL, siginfo_type);\n+\n+  append_composite_type_field (siginfo_type, \"ExceptionCode\", dword_type);\n+  append_composite_type_field (siginfo_type, \"ExceptionFlags\", dword_type);\n+  append_composite_type_field (siginfo_type, \"ExceptionRecord\",\n+\t\t\t       siginfo_ptr_type);\n+  append_composite_type_field (siginfo_type, \"ExceptionAddress\",\n+\t\t\t       pvoid_type);\n+  append_composite_type_field (siginfo_type, \"NumberParameters\", dword_type);\n+  /* The 64-bit variant needs some padding.  */\n+  append_composite_type_field_aligned (siginfo_type, \"ExceptionInformation\",\n+\t\t\t\t       lookup_array_range_type (ulongptr_type,\n+\t\t\t\t\t\t\t\t0, 14),\n+\t\t\t\t       TYPE_LENGTH (ulongptr_type));\n+\n+  windows_gdbarch_data->siginfo_type = siginfo_type;\n+\n+  return siginfo_type;\n+}\n+\n /* To be called from the various GDB_OSABI_CYGWIN handlers for the\n    various Windows architectures and machine types.  */\n \n@@ -675,6 +742,8 @@ windows_init_abi (struct gdbarch_info info, struct gdbarch *gdbarch)\n   set_gdbarch_gdb_signal_to_target (gdbarch, windows_gdb_signal_to_target);\n \n   set_solib_ops (gdbarch, &solib_target_so_ops);\n+\n+  set_gdbarch_get_siginfo_type (gdbarch, windows_get_siginfo_type);\n }\n \n /* Implementation of `tlb' variable.  */\n@@ -690,6 +759,9 @@ void _initialize_windows_tdep ();\n void\n _initialize_windows_tdep ()\n {\n+  windows_gdbarch_data_handle\n+    = gdbarch_data_register_post_init (init_windows_gdbarch_data);\n+\n   init_w32_command_list ();\n   add_cmd (\"thread-information-block\", class_info, display_tib,\n \t   _(\"Display thread information block.\"),"
+    },
+    {
+      "sha": "4f3e8cb247859ef8692e87597441b1b6dc7890e6",
+      "filename": "gdbserver/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7928d571c5f742a10d98b0de0ef85284c5959845/gdbserver/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7928d571c5f742a10d98b0de0ef85284c5959845/gdbserver/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/ChangeLog?ref=7928d571c5f742a10d98b0de0ef85284c5959845",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-02-09  Hannes Domani  <ssbssa@yahoo.de>\n+\n+\t* win32-low.c (win32_clear_inferiors): Reset siginfo_er.\n+\t(handle_exception): Set siginfo_er.\n+\t(win32_xfer_siginfo): New function.\n+\n 2020-02-07  Tom Tromey  <tom@tromey.com>\n \t    Pedro Alves  <palves@redhat.com>\n "
+    },
+    {
+      "sha": "9d0343788f1532f5e011f8613eb766204e3ef66e",
+      "filename": "gdbserver/win32-low.c",
+      "status": "modified",
+      "additions": 29,
+      "deletions": 1,
+      "changes": 30,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7928d571c5f742a10d98b0de0ef85284c5959845/gdbserver/win32-low.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7928d571c5f742a10d98b0de0ef85284c5959845/gdbserver/win32-low.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/win32-low.c?ref=7928d571c5f742a10d98b0de0ef85284c5959845",
+      "patch": "@@ -75,6 +75,7 @@ static int attaching = 0;\n static HANDLE current_process_handle = NULL;\n static DWORD current_process_id = 0;\n static DWORD main_thread_id = 0;\n+static EXCEPTION_RECORD siginfo_er;\t/* Contents of $_siginfo */\n static enum gdb_signal last_sig = GDB_SIGNAL_0;\n \n /* The current debug event from WaitForDebugEvent.  */\n@@ -801,6 +802,7 @@ win32_clear_inferiors (void)\n     CloseHandle (current_process_handle);\n \n   for_each_thread (delete_thread_info);\n+  siginfo_er.ExceptionCode = 0;\n   clear_inferiors ();\n }\n \n@@ -1230,6 +1232,9 @@ handle_exception (struct target_waitstatus *ourstatus)\n {\n   DWORD code = current_event.u.Exception.ExceptionRecord.ExceptionCode;\n \n+  memcpy (&siginfo_er, &current_event.u.Exception.ExceptionRecord,\n+\t  sizeof siginfo_er);\n+\n   ourstatus->kind = TARGET_WAITKIND_STOPPED;\n \n   switch (code)\n@@ -1772,6 +1777,29 @@ wince_hostio_last_error (char *buf)\n }\n #endif\n \n+/* Write Windows signal info.  */\n+\n+static int\n+win32_xfer_siginfo (const char *annex, unsigned char *readbuf,\n+\t\t    unsigned const char *writebuf, CORE_ADDR offset, int len)\n+{\n+  if (siginfo_er.ExceptionCode == 0)\n+    return -1;\n+\n+  if (readbuf == nullptr)\n+    return -1;\n+\n+  if (offset > sizeof (siginfo_er))\n+    return -1;\n+\n+  if (offset + len > sizeof (siginfo_er))\n+    len = sizeof (siginfo_er) - offset;\n+\n+  memcpy (readbuf, (char *) &siginfo_er + offset, len);\n+\n+  return len;\n+}\n+\n /* Write Windows OS Thread Information Block address.  */\n \n static int\n@@ -1833,7 +1861,7 @@ static process_stratum_target win32_target_ops = {\n   hostio_last_error_from_errno,\n #endif\n   NULL, /* qxfer_osdata */\n-  NULL, /* qxfer_siginfo */\n+  win32_xfer_siginfo,\n   NULL, /* supports_non_stop */\n   NULL, /* async */\n   NULL, /* start_non_stop */"
+    }
+  ]
+}

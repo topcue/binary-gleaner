@@ -1,0 +1,108 @@
+{
+  "sha": "3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6M2Y0ZDkyZWJkZjdmODQ4YjVjY2M5ZThkOGU4NTE0YzY0ZmRlMTE4Mw==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2020-05-09T18:56:55Z"
+    },
+    "committer": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2020-05-15T20:17:45Z"
+    },
+    "message": "Fix the problems reported by prefix check of command-def-selftests.c\n\nThe next commit updates command-def-selftests.c to detect missing\nor wrong prefix commands in a list of subcommands.\nThis command structure selftest detects a series of problems\nthat are fixed by this commit.\n\nMany commands have a null prefix command, e.g.\n    (gdb) maintenance selftest command_str\n    Running selftest command_structure_invariants.\n    list 0x560417949cb8 reachable via prefix 'append binary '.  command 'memory' has null prefixcmd\n    list 0x560417949cb8 reachable via prefix 'append binary '.  command 'value' has null prefixcmd\n    ...\n\nMost of these are fixed by the following changes:\n  * do_add_cmd searches the prefix command having the list\n    in which the command is added.\n    This ensures that a command defined after its prefix command\n    gets the correct prefix command.\n  * Due to the GDB initialization order, a GDB file can define\n    a subcommand before the prefix command is defined.\n    So, have add_prefix_cmd calling a new recursive function\n    'update_prefix_field_of_prefix_commands' to set the prefix\n    command of all sub-commands that are now reachable from\n    this newly defined prefix command.  Note that this recursive\n    call replaces the function 'set_prefix_cmd' that was providing\n    a partial solution to this problem.\n\nFollowing that, 2 python commands (defined after all the other GDB\ncommands) got a wrong prefix command, e.g. \"info frame-filter\" has\nas prefix command the \"i\" alias of \"info\".  This is fixed by having\nlookup_cmd_for_prefixlist returning the aliased command rather than\nthe alias.\n\nAfter that, one remaining problem:\n    (gdb) maintenance selftest command_str\n    Running selftest command_structure_invariants.\n    list 0x55f320272298 reachable via prefix 'set remote '.  command 'system-call-allowed' has null prefixcmd\n    Self test failed: self-test failed at ../../classfix/gdb/unittests/command-def-selftests.c:196\n    Ran 1 unit tests, 1 failed\n    (gdb)\n\nCaused by initialize_remote_fileio that was taking the address of\nits arguments remote_set_cmdlist and remote_show_cmdlist instead\nof receiving the correct values to use as list.\n\n2020-05-15  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n\n\t* cli/cli-decode.c (lookup_cmd_for_prefix): Return the aliased command\n\tas prefix, not one of its aliases.\n\t(set_cmd_prefix): Remove.\n\t(do_add_cmd): Centralize the setting of the prefix of a command, when\n\tcommand is defined after its full chain of prefix commands.\n\t(add_alias_cmd): Remove call to set_cmd_prefix, as do_add_cmd does it.\n\t(add_setshow_cmd_full): Likewise.\n\t(update_prefix_field_of_prefixed_commands): New function.\n\t(add_prefix_cmd): Replace non working call to set_cmd_prefix by\n\tupdate_prefix_field_of_prefixed_commands.\n\t* gdb/remote-fileio.c (initialize_remote_fileio): Use the real\n\taddresses of remote_set_cmdlist and remote_show_cmdlist given\n\tas argument, not the address of an argument.\n\t* gdb/remote-fileio.h (initialize_remote_fileio): Likewise.\n\t* gdb/remote.c (_initialize_remote): Likewise.",
+    "tree": {
+      "sha": "4fc60afc5e907c8bf88b09ffc9a08d720b0a302e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/4fc60afc5e907c8bf88b09ffc9a08d720b0a302e"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "0605465feb51d7a8552db8019c5cfc8a5fc22c3f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0605465feb51d7a8552db8019c5cfc8a5fc22c3f",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/0605465feb51d7a8552db8019c5cfc8a5fc22c3f"
+    }
+  ],
+  "stats": {
+    "total": 112,
+    "additions": 71,
+    "deletions": 41
+  },
+  "files": [
+    {
+      "sha": "bdb1db961ac968c11654212d935d5aa16ab79169",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 0,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183",
+      "patch": "@@ -1,3 +1,21 @@\n+2020-05-15  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n+\n+\t* cli/cli-decode.c (lookup_cmd_for_prefix): Return the aliased command\n+\tas prefix, not one of its aliases.\n+\t(set_cmd_prefix): Remove.\n+\t(do_add_cmd): Centralize the setting of the prefix of a command, when\n+\tcommand is defined after its full chain of prefix commands.\n+\t(add_alias_cmd): Remove call to set_cmd_prefix, as do_add_cmd does it.\n+\t(add_setshow_cmd_full): Likewise.\n+\t(update_prefix_field_of_prefixed_commands): New function.\n+\t(add_prefix_cmd): Replace non working call to set_cmd_prefix by\n+\tupdate_prefix_field_of_prefixed_commands.\n+\t* gdb/remote-fileio.c (initialize_remote_fileio): Use the real\n+\taddresses of remote_set_cmdlist and remote_show_cmdlist given\n+\tas argument, not the address of an argument.\n+\t* gdb/remote-fileio.h (initialize_remote_fileio): Likewise.\n+\t* gdb/remote.c (_initialize_remote): Likewise.\n+\n 2020-05-15  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n \n \t* cli/cli-cmds.c (alias_command): Check for an existing alias"
+    },
+    {
+      "sha": "be36eb67321de061df805ae37f39ac67e209b55b",
+      "filename": "gdb/cli/cli-decode.c",
+      "status": "modified",
+      "additions": 46,
+      "deletions": 34,
+      "changes": 80,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183/gdb/cli/cli-decode.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183/gdb/cli/cli-decode.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cli/cli-decode.c?ref=3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183",
+      "patch": "@@ -61,7 +61,11 @@ lookup_cmd_for_prefixlist (struct cmd_list_element **key,\n       if (p->prefixlist == NULL)\n \tcontinue;\n       else if (p->prefixlist == key)\n-\treturn p;\n+\t{\n+\t  /* If we found an alias, we must return the aliased\n+\t     command.  */\n+\t  return p->cmd_pointer ? p->cmd_pointer : p;\n+\t}\n \n       q = lookup_cmd_for_prefixlist (key, *(p->prefixlist));\n       if (q != NULL)\n@@ -71,27 +75,6 @@ lookup_cmd_for_prefixlist (struct cmd_list_element **key,\n   return NULL;\n }\n \n-static void\n-set_cmd_prefix (struct cmd_list_element *c, struct cmd_list_element **list)\n-{\n-  struct cmd_list_element *p;\n-\n-  /* Check to see if *LIST contains any element other than C.  */\n-  for (p = *list; p != NULL; p = p->next)\n-    if (p != c)\n-      break;\n-\n-  if (p == NULL)\n-    {\n-      /* *SET_LIST only contains SET.  */\n-      p = lookup_cmd_for_prefixlist (list, setlist);\n-\n-      c->prefix = p ? (p->cmd_pointer ? p->cmd_pointer : p) : p;\n-    }\n-  else\n-    c->prefix = p->prefix;\n-}\n-\n static void\n print_help_for_command (struct cmd_list_element *c, const char *prefix,\n \t\t\tint recurse, struct ui_file *stream);\n@@ -229,6 +212,13 @@ do_add_cmd (const char *name, enum command_class theclass,\n       p->next = c;\n     }\n \n+  /* Search the prefix cmd of C, and assigns it to C->prefix.\n+     See also add_prefix_cmd and update_prefix_field_of_prefixed_commands.  */\n+  struct cmd_list_element *prefixcmd = lookup_cmd_for_prefixlist (list,\n+\t\t\t\t\t\t\t\t  cmdlist);\n+  c->prefix = prefixcmd;\n+\n+\n   return c;\n }\n \n@@ -330,7 +320,6 @@ add_alias_cmd (const char *name, cmd_list_element *old,\n   c->alias_chain = old->aliases;\n   old->aliases = c;\n \n-  set_cmd_prefix (c, list);\n   return c;\n }\n \n@@ -349,6 +338,37 @@ add_alias_cmd (const char *name, const char *oldname,\n }\n \n \n+/* Update the prefix field of all sub-commands of the prefix command C.\n+   We must do this when a prefix command is defined as the GDB init sequence\n+   does not guarantee that a prefix command is created before its sub-commands.\n+   For example, break-catch-sig.c initialization runs before breakpoint.c\n+   initialization, but it is breakpoint.c that creates the \"catch\" command used\n+   by the \"catch signal\" command created by break-catch-sig.c.  */\n+\n+static void\n+update_prefix_field_of_prefixed_commands (struct cmd_list_element *c)\n+{\n+  for (cmd_list_element *p = *c->prefixlist; p != NULL; p = p->next)\n+    {\n+      p->prefix = c;\n+\n+      /* We must recursively update the prefix field to cover\n+\t e.g.  'info auto-load libthread-db' where the creation\n+\t order was:\n+           libthread-db\n+           auto-load\n+           info\n+\t In such a case, when 'auto-load' was created by do_add_cmd,\n+         the 'libthread-db' prefix field could not be updated, as the\n+\t 'auto-load' command was not yet reachable by\n+\t    lookup_cmd_for_prefixlist (list, cmdlist)\n+\t    that searches from the top level 'cmdlist'.  */\n+      if (p->prefixlist != nullptr)\n+\tupdate_prefix_field_of_prefixed_commands (p);\n+    }\n+}\n+\n+\n /* Like add_cmd but adds an element for a command prefix: a name that\n    should be followed by a subcommand to be looked up in another\n    command list.  PREFIXLIST should be the address of the variable\n@@ -362,20 +382,14 @@ add_prefix_cmd (const char *name, enum command_class theclass,\n \t\tstruct cmd_list_element **list)\n {\n   struct cmd_list_element *c = add_cmd (name, theclass, fun, doc, list);\n-  struct cmd_list_element *p;\n \n   c->prefixlist = prefixlist;\n   c->prefixname = prefixname;\n   c->allow_unknown = allow_unknown;\n \n-  if (list == &cmdlist)\n-    c->prefix = NULL;\n-  else\n-    set_cmd_prefix (c, list);\n-\n-  /* Update the field 'prefix' of each cmd_list_element in *PREFIXLIST.  */\n-  for (p = *prefixlist; p != NULL; p = p->next)\n-    p->prefix = c;\n+  /* Now that prefix command C is defined, we need to set the prefix field\n+     of all prefixed commands that were defined before C itself was defined.  */\n+  update_prefix_field_of_prefixed_commands (c);\n \n   return c;\n }\n@@ -555,8 +569,6 @@ add_setshow_cmd_full (const char *name,\n   if (set_func != NULL)\n     set_cmd_sfunc (set, set_func);\n \n-  set_cmd_prefix (set, set_list);\n-\n   show = add_set_or_show_cmd (name, show_cmd, theclass, var_type, var,\n \t\t\t      full_show_doc, show_list);\n   show->doc_allocated = 1;"
+    },
+    {
+      "sha": "7450e84860287946dd1a10f4f66695013e1f416a",
+      "filename": "gdb/remote-fileio.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183/gdb/remote-fileio.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183/gdb/remote-fileio.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/remote-fileio.c?ref=3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183",
+      "patch": "@@ -1295,15 +1295,15 @@ show_system_call_allowed (const char *args, int from_tty)\n }\n \n void\n-initialize_remote_fileio (struct cmd_list_element *remote_set_cmdlist,\n-\t\t\t  struct cmd_list_element *remote_show_cmdlist)\n+initialize_remote_fileio (struct cmd_list_element **remote_set_cmdlist,\n+\t\t\t  struct cmd_list_element **remote_show_cmdlist)\n {\n   add_cmd (\"system-call-allowed\", no_class,\n \t   set_system_call_allowed,\n \t   _(\"Set if the host system(3) call is allowed for the target.\"),\n-\t   &remote_set_cmdlist);\n+\t   remote_set_cmdlist);\n   add_cmd (\"system-call-allowed\", no_class,\n \t   show_system_call_allowed,\n \t   _(\"Show if the host system(3) call is allowed for the target.\"),\n-\t   &remote_show_cmdlist);\n+\t   remote_show_cmdlist);\n }"
+    },
+    {
+      "sha": "f206b04091342c8c341718371a0a4bddd25c4ff2",
+      "filename": "gdb/remote-fileio.h",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183/gdb/remote-fileio.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183/gdb/remote-fileio.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/remote-fileio.h?ref=3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183",
+      "patch": "@@ -37,8 +37,8 @@ extern void remote_fileio_reset (void);\n \n /* Called from _initialize_remote ().  */\n extern void initialize_remote_fileio (\n-  struct cmd_list_element *remote_set_cmdlist,\n-  struct cmd_list_element *remote_show_cmdlist);\n+  struct cmd_list_element **remote_set_cmdlist,\n+  struct cmd_list_element **remote_show_cmdlist);\n \n /* Unpack a struct fio_stat.  */\n extern void remote_fileio_to_host_stat (struct fio_stat *fst,"
+    },
+    {
+      "sha": "812ab8bc1b3b6d2fec2d71f55a1f863d47e93049",
+      "filename": "gdb/remote.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183/gdb/remote.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183/gdb/remote.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/remote.c?ref=3f4d92ebdf7f848b5ccc9e8d8e8514c64fde1183",
+      "patch": "@@ -14876,5 +14876,5 @@ Specify \\\"unlimited\\\" to display all the characters.\"),\n \t\t\t\t       &setdebuglist, &showdebuglist);\n \n   /* Eventually initialize fileio.  See fileio.c */\n-  initialize_remote_fileio (remote_set_cmdlist, remote_show_cmdlist);\n+  initialize_remote_fileio (&remote_set_cmdlist, &remote_show_cmdlist);\n }"
+    }
+  ]
+}

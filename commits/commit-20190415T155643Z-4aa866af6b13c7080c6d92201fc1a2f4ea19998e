@@ -1,0 +1,146 @@
+{
+  "sha": "4aa866af6b13c7080c6d92201fc1a2f4ea19998e",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NGFhODY2YWY2YjEzYzcwODBjNmQ5MjIwMWZjMWEyZjRlYTE5OTk4ZQ==",
+  "commit": {
+    "author": {
+      "name": "Leszek Swirski",
+      "email": "leszeks@google.com",
+      "date": "2019-04-15T15:56:43Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2019-04-15T15:56:43Z"
+    },
+    "message": "Fix AMD64 return value ABI in expression evaluation\n\nThe AMD64 System V ABI specifies that when a function has a return type\nclassified as MEMORY, the caller provides space for the value and passes\nthe address to this space as the first argument to the function (before\neven the \"this\" pointer). The classification of MEMORY is applied to\nstruct that are sufficiently large, or ones with unaligned fields.\n\nThe expression evaluator uses call_function_by_hand to call functions,\nand the hand-built frame has to push arguments in a way that matches the\nABI of the called function. call_function_by_hand supports ABI-based\nstruct returns, based on the value of gdbarch_return_value, however on\nAMD64 the implementation of the classifier incorrectly assumed that all\nnon-POD types (implemented as \"all types with a base class\") should be\nclassified as MEMORY and use the struct return.\n\nThis ABI mismatch resulted in issues when calling a function that returns\na class of size <16 bytes which has a base class, including issues such\nas the \"this\" pointer being incorrect (as it was passed as the second\nargument rather than the first).\n\nThis is now fixed by checking for field alignment rather than POD-ness,\nand a testsuite is added to test expression evaluation for AMD64.\n\ngdb/ChangeLog:\n\n\t* amd64-tdep.c (amd64_classify_aggregate): Use cp_pass_by_reference\n\trather than a hand-rolled POD check when checking for forced MEMORY\n\tclassification.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.arch/amd64-eval.cc: New file.\n\t* gdb.arch/amd64-eval.exp: New file.",
+    "tree": {
+      "sha": "7fe759b287f5232a0c3f5472451b2a5cf79f7f23",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/7fe759b287f5232a0c3f5472451b2a5cf79f7f23"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/4aa866af6b13c7080c6d92201fc1a2f4ea19998e",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4aa866af6b13c7080c6d92201fc1a2f4ea19998e",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/4aa866af6b13c7080c6d92201fc1a2f4ea19998e",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4aa866af6b13c7080c6d92201fc1a2f4ea19998e/comments",
+  "author": {
+    "login": "LeszekSwirski",
+    "id": 593597,
+    "node_id": "MDQ6VXNlcjU5MzU5Nw==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/593597?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/LeszekSwirski",
+    "html_url": "https://github.com/LeszekSwirski",
+    "followers_url": "https://api.github.com/users/LeszekSwirski/followers",
+    "following_url": "https://api.github.com/users/LeszekSwirski/following{/other_user}",
+    "gists_url": "https://api.github.com/users/LeszekSwirski/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/LeszekSwirski/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/LeszekSwirski/subscriptions",
+    "organizations_url": "https://api.github.com/users/LeszekSwirski/orgs",
+    "repos_url": "https://api.github.com/users/LeszekSwirski/repos",
+    "events_url": "https://api.github.com/users/LeszekSwirski/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/LeszekSwirski/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "86333705ae268aa00da41b094b0d632eae31e9ae",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/86333705ae268aa00da41b094b0d632eae31e9ae",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/86333705ae268aa00da41b094b0d632eae31e9ae"
+    }
+  ],
+  "stats": {
+    "total": 218,
+    "additions": 207,
+    "deletions": 11
+  },
+  "files": [
+    {
+      "sha": "ba1300d57efa378b40de1c834876ba997415d3b6",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4aa866af6b13c7080c6d92201fc1a2f4ea19998e/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4aa866af6b13c7080c6d92201fc1a2f4ea19998e/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=4aa866af6b13c7080c6d92201fc1a2f4ea19998e",
+      "patch": "@@ -1,3 +1,9 @@\n+2019-04-15  Leszek Swirski  <leszeks@google.com>\n+\n+\t* amd64-tdep.c (amd64_classify_aggregate): Use cp_pass_by_reference\n+\trather than a hand-rolled POD check when checking for forced MEMORY\n+\tclassification.\n+\n 2019-04-15  Alan Hayward  <alan.hayward@arm.com>\n \n \t* aarch64-linux-nat.c (store_sveregs_to_thread): Set vector length."
+    },
+    {
+      "sha": "d4c96de571648258365819fe8b780179f590e77d",
+      "filename": "gdb/amd64-tdep.c",
+      "status": "modified",
+      "additions": 33,
+      "deletions": 11,
+      "changes": 44,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4aa866af6b13c7080c6d92201fc1a2f4ea19998e/gdb/amd64-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4aa866af6b13c7080c6d92201fc1a2f4ea19998e/gdb/amd64-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/amd64-tdep.c?ref=4aa866af6b13c7080c6d92201fc1a2f4ea19998e",
+      "patch": "@@ -541,17 +541,40 @@ amd64_merge_classes (enum amd64_reg_class class1, enum amd64_reg_class class2)\n \n static void amd64_classify (struct type *type, enum amd64_reg_class theclass[2]);\n \n-/* Return non-zero if TYPE is a non-POD structure or union type.  */\n+/* Return true if TYPE is a structure or union with unaligned fields.  */\n \n-static int\n-amd64_non_pod_p (struct type *type)\n+static bool\n+amd64_has_unaligned_fields (struct type *type)\n {\n-  /* ??? A class with a base class certainly isn't POD, but does this\n-     catch all non-POD structure types?  */\n-  if (TYPE_CODE (type) == TYPE_CODE_STRUCT && TYPE_N_BASECLASSES (type) > 0)\n-    return 1;\n+  if (TYPE_CODE (type) == TYPE_CODE_STRUCT\n+      || TYPE_CODE (type) == TYPE_CODE_UNION)\n+    {\n+      for (int i = 0; i < TYPE_NFIELDS (type); i++)\n+\t{\n+\t  struct type *subtype = check_typedef (TYPE_FIELD_TYPE (type, i));\n+\t  int bitpos = TYPE_FIELD_BITPOS (type, i);\n+\t  int align = type_align(subtype);\n \n-  return 0;\n+\t  /* Ignore static fields, or empty fields, for example nested\n+\t     empty structures.  */\n+\t  if (field_is_static (&TYPE_FIELD (type, i))\n+\t      || (TYPE_FIELD_BITSIZE (type, i) == 0\n+\t\t  && TYPE_LENGTH (subtype) == 0))\n+\t    continue;\n+\n+\t  if (bitpos % 8 != 0)\n+\t    return true;\n+\n+\t  int bytepos = bitpos / 8;\n+\t  if (bytepos % align != 0)\n+\t    return true;\n+\n+\t  if (amd64_has_unaligned_fields(subtype))\n+\t    return true;\n+\t}\n+    }\n+\n+  return false;\n }\n \n /* Classify TYPE according to the rules for aggregate (structures and\n@@ -560,10 +583,9 @@ amd64_non_pod_p (struct type *type)\n static void\n amd64_classify_aggregate (struct type *type, enum amd64_reg_class theclass[2])\n {\n-  /* 1. If the size of an object is larger than two eightbytes, or in\n-        C++, is a non-POD structure or union type, or contains\n+  /* 1. If the size of an object is larger than two eightbytes, or it has\n         unaligned fields, it has class memory.  */\n-  if (TYPE_LENGTH (type) > 16 || amd64_non_pod_p (type))\n+  if (TYPE_LENGTH (type) > 16 || amd64_has_unaligned_fields (type))\n     {\n       theclass[0] = theclass[1] = AMD64_MEMORY;\n       return;"
+    },
+    {
+      "sha": "d46422635beb37b1c12edbd559fbe14744d901b9",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4aa866af6b13c7080c6d92201fc1a2f4ea19998e/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4aa866af6b13c7080c6d92201fc1a2f4ea19998e/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=4aa866af6b13c7080c6d92201fc1a2f4ea19998e",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-04-15  Leszek Swirski  <leszeks@google.com>\n+\n+\t* gdb.arch/amd64-eval.cc: New file.\n+\t* gdb.arch/amd64-eval.exp: New file.\n+\n 2019-04-11  Alan Hayward  <alan.hayward@arm.com>\n \n \t* gdb.server/sysroot.c: New test."
+    },
+    {
+      "sha": "a986a49db34fcbcc99e157b6d196f846f2ac296b",
+      "filename": "gdb/testsuite/gdb.arch/amd64-eval.cc",
+      "status": "added",
+      "additions": 120,
+      "deletions": 0,
+      "changes": 120,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4aa866af6b13c7080c6d92201fc1a2f4ea19998e/gdb/testsuite/gdb.arch/amd64-eval.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4aa866af6b13c7080c6d92201fc1a2f4ea19998e/gdb/testsuite/gdb.arch/amd64-eval.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/amd64-eval.cc?ref=4aa866af6b13c7080c6d92201fc1a2f4ea19998e",
+      "patch": "@@ -0,0 +1,120 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2019 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#include <cstdint>\n+#include <cstdio>\n+#include <cstdlib>\n+#include <cassert>\n+\n+/* A simple structure with a single integer field. Should be returned in\n+   a register.  */\n+struct SimpleBase\n+{\n+  SimpleBase (int32_t x) : x (x) {}\n+\n+  int32_t x;\n+};\n+\n+/* A simple structure derived from the simple base. Should be returned in\n+   a register.  */\n+struct SimpleDerived : public SimpleBase\n+{\n+  SimpleDerived (int32_t x) : SimpleBase (x) {}\n+};\n+\n+/* A structure derived from the simple base with a non-trivial destructor.\n+   Should be returned on the stack.  */\n+struct NonTrivialDestructorDerived : public SimpleBase\n+{\n+  NonTrivialDestructorDerived (int32_t x) : SimpleBase (x) {}\n+  ~NonTrivialDestructorDerived() { x = 1; }\n+};\n+\n+/* A structure with unaligned fields. Should be returned on the stack.  */\n+struct UnalignedFields\n+{\n+  UnalignedFields (int32_t x, double y) : x (x), y (y) {}\n+\n+  int32_t x;\n+  double y;\n+} __attribute__((packed));\n+\n+/* A structure with unaligned fields in its base class. Should be\n+   returned on the stack.  */\n+struct UnalignedFieldsInBase : public UnalignedFields\n+{\n+  UnalignedFieldsInBase (int32_t x, double y, int32_t x2)\n+  : UnalignedFields (x, y), x2 (x2) {}\n+\n+  int32_t x2;\n+};\n+\n+class Foo\n+{\n+public:\n+  SimpleBase\n+  return_simple_base (int32_t x)\n+  {\n+    assert (this->tag == EXPECTED_TAG);\n+    return SimpleBase (x);\n+  }\n+\n+  SimpleDerived\n+  return_simple_derived (int32_t x)\n+  {\n+    assert (this->tag == EXPECTED_TAG);\n+    return SimpleDerived (x);\n+  }\n+\n+  NonTrivialDestructorDerived\n+  return_non_trivial_destructor (int32_t x)\n+  {\n+    assert (this->tag == EXPECTED_TAG);\n+    return NonTrivialDestructorDerived (x);\n+  }\n+\n+  UnalignedFields\n+  return_unaligned (int32_t x, double y)\n+  {\n+    assert (this->tag == EXPECTED_TAG);\n+    return UnalignedFields (x, y);\n+  }\n+\n+  UnalignedFieldsInBase\n+  return_unaligned_in_base (int32_t x, double y, int32_t x2)\n+  {\n+    assert (this->tag == EXPECTED_TAG);\n+    return UnalignedFieldsInBase (x, y, x2);\n+  }\n+\n+private:\n+  /* Use a tag to detect if the \"this\" value is correct.  */\n+  static const int EXPECTED_TAG = 0xF00F00F0;\n+  int tag = EXPECTED_TAG;\n+};\n+\n+int\n+main (int argc, char *argv[])\n+{\n+  Foo foo;\n+  foo.return_simple_base(1);\n+  foo.return_simple_derived(2);\n+  foo.return_non_trivial_destructor(3);\n+  foo.return_unaligned(4, 5);\n+  foo.return_unaligned_in_base(6, 7, 8);\n+  return 0;  // break-here\n+}"
+    },
+    {
+      "sha": "c33777d2b41501968cd183fff2e46fed1ad28b96",
+      "filename": "gdb/testsuite/gdb.arch/amd64-eval.exp",
+      "status": "added",
+      "additions": 43,
+      "deletions": 0,
+      "changes": 43,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4aa866af6b13c7080c6d92201fc1a2f4ea19998e/gdb/testsuite/gdb.arch/amd64-eval.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4aa866af6b13c7080c6d92201fc1a2f4ea19998e/gdb/testsuite/gdb.arch/amd64-eval.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/amd64-eval.exp?ref=4aa866af6b13c7080c6d92201fc1a2f4ea19998e",
+      "patch": "@@ -0,0 +1,43 @@\n+# This testcase is part of GDB, the GNU debugger.\n+\n+# Copyright 2019 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# This testcase exercises evaluation with amd64 calling conventions.\n+\n+standard_testfile .cc\n+\n+if { [prepare_for_testing \"failed to prepare\" $testfile $srcfile \\\n+\t  { debug c++ }] } {\n+    return -1\n+}\n+\n+if ![runto_main] {\n+    return -1\n+}\n+\n+gdb_breakpoint [gdb_get_line_number \"break-here\"]\n+gdb_continue_to_breakpoint \"break-here\"\n+\n+gdb_test \"call foo.return_simple_base(12)\" \\\n+    \" = {x = 12}\"\n+gdb_test \"call foo.return_simple_derived(34)\" \\\n+    \" = {<SimpleBase> = {x = 34}, <No data fields>}\"\n+gdb_test \"call foo.return_non_trivial_destructor(56)\" \\\n+    \" = {<SimpleBase> = {x = 56}, <No data fields>}\"\n+gdb_test \"call foo.return_unaligned(78, 9.25)\" \\\n+    \" = {x = 78, y = 9.25}\"\n+gdb_test \"call foo.return_unaligned_in_base(23, 4.5, 67)\" \\\n+    \" = {<UnalignedFields> = {x = 23, y = 4.5}, x2 = 67}\""
+    }
+  ]
+}

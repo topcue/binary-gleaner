@@ -1,0 +1,60 @@
+{
+  "sha": "a96eadd871207cc7a811def35fb32a971c6be1bb",
+  "node_id": "C_kwDOANOeidoAKGE5NmVhZGQ4NzEyMDdjYzdhODExZGVmMzVmYjMyYTk3MWM2YmUxYmI",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-12-09T17:51:10Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-12-13T10:56:09Z"
+    },
+    "message": "gdb: only include mips and riscv targets if building with 64-bit bfd\n\nWhile testing another patch I was trying to build different\nconfigurations of GDB, and, during one test build I ran into a\nproblem, I configured with `--enable-targets=all\n--host=i686-w64-mingw32` and saw this error while linking GDB:\n\n  .../i686-w64-mingw32/bin/ld: mips-tdep.o: in function `mips_gdbarch_init':\n  .../src/gdb/mips-tdep.c:8730: undefined reference to `disassembler_options_mips'\n  .../i686-w64-mingw32/bin/ld: riscv-tdep.o: in function `riscv_gdbarch_init':\n  .../src/gdb/riscv-tdep.c:3851: undefined reference to `disassembler_options_riscv'\n\nSo the `disassembler_options_mips` and `disassembler_options_riscv`\nsymbols are missing.\n\nThis turns out to be because mips-dis.c and riscv-dis.c, in which\nthese symbols are defined, are in the TARGET64_LIBOPCODES_CFILES list\nin opcodes/Makefile.am, these files are only built when we are\nbuilding with a 64-bit bfd.\n\nIf we look further, into bfd/Makefile.am, we can see that all the\nfiles matching elf*-riscv.lo are in the BFD64_BACKENDS list, as are\nthe elf*-mips.lo files, and (I know because I tried), the two\ndisassemblers do, not surprisingly, depend on features supplied from\nlibbfd.\n\nSo, though we can build most of GDB just fine for riscv and mips with\na 32-bit bfd, if I understand correctly, the final GDB\nexecutable (assuming we could get it to link) would not understand\nthese architectures at the bfd level, nor would there be any\ndisassembler available.  This sounds like a pretty useless GDB to me.\n\nSo, in this commit, I move the riscv and mips targets into GDB's list\nof targets that require a 64-bit bfd.  After this I can build GDB just\nfine with the configure options given above.\n\nThis was discussed on the mailing list in a couple of threads:\n\n  https://sourceware.org/pipermail/gdb-patches/2021-December/184365.html\n  https://sourceware.org/pipermail/binutils/2021-November/118498.html\n\nand it is agreed, that it is unfortunate that the 32-bit riscv and\n32-bit mips targets require a 64-bit bfd.  If in the future this\nsituation ever changes then it would be expected that some (or all) of\nthis patch would be reverted.  Until then though, this patch allows\nGDB to build when configured with --enable-targets=all, and when using\na 32-bit libbfd.",
+    "tree": {
+      "sha": "2655f95be28854f7b07c5e545dfc881bb6fc5d1a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/2655f95be28854f7b07c5e545dfc881bb6fc5d1a"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/a96eadd871207cc7a811def35fb32a971c6be1bb",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a96eadd871207cc7a811def35fb32a971c6be1bb",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/a96eadd871207cc7a811def35fb32a971c6be1bb",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a96eadd871207cc7a811def35fb32a971c6be1bb/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "0ca813c3d57cfe13f7281dcbe6774cdb2ede6f26",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0ca813c3d57cfe13f7281dcbe6774cdb2ede6f26",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/0ca813c3d57cfe13f7281dcbe6774cdb2ede6f26"
+    }
+  ],
+  "stats": {
+    "total": 22,
+    "additions": 11,
+    "deletions": 11
+  },
+  "files": [
+    {
+      "sha": "f2966cf6c00ae0c1a3ac2ed3702d51a735765430",
+      "filename": "gdb/Makefile.in",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 11,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a96eadd871207cc7a811def35fb32a971c6be1bb/gdb/Makefile.in",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a96eadd871207cc7a811def35fb32a971c6be1bb/gdb/Makefile.in",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/Makefile.in?ref=a96eadd871207cc7a811def35fb32a971c6be1bb",
+      "patch": "@@ -710,10 +710,21 @@ ALL_64_TARGET_OBS = \\\n \tarch/aarch64-insn.o \\\n \tarch/aarch64-mte-linux.o \\\n \tarch/amd64.o \\\n+\tarch/riscv.o \\\n \tia64-linux-tdep.o \\\n \tia64-tdep.o \\\n \tia64-vms-tdep.o \\\n+\tmips-fbsd-tdep.o \\\n+\tmips-linux-tdep.o \\\n+\tmips-netbsd-tdep.o \\\n+\tmips-sde-tdep.o \\\n+\tmips-tdep.o \\\n \tmips64-obsd-tdep.o \\\n+\triscv-fbsd-tdep.o \\\n+\triscv-linux-tdep.o \\\n+\triscv-none-tdep.o \\\n+\triscv-ravenscar-thread.o \\\n+\triscv-tdep.o \\\n \tsparc64-fbsd-tdep.o \\\n \tsparc64-linux-tdep.o \\\n \tsparc64-netbsd-tdep.o \\\n@@ -734,7 +745,6 @@ ALL_TARGET_OBS = \\\n \tarch/arm-linux.o \\\n \tarch/i386.o \\\n \tarch/ppc-linux-common.o \\\n-\tarch/riscv.o \\\n \tarm-bsd-tdep.o \\\n \tarm-fbsd-tdep.o \\\n \tarm-linux-tdep.o \\\n@@ -793,11 +803,6 @@ ALL_TARGET_OBS = \\\n \tmep-tdep.o \\\n \tmicroblaze-linux-tdep.o \\\n \tmicroblaze-tdep.o \\\n-\tmips-fbsd-tdep.o \\\n-\tmips-linux-tdep.o \\\n-\tmips-netbsd-tdep.o \\\n-\tmips-sde-tdep.o \\\n-\tmips-tdep.o \\\n \tmn10300-linux-tdep.o \\\n \tmn10300-tdep.o \\\n \tmoxie-tdep.o \\\n@@ -818,11 +823,6 @@ ALL_TARGET_OBS = \\\n \tppc-sysv-tdep.o \\\n \tppc64-tdep.o \\\n \travenscar-thread.o \\\n-\triscv-fbsd-tdep.o \\\n-\triscv-linux-tdep.o \\\n-\triscv-none-tdep.o \\\n-\triscv-ravenscar-thread.o \\\n-\triscv-tdep.o \\\n \trl78-tdep.o \\\n \trs6000-aix-tdep.o \\\n \trs6000-lynx178-tdep.o \\"
+    }
+  ]
+}

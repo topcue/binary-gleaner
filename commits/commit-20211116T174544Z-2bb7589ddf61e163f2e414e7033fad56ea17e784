@@ -1,0 +1,96 @@
+{
+  "sha": "2bb7589ddf61e163f2e414e7033fad56ea17e784",
+  "node_id": "C_kwDOANOeidoAKDJiYjc1ODlkZGY2MWUxNjNmMmU0MTRlNzAzM2ZhZDU2ZWExN2U3ODQ",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-11-08T15:17:16Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-11-16T17:45:44Z"
+    },
+    "message": "gdbsupport: move xfree into its own file\n\nIn the next commit I'd like to reference gdb_unique_ptr within the\ncommon-utils.h file.  However, this requires that I include\ngdb_unique_ptr.h, which requires that xfree be defined.\n\nInterestingly, gdb_unique_ptr.h doesn't actually include anything that\ndefines xfree, but I was finding that when I added a gdb_unique_ptr.h\ninclude to common-utils.h I was getting a dependency cycle; before my\nchange xfree was defined when gdb_unique_ptr.h was processed, while\nafter my change it was not, and this made g++ unhappy.\n\nTo break this cycle, I propose to move xfree into its own header file,\ngdb-xfree.h, which I'll then include into gdb_unique_ptr.h and\ncommon-utils.cc.",
+    "tree": {
+      "sha": "8b026bfba1304d7ea6460407593771a75a5c5309",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/8b026bfba1304d7ea6460407593771a75a5c5309"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/2bb7589ddf61e163f2e414e7033fad56ea17e784",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2bb7589ddf61e163f2e414e7033fad56ea17e784",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/2bb7589ddf61e163f2e414e7033fad56ea17e784",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2bb7589ddf61e163f2e414e7033fad56ea17e784/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "a6e7fea128b8e1da3ea99dc906df56f85589d335",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a6e7fea128b8e1da3ea99dc906df56f85589d335",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/a6e7fea128b8e1da3ea99dc906df56f85589d335"
+    }
+  ],
+  "stats": {
+    "total": 59,
+    "additions": 43,
+    "deletions": 16
+  },
+  "files": [
+    {
+      "sha": "7a8434538dcfb70f39323d9d1bc6a39802acb558",
+      "filename": "gdbsupport/common-utils.cc",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2bb7589ddf61e163f2e414e7033fad56ea17e784/gdbsupport/common-utils.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2bb7589ddf61e163f2e414e7033fad56ea17e784/gdbsupport/common-utils.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/common-utils.cc?ref=2bb7589ddf61e163f2e414e7033fad56ea17e784",
+      "patch": "@@ -21,6 +21,7 @@\n #include \"common-utils.h\"\n #include \"host-defs.h\"\n #include \"safe-ctype.h\"\n+#include \"gdbsupport/gdb-xfree.h\"\n \n void *\n xzalloc (size_t size)"
+    },
+    {
+      "sha": "4a75e67079fdce2a40b7373399cc09da9fe933bb",
+      "filename": "gdbsupport/common-utils.h",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 16,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2bb7589ddf61e163f2e414e7033fad56ea17e784/gdbsupport/common-utils.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2bb7589ddf61e163f2e414e7033fad56ea17e784/gdbsupport/common-utils.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/common-utils.h?ref=2bb7589ddf61e163f2e414e7033fad56ea17e784",
+      "patch": "@@ -52,22 +52,6 @@\n /* Like xmalloc, but zero the memory.  */\n void *xzalloc (size_t);\n \n-template <typename T>\n-static void\n-xfree (T *ptr)\n-{\n-  static_assert (IsFreeable<T>::value, \"Trying to use xfree with a non-POD \\\n-data type.  Use operator delete instead.\");\n-\n-  if (ptr != NULL)\n-#ifdef GNULIB_NAMESPACE\n-    GNULIB_NAMESPACE::free (ptr);\t/* ARI: free */\n-#else\n-    free (ptr);\t\t\t\t/* ARI: free */\n-#endif\n-}\n-\n-\n /* Like asprintf and vasprintf, but return the string, throw an error\n    if no memory.  */\n char *xstrprintf (const char *format, ...) ATTRIBUTE_PRINTF (1, 2);"
+    },
+    {
+      "sha": "2028698564e81fe42bb57f46750f1ddc74e5db7d",
+      "filename": "gdbsupport/gdb-xfree.h",
+      "status": "added",
+      "additions": 41,
+      "deletions": 0,
+      "changes": 41,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2bb7589ddf61e163f2e414e7033fad56ea17e784/gdbsupport/gdb-xfree.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2bb7589ddf61e163f2e414e7033fad56ea17e784/gdbsupport/gdb-xfree.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/gdb-xfree.h?ref=2bb7589ddf61e163f2e414e7033fad56ea17e784",
+      "patch": "@@ -0,0 +1,41 @@\n+/* Copyright (C) 1986-2021 Free Software Foundation, Inc.\n+\n+   This file is part of GDB.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#ifndef GDBSUPPORT_GDB_XFREE_H\n+#define GDBSUPPORT_GDB_XFREE_H\n+\n+#include \"gdbsupport/poison.h\"\n+\n+/* GDB uses this instead of 'free', it detects when it is called on an\n+   invalid type.  */\n+\n+template <typename T>\n+static void\n+xfree (T *ptr)\n+{\n+  static_assert (IsFreeable<T>::value, \"Trying to use xfree with a non-POD \\\n+data type.  Use operator delete instead.\");\n+\n+  if (ptr != NULL)\n+#ifdef GNULIB_NAMESPACE\n+    GNULIB_NAMESPACE::free (ptr);\t/* ARI: free */\n+#else\n+    free (ptr);\t\t\t\t/* ARI: free */\n+#endif\n+}\n+\n+#endif /* GDBSUPPORT_GDB_XFREE_H */"
+    },
+    {
+      "sha": "a4904ead57c39aea0b52ab9e1f87d20dfa9218be",
+      "filename": "gdbsupport/gdb_unique_ptr.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2bb7589ddf61e163f2e414e7033fad56ea17e784/gdbsupport/gdb_unique_ptr.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2bb7589ddf61e163f2e414e7033fad56ea17e784/gdbsupport/gdb_unique_ptr.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/gdb_unique_ptr.h?ref=2bb7589ddf61e163f2e414e7033fad56ea17e784",
+      "patch": "@@ -21,6 +21,7 @@\n #define COMMON_GDB_UNIQUE_PTR_H\n \n #include <memory>\n+#include \"gdbsupport/gdb-xfree.h\"\n \n namespace gdb\n {"
+    }
+  ]
+}

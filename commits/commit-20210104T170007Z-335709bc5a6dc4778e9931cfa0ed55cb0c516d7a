@@ -1,0 +1,110 @@
+{
+  "sha": "335709bc5a6dc4778e9931cfa0ed55cb0c516d7a",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MzM1NzA5YmM1YTZkYzQ3NzhlOTkzMWNmYTBlZDU1Y2IwYzUxNmQ3YQ==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2021-01-04T16:56:10Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-01-04T17:00:07Z"
+    },
+    "message": "gdb: make \"set debug timestamp\" work nice with new debug printouts\n\nNew in v2:\n\n- implement by modifying vprintf_unfiltered rather than\n  debug_prefixed_vprintf.\n\nI tried enabling debug timestamps, and realized that it doesn't play\nwell with the revamp of the debug printouts I've been working on:\n\n    $ ./gdb -q -nx --data-directory=data-directory -ex \"set debug infrun\" -ex \"set debug timestamp\" a.out\n    Reading symbols from a.out...\n    (gdb) start\n    Temporary breakpoint 1 at 0x1131: file test.c, line 2.\n    Starting program: /home/smarchi/build/binutils-gdb-all-targets/gdb/a.out\n    939897.769338 [infrun] infrun_async:\n    939897.769383 enable=1\n    939897.769409\n    939897.915218 [infrun] proceed:\n    939897.915281 addr=0x7ffff7fd0100, signal=GDB_SIGNAL_0\n    939897.915315\n    939897.915417 [infrun] start_step_over:\n    939897.915464 stealing global queue of threads to step, length = 0\n    939897.915502\n    939897.915567 [infrun] operator():\n    939897.915601 step-over queue now empty\n    939897.915633\n    939897.915690 [infrun] proceed:\n    939897.915729 resuming process 636244\n    939897.915768\n    939897.915892 [infrun] resume_1:\n    939897.915954 step=0, signal=GDB_SIGNAL_0, trap_expected=0, current thread [process 636244] at 0x7ffff7fd0100\n    939897.915991\n    939897.916119 [infrun] prepare_to_wait:\n    939897.916153 prepare_to_wait\n    939897.916201\n    939897.916661 [infrun] target_wait (-1.0.0, status) =\n    [infrun]   636244.636244.0 [process 636244],\n    [infrun]   status->kind = stopped, signal = GDB_SIGNAL_TRAP\n    939897.916734 [infrun] handle_inferior_event:\n    939897.916768 status->kind = stopped, signal = GDB_SIGNAL_TRAP\n    939897.916799\n\nThis is due to debug_prefixed_vprintf being implemented as three\nseparate calls to debug_printf / debug_vprintf.  Each call gets its own\ntimestamp and newline, curtesy of vprintf_unfiltered.\n\nMy first idea was to add a \"line_start\" parameter to debug_vprintf,\nallowing the caller to say whether the print is the start of the line.\nA debug timestamp would only be printed if line_start was true.\nHowever, that was much more invasive than the simple fix implemented in\nthis patch.\n\nMy second idea was to make debug_prefixed_vprintf use string_printf and\nissue a single call to debug_printf.  That would however prevent future\nuse of styling in the debug messages.\n\nWhat is implemented in this patch is the same as is implemented in\nGDBserver: the timestamp-printing code in GDB tracks whether the last\ndebug output ended with a newline.  If so, it prints a timestamp on the\nnext debug output.\n\nAfter the fix, it looks like this:\n\n    $ ./gdb -q -nx --data-directory=data-directory -ex \"set debug infrun\" -ex \"set debug timestamp\" a.out\n    Reading symbols from a.out...\n    (gdb) start\n    Temporary breakpoint 1 at 0x1131: file test.c, line 2.\n    Starting program: /home/smarchi/build/binutils-gdb-all-targets/gdb/a.out\n    941112.135662 [infrun] infrun_async: enable=1\n    941112.279930 [infrun] proceed: addr=0x7ffff7fd0100, signal=GDB_SIGNAL_0\n    941112.280064 [infrun] start_step_over: stealing global queue of threads to step, length = 0\n    941112.280125 [infrun] operator(): step-over queue now empty\n    941112.280194 [infrun] proceed: resuming process 646228\n    941112.280332 [infrun] resume_1: step=0, signal=GDB_SIGNAL_0, trap_expected=0, current thread [process 646228] at 0x7ffff7fd0100\n    941112.280480 [infrun] prepare_to_wait: prepare_to_wait\n    941112.281004 [infrun] target_wait (-1.0.0, status) =\n    [infrun]   646228.646228.0 [process 646228],\n    [infrun]   status->kind = stopped, signal = GDB_SIGNAL_TRAP\n    941112.281078 [infrun] handle_inferior_event: status->kind = stopped, signal = GDB_SIGNAL_TRAP\n\ngdb/ChangeLog:\n\n\t* utils.c (vfprintf_unfiltered): Print timestamp only when\n\tprevious debug output ended with a newline.\n\nChange-Id: Idcfe3acc7e3d0f526a5f0a43a5e0884bf93c41ae",
+    "tree": {
+      "sha": "aa99ad7d39eb3e9b367d1ac775b6d11ecaff350c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/aa99ad7d39eb3e9b367d1ac775b6d11ecaff350c"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/335709bc5a6dc4778e9931cfa0ed55cb0c516d7a",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/335709bc5a6dc4778e9931cfa0ed55cb0c516d7a",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/335709bc5a6dc4778e9931cfa0ed55cb0c516d7a",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/335709bc5a6dc4778e9931cfa0ed55cb0c516d7a/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "8dc558a0724fa5f56f837144dd44012e211d176e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8dc558a0724fa5f56f837144dd44012e211d176e",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/8dc558a0724fa5f56f837144dd44012e211d176e"
+    }
+  ],
+  "stats": {
+    "total": 39,
+    "additions": 24,
+    "deletions": 15
+  },
+  "files": [
+    {
+      "sha": "e0da11f5e96976bb142c8d6adf1aa6e1b3a2620a",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/335709bc5a6dc4778e9931cfa0ed55cb0c516d7a/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/335709bc5a6dc4778e9931cfa0ed55cb0c516d7a/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=335709bc5a6dc4778e9931cfa0ed55cb0c516d7a",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-01-04  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\t* utils.c (vfprintf_unfiltered): Print timestamp only when\n+\tprevious debug output ended with a newline.\n+\n 2021-01-04  Luis Machado  <luis.machado@linaro.org>\n \n \tUpdate all users of trad_frame_saved_reg to use the new member"
+    },
+    {
+      "sha": "414e7b153a027e70f9eeb1ea9787161bcb60fbe3",
+      "filename": "gdb/utils.c",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 15,
+      "changes": 34,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/335709bc5a6dc4778e9931cfa0ed55cb0c516d7a/gdb/utils.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/335709bc5a6dc4778e9931cfa0ed55cb0c516d7a/gdb/utils.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/utils.c?ref=335709bc5a6dc4778e9931cfa0ed55cb0c516d7a",
+      "patch": "@@ -2126,26 +2126,30 @@ vfprintf_unfiltered (struct ui_file *stream, const char *format, va_list args)\n {\n   if (debug_timestamp && stream == gdb_stdlog)\n     {\n-      using namespace std::chrono;\n-      int len, need_nl;\n+      static bool needs_timestamp = true;\n \n+      /* Print timestamp if previous print ended with a \\n.  */\n+      if (needs_timestamp)\n+\t{\n+\t  using namespace std::chrono;\n+\n+\t  steady_clock::time_point now = steady_clock::now ();\n+\t  seconds s = duration_cast<seconds> (now.time_since_epoch ());\n+\t  microseconds us = duration_cast<microseconds> (now.time_since_epoch () - s);\n+\t  std::string timestamp = string_printf (\"%ld.%06ld \",\n+\t\t\t\t\t\t (long) s.count (),\n+\t\t\t\t\t\t (long) us.count ());\n+\t  fputs_unfiltered (timestamp.c_str (), stream);\n+\t}\n+\n+      /* Print the message.  */\n       string_file sfile;\n       cli_ui_out (&sfile, 0).vmessage (ui_file_style (), format, args);\n       std::string linebuffer = std::move (sfile.string ());\n+      fputs_unfiltered (linebuffer.c_str (), stream);\n \n-      steady_clock::time_point now = steady_clock::now ();\n-      seconds s = duration_cast<seconds> (now.time_since_epoch ());\n-      microseconds us = duration_cast<microseconds> (now.time_since_epoch () - s);\n-\n-      len = linebuffer.size ();\n-      need_nl = (len > 0 && linebuffer[len - 1] != '\\n');\n-\n-      std::string timestamp = string_printf (\"%ld.%06ld %s%s\",\n-\t\t\t\t\t     (long) s.count (),\n-\t\t\t\t\t     (long) us.count (),\n-\t\t\t\t\t     linebuffer.c_str (),\n-\t\t\t\t\t     need_nl ? \"\\n\": \"\");\n-      fputs_unfiltered (timestamp.c_str (), stream);\n+      size_t len = linebuffer.length ();\n+      needs_timestamp = (len > 0 && linebuffer[len - 1] == '\\n');\n     }\n   else\n     vfprintf_maybe_filtered (stream, format, args, false, true);"
+    }
+  ]
+}

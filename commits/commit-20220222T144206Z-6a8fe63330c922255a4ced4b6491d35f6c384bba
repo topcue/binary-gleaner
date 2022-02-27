@@ -1,0 +1,91 @@
+{
+  "sha": "6a8fe63330c922255a4ced4b6491d35f6c384bba",
+  "node_id": "C_kwDOANOeidoAKDZhOGZlNjMzMzBjOTIyMjU1YTRjZWQ0YjY0OTFkMzVmNmMzODRiYmE",
+  "commit": {
+    "author": {
+      "name": "Ruslan Kabatsayev",
+      "email": "b7.10110111@gmail.com",
+      "date": "2022-02-11T17:10:23Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-02-22T14:42:06Z"
+    },
+    "message": "gdb: fix detection of compilation and linking flags for source-highlight\n\nCurrently there are two problems with the detection of\nsource-highlight via pkg-config in GDB's configure script:\n\n1. The LDFLAGS variable is used to pass the 'pkg-config --libs' output\nto AC_LINK_IFELSE, which results in the \"-L/some/path\n-lsource-highlight\" preceding the conftest.cpp, which can result in a\nfailure to find symbols referenced in conftest.cpp, if the linker is\nusing --as-needed by default.\n\n2. The CFLAGS variable is used to pass the 'pkg-config --cflags'\noutput to AC_LINK_IFELSE.  However, as the current language is C++,\nAC_LINK_IFELSE will actuall use CXXFLAGS, not CFLAGS, so any flags\nreturned from pkg-config will not be seen.\n\nThis patch fixes both of these mistakes, allowing GDB to correctly\nconfigure and build using source-highlight installed into a custom\nprefix, e.g. ~/opt/gdb-git (because the system version of\nsource-highlight is too old).",
+    "tree": {
+      "sha": "f6f67d0c007e6659d1a17586ca80525c47dcc7a4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f6f67d0c007e6659d1a17586ca80525c47dcc7a4"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/6a8fe63330c922255a4ced4b6491d35f6c384bba",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6a8fe63330c922255a4ced4b6491d35f6c384bba",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/6a8fe63330c922255a4ced4b6491d35f6c384bba",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6a8fe63330c922255a4ced4b6491d35f6c384bba/comments",
+  "author": {
+    "login": "10110111",
+    "id": 6376882,
+    "node_id": "MDQ6VXNlcjYzNzY4ODI=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6376882?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/10110111",
+    "html_url": "https://github.com/10110111",
+    "followers_url": "https://api.github.com/users/10110111/followers",
+    "following_url": "https://api.github.com/users/10110111/following{/other_user}",
+    "gists_url": "https://api.github.com/users/10110111/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/10110111/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/10110111/subscriptions",
+    "organizations_url": "https://api.github.com/users/10110111/orgs",
+    "repos_url": "https://api.github.com/users/10110111/repos",
+    "events_url": "https://api.github.com/users/10110111/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/10110111/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": null,
+  "parents": [
+    {
+      "sha": "955b0ef98ea757bad1b9be429e4b8d13689da13b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/955b0ef98ea757bad1b9be429e4b8d13689da13b",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/955b0ef98ea757bad1b9be429e4b8d13689da13b"
+    }
+  ],
+  "stats": {
+    "total": 24,
+    "additions": 12,
+    "deletions": 12
+  },
+  "files": [
+    {
+      "sha": "425bdb08a7351e6891c70960de7c60b80b5e9d26",
+      "filename": "gdb/configure",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6a8fe63330c922255a4ced4b6491d35f6c384bba/gdb/configure",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6a8fe63330c922255a4ced4b6491d35f6c384bba/gdb/configure",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/configure?ref=6a8fe63330c922255a4ced4b6491d35f6c384bba",
+      "patch": "@@ -12148,10 +12148,10 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'\n ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'\n ac_compiler_gnu=$ac_cv_cxx_compiler_gnu\n \n-      save_CFLAGS=\"$CFLAGS\"\n-      save_LDFLAGS=\"$LDFLAGS\"\n-      CFLAGS=\"$CFLAGS $srchigh_pkg_cflags\"\n-      LDFLAGS=\"$LDFLAGS $srchigh_pkg_libs\"\n+      save_CXXFLAGS=\"$CXXFLAGS\"\n+      save_LIBS=\"$LIBS\"\n+      CXXFLAGS=\"$CXXFLAGS $srchigh_pkg_cflags\"\n+      LIBS=\"$LIBS $srchigh_pkg_libs\"\n       cat confdefs.h - <<_ACEOF >conftest.$ac_ext\n /* end confdefs.h.  */\n #include <srchilite/sourcehighlight.h>\n@@ -12173,8 +12173,8 @@ else\n fi\n rm -f core conftest.err conftest.$ac_objext \\\n     conftest$ac_exeext conftest.$ac_ext\n-      CFLAGS=\"$save_CFLAGS\"\n-      LDFLAGS=\"$save_LDFLAGS\"\n+      CXXFLAGS=\"$save_CXXFLAGS\"\n+      LIBS=\"$save_LIBS\"\n       ac_ext=c\n ac_cpp='$CPP $CPPFLAGS'\n ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'"
+    },
+    {
+      "sha": "c6fa19b20bc99f13ce44d182eeee93fe4762cf42",
+      "filename": "gdb/configure.ac",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6a8fe63330c922255a4ced4b6491d35f6c384bba/gdb/configure.ac",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6a8fe63330c922255a4ced4b6491d35f6c384bba/gdb/configure.ac",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/configure.ac?ref=6a8fe63330c922255a4ced4b6491d35f6c384bba",
+      "patch": "@@ -1242,10 +1242,10 @@ either use --disable-source-highlight or dnl\n       # This situation can occur for instance when using a source highlight\n       # library compiled with g++ 7.5.0 while building gdb with g++ 4.8.5.\n       AC_LANG_PUSH(C++)\n-      save_CFLAGS=\"$CFLAGS\"\n-      save_LDFLAGS=\"$LDFLAGS\"\n-      CFLAGS=\"$CFLAGS $srchigh_pkg_cflags\"\n-      LDFLAGS=\"$LDFLAGS $srchigh_pkg_libs\"\n+      save_CXXFLAGS=\"$CXXFLAGS\"\n+      save_LIBS=\"$LIBS\"\n+      CXXFLAGS=\"$CXXFLAGS $srchigh_pkg_cflags\"\n+      LIBS=\"$LIBS $srchigh_pkg_libs\"\n       AC_LINK_IFELSE(\n         [AC_LANG_PROGRAM(\n           [#include <srchilite/sourcehighlight.h>],\n@@ -1255,8 +1255,8 @@ either use --disable-source-highlight or dnl\n         [have_usable_source_highlight=yes],\n         [have_usable_source_highlight=no]\n       )\n-      CFLAGS=\"$save_CFLAGS\"\n-      LDFLAGS=\"$save_LDFLAGS\"\n+      CXXFLAGS=\"$save_CXXFLAGS\"\n+      LIBS=\"$save_LIBS\"\n       AC_LANG_POP(C++)\n \n       if test \"${have_usable_source_highlight}\" = \"yes\"; then"
+    }
+  ]
+}

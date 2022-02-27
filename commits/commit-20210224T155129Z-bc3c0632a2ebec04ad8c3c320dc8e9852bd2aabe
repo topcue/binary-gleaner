@@ -1,0 +1,134 @@
+{
+  "sha": "bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YmMzYzA2MzJhMmViZWMwNGFkOGMzYzMyMGRjOGU5ODUyYmQyYWFiZQ==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-01-08T14:00:45Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-02-24T15:51:29Z"
+    },
+    "message": "gdb: call value_ind for pointers to dynamic types in UNOP_IND evaluation\n\nWhen evaluating and expression containing UNOP_IND in mode\nEVAL_AVOID_SIDE_EFFECTS, GDB currently (mostly) returns the result of\na call to value_zero meaning we get back an object with the correct\ntype, but its contents are all zero.\n\nIf the target type contains fields with dynamic type then in order to\nresolve these dynamic fields GDB will need to read the value of the\nfield from within the parent object.  In this case the field value\nwill be zero as a result of the call to value_zero mentioned above.\n\nThe idea behind EVAL_AVOID_SIDE_EFFECTS is to avoid the chance that\ndoing something like `ptype` will modify state within the target, for\nexample consider: ptype i++.\n\nHowever, there is already precedence within GDB that sometimes, in\norder to get accurate type results, we can't avoid reading from the\ntarget, even when EVAL_AVOID_SIDE_EFFECTS is in effect.  For example I\nwould point to eval.c:evaluate_var_value, the handling of OP_REGISTER,\nthe handling of value_x_unop in many places.  I believe the Ada\nexpression evaluator also ignore EVAL_AVOID_SIDE_EFFECTS in some\ncases.\n\nI am therefor proposing that, in the case where a pointer points at a\ndynamic type, we allow UNOP_IND to perform the actual indirection.\nThis allows accurate types to be displayed in more cases.\n\ngdb/ChangeLog:\n\n\t* eval.c (evaluate_subexp_standard): Call value_ind for points to\n\tdynamic types in UNOP_IND.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.fortran/pointer-to-pointer.exp: Additional tests.",
+    "tree": {
+      "sha": "19271e5181a642045479585530955ec9f3a693ed",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/19271e5181a642045479585530955ec9f3a693ed"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "9d3fcfe06896afd0ef1df4b22355d3822ca89e08",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9d3fcfe06896afd0ef1df4b22355d3822ca89e08",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/9d3fcfe06896afd0ef1df4b22355d3822ca89e08"
+    }
+  ],
+  "stats": {
+    "total": 74,
+    "additions": 51,
+    "deletions": 23
+  },
+  "files": [
+    {
+      "sha": "b50a48ca1e535c6f7a726339f816a64fea0620f5",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-02-24  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* eval.c (evaluate_subexp_standard): Call value_ind for points to\n+\tdynamic types in UNOP_IND.\n+\n 2021-02-23  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \tPR gdb/26828"
+    },
+    {
+      "sha": "7ba3ee59522fc4d627f85315eba77835547a6b5b",
+      "filename": "gdb/eval.c",
+      "status": "modified",
+      "additions": 23,
+      "deletions": 13,
+      "changes": 36,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe/gdb/eval.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe/gdb/eval.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/eval.c?ref=bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe",
+      "patch": "@@ -2425,19 +2425,29 @@ evaluate_subexp_standard (struct type *expect_type,\n       else if (noside == EVAL_AVOID_SIDE_EFFECTS)\n \t{\n \t  type = check_typedef (value_type (arg1));\n-\t  if (type->code () == TYPE_CODE_PTR\n-\t      || TYPE_IS_REFERENCE (type)\n-\t  /* In C you can dereference an array to get the 1st elt.  */\n-\t      || type->code () == TYPE_CODE_ARRAY\n-\t    )\n-\t    return value_zero (TYPE_TARGET_TYPE (type),\n-\t\t\t       lval_memory);\n-\t  else if (type->code () == TYPE_CODE_INT)\n-\t    /* GDB allows dereferencing an int.  */\n-\t    return value_zero (builtin_type (exp->gdbarch)->builtin_int,\n-\t\t\t       lval_memory);\n-\t  else\n-\t    error (_(\"Attempt to take contents of a non-pointer value.\"));\n+\n+\t  /* If the type pointed to is dynamic then in order to resolve the\n+\t     dynamic properties we must actually dereference the pointer.\n+\t     There is a risk that this dereference will have side-effects\n+\t     in the inferior, but being able to print accurate type\n+\t     information seems worth the risk. */\n+\t  if ((type->code () != TYPE_CODE_PTR\n+\t       && !TYPE_IS_REFERENCE (type))\n+\t      || !is_dynamic_type (TYPE_TARGET_TYPE (type)))\n+\t    {\n+\t      if (type->code () == TYPE_CODE_PTR\n+\t\t  || TYPE_IS_REFERENCE (type)\n+\t\t  /* In C you can dereference an array to get the 1st elt.  */\n+\t\t  || type->code () == TYPE_CODE_ARRAY)\n+\t\treturn value_zero (TYPE_TARGET_TYPE (type),\n+\t\t\t\t   lval_memory);\n+\t      else if (type->code () == TYPE_CODE_INT)\n+\t\t/* GDB allows dereferencing an int.  */\n+\t\treturn value_zero (builtin_type (exp->gdbarch)->builtin_int,\n+\t\t\t\t   lval_memory);\n+\t      else\n+\t\terror (_(\"Attempt to take contents of a non-pointer value.\"));\n+\t    }\n \t}\n \n       /* Allow * on an integer so we can cast it to whatever we want."
+    },
+    {
+      "sha": "6f1cb0a85268b5adc0fe683f7ec9f63ca8da5db1",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe",
+      "patch": "@@ -1,3 +1,7 @@\n+2021-02-24  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.fortran/pointer-to-pointer.exp: Additional tests.\n+\n 2021-02-18  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.arch/i386-biarch-core.exp: Add target check."
+    },
+    {
+      "sha": "306168b28769181c9360774243e6341a51defdb7",
+      "filename": "gdb/testsuite/gdb.fortran/pointer-to-pointer.exp",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 10,
+      "changes": 29,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe/gdb/testsuite/gdb.fortran/pointer-to-pointer.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe/gdb/testsuite/gdb.fortran/pointer-to-pointer.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.fortran/pointer-to-pointer.exp?ref=bc3c0632a2ebec04ad8c3c320dc8e9852bd2aabe",
+      "patch": "@@ -30,20 +30,29 @@ if ![fortran_runto_main] {\n     return -1\n }\n \n-# Depending on the compiler being used, the type names can be printed differently.\n+# Depending on the compiler being used, the type names can be printed\n+# differently.\n set real4 [fortran_real4]\n \n gdb_breakpoint [gdb_get_line_number \"Break Here\"]\n gdb_continue_to_breakpoint \"Break Here\"\n \n+gdb_test \"print buffer\" \\\n+    \" = \\\\(PTR TO -> \\\\( Type l_buffer \\\\)\\\\) $hex\"\n+gdb_test \"ptype buffer\" \\\n+    [multi_line \\\n+\t \"type = PTR TO -> \\\\( Type l_buffer\" \\\n+\t \"    $real4 :: alpha\\\\(:\\\\)\" \\\n+\t \"End Type l_buffer \\\\)\" ]\n+gdb_test \"ptype buffer%alpha\" \"type = $real4 \\\\(5\\\\)\"\n+\n+# GDB allows pointer types to be dereferenced using '*'.  This is not\n+# real Fortran syntax, just something extra that GDB supports.\n gdb_test \"print *buffer\" \\\n     \" = \\\\( alpha = \\\\(1\\\\.5, 2\\\\.5, 3\\\\.5, 4\\\\.5, 5\\\\.5\\\\) \\\\)\"\n-\n-set l_buffer_type [multi_line \\\n-\t\t       \"Type l_buffer\" \\\n-\t\t       \"    $real4 :: alpha\\\\(:\\\\)\" \\\n-\t\t       \"End Type l_buffer\" ]\n-\n-gdb_test \"ptype buffer\" \"type = PTR TO -> \\\\( ${l_buffer_type} \\\\)\"\n-gdb_test \"ptype *buffer\" \"type = ${l_buffer_type}\"\n-gdb_test \"ptype buffer%alpha\" \"type = $real4 \\\\(5\\\\)\"\n+gdb_test \"ptype *buffer\" \\\n+    [multi_line \\\n+\t \"type = Type l_buffer\" \\\n+\t \"    $real4 :: alpha\\\\(5\\\\)\" \\\n+\t \"End Type l_buffer\" ]\n+gdb_test \"ptype (*buffer)%alpha\" \"type = $real4 \\\\(5\\\\)\""
+    }
+  ]
+}

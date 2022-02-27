@@ -1,0 +1,151 @@
+{
+  "sha": "e951225303b7d0565c985e2d562d3787983ff06f",
+  "node_id": "C_kwDOANOeidoAKGU5NTEyMjUzMDNiN2QwNTY1Yzk4NWUyZDU2MmQzNzg3OTgzZmYwNmY",
+  "commit": {
+    "author": {
+      "name": "Bhuvanendra Kumar N",
+      "email": "Bhuvanendra.KumarN@amd.com",
+      "date": "2022-02-02T17:52:27Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-02-11T15:26:25Z"
+    },
+    "message": "gdb/fortran: support ptype and print commands for namelist variables\n\nGfortran supports namelists (a Fortran feature); it emits\nDW_TAG_namelist and DW_TAG_namelist_item dies. But gdb does not\nprocess these dies and does not support 'print' or 'ptype' commands on\nnamelist variables.\n\nAn attempt to print namelist variables results in gdb bailing out with\nthe error message as shown below.\n\n  (gdb) print nml\n  No symbol \"nml\" in current context.\n\nThis commit is to make the print and ptype commands work for namelist\nvariables and its items. Sample output of these commands is shared\nbelow, with fixed gdb.\n\n  (gdb) ptype nml\n  type = Type nml\n      integer(kind=4) :: a\n      integer(kind=4) :: b\n  End Type nml\n  (gdb) print nml\n  $1 = ( a = 10, b = 20 )",
+    "tree": {
+      "sha": "bb924f8f2e8cccb6afb95c0446ff42aa91a2f3e1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/bb924f8f2e8cccb6afb95c0446ff42aa91a2f3e1"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/e951225303b7d0565c985e2d562d3787983ff06f",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e951225303b7d0565c985e2d562d3787983ff06f",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/e951225303b7d0565c985e2d562d3787983ff06f",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e951225303b7d0565c985e2d562d3787983ff06f/comments",
+  "author": {
+    "login": "bhuvanendrakumarn",
+    "id": 64949312,
+    "node_id": "MDQ6VXNlcjY0OTQ5MzEy",
+    "avatar_url": "https://avatars.githubusercontent.com/u/64949312?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/bhuvanendrakumarn",
+    "html_url": "https://github.com/bhuvanendrakumarn",
+    "followers_url": "https://api.github.com/users/bhuvanendrakumarn/followers",
+    "following_url": "https://api.github.com/users/bhuvanendrakumarn/following{/other_user}",
+    "gists_url": "https://api.github.com/users/bhuvanendrakumarn/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/bhuvanendrakumarn/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/bhuvanendrakumarn/subscriptions",
+    "organizations_url": "https://api.github.com/users/bhuvanendrakumarn/orgs",
+    "repos_url": "https://api.github.com/users/bhuvanendrakumarn/repos",
+    "events_url": "https://api.github.com/users/bhuvanendrakumarn/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/bhuvanendrakumarn/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": null,
+  "parents": [
+    {
+      "sha": "9ab50efc463ff723b8e9102f1f68a6983d320517",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9ab50efc463ff723b8e9102f1f68a6983d320517",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/9ab50efc463ff723b8e9102f1f68a6983d320517"
+    }
+  ],
+  "stats": {
+    "total": 171,
+    "additions": 155,
+    "deletions": 16
+  },
+  "files": [
+    {
+      "sha": "10550336063f51545063885281dd587a8e1774f0",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 39,
+      "deletions": 8,
+      "changes": 47,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e951225303b7d0565c985e2d562d3787983ff06f/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e951225303b7d0565c985e2d562d3787983ff06f/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=e951225303b7d0565c985e2d562d3787983ff06f",
+      "patch": "@@ -9694,6 +9694,7 @@ process_die (struct die_info *die, struct dwarf2_cu *cu)\n     case DW_TAG_interface_type:\n     case DW_TAG_structure_type:\n     case DW_TAG_union_type:\n+    case DW_TAG_namelist:\n       process_structure_scope (die, cu);\n       break;\n     case DW_TAG_enumeration_type:\n@@ -14556,8 +14557,21 @@ dwarf2_add_field (struct field_info *fip, struct die_info *die,\n \n   fp = &new_field->field;\n \n-  if (die->tag == DW_TAG_member && ! die_is_declaration (die, cu))\n-    {\n+  if ((die->tag == DW_TAG_member || die->tag == DW_TAG_namelist_item)\n+      && !die_is_declaration (die, cu))\n+    {\n+      if (die->tag == DW_TAG_namelist_item)\n+        {\n+\t  /* Typically, DW_TAG_namelist_item are references to namelist items.\n+\t     If so, follow that reference.  */\n+\t  struct attribute *attr1 = dwarf2_attr (die, DW_AT_namelist_item, cu);\n+\t  struct die_info *item_die = nullptr;\n+\t  struct dwarf2_cu *item_cu = cu;\n+          if (attr1->form_is_ref ())\n+\t    item_die = follow_die_ref (die, attr1, &item_cu);\n+\t  if (item_die != nullptr)\n+\t    die = item_die;\n+        }\n       /* Data member other than a C++ static data member.  */\n \n       /* Get type of field.  */\n@@ -15615,6 +15629,10 @@ read_structure_type (struct die_info *die, struct dwarf2_cu *cu)\n     {\n       type->set_code (TYPE_CODE_UNION);\n     }\n+  else if (die->tag == DW_TAG_namelist)\n+    {\n+      type->set_code (TYPE_CODE_NAMELIST);\n+    }\n   else\n     {\n       type->set_code (TYPE_CODE_STRUCT);\n@@ -15817,7 +15835,8 @@ handle_struct_member_die (struct die_info *child_die, struct type *type,\n \t\t\t  struct dwarf2_cu *cu)\n {\n   if (child_die->tag == DW_TAG_member\n-      || child_die->tag == DW_TAG_variable)\n+      || child_die->tag == DW_TAG_variable\n+      || child_die->tag == DW_TAG_namelist_item)\n     {\n       /* NOTE: carlton/2002-11-05: A C++ static data member\n \t should be a DW_TAG_member that is a declaration, but\n@@ -15860,8 +15879,10 @@ handle_struct_member_die (struct die_info *child_die, struct type *type,\n     handle_variant (child_die, type, fi, template_args, cu);\n }\n \n-/* Finish creating a structure or union type, including filling in\n-   its members and creating a symbol for it.  */\n+/* Finish creating a structure or union type, including filling in its\n+   members and creating a symbol for it. This function also handles Fortran\n+   namelist variables, their items or members and creating a symbol for\n+   them.  */\n \n static void\n process_structure_scope (struct die_info *die, struct dwarf2_cu *cu)\n@@ -21963,9 +21984,17 @@ new_symbol (struct die_info *die, struct type *type, struct dwarf2_cu *cu,\n \tcase DW_TAG_union_type:\n \tcase DW_TAG_set_type:\n \tcase DW_TAG_enumeration_type:\n-\t  sym->set_aclass_index (LOC_TYPEDEF);\n-\t  sym->set_domain (STRUCT_DOMAIN);\n-\n+\tcase DW_TAG_namelist:\n+\t  if (die->tag == DW_TAG_namelist)\n+\t    {\n+\t      sym->set_aclass_index (LOC_STATIC);\n+\t      sym->set_domain (VAR_DOMAIN);\n+\t    }\n+\t  else\n+\t    {\n+\t      sym->set_aclass_index (LOC_TYPEDEF);\n+\t      sym->set_domain (STRUCT_DOMAIN);\n+\t    }\n \t  {\n \t    /* NOTE: carlton/2003-11-10: C++ class symbols shouldn't\n \t       really ever be static objects: otherwise, if you try\n@@ -22902,6 +22931,7 @@ dwarf2_name (struct die_info *die, struct dwarf2_cu *cu)\n       && die->tag != DW_TAG_class_type\n       && die->tag != DW_TAG_interface_type\n       && die->tag != DW_TAG_structure_type\n+      && die->tag != DW_TAG_namelist\n       && die->tag != DW_TAG_union_type)\n     return NULL;\n \n@@ -22926,6 +22956,7 @@ dwarf2_name (struct die_info *die, struct dwarf2_cu *cu)\n     case DW_TAG_interface_type:\n     case DW_TAG_structure_type:\n     case DW_TAG_union_type:\n+    case DW_TAG_namelist:\n       /* Some GCC versions emit spurious DW_AT_name attributes for unnamed\n \t structures or unions.  These were of the form \"._%d\" in GCC 4.1,\n \t or simply \"<anonymous struct>\" or \"<anonymous union>\" in GCC 4.3"
+    },
+    {
+      "sha": "3b26bf74b612e709d03ff44fd6c4f13c8d504f07",
+      "filename": "gdb/f-typeprint.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 1,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e951225303b7d0565c985e2d562d3787983ff06f/gdb/f-typeprint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e951225303b7d0565c985e2d562d3787983ff06f/gdb/f-typeprint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/f-typeprint.c?ref=e951225303b7d0565c985e2d562d3787983ff06f",
+      "patch": "@@ -121,6 +121,7 @@ f_language::f_type_print_varspec_prefix (struct type *type,\n     case TYPE_CODE_UNDEF:\n     case TYPE_CODE_STRUCT:\n     case TYPE_CODE_UNION:\n+    case TYPE_CODE_NAMELIST:\n     case TYPE_CODE_ENUM:\n     case TYPE_CODE_INT:\n     case TYPE_CODE_FLT:\n@@ -261,6 +262,7 @@ f_language::f_type_print_varspec_suffix (struct type *type,\n     case TYPE_CODE_UNDEF:\n     case TYPE_CODE_STRUCT:\n     case TYPE_CODE_UNION:\n+    case TYPE_CODE_NAMELIST:\n     case TYPE_CODE_ENUM:\n     case TYPE_CODE_INT:\n     case TYPE_CODE_FLT:\n@@ -305,7 +307,8 @@ f_language::f_type_print_base (struct type *type, struct ui_file *stream,\n       const char *prefix = \"\";\n       if (type->code () == TYPE_CODE_UNION)\n \tprefix = \"Type, C_Union :: \";\n-      else if (type->code () == TYPE_CODE_STRUCT)\n+      else if (type->code () == TYPE_CODE_STRUCT\n+               || type->code () == TYPE_CODE_NAMELIST)\n \tprefix = \"Type \";\n       fprintf_filtered (stream, \"%*s%s%s\", level, \"\", prefix, type->name ());\n       return;\n@@ -391,6 +394,7 @@ f_language::f_type_print_base (struct type *type, struct ui_file *stream,\n \n     case TYPE_CODE_STRUCT:\n     case TYPE_CODE_UNION:\n+    case TYPE_CODE_NAMELIST:\n       if (type->code () == TYPE_CODE_UNION)\n \tfprintf_filtered (stream, \"%*sType, C_Union :: \", level, \"\");\n       else"
+    },
+    {
+      "sha": "6a199f17c1e1bcf09fab58da92f607d74d254ee3",
+      "filename": "gdb/f-valprint.c",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 6,
+      "changes": 26,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e951225303b7d0565c985e2d562d3787983ff06f/gdb/f-valprint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e951225303b7d0565c985e2d562d3787983ff06f/gdb/f-valprint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/f-valprint.c?ref=e951225303b7d0565c985e2d562d3787983ff06f",
+      "patch": "@@ -512,24 +512,38 @@ f_language::value_print_inner (struct value *val, struct ui_file *stream,\n \n     case TYPE_CODE_STRUCT:\n     case TYPE_CODE_UNION:\n+    case TYPE_CODE_NAMELIST:\n       /* Starting from the Fortran 90 standard, Fortran supports derived\n \t types.  */\n       fprintf_filtered (stream, \"( \");\n       for (index = 0; index < type->num_fields (); index++)\n \t{\n-\t  struct value *field = value_field (val, index);\n-\n-\t  struct type *field_type = check_typedef (type->field (index).type ());\n-\n+\t  struct type *field_type\n+\t    = check_typedef (type->field (index).type ());\n \n \t  if (field_type->code () != TYPE_CODE_FUNC)\n \t    {\n-\t      const char *field_name;\n+\t      const char *field_name = type->field (index).name ();\n+\t      struct value *field;\n+\n+\t      if (type->code () == TYPE_CODE_NAMELIST)\n+\t\t{\n+\t\t  /* While printing namelist items, fetch the appropriate\n+\t\t     value field before printing its value.  */\n+\t\t  struct block_symbol sym\n+\t\t    = lookup_symbol (field_name, get_selected_block (nullptr),\n+\t\t\t\t     VAR_DOMAIN, nullptr);\n+\t\t  if (sym.symbol == nullptr)\n+\t\t    error (_(\"failed to find symbol for name list component %s\"),\n+\t\t\t   field_name);\n+\t\t  field = value_of_variable (sym.symbol, sym.block);\n+\t\t}\n+\t      else\n+\t\tfield = value_field (val, index);\n \n \t      if (printed_field > 0)\n \t\tfputs_filtered (\", \", stream);\n \n-\t      field_name = type->field (index).name ();\n \t      if (field_name != NULL)\n \t\t{\n \t\t  fputs_styled (field_name, variable_name_style.style (),"
+    },
+    {
+      "sha": "5072dc24bfabac2ab8ce48a254401dd2074f052c",
+      "filename": "gdb/gdbtypes.h",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e951225303b7d0565c985e2d562d3787983ff06f/gdb/gdbtypes.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e951225303b7d0565c985e2d562d3787983ff06f/gdb/gdbtypes.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbtypes.h?ref=e951225303b7d0565c985e2d562d3787983ff06f",
+      "patch": "@@ -196,6 +196,19 @@ enum type_code\n \n     /* * Fixed Point type.  */\n     TYPE_CODE_FIXED_POINT,\n+\n+    /* * Fortran namelist is a group of variables or arrays that can be\n+       read or written.\n+\n+       Namelist syntax: NAMELIST / groupname / namelist_items ...\n+       NAMELIST statement assign a group name to a collection of variables\n+       called as namelist items. The namelist items can be of any data type\n+       and can be variables or arrays.\n+\n+       Compiler emit DW_TAG_namelist for group name and DW_TAG_namelist_item\n+       for each of the namelist items. GDB process these namelist dies\n+       and print namelist variables during print and ptype commands.  */\n+    TYPE_CODE_NAMELIST,\n   };\n \n /* * Some bits for the type's instance_flags word.  See the macros"
+    },
+    {
+      "sha": "d6263e12fecced2821ffa7094a7407e752e3cd57",
+      "filename": "gdb/testsuite/gdb.fortran/namelist.exp",
+      "status": "added",
+      "additions": 50,
+      "deletions": 0,
+      "changes": 50,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e951225303b7d0565c985e2d562d3787983ff06f/gdb/testsuite/gdb.fortran/namelist.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e951225303b7d0565c985e2d562d3787983ff06f/gdb/testsuite/gdb.fortran/namelist.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.fortran/namelist.exp?ref=e951225303b7d0565c985e2d562d3787983ff06f",
+      "patch": "@@ -0,0 +1,50 @@\n+# Copyright (C) 2021-2022 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# This file is part of the gdb testsuite.  It contains tests for fortran\n+# namelist.\n+\n+if { [skip_fortran_tests] } { return -1 }\n+\n+standard_testfile .f90\n+load_lib \"fortran.exp\"\n+\n+if {[prepare_for_testing \"failed to prepare\" $testfile $srcfile {debug f90}]} {\n+    return -1\n+}\n+\n+if ![fortran_runto_main] then {\n+    perror \"couldn't run to main\"\n+    continue\n+}\n+\n+# Depending on the compiler being used, the type names can be printed\n+# differently.\n+set int [fortran_int4]\n+\n+gdb_breakpoint [gdb_get_line_number \"Display namelist\"]\n+gdb_continue_to_breakpoint \"Display namelist\"\n+\n+if {[test_compiler_info {gcc-*}]} {\n+    gdb_test \"ptype nml\" \\\n+        \"type = Type nml\\r\\n *$int :: a\\r\\n *$int :: b\\r\\n *End Type nml\"\n+    gdb_test \"print nml\" \\\n+        \"\\\\$\\[0-9\\]+ = \\\\( a = 10, b = 20 \\\\)\"\n+} else {\n+    gdb_test \"ptype nml\" \\\n+        \"No symbol \\\"nml\\\" in current context\\\\.\"\n+    gdb_test \"print nml\" \\\n+        \"No symbol \\\"nml\\\" in current context\\\\.\"\n+}"
+    },
+    {
+      "sha": "9e2ba0489d29c167e69a03208d07c56f3b1d9fa8",
+      "filename": "gdb/testsuite/gdb.fortran/namelist.f90",
+      "status": "added",
+      "additions": 27,
+      "deletions": 0,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e951225303b7d0565c985e2d562d3787983ff06f/gdb/testsuite/gdb.fortran/namelist.f90",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e951225303b7d0565c985e2d562d3787983ff06f/gdb/testsuite/gdb.fortran/namelist.f90",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.fortran/namelist.f90?ref=e951225303b7d0565c985e2d562d3787983ff06f",
+      "patch": "@@ -0,0 +1,27 @@\n+! Copyright (C) 2021-2022 Free Software Foundation, Inc.\n+!\n+! This program is free software; you can redistribute it and/or modify\n+! it under the terms of the GNU General Public License as published by\n+! the Free Software Foundation; either version 3 of the License, or\n+! (at your option) any later version.\n+!\n+! This program is distributed in the hope that it will be useful,\n+! but WITHOUT ANY WARRANTY; without even the implied warranty of\n+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+! GNU General Public License for more details.\n+!\n+! You should have received a copy of the GNU General Public License\n+! along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+!\n+! This file is the Fortran source file for namelist.exp.\n+\n+program main\n+\n+  integer :: a, b\n+  namelist /nml/ a, b\n+\n+  a = 10\n+  b = 20\n+  Write(*,nml) ! Display namelist\n+\n+end program main"
+    },
+    {
+      "sha": "530c6f849f984acc2d619c5dbe6447e1734895d7",
+      "filename": "include/dwarf2.def",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e951225303b7d0565c985e2d562d3787983ff06f/include/dwarf2.def",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e951225303b7d0565c985e2d562d3787983ff06f/include/dwarf2.def",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/dwarf2.def?ref=e951225303b7d0565c985e2d562d3787983ff06f",
+      "patch": "@@ -289,7 +289,7 @@ DW_AT (DW_AT_frame_base, 0x40)\n DW_AT (DW_AT_friend, 0x41)\n DW_AT (DW_AT_identifier_case, 0x42)\n DW_AT (DW_AT_macro_info, 0x43)\n-DW_AT (DW_AT_namelist_items, 0x44)\n+DW_AT (DW_AT_namelist_item, 0x44)\n DW_AT (DW_AT_priority, 0x45)\n DW_AT (DW_AT_segment, 0x46)\n DW_AT (DW_AT_specification, 0x47)"
+    }
+  ]
+}

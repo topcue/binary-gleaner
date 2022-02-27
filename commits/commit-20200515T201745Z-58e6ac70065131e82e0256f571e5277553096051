@@ -1,0 +1,85 @@
+{
+  "sha": "58e6ac70065131e82e0256f571e5277553096051",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NThlNmFjNzAwNjUxMzFlODJlMDI1NmY1NzFlNTI3NzU1MzA5NjA1MQ==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2020-05-04T20:25:24Z"
+    },
+    "committer": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2020-05-15T20:17:45Z"
+    },
+    "message": "Add a selftest that detects a 'corrupted' command tree structure in GDB.\n\nThe GDB data structure that records the GDB commands is made of\n'struct cmd_list_element' defined in cli-decode.h.\n\nA cmd_list_element has various pointers to other cmd_list_element structures,\nAll these pointers are together building a graph of commands.\n\nHowever, when following the 'next' and '*prefixlist' pointers of\ncmd_list_element, the structure must better be a tree.\n\nIf such pointers do not form a tree, then some other elements of\ncmd_list_element cannot get a correct semantic.  In particular, the prefixname\nhas no correct meaning if the same prefix command can be reached via 2 different\npaths.\n\nThis commit introduces a selftest that detects (at least some cases of) errors\nleading to 'next' and '*prefixlist' not giving a tree structure.\n\nThe new 'command_structure_invariants' selftest detects one single case where\nthe command structure is not a tree:\n\n  (gdb) maintenance selftest command_structure_invariants\n  Running selftest command_structure_invariants.\n  list 0x56362e204b98 duplicated, reachable via prefix 'show ' and 'info set '.  Duplicated list first command is 'ada'\n  Self test failed: self-test failed at ../../classfix/gdb/unittests/command-def-selftests.c:160\n  Ran 1 unit tests, 1 failed\n  (gdb)\n\nThis was fixed by the previous commit.\n\n2020-05-15  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n\n\t* unittests/help-doc-selftests.c: Rename to\n\tunittests/command-def-selftests.c\n\t* unittests/command-def-selftests.c (help_doc_tests): Update some\n\tcomments.\n\t(command_structure_tests, traverse_command_structure): New namespace\n\tand function.\n\t(command_structure_invariants_tests): New function.\n\t(_initialize_command_def_selftests) Renamed from\n\t_initialize_help_doc_selftests, register command_structure_invariants\n\tselftest.",
+    "tree": {
+      "sha": "3ae07497b8425b3b76ed1f024e94f1db068619a4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/3ae07497b8425b3b76ed1f024e94f1db068619a4"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/58e6ac70065131e82e0256f571e5277553096051",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/58e6ac70065131e82e0256f571e5277553096051",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/58e6ac70065131e82e0256f571e5277553096051",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/58e6ac70065131e82e0256f571e5277553096051/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "a7b9ceb8b44cd36496e266894075e2af60c3e153",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a7b9ceb8b44cd36496e266894075e2af60c3e153",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/a7b9ceb8b44cd36496e266894075e2af60c3e153"
+    }
+  ],
+  "stats": {
+    "total": 96,
+    "additions": 92,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "30500f4a7427796b60f39f1e20a9fbc308c34607",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/58e6ac70065131e82e0256f571e5277553096051/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/58e6ac70065131e82e0256f571e5277553096051/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=58e6ac70065131e82e0256f571e5277553096051",
+      "patch": "@@ -1,3 +1,16 @@\n+2020-05-15  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n+\n+\t* unittests/help-doc-selftests.c: Rename to\n+\tunittests/command-def-selftests.c\n+\t* unittests/command-def-selftests.c (help_doc_tests): Update some\n+\tcomments.\n+\t(command_structure_tests, traverse_command_structure): New namespace\n+\tand function.\n+\t(command_structure_invariants_tests): New function.\n+\t(_initialize_command_def_selftests) Renamed from\n+\t_initialize_help_doc_selftests, register command_structure_invariants\n+\tselftest.\n+\n 2020-05-15  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n \n \t* cli/cli-cmds.c (_initialize_cli_cmds): Define 'info set' as"
+    },
+    {
+      "sha": "32d0eee7c6376d0f82aa671560a8cc9ed55c2a3e",
+      "filename": "gdb/Makefile.in",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/58e6ac70065131e82e0256f571e5277553096051/gdb/Makefile.in",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/58e6ac70065131e82e0256f571e5277553096051/gdb/Makefile.in",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/Makefile.in?ref=58e6ac70065131e82e0256f571e5277553096051",
+      "patch": "@@ -427,13 +427,13 @@ SELFTESTS_SRCS = \\\n \tunittests/array-view-selftests.c \\\n \tunittests/child-path-selftests.c \\\n \tunittests/cli-utils-selftests.c \\\n+\tunittests/command-def-selftests.c \\\n \tunittests/common-utils-selftests.c \\\n \tunittests/copy_bitwise-selftests.c \\\n \tunittests/environ-selftests.c \\\n \tunittests/filtered_iterator-selftests.c \\\n \tunittests/format_pieces-selftests.c \\\n \tunittests/function-view-selftests.c \\\n-\tunittests/help-doc-selftests.c \\\n \tunittests/lookup_name_info-selftests.c \\\n \tunittests/memory-map-selftests.c \\\n \tunittests/memrange-selftests.c \\"
+    },
+    {
+      "sha": "db70743b3f4e2dead703d223e3edbd1f01ea388e",
+      "filename": "gdb/unittests/command-def-selftests.c",
+      "status": "renamed",
+      "additions": 78,
+      "deletions": 3,
+      "changes": 81,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/58e6ac70065131e82e0256f571e5277553096051/gdb/unittests/command-def-selftests.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/58e6ac70065131e82e0256f571e5277553096051/gdb/unittests/command-def-selftests.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/unittests/command-def-selftests.c?ref=58e6ac70065131e82e0256f571e5277553096051",
+      "patch": "@@ -1,4 +1,4 @@\n-/* Self tests for help doc for GDB, the GNU debugger.\n+/* Self tests for GDB command definitions for GDB, the GNU debugger.\n \n    Copyright (C) 2019-2020 Free Software Foundation, Inc.\n \n@@ -22,7 +22,12 @@\n #include \"cli/cli-decode.h\"\n #include \"gdbsupport/selftest.h\"\n \n+#include <map>\n+\n namespace selftests {\n+\n+/* Verify some invariants of GDB commands documentation.  */\n+\n namespace help_doc_tests {\n \n static unsigned int nr_failed_invariants;\n@@ -96,13 +101,83 @@ help_doc_invariants_tests ()\n }\n \n } /* namespace help_doc_tests */\n+\n+/* Verify some invariants of GDB command structure.  */\n+\n+namespace command_structure_tests {\n+\n+unsigned int nr_duplicates = 0;\n+\n+/* A map associating a list with the prefix leading to it.  */\n+\n+std::map<cmd_list_element **, const char *> lists;\n+\n+/* Store each command list in lists, associated with the prefix to reach it.  A\n+   list must only be found once.  */\n+\n+static void\n+traverse_command_structure (struct cmd_list_element **list,\n+\t\t\t    const char *prefix)\n+{\n+  struct cmd_list_element *c;\n+\n+  auto dupl = lists.find (list);\n+  if (dupl != lists.end ())\n+    {\n+      fprintf_filtered (gdb_stdout,\n+\t\t\t\"list %p duplicated,\"\n+\t\t\t\" reachable via prefix '%s' and '%s'.\"\n+\t\t\t\"  Duplicated list first command is '%s'\\n\",\n+\t\t\tlist,\n+\t\t\tprefix, dupl->second,\n+\t\t\t(*list)->name);\n+      nr_duplicates++;\n+      return;\n+    }\n+\n+  lists.insert ({list, prefix});\n+\n+  /* Walk through the commands.  */\n+  for (c = *list; c; c = c->next)\n+    {\n+      /* If this command has subcommands and is not an alias,\n+\t traverse the subcommands.  */\n+      if (c->prefixlist != NULL && c->cmd_pointer == nullptr)\n+\t{\n+\t  /* Recursively call ourselves on the subcommand list,\n+\t     passing the right prefix in.  */\n+\t  traverse_command_structure (c->prefixlist, c->prefixname);\n+\t}\n+    }\n+}\n+\n+/* Verify that a list of commands is present in the tree only once.  */\n+\n+static void\n+command_structure_invariants_tests ()\n+{\n+  nr_duplicates = 0;\n+  traverse_command_structure (&cmdlist, \"\");\n+\n+  /* Release memory, be ready to be re-run.  */\n+  lists.clear ();\n+\n+  SELF_CHECK (nr_duplicates == 0);\n+}\n+\n+}\n+\n } /* namespace selftests */\n \n-void _initialize_help_doc_selftests ();\n+void _initialize_command_def_selftests ();\n void\n-_initialize_help_doc_selftests ()\n+_initialize_command_def_selftests ()\n {\n   selftests::register_test\n     (\"help_doc_invariants\",\n      selftests::help_doc_tests::help_doc_invariants_tests);\n+\n+  selftests::register_test\n+    (\"command_structure_invariants\",\n+     selftests::command_structure_tests::command_structure_invariants_tests);\n }",
+      "previous_filename": "gdb/unittests/help-doc-selftests.c"
+    }
+  ]
+}

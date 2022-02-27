@@ -1,0 +1,103 @@
+{
+  "sha": "18d07d1ea78f1bc225ac6d1203eed6fca8c52b53",
+  "node_id": "C_kwDOANOeidoAKDE4ZDA3ZDFlYTc4ZjFiYzIyNWFjNmQxMjAzZWVkNmZjYThjNTJiNTM",
+  "commit": {
+    "author": {
+      "name": "Jan Vrany",
+      "email": "jan.vrany@labware.com",
+      "date": "2022-02-07T11:39:22Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-02-11T14:51:56Z"
+    },
+    "message": "gdb: extend the information printed by 'maint info jit'\n\nThis commit updates the output of 'maint info jit' to print not just\nthe jit_code_entry address, but also the symfile address, and the\nsymfile size.\n\nThe new information could be obtained by looking into target memory at\nthe contents of the jit_code_entry, but, by storing this information\nwithin gdb at the time the jit object is loaded, it is now possible to\ncheck if the jit_code_entry has been modified in target memory behind\ngdb's back.\n\nAdditionally, the symfile address is the same address that is now used\nin the objfile names after commit 4a620b7e.\n\nOne test that relies on the output of 'maint info jit' was updated to\nallow for the new output format.",
+    "tree": {
+      "sha": "f10acaafd14ae46ad85bb8fff7a59a957c10e54f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f10acaafd14ae46ad85bb8fff7a59a957c10e54f"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/18d07d1ea78f1bc225ac6d1203eed6fca8c52b53",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/18d07d1ea78f1bc225ac6d1203eed6fca8c52b53",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/18d07d1ea78f1bc225ac6d1203eed6fca8c52b53",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/18d07d1ea78f1bc225ac6d1203eed6fca8c52b53/comments",
+  "author": {
+    "login": "janvrany",
+    "id": 82951,
+    "node_id": "MDQ6VXNlcjgyOTUx",
+    "avatar_url": "https://avatars.githubusercontent.com/u/82951?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/janvrany",
+    "html_url": "https://github.com/janvrany",
+    "followers_url": "https://api.github.com/users/janvrany/followers",
+    "following_url": "https://api.github.com/users/janvrany/following{/other_user}",
+    "gists_url": "https://api.github.com/users/janvrany/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/janvrany/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/janvrany/subscriptions",
+    "organizations_url": "https://api.github.com/users/janvrany/orgs",
+    "repos_url": "https://api.github.com/users/janvrany/repos",
+    "events_url": "https://api.github.com/users/janvrany/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/janvrany/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": null,
+  "parents": [
+    {
+      "sha": "5d0d011be3403bf6fa62e8a7cc72762ef66e17a0",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5d0d011be3403bf6fa62e8a7cc72762ef66e17a0",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/5d0d011be3403bf6fa62e8a7cc72762ef66e17a0"
+    }
+  ],
+  "stats": {
+    "total": 92,
+    "additions": 78,
+    "deletions": 14
+  },
+  "files": [
+    {
+      "sha": "9f57d521a8b91d116ad0ac2570650cafeee14b6d",
+      "filename": "gdb/jit.c",
+      "status": "modified",
+      "additions": 37,
+      "deletions": 6,
+      "changes": 43,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/18d07d1ea78f1bc225ac6d1203eed6fca8c52b53/gdb/jit.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/18d07d1ea78f1bc225ac6d1203eed6fca8c52b53/gdb/jit.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/jit.c?ref=18d07d1ea78f1bc225ac6d1203eed6fca8c52b53",
+      "patch": "@@ -82,6 +82,8 @@ maint_info_jit_cmd (const char *args, int from_tty)\n   inferior *inf = current_inferior ();\n   bool printed_header = false;\n \n+  gdb::optional<ui_out_emit_table> table_emitter;\n+\n   /* Print a line for each JIT-ed objfile.  */\n   for (objfile *obj : inf->pspace->objfiles ())\n     {\n@@ -90,11 +92,35 @@ maint_info_jit_cmd (const char *args, int from_tty)\n \n       if (!printed_header)\n \t{\n-\t  printf_filtered (\"Base address of known JIT-ed objfiles:\\n\");\n+\t  table_emitter.emplace (current_uiout, 3, -1, \"jit-created-objfiles\");\n+\n+\t  /* The +2 allows for the leading '0x', then one character for\n+\t     every 4-bits.  */\n+\t  int addr_width = 2 + (gdbarch_ptr_bit (obj->arch ()) / 4);\n+\n+\t  /* The std::max here selects between the width of an address (as\n+\t     a string) and the width of the column header string.  */\n+\t  current_uiout->table_header (std::max (addr_width, 22), ui_left,\n+\t\t\t\t       \"jit_code_entry-address\",\n+\t\t\t\t       \"jit_code_entry address\");\n+\t  current_uiout->table_header (std::max (addr_width, 15), ui_left,\n+\t\t\t\t       \"symfile-address\", \"symfile address\");\n+\t  current_uiout->table_header (20, ui_left,\n+\t\t\t\t       \"symfile-size\", \"symfile size\");\n+\t  current_uiout->table_body ();\n+\n \t  printed_header = true;\n \t}\n \n-      printf_filtered (\"  %s\\n\", paddress (obj->arch (), obj->jited_data->addr));\n+      ui_out_emit_tuple tuple_emitter (current_uiout, \"jit-objfile\");\n+\n+      current_uiout->field_core_addr (\"jit_code_entry-address\", obj->arch (),\n+\t\t\t\t      obj->jited_data->addr);\n+      current_uiout->field_core_addr (\"symfile-address\", obj->arch (),\n+\t\t\t\t      obj->jited_data->symfile_addr);\n+      current_uiout->field_unsigned (\"symfile-size\",\n+\t\t\t\t      obj->jited_data->symfile_size);\n+      current_uiout->text (\"\\n\");\n     }\n }\n \n@@ -211,11 +237,13 @@ get_jiter_objfile_data (objfile *objf)\n    at inferior address ENTRY.  */\n \n static void\n-add_objfile_entry (struct objfile *objfile, CORE_ADDR entry)\n+add_objfile_entry (struct objfile *objfile, CORE_ADDR entry,\n+\t\t   CORE_ADDR symfile_addr, ULONGEST symfile_size)\n {\n   gdb_assert (objfile->jited_data == nullptr);\n \n-  objfile->jited_data.reset (new jited_objfile_data (entry));\n+  objfile->jited_data.reset (new jited_objfile_data (entry, symfile_addr,\n+\t\t\t\t\t\t     symfile_size));\n }\n \n /* Helper function for reading the global JIT descriptor from remote\n@@ -644,7 +672,9 @@ jit_object_close_impl (struct gdb_symbol_callbacks *cb,\n   for (gdb_symtab &symtab : obj->symtabs)\n     finalize_symtab (&symtab, objfile);\n \n-  add_objfile_entry (objfile, priv_data->entry_addr);\n+  add_objfile_entry (objfile, priv_data->entry_addr,\n+\t\t     priv_data->entry.symfile_addr,\n+\t\t     priv_data->entry.symfile_size);\n \n   delete obj;\n }\n@@ -773,7 +803,8 @@ JITed symbol file is not an object file, ignoring it.\\n\"));\n \t\t\t\t      &sai,\n \t\t\t\t      OBJF_SHARED | OBJF_NOT_FILENAME, NULL);\n \n-  add_objfile_entry (objfile, entry_addr);\n+  add_objfile_entry (objfile, entry_addr, code_entry->symfile_addr,\n+\t\t     code_entry->symfile_size);\n }\n \n /* This function registers code associated with a JIT code entry.  It uses the"
+    },
+    {
+      "sha": "274ce456f471bb8717fc7e14ed9a454949defdab",
+      "filename": "gdb/jit.h",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 2,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/18d07d1ea78f1bc225ac6d1203eed6fca8c52b53/gdb/jit.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/18d07d1ea78f1bc225ac6d1203eed6fca8c52b53/gdb/jit.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/jit.h?ref=18d07d1ea78f1bc225ac6d1203eed6fca8c52b53",
+      "patch": "@@ -95,12 +95,21 @@ struct jiter_objfile_data\n \n struct jited_objfile_data\n {\n-  jited_objfile_data (CORE_ADDR addr)\n-    : addr (addr)\n+  jited_objfile_data (CORE_ADDR addr, CORE_ADDR symfile_addr,\n+\t\t      ULONGEST symfile_size)\n+    : addr (addr),\n+      symfile_addr (symfile_addr),\n+      symfile_size (symfile_size)\n   {}\n \n   /* Address of struct jit_code_entry for this objfile.  */\n   CORE_ADDR addr;\n+\n+  /* Value of jit_code_entry->symfile_addr for this objfile.  */\n+  CORE_ADDR symfile_addr;\n+\n+  /* Value of jit_code_entry->symfile_size for this objfile.  */\n+  ULONGEST symfile_size;\n };\n \n /* Re-establish the jit breakpoint(s).  */"
+    },
+    {
+      "sha": "635248cd8e48b10f86c18cc0b09015887e06dacb",
+      "filename": "gdb/testsuite/gdb.base/jit-elf-fork.exp",
+      "status": "modified",
+      "additions": 30,
+      "deletions": 6,
+      "changes": 36,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/18d07d1ea78f1bc225ac6d1203eed6fca8c52b53/gdb/testsuite/gdb.base/jit-elf-fork.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/18d07d1ea78f1bc225ac6d1203eed6fca8c52b53/gdb/testsuite/gdb.base/jit-elf-fork.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/jit-elf-fork.exp?ref=18d07d1ea78f1bc225ac6d1203eed6fca8c52b53",
+      "patch": "@@ -81,15 +81,23 @@ proc do_setup { detach-on-fork follow-fork-mode } {\n \tgdb_continue_to_breakpoint \"continue to before fork\" \".*break before fork.*\"\n \n \t# We should have one JIT object loaded.\n-\tgdb_test \"maint info jit\" \"  ${::hex}\" \"jit-ed objfiles before fork\"\n+\tgdb_test \"maint info jit\" \\\n+\t    [multi_line \\\n+\t\t \"jit_code_entry address\\\\s+symfile address\\\\s+symfile size\\\\s*\" \\\n+\t\t \"${::hex}\\\\s+${::hex}\\\\s+${::decimal}\\\\s*\"] \\\n+\t    \"jit-ed objfiles before fork\"\n \n \t# Put a breakpoint just after the fork, continue there.\n \tgdb_breakpoint [gdb_get_line_number \"break after fork\" $::main_srcfile]\n \tgdb_continue_to_breakpoint \"continue to after fork\" \".*break after fork.*\"\n \n \t# We should still have one JIT object loaded in whatever inferior we are\n \t# currently stopped in, regardless of the mode.\n-\tgdb_test \"maint info jit\" \"  ${::hex}\" \"jit-ed objfiles after fork\"\n+\tgdb_test \"maint info jit\" \\\n+\t    [multi_line \\\n+\t\t \"jit_code_entry address\\\\s+symfile address\\\\s+symfile size\\\\s*\" \\\n+\t\t \"${::hex}\\\\s+${::hex}\\\\s+${::decimal}\\\\s*\"] \\\n+\t    \"jit-ed objfiles after fork\"\n \n \t# Delete our breakpoints.\n \tdelete_breakpoints\n@@ -108,15 +116,23 @@ proc_with_prefix test_detach_on_fork_off_follow_fork_mode_parent { } {\n \n \t# Switch to the child, verify there is a JIT-ed objfile.\n \tgdb_test \"inferior 2\" \"Switching to inferior 2.*\"\n-\tgdb_test \"maint info jit\" \"  ${::hex}\" \"jit-ed objfile in child\"\n+\tgdb_test \"maint info jit\" \\\n+\t    [multi_line \\\n+\t\t \"jit_code_entry address\\\\s+symfile address\\\\s+symfile size\\\\s*\" \\\n+\t\t \"${::hex}\\\\s+${::hex}\\\\s+${::decimal}\\\\s*\"] \\\n+\t    \"jit-ed objfile in child\"\n \n \t# Continue child past JIT unload, verify there are no more JIT-ed objfiles.\n \tgdb_continue_to_breakpoint \"continue to before return - child\" \".*break before return.*\"\n \tgdb_test_no_output \"maint info jit\" \"no more jit-ed objfiles in child\"\n \n \t# Go back to parent, the JIT-ed objfile should still be there.\n \tgdb_test \"inferior 1\" \"Switching to inferior 1.*\"\n-\tgdb_test \"maint info jit\" \"  ${::hex}\" \"jit-ed objfile in parent\"\n+\tgdb_test \"maint info jit\"  \\\n+\t    [multi_line \\\n+\t\t \"jit_code_entry address\\\\s+symfile address\\\\s+symfile size\\\\s*\" \\\n+\t\t \"${::hex}\\\\s+${::hex}\\\\s+${::decimal}\\\\s*\"] \\\n+\t    \"jit-ed objfile in parent\"\n \n \t# Continue parent past JIT unload, verify there are no more JIT-ed objfiles.\n \tgdb_continue_to_breakpoint \"continue to before return - parent\" \".*break before return.*\"\n@@ -135,15 +151,23 @@ proc_with_prefix test_detach_on_fork_off_follow_fork_mode_child { } {\n \n \t# Switch to the parent, verify there is a JIT-ed objfile.\n \tgdb_test \"inferior 1\" \"Switching to inferior 1.*\"\n-\tgdb_test \"maint info jit\" \"  ${::hex}\" \"jit-ed objfile in parent\"\n+\tgdb_test \"maint info jit\"  \\\n+\t    [multi_line \\\n+\t\t \"jit_code_entry address\\\\s+symfile address\\\\s+symfile size\\\\s*\" \\\n+\t\t \"${::hex}\\\\s+${::hex}\\\\s+${::decimal}\\\\s*\"] \\\n+\t    \"jit-ed objfile in parent\"\n \n \t# Continue parent past JIT unload, verify there are no more JIT-ed objfiles.\n \tgdb_continue_to_breakpoint \"continue to before return - parent\" \".*break before return.*\"\n \tgdb_test_no_output \"maint info jit\" \"no more jit-ed objfiles in parent\"\n \n \t# Go back to child, the JIT-ed objfile should still be there.\n \tgdb_test \"inferior 2\" \"Switching to inferior 2.*\"\n-\tgdb_test \"maint info jit\" \"  ${::hex}\" \"jit-ed objfile in child\"\n+\tgdb_test \"maint info jit\"  \\\n+\t    [multi_line \\\n+\t\t \"jit_code_entry address\\\\s+symfile address\\\\s+symfile size\\\\s*\" \\\n+\t\t \"${::hex}\\\\s+${::hex}\\\\s+${::decimal}\\\\s*\"] \\\n+\t    \"jit-ed objfile in child\"\n \n \t# Continue child past JIT unload, verify there are no more JIT-ed objfiles.\n \tgdb_continue_to_breakpoint \"continue to before return - child\" \".*break before return.*\""
+    }
+  ]
+}

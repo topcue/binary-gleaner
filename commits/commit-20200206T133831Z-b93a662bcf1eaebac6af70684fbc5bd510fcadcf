@@ -1,0 +1,72 @@
+{
+  "sha": "b93a662bcf1eaebac6af70684fbc5bd510fcadcf",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YjkzYTY2MmJjZjFlYWViYWM2YWY3MDY4NGZiYzViZDUxMGZjYWRjZg==",
+  "commit": {
+    "author": {
+      "name": "Maciej W. Rozycki",
+      "email": "macro@wdc.com",
+      "date": "2020-02-06T13:38:31Z"
+    },
+    "committer": {
+      "name": "Maciej W. Rozycki",
+      "email": "macro@wdc.com",
+      "date": "2020-02-06T13:38:31Z"
+    },
+    "message": "V850/BFD: Fix uninitialized `insn[4]' with R_V850_LONGJUMP warning\n\nCorrectly point at `insn[2]' rather than `insn[4]' in determining that\nthe third instruction from where an R_V850_LONGJUMP relocation points at\nis not a recognized one, fixing a problem with commit 86aba9dbfa7e (\"Add\nlinker relaxation to v850 toolchain\") resulting in a build failure like:\n\n.../bfd/elf32-v850.c: In function 'v850_elf_relax_section':\n.../bfd/elf32-v850.c:3854:5: error: 'insn[4]' may be used uninitialized in this function [-Werror=maybe-uninitialized]\n 3854 |     _bfd_error_handler\n      |     ^~~~~~~~~~~~~~~~~~\n 3855 |       /* xgettext:c-format */\n      |       ~~~~~~~~~~~~~~~~~~~~~~~\n 3856 |       (_(\"%pB: %#\" PRIx64 \": warning: %s points to \"\n      |       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n 3857 |          \"unrecognized insn %#x\"),\n      |          ~~~~~~~~~~~~~~~~~~~~~~~~~\n 3858 |        abfd,\n      |        ~~~~~\n 3859 |        (uint64_t) (irel->r_offset + no_match),\n      |        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n 3860 |        \"R_V850_LONGJUMP\",\n      |        ~~~~~~~~~~~~~~~~~~\n 3861 |        insn[no_match]);\n      |        ~~~~~~~~~~~~~~~\ncc1: all warnings being treated as errors\nMakefile:1608: recipe for target 'elf32-v850.lo' failed\nmake[4]: *** [elf32-v850.lo] Error 1\n\nwith GCC 10.\n\n\tbfd/\n\t* elf32-v850.c (v850_elf_relax_section): Fix the index used for\n\treporting an unrecognized instruction with R_V850_LONGJUMP.",
+    "tree": {
+      "sha": "47fc28518ede02b708b319c7efc6bf187dd4e4ac",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/47fc28518ede02b708b319c7efc6bf187dd4e4ac"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/b93a662bcf1eaebac6af70684fbc5bd510fcadcf",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b93a662bcf1eaebac6af70684fbc5bd510fcadcf",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/b93a662bcf1eaebac6af70684fbc5bd510fcadcf",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b93a662bcf1eaebac6af70684fbc5bd510fcadcf/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "c2e6f74465797356e57f77c3abc531de580b7f85",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c2e6f74465797356e57f77c3abc531de580b7f85",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/c2e6f74465797356e57f77c3abc531de580b7f85"
+    }
+  ],
+  "stats": {
+    "total": 7,
+    "additions": 6,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "95152add849b6fe87c85a77e75aadc04a7f33530",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b93a662bcf1eaebac6af70684fbc5bd510fcadcf/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b93a662bcf1eaebac6af70684fbc5bd510fcadcf/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=b93a662bcf1eaebac6af70684fbc5bd510fcadcf",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-02-06  Maciej W. Rozycki  <macro@wdc.com>\n+\n+\t* elf32-v850.c (v850_elf_relax_section): Fix the index used for\n+\treporting an unrecognized instruction with R_V850_LONGJUMP.\n+\n 2020-02-05  Alan Modra  <amodra@gmail.com>\n \n \t* elf64-ppc.c (ppc_stub_plt_branch): Match comment with reality."
+    },
+    {
+      "sha": "21cd4f29375fbfe464aaef078f4a2a8de95be27f",
+      "filename": "bfd/elf32-v850.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b93a662bcf1eaebac6af70684fbc5bd510fcadcf/bfd/elf32-v850.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b93a662bcf1eaebac6af70684fbc5bd510fcadcf/bfd/elf32-v850.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf32-v850.c?ref=b93a662bcf1eaebac6af70684fbc5bd510fcadcf",
+      "patch": "@@ -3837,7 +3837,7 @@ v850_elf_relax_section (bfd *abfd,\n \t\t  if (no_match < 0\n \t\t      && ((insn[2] & JMP_R_MASK) != JMP_R\n \t\t\t   || MOVEA_R2 (insn[1]) != JMP_R1 (insn[2])))\n-\t\t    no_match = 4;\n+\t\t    no_match = 2;\n \t\t}\n \t      else\n \t\t{"
+    }
+  ]
+}

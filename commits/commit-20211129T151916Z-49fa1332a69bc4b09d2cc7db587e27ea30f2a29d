@@ -1,0 +1,122 @@
+{
+  "sha": "49fa1332a69bc4b09d2cc7db587e27ea30f2a29d",
+  "node_id": "C_kwDOANOeidoAKDQ5ZmExMzMyYTY5YmM0YjA5ZDJjYzdkYjU4N2UyN2VhMzBmMmEyOWQ",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-11-29T15:19:16Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-11-29T15:19:16Z"
+    },
+    "message": "[gdb/symtab] Fix segfault in search_one_symtab\n\nPR28539 describes a segfault in lambda function search_one_symtab due to\npsymbol_functions::expand_symtabs_matching calling expansion_notify with a\nnullptr symtab:\n...\n          struct compunit_symtab *symtab =\n            psymtab_to_symtab (objfile, ps);\n\n          if (expansion_notify != NULL)\n            if (!expansion_notify (symtab))\n              return false;\n...\n\nThis happens as follows.  The partial symtab ps is a dwarf2_include_psymtab\nfor some header file:\n...\n(gdb) p ps.filename\n$5 = 0x64fcf80 \"/usr/include/c++/11/bits/stl_construct.h\"\n...\n\nThe includer of ps is a shared symtab for a partial unit, with as user:\n...\n(gdb) p ps.includer().user.filename\n$11 = 0x64fc9f0 \\\n  \"/usr/src/debug/llvm13-13.0.0-1.2.x86_64/tools/clang/lib/AST/Decl.cpp\"\n...\n\nThe call to psymtab_to_symtab expands the Decl.cpp symtab (and consequently\nthe shared symtab), but returns nullptr because:\n...\nstruct dwarf2_include_psymtab : public partial_symtab\n{\n  ...\n  compunit_symtab *get_compunit_symtab (struct objfile *objfile) const override\n  {\n    return nullptr;\n  }\n...\n\nFix this by returning the Decl.cpp symtab instead, which fixes the segfault\nin the PR.\n\nTested on x86_64-linux.\n\nBug: https://sourceware.org/bugzilla/show_bug.cgi?id=28539",
+    "tree": {
+      "sha": "1bf3c62ec0c6c9a9220221906aeb24c1bc322ce7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/1bf3c62ec0c6c9a9220221906aeb24c1bc322ce7"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/49fa1332a69bc4b09d2cc7db587e27ea30f2a29d",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/49fa1332a69bc4b09d2cc7db587e27ea30f2a29d",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/49fa1332a69bc4b09d2cc7db587e27ea30f2a29d",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/49fa1332a69bc4b09d2cc7db587e27ea30f2a29d/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "8fee99c3c8e25f2708bddde345c192dd2f3e7e08",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8fee99c3c8e25f2708bddde345c192dd2f3e7e08",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/8fee99c3c8e25f2708bddde345c192dd2f3e7e08"
+    }
+  ],
+  "stats": {
+    "total": 106,
+    "additions": 105,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "737d8a4c81b5f912c4e56b9a87cb292a18bc77a0",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 1,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/49fa1332a69bc4b09d2cc7db587e27ea30f2a29d/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/49fa1332a69bc4b09d2cc7db587e27ea30f2a29d/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=49fa1332a69bc4b09d2cc7db587e27ea30f2a29d",
+      "patch": "@@ -5787,7 +5787,10 @@ struct dwarf2_include_psymtab : public partial_symtab\n \n   compunit_symtab *get_compunit_symtab (struct objfile *objfile) const override\n   {\n-    return nullptr;\n+    compunit_symtab *cust = includer ()->get_compunit_symtab (objfile);\n+    while (cust != nullptr && cust->user != nullptr)\n+      cust = cust->user;\n+    return cust;\n   }\n \n private:"
+    },
+    {
+      "sha": "e09537d8f5efd5084c9afd6c280d1019f4b6889c",
+      "filename": "gdb/psymtab.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/49fa1332a69bc4b09d2cc7db587e27ea30f2a29d/gdb/psymtab.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/49fa1332a69bc4b09d2cc7db587e27ea30f2a29d/gdb/psymtab.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/psymtab.c?ref=49fa1332a69bc4b09d2cc7db587e27ea30f2a29d",
+      "patch": "@@ -1152,6 +1152,8 @@ psymbol_functions::expand_symtabs_matching\n \t  struct compunit_symtab *symtab =\n \t    psymtab_to_symtab (objfile, ps);\n \n+\t  gdb_assert (symtab != nullptr);\n+\n \t  if (expansion_notify != NULL)\n \t    if (!expansion_notify (symtab))\n \t      return false;"
+    },
+    {
+      "sha": "ec3371dde43ab0e456c589980090c4cc9427d551",
+      "filename": "gdb/testsuite/gdb.dwarf2/dw2-symtab-includes-lookup.exp",
+      "status": "added",
+      "additions": 99,
+      "deletions": 0,
+      "changes": 99,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/49fa1332a69bc4b09d2cc7db587e27ea30f2a29d/gdb/testsuite/gdb.dwarf2/dw2-symtab-includes-lookup.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/49fa1332a69bc4b09d2cc7db587e27ea30f2a29d/gdb/testsuite/gdb.dwarf2/dw2-symtab-includes-lookup.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/dw2-symtab-includes-lookup.exp?ref=49fa1332a69bc4b09d2cc7db587e27ea30f2a29d",
+      "patch": "@@ -0,0 +1,99 @@\n+# Copyright 2021 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Lookup a type in a partial unit with DW_AT_stmt_list.\n+#\n+# The test-case is setup such that the partial symtab expansion route is\n+# .h partial symtab -> shared partial symtab -> toplevel symtab.\n+#\n+# That is, the partial symtabs (as displayed by maint print objfiles) are:\n+#\n+#   ../sysdeps/x86_64/crtn.S at 0x3d944e0^M\n+#   elf-init.c at 0x3d94440^M\n+#   dw2-symtab-includes.h at 0x3d7c7a0^M\n+#   <unknown> at 0x31ef870^M\n+#   bla.c at 0x33985f0^M\n+#   ../sysdeps/x86_64/crti.S at 0x33e9a00^M\n+#   init.c at 0x33fa600^M\n+#   ../sysdeps/x86_64/start.S at 0x33f3fd0^M\n+#\n+# and the expansion of dw2-symtab-includes.h triggers the expansion of its\n+# includer <unknown>, which triggers expansion of user bla.c.\n+#\n+# The problem in PR28539 was that after expansion of dw2-symtab-includes.h\n+# the expansion_notify function in psymbol_functions::expand_symtabs_matching\n+# should be called with the bla.c symtab, but instead it got called with\n+# nullptr, which caused a segfault.\n+\n+load_lib dwarf.exp\n+\n+# This test can only be run on targets which support DWARF-2 and use gas.\n+require dwarf2_support 1\n+\n+standard_testfile main.c .S\n+\n+# Create the DWARF.\n+set asm_file [standard_output_file $srcfile2]\n+Dwarf::assemble $asm_file {\n+    declare_labels partial_label lines_label\n+    global srcdir subdir srcfile\n+\n+    cu {} {\n+\tpartial_label: partial_unit {\n+\t    {stmt_list ${lines_label} DW_FORM_sec_offset}\n+\t} {\n+\t    DW_TAG_base_type {\n+\t\t{DW_AT_byte_size 4 DW_FORM_sdata}\n+\t\t{DW_AT_encoding  @DW_ATE_signed}\n+\t\t{DW_AT_name      myint}\n+\t    }\n+\t}\n+    }\n+\n+    cu {} {\n+\tcompile_unit {\n+\t    {language @DW_LANG_C}\n+\t    {DW_AT_name bla.c}\n+\t} {\n+\t    imported_unit {\n+\t\t{import $partial_label ref_addr}\n+\t    }\n+\t}\n+    }\n+\n+    lines {version 2} lines_label {\n+\tinclude_dir \"${srcdir}/${subdir}\"\n+\tfile_name \"dw2-symtab-includes.h\" 1\n+\tprogram {\n+\t    {DW_LNS_advance_line 1}\n+\t}\n+    }\n+}\n+\n+if { [prepare_for_testing \"failed to prepare\" $testfile \\\n+\t  \"${asm_file} ${srcfile}\" {}] } {\n+    return -1\n+}\n+\n+# Check that no symtabs are expanded.\n+set test \"no symtabs expanded\"\n+if { [readnow] } {\n+    unsupported $test\n+} else {\n+    gdb_test_no_output \"maint info symtabs\" $test\n+}\n+\n+# Lookup myint.  Regression test for PR28539.\n+gdb_test \"ptype myint\" \"type = myint\""
+    }
+  ]
+}

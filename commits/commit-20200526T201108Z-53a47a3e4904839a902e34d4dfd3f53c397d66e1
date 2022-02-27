@@ -1,0 +1,194 @@
+{
+  "sha": "53a47a3e4904839a902e34d4dfd3f53c397d66e1",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NTNhNDdhM2U0OTA0ODM5YTkwMmUzNGQ0ZGZkM2Y1M2MzOTdkNjZlMQ==",
+  "commit": {
+    "author": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2020-05-26T20:11:08Z"
+    },
+    "committer": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2020-05-26T20:11:08Z"
+    },
+    "message": "Handle indexing Ada arrays with enum indices\n\nIn Ada, like C, an enum can assign values to the constants.  However,\nunlike C (or any other language supported by gdb), the enum type can\nalso be used as the range of an array.\n\nIn this case, the user's code references the enum constants, but the\ncompiler translates these to the position of the constant in the enum.\nSo for example one might write:\n\n   type Enum_With_Gaps is\n     (\n      LIT0,\n      LIT1,\n      LIT2,\n      LIT3,\n      LIT4\n     );\n\n   for Enum_With_Gaps use\n     (\n      LIT0 => 3,\n      LIT1 => 5,\n      LIT2 => 8,\n      LIT3 => 13,\n      LIT4 => 21\n     );\n\nThen index an array like \"array(LIT3)\" -- but this will be the 4th\nelement in an array of 5 elements, not the 13th element in an array of\n19 (assuming I did the math right) elements.\n\ngdb supports this to some degree, with the only missing piece being\nindexing into such an array.  This patch implements this missing\nfeature, and also fixes an existing bug, which is that in some\nsituations I believe gdb would mis-compute the resulting array's\nlength.\n\nThe approach taken here is to try to integrate this feature into the\ncore of gdb.  My view is that much of the Ada support should be better\nintegrated with gdb, rather than being \"on the side\".  This, I think,\nwould help avoid code duplication at least.  So, I try to take steps\ntoward this goal when possible.\n\nBecause other languages generally don't allow the user to specify the\nindex type of an array, I simply made the core of gdb unconditionally\napply discrete_position when computing the range of such an array.\nThis is a no-op for ordinary types, but applies the enum\nvalue-to-position transformation for TYPE_CODE_ENUM.\n\ngdb/ChangeLog\n2020-05-26  Tom Tromey  <tromey@adacore.com>\n\n\t* ada-lang.c (ada_print_array_index): Change type.  Call val_atr.\n\t(ada_value_ptr_subscript): Don't call pos_atr on the lower bound.\n\t(val_atr): New function.\n\t(value_val_atr): Use it.\n\t* ada-valprint.c (print_optional_low_bound): Change low bound\n\thandling for enums.\n\t(val_print_packed_array_elements): Don't call discrete_position.\n\t* gdbtypes.c (get_discrete_bounds) <TYPE_CODE_RANGE>: Call\n\tdiscrete_position for enum types.\n\t* language.c (default_print_array_index): Change type.\n\t* language.h (struct language_defn) <la_print_array_index>: Add\n\tindex_type parameter, change type of index_value.\n\t(LA_PRINT_ARRAY_INDEX): Add index_type parameter.\n\t(default_print_array_index): Update.\n\t* valprint.c (maybe_print_array_index): Don't call\n\tvalue_from_longest.  Update.\n\t(value_print_array_elements): Don't call discrete_position.\n\ngdb/testsuite/ChangeLog\n2020-05-26  Tom Tromey  <tromey@adacore.com>\n\n\t* gdb.ada/arr_acc_idx_w_gap.exp: Add tests.",
+    "tree": {
+      "sha": "fafe61c8dc8c7d8bda8b5b00278ba0e6f571db49",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/fafe61c8dc8c7d8bda8b5b00278ba0e6f571db49"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/53a47a3e4904839a902e34d4dfd3f53c397d66e1",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/53a47a3e4904839a902e34d4dfd3f53c397d66e1",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/53a47a3e4904839a902e34d4dfd3f53c397d66e1",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/53a47a3e4904839a902e34d4dfd3f53c397d66e1/comments",
+  "author": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "0bc2354b811e913b39c288e74d7166eaa3639309",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0bc2354b811e913b39c288e74d7166eaa3639309",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/0bc2354b811e913b39c288e74d7166eaa3639309"
+    }
+  ],
+  "stats": {
+    "total": 171,
+    "additions": 86,
+    "deletions": 85
+  },
+  "files": [
+    {
+      "sha": "9e792fee1eb2431af7a587e28d40136f5e85ebc3",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 0,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/53a47a3e4904839a902e34d4dfd3f53c397d66e1/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/53a47a3e4904839a902e34d4dfd3f53c397d66e1/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=53a47a3e4904839a902e34d4dfd3f53c397d66e1",
+      "patch": "@@ -1,3 +1,23 @@\n+2020-05-26  Tom Tromey  <tromey@adacore.com>\n+\n+\t* ada-lang.c (ada_print_array_index): Change type.  Call val_atr.\n+\t(ada_value_ptr_subscript): Don't call pos_atr on the lower bound.\n+\t(val_atr): New function.\n+\t(value_val_atr): Use it.\n+\t* ada-valprint.c (print_optional_low_bound): Change low bound\n+\thandling for enums.\n+\t(val_print_packed_array_elements): Don't call discrete_position.\n+\t* gdbtypes.c (get_discrete_bounds) <TYPE_CODE_RANGE>: Call\n+\tdiscrete_position for enum types.\n+\t* language.c (default_print_array_index): Change type.\n+\t* language.h (struct language_defn) <la_print_array_index>: Add\n+\tindex_type parameter, change type of index_value.\n+\t(LA_PRINT_ARRAY_INDEX): Add index_type parameter.\n+\t(default_print_array_index): Update.\n+\t* valprint.c (maybe_print_array_index): Don't call\n+\tvalue_from_longest.  Update.\n+\t(value_print_array_elements): Don't call discrete_position.\n+\n 2020-05-26  Tom Tromey  <tromey@adacore.com>\n \n \t* ada-lang.c (value_val_atr): Handle TYPE_CODE_RANGE."
+    },
+    {
+      "sha": "b4eeaaf08663cde00bb5c9d5fe3e258c0bd110ec",
+      "filename": "gdb/ada-lang.c",
+      "status": "modified",
+      "additions": 23,
+      "deletions": 17,
+      "changes": 40,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/53a47a3e4904839a902e34d4dfd3f53c397d66e1/gdb/ada-lang.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/53a47a3e4904839a902e34d4dfd3f53c397d66e1/gdb/ada-lang.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ada-lang.c?ref=53a47a3e4904839a902e34d4dfd3f53c397d66e1",
+      "patch": "@@ -196,6 +196,8 @@ static LONGEST pos_atr (struct value *);\n \n static struct value *value_pos_atr (struct type *, struct value *);\n \n+static struct value *val_atr (struct type *, LONGEST);\n+\n static struct value *value_val_atr (struct type *, struct value *);\n \n static struct symbol *standard_lookup (const char *, const struct block *,\n@@ -498,9 +500,12 @@ ada_get_gdb_completer_word_break_characters (void)\n /* Print an array element index using the Ada syntax.  */\n \n static void\n-ada_print_array_index (struct value *index_value, struct ui_file *stream,\n+ada_print_array_index (struct type *index_type, LONGEST index,\n+\t\t       struct ui_file *stream,\n                        const struct value_print_options *options)\n {\n+  struct value *index_value = val_atr (index_type, index);\n+\n   LA_VALUE_PRINT (index_value, stream, options);\n   fprintf_filtered (stream, \" => \");\n }\n@@ -2775,15 +2780,13 @@ ada_value_ptr_subscript (struct value *arr, int arity, struct value **ind)\n   for (k = 0; k < arity; k += 1)\n     {\n       LONGEST lwb, upb;\n-      struct value *lwb_value;\n \n       if (type->code () != TYPE_CODE_ARRAY)\n         error (_(\"too many subscripts (%d expected)\"), k);\n       arr = value_cast (lookup_pointer_type (TYPE_TARGET_TYPE (type)),\n                         value_copy (arr));\n       get_discrete_bounds (TYPE_INDEX_TYPE (type), &lwb, &upb);\n-      lwb_value = value_from_longest (value_type (ind[k]), lwb);\n-      arr = value_ptradd (arr, pos_atr (ind[k]) - pos_atr (lwb_value));\n+      arr = value_ptradd (arr, pos_atr (ind[k]) - lwb);\n       type = TYPE_TARGET_TYPE (type);\n     }\n \n@@ -9141,26 +9144,29 @@ value_pos_atr (struct type *type, struct value *arg)\n /* Evaluate the TYPE'VAL attribute applied to ARG.  */\n \n static struct value *\n-value_val_atr (struct type *type, struct value *arg)\n+val_atr (struct type *type, LONGEST val)\n {\n-  if (!discrete_type_p (type))\n-    error (_(\"'VAL only defined on discrete types\"));\n-  if (!integer_type_p (value_type (arg)))\n-    error (_(\"'VAL requires integral argument\"));\n-\n+  gdb_assert (discrete_type_p (type));\n   if (type->code () == TYPE_CODE_RANGE)\n     type = TYPE_TARGET_TYPE (type);\n-\n   if (type->code () == TYPE_CODE_ENUM)\n     {\n-      long pos = value_as_long (arg);\n-\n-      if (pos < 0 || pos >= type->num_fields ())\n+      if (val < 0 || val >= type->num_fields ())\n         error (_(\"argument to 'VAL out of range\"));\n-      return value_from_longest (type, TYPE_FIELD_ENUMVAL (type, pos));\n+      val = TYPE_FIELD_ENUMVAL (type, val);\n     }\n-  else\n-    return value_from_longest (type, value_as_long (arg));\n+  return value_from_longest (type, val);\n+}\n+\n+static struct value *\n+value_val_atr (struct type *type, struct value *arg)\n+{\n+  if (!discrete_type_p (type))\n+    error (_(\"'VAL only defined on discrete types\"));\n+  if (!integer_type_p (value_type (arg)))\n+    error (_(\"'VAL requires integral argument\"));\n+\n+  return val_atr (type, value_as_long (arg));\n }\n \f\n "
+    },
+    {
+      "sha": "c637e7826fe35a21e3fc86512676f599038f8f45",
+      "filename": "gdb/ada-valprint.c",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 31,
+      "changes": 40,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/53a47a3e4904839a902e34d4dfd3f53c397d66e1/gdb/ada-valprint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/53a47a3e4904839a902e34d4dfd3f53c397d66e1/gdb/ada-valprint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ada-valprint.c?ref=53a47a3e4904839a902e34d4dfd3f53c397d66e1",
+      "patch": "@@ -92,8 +92,9 @@ print_optional_low_bound (struct ui_file *stream, struct type *type,\n \treturn 0;\n       break;\n     case TYPE_CODE_ENUM:\n-      if (low_bound == TYPE_FIELD_ENUMVAL (index_type, 0))\n+      if (low_bound == 0)\n \treturn 0;\n+      low_bound = TYPE_FIELD_ENUMVAL (index_type, low_bound);\n       break;\n     case TYPE_CODE_UNDEF:\n       index_type = NULL;\n@@ -134,47 +135,24 @@ val_print_packed_array_elements (struct type *type, const gdb_byte *valaddr,\n \n   {\n     LONGEST high;\n-    struct type *base_index_type;\n \n     if (get_discrete_bounds (index_type, &low, &high) < 0)\n       len = 1;\n-    else\n-      len = high - low + 1;\n-\n-    if (index_type->code () == TYPE_CODE_RANGE)\n-        base_index_type = TYPE_TARGET_TYPE (index_type);\n-      else\n-        base_index_type = index_type;\n-\n-    if (base_index_type->code () == TYPE_CODE_ENUM)\n+    else if (low > high)\n       {\n-        LONGEST low_pos, high_pos;\n-\n-        /* Non-contiguous enumerations types can by used as index types\n-           so the array length is computed from the positions of the\n-           first and last literal in the enumeration type, and not from\n-           the values of these literals.  */\n-\n-        if (!discrete_position (base_index_type, low, &low_pos)\n-          || !discrete_position (base_index_type, high, &high_pos))\n-          {\n-            warning (_(\"unable to get positions in array, use bounds instead\"));\n-            low_pos = low;\n-            high_pos = high;\n-          }\n-\n         /* The array length should normally be HIGH_POS - LOW_POS + 1.\n            But in Ada we allow LOW_POS to be greater than HIGH_POS for\n            empty arrays.  In that situation, the array length is just zero,\n            not negative!  */\n-\n-        if (low_pos > high_pos)\n-          len = 0;\n-        else\n-          len = high_pos - low_pos + 1;\n+\tlen = 0;\n       }\n+    else\n+      len = high - low + 1;\n   }\n \n+  if (index_type->code () == TYPE_CODE_RANGE)\n+    index_type = TYPE_TARGET_TYPE (index_type);\n+\n   i = 0;\n   annotate_array_section_begin (i, elttype);\n "
+    },
+    {
+      "sha": "fa90bd1c051252636ade5d56bb658fca5db51705",
+      "filename": "gdb/gdbtypes.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/53a47a3e4904839a902e34d4dfd3f53c397d66e1/gdb/gdbtypes.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/53a47a3e4904839a902e34d4dfd3f53c397d66e1/gdb/gdbtypes.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbtypes.c?ref=53a47a3e4904839a902e34d4dfd3f53c397d66e1",
+      "patch": "@@ -1038,6 +1038,12 @@ get_discrete_bounds (struct type *type, LONGEST *lowp, LONGEST *highp)\n     case TYPE_CODE_RANGE:\n       *lowp = TYPE_LOW_BOUND (type);\n       *highp = TYPE_HIGH_BOUND (type);\n+      if (TYPE_TARGET_TYPE (type)->code () == TYPE_CODE_ENUM)\n+\t{\n+\t  if (!discrete_position (TYPE_TARGET_TYPE (type), *lowp, lowp)\n+\t      || ! discrete_position (TYPE_TARGET_TYPE (type), *highp, highp))\n+\t    return 0;\n+\t}\n       return 1;\n     case TYPE_CODE_ENUM:\n       if (type->num_fields () > 0)"
+    },
+    {
+      "sha": "ff76ae7ece608676badf5b2ae715066cf269c40d",
+      "filename": "gdb/language.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 1,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/53a47a3e4904839a902e34d4dfd3f53c397d66e1/gdb/language.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/53a47a3e4904839a902e34d4dfd3f53c397d66e1/gdb/language.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/language.c?ref=53a47a3e4904839a902e34d4dfd3f53c397d66e1",
+      "patch": "@@ -671,9 +671,12 @@ default_word_break_characters (void)\n /* Print the index of array elements using the C99 syntax.  */\n \n void\n-default_print_array_index (struct value *index_value, struct ui_file *stream,\n+default_print_array_index (struct type *index_type, LONGEST index,\n+\t\t\t   struct ui_file *stream,\n \t\t\t   const struct value_print_options *options)\n {\n+  struct value *index_value = value_from_longest (index_type, index);\n+\n   fprintf_filtered (stream, \"[\");\n   LA_VALUE_PRINT (index_value, stream, options);\n   fprintf_filtered (stream, \"] = \");"
+    },
+    {
+      "sha": "e112a91ec572c260a1b2fd819a3f0c2306ff9811",
+      "filename": "gdb/language.h",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 4,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/53a47a3e4904839a902e34d4dfd3f53c397d66e1/gdb/language.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/53a47a3e4904839a902e34d4dfd3f53c397d66e1/gdb/language.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/language.h?ref=53a47a3e4904839a902e34d4dfd3f53c397d66e1",
+      "patch": "@@ -376,7 +376,8 @@ struct language_defn\n \t\t\t\t   struct language_arch_info *);\n \n     /* Print the index of an element of an array.  */\n-    void (*la_print_array_index) (struct value *index_value,\n+    void (*la_print_array_index) (struct type *index_type,\n+\t\t\t\t  LONGEST index_value,\n                                   struct ui_file *stream,\n                                   const struct value_print_options *options);\n \n@@ -570,8 +571,9 @@ extern enum language set_language (enum language);\n #define LA_EMIT_CHAR(ch, type, stream, quoter) \\\n   (current_language->la_emitchar(ch, type, stream, quoter))\n \n-#define LA_PRINT_ARRAY_INDEX(index_value, stream, options) \\\n-  (current_language->la_print_array_index(index_value, stream, options))\n+#define LA_PRINT_ARRAY_INDEX(index_type, index_value, stream, options)\t\\\n+  (current_language->la_print_array_index(index_type, index_value, stream, \\\n+\t\t\t\t\t  options))\n \n #define LA_ITERATE_OVER_SYMBOLS(BLOCK, NAME, DOMAIN, CALLBACK) \\\n   (current_language->la_iterate_over_symbols (BLOCK, NAME, DOMAIN, CALLBACK))\n@@ -634,7 +636,7 @@ extern char *language_class_name_from_physname (const struct language_defn *,\n extern const char *default_word_break_characters (void);\n \n /* Print the index of an array element using the C99 syntax.  */\n-extern void default_print_array_index (struct value *index_value,\n+extern void default_print_array_index (struct type *index_type, LONGEST index,\n                                        struct ui_file *stream,\n \t\t\t\t       const struct value_print_options *options);\n "
+    },
+    {
+      "sha": "4de54c71c10f3ae6fee9398f82a930b031452b2b",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/53a47a3e4904839a902e34d4dfd3f53c397d66e1/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/53a47a3e4904839a902e34d4dfd3f53c397d66e1/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=53a47a3e4904839a902e34d4dfd3f53c397d66e1",
+      "patch": "@@ -1,3 +1,7 @@\n+2020-05-26  Tom Tromey  <tromey@adacore.com>\n+\n+\t* gdb.ada/arr_acc_idx_w_gap.exp: Add tests.\n+\n 2020-05-26  Tom Tromey  <tromey@adacore.com>\n \n \t* gdb.ada/arr_acc_idx_w_gap.exp: Add enum subrange tests."
+    },
+    {
+      "sha": "06eebb07e77dba116305d90720ded6b0870fa043",
+      "filename": "gdb/testsuite/gdb.ada/arr_acc_idx_w_gap.exp",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/53a47a3e4904839a902e34d4dfd3f53c397d66e1/gdb/testsuite/gdb.ada/arr_acc_idx_w_gap.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/53a47a3e4904839a902e34d4dfd3f53c397d66e1/gdb/testsuite/gdb.ada/arr_acc_idx_w_gap.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.ada/arr_acc_idx_w_gap.exp?ref=53a47a3e4904839a902e34d4dfd3f53c397d66e1",
+      "patch": "@@ -57,3 +57,6 @@ gdb_test \"print s(2..4)\" \\\n gdb_test \"print v\" \" = lit3\"\n gdb_test \"print enum_subrange'pos(v)\" \" = 3\"\n gdb_test \"print enum_subrange'val(3)\" \" = lit3\"\n+\n+gdb_test \"print indexed_by_enum(lit2)\" \"43\"\n+gdb_test \"print s(2)\" \"101 'e'\""
+    },
+    {
+      "sha": "d678ad3091a46848f47b86a4e0f0b51480a76955",
+      "filename": "gdb/valprint.c",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 32,
+      "changes": 43,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/53a47a3e4904839a902e34d4dfd3f53c397d66e1/gdb/valprint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/53a47a3e4904839a902e34d4dfd3f53c397d66e1/gdb/valprint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/valprint.c?ref=53a47a3e4904839a902e34d4dfd3f53c397d66e1",
+      "patch": "@@ -1851,14 +1851,10 @@ maybe_print_array_index (struct type *index_type, LONGEST index,\n                          struct ui_file *stream,\n \t\t\t const struct value_print_options *options)\n {\n-  struct value *index_value;\n-\n   if (!options->print_array_indexes)\n     return; \n     \n-  index_value = value_from_longest (index_type, index);\n-\n-  LA_PRINT_ARRAY_INDEX (index_value, stream, options);\n+  LA_PRINT_ARRAY_INDEX (index_type, index, stream, options);\n }\n \n /* See valprint.h.  */\n@@ -1871,51 +1867,34 @@ value_print_array_elements (struct value *val, struct ui_file *stream,\n {\n   unsigned int things_printed = 0;\n   unsigned len;\n-  struct type *elttype, *index_type, *base_index_type;\n+  struct type *elttype, *index_type;\n   unsigned eltlen;\n   /* Position of the array element we are examining to see\n      whether it is repeated.  */\n   unsigned int rep1;\n   /* Number of repetitions we have detected so far.  */\n   unsigned int reps;\n   LONGEST low_bound, high_bound;\n-  LONGEST low_pos, high_pos;\n \n   struct type *type = check_typedef (value_type (val));\n \n   elttype = TYPE_TARGET_TYPE (type);\n   eltlen = type_length_units (check_typedef (elttype));\n   index_type = TYPE_INDEX_TYPE (type);\n+  if (index_type->code () == TYPE_CODE_RANGE)\n+    index_type = TYPE_TARGET_TYPE (index_type);\n \n   if (get_array_bounds (type, &low_bound, &high_bound))\n     {\n-      if (index_type->code () == TYPE_CODE_RANGE)\n-\tbase_index_type = TYPE_TARGET_TYPE (index_type);\n-      else\n-\tbase_index_type = index_type;\n-\n-      /* Non-contiguous enumerations types can by used as index types\n-\t in some languages (e.g. Ada).  In this case, the array length\n-\t shall be computed from the positions of the first and last\n-\t literal in the enumeration type, and not from the values\n-\t of these literals.  */\n-      if (!discrete_position (base_index_type, low_bound, &low_pos)\n-\t  || !discrete_position (base_index_type, high_bound, &high_pos))\n-\t{\n-\t  warning (_(\"unable to get positions in array, use bounds instead\"));\n-\t  low_pos = low_bound;\n-\t  high_pos = high_bound;\n-\t}\n-\n-      /* The array length should normally be HIGH_POS - LOW_POS + 1.\n-         But we have to be a little extra careful, because some languages\n-\t such as Ada allow LOW_POS to be greater than HIGH_POS for\n-\t empty arrays.  In that situation, the array length is just zero,\n-\t not negative!  */\n-      if (low_pos > high_pos)\n+      /* The array length should normally be HIGH_BOUND - LOW_BOUND +\n+         1.  But we have to be a little extra careful, because some\n+         languages such as Ada allow LOW_BOUND to be greater than\n+         HIGH_BOUND for empty arrays.  In that situation, the array\n+         length is just zero, not negative!  */\n+      if (low_bound > high_bound)\n \tlen = 0;\n       else\n-\tlen = high_pos - low_pos + 1;\n+\tlen = high_bound - low_bound + 1;\n     }\n   else\n     {"
+    }
+  ]
+}

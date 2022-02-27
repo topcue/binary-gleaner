@@ -1,0 +1,218 @@
+{
+  "sha": "4655f8509fd44e6efabefa373650d9982ff37fd6",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NDY1NWY4NTA5ZmQ0NGU2ZWZhYmVmYTM3MzY1MGQ5OTgyZmYzN2ZkNg==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2021-04-28T22:05:15Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2021-05-08T12:45:36Z"
+    },
+    "message": "Don't run personality syscall at configure time; don't check it at all\n\nCurrently, in order to tell whether support for disabling address\nspace randomization on Linux is available, GDB checks if the\npersonality syscall works, at configure time.  I.e., it does a run\ntest, instead of a compile/link test:\n\n  AC_RUN_IFELSE([PERSONALITY_TEST],\n\t\t[have_personality=true],\n\t\t[have_personality=false],\n\nThis is a bit bogus, because the machine the build is done on may not\n(and is when you consider distro gdbs) be the machine that eventually\nruns gdb.  It would be better if this were a compile/link test\ninstead, and then at runtime, GDB coped with the personality syscall\nfailing.  Actually, GDB already copes.\n\nOne environment where this is problematic is building GDB in a Docker\ncontainer -- by default, Docker runs the container with seccomp, with\na profile that disables the personality syscall.  You can tell Docker\nto use a less restricted seccomp profile, but I think we should just\nfix it in GDB.\n\n\"man 2 personality\" says:\n\n       This system call first appeared in Linux 1.1.20 (and thus first\n       in a stable kernel release with Linux 1.2.0); library support\n       was added in glibc 2.3.\n\n...\n\n       ADDR_NO_RANDOMIZE (since Linux 2.6.12)\n              With this flag set, disable address-space-layout randomization.\n\nglibc 2.3 was released in 2002.\nLinux 2.6.12 was released in 2005.\n\nThe original patch that added the configure checks was submitted in\n2008.  The first version of the patch that was submitted to the list\ncalled personality from common code:\n\n https://sourceware.org/pipermail/gdb-patches/2008-June/058204.html\n\nand then was moved to Linux-specific code:\n\n https://sourceware.org/pipermail/gdb-patches/2008-June/058209.html\n\nSince HAVE_PERSONALITY is only checked in Linux code, and\nADDR_NO_RANDOMIZE exists for over 15 years, I propose just completely\nremoving the configure checks.\n\nIf for some odd reason, some remotely modern system still needs a\nconfigure check, then we can revert this commit but drop the\nAC_RUN_IFELSE in favor of always doing the AC_LINK_IFELSE\ncross-compile fallback.\n\ngdb/ChangeLog:\n\n\t* linux-nat.c (linux_nat_target::supports_disable_randomization):\n\tRemove references to HAVE_PERSONALITY.\n\t* nat/linux-personality.c: Remove references to HAVE_PERSONALITY.\n\t(maybe_disable_address_space_randomization)\n\t(~maybe_disable_address_space_randomizatio): Remove references to\n\tHAVE_PERSONALITY.\n\t* config.in, configure: Regenerate.\n\ngdbserver/ChangeLog:\n\n\t* linux-low.cc:\n\t(linux_process_target::supports_disable_randomization): Remove\n\treference to HAVE_PERSONALITY.\n\t* config.in, configure: Regenerate.\n\ngdbsupport/ChangeLog:\n\n\t* common.m4 (personality test): Remove.",
+    "tree": {
+      "sha": "06c9df0c5eb22692fde447475a1cef56851568e1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/06c9df0c5eb22692fde447475a1cef56851568e1"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/4655f8509fd44e6efabefa373650d9982ff37fd6",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4655f8509fd44e6efabefa373650d9982ff37fd6",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/4655f8509fd44e6efabefa373650d9982ff37fd6",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4655f8509fd44e6efabefa373650d9982ff37fd6/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "e2ea3a381a4a7c739419a8b76a2fd132f7c1f9b1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e2ea3a381a4a7c739419a8b76a2fd132f7c1f9b1",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/e2ea3a381a4a7c739419a8b76a2fd132f7c1f9b1"
+    }
+  ],
+  "stats": {
+    "total": 226,
+    "additions": 22,
+    "deletions": 204
+  },
+  "files": [
+    {
+      "sha": "3061bb9168c81c8d03f57102a6ffbbe0c92deef6",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4655f8509fd44e6efabefa373650d9982ff37fd6/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4655f8509fd44e6efabefa373650d9982ff37fd6/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=4655f8509fd44e6efabefa373650d9982ff37fd6",
+      "patch": "@@ -1,3 +1,13 @@\n+2021-05-08  Pedro Alves  <pedro@palves.net>\n+\n+\t* linux-nat.c (linux_nat_target::supports_disable_randomization):\n+\tRemove references to HAVE_PERSONALITY.\n+\t* nat/linux-personality.c: Remove references to HAVE_PERSONALITY.\n+\t(maybe_disable_address_space_randomization)\n+\t(~maybe_disable_address_space_randomizatio): Remove references to\n+\tHAVE_PERSONALITY.\n+\t* config.in, configure: Regenerate.\n+\n 2021-05-07  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* cli/cli-cmds.c: Add 'gdbsupport/gdb_tilde_expand.h'"
+    },
+    {
+      "sha": "99c924f9ba066ab224258410db40c1249cc0e050",
+      "filename": "gdb/config.in",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 7,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4655f8509fd44e6efabefa373650d9982ff37fd6/gdb/config.in",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4655f8509fd44e6efabefa373650d9982ff37fd6/gdb/config.in",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/config.in?ref=4655f8509fd44e6efabefa373650d9982ff37fd6",
+      "patch": "@@ -96,10 +96,6 @@\n /* define if the compiler supports basic C++11 syntax */\n #undef HAVE_CXX11\n \n-/* Define to 1 if you have the declaration of `ADDR_NO_RANDOMIZE', and to 0 if\n-   you don't. */\n-#undef HAVE_DECL_ADDR_NO_RANDOMIZE\n-\n /* Define to 1 if you have the declaration of `asprintf', and to 0 if you\n    don't. */\n #undef HAVE_DECL_ASPRINTF\n@@ -301,9 +297,6 @@\n /* Define to 1 if you have the <nlist.h> header file. */\n #undef HAVE_NLIST_H\n \n-/* Define if you support the personality syscall. */\n-#undef HAVE_PERSONALITY\n-\n /* Define to 1 if you have the `pipe' function. */\n #undef HAVE_PIPE\n "
+    },
+    {
+      "sha": "cdc112e10dc06199ee456c906fc9d16b090efd88",
+      "filename": "gdb/configure",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 74,
+      "changes": 74,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4655f8509fd44e6efabefa373650d9982ff37fd6/gdb/configure",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4655f8509fd44e6efabefa373650d9982ff37fd6/gdb/configure",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/configure?ref=4655f8509fd44e6efabefa373650d9982ff37fd6",
+      "patch": "@@ -13819,80 +13819,6 @@ fi\n done\n \n \n-      ac_fn_c_check_decl \"$LINENO\" \"ADDR_NO_RANDOMIZE\" \"ac_cv_have_decl_ADDR_NO_RANDOMIZE\" \"#include <sys/personality.h>\n-\"\n-if test \"x$ac_cv_have_decl_ADDR_NO_RANDOMIZE\" = xyes; then :\n-  ac_have_decl=1\n-else\n-  ac_have_decl=0\n-fi\n-\n-cat >>confdefs.h <<_ACEOF\n-#define HAVE_DECL_ADDR_NO_RANDOMIZE $ac_have_decl\n-_ACEOF\n-\n-\n-  if test \"$cross_compiling\" = yes; then :\n-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext\n-/* end confdefs.h.  */\n-#include <sys/personality.h>\n-int\n-main ()\n-{\n-\n-  #      if !HAVE_DECL_ADDR_NO_RANDOMIZE\n-  #       define ADDR_NO_RANDOMIZE 0x0040000\n-  #      endif\n-\t /* Test the flag could be set and stays set.  */\n-\t personality (personality (0xffffffff) | ADDR_NO_RANDOMIZE);\n-\t if (!(personality (personality (0xffffffff)) & ADDR_NO_RANDOMIZE))\n-\t     return 1\n-  ;\n-  return 0;\n-}\n-_ACEOF\n-if ac_fn_c_try_link \"$LINENO\"; then :\n-  have_personality=true\n-else\n-  have_personality=false\n-fi\n-rm -f core conftest.err conftest.$ac_objext \\\n-    conftest$ac_exeext conftest.$ac_ext\n-else\n-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext\n-/* end confdefs.h.  */\n-#include <sys/personality.h>\n-int\n-main ()\n-{\n-\n-  #      if !HAVE_DECL_ADDR_NO_RANDOMIZE\n-  #       define ADDR_NO_RANDOMIZE 0x0040000\n-  #      endif\n-\t /* Test the flag could be set and stays set.  */\n-\t personality (personality (0xffffffff) | ADDR_NO_RANDOMIZE);\n-\t if (!(personality (personality (0xffffffff)) & ADDR_NO_RANDOMIZE))\n-\t     return 1\n-  ;\n-  return 0;\n-}\n-_ACEOF\n-if ac_fn_c_try_run \"$LINENO\"; then :\n-  have_personality=true\n-else\n-  have_personality=false\n-fi\n-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \\\n-  conftest.$ac_objext conftest.beam conftest.$ac_ext\n-fi\n-\n-  if $have_personality\n-  then\n-\n-$as_echo \"#define HAVE_PERSONALITY 1\" >>confdefs.h\n-\n-  fi\n-\n   ac_fn_c_check_decl \"$LINENO\" \"strstr\" \"ac_cv_have_decl_strstr\" \"$ac_includes_default\"\n if test \"x$ac_cv_have_decl_strstr\" = xyes; then :\n   ac_have_decl=1"
+    },
+    {
+      "sha": "e595c71c3d33028e5a5c7dc2b8d5bc3ac6d51017",
+      "filename": "gdb/linux-nat.c",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 4,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4655f8509fd44e6efabefa373650d9982ff37fd6/gdb/linux-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4655f8509fd44e6efabefa373650d9982ff37fd6/gdb/linux-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/linux-nat.c?ref=4655f8509fd44e6efabefa373650d9982ff37fd6",
+      "patch": "@@ -4022,11 +4022,7 @@ linux_nat_target::supports_multi_process ()\n bool\n linux_nat_target::supports_disable_randomization ()\n {\n-#ifdef HAVE_PERSONALITY\n   return true;\n-#else\n-  return false;\n-#endif\n }\n \n /* SIGCHLD handler that serves two purposes: In non-stop/async mode,"
+    },
+    {
+      "sha": "9ce345bc6de2a8c4a8fff4e1615f773bc8c51cad",
+      "filename": "gdb/nat/linux-personality.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 11,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4655f8509fd44e6efabefa373650d9982ff37fd6/gdb/nat/linux-personality.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4655f8509fd44e6efabefa373650d9982ff37fd6/gdb/nat/linux-personality.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/nat/linux-personality.c?ref=4655f8509fd44e6efabefa373650d9982ff37fd6",
+      "patch": "@@ -20,12 +20,7 @@\n #include \"gdbsupport/common-defs.h\"\n #include \"nat/linux-personality.h\"\n \n-#ifdef HAVE_PERSONALITY\n-# include <sys/personality.h>\n-# if !HAVE_DECL_ADDR_NO_RANDOMIZE\n-#  define ADDR_NO_RANDOMIZE 0x0040000\n-# endif /* ! HAVE_DECL_ADDR_NO_RANDOMIZE */\n-#endif /* HAVE_PERSONALITY */\n+#include <sys/personality.h>\n \n /* See comment on nat/linux-personality.h.  */\n \n@@ -34,7 +29,6 @@ maybe_disable_address_space_randomization (int disable_randomization)\n   : m_personality_set (false),\n     m_personality_orig (0)\n {\n-#ifdef HAVE_PERSONALITY\n   if (disable_randomization)\n     {\n       errno = 0;\n@@ -49,14 +43,11 @@ maybe_disable_address_space_randomization (int disable_randomization)\n \twarning (_(\"Error disabling address space randomization: %s\"),\n \t\t safe_strerror (errno));\n     }\n-#endif /* HAVE_PERSONALITY */\n }\n \n maybe_disable_address_space_randomization::\n ~maybe_disable_address_space_randomization ()\n {\n-#ifdef HAVE_PERSONALITY\n-\n   if (m_personality_set)\n     {\n       errno = 0;\n@@ -65,5 +56,4 @@ maybe_disable_address_space_randomization::\n \twarning (_(\"Error restoring address space randomization: %s\"),\n \t\t safe_strerror (errno));\n     }\n-#endif /* HAVE_PERSONALITY */\n }"
+    },
+    {
+      "sha": "6483d65700cd3b4ac1ad06177dea24e0e76558fa",
+      "filename": "gdbserver/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4655f8509fd44e6efabefa373650d9982ff37fd6/gdbserver/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4655f8509fd44e6efabefa373650d9982ff37fd6/gdbserver/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/ChangeLog?ref=4655f8509fd44e6efabefa373650d9982ff37fd6",
+      "patch": "@@ -1,3 +1,10 @@\n+2021-05-08  Pedro Alves  <pedro@palves.net>\n+\n+\t* linux-low.cc:\n+\t(linux_process_target::supports_disable_randomization): Remove\n+\treference to HAVE_PERSONALITY.\n+\t* config.in, configure: Regenerate.\n+\n 2021-05-08  Pedro Alves  <pedro@palves.net>\n \n \t* linux-low.cc: Don't include sys/personality.h or define"
+    },
+    {
+      "sha": "611bfd7aa768551c7ae6e9127bdab868e9d24f68",
+      "filename": "gdbserver/config.in",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 7,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4655f8509fd44e6efabefa373650d9982ff37fd6/gdbserver/config.in",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4655f8509fd44e6efabefa373650d9982ff37fd6/gdbserver/config.in",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/config.in?ref=4655f8509fd44e6efabefa373650d9982ff37fd6",
+      "patch": "@@ -31,10 +31,6 @@\n /* define if the compiler supports basic C++11 syntax */\n #undef HAVE_CXX11\n \n-/* Define to 1 if you have the declaration of `ADDR_NO_RANDOMIZE', and to 0 if\n-   you don't. */\n-#undef HAVE_DECL_ADDR_NO_RANDOMIZE\n-\n /* Define to 1 if you have the declaration of `asprintf', and to 0 if you\n    don't. */\n #undef HAVE_DECL_ASPRINTF\n@@ -182,9 +178,6 @@\n /* Define to 1 if you have the <netinet/tcp.h> header file. */\n #undef HAVE_NETINET_TCP_H\n \n-/* Define if you support the personality syscall. */\n-#undef HAVE_PERSONALITY\n-\n /* Define to 1 if you have the `pipe' function. */\n #undef HAVE_PIPE\n "
+    },
+    {
+      "sha": "aab72c0b8c51b52173c5c9a9a717879f99b94ae8",
+      "filename": "gdbserver/configure",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 74,
+      "changes": 74,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4655f8509fd44e6efabefa373650d9982ff37fd6/gdbserver/configure",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4655f8509fd44e6efabefa373650d9982ff37fd6/gdbserver/configure",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/configure?ref=4655f8509fd44e6efabefa373650d9982ff37fd6",
+      "patch": "@@ -7130,80 +7130,6 @@ fi\n done\n \n \n-      ac_fn_c_check_decl \"$LINENO\" \"ADDR_NO_RANDOMIZE\" \"ac_cv_have_decl_ADDR_NO_RANDOMIZE\" \"#include <sys/personality.h>\n-\"\n-if test \"x$ac_cv_have_decl_ADDR_NO_RANDOMIZE\" = xyes; then :\n-  ac_have_decl=1\n-else\n-  ac_have_decl=0\n-fi\n-\n-cat >>confdefs.h <<_ACEOF\n-#define HAVE_DECL_ADDR_NO_RANDOMIZE $ac_have_decl\n-_ACEOF\n-\n-\n-  if test \"$cross_compiling\" = yes; then :\n-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext\n-/* end confdefs.h.  */\n-#include <sys/personality.h>\n-int\n-main ()\n-{\n-\n-  #      if !HAVE_DECL_ADDR_NO_RANDOMIZE\n-  #       define ADDR_NO_RANDOMIZE 0x0040000\n-  #      endif\n-\t /* Test the flag could be set and stays set.  */\n-\t personality (personality (0xffffffff) | ADDR_NO_RANDOMIZE);\n-\t if (!(personality (personality (0xffffffff)) & ADDR_NO_RANDOMIZE))\n-\t     return 1\n-  ;\n-  return 0;\n-}\n-_ACEOF\n-if ac_fn_c_try_link \"$LINENO\"; then :\n-  have_personality=true\n-else\n-  have_personality=false\n-fi\n-rm -f core conftest.err conftest.$ac_objext \\\n-    conftest$ac_exeext conftest.$ac_ext\n-else\n-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext\n-/* end confdefs.h.  */\n-#include <sys/personality.h>\n-int\n-main ()\n-{\n-\n-  #      if !HAVE_DECL_ADDR_NO_RANDOMIZE\n-  #       define ADDR_NO_RANDOMIZE 0x0040000\n-  #      endif\n-\t /* Test the flag could be set and stays set.  */\n-\t personality (personality (0xffffffff) | ADDR_NO_RANDOMIZE);\n-\t if (!(personality (personality (0xffffffff)) & ADDR_NO_RANDOMIZE))\n-\t     return 1\n-  ;\n-  return 0;\n-}\n-_ACEOF\n-if ac_fn_c_try_run \"$LINENO\"; then :\n-  have_personality=true\n-else\n-  have_personality=false\n-fi\n-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \\\n-  conftest.$ac_objext conftest.beam conftest.$ac_ext\n-fi\n-\n-  if $have_personality\n-  then\n-\n-$as_echo \"#define HAVE_PERSONALITY 1\" >>confdefs.h\n-\n-  fi\n-\n   ac_fn_c_check_decl \"$LINENO\" \"strstr\" \"ac_cv_have_decl_strstr\" \"$ac_includes_default\"\n if test \"x$ac_cv_have_decl_strstr\" = xyes; then :\n   ac_have_decl=1"
+    },
+    {
+      "sha": "9debe894eeb2b95dbf5b7f86b4f9188920a68a01",
+      "filename": "gdbserver/linux-low.cc",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 4,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4655f8509fd44e6efabefa373650d9982ff37fd6/gdbserver/linux-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4655f8509fd44e6efabefa373650d9982ff37fd6/gdbserver/linux-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-low.cc?ref=4655f8509fd44e6efabefa373650d9982ff37fd6",
+      "patch": "@@ -6224,11 +6224,7 @@ linux_process_target::core_of_thread (ptid_t ptid)\n bool\n linux_process_target::supports_disable_randomization ()\n {\n-#ifdef HAVE_PERSONALITY\n   return true;\n-#else\n-  return false;\n-#endif\n }\n \n bool"
+    },
+    {
+      "sha": "8b9077ce5337513783654e27bbd823f54a295ef1",
+      "filename": "gdbsupport/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4655f8509fd44e6efabefa373650d9982ff37fd6/gdbsupport/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4655f8509fd44e6efabefa373650d9982ff37fd6/gdbsupport/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/ChangeLog?ref=4655f8509fd44e6efabefa373650d9982ff37fd6",
+      "patch": "@@ -1,3 +1,7 @@\n+2021-05-08  Pedro Alves  <pedro@palves.net>\n+\n+\t* common.m4 (personality test): Remove.\n+\n 2021-04-30  Tom Tromey  <tromey@adacore.com>\n \n \t* thread-pool.cc (thread_pool::post_task): Update."
+    },
+    {
+      "sha": "2e709dbbdbb3882b355d3d2e8f1b9fc486052da1",
+      "filename": "gdbsupport/common.m4",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 23,
+      "changes": 23,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4655f8509fd44e6efabefa373650d9982ff37fd6/gdbsupport/common.m4",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4655f8509fd44e6efabefa373650d9982ff37fd6/gdbsupport/common.m4",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/common.m4?ref=4655f8509fd44e6efabefa373650d9982ff37fd6",
+      "patch": "@@ -55,29 +55,6 @@ AC_DEFUN([GDB_AC_COMMON], [\n \t\t  ptrace64 sbrk setns sigaltstack sigprocmask \\\n \t\t  setpgid setpgrp getrusage getauxval])\n \n-  dnl Check if we can disable the virtual address space randomization.\n-  dnl The functionality of setarch -R.\n-  AC_CHECK_DECLS([ADDR_NO_RANDOMIZE],,, [#include <sys/personality.h>])\n-  define([PERSONALITY_TEST], [AC_LANG_PROGRAM([#include <sys/personality.h>], [\n-  #      if !HAVE_DECL_ADDR_NO_RANDOMIZE\n-  #       define ADDR_NO_RANDOMIZE 0x0040000\n-  #      endif\n-\t /* Test the flag could be set and stays set.  */\n-\t personality (personality (0xffffffff) | ADDR_NO_RANDOMIZE);\n-\t if (!(personality (personality (0xffffffff)) & ADDR_NO_RANDOMIZE))\n-\t     return 1])])\n-  AC_RUN_IFELSE([PERSONALITY_TEST],\n-\t\t[have_personality=true],\n-\t\t[have_personality=false],\n-\t\t[AC_LINK_IFELSE([PERSONALITY_TEST],\n-\t\t\t\t[have_personality=true],\n-\t\t\t\t[have_personality=false])])\n-  if $have_personality\n-  then\n-      AC_DEFINE([HAVE_PERSONALITY], 1,\n-\t\t[Define if you support the personality syscall.])\n-  fi\n-\n   AC_CHECK_DECLS([strstr])\n \n   # ----------------------- #"
+    }
+  ]
+}

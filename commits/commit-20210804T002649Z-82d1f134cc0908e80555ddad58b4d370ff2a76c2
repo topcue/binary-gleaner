@@ -1,0 +1,266 @@
+{
+  "sha": "82d1f134cc0908e80555ddad58b4d370ff2a76c2",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ODJkMWYxMzRjYzA5MDhlODA1NTVkZGFkNThiNGQzNzBmZjJhNzZjMg==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-05-28T21:28:35Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-08-04T00:26:49Z"
+    },
+    "message": "gdb: follow-fork: push target and add thread in target_follow_fork\n\nIn the context of ROCm-gdb [1], the ROCm target sits on top of the\nlinux-nat target.  when a process forks, it needs to carry over some\ndata from the forking inferior to the fork child inferior.  Ideally, the\nROCm target would implement the follow_fork target_ops method, but there\nare some small problems.  This patch fixes these, which helps the ROCm\ntarget, but also makes things more consistent and a bit nicer in\ngeneral, I believe.\n\nThe main problem is: when follow-fork-mode is \"parent\",\ntarget_follow_fork is called with the parent as the current inferior.\nWhen it's \"child\", target_follow_fork is called with the child as the\ncurrent inferior.  This means that target_follow_fork is sometimes\ncalled on the parent's target stack and sometimes on the child's target\nstack.\n\nThe parent's target stack may contain targets above the process target,\nsuch as the ROCm target.  So if follow-fork-child is \"parent\", the ROCm\ntarget would get notified of the fork and do whatever is needed.  But\nthe child's target stack, at that moment, only contains the exec and\nprocess target copied over from the parent.  The child's target stack is\nset up by follow_fork_inferior, before calling target_follow_fork.  In\nthat case, the ROCm target wouldn't get notified of the fork.\n\nFor consistency, I think it would be good to always call\ntarget_follow_fork on the parent inferior's target stack.  I think it\nmakes sense as a way to indicate \"this inferior has called fork, do\nwhatever is needed\".  The desired outcome of the fork (whether an\ninferior is created for the child, do we need to detach from the child)\ncan be indicated by passed parameter.\n\nI therefore propose these changes:\n\n - make follow_fork_inferior always call target_follow_fork with the\n   parent as the current inferior.  That lets all targets present on the\n   parent's target stack do some fork-related handling and push\n   themselves on the fork child's target stack if needed.\n\n   For this purpose, pass the child inferior down to target_follow_fork\n   and follow_fork implementations.  This is nullptr if no inferior is\n   created for the child, because we want to detach from it.\n\n - as a result, in follow_fork_inferior, detach from the parent inferior\n   (if needed) only after the target_follow_fork call.  This is needed\n   because we want to call target_follow_fork before the parent's\n   target stack is torn down.\n\n - hand over to the targets in the parent's target stack (including the\n   process target) the responsibility to push themselves, if needed, to\n   the child's target stack.  Also hand over the responsibility to the\n   process target, at the same time, to create the child's initial\n   thread (just like we do for follow_exec).\n\n - pass the child inferior to exec_on_vfork, so we don't need to swap\n   the current inferior between parent and child.  Nothing in\n   exec_on_vfork depends on the current inferior, after this change.\n\n   Although this could perhaps be replaced with just having the exec\n   target implement follow_fork and push itself in the child's target\n   stack, like the process target does... We would just need to make\n   sure the process target calls beneath()->follow_fork(...).  I'm not\n   sure about this one.\n\ngdb/ChangeLog:\n\n\t* target.h (struct target_ops) <follow_fork>: Add inferior*\n\tparameter.\n\t(target_follow_fork): Likewise.\n\t* target.c (default_follow_fork): Likewise.\n\t(target_follow_fork): Likewise.\n\t* fbsd-nat.h (class fbsd_nat_target) <follow_fork>: Likewise.\n\t(fbsd_nat_target::follow_fork): Likewise, and call\n\tinf_ptrace_target::follow_fork.\n\t* linux-nat.h (class linux_nat_target) <follow_fork>: Likewise.\n\t* linux-nat.c (linux_nat_target::follow_fork): Likewise, and\n\tcall inf_ptrace_target::follow_fork.\n\t* obsd-nat.h (obsd_nat_target) <follow_fork>: Likewise.\n\t* obsd-nat.c (obsd_nat_target::follow_fork): Likewise, and call\n\tinf_ptrace_target::follow_fork.\n\t* remote.c (class remote_target) <follow_fork>: Likewise.\n\t(remote_target::follow_fork): Likewise, and call\n\tprocess_stratum_target::follow_fork.\n\t* process-stratum-target.h (class process_stratum_target)\n\t<follow_fork>: New.\n\t* process-stratum-target.c\n\t(process_stratum_target::follow_fork): New.\n\t* target-delegates.c: Re-generate.\n\n[1] https://github.com/ROCm-Developer-Tools/ROCgdb\n\nChange-Id: I460bd0af850f0485e8aed4b24c6d8262a4c69929",
+    "tree": {
+      "sha": "2e20122b928666132ac03eb626c2191f0bacb0a9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/2e20122b928666132ac03eb626c2191f0bacb0a9"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/82d1f134cc0908e80555ddad58b4d370ff2a76c2",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/82d1f134cc0908e80555ddad58b4d370ff2a76c2",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/82d1f134cc0908e80555ddad58b4d370ff2a76c2",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/82d1f134cc0908e80555ddad58b4d370ff2a76c2/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "814be17cf94319891ff8343a8441f8a4ecf11567",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/814be17cf94319891ff8343a8441f8a4ecf11567",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/814be17cf94319891ff8343a8441f8a4ecf11567"
+    }
+  ],
+  "stats": {
+    "total": 314,
+    "additions": 172,
+    "deletions": 142
+  },
+  "files": [
+    {
+      "sha": "6f936c9403f02f113791f28c00644456f32a6fff",
+      "filename": "gdb/exec.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/exec.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/exec.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/exec.c?ref=82d1f134cc0908e80555ddad58b4d370ff2a76c2",
+      "patch": "@@ -678,10 +678,10 @@ program_space::remove_target_sections (void *owner)\n /* See exec.h.  */\n \n void\n-exec_on_vfork ()\n+exec_on_vfork (inferior *vfork_child)\n {\n-  if (!current_program_space->target_sections ().empty ())\n-    current_inferior ()->push_target (&exec_ops);\n+  if (!vfork_child->pspace->target_sections ().empty ())\n+    vfork_child->push_target (&exec_ops);\n }\n \n \f"
+    },
+    {
+      "sha": "c237f831d23464e2fa64f32271c99c671d1823e4",
+      "filename": "gdb/exec.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 5,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/exec.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/exec.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/exec.h?ref=82d1f134cc0908e80555ddad58b4d370ff2a76c2",
+      "patch": "@@ -34,12 +34,11 @@ struct objfile;\n \n extern target_section_table build_section_table (struct bfd *);\n \n-/* The current inferior is a child vforked and its program space is\n-   shared with its parent.  This pushes the exec target on the\n-   current/child inferior's target stack if there are sections in the\n-   program space's section table.  */\n+/* VFORK_CHILD is a child vforked and its program space is shared with its\n+   parent.  This pushes the exec target on that inferior's target stack if\n+   there are sections in the program space's section table.  */\n \n-extern void exec_on_vfork ();\n+extern void exec_on_vfork (inferior *vfork_child);\n \n /* Read from mappable read-only sections of BFD executable files.\n    Return TARGET_XFER_OK, if read is successful.  Return"
+    },
+    {
+      "sha": "4b2d01f1c4434d049fe035688893ce2ade917add",
+      "filename": "gdb/fbsd-nat.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 2,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/fbsd-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/fbsd-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/fbsd-nat.c?ref=82d1f134cc0908e80555ddad58b4d370ff2a76c2",
+      "patch": "@@ -1471,9 +1471,13 @@ fbsd_nat_target::create_inferior (const char *exec_file,\n    the ptid of the followed inferior.  */\n \n void\n-fbsd_nat_target::follow_fork (ptid_t child_ptid, target_waitkind fork_kind,\n-\t\t\t      bool follow_child, bool detach_fork)\n+fbsd_nat_target::follow_fork (inferior *child_inf, ptid_t child_ptid,\n+\t\t\t      target_waitkind fork_kind, bool follow_child,\n+\t\t\t      bool detach_fork)\n {\n+  inf_ptrace_target::follow_fork (child_inf, child_ptid, fork_kind,\n+\t\t\t\t  follow_child, detach_fork);\n+\n   if (!follow_child && detach_fork)\n     {\n       pid_t child_pid = child_ptid.pid ();"
+    },
+    {
+      "sha": "34d7e6d25ba195db542fa4b71b2cc9354e3f9302",
+      "filename": "gdb/fbsd-nat.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/fbsd-nat.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/fbsd-nat.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/fbsd-nat.h?ref=82d1f134cc0908e80555ddad58b4d370ff2a76c2",
+      "patch": "@@ -85,7 +85,7 @@ class fbsd_nat_target : public inf_ptrace_target\n #endif\n \n #ifdef TDP_RFPPWAIT\n-  void follow_fork (ptid_t, target_waitkind, bool, bool) override;\n+  void follow_fork (inferior *, ptid_t, target_waitkind, bool, bool) override;\n \n   int insert_fork_catchpoint (int) override;\n   int remove_fork_catchpoint (int) override;"
+    },
+    {
+      "sha": "6c42c48d87cb6810eddc4afbbfb3690714b83f35",
+      "filename": "gdb/infrun.c",
+      "status": "modified",
+      "additions": 74,
+      "deletions": 96,
+      "changes": 170,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/infrun.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/infrun.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infrun.c?ref=82d1f134cc0908e80555ddad58b4d370ff2a76c2",
+      "patch": "@@ -428,7 +428,8 @@ holding the child stopped.  Try \\\"set detach-on-fork\\\" or \\\n       return true;\n     }\n \n-  thread_info *child_thr = nullptr;\n+  inferior *parent_inf = current_inferior ();\n+  inferior *child_inf = nullptr;\n \n   if (!follow_child)\n     {\n@@ -462,25 +463,15 @@ holding the child stopped.  Try \\\"set detach-on-fork\\\" or \\\n \t}\n       else\n \t{\n-\t  struct inferior *parent_inf, *child_inf;\n-\n \t  /* Add process to GDB's tables.  */\n \t  child_inf = add_inferior (child_ptid.pid ());\n \n-\t  parent_inf = current_inferior ();\n \t  child_inf->attach_flag = parent_inf->attach_flag;\n \t  copy_terminal_info (child_inf, parent_inf);\n \t  child_inf->gdbarch = parent_inf->gdbarch;\n \t  copy_inferior_target_desc_info (child_inf, parent_inf);\n \n-\t  scoped_restore_current_pspace_and_thread restore_pspace_thread;\n-\n-\t  set_current_inferior (child_inf);\n-\t  switch_to_no_thread ();\n \t  child_inf->symfile_flags = SYMFILE_NO_READ;\n-\t  child_inf->push_target (parent_inf->process_target ());\n-\t  child_thr = add_thread_silent (child_inf->process_target (),\n-\t\t\t\t\t child_ptid);\n \n \t  /* If this is a vfork child, then the address-space is\n \t     shared with the parent.  */\n@@ -489,7 +480,7 @@ holding the child stopped.  Try \\\"set detach-on-fork\\\" or \\\n \t      child_inf->pspace = parent_inf->pspace;\n \t      child_inf->aspace = parent_inf->aspace;\n \n-\t      exec_on_vfork ();\n+\t      exec_on_vfork (child_inf);\n \n \t      /* The parent will be frozen until the child is done\n \t\t with the shared region.  Keep track of the\n@@ -498,32 +489,18 @@ holding the child stopped.  Try \\\"set detach-on-fork\\\" or \\\n \t      child_inf->pending_detach = 0;\n \t      parent_inf->vfork_child = child_inf;\n \t      parent_inf->pending_detach = 0;\n-\n-\t      /* Now that the inferiors and program spaces are all\n-\t\t wired up, we can switch to the child thread (which\n-\t\t switches inferior and program space too).  */\n-\t      switch_to_thread (child_thr);\n \t    }\n \t  else\n \t    {\n \t      child_inf->aspace = new_address_space ();\n \t      child_inf->pspace = new program_space (child_inf->aspace);\n \t      child_inf->removable = 1;\n-\t      set_current_program_space (child_inf->pspace);\n \t      clone_program_space (child_inf->pspace, parent_inf->pspace);\n-\n-\t      /* solib_create_inferior_hook relies on the current\n-\t\t thread.  */\n-\t      switch_to_thread (child_thr);\n \t    }\n \t}\n \n       if (has_vforked)\n \t{\n-\t  struct inferior *parent_inf;\n-\n-\t  parent_inf = current_inferior ();\n-\n \t  /* If we detached from the child, then we have to be careful\n \t     to not insert breakpoints in the parent until the child\n \t     is done with the shared memory region.  However, if we're\n@@ -538,8 +515,6 @@ holding the child stopped.  Try \\\"set detach-on-fork\\\" or \\\n   else\n     {\n       /* Follow the child.  */\n-      struct inferior *parent_inf, *child_inf;\n-      struct program_space *parent_pspace;\n \n       if (print_inferior_events)\n \t{\n@@ -559,71 +534,12 @@ holding the child stopped.  Try \\\"set detach-on-fork\\\" or \\\n \n       child_inf = add_inferior (child_ptid.pid ());\n \n-      parent_inf = current_inferior ();\n       child_inf->attach_flag = parent_inf->attach_flag;\n       copy_terminal_info (child_inf, parent_inf);\n       child_inf->gdbarch = parent_inf->gdbarch;\n       copy_inferior_target_desc_info (child_inf, parent_inf);\n \n-      parent_pspace = parent_inf->pspace;\n-\n-      process_stratum_target *target = parent_inf->process_target ();\n-\n-      {\n-\t/* Hold a strong reference to the target while (maybe)\n-\t   detaching the parent.  Otherwise detaching could close the\n-\t   target.  */\n-\tauto target_ref = target_ops_ref::new_reference (target);\n-\n-\t/* If we're vforking, we want to hold on to the parent until\n-\t   the child exits or execs.  At child exec or exit time we\n-\t   can remove the old breakpoints from the parent and detach\n-\t   or resume debugging it.  Otherwise, detach the parent now;\n-\t   we'll want to reuse it's program/address spaces, but we\n-\t   can't set them to the child before removing breakpoints\n-\t   from the parent, otherwise, the breakpoints module could\n-\t   decide to remove breakpoints from the wrong process (since\n-\t   they'd be assigned to the same address space).  */\n-\n-\tif (has_vforked)\n-\t  {\n-\t    gdb_assert (child_inf->vfork_parent == NULL);\n-\t    gdb_assert (parent_inf->vfork_child == NULL);\n-\t    child_inf->vfork_parent = parent_inf;\n-\t    child_inf->pending_detach = 0;\n-\t    parent_inf->vfork_child = child_inf;\n-\t    parent_inf->pending_detach = detach_fork;\n-\t    parent_inf->waiting_for_vfork_done = 0;\n-\t  }\n-\telse if (detach_fork)\n-\t  {\n-\t    if (print_inferior_events)\n-\t      {\n-\t\t/* Ensure that we have a process ptid.  */\n-\t\tptid_t process_ptid = ptid_t (parent_ptid.pid ());\n-\n-\t\ttarget_terminal::ours_for_output ();\n-\t\tfprintf_filtered (gdb_stdlog,\n-\t\t\t\t  _(\"[Detaching after fork from \"\n-\t\t\t\t    \"parent %s]\\n\"),\n-\t\t\t\t  target_pid_to_str (process_ptid).c_str ());\n-\t      }\n-\n-\t    target_detach (parent_inf, 0);\n-\t    parent_inf = NULL;\n-\t  }\n-\n-\t/* Note that the detach above makes PARENT_INF dangling.  */\n-\n-\t/* Add the child thread to the appropriate lists, and switch\n-\t   to this new thread, before cloning the program space, and\n-\t   informing the solib layer about this new process.  */\n-\n-\tset_current_inferior (child_inf);\n-\tchild_inf->push_target (target);\n-      }\n-\n-      child_thr = add_thread_silent (target, child_ptid);\n+      program_space *parent_pspace = parent_inf->pspace;\n \n       /* If this is a vfork child, then the address-space is shared\n \t with the parent.  If we detached from the parent, then we can\n@@ -633,30 +549,92 @@ holding the child stopped.  Try \\\"set detach-on-fork\\\" or \\\n \t  child_inf->pspace = parent_pspace;\n \t  child_inf->aspace = child_inf->pspace->aspace;\n \n-\t  exec_on_vfork ();\n+\t  exec_on_vfork (child_inf);\n \t}\n       else\n \t{\n \t  child_inf->aspace = new_address_space ();\n \t  child_inf->pspace = new program_space (child_inf->aspace);\n \t  child_inf->removable = 1;\n \t  child_inf->symfile_flags = SYMFILE_NO_READ;\n-\t  set_current_program_space (child_inf->pspace);\n \t  clone_program_space (child_inf->pspace, parent_pspace);\n \t}\n-\n-      switch_to_thread (child_thr);\n     }\n \n-  target_follow_fork (child_ptid, fork_kind, follow_child, detach_fork);\n+  gdb_assert (current_inferior () == parent_inf);\n+\n+  /* If we are setting up an inferior for the child, target_follow_fork is\n+     responsible for pushing the appropriate targets on the new inferior's\n+     target stack and adding the initial thread (with ptid CHILD_PTID).\n+\n+     If we are not setting up an inferior for the child (because following\n+     the parent and detach_fork is true), it is responsible for detaching\n+     from CHILD_PTID.  */\n+  target_follow_fork (child_inf, child_ptid, fork_kind, follow_child,\n+\t\t      detach_fork);\n+\n+  /* target_follow_fork must leave the parent as the current inferior.  If we\n+     want to follow the child, we make it the current one below.  */\n+  gdb_assert (current_inferior () == parent_inf);\n+\n+  /* If there is a child inferior, target_follow_fork must have created a thread\n+     for it.  */\n+  if (child_inf != nullptr)\n+    gdb_assert (!child_inf->thread_list.empty ());\n+\n+  /* Detach the parent if needed.  */\n+  if (follow_child)\n+    {\n+      /* If we're vforking, we want to hold on to the parent until\n+\t the child exits or execs.  At child exec or exit time we\n+\t can remove the old breakpoints from the parent and detach\n+\t or resume debugging it.  Otherwise, detach the parent now;\n+\t we'll want to reuse it's program/address spaces, but we\n+\t can't set them to the child before removing breakpoints\n+\t from the parent, otherwise, the breakpoints module could\n+\t decide to remove breakpoints from the wrong process (since\n+\t they'd be assigned to the same address space).  */\n+\n+      if (has_vforked)\n+\t{\n+\t  gdb_assert (child_inf->vfork_parent == NULL);\n+\t  gdb_assert (parent_inf->vfork_child == NULL);\n+\t  child_inf->vfork_parent = parent_inf;\n+\t  child_inf->pending_detach = 0;\n+\t  parent_inf->vfork_child = child_inf;\n+\t  parent_inf->pending_detach = detach_fork;\n+\t  parent_inf->waiting_for_vfork_done = 0;\n+\t}\n+      else if (detach_fork)\n+\t{\n+\t  if (print_inferior_events)\n+\t    {\n+\t      /* Ensure that we have a process ptid.  */\n+\t      ptid_t process_ptid = ptid_t (parent_ptid.pid ());\n+\n+\t      target_terminal::ours_for_output ();\n+\t      fprintf_filtered (gdb_stdlog,\n+\t\t\t\t_(\"[Detaching after fork from \"\n+\t\t\t\t  \"parent %s]\\n\"),\n+\t\t\t\ttarget_pid_to_str (process_ptid).c_str ());\n+\t    }\n+\n+\t  target_detach (parent_inf, 0);\n+\t}\n+    }\n \n   /* If we ended up creating a new inferior, call post_create_inferior to inform\n      the various subcomponents.  */\n-  if (child_thr != nullptr)\n+  if (child_inf != nullptr)\n     {\n-      scoped_restore_current_thread restore;\n-      switch_to_thread (child_thr);\n+      /* If FOLLOW_CHILD, we leave CHILD_INF as the current inferior\n+         (do not restore the parent as the current inferior).  */\n+      gdb::optional<scoped_restore_current_thread> maybe_restore;\n+\n+      if (!follow_child)\n+\tmaybe_restore.emplace ();\n \n+      switch_to_thread (*child_inf->threads ().begin ());\n       post_create_inferior (0);\n     }\n "
+    },
+    {
+      "sha": "211e447dc6f4c7eda207bc876ab25b597185f6cf",
+      "filename": "gdb/linux-nat.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 7,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/linux-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/linux-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/linux-nat.c?ref=82d1f134cc0908e80555ddad58b4d370ff2a76c2",
+      "patch": "@@ -444,19 +444,20 @@ struct lwp_deleter\n \n typedef std::unique_ptr<struct lwp_info, lwp_deleter> lwp_info_up;\n \n-/* Target hook for follow_fork.  On entry inferior_ptid must be the\n-   ptid of the followed inferior.  At return, inferior_ptid will be\n-   unchanged.  */\n+/* Target hook for follow_fork.  */\n \n void\n-linux_nat_target::follow_fork (ptid_t child_ptid, target_waitkind fork_kind,\n-\t\t\t       bool follow_child, bool detach_fork)\n+linux_nat_target::follow_fork (inferior *child_inf, ptid_t child_ptid,\n+\t\t\t       target_waitkind fork_kind, bool follow_child,\n+\t\t\t       bool detach_fork)\n {\n+  inf_ptrace_target::follow_fork (child_inf, child_ptid, fork_kind,\n+\t\t\t\t  follow_child, detach_fork);\n+\n   if (!follow_child)\n     {\n       bool has_vforked = fork_kind == TARGET_WAITKIND_VFORKED;\n       ptid_t parent_ptid = inferior_ptid;\n-      child_ptid = inferior_thread ()->pending_follow.value.related_pid;\n       int parent_pid = parent_ptid.lwp ();\n       int child_pid = child_ptid.lwp ();\n \n@@ -589,7 +590,7 @@ linux_nat_target::follow_fork (ptid_t child_ptid, target_waitkind fork_kind,\n     {\n       struct lwp_info *child_lp;\n \n-      child_lp = add_lwp (inferior_ptid);\n+      child_lp = add_lwp (child_ptid);\n       child_lp->stopped = 1;\n       child_lp->last_resume_kind = resume_stop;\n     }"
+    },
+    {
+      "sha": "83bd6d4a67866d9970235772b544803ab6e827db",
+      "filename": "gdb/linux-nat.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/linux-nat.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/linux-nat.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/linux-nat.h?ref=82d1f134cc0908e80555ddad58b4d370ff2a76c2",
+      "patch": "@@ -133,7 +133,7 @@ class linux_nat_target : public inf_ptrace_target\n \n   void post_attach (int) override;\n \n-  void follow_fork (ptid_t, target_waitkind, bool, bool) override;\n+  void follow_fork (inferior *, ptid_t, target_waitkind, bool, bool) override;\n \n   std::vector<static_tracepoint_marker>\n     static_tracepoint_markers_by_strid (const char *id) override;"
+    },
+    {
+      "sha": "890ec5ed67013971e2eb38a289b01d4e9818e291",
+      "filename": "gdb/obsd-nat.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 3,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/obsd-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/obsd-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/obsd-nat.c?ref=82d1f134cc0908e80555ddad58b4d370ff2a76c2",
+      "patch": "@@ -152,13 +152,16 @@ obsd_nat_target::post_startup_inferior (ptid_t pid)\n   obsd_enable_proc_events (pid.pid ());\n }\n \n-/* Target hook for follow_fork.  On entry and at return inferior_ptid is\n-   the ptid of the followed inferior.  */\n+/* Target hook for follow_fork.  */\n \n void\n-obsd_nat_target::follow_fork (ptid_t child_ptid, target_waitkind fork_kind,\n+obsd_nat_target::follow_fork (inferior *child_inf, ptid_t child_ptid,\n+\t\t\t      target_waitkind fork_kind,\n \t\t\t      bool follow_child, bool detach_fork)\n {\n+  inf_ptrace_target::follow_fork (child_inf, child_ptid, fork_kind,\n+\t\t\t\t  follow_child, detach_fork);\n+\n   if (!follow_child && detach_fork)\n     {\n       /* Breakpoints have already been detached from the child by"
+    },
+    {
+      "sha": "1f74b9984c59ac0c5ff1fa4ef579954df22ee587",
+      "filename": "gdb/obsd-nat.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/obsd-nat.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/obsd-nat.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/obsd-nat.h?ref=82d1f134cc0908e80555ddad58b4d370ff2a76c2",
+      "patch": "@@ -29,7 +29,7 @@ class obsd_nat_target : public inf_ptrace_target\n   void update_thread_list () override;\n   ptid_t wait (ptid_t, struct target_waitstatus *, target_wait_flags) override;\n \n-  void follow_fork (ptid_t, target_waitkind, bool, bool) override;\n+  void follow_fork (inferior *inf, ptid_t, target_waitkind, bool, bool) override;\n \n   int insert_fork_catchpoint (int) override;\n "
+    },
+    {
+      "sha": "4c726419b99a7fac6fcc00ca5cf8ba4d7b7a767b",
+      "filename": "gdb/process-stratum-target.c",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 0,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/process-stratum-target.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/process-stratum-target.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/process-stratum-target.c?ref=82d1f134cc0908e80555ddad58b4d370ff2a76c2",
+      "patch": "@@ -85,6 +85,8 @@ process_stratum_target::has_execution (inferior *inf)\n   return inf->pid != 0;\n }\n \n+/* See process-stratum-target.h.  */\n+\n void\n process_stratum_target::follow_exec (inferior *follow_inf, ptid_t ptid,\n \t\t\t\t     const char *execd_pathname)\n@@ -107,6 +109,21 @@ process_stratum_target::follow_exec (inferior *follow_inf, ptid_t ptid,\n \n /* See process-stratum-target.h.  */\n \n+void\n+process_stratum_target::follow_fork (inferior *child_inf, ptid_t child_ptid,\n+\t\t\t\t     target_waitkind fork_kind,\n+\t\t\t\t     bool follow_child,\n+\t\t\t\t     bool detach_on_fork)\n+{\n+  if (child_inf != nullptr)\n+    {\n+      child_inf->push_target (this);\n+      add_thread_silent (this, child_ptid);\n+    }\n+}\n+\n+/* See process-stratum-target.h.  */\n+\n void\n process_stratum_target::maybe_add_resumed_with_pending_wait_status\n   (thread_info *thread)"
+    },
+    {
+      "sha": "f0b6ea5996e8b77f88fec44a98663ce1e7de1547",
+      "filename": "gdb/process-stratum-target.h",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/process-stratum-target.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/process-stratum-target.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/process-stratum-target.h?ref=82d1f134cc0908e80555ddad58b4d370ff2a76c2",
+      "patch": "@@ -73,6 +73,15 @@ class process_stratum_target : public target_ops\n   void follow_exec (inferior *follow_inf, ptid_t ptid,\n \t\t    const char *execd_pathname) override;\n \n+  /* Default implementation of follow_fork.\n+\n+     If a child inferior was created by infrun while following the fork\n+     (CHILD_INF is non-nullptr), push this target on CHILD_INF's target stack\n+     and add an initial thread with ptid CHILD_PTID.  */\n+  void follow_fork (inferior *child_inf, ptid_t child_ptid,\n+\t\t    target_waitkind fork_kind, bool follow_child,\n+\t\t    bool detach_on_fork) override;\n+\n   /* True if any thread is, or may be executing.  We need to track\n      this separately because until we fully sync the thread list, we\n      won't know whether the target is fully stopped, even if we see"
+    },
+    {
+      "sha": "b6da6b086a2c441653dafa8943eeca3552595b96",
+      "filename": "gdb/remote.c",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 3,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/remote.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/remote.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/remote.c?ref=82d1f134cc0908e80555ddad58b4d370ff2a76c2",
+      "patch": "@@ -682,7 +682,7 @@ class remote_target : public process_stratum_target\n \n   const struct btrace_config *btrace_conf (const struct btrace_target_info *) override;\n   bool augmented_libraries_svr4_read () override;\n-  void follow_fork (ptid_t, target_waitkind, bool, bool) override;\n+  void follow_fork (inferior *, ptid_t, target_waitkind, bool, bool) override;\n   void follow_exec (inferior *, ptid_t, const char *) override;\n   int insert_fork_catchpoint (int) override;\n   int remove_fork_catchpoint (int) override;\n@@ -5920,9 +5920,13 @@ extended_remote_target::detach (inferior *inf, int from_tty)\n    remote target as well.  */\n \n void\n-remote_target::follow_fork (ptid_t child_ptid, target_waitkind fork_kind,\n-\t\t\t    bool follow_child, bool detach_fork)\n+remote_target::follow_fork (inferior *child_inf, ptid_t child_ptid,\n+\t\t\t    target_waitkind fork_kind, bool follow_child,\n+\t\t\t    bool detach_fork)\n {\n+  process_stratum_target::follow_fork (child_inf, child_ptid,\n+\t\t\t\t       fork_kind, follow_child, detach_fork);\n+\n   struct remote_state *rs = get_remote_state ();\n \n   if ((fork_kind == TARGET_WAITKIND_FORKED && remote_fork_event_p (rs))"
+    },
+    {
+      "sha": "3fd2854955febca1c9f7f1cf4503edafa195e664",
+      "filename": "gdb/target-delegates.c",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 11,
+      "changes": 24,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/target-delegates.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/target-delegates.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/target-delegates.c?ref=82d1f134cc0908e80555ddad58b4d370ff2a76c2",
+      "patch": "@@ -56,7 +56,7 @@ struct dummy_target : public target_ops\n   int remove_fork_catchpoint (int arg0) override;\n   int insert_vfork_catchpoint (int arg0) override;\n   int remove_vfork_catchpoint (int arg0) override;\n-  void follow_fork (ptid_t arg0, target_waitkind arg1, bool arg2, bool arg3) override;\n+  void follow_fork (inferior *arg0, ptid_t arg1, target_waitkind arg2, bool arg3, bool arg4) override;\n   int insert_exec_catchpoint (int arg0) override;\n   int remove_exec_catchpoint (int arg0) override;\n   void follow_exec (inferior *arg0, ptid_t arg1, const char *arg2) override;\n@@ -231,7 +231,7 @@ struct debug_target : public target_ops\n   int remove_fork_catchpoint (int arg0) override;\n   int insert_vfork_catchpoint (int arg0) override;\n   int remove_vfork_catchpoint (int arg0) override;\n-  void follow_fork (ptid_t arg0, target_waitkind arg1, bool arg2, bool arg3) override;\n+  void follow_fork (inferior *arg0, ptid_t arg1, target_waitkind arg2, bool arg3, bool arg4) override;\n   int insert_exec_catchpoint (int arg0) override;\n   int remove_exec_catchpoint (int arg0) override;\n   void follow_exec (inferior *arg0, ptid_t arg1, const char *arg2) override;\n@@ -1519,30 +1519,32 @@ debug_target::remove_vfork_catchpoint (int arg0)\n }\n \n void\n-target_ops::follow_fork (ptid_t arg0, target_waitkind arg1, bool arg2, bool arg3)\n+target_ops::follow_fork (inferior *arg0, ptid_t arg1, target_waitkind arg2, bool arg3, bool arg4)\n {\n-  this->beneath ()->follow_fork (arg0, arg1, arg2, arg3);\n+  this->beneath ()->follow_fork (arg0, arg1, arg2, arg3, arg4);\n }\n \n void\n-dummy_target::follow_fork (ptid_t arg0, target_waitkind arg1, bool arg2, bool arg3)\n+dummy_target::follow_fork (inferior *arg0, ptid_t arg1, target_waitkind arg2, bool arg3, bool arg4)\n {\n-  default_follow_fork (this, arg0, arg1, arg2, arg3);\n+  default_follow_fork (this, arg0, arg1, arg2, arg3, arg4);\n }\n \n void\n-debug_target::follow_fork (ptid_t arg0, target_waitkind arg1, bool arg2, bool arg3)\n+debug_target::follow_fork (inferior *arg0, ptid_t arg1, target_waitkind arg2, bool arg3, bool arg4)\n {\n   fprintf_unfiltered (gdb_stdlog, \"-> %s->follow_fork (...)\\n\", this->beneath ()->shortname ());\n-  this->beneath ()->follow_fork (arg0, arg1, arg2, arg3);\n+  this->beneath ()->follow_fork (arg0, arg1, arg2, arg3, arg4);\n   fprintf_unfiltered (gdb_stdlog, \"<- %s->follow_fork (\", this->beneath ()->shortname ());\n-  target_debug_print_ptid_t (arg0);\n+  target_debug_print_inferior_p (arg0);\n   fputs_unfiltered (\", \", gdb_stdlog);\n-  target_debug_print_target_waitkind (arg1);\n+  target_debug_print_ptid_t (arg1);\n   fputs_unfiltered (\", \", gdb_stdlog);\n-  target_debug_print_bool (arg2);\n+  target_debug_print_target_waitkind (arg2);\n   fputs_unfiltered (\", \", gdb_stdlog);\n   target_debug_print_bool (arg3);\n+  fputs_unfiltered (\", \", gdb_stdlog);\n+  target_debug_print_bool (arg4);\n   fputs_unfiltered (\")\\n\", gdb_stdlog);\n }\n "
+    },
+    {
+      "sha": "ae2d659583e2a10a68eccc763ffa3d25b430d425",
+      "filename": "gdb/target.c",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 6,
+      "changes": 24,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/target.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/target.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/target.c?ref=82d1f134cc0908e80555ddad58b4d370ff2a76c2",
+      "patch": "@@ -2701,9 +2701,9 @@ target_program_signals (gdb::array_view<const unsigned char> program_signals)\n }\n \n static void\n-default_follow_fork (struct target_ops *self, ptid_t child_ptid,\n-\t\t     target_waitkind fork_kind, bool follow_child,\n-\t\t     bool detach_fork)\n+default_follow_fork (struct target_ops *self, inferior *child_inf,\n+\t\t     ptid_t child_ptid, target_waitkind fork_kind,\n+\t\t     bool follow_child, bool detach_fork)\n {\n   /* Some target returned a fork event, but did not know how to follow it.  */\n   internal_error (__FILE__, __LINE__,\n@@ -2713,12 +2713,24 @@ default_follow_fork (struct target_ops *self, ptid_t child_ptid,\n /* See target.h.  */\n \n void\n-target_follow_fork (ptid_t child_ptid, target_waitkind fork_kind,\n-\t\t    bool follow_child, bool detach_fork)\n+target_follow_fork (inferior *child_inf, ptid_t child_ptid,\n+\t\t    target_waitkind fork_kind, bool follow_child,\n+\t\t    bool detach_fork)\n {\n   target_ops *target = current_inferior ()->top_target ();\n \n-  return target->follow_fork (child_ptid, fork_kind, follow_child, detach_fork);\n+  /* Check consistency between CHILD_INF, CHILD_PTID, FOLLOW_CHILD and\n+     DETACH_FORK.  */\n+  if (child_inf != nullptr)\n+    {\n+      gdb_assert (follow_child || !detach_fork);\n+      gdb_assert (child_inf->pid == child_ptid.pid ());\n+    }\n+  else\n+    gdb_assert (!follow_child && detach_fork);\n+\n+  return target->follow_fork (child_inf, child_ptid, fork_kind, follow_child,\n+\t\t\t      detach_fork);\n }\n \n /* See target.h.  */"
+    },
+    {
+      "sha": "57afebef8765996740cba0de02a0cf1e88f67521",
+      "filename": "gdb/target.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 3,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/target.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/82d1f134cc0908e80555ddad58b4d370ff2a76c2/gdb/target.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/target.h?ref=82d1f134cc0908e80555ddad58b4d370ff2a76c2",
+      "patch": "@@ -636,7 +636,7 @@ struct target_ops\n       TARGET_DEFAULT_RETURN (1);\n     virtual int remove_vfork_catchpoint (int)\n       TARGET_DEFAULT_RETURN (1);\n-    virtual void follow_fork (ptid_t, target_waitkind, bool, bool)\n+    virtual void follow_fork (inferior *, ptid_t, target_waitkind, bool, bool)\n       TARGET_DEFAULT_FUNC (default_follow_fork);\n     virtual int insert_exec_catchpoint (int)\n       TARGET_DEFAULT_RETURN (1);\n@@ -1719,8 +1719,9 @@ extern int target_remove_vfork_catchpoint (int pid);\n    bookkeeping and fiddling necessary to continue debugging either the parent,\n    the child or both.  */\n \n-void target_follow_fork (ptid_t child_ptid, target_waitkind fork_kind,\n-\t\t\t bool follow_child, bool detach_fork);\n+void target_follow_fork (inferior *inf, ptid_t child_ptid,\n+\t\t\t target_waitkind fork_kind, bool follow_child,\n+\t\t\t bool detach_fork);\n \n /* Handle the target-specific bookkeeping required when the inferior makes an\n    exec call."
+    }
+  ]
+}

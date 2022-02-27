@@ -1,0 +1,122 @@
+{
+  "sha": "0dd8295da24ae58c1e808b906b7c0aafea22a259",
+  "node_id": "C_kwDOANOeidoAKDBkZDgyOTVkYTI0YWU1OGMxZTgwOGI5MDZiN2MwYWFmZWEyMmEyNTk",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-10-04T16:16:40Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-10-04T16:16:40Z"
+    },
+    "message": "[gdb/symtab] Add call_site_eq and call_site_hash\n\nIn commit b4c919f7525 \"[gdb/symtab] Fix htab_find_slot call in\nread_call_site_scope\" , I removed the comment:\n...\nIt must be the first field as we overload core_addr_hash and core_addr_eq for\nit.\n...\nfor field pc of struct call_site.\n\nHowever, this was not tested, and when indeed moving field pc to the second\nlocation, we run into a testsuite failure in gdb.trace/entry-values.exp.\n\nThis is caused by core_addr_eq (the eq_f function for the htab) being\ncalled with a pointer to the pc field (as passed into htab_find_slot) and a\npointer to a hash table element.  Now that pc is no longer the first field,\nthe pointer to hash table element no longer points to the pc field.\n\nThis could be fixed by simply reinstating the comment, but we're trying to\nget rid of this kind of tricks that make refactoring more difficult.\n\nInstead, fix this by:\n- reverting commit b4c919f7525, apart from the comment removal, such that\n  we're passing a pointer to element to htab_find_slot\n- updating the htab_find_slot call in compunit_symtab::find_call_site\n  in a similar manner\n- adding a call_site_eq and call_site_hash, and using these in the hash table\n  instead of core_addr_eq and core_addr_hash.\n\nTested on x86_64-linux, both with and without a trigger patch that moves pc to\nthe second location in struct call_site.",
+    "tree": {
+      "sha": "fd64ad6c5a426a23828288c537100bbd561ca8eb",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/fd64ad6c5a426a23828288c537100bbd561ca8eb"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/0dd8295da24ae58c1e808b906b7c0aafea22a259",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0dd8295da24ae58c1e808b906b7c0aafea22a259",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/0dd8295da24ae58c1e808b906b7c0aafea22a259",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0dd8295da24ae58c1e808b906b7c0aafea22a259/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "abe19f1119ef3d33acd9c8699ebeb110feed55d8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/abe19f1119ef3d33acd9c8699ebeb110feed55d8",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/abe19f1119ef3d33acd9c8699ebeb110feed55d8"
+    }
+  ],
+  "stats": {
+    "total": 27,
+    "additions": 23,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "f8421aeb344948b7d8c83192acb88880575b829d",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 3,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0dd8295da24ae58c1e808b906b7c0aafea22a259/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0dd8295da24ae58c1e808b906b7c0aafea22a259/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=0dd8295da24ae58c1e808b906b7c0aafea22a259",
+      "patch": "@@ -13341,7 +13341,7 @@ read_call_site_scope (struct die_info *die, struct dwarf2_cu *cu)\n   struct gdbarch *gdbarch = objfile->arch ();\n   CORE_ADDR pc, baseaddr;\n   struct attribute *attr;\n-  struct call_site *call_site;\n+  struct call_site *call_site, call_site_local;\n   void **slot;\n   int nparams;\n   struct die_info *child_die;\n@@ -13366,10 +13366,11 @@ read_call_site_scope (struct die_info *die, struct dwarf2_cu *cu)\n   pc = gdbarch_adjust_dwarf2_addr (gdbarch, pc);\n \n   if (cu->call_site_htab == NULL)\n-    cu->call_site_htab = htab_create_alloc_ex (16, core_addr_hash, core_addr_eq,\n+    cu->call_site_htab = htab_create_alloc_ex (16, call_site_hash, call_site_eq,\n \t\t\t\t\t       NULL, &objfile->objfile_obstack,\n \t\t\t\t\t       hashtab_obstack_allocate, NULL);\n-  slot = htab_find_slot (cu->call_site_htab, &pc, INSERT);\n+  call_site_local.pc = pc;\n+  slot = htab_find_slot (cu->call_site_htab, &call_site_local, INSERT);\n   if (*slot != NULL)\n     {\n       complaint (_(\"Duplicate PC %s for DW_TAG_call_site \""
+    },
+    {
+      "sha": "8021cb21eccbf71157ade87e3ff70408baec93a3",
+      "filename": "gdb/gdbtypes.h",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0dd8295da24ae58c1e808b906b7c0aafea22a259/gdb/gdbtypes.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0dd8295da24ae58c1e808b906b7c0aafea22a259/gdb/gdbtypes.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbtypes.h?ref=0dd8295da24ae58c1e808b906b7c0aafea22a259",
+      "patch": "@@ -1824,6 +1824,21 @@ struct call_site\n     struct call_site_parameter parameter[1];\n   };\n \n+static inline int\n+call_site_eq (const void *a_, const void *b_)\n+{\n+  const struct call_site *a = (const call_site *)a_;\n+  const struct call_site *b = (const call_site *)b_;\n+  return core_addr_eq (&a->pc, &b->pc);\n+}\n+\n+static inline hashval_t\n+call_site_hash (const void *a_)\n+{\n+  const struct call_site *a = (const call_site *)a_;\n+  return core_addr_hash (&a->pc);\n+}\n+\n /* The type-specific info for TYPE_CODE_FIXED_POINT types.  */\n \n struct fixed_point_type_info"
+    },
+    {
+      "sha": "bd1eb429b94f68710e830adee756cb6ffed8bdb7",
+      "filename": "gdb/symtab.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 1,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0dd8295da24ae58c1e808b906b7c0aafea22a259/gdb/symtab.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0dd8295da24ae58c1e808b906b7c0aafea22a259/gdb/symtab.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/symtab.c?ref=0dd8295da24ae58c1e808b906b7c0aafea22a259",
+      "patch": "@@ -334,10 +334,13 @@ search_domain_name (enum search_domain e)\n call_site *\n compunit_symtab::find_call_site (CORE_ADDR pc) const\n {\n+  struct call_site call_site_local;\n   if (m_call_site_htab == nullptr)\n     return nullptr;\n \n-  void **slot = htab_find_slot (m_call_site_htab, &pc, NO_INSERT);\n+  call_site_local.pc = pc;\n+  void **slot\n+    = htab_find_slot (m_call_site_htab, &call_site_local, NO_INSERT);\n   if (slot == nullptr)\n     return nullptr;\n "
+    }
+  ]
+}

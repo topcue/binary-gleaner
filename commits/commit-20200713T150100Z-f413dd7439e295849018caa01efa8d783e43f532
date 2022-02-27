@@ -1,0 +1,72 @@
+{
+  "sha": "f413dd7439e295849018caa01efa8d783e43f532",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZjQxM2RkNzQzOWUyOTU4NDkwMThjYWEwMWVmYThkNzgzZTQzZjUzMg==",
+  "commit": {
+    "author": {
+      "name": "Gary Benson",
+      "email": "gbenson@redhat.com",
+      "date": "2020-07-13T15:01:00Z"
+    },
+    "committer": {
+      "name": "Gary Benson",
+      "email": "gbenson@redhat.com",
+      "date": "2020-07-13T15:01:00Z"
+    },
+    "message": "Fix gdb.base/savedregs.exp with clang\n\ngdb.base/savedregs.exp fails to run with clang, because of:\n\n gdb compile failed, /gdbtest/src/gdb/testsuite/gdb.base/savedregs.c:36:37:\n       warning: operator '<<' has lower precedence than '+'; '+' will be\n       evaluated first [-Wshift-op-parentheses]\n   return callee (a1 << a2 * a3 / a4 + a6 & a6 % a7 - a8) + done;\n                     ~~ ~~~~~~~~~~~~~^~~~\n /gdbtest/build/gdb/testsuite/gdb.base/savedregs.c:36:37: note: place\n       parentheses around the '+' expression to silence this warning\n   return callee (a1 << a2 * a3 / a4 + a6 & a6 % a7 - a8) + done;\n                                     ^\n                        (                )\n 1 warning generated.\n\nThis commit fixes it by adding the suggested parentheses.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.base/savedregs.exp (caller): Use parentheses to\n\tmake expected expression evaluation ordering explicit.",
+    "tree": {
+      "sha": "23126ea5b856a31a98454bf76147385baa115a50",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/23126ea5b856a31a98454bf76147385baa115a50"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/f413dd7439e295849018caa01efa8d783e43f532",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f413dd7439e295849018caa01efa8d783e43f532",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/f413dd7439e295849018caa01efa8d783e43f532",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f413dd7439e295849018caa01efa8d783e43f532/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "915771bb8a8c14fce7af0d45967b955d0adc830b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/915771bb8a8c14fce7af0d45967b955d0adc830b",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/915771bb8a8c14fce7af0d45967b955d0adc830b"
+    }
+  ],
+  "stats": {
+    "total": 7,
+    "additions": 6,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "dec5a44307dd2d863c850056d00050ad8aa19f23",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f413dd7439e295849018caa01efa8d783e43f532/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f413dd7439e295849018caa01efa8d783e43f532/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=f413dd7439e295849018caa01efa8d783e43f532",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-07-13  Gary Benson <gbenson@redhat.com>\n+\n+\t* gdb.base/savedregs.exp (caller): Use parentheses to\n+\tmake expected expression evaluation ordering explicit.\n+\n 2020-07-13  Gary Benson <gbenson@redhat.com>\n \n \t* gdb.arch/i386-sse.c (have_sse) <edx>: Make unsigned."
+    },
+    {
+      "sha": "aec2a38f7f82ae306ac741a5606fe191e3b815e4",
+      "filename": "gdb/testsuite/gdb.base/savedregs.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f413dd7439e295849018caa01efa8d783e43f532/gdb/testsuite/gdb.base/savedregs.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f413dd7439e295849018caa01efa8d783e43f532/gdb/testsuite/gdb.base/savedregs.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/savedregs.c?ref=f413dd7439e295849018caa01efa8d783e43f532",
+      "patch": "@@ -33,7 +33,7 @@ callee (int param)\n extern int\n caller (int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8)\n {\n-  return callee (a1 << a2 * a3 / a4 + a6 & a6 % a7 - a8) + done;\n+  return callee ((a1 << a2 * a3 / a4) + a6 & a6 % a7 - a8) + done;\n }\n \n static void"
+    }
+  ]
+}

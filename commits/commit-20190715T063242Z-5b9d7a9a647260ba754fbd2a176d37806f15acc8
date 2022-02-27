@@ -1,0 +1,110 @@
+{
+  "sha": "5b9d7a9a647260ba754fbd2a176d37806f15acc8",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NWI5ZDdhOWE2NDcyNjBiYTc1NGZiZDJhMTc2ZDM3ODA2ZjE1YWNjOA==",
+  "commit": {
+    "author": {
+      "name": "Alan Modra",
+      "email": "amodra@gmail.com",
+      "date": "2019-07-12T05:58:19Z"
+    },
+    "committer": {
+      "name": "Alan Modra",
+      "email": "amodra@gmail.com",
+      "date": "2019-07-15T06:32:42Z"
+    },
+    "message": "Fix __bss_start assertion failure in _bfd_elf_fix_symbol_flags\n\n> Building LLVM 6.0 on FreeBSD/powerpc (devel/llvm60 port) the assertion\n> in the subject trips (displays twice) when linking libLTO.so.1.  The\n> issue has been filed in FreeBSD's bugzilla, at\n> https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=237068 .  It appears\n> the 'llvm::hashing::detail::get_execution_seed()::seed@@JL_LLVM_6.0'\n> symbol is being weakly aliased to an indirect symbol\n> __bss_start@@JL_LLVM_6.0.  Since __bss_start@@JL_LLVM_6.0 is an\n> indirect symbol, it fails the assertion.\n\nI haven't looked under a debugger at your testcase but I think I know\nwhat is going on here.  You have a shared library with a weakly\ndefined llvm::hashing::detail::get_execution_seed()::seed which\nhappens to be at the same location as __bss_start in that library.  At\nthe time the linker loads symbols for that library, it sees they are\nboth versioned and thus introduces non-versioned indirect symbols for\nthem.  The linker considers the symbols as possibly being aliases,\nsetting up h->u.alias and h->is_weakalias such that\n__bss_start@@JL_LLVM_6.0 is the definition.  No real problem so far,\nthe definition is bfd_link_hash_defined, except that the zero size, no\ntype __bss_start symbol possibly should not be considered an alias in\nthe first place.\n\nLater, __bss_start as defined by the linker script is entered into the\nlinker symbol table.  This is similar to __bss_start being defined by\na regular object file in that ELF symbol resolution rules say that the\nvalue of __bss_start in the library is overridden by __bss_start in\nthe executable/library being produced.  So to accomplish the override,\nld flips __bss_start from being an indirect symbol pointing at\n__bss_start@@JL_LLVM_6.0 to __bss_start@@JL_LLVM_6.0 being an indirect\nsymbol pointing at __bss_start.  That's how we get an unexpected\nindirect symbol and hit the assert.\n\nWhat should happen I think, is for the def->def_regular code above the\nassert to run in this case.  The symbols are no longer aliases.\n\n\t* elflink.c (_bfd_elf_fix_symbol_flags): If the def for an\n\talias is no longer bfd_link_hash_defined, clear the alias.",
+    "tree": {
+      "sha": "f3132ca940426fcde7aef977903f483a391d4779",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f3132ca940426fcde7aef977903f483a391d4779"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/5b9d7a9a647260ba754fbd2a176d37806f15acc8",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5b9d7a9a647260ba754fbd2a176d37806f15acc8",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/5b9d7a9a647260ba754fbd2a176d37806f15acc8",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5b9d7a9a647260ba754fbd2a176d37806f15acc8/comments",
+  "author": {
+    "login": "amodra",
+    "id": 6006325,
+    "node_id": "MDQ6VXNlcjYwMDYzMjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6006325?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/amodra",
+    "html_url": "https://github.com/amodra",
+    "followers_url": "https://api.github.com/users/amodra/followers",
+    "following_url": "https://api.github.com/users/amodra/following{/other_user}",
+    "gists_url": "https://api.github.com/users/amodra/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/amodra/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/amodra/subscriptions",
+    "organizations_url": "https://api.github.com/users/amodra/orgs",
+    "repos_url": "https://api.github.com/users/amodra/repos",
+    "events_url": "https://api.github.com/users/amodra/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/amodra/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "amodra",
+    "id": 6006325,
+    "node_id": "MDQ6VXNlcjYwMDYzMjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6006325?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/amodra",
+    "html_url": "https://github.com/amodra",
+    "followers_url": "https://api.github.com/users/amodra/followers",
+    "following_url": "https://api.github.com/users/amodra/following{/other_user}",
+    "gists_url": "https://api.github.com/users/amodra/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/amodra/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/amodra/subscriptions",
+    "organizations_url": "https://api.github.com/users/amodra/orgs",
+    "repos_url": "https://api.github.com/users/amodra/repos",
+    "events_url": "https://api.github.com/users/amodra/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/amodra/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "03181f1c38753b24e9d13491e102b5fa685076a2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/03181f1c38753b24e9d13491e102b5fa685076a2",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/03181f1c38753b24e9d13491e102b5fa685076a2"
+    }
+  ],
+  "stats": {
+    "total": 18,
+    "additions": 15,
+    "deletions": 3
+  },
+  "files": [
+    {
+      "sha": "7d841e29e59da1b26196078cea4d68d5bbe7a936",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5b9d7a9a647260ba754fbd2a176d37806f15acc8/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5b9d7a9a647260ba754fbd2a176d37806f15acc8/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=5b9d7a9a647260ba754fbd2a176d37806f15acc8",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-07-15  Alan Modra  <amodra@gmail.com>\n+\n+\t* elflink.c (_bfd_elf_fix_symbol_flags): If the def for an\n+\talias is no longer bfd_link_hash_defined, clear the alias.\n+\n 2019-07-13  Alan Modra  <amodra@gmail.com>\n \n \t* elflink.c (_bfd_elf_omit_section_dynsym_default): Don't keep"
+    },
+    {
+      "sha": "9175d3fa20eeffd5eead0bda5fbcb74b554cef95",
+      "filename": "bfd/elflink.c",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 3,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5b9d7a9a647260ba754fbd2a176d37806f15acc8/bfd/elflink.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5b9d7a9a647260ba754fbd2a176d37806f15acc8/bfd/elflink.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elflink.c?ref=5b9d7a9a647260ba754fbd2a176d37806f15acc8",
+      "patch": "@@ -2918,8 +2918,16 @@ _bfd_elf_fix_symbol_flags (struct elf_link_hash_entry *h,\n \n       /* If the real definition is defined by a regular object file,\n \t don't do anything special.  See the longer description in\n-\t _bfd_elf_adjust_dynamic_symbol, below.  */\n-      if (def->def_regular)\n+\t _bfd_elf_adjust_dynamic_symbol, below.  If the def is not\n+\t bfd_link_hash_defined as it was when put on the alias list\n+\t then it must have originally been a versioned symbol (for\n+\t which a non-versioned indirect symbol is created) and later\n+\t a definition for the non-versioned symbol is found.  In that\n+\t case the indirection is flipped with the versioned symbol\n+\t becoming an indirect pointing at the non-versioned symbol.\n+\t Thus, not an alias any more.  */\n+      if (def->def_regular\n+\t  || def->root.type != bfd_link_hash_defined)\n \t{\n \t  h = def;\n \t  while ((h = h->u.alias) != def)\n@@ -2932,7 +2940,6 @@ _bfd_elf_fix_symbol_flags (struct elf_link_hash_entry *h,\n \t  BFD_ASSERT (h->root.type == bfd_link_hash_defined\n \t\t      || h->root.type == bfd_link_hash_defweak);\n \t  BFD_ASSERT (def->def_dynamic);\n-\t  BFD_ASSERT (def->root.type == bfd_link_hash_defined);\n \t  (*bed->elf_backend_copy_indirect_symbol) (eif->info, def, h);\n \t}\n     }"
+    }
+  ]
+}

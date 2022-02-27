@@ -1,0 +1,134 @@
+{
+  "sha": "3d4352200e3e98a6d8855e6f3a39b6d33d84e36b",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6M2Q0MzUyMjAwZTNlOThhNmQ4ODU1ZTZmM2EzOWI2ZDMzZDg0ZTM2Yg==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2019-09-24T21:38:49Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2019-09-24T21:38:49Z"
+    },
+    "message": "[gdb/tdep] Handle mxcsr kernel bug on Intel Skylake CPUs\n\nOn my openSUSE Leap 15.1 x86_64 Skylake system with the default (4.12) kernel,\nI run into:\n...\nFAIL: gdb.base/gcore.exp: corefile restored all registers\n...\n\nThe problem is that there's a difference in the mxcsr register value before\nand after the gcore command:\n...\n- mxcsr          0x0                 [ ]\n+ mxcsr          0x400440            [ DAZ OM ]\n...\n\nThis can be traced back to amd64_linux_nat_target::fetch_registers, where\nxstateregs is partially initialized by the ptrace call:\n...\n          char xstateregs[X86_XSTATE_MAX_SIZE];\n          struct iovec iov;\n\n          amd64_collect_xsave (regcache, -1, xstateregs, 0);\n          iov.iov_base = xstateregs;\n          iov.iov_len = sizeof (xstateregs);\n          if (ptrace (PTRACE_GETREGSET, tid,\n                      (unsigned int) NT_X86_XSTATE, (long) &iov) < 0)\n            perror_with_name (_(\"Couldn't get extended state status\"));\n\n          amd64_supply_xsave (regcache, -1, xstateregs);\n...\nafter which amd64_supply_xsave is called.\n\nThe amd64_supply_xsave call is supposed to only use initialized parts of\nxstateregs, but due to a kernel bug on intel skylake (fixed from 4.14 onwards\nby commit 0852b374173b \"x86/fpu: Add FPU state copying quirk to handle XRSTOR\nfailure on Intel Skylake CPUs\") it can happen that the mxcsr part of\nxstateregs is not initialized, while amd64_supply_xsave expects it to be\ninitialized, which explains the FAIL mentioned above.\n\nFix the undetermined behaviour by initializing xstateregs before calling\nptrace, which makes sure we get a 0x0 for mxcsr when this kernel bug occurs,\nand which also happens to fix the FAIL.\n\nFurthermore, add an xfail for this FAIL which triggers the same kernel bug:\n...\nFAIL: gdb.arch/amd64-init-x87-values.exp: check_setting_mxcsr_before_enable: \\\n  check new value of MXCSR is still in place\n...\n\nBoth FAILs pass when using a 5.3 kernel instead on the system mentioned above.\n\nTested on x86_64-linux.\n\ngdb/ChangeLog:\n\n2019-09-24  Tom de Vries  <tdevries@suse.de>\n\n\tPR gdb/23815\n\t* amd64-linux-nat.c (amd64_linux_nat_target::fetch_registers):\n\tInitialize xstateregs before ptrace PTRACE_GETREGSET call.\n\ngdb/testsuite/ChangeLog:\n\n2019-09-24  Tom de Vries  <tdevries@suse.de>\n\n\tPR gdb/24598\n\t* gdb.arch/amd64-init-x87-values.exp: Add xfail.",
+    "tree": {
+      "sha": "b125a52bc79b11576a7a16a5232536e804504f91",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/b125a52bc79b11576a7a16a5232536e804504f91"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/3d4352200e3e98a6d8855e6f3a39b6d33d84e36b",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3d4352200e3e98a6d8855e6f3a39b6d33d84e36b",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/3d4352200e3e98a6d8855e6f3a39b6d33d84e36b",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3d4352200e3e98a6d8855e6f3a39b6d33d84e36b/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "e8f8842d90abe5eafa8c32f08fbc3a747a45747c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e8f8842d90abe5eafa8c32f08fbc3a747a45747c",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/e8f8842d90abe5eafa8c32f08fbc3a747a45747c"
+    }
+  ],
+  "stats": {
+    "total": 36,
+    "additions": 34,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "ee53e9c00a56ca30ad539cf518661760bf26d746",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3d4352200e3e98a6d8855e6f3a39b6d33d84e36b/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3d4352200e3e98a6d8855e6f3a39b6d33d84e36b/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=3d4352200e3e98a6d8855e6f3a39b6d33d84e36b",
+      "patch": "@@ -1,3 +1,9 @@\n+2019-09-24  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR gdb/23815\n+\t* amd64-linux-nat.c (amd64_linux_nat_target::fetch_registers):\n+\tInitialize xstateregs before ptrace PTRACE_GETREGSET call.\n+\n 2019-09-23  Dimitar Dimitrov  <dimitar@dinux.eu>\n \n \t* NEWS: Mention new simulator port for PRU."
+    },
+    {
+      "sha": "d0328b677d598456909c817c6e9969dc9961645f",
+      "filename": "gdb/amd64-linux-nat.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3d4352200e3e98a6d8855e6f3a39b6d33d84e36b/gdb/amd64-linux-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3d4352200e3e98a6d8855e6f3a39b6d33d84e36b/gdb/amd64-linux-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/amd64-linux-nat.c?ref=3d4352200e3e98a6d8855e6f3a39b6d33d84e36b",
+      "patch": "@@ -238,6 +238,12 @@ amd64_linux_nat_target::fetch_registers (struct regcache *regcache, int regnum)\n \t  char xstateregs[X86_XSTATE_MAX_SIZE];\n \t  struct iovec iov;\n \n+\t  /* Pre-4.14 kernels have a bug (fixed by commit 0852b374173b\n+\t     \"x86/fpu: Add FPU state copying quirk to handle XRSTOR failure on\n+\t     Intel Skylake CPUs\") that sometimes causes the mxcsr location in\n+\t     xstateregs not to be copied by PTRACE_GETREGSET.  Make sure that\n+\t     the location is at least initialized with a defined value.  */\n+\t  memset (xstateregs, 0, sizeof (xstateregs));\n \t  iov.iov_base = xstateregs;\n \t  iov.iov_len = sizeof (xstateregs);\n \t  if (ptrace (PTRACE_GETREGSET, tid,"
+    },
+    {
+      "sha": "706c5da420afa8ac5acb94d262f299798431334e",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3d4352200e3e98a6d8855e6f3a39b6d33d84e36b/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3d4352200e3e98a6d8855e6f3a39b6d33d84e36b/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=3d4352200e3e98a6d8855e6f3a39b6d33d84e36b",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-09-24  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR gdb/24598\n+\t* gdb.arch/amd64-init-x87-values.exp: Add xfail.\n+\n 2019-09-22  Tom de Vries  <tdevries@suse.de>\n \n \t* gdb.base/restore.exp: Allow register variables to be optimized out at"
+    },
+    {
+      "sha": "5fd18dbb7942e8fb6d936294be7b1cd9e355f8f8",
+      "filename": "gdb/testsuite/gdb.arch/amd64-init-x87-values.exp",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 2,
+      "changes": 19,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3d4352200e3e98a6d8855e6f3a39b6d33d84e36b/gdb/testsuite/gdb.arch/amd64-init-x87-values.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3d4352200e3e98a6d8855e6f3a39b6d33d84e36b/gdb/testsuite/gdb.arch/amd64-init-x87-values.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/amd64-init-x87-values.exp?ref=3d4352200e3e98a6d8855e6f3a39b6d33d84e36b",
+      "patch": "@@ -116,7 +116,7 @@ proc_with_prefix check_x87_regs_around_init {} {\n # nop that does not enable any FP features).  Finally check that the\n # mxcsr register still has the value we set.\n proc_with_prefix check_setting_mxcsr_before_enable {} {\n-    global binfile\n+    global binfile gdb_prompt\n \n     clean_restart ${binfile}\n \n@@ -127,7 +127,22 @@ proc_with_prefix check_setting_mxcsr_before_enable {} {\n \n     gdb_test_no_output \"set \\$mxcsr=0x9f80\" \"set a new value for MXCSR\"\n     gdb_test \"stepi\" \"fwait\" \"step forward one instruction for mxcsr test\"\n-    gdb_test \"p/x \\$mxcsr\" \" = 0x9f80\" \"check new value of MXCSR is still in place\"\n+\n+    set test \"check new value of MXCSR is still in place\"\n+    set pass_pattern \" = 0x9f80\"\n+    # Pre-4.14 kernels have a bug (fixed by commit 0852b374173b \"x86/fpu:\n+    # Add FPU state copying quirk to handle XRSTOR failure on Intel Skylake\n+    # CPUs\") that causes mxcsr not to be copied, in which case we get 0 instead of\n+    # the just saved value.\n+    set xfail_pattern \" = 0x0\"\n+    gdb_test_multiple \"p/x \\$mxcsr\" $test {\n+\t-re \"\\[\\r\\n\\]*(?:$pass_pattern)\\[\\r\\n\\]+$gdb_prompt $\" {\n+\t    pass $test\n+\t}\n+\t-re \"\\[\\r\\n\\]*(?:$xfail_pattern)\\[\\r\\n\\]+$gdb_prompt $\" {\n+\t    xfail $test\n+\t}\n+    }\n }\n \n # Start the test file, all FP features will be disabled.  Set new"
+    }
+  ]
+}

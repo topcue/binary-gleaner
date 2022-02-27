@@ -1,0 +1,182 @@
+{
+  "sha": "573269a87c89ae866db556428fe9ea63d6c4db5f",
+  "node_id": "C_kwDOANOeidoAKDU3MzI2OWE4N2M4OWFlODY2ZGI1NTY0MjhmZTllYTYzZDZjNGRiNWY",
+  "commit": {
+    "author": {
+      "name": "Lancelot SIX",
+      "email": "lancelot.six@amd.com",
+      "date": "2022-01-11T15:10:11Z"
+    },
+    "committer": {
+      "name": "Lancelot SIX",
+      "email": "lancelot.six@amd.com",
+      "date": "2022-02-07T11:12:06Z"
+    },
+    "message": "gdb: make thread_info::m_thread_fsm a std::unique_ptr\n\nWhile working on function calls, I realized that the thread_fsm member\nof struct thread_info is a raw pointer to a resource it owns.  This\ncommit changes the type of the thread_fsm member to a std::unique_ptr in\norder to signify this ownership relationship and slightly ease resource\nmanagement (no need to manually call delete).\n\nTo ensure consistent use, the field is made a private member\n(m_thread_fsm).  The setter method (set_thread_fsm) can then check\nthat it is incorrect to associate a FSM to a thread_info object if\nanother one is already in place.  This is ensured by an assertion.\n\nThe function run_inferior_call takes an argument as a pointer to a\ncall_thread_fsm and installs it in it in a thread_info instance.  Also\nchange this function's signature to accept a unique_ptr in order to\nsignify that the ownership of the call_thread_fsm is transferred during\nthe call.\n\nNo user visible change expected after this commit.\n\nTested on x86_64-linux with no regression observed.\n\nChange-Id: Ia1224f72a4afa247801ce6650ce82f90224a9ae8",
+    "tree": {
+      "sha": "eb6f3111a711e0609ee6db4ff25e17d3ae889194",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/eb6f3111a711e0609ee6db4ff25e17d3ae889194"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/573269a87c89ae866db556428fe9ea63d6c4db5f",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/573269a87c89ae866db556428fe9ea63d6c4db5f",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/573269a87c89ae866db556428fe9ea63d6c4db5f",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/573269a87c89ae866db556428fe9ea63d6c4db5f/comments",
+  "author": {
+    "login": "lancesix",
+    "id": 98881381,
+    "node_id": "U_kgDOBeTPZQ",
+    "avatar_url": "https://avatars.githubusercontent.com/u/98881381?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/lancesix",
+    "html_url": "https://github.com/lancesix",
+    "followers_url": "https://api.github.com/users/lancesix/followers",
+    "following_url": "https://api.github.com/users/lancesix/following{/other_user}",
+    "gists_url": "https://api.github.com/users/lancesix/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/lancesix/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/lancesix/subscriptions",
+    "organizations_url": "https://api.github.com/users/lancesix/orgs",
+    "repos_url": "https://api.github.com/users/lancesix/repos",
+    "events_url": "https://api.github.com/users/lancesix/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/lancesix/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "lancesix",
+    "id": 98881381,
+    "node_id": "U_kgDOBeTPZQ",
+    "avatar_url": "https://avatars.githubusercontent.com/u/98881381?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/lancesix",
+    "html_url": "https://github.com/lancesix",
+    "followers_url": "https://api.github.com/users/lancesix/followers",
+    "following_url": "https://api.github.com/users/lancesix/following{/other_user}",
+    "gists_url": "https://api.github.com/users/lancesix/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/lancesix/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/lancesix/subscriptions",
+    "organizations_url": "https://api.github.com/users/lancesix/orgs",
+    "repos_url": "https://api.github.com/users/lancesix/repos",
+    "events_url": "https://api.github.com/users/lancesix/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/lancesix/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "d08cbc5d3203118da5583296e49273cf82378042",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d08cbc5d3203118da5583296e49273cf82378042",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/d08cbc5d3203118da5583296e49273cf82378042"
+    }
+  ],
+  "stats": {
+    "total": 163,
+    "additions": 96,
+    "deletions": 67
+  },
+  "files": [
+    {
+      "sha": "9ff2bf82374d0c3be900b4edfd681c76553772f5",
+      "filename": "gdb/breakpoint.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/573269a87c89ae866db556428fe9ea63d6c4db5f/gdb/breakpoint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/573269a87c89ae866db556428fe9ea63d6c4db5f/gdb/breakpoint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/breakpoint.c?ref=573269a87c89ae866db556428fe9ea63d6c4db5f",
+      "patch": "@@ -10830,8 +10830,10 @@ until_break_command (const char *arg, int from_tty, int anywhere)\n       breakpoints.emplace_back (std::move (location_breakpoint));\n     }\n \n-  tp->thread_fsm = new until_break_fsm (command_interp (), tp->global_num,\n-\t\t\t\t\tstd::move (breakpoints));\n+  tp->set_thread_fsm\n+    (std::unique_ptr<thread_fsm>\n+     (new until_break_fsm (command_interp (), tp->global_num,\n+\t\t\t   std::move (breakpoints))));\n \n   if (lj_deleter)\n     lj_deleter->release ();"
+    },
+    {
+      "sha": "0190b4d32bcf815883284f3e366ceb197cdffcc3",
+      "filename": "gdb/cli/cli-interp.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/573269a87c89ae866db556428fe9ea63d6c4db5f/gdb/cli/cli-interp.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/573269a87c89ae866db556428fe9ea63d6c4db5f/gdb/cli/cli-interp.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cli/cli-interp.c?ref=573269a87c89ae866db556428fe9ea63d6c4db5f",
+      "patch": "@@ -108,9 +108,9 @@ should_print_stop_to_console (struct interp *console_interp,\n {\n   if ((bpstat_what (tp->control.stop_bpstat).main_action\n        == BPSTAT_WHAT_STOP_NOISY)\n-      || tp->thread_fsm == NULL\n-      || tp->thread_fsm->command_interp == console_interp\n-      || !tp->thread_fsm->finished_p ())\n+      || tp->thread_fsm () == nullptr\n+      || tp->thread_fsm ()->command_interp == console_interp\n+      || !tp->thread_fsm ()->finished_p ())\n     return 1;\n   return 0;\n }"
+    },
+    {
+      "sha": "1a33eb612213648359fb287deeea54c80b4ade56",
+      "filename": "gdb/gdbthread.h",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 5,
+      "changes": 37,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/573269a87c89ae866db556428fe9ea63d6c4db5f/gdb/gdbthread.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/573269a87c89ae866db556428fe9ea63d6c4db5f/gdb/gdbthread.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbthread.h?ref=573269a87c89ae866db556428fe9ea63d6c4db5f",
+      "patch": "@@ -34,6 +34,7 @@ struct symtab;\n #include \"gdbsupport/forward-scope-exit.h\"\n #include \"displaced-stepping.h\"\n #include \"gdbsupport/intrusive_list.h\"\n+#include \"thread-fsm.h\"\n \n struct inferior;\n struct process_stratum_target;\n@@ -443,6 +444,32 @@ class thread_info : public refcounted_object,\n     m_suspend.stop_reason = reason;\n   }\n \n+  /* Get the FSM associated with the thread.  */\n+\n+  struct thread_fsm *thread_fsm () const\n+  {\n+    return m_thread_fsm.get ();\n+  }\n+\n+  /* Get the owning reference to the FSM associated with the thread.\n+\n+     After a call to this method, \"thread_fsm () == nullptr\".  */\n+\n+  std::unique_ptr<struct thread_fsm> release_thread_fsm ()\n+  {\n+    return std::move (m_thread_fsm);\n+  }\n+\n+  /* Set the FSM associated with the current thread.\n+\n+     It is invalid to set the FSM if another FSM is already installed.  */\n+\n+  void set_thread_fsm (std::unique_ptr<struct thread_fsm> fsm)\n+  {\n+    gdb_assert (m_thread_fsm == nullptr);\n+    m_thread_fsm = std::move (fsm);\n+  }\n+\n   int current_line = 0;\n   struct symtab *current_symtab = NULL;\n \n@@ -480,11 +507,6 @@ class thread_info : public refcounted_object,\n      when GDB gets back SIGTRAP from step_resume_breakpoint.  */\n   int step_after_step_resume_breakpoint = 0;\n \n-  /* Pointer to the state machine manager object that handles what is\n-     left to do for the thread's execution command after the target\n-     stops.  Several execution commands use it.  */\n-  struct thread_fsm *thread_fsm = NULL;\n-\n   /* This is used to remember when a fork or vfork event was caught by\n      a catchpoint, and thus the event is to be followed at the next\n      resume of the thread, and not immediately.  */\n@@ -550,6 +572,11 @@ class thread_info : public refcounted_object,\n \n      Nullptr if the thread does not have a user-given name.  */\n   gdb::unique_xmalloc_ptr<char> m_name;\n+\n+  /* Pointer to the state machine manager object that handles what is\n+     left to do for the thread's execution command after the target\n+     stops.  Several execution commands use it.  */\n+  std::unique_ptr<struct thread_fsm> m_thread_fsm;\n };\n \n using thread_info_resumed_with_pending_wait_status_node"
+    },
+    {
+      "sha": "8e896296b96c01f7559d6642a66f3b09445f6169",
+      "filename": "gdb/infcall.c",
+      "status": "modified",
+      "additions": 28,
+      "deletions": 21,
+      "changes": 49,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/573269a87c89ae866db556428fe9ea63d6c4db5f/gdb/infcall.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/573269a87c89ae866db556428fe9ea63d6c4db5f/gdb/infcall.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infcall.c?ref=573269a87c89ae866db556428fe9ea63d6c4db5f",
+      "patch": "@@ -574,7 +574,7 @@ call_thread_fsm::should_notify_stop ()\n    thrown errors.  The caller should rethrow if there's an error.  */\n \n static struct gdb_exception\n-run_inferior_call (struct call_thread_fsm *sm,\n+run_inferior_call (std::unique_ptr<call_thread_fsm> sm,\n \t\t   struct thread_info *call_thread, CORE_ADDR real_pc)\n {\n   struct gdb_exception caught_error;\n@@ -597,9 +597,8 @@ run_inferior_call (struct call_thread_fsm *sm,\n   clear_proceed_status (0);\n \n   /* Associate the FSM with the thread after clear_proceed_status\n-     (otherwise it'd clear this FSM), and before anything throws, so\n-     we don't leak it (and any resources it manages).  */\n-  call_thread->thread_fsm = sm;\n+     (otherwise it'd clear this FSM).  */\n+  call_thread->set_thread_fsm (std::move (sm));\n \n   disable_watchpoints_before_interactive_call_start ();\n \n@@ -1251,12 +1250,9 @@ call_function_by_hand_dummy (struct value *function,\n      just below is the place to chop this function in two..  */\n \n   {\n-    struct thread_fsm *saved_sm;\n-    struct call_thread_fsm *sm;\n-\n     /* Save the current FSM.  We'll override it.  */\n-    saved_sm = call_thread->thread_fsm;\n-    call_thread->thread_fsm = NULL;\n+    std::unique_ptr<thread_fsm> saved_sm = call_thread->release_thread_fsm ();\n+    struct call_thread_fsm *sm;\n \n     /* Save this thread's ptid, we need it later but the thread\n        may have exited.  */\n@@ -1273,17 +1269,19 @@ call_function_by_hand_dummy (struct value *function,\n \t\t\t      values_type,\n \t\t\t      return_method != return_method_normal,\n \t\t\t      struct_addr);\n-\n-    e = run_inferior_call (sm, call_thread.get (), real_pc);\n+    {\n+      std::unique_ptr<call_thread_fsm> sm_up (sm);\n+      e = run_inferior_call (std::move (sm_up), call_thread.get (), real_pc);\n+    }\n \n     gdb::observers::inferior_call_post.notify (call_thread_ptid, funaddr);\n \n     if (call_thread->state != THREAD_EXITED)\n       {\n \t/* The FSM should still be the same.  */\n-\tgdb_assert (call_thread->thread_fsm == sm);\n+\tgdb_assert (call_thread->thread_fsm () == sm);\n \n-\tif (call_thread->thread_fsm->finished_p ())\n+\tif (call_thread->thread_fsm ()->finished_p ())\n \t  {\n \t    struct value *retval;\n \n@@ -1297,11 +1295,16 @@ call_function_by_hand_dummy (struct value *function,\n \t    /* Get the return value.  */\n \t    retval = sm->return_value;\n \n-\t    /* Clean up / destroy the call FSM, and restore the\n-\t       original one.  */\n-\t    call_thread->thread_fsm->clean_up (call_thread.get ());\n-\t    delete call_thread->thread_fsm;\n-\t    call_thread->thread_fsm = saved_sm;\n+\t    /* Restore the original FSM and clean up / destroh the call FSM.\n+\t       Doing it in this order ensures that if the call to clean_up\n+\t       throws, the original FSM is properly restored.  */\n+\t    {\n+\t      std::unique_ptr<thread_fsm> finalizing\n+\t\t= call_thread->release_thread_fsm ();\n+\t      call_thread->set_thread_fsm (std::move (saved_sm));\n+\n+\t      finalizing->clean_up (call_thread.get ());\n+\t    }\n \n \t    maybe_remove_breakpoints ();\n \n@@ -1315,9 +1318,13 @@ call_function_by_hand_dummy (struct value *function,\n \n \t/* Didn't complete.  Clean up / destroy the call FSM, and restore the\n \t   previous state machine, and handle the error.  */\n-\tcall_thread->thread_fsm->clean_up (call_thread.get ());\n-\tdelete call_thread->thread_fsm;\n-\tcall_thread->thread_fsm = saved_sm;\n+\t{\n+\t  std::unique_ptr<thread_fsm> finalizing\n+\t    = call_thread->release_thread_fsm ();\n+\t  call_thread->set_thread_fsm (std::move (saved_sm));\n+\n+\t  finalizing->clean_up (call_thread.get ());\n+\t}\n       }\n   }\n "
+    },
+    {
+      "sha": "48dda9b23ee2a04b72b63d6f6c3eb9f6c5e74d96",
+      "filename": "gdb/infcmd.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/573269a87c89ae866db556428fe9ea63d6c4db5f/gdb/infcmd.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/573269a87c89ae866db556428fe9ea63d6c4db5f/gdb/infcmd.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infcmd.c?ref=573269a87c89ae866db556428fe9ea63d6c4db5f",
+      "patch": "@@ -848,7 +848,7 @@ step_1 (int skip_subroutines, int single_inst, const char *count_string)\n      steps.  */\n   thr = inferior_thread ();\n   step_sm = new step_command_fsm (command_interp ());\n-  thr->thread_fsm = step_sm;\n+  thr->set_thread_fsm (std::unique_ptr<thread_fsm> (step_sm));\n \n   step_command_fsm_prepare (step_sm, skip_subroutines,\n \t\t\t    single_inst, count, thr);\n@@ -865,7 +865,7 @@ step_1 (int skip_subroutines, int single_inst, const char *count_string)\n \n       /* Stepped into an inline frame.  Pretend that we've\n \t stopped.  */\n-      thr->thread_fsm->clean_up (thr);\n+      thr->thread_fsm ()->clean_up (thr);\n       proceeded = normal_stop ();\n       if (!proceeded)\n \tinferior_event_handler (INF_EXEC_COMPLETE);\n@@ -1355,7 +1355,7 @@ until_next_command (int from_tty)\n   delete_longjmp_breakpoint_cleanup lj_deleter (thread);\n \n   sm = new until_next_fsm (command_interp (), tp->global_num);\n-  tp->thread_fsm = sm;\n+  tp->set_thread_fsm (std::unique_ptr<thread_fsm> (sm));\n   lj_deleter.release ();\n \n   proceed ((CORE_ADDR) -1, GDB_SIGNAL_DEFAULT);\n@@ -1762,7 +1762,7 @@ finish_command (const char *arg, int from_tty)\n \n   sm = new finish_command_fsm (command_interp ());\n \n-  tp->thread_fsm = sm;\n+  tp->set_thread_fsm (std::unique_ptr<thread_fsm> (sm));\n \n   /* Finishing from an inline frame is completely different.  We don't\n      try to show the \"return value\" - no way to locate it.  */"
+    },
+    {
+      "sha": "61af16238dee8ea1bfa3376b3530558dc4fdf047",
+      "filename": "gdb/infrun.c",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 25,
+      "changes": 44,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/573269a87c89ae866db556428fe9ea63d6c4db5f/gdb/infrun.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/573269a87c89ae866db556428fe9ea63d6c4db5f/gdb/infrun.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infrun.c?ref=573269a87c89ae866db556428fe9ea63d6c4db5f",
+      "patch": "@@ -698,7 +698,6 @@ follow_fork ()\n   int current_line = 0;\n   symtab *current_symtab = NULL;\n   struct frame_id step_frame_id = { 0 };\n-  struct thread_fsm *thread_fsm = NULL;\n \n   if (!non_stop)\n     {\n@@ -741,6 +740,7 @@ follow_fork ()\n     case TARGET_WAITKIND_VFORKED:\n       {\n \tptid_t parent, child;\n+\tstd::unique_ptr<struct thread_fsm> thread_fsm;\n \n \t/* If the user did a next/step, etc, over a fork call,\n \t   preserve the stepping state in the fork child.  */\n@@ -755,7 +755,7 @@ follow_fork ()\n \t    step_frame_id = tp->control.step_frame_id;\n \t    exception_resume_breakpoint\n \t      = clone_momentary_breakpoint (tp->control.exception_resume_breakpoint);\n-\t    thread_fsm = tp->thread_fsm;\n+\t    thread_fsm = tp->release_thread_fsm ();\n \n \t    /* For now, delete the parent's sr breakpoint, otherwise,\n \t       parent/child sr breakpoints are considered duplicates,\n@@ -767,7 +767,6 @@ follow_fork ()\n \t    tp->control.step_range_end = 0;\n \t    tp->control.step_frame_id = null_frame_id;\n \t    delete_exception_resume_breakpoint (tp);\n-\t    tp->thread_fsm = NULL;\n \t  }\n \n \tparent = inferior_ptid;\n@@ -809,7 +808,7 @@ follow_fork ()\n \t\t    tp->control.step_frame_id = step_frame_id;\n \t\t    tp->control.exception_resume_breakpoint\n \t\t      = exception_resume_breakpoint;\n-\t\t    tp->thread_fsm = thread_fsm;\n+\t\t    tp->set_thread_fsm (std::move (thread_fsm));\n \t\t  }\n \t\telse\n \t\t  {\n@@ -2651,8 +2650,7 @@ clear_proceed_status_thread (struct thread_info *tp)\n   if (!signal_pass_state (tp->stop_signal ()))\n     tp->set_stop_signal (GDB_SIGNAL_0);\n \n-  delete tp->thread_fsm;\n-  tp->thread_fsm = NULL;\n+  tp->release_thread_fsm ();\n \n   tp->control.trap_expected = 0;\n   tp->control.step_range_start = 0;\n@@ -3935,24 +3933,24 @@ reinstall_readline_callback_handler_cleanup ()\n static void\n clean_up_just_stopped_threads_fsms (struct execution_control_state *ecs)\n {\n-  if (ecs->event_thread != NULL\n-      && ecs->event_thread->thread_fsm != NULL)\n-    ecs->event_thread->thread_fsm->clean_up (ecs->event_thread);\n+  if (ecs->event_thread != nullptr\n+      && ecs->event_thread->thread_fsm () != nullptr)\n+    ecs->event_thread->thread_fsm ()->clean_up (ecs->event_thread);\n \n   if (!non_stop)\n     {\n       for (thread_info *thr : all_non_exited_threads ())\n \t{\n-\t  if (thr->thread_fsm == NULL)\n+\t  if (thr->thread_fsm () == nullptr)\n \t    continue;\n \t  if (thr == ecs->event_thread)\n \t    continue;\n \n \t  switch_to_thread (thr);\n-\t  thr->thread_fsm->clean_up (thr);\n+\t  thr->thread_fsm ()->clean_up (thr);\n \t}\n \n-      if (ecs->event_thread != NULL)\n+      if (ecs->event_thread != nullptr)\n \tswitch_to_thread (ecs->event_thread);\n     }\n }\n@@ -4103,13 +4101,8 @@ fetch_inferior_event ()\n \n \tdelete_just_stopped_threads_infrun_breakpoints ();\n \n-\tif (thr != NULL)\n-\t  {\n-\t    struct thread_fsm *thread_fsm = thr->thread_fsm;\n-\n-\t    if (thread_fsm != NULL)\n-\t      should_stop = thread_fsm->should_stop (thr);\n-\t  }\n+\tif (thr != nullptr && thr->thread_fsm () != nullptr)\n+\t  should_stop = thr->thread_fsm ()->should_stop (thr);\n \n \tif (!should_stop)\n \t  {\n@@ -4122,8 +4115,9 @@ fetch_inferior_event ()\n \n \t    clean_up_just_stopped_threads_fsms (ecs);\n \n-\t    if (thr != NULL && thr->thread_fsm != NULL)\n-\t      should_notify_stop = thr->thread_fsm->should_notify_stop ();\n+\t    if (thr != nullptr && thr->thread_fsm () != nullptr)\n+\t      should_notify_stop\n+\t       = thr->thread_fsm ()->should_notify_stop ();\n \n \t    if (should_notify_stop)\n \t      {\n@@ -8340,13 +8334,13 @@ print_stop_event (struct ui_out *uiout, bool displays)\n   }\n \n   tp = inferior_thread ();\n-  if (tp->thread_fsm != NULL\n-      && tp->thread_fsm->finished_p ())\n+  if (tp->thread_fsm () != nullptr\n+      && tp->thread_fsm ()->finished_p ())\n     {\n       struct return_value_info *rv;\n \n-      rv = tp->thread_fsm->return_value ();\n-      if (rv != NULL)\n+      rv = tp->thread_fsm ()->return_value ();\n+      if (rv != nullptr)\n \tprint_return_value (uiout, rv);\n     }\n }"
+    },
+    {
+      "sha": "f02a7cf3f106e9c1d6fa86810e504c6c49c73677",
+      "filename": "gdb/mi/mi-interp.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/573269a87c89ae866db556428fe9ea63d6c4db5f/gdb/mi/mi-interp.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/573269a87c89ae866db556428fe9ea63d6c4db5f/gdb/mi/mi-interp.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/mi/mi-interp.c?ref=573269a87c89ae866db556428fe9ea63d6c4db5f",
+      "patch": "@@ -630,12 +630,12 @@ mi_on_normal_stop_1 (struct bpstat *bs, int print_frame)\n \n       tp = inferior_thread ();\n \n-      if (tp->thread_fsm != NULL\n-\t  && tp->thread_fsm->finished_p ())\n+      if (tp->thread_fsm () != nullptr\n+\t  && tp->thread_fsm ()->finished_p ())\n \t{\n \t  enum async_reply_reason reason;\n \n-\t  reason = tp->thread_fsm->async_reply_reason ();\n+\t  reason = tp->thread_fsm ()->async_reply_reason ();\n \t  mi_uiout->field_string (\"reason\", async_reason_lookup (reason));\n \t}\n "
+    },
+    {
+      "sha": "12f3abd57bd5ab0f14e34a7df34346415c11e7b1",
+      "filename": "gdb/thread.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 4,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/573269a87c89ae866db556428fe9ea63d6c4db5f/gdb/thread.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/573269a87c89ae866db556428fe9ea63d6c4db5f/gdb/thread.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/thread.c?ref=573269a87c89ae866db556428fe9ea63d6c4db5f",
+      "patch": "@@ -160,11 +160,10 @@ thread_has_single_step_breakpoint_here (struct thread_info *tp,\n void\n thread_cancel_execution_command (struct thread_info *thr)\n {\n-  if (thr->thread_fsm != NULL)\n+  if (thr->thread_fsm () != nullptr)\n     {\n-      thr->thread_fsm->clean_up (thr);\n-      delete thr->thread_fsm;\n-      thr->thread_fsm = NULL;\n+      std::unique_ptr<thread_fsm> fsm = thr->release_thread_fsm ();\n+      fsm->clean_up (thr);\n     }\n }\n "
+    }
+  ]
+}

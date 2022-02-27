@@ -1,0 +1,60 @@
+{
+  "sha": "144459531dd68a1287905079aaa131b777a8cc82",
+  "node_id": "C_kwDOANOeidoAKDE0NDQ1OTUzMWRkNjhhMTI4NzkwNTA3OWFhYTEzMWI3NzdhOGNjODI",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-02-07T20:35:58Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-02-21T12:52:25Z"
+    },
+    "message": "gdb/testsuite: relax pattern in new gdb.mi/mi-multi-commands.exp test\n\nI saw some failures in the test gdb.mi/mi-multi-commands.exp that I\nadded recently.  This test was added in commit:\n\n  commit d08cbc5d3203118da5583296e49273cf82378042\n  Date:   Wed Dec 22 12:57:44 2021 +0000\n\n      gdb: unbuffer all input streams when not using readline\n\nThe failures I see only occurred when my machine was very heavily\nloaded.\n\nIn this test I send multiple commands from dejagnu to gdb with a\nsingle send_gdb call.  In a well behaving world what I want to happen\nis that the gdb console sees both commands arrive and echos the text\nof those commands.  Then gdb starts processing the first command,\nprints the result, and then processes the second command, and prints\nthe result.\n\nHowever, what I saw in my loaded environment was that only after\nsending the two commands, only the first command was echoed to gdb's\nterminal.  Then gdb started processing the first command, and started\nto write the output.  Now, mixed in with the first command output, the\nsecond command was echoed to gdb's terminal.  Finally, gdb would\nfinish printing the first command output, and would read and handle\nthe second command.\n\nThis mixing of command echoing with the first command output was\ncausing the test matching patterns to fail.\n\nIn this commit I change the command I use in the test from a CLI\ncommand to an MI command, this reduces the number of lines of output\nthat come from the test, CLI commands sent through the MI interpreter\nare echoed back like this:\n\n  (gdb)\n  set $a = \"FIRST COMMAND\"\n  &\"set $a = \\\"FIRST COMMAND\\\"\\n\"\n  ^done\n  (gdb)\n\nWhile this is not the case for true MI command:\n\n  (gdb)\n  -data-evaluate-expression $a\n  ^done,value=\"\\\"FIRST COMMAND\\\"\"\n  (gdb)\n\nLess output makes for simpler patterns to match against.\n\nNext, when sending two command to gdb I was previously trying to spot\nthe output of the first command followed by the prompt with nothing\nbetween.  This is not really needed, for the first command I can look\nfor just the ^done,value=\"\\\"FIRST COMMAND\\\"\" string, then I can start\nlooking for the output of the second command.\n\nSo long as the second pattern matches up to the gdb prompt, then I can\nbe sure than nothing is left over in the expect buffer to muck up\nlater matches.\n\nAs to see the second command output gdb must have read in the second\ncommand, the second command output never suffers from the corruption\nthat the first command output does.\n\nSince making this change, I've not seen a failure in this test.",
+    "tree": {
+      "sha": "665879bae7668842763bd09dce05e1be69c4f921",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/665879bae7668842763bd09dce05e1be69c4f921"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/144459531dd68a1287905079aaa131b777a8cc82",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/144459531dd68a1287905079aaa131b777a8cc82",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/144459531dd68a1287905079aaa131b777a8cc82",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/144459531dd68a1287905079aaa131b777a8cc82/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "336125713fcf9b43960a57724fa39a319036ba38",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/336125713fcf9b43960a57724fa39a319036ba38",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/336125713fcf9b43960a57724fa39a319036ba38"
+    }
+  ],
+  "stats": {
+    "total": 8,
+    "additions": 4,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "12b1b482f9aef45ba53a1bbd316c39ec8bb0e085",
+      "filename": "gdb/testsuite/gdb.mi/mi-multi-commands.exp",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/144459531dd68a1287905079aaa131b777a8cc82/gdb/testsuite/gdb.mi/mi-multi-commands.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/144459531dd68a1287905079aaa131b777a8cc82/gdb/testsuite/gdb.mi/mi-multi-commands.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.mi/mi-multi-commands.exp?ref=144459531dd68a1287905079aaa131b777a8cc82",
+      "patch": "@@ -54,7 +54,7 @@ proc run_test { args } {\n \tset cmd \"\"\n \n \t# Create a command that is at least `i` characters long.\n-\tset first_cmd \"print \\$a\"\n+\tset first_cmd \"-data-evaluate-expression \\$a\"\n \twhile { [string length $first_cmd] < $i } {\n \t    set first_cmd \" $first_cmd\"\n \t}\n@@ -69,7 +69,7 @@ proc run_test { args } {\n \tset i [string length $first_cmd]\n \tverbose -log \"length of first command is $i\"\n \n-\tset cmd \"${first_cmd}\\nprint \\$b\\n\"\n+\tset cmd \"${first_cmd}\\n-data-evaluate-expression \\$b\\n\"\n \n \t# We need to call send_gdb ourselves here as gdb_test_multiple\n \t# will try to send each line of the command separately (breaking\n@@ -100,14 +100,14 @@ proc run_test { args } {\n \tset seen_second_message false\n \n \tgdb_test_multiple \"\" \"look for first command output, command length $i\" -prompt \"$mi_gdb_prompt\" {\n-\t    -re \"(&\\\"print \\\\\\$\\[ab\\]\\\\\\\\n\\\")\\r\\n(~\\\"\\\\\\$$decimal = \\\\\\\\\\\"FIRST COMMAND\\\\\\\\\\\"\\[^\\r\\n\\]+\\r\\n\\\\^done\\r\\n$mi_gdb_prompt)\" {\n+\t    -re \"\\\\^done,value=\\\"\\\\\\\\\\\"FIRST COMMAND\\\\\\\\\\\"\\\"\\r\\n\" {\n \t\tpass $gdb_test_name\n \t\tset seen_first_message true\n \t    }\n \t}\n \n \tgdb_test_multiple \"\" \"look for second command output, command length $i\" -prompt \"$mi_gdb_prompt\" {\n-\t    -re \"(&\\\"print \\\\\\$\\[ab\\]\\\\\\\\n\\\")\\r\\n(~\\\"\\\\\\$$decimal = \\\\\\\\\\\"TEST COMPLETE\\\\\\\\\\\"\\[^\\r\\n\\]+\\r\\n\\\\^done\\r\\n$mi_gdb_prompt)\" {\n+\t    -re \"\\\\^done,value=\\\"\\\\\\\\\\\"TEST COMPLETE\\\\\\\\\\\"\\\"\\r\\n$mi_gdb_prompt\" {\n \t\tpass $gdb_test_name\n \t\tset seen_second_message true\n \t    }"
+    }
+  ]
+}

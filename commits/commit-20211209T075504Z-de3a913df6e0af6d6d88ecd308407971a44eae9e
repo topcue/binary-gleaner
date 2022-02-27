@@ -1,0 +1,156 @@
+{
+  "sha": "de3a913df6e0af6d6d88ecd308407971a44eae9e",
+  "node_id": "C_kwDOANOeidoAKGRlM2E5MTNkZjZlMGFmNmQ2ZDg4ZWNkMzA4NDA3OTcxYTQ0ZWFlOWU",
+  "commit": {
+    "author": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2021-12-09T03:52:16Z"
+    },
+    "committer": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2021-12-09T07:55:04Z"
+    },
+    "message": "RISC-V: Clarify the behavior of .option arch directive.\n\n* To be consistent with -march option, removed the \"=\" operator when\nuser want to reset the whole architecture string.  So the formats are,\n\n.option arch, +<extension><version>, ...\n.option arch, -<extension>\n.option arch, <ISA string>\n\n* Don't allow to add or remove the base extensions in the .option arch\ndirective.  Instead, users should reset the whole architecture string\nwhile they want to change the base extension.\n\n* The operator \"+\" won't update the version of extension, if the\nextension is already in the subset list.\n\nbfd/\n\t* elfxx-riscv.c (riscv_add_subset): Don't update the version\n\tif the extension is already in the subset list.\n\t(riscv_update_subset): To be consistent with -march option,\n\tremoved the \"=\" operator when user want to reset the whole\n\tarchitecture string.  Besides, Don't allow to add or remove\n\tthe base extensions in the .option arch directive.\ngas/\n\t* testsuite/gas/riscv/option-arch-01.s: Updated since we cannot\n\tadd or remove the base extensions in the .option arch directive.\n\t* testsuite/gas/riscv/option-arch-02.s: Likewise.\n\t* testsuite/gas/riscv/option-arch-fail.l: Likewise.\n\t* testsuite/gas/riscv/option-arch-fail.s: Likewise.\n\t* testsuite/gas/riscv/option-arch-01a.d: Set -misa-spec=2.2.\n\t* testsuite/gas/riscv/option-arch-01b.d: Likewise.\n\t* testsuite/gas/riscv/option-arch-02.d: Updated since the .option\n\tarch, + won't change the version of extension, if the extension is\n\talready in the subset list.\n\t* testsuite/gas/riscv/option-arch-03.s: Removed the \"=\" operator\n\twhen resetting the whole architecture string.",
+    "tree": {
+      "sha": "14e77968337e32f78b93c63059b89c461037b5aa",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/14e77968337e32f78b93c63059b89c461037b5aa"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/de3a913df6e0af6d6d88ecd308407971a44eae9e",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/de3a913df6e0af6d6d88ecd308407971a44eae9e",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/de3a913df6e0af6d6d88ecd308407971a44eae9e",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/de3a913df6e0af6d6d88ecd308407971a44eae9e/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "de8a2781a57ecb4a852fb5b734bc7ce71bad34c9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/de8a2781a57ecb4a852fb5b734bc7ce71bad34c9",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/de8a2781a57ecb4a852fb5b734bc7ce71bad34c9"
+    }
+  ],
+  "stats": {
+    "total": 61,
+    "additions": 28,
+    "deletions": 33
+  },
+  "files": [
+    {
+      "sha": "8c44c4a36bcda707056dc207e1bf84ba9af8d50e",
+      "filename": "bfd/elfxx-riscv.c",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 24,
+      "changes": 39,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de3a913df6e0af6d6d88ecd308407971a44eae9e/bfd/elfxx-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de3a913df6e0af6d6d88ecd308407971a44eae9e/bfd/elfxx-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfxx-riscv.c?ref=de3a913df6e0af6d6d88ecd308407971a44eae9e",
+      "patch": "@@ -1468,15 +1468,7 @@ riscv_add_subset (riscv_subset_list_t *subset_list,\n   riscv_subset_t *current, *new;\n \n   if (riscv_lookup_subset (subset_list, subset, &current))\n-    {\n-      if (major != RISCV_UNKNOWN_VERSION\n-\t  && minor != RISCV_UNKNOWN_VERSION)\n-\t{\n-\t  current->major_version = major;\n-\t  current->minor_version = minor;\n-\t}\n-      return;\n-    }\n+    return;\n \n   new = xmalloc (sizeof *new);\n   new->name = xstrdup (subset);\n@@ -2217,18 +2209,15 @@ riscv_update_subset (riscv_parse_subset_t *rps,\n       int minor_version = RISCV_UNKNOWN_VERSION;\n \n       bool removed = false;\n-      switch (*p++)\n+      switch (*p)\n \t{\n \tcase '+': removed = false; break;\n \tcase '-': removed = true; break;\n-\tcase '=':\n+\tdefault:\n \t  riscv_release_subset_list (rps->subset_list);\n \t  return riscv_parse_subset (rps, p);\n-\tdefault:\n-\t  rps->error_handler\n-\t    (_(\"extensions must begin with +/-/= in .option arch `%s'\"), str);\n-\t  return false;\n \t}\n+      ++p;\n \n       char *subset = xstrdup (p);\n       char *q = subset;\n@@ -2293,17 +2282,19 @@ riscv_update_subset (riscv_parse_subset_t *rps,\n \t  return false;\n \t}\n \n-      if (removed)\n+      if (strcmp (subset, \"i\") == 0\n+\t  || strcmp (subset, \"e\") == 0\n+\t  || strcmp (subset, \"g\") == 0)\n \t{\n-\t  if (strcmp (subset, \"i\") == 0)\n-\t    {\n-\t      rps->error_handler\n-\t\t(_(\"cannot remove extension `i' in .option arch `%s'\"), str);\n-\t      free (subset);\n-\t      return false;\n-\t    }\n-\t  riscv_remove_subset (rps->subset_list, subset);\n+\t  rps->error_handler\n+\t    (_(\"cannot + or - base extension `%s' in .option \"\n+\t       \"arch `%s'\"), subset, str);\n+\t  free (subset);\n+\t  return false;\n \t}\n+\n+      if (removed)\n+\triscv_remove_subset (rps->subset_list, subset);\n       else\n \triscv_parse_add_subset (rps, subset, major_version, minor_version, true);\n       p += end_of_version - subset;"
+    },
+    {
+      "sha": "50285fc8c735e5a31c7cbd4fdb0102e4d096b7ee",
+      "filename": "gas/testsuite/gas/riscv/option-arch-01.s",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de3a913df6e0af6d6d88ecd308407971a44eae9e/gas/testsuite/gas/riscv/option-arch-01.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de3a913df6e0af6d6d88ecd308407971a44eae9e/gas/testsuite/gas/riscv/option-arch-01.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/option-arch-01.s?ref=de3a913df6e0af6d6d88ecd308407971a44eae9e",
+      "patch": "@@ -5,6 +5,6 @@ add\ta0, a0, a1\n add\ta0, a0, a1\n frcsr\ta0\t# Should add mapping symbol with ISA here, and then dump it to frcsr.\n .option push\n-.option arch, +i3p0, +m3p0, +d3p0\n+.option arch, +m3p0, +d3p0\n .option pop\n .option pop"
+    },
+    {
+      "sha": "aed4ca8e4d90fb82b6e17f4276bc86adcb076706",
+      "filename": "gas/testsuite/gas/riscv/option-arch-01a.d",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de3a913df6e0af6d6d88ecd308407971a44eae9e/gas/testsuite/gas/riscv/option-arch-01a.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de3a913df6e0af6d6d88ecd308407971a44eae9e/gas/testsuite/gas/riscv/option-arch-01a.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/option-arch-01a.d?ref=de3a913df6e0af6d6d88ecd308407971a44eae9e",
+      "patch": "@@ -1,4 +1,4 @@\n-#as:\n+#as: -misa-spec=2.2\n #source: option-arch-01.s\n #objdump: -d\n "
+    },
+    {
+      "sha": "8f4284d5f15ba108475a72d4d19f5b32c5a66d7e",
+      "filename": "gas/testsuite/gas/riscv/option-arch-01b.d",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de3a913df6e0af6d6d88ecd308407971a44eae9e/gas/testsuite/gas/riscv/option-arch-01b.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de3a913df6e0af6d6d88ecd308407971a44eae9e/gas/testsuite/gas/riscv/option-arch-01b.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/option-arch-01b.d?ref=de3a913df6e0af6d6d88ecd308407971a44eae9e",
+      "patch": "@@ -1,4 +1,4 @@\n-#as:\n+#as: -misa-spec=2.2\n #readelf: -A\n #source: option-arch-01.s\n "
+    },
+    {
+      "sha": "9ca013e507ef12175688c0cee82741f7e78882b3",
+      "filename": "gas/testsuite/gas/riscv/option-arch-02.d",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de3a913df6e0af6d6d88ecd308407971a44eae9e/gas/testsuite/gas/riscv/option-arch-02.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de3a913df6e0af6d6d88ecd308407971a44eae9e/gas/testsuite/gas/riscv/option-arch-02.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/option-arch-02.d?ref=de3a913df6e0af6d6d88ecd308407971a44eae9e",
+      "patch": "@@ -1,8 +1,8 @@\n-#as:\n+#as: -misa-spec=2.2\n #readelf: -A\n #source: option-arch-02.s\n \n Attribute Section: riscv\n File Attributes\n-  Tag_RISCV_arch: \"rv64i3p0_m3p0_f2p0_d3p0_c2p0_xvendor32x3p0\"\n+  Tag_RISCV_arch: \"rv64i2p0_m3p0_f2p0_d3p0_c2p0_xvendor32x3p0\"\n #..."
+    },
+    {
+      "sha": "e0f5de321d67264795ee016b99ae3ed217204919",
+      "filename": "gas/testsuite/gas/riscv/option-arch-02.s",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de3a913df6e0af6d6d88ecd308407971a44eae9e/gas/testsuite/gas/riscv/option-arch-02.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de3a913df6e0af6d6d88ecd308407971a44eae9e/gas/testsuite/gas/riscv/option-arch-02.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/option-arch-02.s?ref=de3a913df6e0af6d6d88ecd308407971a44eae9e",
+      "patch": "@@ -5,4 +5,4 @@ add\ta0, a0, a1\n add\ta0, a0, a1\n frcsr\ta0\n .option pop\n-.option arch, +i3p0, +m3p0, +d3p0, +xvendor32x3p0\n+.option arch, +m3p0, +d3p0, +xvendor32x3p0"
+    },
+    {
+      "sha": "d982a0b09858619eb4593c3b1151c1b7e5b9b9e9",
+      "filename": "gas/testsuite/gas/riscv/option-arch-03.s",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de3a913df6e0af6d6d88ecd308407971a44eae9e/gas/testsuite/gas/riscv/option-arch-03.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de3a913df6e0af6d6d88ecd308407971a44eae9e/gas/testsuite/gas/riscv/option-arch-03.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/option-arch-03.s?ref=de3a913df6e0af6d6d88ecd308407971a44eae9e",
+      "patch": "@@ -1,3 +1,3 @@\n .attribute arch, \"rv64ic\"\n .option arch, +d2p0, -c\n-.option arch, =rv32ic\n+.option arch, rv32ic"
+    },
+    {
+      "sha": "b9979a4261805d5c8268da07e164534dc5f0b0f3",
+      "filename": "gas/testsuite/gas/riscv/option-arch-fail.l",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de3a913df6e0af6d6d88ecd308407971a44eae9e/gas/testsuite/gas/riscv/option-arch-fail.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de3a913df6e0af6d6d88ecd308407971a44eae9e/gas/testsuite/gas/riscv/option-arch-fail.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/option-arch-fail.l?ref=de3a913df6e0af6d6d88ecd308407971a44eae9e",
+      "patch": "@@ -1,6 +1,8 @@\n .*Assembler messages:\n-.*Error: extensions must begin with \\+/\\-/\\= in .option arch `m2p0'\n-.*Error: cannot remove extension `i' in .option arch `\\-i'\n+.*Error: m2p0: ISA string must begin with rv32 or rv64\n+.*Error: cannot \\+ or \\- base extension `i' in .option arch `\\-i'\n+.*Error: cannot \\+ or \\- base extension `e' in .option arch `\\+e'\n+.*Error: cannot \\+ or \\- base extension `g' in .option arch `\\-g'\n .*Error: unknown ISA extension `zsubset' in .option arch `\\+zsubset2p0'\n .*Error: unknown ISA extension `f2p0_d' in .option arch `\\+f2p0_d2p0'\n .*Error: unknown ISA extension `' in .option arch `\\+'"
+    },
+    {
+      "sha": "101587aee16ead486a1070e7a297eaf388285b65",
+      "filename": "gas/testsuite/gas/riscv/option-arch-fail.s",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de3a913df6e0af6d6d88ecd308407971a44eae9e/gas/testsuite/gas/riscv/option-arch-fail.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de3a913df6e0af6d6d88ecd308407971a44eae9e/gas/testsuite/gas/riscv/option-arch-fail.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/option-arch-fail.s?ref=de3a913df6e0af6d6d88ecd308407971a44eae9e",
+      "patch": "@@ -2,6 +2,8 @@\n .option push\n .option arch, m2p0\n .option arch, -i\n+.option arch, +e\n+.option arch, -g\n .option arch, +zsubset2p0\n .option arch, +f2p0_d2p0\n .option arch, +"
+    }
+  ]
+}

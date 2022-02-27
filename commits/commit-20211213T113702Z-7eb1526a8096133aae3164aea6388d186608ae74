@@ -1,0 +1,84 @@
+{
+  "sha": "7eb1526a8096133aae3164aea6388d186608ae74",
+  "node_id": "C_kwDOANOeidoAKDdlYjE1MjZhODA5NjEzM2FhZTMxNjRhZWE2Mzg4ZDE4NjYwOGFlNzQ",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-12-06T11:25:04Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-12-13T11:37:02Z"
+    },
+    "message": "gdb: update gdb-gdb.py.in for latest changes to struct field\n\nThis commit updates uses of 'loc' and 'loc_kind' to 'm_loc' and\n'm_loc_kind' respectively, in gdb-gdb.py.in, which is required after\nthis commit:\n\n  commit cd3f655cc7a55437a05aa8e7b1fcc9051b5fe404\n  Date:   Thu Sep 30 22:38:29 2021 -0400\n\n      gdb: add accessors for field (and call site) location\n\nI have also incorporated this change:\n\n  https://sourceware.org/pipermail/gdb-patches/2021-September/182171.html\n\nWhich means we print 'm_name' instead of 'name' when displaying the\n'm_name' member variable.\n\nFinally, I have also added support for the new TYPE_SPECIFIC_INT\nfields, which were added with this commit:\n\n  commit 20a5fcbd5b28cca88511ac5a9ad5e54251e8fa6d\n  Date:   Wed Sep 23 09:39:24 2020 -0600\n\n      Handle bit offset and bit size in base types\n\nI updated the gdb.gdb/python-helper.exp test to cover all of these\nchanges.",
+    "tree": {
+      "sha": "1c42c2cacf81f387608d7cab321d049fa68969e1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/1c42c2cacf81f387608d7cab321d049fa68969e1"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/7eb1526a8096133aae3164aea6388d186608ae74",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7eb1526a8096133aae3164aea6388d186608ae74",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/7eb1526a8096133aae3164aea6388d186608ae74",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7eb1526a8096133aae3164aea6388d186608ae74/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "20ac1cdb8c76397a314c248c3db733d7db1f8339",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/20ac1cdb8c76397a314c248c3db733d7db1f8339",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/20ac1cdb8c76397a314c248c3db733d7db1f8339"
+    }
+  ],
+  "stats": {
+    "total": 211,
+    "additions": 191,
+    "deletions": 20
+  },
+  "files": [
+    {
+      "sha": "a60ad013a73eacf68649cbaeec6a2ab851e65c6c",
+      "filename": "gdb/gdb-gdb.py.in",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 7,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7eb1526a8096133aae3164aea6388d186608ae74/gdb/gdb-gdb.py.in",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7eb1526a8096133aae3164aea6388d186608ae74/gdb/gdb-gdb.py.in",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdb-gdb.py.in?ref=7eb1526a8096133aae3164aea6388d186608ae74",
+      "patch": "@@ -153,8 +153,8 @@ class StructMainTypePrettyPrinter:\n         \"\"\"Return an image of the loc component inside the given field\n         gdb.Value.\n         \"\"\"\n-        loc_val = field_val[\"loc\"]\n-        loc_kind = str(field_val[\"loc_kind\"])\n+        loc_val = field_val[\"m_loc\"]\n+        loc_kind = str(field_val[\"m_loc_kind\"])\n         if loc_kind == \"FIELD_LOC_KIND_BITPOS\":\n             return \"bitpos = %d\" % loc_val[\"bitpos\"]\n         elif loc_kind == \"FIELD_LOC_KIND_ENUMVAL\":\n@@ -166,7 +166,7 @@ class StructMainTypePrettyPrinter:\n         elif loc_kind == \"FIELD_LOC_KIND_DWARF_BLOCK\":\n             return \"dwarf_block = %s\" % loc_val[\"dwarf_block\"]\n         else:\n-            return \"loc = ??? (unsupported loc_kind value)\"\n+            return \"m_loc = ??? (unsupported m_loc_kind value)\"\n \n     def struct_field_img(self, fieldno):\n         \"\"\"Return an image of the main_type field number FIELDNO.\"\"\"\n@@ -175,9 +175,9 @@ class StructMainTypePrettyPrinter:\n         if f[\"artificial\"]:\n             label += \" (artificial)\"\n         fields = []\n-        fields.append(\"name = %s\" % f[\"name\"])\n-        fields.append(\"type = %s\" % f[\"m_type\"])\n-        fields.append(\"loc_kind = %s\" % f[\"loc_kind\"])\n+        fields.append(\"m_name = %s\" % f[\"m_name\"])\n+        fields.append(\"m_type = %s\" % f[\"m_type\"])\n+        fields.append(\"m_loc_kind = %s\" % f[\"m_loc_kind\"])\n         fields.append(\"bitsize = %d\" % f[\"bitsize\"])\n         fields.append(self.struct_field_location_img(f))\n         return label + \"\\n\" + \"  {\" + \",\\n   \".join(fields) + \"}\"\n@@ -241,9 +241,13 @@ class StructMainTypePrettyPrinter:\n                 \"scaling_factor: <opaque> (call __gmpz_dump with \"\n                 \" _mp_num and _mp_den fields if needed)\"\n             )\n+        elif type_specific_kind == \"TYPE_SPECIFIC_INT\":\n+            img = (\"int_stuff = { bit_size = %d, bit_offset = %d }\"\n+                   % (type_specific[\"int_stuff\"][\"bit_size\"],\n+                      type_specific[\"int_stuff\"][\"bit_offset\"]))\n         else:\n             img = (\n-                \"type_specific = ??? (unknown type_secific_kind: %s)\"\n+                \"type_specific = ??? (unknown type_specific_kind: %s)\"\n                 % type_specific_kind\n             )\n         return img"
+    },
+    {
+      "sha": "2bacf80b58cd817a64b63947cad3bb4e51886ed0",
+      "filename": "gdb/testsuite/gdb.gdb/python-helper.cc",
+      "status": "added",
+      "additions": 40,
+      "deletions": 0,
+      "changes": 40,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7eb1526a8096133aae3164aea6388d186608ae74/gdb/testsuite/gdb.gdb/python-helper.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7eb1526a8096133aae3164aea6388d186608ae74/gdb/testsuite/gdb.gdb/python-helper.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.gdb/python-helper.cc?ref=7eb1526a8096133aae3164aea6388d186608ae74",
+      "patch": "@@ -0,0 +1,40 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2021 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+struct CC\n+{\n+  CC (int val)\n+    : m_val (val)\n+  {\n+    /* Nothing.  */\n+  }\n+\n+  int a_method ()\n+  {\n+    return m_val;\n+  }\n+\n+  int m_val;\n+};\n+\n+CC global_c (0);\n+\n+int\n+main ()\n+{\n+  return 0;\n+}"
+    },
+    {
+      "sha": "58f4338be147ab4bb534d2a37ee41c39600997f7",
+      "filename": "gdb/testsuite/gdb.gdb/python-helper.exp",
+      "status": "modified",
+      "additions": 140,
+      "deletions": 13,
+      "changes": 153,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7eb1526a8096133aae3164aea6388d186608ae74/gdb/testsuite/gdb.gdb/python-helper.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7eb1526a8096133aae3164aea6388d186608ae74/gdb/testsuite/gdb.gdb/python-helper.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.gdb/python-helper.exp?ref=7eb1526a8096133aae3164aea6388d186608ae74",
+      "patch": "@@ -24,6 +24,12 @@ if [target_info exists gdb,noinferiorio] {\n     return\n }\n \n+standard_testfile .cc\n+\n+if { [build_executable \"failed to build\" $testfile $srcfile {debug c++}] } {\n+    return -1\n+}\n+\n # Find the helper script in the GDB build directory.\n set py_helper_script [file dirname $GDB]/gdb-gdb.py\n if { ![file readable $py_helper_script] \\\n@@ -63,16 +69,23 @@ proc test_python_helper {} {\n \t\t  \"end\"] \".*\" \\\n \t\"register the type pretty printer\"\n \n-    # Now place a breakpoint somewhere useful.  This can be any function that:\n+    # Now place breakpoints somewhere useful.  These locations can be\n+    # any function that:\n+    #\n     # (a) is easy to reach by issuing a simple gdb command, and\n     # (b) is unlikely to be modified very often within gdb, and\n     # (c) has a parameter that is either a 'struct type *' or a 'struct value *'.\n-    gdb_breakpoint value_print\n+    gdb_breakpoint value_print qualified\n+    gdb_breakpoint c_print_type qualified\n+\n+    # Disable all breakpoints until after we have loaded the test\n+    # binary into the inner GDB.\n+    gdb_test_no_output \"disable breakpoints\"\n \n     # Adjust the prompt on the outer gdb, this just makes things a\n     # little clearer when trying to unpick which GDB is active.\n-    gdb_test_multiple \"set prompt (xgdb) \" \"set xgdb prompt\" {\n-\t-re \"\\[(\\]xgdb\\[)\\].*\\[(\\]xgdb\\[)\\] $\" {\n+    gdb_test_multiple \"set prompt (outer-gdb) \" \"set outer gdb prompt\" {\n+\t-re \"\\[(\\]outer-gdb\\[)\\].*\\[(\\]outer-gdb\\[)\\] $\" {\n \t    pass $gdb_test_name\n \t}\n     }\n@@ -87,12 +100,45 @@ proc test_python_helper {} {\n \t}\n     }\n \n-    # Send a command to the inner GDB (hence send_inferior), this\n-    # should result in the outer GDB stopping at the breakpoint we\n-    # just created.\n+    # Load the test executable into the inner GDB.  The output here is\n+    # being read from the inner GDB, hence the use of -i here.\n+    send_inferior \"file -readnow $::binfile\\n\"\n+    gdb_test_multiple \"\" \"loading test binary into inner GDB\" {\n+\t-i \"$inferior_spawn_id\"\n+\t-re \"Reading symbols from.*\\r\\n$gdb_prompt $\" {\n+\t    pass $gdb_test_name\n+\t}\n+    }\n+\n+    # Send Ctrl-C to the inner GDB, this should kick us back to the\n+    # prompt of the outer GDB.\n+    send_inferior \"\\003\"\n+    gdb_test_multiple \"\" \"interrupted the inner\" {\n+\t-re \".*\\\\(outer-gdb\\\\) $\" {\n+\t    pass $gdb_test_name\n+\t}\n+    }\n+\n+    # Now enable all breakpoints within the outer GDB.\n+    gdb_test_multiple \"enable breakpoints\" \"\" {\n+\t-re \"\\\\(outer-gdb\\\\) $\" {\n+\t    pass $gdb_test_name\n+\t}\n+    }\n+\n+    # We need to resume the inner GDB after interrupting it, this is\n+    # done by sending 'continue'.  However, GDB will not redisplay the\n+    # prompt in this case, so we have nothing that we can detect in\n+    # order to know this continue was successful.  Still, if this\n+    # didn't work, then later tests should fail.\n+    send_gdb \"continue\\n\"\n+\n+    # Control is back with the inner GDB.  Send a command to the inner\n+    # GDB, this should result in the outer GDB stopping at one of the\n+    # breakpoints we created..\n     send_inferior \"print 1\\n\"\n-    gdb_test_multiple \"\" \"hit breakpoint in inner gdb\" {\n-\t-re \"Breakpoint $decimal, value_print.*\\\\(xgdb\\\\) $\" {\n+    gdb_test_multiple \"\" \"hit breakpoint in outer gdb\" {\n+\t-re \"Breakpoint $decimal, value_print.*\\\\(outer-gdb\\\\) $\" {\n \t    pass $gdb_test_name\n \t}\n     }\n@@ -107,12 +153,12 @@ proc test_python_helper {} {\n \t\t    \" instance_flags = 0,\" \\\n \t\t    \" length = $decimal,\" \\\n \t\t    \" main_type = $hex}\" \\\n-\t\t    \"\\\\(xgdb\\\\) $\"]\n+\t\t    \"\\\\(outer-gdb\\\\) $\"]\n     gdb_test_multiple \"print *val->type\" \"pretty print type\" {\n \t-re \"$answer\" {\n \t    pass $gdb_test_name\n \t}\n-\t-re \"There is no member named.*\\r\\n\\\\(xgdb\\\\) $\" {\n+\t-re \"There is no member named.*\\r\\n\\\\(outer-gdb\\\\) $\" {\n \t    fail $gdb_test_name\n \t}\n     }\n@@ -125,12 +171,93 @@ proc test_python_helper {} {\n \t\t    \" owner = $hex \\\\(gdbarch\\\\),\" \\\n \t\t    \" target_type = 0x0,\" \\\n \t\t    \" type_specific_field = TYPE_SPECIFIC_NONE}\" \\\n-\t\t    \"\\\\(xgdb\\\\) $\"]\n+\t\t    \"\\\\(outer-gdb\\\\) $\"]\n     gdb_test_multiple \"print *val->type->main_type\" \"pretty print type->main_type\" {\n \t-re \"$answer\" {\n \t    pass $gdb_test_name\n \t}\n-\t-re \"There is no member named.*\\r\\n\\\\(xgdb\\\\) $\" {\n+\t-re \"There is no member named.*\\r\\n\\\\(outer-gdb\\\\) $\" {\n+\t    fail $gdb_test_name\n+\t}\n+    }\n+\n+    # Send the continue to the outer GDB, which resumes the inner GDB,\n+    # we then detect the prompt from the inner GDB, hence the use of\n+    # -i here.\n+    gdb_test_multiple \"continue\" \"resume inner gdb\" {\n+\t-i $inferior_spawn_id\n+\t-re \"\\r\\n$gdb_prompt $\" {\n+\t    pass $gdb_test_name\n+\t}\n+    }\n+\n+    # Now print an integer that was created from the DWARF\n+    # information, this will include the TYPE_SPECIFIC_INT\n+    # information.\n+    send_inferior \"print global_c.m_val\\n\"\n+    gdb_test_multiple \"\" \"print integer from DWARF info\" {\n+\t-re \"Breakpoint $decimal, value_print.*\\\\(outer-gdb\\\\) $\" {\n+\t    pass $gdb_test_name\n+\t}\n+    }\n+\n+    set answer [multi_line \\\n+\t\t    \"$decimal = \" \\\n+\t\t    \"{name = $hex \\\"int\\\",\" \\\n+\t\t    \" code = TYPE_CODE_INT,\" \\\n+\t\t    \" flags = \\[^\\r\\n\\]+,\" \\\n+\t\t    \" owner = $hex \\\\(objfile\\\\),\" \\\n+\t\t    \" target_type = 0x0,\" \\\n+\t\t    \" int_stuff = { bit_size = $decimal, bit_offset = $decimal }}\" \\\n+\t\t    \"\\\\(outer-gdb\\\\) $\"]\n+    gdb_test_multiple \"print *val->type->main_type\" \"pretty print type->main_type for DWARF type\" {\n+\t-re \"$answer\" {\n+\t    pass $gdb_test_name\n+\t}\n+\t-re \"There is no member named.*\\r\\n\\\\(outer-gdb\\\\) $\" {\n+\t    fail $gdb_test_name\n+\t}\n+    }\n+\n+    # Send the continue to the outer GDB, which resumes the inner GDB,\n+    # we then detect the prompt from the inner GDB, hence the use of\n+    # -i here.\n+    gdb_test_multiple \"continue\" \"resume inner gdb again\" {\n+\t-i $inferior_spawn_id\n+\t-re \"\\r\\n$gdb_prompt $\" {\n+\t    pass $gdb_test_name\n+\t}\n+    }\n+\n+    # Send a command to the inner GDB, this should result in the outer\n+    # GDB stopping at the value_print breakpoint again.\n+    send_inferior \"ptype global_c\\n\"\n+    gdb_test_multiple \"\" \"hit breakpoint in outer gdb again\" {\n+\t-re \"Breakpoint $decimal, c_print_type .*\\\\(outer-gdb\\\\) $\" {\n+\t    pass $gdb_test_name\n+\t}\n+    }\n+\n+    set answer [multi_line \\\n+\t\t    \"$decimal = \" \\\n+\t\t    \"{name = $hex \\\"CC\\\",\" \\\n+\t\t    \" code = TYPE_CODE_STRUCT,\" \\\n+\t\t    \" flags = \\[^\\r\\n\\]+,\" \\\n+\t\t    \" owner = $hex \\\\(objfile\\\\),\" \\\n+\t\t    \" target_type = 0x0,\" \\\n+\t\t    \" flds_bnds\\\\.fields\\\\\\[0\\\\\\]:\" \\\n+\t\t    \"  {m_name = $hex \\\"m_val\\\",\" \\\n+\t\t    \"   m_type = $hex,\" \\\n+\t\t    \"   m_loc_kind = FIELD_LOC_KIND_BITPOS,\" \\\n+\t\t    \"   bitsize = 0,\" \\\n+\t\t    \"   bitpos = 0},\" \\\n+\t\t    \" cplus_stuff = $hex}\" \\\n+\t\t    \"\\\\(outer-gdb\\\\) $\"]\n+    gdb_test_multiple \"print *type->main_type\" \"\" {\n+\t-re \"$answer\" {\n+\t    pass $gdb_test_name\n+\t}\n+\t-re \"\\r\\n\\\\(outer-gdb\\\\) $\" {\n \t    fail $gdb_test_name\n \t}\n     }"
+    }
+  ]
+}

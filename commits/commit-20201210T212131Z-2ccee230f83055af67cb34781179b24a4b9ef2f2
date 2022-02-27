@@ -1,0 +1,110 @@
+{
+  "sha": "2ccee230f83055af67cb34781179b24a4b9ef2f2",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MmNjZWUyMzBmODMwNTVhZjY3Y2IzNDc4MTE3OWIyNGE0YjllZjJmMg==",
+  "commit": {
+    "author": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2020-12-08T21:07:45Z"
+    },
+    "committer": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2020-12-10T21:21:31Z"
+    },
+    "message": "Fix off-by-one error in ada_fold_name\n\nI'm seeing a libstdc++ assertion failure when running GDB's \"maint selftest\"\ncommand when GDB is configured with the following CFLAGS and CXXFLAGS as\npart of the configure line:\n\n  CFLAGS='-D_GLIBCXX_DEBUG -g3 -O0' CXXFLAGS='-D_GLIBCXX_DEBUG -g3 -O0'\n\nThis is what I see when running the self tests:\n\n(gdb) maint selftest\nRunning selftest aarch64-analyze-prologue.\nRunning selftest aarch64-process-record.\nRunning selftest arm-record.\nRunning selftest arm_analyze_prologue.\nRunning selftest array_view.\nRunning selftest child_path.\nRunning selftest cli_utils.\nRunning selftest command_structure_invariants.\nRunning selftest copy_bitwise.\nRunning selftest copy_integer_to_size.\nRunning selftest cp_remove_params.\nRunning selftest cp_symbol_name_matches.\nRunning selftest dw2_expand_symtabs_matching.\n/usr/include/c++/11/string_view:211: constexpr const value_type& std::basic_string_view<_CharT, _Traits>::operator[](std::basic_string_view<_CharT, _Traits>::size_type) const [with _CharT = char; _Traits = std::char_traits<char>; std::basic_string_view<_CharT, _Traits>::const_reference = const char&; std::basic_string_view<_CharT, _Traits>::size_type = long unsigned int]: Assertion '__pos < this->_M_len' failed.\nAborted (core dumped)\n\nHere's a partial stack trace:\n\n  #0  0x00007ffff6ef6262 in raise () from /lib64/libc.so.6\n  #1  0x00007ffff6edf8a4 in abort () from /lib64/libc.so.6\n  #2  0x00000000004249bf in std::__replacement_assert (\n      __file=0xef7480 \"/usr/include/c++/11/string_view\", __line=211,\n      __function=0xef7328 \"constexpr const value_type& std::basic_string_view<_CharT, _Traits>::operator[](std::basic_string_view<_CharT, _Traits>::size_type) const [with _CharT = char; _Traits = std::char_traits<char>; std::ba\"...,\n      __condition=0xef7311 \"__pos < this->_M_len\")\n      at /usr/include/c++/11/x86_64-redhat-linux/bits/c++config.h:2624\n  #3  0x0000000000451737 in std::basic_string_view<char, std::char_traits<char> >::operator[] (this=0x7fffffffc200, __pos=8)\n      at /usr/include/c++/11/string_view:211\n  #4  0x00000000004329f5 in ada_fold_name (name=\"function\")\n      at /ironwood1/sourceware-git/rawhide-master/bld/../../worktree-master/gdb/ada-lang.c:988\n\nAnd, looking at frame #4...\n\n(top-gdb) up 4\n    at /ironwood1/sourceware-git/rawhide-master/bld/../../worktree-master/gdb/ada-lang.c:988\n988\t\tfold_buffer[i] = tolower (name[i]);\n(top-gdb) p i\n$1 = 8\n(top-gdb) p name.size()\n$2 = 8\n\nMy patch adjusts the comparison to only copy name.size() characters\nfrom the string.  I've added a separate statement for NUL character\ntermination of fold_buffer[].\n\ngdb/ChangeLog:\n\n\t* ada-lang.c (ada_fold_name): Fix off-by-one error.",
+    "tree": {
+      "sha": "93ffbf79c79ae46666dae70900e8c47d8748ccf6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/93ffbf79c79ae46666dae70900e8c47d8748ccf6"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/2ccee230f83055af67cb34781179b24a4b9ef2f2",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2ccee230f83055af67cb34781179b24a4b9ef2f2",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/2ccee230f83055af67cb34781179b24a4b9ef2f2",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2ccee230f83055af67cb34781179b24a4b9ef2f2/comments",
+  "author": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "ae1f4d2d99ac57fd9b883982f440b6c859d089b9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ae1f4d2d99ac57fd9b883982f440b6c859d089b9",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/ae1f4d2d99ac57fd9b883982f440b6c859d089b9"
+    }
+  ],
+  "stats": {
+    "total": 7,
+    "additions": 6,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "79e84bc41807d384c744d0b033bbcc9f9aa6cc26",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2ccee230f83055af67cb34781179b24a4b9ef2f2/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2ccee230f83055af67cb34781179b24a4b9ef2f2/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=2ccee230f83055af67cb34781179b24a4b9ef2f2",
+      "patch": "@@ -1,3 +1,7 @@\n+2020-12-10  Kevin Buettner  <kevinb@redhat.com>\n+\n+\t* ada-lang.c (ada_fold_name): Fix off-by-one error.\n+\n 2020-12-10  Luis Machado  <luis.machado@linaro.org>\n \n \t* breakpoint.c (should_be_inserted): Don't output newline."
+    },
+    {
+      "sha": "39546de41bf322a359199babcc1571e4b2d9c2cd",
+      "filename": "gdb/ada-lang.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2ccee230f83055af67cb34781179b24a4b9ef2f2/gdb/ada-lang.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2ccee230f83055af67cb34781179b24a4b9ef2f2/gdb/ada-lang.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ada-lang.c?ref=2ccee230f83055af67cb34781179b24a4b9ef2f2",
+      "patch": "@@ -984,8 +984,9 @@ ada_fold_name (gdb::string_view name)\n     {\n       int i;\n \n-      for (i = 0; i <= len; i += 1)\n+      for (i = 0; i < len; i += 1)\n \tfold_buffer[i] = tolower (name[i]);\n+      fold_buffer[i] = '\\0';\n     }\n \n   return fold_buffer;"
+    }
+  ]
+}

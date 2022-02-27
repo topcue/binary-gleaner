@@ -1,0 +1,230 @@
+{
+  "sha": "5538b03c98e77756b1e1d3e3be86f997a78e6d11",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NTUzOGIwM2M5OGU3Nzc1NmIxZTFkM2UzYmU4NmY5OTdhNzhlNmQxMQ==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-06-30T03:10:32Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-07-23T19:38:54Z"
+    },
+    "message": "gdb: remove cmd_list_element::function::sfunc\n\nI don't understand what the sfunc function type in\ncmd_list_element::function is for.  Compared to cmd_simple_func_ftype,\nit has an extra cmd_list_element parameter, giving the callback access\nto the cmd_list_element for the command being invoked.  This allows\nregistering the same callback with many commands, and alter the behavior\nusing the cmd_list_element's context.\n\nFrom the comment in cmd_list_element, it sounds like at some point it\nwas the callback function type for set and show functions, hence the\n\"s\".  But nowadays, it's used for many more commands that need to access\nthe cmd_list_element object (see add_catch_command for example).\n\nI don't really see the point of having sfunc at all, since do_sfunc is\njust a trivial shim that changes the order of the arguments.  All\ncommands using sfunc could just as well set cmd_list_element::func to\ntheir callback directly.\n\nTherefore, remove the sfunc field in cmd_list_element and everything\nthat goes with it.  Rename cmd_const_sfunc_ftype to cmd_func_ftype and\nuse it for cmd_list_element::func, as well as for the add_setshow\ncommands.\n\nChange-Id: I1eb96326c9b511c293c76996cea0ebc51c70fac0",
+    "tree": {
+      "sha": "a5cfc5baadd65eb9bfed28fff143687c425a2b94",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/a5cfc5baadd65eb9bfed28fff143687c425a2b94"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/5538b03c98e77756b1e1d3e3be86f997a78e6d11",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5538b03c98e77756b1e1d3e3be86f997a78e6d11",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/5538b03c98e77756b1e1d3e3be86f997a78e6d11",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5538b03c98e77756b1e1d3e3be86f997a78e6d11/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "3a553c80da88a45f46ded5d2c058fe2545c8fbdd",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3a553c80da88a45f46ded5d2c058fe2545c8fbdd",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/3a553c80da88a45f46ded5d2c058fe2545c8fbdd"
+    }
+  ],
+  "stats": {
+    "total": 134,
+    "additions": 52,
+    "deletions": 82
+  },
+  "files": [
+    {
+      "sha": "89af44ee4c6b8dfdca3d07c61fc4e73b2cc04f01",
+      "filename": "gdb/breakpoint.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/breakpoint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/breakpoint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/breakpoint.c?ref=5538b03c98e77756b1e1d3e3be86f997a78e6d11",
+      "patch": "@@ -15204,7 +15204,7 @@ static struct cmd_list_element *tcatch_cmdlist;\n \n void\n add_catch_command (const char *name, const char *docstring,\n-\t\t   cmd_const_sfunc_ftype *sfunc,\n+\t\t   cmd_func_ftype *func,\n \t\t   completer_ftype *completer,\n \t\t   void *user_data_catch,\n \t\t   void *user_data_tcatch)\n@@ -15213,13 +15213,13 @@ add_catch_command (const char *name, const char *docstring,\n \n   command = add_cmd (name, class_breakpoint, docstring,\n \t\t     &catch_cmdlist);\n-  set_cmd_sfunc (command, sfunc);\n+  command->func = func;\n   command->set_context (user_data_catch);\n   set_cmd_completer (command, completer);\n \n   command = add_cmd (name, class_breakpoint, docstring,\n \t\t     &tcatch_cmdlist);\n-  set_cmd_sfunc (command, sfunc);\n+  command->func = func;\n   command->set_context (user_data_tcatch);\n   set_cmd_completer (command, completer);\n }"
+    },
+    {
+      "sha": "ab65f41a91b530580ae6ad73d94321cc13114496",
+      "filename": "gdb/breakpoint.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/breakpoint.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/breakpoint.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/breakpoint.h?ref=5538b03c98e77756b1e1d3e3be86f997a78e6d11",
+      "patch": "@@ -1347,7 +1347,7 @@ extern void initialize_breakpoint_ops (void);\n \n extern void\n   add_catch_command (const char *name, const char *docstring,\n-\t\t     cmd_const_sfunc_ftype *sfunc,\n+\t\t     cmd_func_ftype *func,\n \t\t     completer_ftype *completer,\n \t\t     void *user_data_catch,\n \t\t     void *user_data_tcatch);"
+    },
+    {
+      "sha": "06f3de0f038a31c90569e8f1ca6995d6988e6163",
+      "filename": "gdb/cli/cli-decode.c",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 44,
+      "changes": 66,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/cli/cli-decode.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/cli/cli-decode.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cli/cli-decode.c?ref=5538b03c98e77756b1e1d3e3be86f997a78e6d11",
+      "patch": "@@ -91,13 +91,8 @@ static void\n print_help_for_command (struct cmd_list_element *c,\n \t\t\tbool recurse, struct ui_file *stream);\n \n-\f\n-/* Set the callback function for the specified command.  For each both\n-   the commands callback and func() are set.  The latter set to a\n-   bounce function (unless simple_func / sfunc is NULL that is).  */\n-\n static void\n-do_simple_func (struct cmd_list_element *c, const char *args, int from_tty)\n+do_simple_func (const char *args, int from_tty, cmd_list_element *c)\n {\n   c->function.simple_func (args, from_tty);\n }\n@@ -113,22 +108,6 @@ set_cmd_simple_func (struct cmd_list_element *cmd, cmd_simple_func_ftype *simple\n   cmd->function.simple_func = simple_func;\n }\n \n-static void\n-do_sfunc (struct cmd_list_element *c, const char *args, int from_tty)\n-{\n-  c->function.sfunc (args, from_tty, c);\n-}\n-\n-void\n-set_cmd_sfunc (struct cmd_list_element *cmd, cmd_const_sfunc_ftype *sfunc)\n-{\n-  if (sfunc == NULL)\n-    cmd->func = NULL;\n-  else\n-    cmd->func = do_sfunc;\n-  cmd->function.sfunc = sfunc;\n-}\n-\n int\n cmd_simple_func_eq (struct cmd_list_element *cmd, cmd_simple_func_ftype *simple_func)\n {\n@@ -401,7 +380,7 @@ add_basic_prefix_cmd (const char *name, enum command_class theclass,\n   struct cmd_list_element *cmd = add_prefix_cmd (name, theclass, nullptr,\n \t\t\t\t\t\t doc, subcommands,\n \t\t\t\t\t\t allow_unknown, list);\n-  set_cmd_sfunc (cmd, do_prefix_cmd);\n+  cmd->func = do_prefix_cmd;\n   return cmd;\n }\n \n@@ -424,7 +403,7 @@ add_show_prefix_cmd (const char *name, enum command_class theclass,\n   struct cmd_list_element *cmd = add_prefix_cmd (name, theclass, nullptr,\n \t\t\t\t\t\t doc, subcommands,\n \t\t\t\t\t\t allow_unknown, list);\n-  set_cmd_sfunc (cmd, do_show_prefix_cmd);\n+  cmd->func = do_show_prefix_cmd;\n   return cmd;\n }\n \n@@ -468,10 +447,10 @@ not_just_help_class_command (const char *args, int from_tty)\n {\n }\n \n-/* This is an empty \"sfunc\".  */\n+/* This is an empty cmd func.  */\n \n static void\n-empty_sfunc (const char *args, int from_tty, struct cmd_list_element *c)\n+empty_func (const char *args, int from_tty, cmd_list_element *c)\n {\n }\n \n@@ -500,7 +479,7 @@ add_set_or_show_cmd (const char *name,\n   c->var = var;\n   /* This needs to be something besides NULL so that this isn't\n      treated as a help class.  */\n-  set_cmd_sfunc (c, empty_sfunc);\n+  c->func = empty_func;\n   return c;\n }\n \n@@ -519,7 +498,7 @@ add_setshow_cmd_full (const char *name,\n \t\t      var_types var_type, void *var,\n \t\t      const char *set_doc, const char *show_doc,\n \t\t      const char *help_doc,\n-\t\t      cmd_const_sfunc_ftype *set_func,\n+\t\t      cmd_func_ftype *set_func,\n \t\t      show_value_ftype *show_func,\n \t\t      struct cmd_list_element **set_list,\n \t\t      struct cmd_list_element **show_list)\n@@ -544,7 +523,7 @@ add_setshow_cmd_full (const char *name,\n   set->doc_allocated = 1;\n \n   if (set_func != NULL)\n-    set_cmd_sfunc (set, set_func);\n+    set->func = set_func;\n \n   show = add_set_or_show_cmd (name, show_cmd, theclass, var_type, var,\n \t\t\t      full_show_doc, show_list);\n@@ -570,7 +549,7 @@ add_setshow_enum_cmd (const char *name,\n \t\t      const char *set_doc,\n \t\t      const char *show_doc,\n \t\t      const char *help_doc,\n-\t\t      cmd_const_sfunc_ftype *set_func,\n+\t\t      cmd_func_ftype *set_func,\n \t\t      show_value_ftype *show_func,\n \t\t      struct cmd_list_element **set_list,\n \t\t      struct cmd_list_element **show_list)\n@@ -598,7 +577,7 @@ add_setshow_auto_boolean_cmd (const char *name,\n \t\t\t      enum auto_boolean *var,\n \t\t\t      const char *set_doc, const char *show_doc,\n \t\t\t      const char *help_doc,\n-\t\t\t      cmd_const_sfunc_ftype *set_func,\n+\t\t\t      cmd_func_ftype *set_func,\n \t\t\t      show_value_ftype *show_func,\n \t\t\t      struct cmd_list_element **set_list,\n \t\t\t      struct cmd_list_element **show_list)\n@@ -627,7 +606,7 @@ set_show_commands\n add_setshow_boolean_cmd (const char *name, enum command_class theclass, bool *var,\n \t\t\t const char *set_doc, const char *show_doc,\n \t\t\t const char *help_doc,\n-\t\t\t cmd_const_sfunc_ftype *set_func,\n+\t\t\t cmd_func_ftype *set_func,\n \t\t\t show_value_ftype *show_func,\n \t\t\t struct cmd_list_element **set_list,\n \t\t\t struct cmd_list_element **show_list)\n@@ -651,7 +630,7 @@ add_setshow_filename_cmd (const char *name, enum command_class theclass,\n \t\t\t  char **var,\n \t\t\t  const char *set_doc, const char *show_doc,\n \t\t\t  const char *help_doc,\n-\t\t\t  cmd_const_sfunc_ftype *set_func,\n+\t\t\t  cmd_func_ftype *set_func,\n \t\t\t  show_value_ftype *show_func,\n \t\t\t  struct cmd_list_element **set_list,\n \t\t\t  struct cmd_list_element **show_list)\n@@ -675,7 +654,7 @@ add_setshow_string_cmd (const char *name, enum command_class theclass,\n \t\t\tchar **var,\n \t\t\tconst char *set_doc, const char *show_doc,\n \t\t\tconst char *help_doc,\n-\t\t\tcmd_const_sfunc_ftype *set_func,\n+\t\t\tcmd_func_ftype *set_func,\n \t\t\tshow_value_ftype *show_func,\n \t\t\tstruct cmd_list_element **set_list,\n \t\t\tstruct cmd_list_element **show_list)\n@@ -700,7 +679,7 @@ add_setshow_string_noescape_cmd (const char *name, enum command_class theclass,\n \t\t\t\t char **var,\n \t\t\t\t const char *set_doc, const char *show_doc,\n \t\t\t\t const char *help_doc,\n-\t\t\t\t cmd_const_sfunc_ftype *set_func,\n+\t\t\t\t cmd_func_ftype *set_func,\n \t\t\t\t show_value_ftype *show_func,\n \t\t\t\t struct cmd_list_element **set_list,\n \t\t\t\t struct cmd_list_element **show_list)\n@@ -725,7 +704,7 @@ add_setshow_optional_filename_cmd (const char *name, enum command_class theclass\n \t\t\t\t   char **var,\n \t\t\t\t   const char *set_doc, const char *show_doc,\n \t\t\t\t   const char *help_doc,\n-\t\t\t\t   cmd_const_sfunc_ftype *set_func,\n+\t\t\t\t   cmd_func_ftype *set_func,\n \t\t\t\t   show_value_ftype *show_func,\n \t\t\t\t   struct cmd_list_element **set_list,\n \t\t\t\t   struct cmd_list_element **show_list)\n@@ -769,7 +748,7 @@ add_setshow_integer_cmd (const char *name, enum command_class theclass,\n \t\t\t int *var,\n \t\t\t const char *set_doc, const char *show_doc,\n \t\t\t const char *help_doc,\n-\t\t\t cmd_const_sfunc_ftype *set_func,\n+\t\t\t cmd_func_ftype *set_func,\n \t\t\t show_value_ftype *show_func,\n \t\t\t struct cmd_list_element **set_list,\n \t\t\t struct cmd_list_element **show_list)\n@@ -795,7 +774,7 @@ add_setshow_uinteger_cmd (const char *name, enum command_class theclass,\n \t\t\t  unsigned int *var,\n \t\t\t  const char *set_doc, const char *show_doc,\n \t\t\t  const char *help_doc,\n-\t\t\t  cmd_const_sfunc_ftype *set_func,\n+\t\t\t  cmd_func_ftype *set_func,\n \t\t\t  show_value_ftype *show_func,\n \t\t\t  struct cmd_list_element **set_list,\n \t\t\t  struct cmd_list_element **show_list)\n@@ -821,7 +800,7 @@ add_setshow_zinteger_cmd (const char *name, enum command_class theclass,\n \t\t\t  int *var,\n \t\t\t  const char *set_doc, const char *show_doc,\n \t\t\t  const char *help_doc,\n-\t\t\t  cmd_const_sfunc_ftype *set_func,\n+\t\t\t  cmd_func_ftype *set_func,\n \t\t\t  show_value_ftype *show_func,\n \t\t\t  struct cmd_list_element **set_list,\n \t\t\t  struct cmd_list_element **show_list)\n@@ -839,7 +818,7 @@ add_setshow_zuinteger_unlimited_cmd (const char *name,\n \t\t\t\t     const char *set_doc,\n \t\t\t\t     const char *show_doc,\n \t\t\t\t     const char *help_doc,\n-\t\t\t\t     cmd_const_sfunc_ftype *set_func,\n+\t\t\t\t     cmd_func_ftype *set_func,\n \t\t\t\t     show_value_ftype *show_func,\n \t\t\t\t     struct cmd_list_element **set_list,\n \t\t\t\t     struct cmd_list_element **show_list)\n@@ -865,7 +844,7 @@ add_setshow_zuinteger_cmd (const char *name, enum command_class theclass,\n \t\t\t   unsigned int *var,\n \t\t\t   const char *set_doc, const char *show_doc,\n \t\t\t   const char *help_doc,\n-\t\t\t   cmd_const_sfunc_ftype *set_func,\n+\t\t\t   cmd_func_ftype *set_func,\n \t\t\t   show_value_ftype *show_func,\n \t\t\t   struct cmd_list_element **set_list,\n \t\t\t   struct cmd_list_element **show_list)\n@@ -2159,7 +2138,7 @@ cmd_func (struct cmd_list_element *cmd, const char *args, int from_tty)\n       if (cmd->suppress_notification != NULL)\n \trestore_suppress.emplace (cmd->suppress_notification, 1);\n \n-      (*cmd->func) (cmd, args, from_tty);\n+      cmd->func (args, from_tty, cmd);\n     }\n   else\n     error (_(\"Invalid command\"));\n@@ -2168,6 +2147,5 @@ cmd_func (struct cmd_list_element *cmd, const char *args, int from_tty)\n int\n cli_user_command_p (struct cmd_list_element *cmd)\n {\n-  return (cmd->theclass == class_user\n-\t  && (cmd->func == do_simple_func || cmd->func == do_sfunc));\n+  return cmd->theclass == class_user && cmd->func == do_simple_func;\n }"
+    },
+    {
+      "sha": "651d1ef8abb742b9d9f2c70a5667c82026fae5e6",
+      "filename": "gdb/cli/cli-decode.h",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 6,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/cli/cli-decode.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/cli/cli-decode.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cli/cli-decode.h?ref=5538b03c98e77756b1e1d3e3be86f997a78e6d11",
+      "patch": "@@ -168,8 +168,8 @@ struct cmd_list_element\n      cagney/2002-02-02: This function signature is evolving.  For\n      the moment suggest sticking with either set_cmd_cfunc() or\n      set_cmd_sfunc().  */\n-  void (*func) (struct cmd_list_element *c, const char *args, int from_tty)\n-    = nullptr;\n+  cmd_func_ftype *func;\n+\n   /* The command's real callback.  At present func() bounces through\n      to one of the below.  */\n   union\n@@ -179,10 +179,6 @@ struct cmd_list_element\n \t cmd_list_element parameter.  do_simple_func is installed as FUNC, and\n \t acts as a shim between the two.  */\n       cmd_simple_func_ftype *simple_func;\n-\n-      /* If type is set_cmd or show_cmd, first set the variables,\n-\t and then call this: */\n-      cmd_const_sfunc_ftype *sfunc;\n     }\n   function;\n "
+    },
+    {
+      "sha": "6f7688ad58fa527eafbe88036f449f0d531a91ab",
+      "filename": "gdb/cli/cli-dump.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/cli/cli-dump.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/cli/cli-dump.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cli/cli-dump.c?ref=5538b03c98e77756b1e1d3e3be86f997a78e6d11",
+      "patch": "@@ -331,7 +331,7 @@ struct dump_context\n };\n \n static void\n-call_dump_func (struct cmd_list_element *c, const char *args, int from_tty)\n+call_dump_func (const char *args, int from_tty, cmd_list_element *c)\n {\n   struct dump_context *d = (struct dump_context *) c->context ();\n "
+    },
+    {
+      "sha": "0290acede7fa35dde53ef2af27dfbea66d95c93e",
+      "filename": "gdb/cli/cli-setshow.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/cli/cli-setshow.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/cli/cli-setshow.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cli/cli-setshow.c?ref=5538b03c98e77756b1e1d3e3be86f997a78e6d11",
+      "patch": "@@ -517,7 +517,8 @@ do_set_command (const char *arg, int from_tty, struct cmd_list_element *c)\n     default:\n       error (_(\"gdb internal error: bad var_type in do_setshow_command\"));\n     }\n-  c->func (c, NULL, from_tty);\n+\n+  c->func (NULL, from_tty, c);\n \n   if (notify_command_param_changed_p (option_changed, c))\n     {\n@@ -723,7 +724,7 @@ do_show_command (const char *arg, int from_tty, struct cmd_list_element *c)\n \tdeprecated_show_value_hack (gdb_stdout, from_tty, c, val.c_str ());\n     }\n \n-  c->func (c, NULL, from_tty);\n+  c->func (NULL, from_tty, c);\n }\n \n /* Show all the settings in a list of show commands.  */"
+    },
+    {
+      "sha": "baf34401a0700e3dd28a35a8fd1a76a38248bd6c",
+      "filename": "gdb/command.h",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 16,
+      "changes": 30,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/command.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/command.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/command.h?ref=5538b03c98e77756b1e1d3e3be86f997a78e6d11",
+      "patch": "@@ -221,10 +221,8 @@ extern struct cmd_list_element *add_abbrev_prefix_cmd (const char *,\n \t\t\t\t\t\t       struct cmd_list_element\n \t\t\t\t\t\t       **);\n \n-typedef void cmd_const_sfunc_ftype (const char *args, int from_tty,\n-\t\t\t\t    struct cmd_list_element *c);\n-extern void set_cmd_sfunc (struct cmd_list_element *cmd,\n-\t\t\t   cmd_const_sfunc_ftype *sfunc);\n+typedef void cmd_func_ftype (const char *args, int from_tty,\n+\t\t\t     cmd_list_element *c);\n \n /* A completion routine.  Add possible completions to tracker.\n \n@@ -404,73 +402,73 @@ struct set_show_commands\n extern set_show_commands add_setshow_enum_cmd\n   (const char *name, command_class theclass, const char *const *enumlist,\n    const char **var, const char *set_doc, const char *show_doc,\n-   const char *help_doc, cmd_const_sfunc_ftype *set_func,\n+   const char *help_doc, cmd_func_ftype *set_func,\n    show_value_ftype *show_func, cmd_list_element **set_list,\n    cmd_list_element **show_list);\n \n extern set_show_commands add_setshow_auto_boolean_cmd\n   (const char *name, command_class theclass, auto_boolean *var,\n    const char *set_doc, const char *show_doc, const char *help_doc,\n-   cmd_const_sfunc_ftype *set_func, show_value_ftype *show_func,\n+   cmd_func_ftype *set_func, show_value_ftype *show_func,\n    cmd_list_element **set_list, cmd_list_element **show_list);\n \n extern set_show_commands add_setshow_boolean_cmd\n   (const char *name, command_class theclass, bool *var, const char *set_doc,\n-   const char *show_doc, const char *help_doc, cmd_const_sfunc_ftype *set_func,\n+   const char *show_doc, const char *help_doc, cmd_func_ftype *set_func,\n    show_value_ftype *show_func, cmd_list_element **set_list,\n    cmd_list_element **show_list);\n \n extern set_show_commands add_setshow_filename_cmd\n   (const char *name, command_class theclass, char **var, const char *set_doc,\n-   const char *show_doc, const char *help_doc, cmd_const_sfunc_ftype *set_func,\n+   const char *show_doc, const char *help_doc, cmd_func_ftype *set_func,\n    show_value_ftype *show_func, cmd_list_element **set_list,\n    cmd_list_element **show_list);\n \n extern set_show_commands add_setshow_string_cmd\n   (const char *name, command_class theclass, char **var, const char *set_doc,\n-   const char *show_doc, const char *help_doc, cmd_const_sfunc_ftype *set_func,\n+   const char *show_doc, const char *help_doc, cmd_func_ftype *set_func,\n    show_value_ftype *show_func, cmd_list_element **set_list,\n    cmd_list_element **show_list);\n \n extern set_show_commands add_setshow_string_noescape_cmd\n   (const char *name, command_class theclass, char **var, const char *set_doc,\n-   const char *show_doc, const char *help_doc, cmd_const_sfunc_ftype *set_func,\n+   const char *show_doc, const char *help_doc, cmd_func_ftype *set_func,\n    show_value_ftype *show_func, cmd_list_element **set_list,\n    cmd_list_element **show_list);\n \n extern set_show_commands add_setshow_optional_filename_cmd\n   (const char *name, command_class theclass, char **var, const char *set_doc,\n-   const char *show_doc, const char *help_doc, cmd_const_sfunc_ftype *set_func,\n+   const char *show_doc, const char *help_doc, cmd_func_ftype *set_func,\n    show_value_ftype *show_func, cmd_list_element **set_list,\n    cmd_list_element **show_list);\n \n extern set_show_commands add_setshow_integer_cmd\n   (const char *name, command_class theclass, int *var, const char *set_doc,\n-   const char *show_doc, const char *help_doc, cmd_const_sfunc_ftype *set_func,\n+   const char *show_doc, const char *help_doc, cmd_func_ftype *set_func,\n    show_value_ftype *show_func, cmd_list_element **set_list,\n    cmd_list_element **show_list);\n \n extern set_show_commands add_setshow_uinteger_cmd\n   (const char *name, command_class theclass, unsigned int *var,\n    const char *set_doc, const char *show_doc, const char *help_doc,\n-   cmd_const_sfunc_ftype *set_func, show_value_ftype *show_func,\n+   cmd_func_ftype *set_func, show_value_ftype *show_func,\n    cmd_list_element **set_list, cmd_list_element **show_list);\n \n extern set_show_commands add_setshow_zinteger_cmd\n   (const char *name, command_class theclass, int *var, const char *set_doc,\n-   const char *show_doc, const char *help_doc, cmd_const_sfunc_ftype *set_func,\n+   const char *show_doc, const char *help_doc, cmd_func_ftype *set_func,\n    show_value_ftype *show_func, cmd_list_element **set_list,\n    cmd_list_element **show_list);\n \n extern set_show_commands add_setshow_zuinteger_cmd\n   (const char *name, command_class theclass, unsigned int *var,\n    const char *set_doc, const char *show_doc, const char *help_doc,\n-   cmd_const_sfunc_ftype *set_func, show_value_ftype *show_func,\n+   cmd_func_ftype *set_func, show_value_ftype *show_func,\n    cmd_list_element **set_list, cmd_list_element **show_list);\n \n extern set_show_commands add_setshow_zuinteger_unlimited_cmd\n   (const char *name, command_class theclass, int *var, const char *set_doc,\n-   const char *show_doc, const char *help_doc, cmd_const_sfunc_ftype *set_func,\n+   const char *show_doc, const char *help_doc, cmd_func_ftype *set_func,\n    show_value_ftype *show_func, cmd_list_element **set_list,\n    cmd_list_element **show_list);\n "
+    },
+    {
+      "sha": "676428577b28522af68c82f8e4ff15831365ba42",
+      "filename": "gdb/guile/scm-cmd.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/guile/scm-cmd.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/guile/scm-cmd.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/guile/scm-cmd.c?ref=5538b03c98e77756b1e1d3e3be86f997a78e6d11",
+      "patch": "@@ -291,8 +291,7 @@ cmdscm_destroyer (struct cmd_list_element *self, void *context)\n /* Called by gdb to invoke the command.  */\n \n static void\n-cmdscm_function (struct cmd_list_element *command,\n-\t\t const char *args, int from_tty)\n+cmdscm_function (const char *args, int from_tty, cmd_list_element *command)\n {\n   command_smob *c_smob/*obj*/ = (command_smob *) command->context ();\n   SCM arg_scm, tty_scm, result;"
+    },
+    {
+      "sha": "44ea167be277f1738913e491f37b46bec0b50de5",
+      "filename": "gdb/guile/scm-param.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/guile/scm-param.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/guile/scm-param.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/guile/scm-param.c?ref=5538b03c98e77756b1e1d3e3be86f997a78e6d11",
+      "patch": "@@ -353,7 +353,7 @@ static set_show_commands\n add_setshow_generic (enum var_types param_type, enum command_class cmd_class,\n \t\t     char *cmd_name, param_smob *self,\n \t\t     char *set_doc, char *show_doc, char *help_doc,\n-\t\t     cmd_const_sfunc_ftype *set_func,\n+\t\t     cmd_func_ftype *set_func,\n \t\t     show_value_ftype *show_func,\n \t\t     struct cmd_list_element **set_list,\n \t\t     struct cmd_list_element **show_list)"
+    },
+    {
+      "sha": "94608e0bbcfdeb454ea34a1d8f67bff8f77fdb52",
+      "filename": "gdb/python/py-cmd.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/python/py-cmd.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/python/py-cmd.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/py-cmd.c?ref=5538b03c98e77756b1e1d3e3be86f997a78e6d11",
+      "patch": "@@ -100,8 +100,7 @@ cmdpy_destroyer (struct cmd_list_element *self, void *context)\n /* Called by gdb to invoke the command.  */\n \n static void\n-cmdpy_function (struct cmd_list_element *command,\n-\t\tconst char *args, int from_tty)\n+cmdpy_function (const char *args, int from_tty, cmd_list_element *command)\n {\n   cmdpy_object *obj = (cmdpy_object *) command->context ();\n "
+    },
+    {
+      "sha": "fe909c2fd39a9f12638730fa16680eaf2658a169",
+      "filename": "gdb/target.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/target.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/target.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/target.c?ref=5538b03c98e77756b1e1d3e3be86f997a78e6d11",
+      "patch": "@@ -876,7 +876,7 @@ information on the arguments for a particular protocol, type\\n\\\n \t\t\t  &targetlist, 0, &cmdlist);\n   c = add_cmd (t.shortname, no_class, t.doc, &targetlist);\n   c->set_context ((void *) &t);\n-  set_cmd_sfunc (c, open_target);\n+  c->func = open_target;\n   if (completer != NULL)\n     set_cmd_completer (c, completer);\n }\n@@ -892,7 +892,7 @@ add_deprecated_target_alias (const target_info &tinfo, const char *alias)\n   /* If we use add_alias_cmd, here, we do not get the deprecated warning,\n      see PR cli/15104.  */\n   c = add_cmd (alias, no_class, tinfo.doc, &targetlist);\n-  set_cmd_sfunc (c, open_target);\n+  c->func = open_target;\n   c->set_context ((void *) &tinfo);\n   alt = xstrprintf (\"target %s\", tinfo.shortname);\n   deprecate_cmd (c, alt);"
+    },
+    {
+      "sha": "2dfc51935d96d9435491939f147b2e31225ffdd2",
+      "filename": "gdb/tui/tui-layout.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/tui/tui-layout.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5538b03c98e77756b1e1d3e3be86f997a78e6d11/gdb/tui/tui-layout.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/tui/tui-layout.c?ref=5538b03c98e77756b1e1d3e3be86f997a78e6d11",
+      "patch": "@@ -169,8 +169,7 @@ find_layout (tui_layout_split *layout)\n /* Function to set the layout. */\n \n static void\n-tui_apply_layout (struct cmd_list_element *command,\n-\t\t  const char *args, int from_tty)\n+tui_apply_layout (const char *args, int from_tty, cmd_list_element *command)\n {\n   tui_layout_split *layout = (tui_layout_split *) command->context ();\n "
+    }
+  ]
+}

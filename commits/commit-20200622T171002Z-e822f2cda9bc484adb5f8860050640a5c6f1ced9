@@ -1,0 +1,72 @@
+{
+  "sha": "e822f2cda9bc484adb5f8860050640a5c6f1ced9",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZTgyMmYyY2RhOWJjNDg0YWRiNWY4ODYwMDUwNjQwYTVjNmYxY2VkOQ==",
+  "commit": {
+    "author": {
+      "name": "Sandra Loosemore",
+      "email": "sandra@codesourcery.com",
+      "date": "2020-06-22T17:10:02Z"
+    },
+    "committer": {
+      "name": "Sandra Loosemore",
+      "email": "sandra@codesourcery.com",
+      "date": "2020-06-22T17:10:02Z"
+    },
+    "message": "Disable parts of gdb.base/source-dir.exp on remote host\n\nOne set of tests in this file does a lot of complicated directory\nmanipulations to force a specific DW_AT_comp_dir format and gdb\ndirectory search path.  As it's written, everything assumes host ==\nbuild, and it does not seem to me that there is any obvious way to\nrewrite this so it will work in general on remote host.  For instance,\nour harness for testing on remote Windows host normally does all\ncompilation and GDB execution in $cwd using relative pathnames and I'm\nnot sure all these directory tricks would set up the scenario it's\ntrying to test even if they were correctly performed on host rather\nthan build.  So I think it's reasonable just to disable this on remote\nhost instead.\n\nI also noted that it's using the wrong search path syntax for Windows\nhost in the \"set directories\" command and conditionalized that while I\nwas looking at it.  That's a necessary fix to make this work in a\nsituation where host == build and it's Windows, but I'm not actually\nset up to test that it's sufficient, too.\n\n2020-06-22  Sandra Loosemore  <sandra@codesourcery.com>\n\n\tgdb/testsuite/\n\t* gdb.base/source-dir.exp (test_truncated_comp_dir): Skip on\n\tremote host.  Fix search path syntax on Windows host.",
+    "tree": {
+      "sha": "c4dedf5016f2115cb189eccd8623f9fe600b5b3a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c4dedf5016f2115cb189eccd8623f9fe600b5b3a"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/e822f2cda9bc484adb5f8860050640a5c6f1ced9",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e822f2cda9bc484adb5f8860050640a5c6f1ced9",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/e822f2cda9bc484adb5f8860050640a5c6f1ced9",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e822f2cda9bc484adb5f8860050640a5c6f1ced9/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "e4b7104b1e0c70613d0f553cb18d25c7343647d3",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e4b7104b1e0c70613d0f553cb18d25c7343647d3",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/e4b7104b1e0c70613d0f553cb18d25c7343647d3"
+    }
+  ],
+  "stats": {
+    "total": 17,
+    "additions": 16,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "1d3c764de05476b4bcd38c9ca21c7a8861650704",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e822f2cda9bc484adb5f8860050640a5c6f1ced9/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e822f2cda9bc484adb5f8860050640a5c6f1ced9/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=e822f2cda9bc484adb5f8860050640a5c6f1ced9",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-06-22  Sandra Loosemore  <sandra@codesourcery.com>\n+\n+\t* gdb.base/source-dir.exp (test_truncated_comp_dir): Skip on\n+\tremote host.  Fix search path syntax on Windows host.\n+\n 2020-06-21  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n \n \t* gdb.base/attach.exp: Test priority of 'exec-file' changed"
+    },
+    {
+      "sha": "093dda7b9232eeadf5b98068d437f7fdb1bad084",
+      "filename": "gdb/testsuite/gdb.base/source-dir.exp",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 1,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e822f2cda9bc484adb5f8860050640a5c6f1ced9/gdb/testsuite/gdb.base/source-dir.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e822f2cda9bc484adb5f8860050640a5c6f1ced9/gdb/testsuite/gdb.base/source-dir.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/source-dir.exp?ref=e822f2cda9bc484adb5f8860050640a5c6f1ced9",
+      "patch": "@@ -81,6 +81,12 @@ proc test_truncated_comp_dir {} {\n     # find the source file no matter what we added to the directory\n     # search path, this should now be fixed.\n \n+    # All of these pathname and directory manipulations assume\n+    # host == build, so do not attempt this set of tests on remote host.\n+    if [is_remote host] {\n+        return\n+    }\n+\n     set original_dir [pwd]\n     set working_dir [standard_output_file \"\"]\n     cd ${working_dir}\n@@ -108,7 +114,11 @@ proc test_truncated_comp_dir {} {\n \n     clean_restart ${binfile}\n \n-    gdb_test_no_output \"set directories \\$cdir:\\$cwd\"\n+    if { [ishost *-*-mingw*] } {\n+        gdb_test_no_output \"set directories \\$cdir;\\$cwd\"\n+    } else {\n+\tgdb_test_no_output \"set directories \\$cdir:\\$cwd\"\n+    }\n     gdb_test \"show directories\" \\\n \t\"\\r\\nSource directories searched: \\\\\\$cdir\\[:;\\]\\\\\\$cwd\"\n "
+    }
+  ]
+}

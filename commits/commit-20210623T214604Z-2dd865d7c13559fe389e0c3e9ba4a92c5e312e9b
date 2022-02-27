@@ -1,0 +1,146 @@
+{
+  "sha": "2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MmRkODY1ZDdjMTM1NTlmZTM4OWUwYzNlOWJhNGE5MmM1ZTMxMmU5Yg==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-06-23T21:46:04Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-06-23T21:46:04Z"
+    },
+    "message": "[gdb/testsuite] Rewrite gdb_test_lines\n\nOn Ubuntu 20.04, when the debug info package for libc is not installed,\nI get:\n\n    FAIL: gdb.base/info-types-c++.exp: info types\n    FAIL: gdb.base/info-types-c.exp: info types\n\nThe reason is that the output of info types is exactly:\n\n    (gdb) info types\n    All defined types:\n\n    File /home/smarchi/src/binutils-gdb/gdb/testsuite/gdb.base/info-types.c:\n    52:     typedef enum {...} anon_enum_t;\n    45:     typedef struct {...} anon_struct_t;\n    68:     typedef union {...} anon_union_t;\n    28:     typedef struct baz_t baz;\n    31:     typedef struct baz_t * baz_ptr;\n    21:     struct baz_t;\n            double\n    33:     enum enum_t;\n            float\n            int\n    38:     typedef enum enum_t my_enum_t;\n    17:     typedef float my_float_t;\n    16:     typedef int my_int_t;\n    54:     typedef enum {...} nested_anon_enum_t;\n    47:     typedef struct {...} nested_anon_struct_t;\n    70:     typedef union {...} nested_anon_union_t;\n    30:     typedef struct baz_t nested_baz;\n    29:     typedef struct baz_t nested_baz_t;\n    39:     typedef enum enum_t nested_enum_t;\n    19:     typedef float nested_float_t;\n    18:     typedef int nested_int_t;\n    62:     typedef union union_t nested_union_t;\n    56:     union union_t;\n            unsigned int\n    (gdb)\n\nThe lines we expect in the test contain an empty line at the end:\n\n    ...\n    \"62:\\[\\t \\]+typedef union union_t nested_union_t;\" \\\n    \"56:\\[\\t \\]+union union_t;\" \\\n    \"--optional\" \"\\[\\t \\]+unsigned int\" \\\n    \"\"]\n\nThis is written with the supposition that other files will be listed, so\nan empty line will be included to separate the symbols from this file\nfrom the next one.  This empty line is not included when info-types.c is\nthe only file listed.\n\nFix this by rewriting gdb_test_lines to accept a single, plain tcl multiline\nregexp, such that we can write:\n...\n    \"62:\\[\\t \\]+typedef union union_t nested_union_t;\" \\\n    \"56:\\[\\t \\]+union union_t;(\" \\\n    \"\\[\\t \\]+unsigned int)?\" \\\n    \"($|\\r\\n.*)\"]\n...\n\nTested affected test-cases:\n- gdb.base/info-types-c.exp\n- gdb.base/info-types-c++.exp\n- gdb.base/info-macros.exp\n- gdb.cp/cplusfuncs.exp\non x86_64-linux (openSUSE Leap 15.2), both with check and check-read1.\n\nAlso tested the first two with gcc-4.8.\n\nAlso tested on ubuntu 18.04.\n\ngdb/testsuite/ChangeLog:\n\n2021-06-23  Tom de Vries  <tdevries@suse.de>\n\n\t* lib/gdb.exp (gdb_test_lines): Rewrite to accept single\n\tmultiline tcl regexp.\n\t* gdb.base/info-types.exp.tcl: Update.  Make empty line at end of\n\tregexp optional.\n\t* gdb.base/info-macros.exp: Update.\n\t* gdb.cp/cplusfuncs.exp: Update.",
+    "tree": {
+      "sha": "d60e0408077c2844943fcb0d082b18d9bbef485f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/d60e0408077c2844943fcb0d082b18d9bbef485f"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "0b98ef16426bb39b0831fe72224060a8eecc1ff5",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0b98ef16426bb39b0831fe72224060a8eecc1ff5",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/0b98ef16426bb39b0831fe72224060a8eecc1ff5"
+    }
+  ],
+  "stats": {
+    "total": 127,
+    "additions": 47,
+    "deletions": 80
+  },
+  "files": [
+    {
+      "sha": "a790e6856ae13aa61c7ed9b9544cb581883d1f57",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b",
+      "patch": "@@ -1,3 +1,12 @@\n+2021-06-23  Tom de Vries  <tdevries@suse.de>\n+\n+\t* lib/gdb.exp (gdb_test_lines): Rewrite to accept single\n+\tmultiline tcl regexp.\n+\t* gdb.base/info-types.exp.tcl: Update.  Make empty line at end of\n+\tregexp optional.\n+\t* gdb.base/info-macros.exp: Update.\n+\t* gdb.cp/cplusfuncs.exp: Update.\n+\n 2021-06-22  Andreas Schwab  <schwab@suse.de>\n \n \tPR symtab/27999"
+    },
+    {
+      "sha": "44b0b45988d06af876647c5e2cd261ddbad83310",
+      "filename": "gdb/testsuite/gdb.base/info-macros.exp",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 2,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b/gdb/testsuite/gdb.base/info-macros.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b/gdb/testsuite/gdb.base/info-macros.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/info-macros.exp?ref=2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b",
+      "patch": "@@ -273,6 +273,9 @@ gdb_test_multiple_with_read1_timeout_factor 10 \"$test\" $testname {\n \n set test \"info macros info-macros.c:42\"\n \n-set r1 \"#define DEF_MACROS\"\n+set r1 \"#define DEF_MACROS \"\n set r2 \"#define ONE\"\n-gdb_test_lines \"$test\" \"\" [list $r1 \"--any\" $r2]\n+gdb_test_lines \"$test\" \"\" [multi_line \\\n+\t\t\t       \"\" \\\n+\t\t\t       \"$r1\" \\\n+\t\t\t       \"(.*\\r\\n)?$r2\"]"
+    },
+    {
+      "sha": "20b54dad299cda7bf5d671963be4700bfe6c8d81",
+      "filename": "gdb/testsuite/gdb.base/info-types.exp.tcl",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 11,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b/gdb/testsuite/gdb.base/info-types.exp.tcl",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b/gdb/testsuite/gdb.base/info-types.exp.tcl",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/info-types.exp.tcl?ref=2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b",
+      "patch": "@@ -43,8 +43,8 @@ proc run_test { lang } {\n     if { $lang == \"c++\" } {\n \tset output_lines \\\n \t    [list \\\n-\t\t \"All defined types:\" \\\n-\t\t \"--any\" \\\n+\t\t \"^All defined types:\" \\\n+\t\t \".*\" \\\n \t\t $file_re \\\n \t\t \"98:\\[\\t \\]+CL;\" \\\n \t\t \"42:\\[\\t \\]+anon_struct_t;\" \\\n@@ -74,14 +74,14 @@ proc run_test { lang } {\n \t\t \"39:\\[\\t \\]+typedef enum_t nested_enum_t;\" \\\n \t\t \"19:\\[\\t \\]+typedef float nested_float_t;\" \\\n \t\t \"18:\\[\\t \\]+typedef int nested_int_t;\" \\\n-\t\t \"62:\\[\\t \\]+typedef union_t nested_union_t;\" \\\n-\t\t \"--optional\" \"\\[\\t \\]+unsigned int\" \\\n-\t\t \"\"]\n+\t\t \"62:\\[\\t \\]+typedef union_t nested_union_t;(\" \\\n+\t\t \"\\[\\t \\]+unsigned int)?\" \\\n+\t\t \"($|\\r\\n.*)\"]\n     } else {\n \tset output_lines \\\n \t    [list \\\n-\t\t \"All defined types:\" \\\n-\t\t \"--any\" \\\n+\t\t \"^All defined types:\" \\\n+\t\t \".*\" \\\n \t\t $file_re \\\n \t\t \"52:\\[\\t \\]+typedef enum {\\\\.\\\\.\\\\.} anon_enum_t;\" \\\n \t\t \"45:\\[\\t \\]+typedef struct {\\\\.\\\\.\\\\.} anon_struct_t;\" \\\n@@ -105,12 +105,12 @@ proc run_test { lang } {\n \t\t \"19:\\[\\t \\]+typedef float nested_float_t;\" \\\n \t\t \"18:\\[\\t \\]+typedef int nested_int_t;\" \\\n \t\t \"62:\\[\\t \\]+typedef union union_t nested_union_t;\" \\\n-\t\t \"56:\\[\\t \\]+union union_t;\" \\\n-\t\t \"--optional\" \"\\[\\t \\]+unsigned int\" \\\n-\t\t \"\"]\n+\t\t \"56:\\[\\t \\]+union union_t;(\" \\\n+\t\t \"\\[\\t \\]+unsigned int)?\" \\\n+\t\t \"($|\\r\\n.*)\"]\n     }\n \n-    gdb_test_lines \"info types\" \"\" $output_lines\n+    gdb_test_lines \"info types\" \"\" [multi_line {*}$output_lines]\n }\n \n run_test $lang"
+    },
+    {
+      "sha": "737401553057ade1eaa6bcda28c93eb3b2f0f6c0",
+      "filename": "gdb/testsuite/gdb.cp/cplusfuncs.exp",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b/gdb/testsuite/gdb.cp/cplusfuncs.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b/gdb/testsuite/gdb.cp/cplusfuncs.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.cp/cplusfuncs.exp?ref=2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b",
+      "patch": "@@ -294,7 +294,7 @@ proc info_func_regexp { name demangled } {\n     set file_re \"File .*[string_to_regexp $srcfile]:\"\n \n     gdb_test_lines \"info function $name\" \"info function for \\\"$name\\\"\" \\\n-\t[list \\\n+\t[multi_line \\\n \t     \"$file_re\" \\\n \t     \"$decimal:\\t(class|)${demangled}.*\"]\n }"
+    },
+    {
+      "sha": "02b65617ea4037502c64d692b05ac0b772656560",
+      "filename": "gdb/testsuite/lib/gdb.exp",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 66,
+      "changes": 87,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b/gdb/testsuite/lib/gdb.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b/gdb/testsuite/lib/gdb.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/gdb.exp?ref=2dd865d7c13559fe389e0c3e9ba4a92c5e312e9b",
+      "patch": "@@ -1432,86 +1432,41 @@ proc gdb_test_sequence { args } {\n }\n \n \f\n-# Match LINE against regexp OUTPUT_LINES[IDX].  Helper function for\n-# gdb_test_lines.\n-proc match_line { line output_lines idx_name } {\n-    upvar $idx_name idx\n-\n-    while { 1 } {\n-\tif { $idx == [llength $output_lines] } {\n-\t    # Ran out of regexps, bail out.\n-\t    return -1\n-\t}\n-\n-\tset re [lindex $output_lines $idx]\n-\tset opt 0\n-\tset any 0\n-\tif { $re == \"--optional\" } {\n-\t    # Optional, get actual regexp.\n-\t    set opt 1\n-\t    incr idx\n-\t    set re [lindex $output_lines $idx]\n-\t} elseif { $re == \"--any\" } {\n-\t    set any 1\n-\t    incr idx\n-\t    set re [lindex $output_lines $idx]\n-\t}\n-\n-\tif { [regexp $re $line] } {\n-\t    # Match.\n-\t    incr idx\n-\t    if { $idx == [llength $output_lines] } {\n-\t\t# Last match, we're done.\n-\t\treturn 1\n-\t    }\n-\t    # Match found, keep looking for next match.\n-\t    return 0\n-\t} else {\n-\t    # No match.\n-\t    if { $idx == 0 } {\n-\t\t# First match not found, just keep looking for first match.\n-\t\treturn 0\n-\t    } elseif { $opt } {\n-\t\t# Try next regexp on same line.\n-\t\tincr idx\n-\t\tcontinue\n-\t    } elseif { $any } {\n-\t\t# Try again with next line.\n-\t\tincr idx -1\n-\t\treturn 0\n-\t    } else {\n-\t\t# Mismatch, bail out.\n-\t\treturn -1\n-\t    }\n-\t}\n-\tbreak\n-    }\n-\n-    # Keep going.\n-    return 0\n-}\n-\n-# Match output of COMMAND line-by-line, using PATTERNS.\n+# Match output of COMMAND using RE.  Read output line-by-line.\n # Report pass/fail with MESSAGE.\n-\n-proc gdb_test_lines { command message patterns } {\n+# For a command foo with output:\n+#   (gdb) foo^M\n+#   <line1>^M\n+#   <line2>^M\n+#   (gdb)\n+# the portion matched using RE is:\n+#  '<line1>^M\n+#   <line2>^M\n+#  '\n+\n+proc gdb_test_lines { command message re } {\n     set found 0\n     set idx 0\n     if { $message == \"\"} {\n \tset message $command\n     }\n+    set lines \"\"\n     gdb_test_multiple $command $message {\n \t-re \"\\r\\n(\\[^\\r\\n\\]*)(?=\\r\\n)\" {\n-\t    if { $found == 0 } {\n-\t\tset line $expect_out(1,string)\n-\t\tset found [match_line $line $patterns idx]\n+\t    set line $expect_out(1,string)\n+\t    if { $lines eq \"\" } {\n+\t\tappend lines \"$line\"\n+\t    } else {\n+\t\tappend lines \"\\r\\n$line\"\n \t    }\n \t    exp_continue\n \t}\n \t-re -wrap \"\" {\n-\t    gdb_assert { $found == 1 } $gdb_test_name\n+\t    append lines \"\\r\\n\"\n \t}\n     }\n+\n+    gdb_assert { [regexp $re $lines] } $message\n }\n \n # Test that a command gives an error.  For pass or fail, return"
+    }
+  ]
+}

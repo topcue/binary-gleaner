@@ -1,0 +1,158 @@
+{
+  "sha": "a8e9d2471806ef86ff7aec43164a6fe347efba3b",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YThlOWQyNDcxODA2ZWY4NmZmN2FlYzQzMTY0YTZmZTM0N2VmYmEzYg==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2019-07-12T10:26:32Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2019-07-22T09:43:03Z"
+    },
+    "message": "gdb: Show type summary for anonymous structures from c_print_typedef\n\nCurrently each language has a la_print_typedef method, this is only\nused for the \"info types\" command.\n\nThe documentation for \"info types\" says:\n\n   Print a brief description of all types whose names match the regular\n   expression @var{regexp} (or all types in your program, if you supply\n   no argument).\n\nHowever, if we consider this C code:\n\n   typedef struct {\n     int a;\n   } my_type;\n\nThen currently with \"info types\" this will be printed like this:\n\n   3:      typedef struct {\n       int a;\n   } my_type;\n\nI see two problems with this, first the indentation is clearly broken,\nsecond, if the struct contained more fields then it feels like the\nactual type names could easily get lost in the noise.\n\nGiven that \"info types\" is about discovering type names, I think there\nis an argument to be made that we should focus on giving _only_ the\nbriefest summary for \"info types\", and if the user wants to know more\nthey can take the type name and plug it into \"ptype\".  As such, I\npropose that a better output would be:\n\n   3:      typedef struct {...} my_type;\n\nThe user understands that there is a type called `my_type`, and that\nit's an alias for an anonymous structure type.\n\nThe change to achieve this turns out to be pretty simple, but only\neffects languages that make use of c_print_typedef, which are C, C++,\nasm, minimal, d, go, objc, and opencl.  Other languages will for now\ndo whatever they used to do.\n\nThe patch to change how anonymous structs are displayed also changes\nthe display of anonymous enums, consider this code sample:\n\n   typedef enum {\n     AA, BB, CC\n   } anon_enum_t;\n\nThis used to be displayed like this:\n\n   3:      typedef enum {AA, BB, CC} anon_enum_t;\n\nWhich will quickly become cluttered for enums with a large number of\nvalues.  The modified output looks like this:\n\n   3:      typedef enum {...} anon_enum_t;\n\nAgain, the user can always make use of ptype if they want to see the\ndetails of the anon_enum_t type.\n\nIt is worth pointing out that this change (to use {...}) only effects\nanonymous structs and enums, named types don't change with this patch,\nconsider this code:\n\n   struct struct_t {\n     int i;\n   };\n   enum enum_t {\n    AA, BB, CC\n   };\n\nThe output from 'info types' remains unchanged, like this:\n\n   4:      enum enum_t;\n   1:      struct struct_t;\n\nAn additional area of interest is how C++ handles anonymous types used\nwithin a typedef; enums are handled basically inline with how C\nhandles them, but structs (and classes) are slightly different.  The\nbehaviour before the patch is different, and is unchanged by this\npatch.  Consider this code compiled for C++:\n\n   typedef struct {\n     int i;\n   } struct_t;\n\nBoth before and after this patch, this is show by 'info types' as:\n\n   3:      typedef struct_t struct_t;\n\nUnions are displayed similarly to structs in both C and C++, the\nhandling of anonymous unions changes for C in the same way that\nit changes for anonymous structs.\n\nI did look at ada, as this is the only language to actually have some\ntests for \"info types\", however, as I understand it ada doesn't really\nsupport typedefs, however, by forcing the language we can see what ada\nwould print.  So, if we 'set language ada', then originally we printed\nthis:\n\n   3:      record\n       a: int;\n   end record\n\nAgain the indentation is clearly broken, but we also have no mention\nof the type name at all, which is odd, but understandable given the\nlack of typedefs.  If I make a similar change as I'm proposing for C,\nthen we now get this output:\n\n   3:      record ... end record\n\nWhich is even less informative I think.  However, the original output\n_is_ tested for in gdb.ada/info_auto_lang.exp, and its not clear to me\nif the change is a good one or not, so for now I have left this out.\n\ngdb/ChangeLog:\n\n\t* c-typeprint.c (c_print_typedef): Pass -1 instead of 0 to\n\ttype_print.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.ada/info_auto_lang.exp: Update expected results.\n\t* gdb.base/info-types.c: Add additional types to check.\n\t* gdb.base/info-types.exp: Update expected results.",
+    "tree": {
+      "sha": "01eee30050360a6209521d30843969e7ad10023e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/01eee30050360a6209521d30843969e7ad10023e"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/a8e9d2471806ef86ff7aec43164a6fe347efba3b",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a8e9d2471806ef86ff7aec43164a6fe347efba3b",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/a8e9d2471806ef86ff7aec43164a6fe347efba3b",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a8e9d2471806ef86ff7aec43164a6fe347efba3b/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "eb86c5e2e824787875187901b12fba52ef873278",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/eb86c5e2e824787875187901b12fba52ef873278",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/eb86c5e2e824787875187901b12fba52ef873278"
+    }
+  ],
+  "stats": {
+    "total": 81,
+    "additions": 73,
+    "deletions": 8
+  },
+  "files": [
+    {
+      "sha": "63d67124322510d65ecd42c9cb7c2b6231e118e3",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a8e9d2471806ef86ff7aec43164a6fe347efba3b/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a8e9d2471806ef86ff7aec43164a6fe347efba3b/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=a8e9d2471806ef86ff7aec43164a6fe347efba3b",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-07-22  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* c-typeprint.c (c_print_typedef): Pass -1 instead of 0 to\n+\ttype_print.\n+\n 2019-07-22  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* symtab.c (search_symbols): Adjust msymbol matching type arrays"
+    },
+    {
+      "sha": "43ad3b3e0e6ced43f3ecb405c7b9cc63edb25159",
+      "filename": "gdb/c-typeprint.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a8e9d2471806ef86ff7aec43164a6fe347efba3b/gdb/c-typeprint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a8e9d2471806ef86ff7aec43164a6fe347efba3b/gdb/c-typeprint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/c-typeprint.c?ref=a8e9d2471806ef86ff7aec43164a6fe347efba3b",
+      "patch": "@@ -205,7 +205,7 @@ c_print_typedef (struct type *type,\n {\n   type = check_typedef (type);\n   fprintf_filtered (stream, \"typedef \");\n-  type_print (type, \"\", stream, 0);\n+  type_print (type, \"\", stream, -1);\n   if (TYPE_NAME ((SYMBOL_TYPE (new_symbol))) == 0\n       || strcmp (TYPE_NAME ((SYMBOL_TYPE (new_symbol))),\n \t\t SYMBOL_LINKAGE_NAME (new_symbol)) != 0"
+    },
+    {
+      "sha": "c575405279f8faa9334fd60df5c5fb3f0f60725b",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a8e9d2471806ef86ff7aec43164a6fe347efba3b/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a8e9d2471806ef86ff7aec43164a6fe347efba3b/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=a8e9d2471806ef86ff7aec43164a6fe347efba3b",
+      "patch": "@@ -1,3 +1,9 @@\n+2019-07-22  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.ada/info_auto_lang.exp: Update expected results.\n+\t* gdb.base/info-types.c: Add additional types to check.\n+\t* gdb.base/info-types.exp: Update expected results.\n+\n 2019-07-22  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.base/info-types.c: New file."
+    },
+    {
+      "sha": "68457827d2ffacc5157528875ccadba89e3b5421",
+      "filename": "gdb/testsuite/gdb.ada/info_auto_lang.exp",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 4,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a8e9d2471806ef86ff7aec43164a6fe347efba3b/gdb/testsuite/gdb.ada/info_auto_lang.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a8e9d2471806ef86ff7aec43164a6fe347efba3b/gdb/testsuite/gdb.ada/info_auto_lang.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.ada/info_auto_lang.exp?ref=a8e9d2471806ef86ff7aec43164a6fe347efba3b",
+      "patch": "@@ -53,10 +53,7 @@ set func_in_c(ada_syntax)    \"${decimal}:\tprocedure proc_in_c;\"\n set func_in_ada(c_syntax)    \"${decimal}:\tvoid proc_in_ada\\\\\\(void\\\\\\);\"\n set func_in_ada(ada_syntax)  \"${decimal}:\tprocedure proc_in_ada;\"\n \n-set type_in_c(c_syntax) [multi_line \\\n-\t\t\t    \"${decimal}:\ttypedef struct {\" \\\n-\t\t\t    \"    int some_component_in_c;\" \\\n-\t\t\t    \"} some_type_in_c;\" ]\n+set type_in_c(c_syntax) \"${decimal}:\ttypedef struct {\\\\.\\\\.\\\\.} some_type_in_c;\"\n set type_in_c(ada_syntax) [multi_line \\\n \t\t\t      \"${decimal}:\trecord\" \\\n \t\t\t      \"    some_component_in_c: int;\" \\"
+    },
+    {
+      "sha": "de9320da88837cc4719ed4094118301f6ec747a6",
+      "filename": "gdb/testsuite/gdb.base/info-types.c",
+      "status": "modified",
+      "additions": 39,
+      "deletions": 0,
+      "changes": 39,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a8e9d2471806ef86ff7aec43164a6fe347efba3b/gdb/testsuite/gdb.base/info-types.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a8e9d2471806ef86ff7aec43164a6fe347efba3b/gdb/testsuite/gdb.base/info-types.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/info-types.c?ref=a8e9d2471806ef86ff7aec43164a6fe347efba3b",
+      "patch": "@@ -38,6 +38,37 @@ enum enum_t\n typedef enum enum_t my_enum_t;\n typedef my_enum_t nested_enum_t;\n \n+typedef struct\n+{\n+  double d;\n+  float f;\n+} anon_struct_t;\n+\n+typedef anon_struct_t nested_anon_struct_t;\n+\n+typedef enum\n+{\n+ DD, EE, FF\n+} anon_enum_t;\n+\n+typedef anon_enum_t nested_anon_enum_t;\n+\n+union union_t\n+{\n+  int i;\n+  float f;\n+};\n+\n+typedef union union_t nested_union_t;\n+\n+typedef union\n+{\n+  int i;\n+  double d;\n+} anon_union_t;\n+\n+typedef anon_union_t nested_anon_union_t;\n+\n volatile int var_a;\n volatile float var_b;\n volatile my_int_t var_c;\n@@ -53,6 +84,14 @@ volatile baz_ptr var_l;\n volatile enum enum_t var_m;\n volatile my_enum_t var_n;\n volatile nested_enum_t var_o;\n+volatile anon_struct_t var_p;\n+volatile nested_anon_struct_t var_q;\n+volatile anon_enum_t var_r;\n+volatile nested_anon_enum_t var_s;\n+volatile union union_t var_t;\n+volatile nested_union_t var_u;\n+volatile anon_union_t var_v;\n+volatile nested_anon_union_t var_w;\n \n #ifdef __cplusplus\n "
+    },
+    {
+      "sha": "3a514b5bc191793023aeea5f128ceb8e4a389b49",
+      "filename": "gdb/testsuite/gdb.base/info-types.exp",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 3,
+      "changes": 24,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a8e9d2471806ef86ff7aec43164a6fe347efba3b/gdb/testsuite/gdb.base/info-types.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a8e9d2471806ef86ff7aec43164a6fe347efba3b/gdb/testsuite/gdb.base/info-types.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/info-types.exp?ref=a8e9d2471806ef86ff7aec43164a6fe347efba3b",
+      "patch": "@@ -57,32 +57,45 @@ proc run_test { lang } {\n \t\t \"All defined types:\" \\\n \t\t \"\" \\\n \t\t \"File .*:\" \\\n-\t\t \"59:\\[\\t \\]+CL;\" \\\n+\t\t \"98:\\[\\t \\]+CL;\" \\\n+\t\t \"42:\\[\\t \\]+anon_struct_t;\" \\\n+\t\t \"65:\\[\\t \\]+anon_union_t;\" \\\n \t\t \"21:\\[\\t \\]+baz_t;\" \\\n \t\t \"33:\\[\\t \\]+enum_t;\" \\\n+\t\t \"56:\\[\\t \\]+union_t;\" \\\n+\t\t \"52:\\[\\t \\]+typedef enum {\\\\.\\\\.\\\\.} anon_enum_t;\" \\\n+\t\t \"45:\\[\\t \\]+typedef anon_struct_t anon_struct_t;\" \\\n+\t\t \"68:\\[\\t \\]+typedef anon_union_t anon_union_t;\" \\\n \t\t \"28:\\[\\t \\]+typedef baz_t baz;\" \\\n \t\t \"31:\\[\\t \\]+typedef baz_t \\\\* baz_ptr;\" \\\n \t\t \"27:\\[\\t \\]+typedef baz_t baz_t;\" \\\n \t\t \"\\[\\t \\]+double\" \\\n \t\t \"\\[\\t \\]+float\" \\\n \t\t \"\\[\\t \\]+int\" \\\n-\t\t \"64:\\[\\t \\]+typedef CL my_cl;\" \\\n+\t\t \"103:\\[\\t \\]+typedef CL my_cl;\" \\\n \t\t \"38:\\[\\t \\]+typedef enum_t my_enum_t;\" \\\n \t\t \"17:\\[\\t \\]+typedef float my_float_t;\" \\\n \t\t \"16:\\[\\t \\]+typedef int my_int_t;\" \\\n-\t\t \"65:\\[\\t \\]+typedef CL \\\\* my_ptr;\" \\\n+\t\t \"104:\\[\\t \\]+typedef CL \\\\* my_ptr;\" \\\n+\t\t \"54:\\[\\t \\]+typedef enum {\\\\.\\\\.\\\\.} nested_anon_enum_t;\" \\\n+\t\t \"47:\\[\\t \\]+typedef anon_struct_t nested_anon_struct_t;\" \\\n+\t\t \"70:\\[\\t \\]+typedef anon_union_t nested_anon_union_t;\" \\\n \t\t \"30:\\[\\t \\]+typedef baz_t nested_baz;\" \\\n \t\t \"29:\\[\\t \\]+typedef baz_t nested_baz_t;\" \\\n \t\t \"39:\\[\\t \\]+typedef enum_t nested_enum_t;\" \\\n \t\t \"19:\\[\\t \\]+typedef float nested_float_t;\" \\\n \t\t \"18:\\[\\t \\]+typedef int nested_int_t;\" \\\n+\t\t \"62:\\[\\t \\]+typedef union_t nested_union_t;\" \\\n \t\t \"\\[\\t \\]+unsigned int\"]\n     } else {\n \tset output_re \\\n \t    [multi_line \\\n \t\t \"All defined types:\" \\\n \t\t \"\" \\\n \t\t \"File .*:\" \\\n+\t\t \"52:\\[\\t \\]+typedef enum {\\\\.\\\\.\\\\.} anon_enum_t;\" \\\n+\t\t \"45:\\[\\t \\]+typedef struct {\\\\.\\\\.\\\\.} anon_struct_t;\" \\\n+\t\t \"68:\\[\\t \\]+typedef union {\\\\.\\\\.\\\\.} anon_union_t;\" \\\n \t\t \"28:\\[\\t \\]+typedef struct baz_t baz;\" \\\n \t\t \"31:\\[\\t \\]+typedef struct baz_t \\\\* baz_ptr;\" \\\n \t\t \"21:\\[\\t \\]+struct baz_t;\" \\\n@@ -93,11 +106,16 @@ proc run_test { lang } {\n \t\t \"38:\\[\\t \\]+typedef enum enum_t my_enum_t;\" \\\n \t\t \"17:\\[\\t \\]+typedef float my_float_t;\" \\\n \t\t \"16:\\[\\t \\]+typedef int my_int_t;\" \\\n+\t\t \"54:\\[\\t \\]+typedef enum {\\\\.\\\\.\\\\.} nested_anon_enum_t;\" \\\n+\t\t \"47:\\[\\t \\]+typedef struct {\\\\.\\\\.\\\\.} nested_anon_struct_t;\" \\\n+\t\t \"70:\\[\\t \\]+typedef union {\\\\.\\\\.\\\\.} nested_anon_union_t;\" \\\n \t\t \"30:\\[\\t \\]+typedef struct baz_t nested_baz;\" \\\n \t\t \"29:\\[\\t \\]+typedef struct baz_t nested_baz_t;\" \\\n \t\t \"39:\\[\\t \\]+typedef enum enum_t nested_enum_t;\" \\\n \t\t \"19:\\[\\t \\]+typedef float nested_float_t;\" \\\n \t\t \"18:\\[\\t \\]+typedef int nested_int_t;\" \\\n+\t\t \"62:\\[\\t \\]+typedef union union_t nested_union_t;\" \\\n+\t\t \"56:\\[\\t \\]+union union_t;\" \\\n \t\t \"\\[\\t \\]+unsigned int\" ]\n     }\n "
+    }
+  ]
+}

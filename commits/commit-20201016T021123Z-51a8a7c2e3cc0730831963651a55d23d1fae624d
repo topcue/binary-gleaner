@@ -1,0 +1,156 @@
+{
+  "sha": "51a8a7c2e3cc0730831963651a55d23d1fae624d",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NTFhOGE3YzJlM2NjMDczMDgzMTk2MzY1MWE1NWQyM2QxZmFlNjI0ZA==",
+  "commit": {
+    "author": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2020-10-07T03:48:23Z"
+    },
+    "committer": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2020-10-16T02:11:23Z"
+    },
+    "message": "RISC-V: Fix that IRELATIVE relocs may be inserted to the wrong place.\n\nFor the ifunc symbol, which is referenced by GOT rather than PLT relocs,\nwe should add the dynamic reloc (usually IRELATIVE) into the .rel.iplt\nwhen generating the static executable.  But if we use riscv_elf_append_rela\nto add the dynamic relocs into .rela.iplt, this may cause the overwrite\nproblem.\n\nThe reason is that we don't handle the `reloc_index` of .rela.iplt, but\nthe riscv_elf_append_rela adds the relocs to the place that are calculated\nfrom the reloc_index (in seqential).  Therefore, we may overwrite the\ndynamic relocs when the `reloc_index` of .rela.iplt isn't handled correctly.\n\nOne solution is that we can add these dynamic relocs (GOT ifunc) from\nthe last of .rela.iplt section.  But I'm not sure if it is the best way.\n\n\tbfd/\n\t* elfnn-riscv.c (riscv_elf_link_hash_table): Add last_iplt_index.\n\t(riscv_elf_size_dynamic_sections): Initialize the last_iplt_index.\n\t(riscv_elf_relocate_section): Use riscv_elf_append_rela.\n\t(riscv_elf_finish_dynamic_symbol): If the use_elf_append_rela is\n\tfalse, then we should add the dynamic relocs from the last of\n\tthe .rela.iplt, and don't use the riscv_elf_append_rela to add.\n\n\tld/\n\t* testsuite/ld-riscv-elf/ifunc-plt-got-overwrite.s: New testcase.\n\t* testsuite/ld-riscv-elf/ifunc-plt-got-overwrite.d: Likewise.\n\t* testsuite/ld-riscv-elf/ifunc-plt-got-overwrite-exe.rd: Likewise.\n\t* testsuite/ld-riscv-elf/ifunc-plt-got-overwrite-pic.rd: Likewise.\n\t* testsuite/ld-riscv-elf/ifunc-plt-got-overwrite-pie.rd: Likewise.\n\t* testsuite/ld-riscv-elf/ld-riscv-elf.exp: Updated.",
+    "tree": {
+      "sha": "67583e907a2cadef4a983a2719a366e06bd2460a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/67583e907a2cadef4a983a2719a366e06bd2460a"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/51a8a7c2e3cc0730831963651a55d23d1fae624d",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/51a8a7c2e3cc0730831963651a55d23d1fae624d",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/51a8a7c2e3cc0730831963651a55d23d1fae624d",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/51a8a7c2e3cc0730831963651a55d23d1fae624d/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "02dd9d25682311f45e1bb9629cbe4f6727e245a8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/02dd9d25682311f45e1bb9629cbe4f6727e245a8",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/02dd9d25682311f45e1bb9629cbe4f6727e245a8"
+    }
+  ],
+  "stats": {
+    "total": 147,
+    "additions": 140,
+    "deletions": 7
+  },
+  "files": [
+    {
+      "sha": "7fb6181410601bb7e52b852ab37bd05b9455107f",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/51a8a7c2e3cc0730831963651a55d23d1fae624d/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/51a8a7c2e3cc0730831963651a55d23d1fae624d/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=51a8a7c2e3cc0730831963651a55d23d1fae624d",
+      "patch": "@@ -1,3 +1,12 @@\n+2020-10-16  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* elfnn-riscv.c (riscv_elf_link_hash_table): Add last_iplt_index.\n+\t(riscv_elf_size_dynamic_sections): Initialize the last_iplt_index.\n+\t(riscv_elf_relocate_section): Use riscv_elf_append_rela.\n+\t(riscv_elf_finish_dynamic_symbol): If the use_elf_append_rela is\n+\tfalse, then we should add the dynamic relocs from the last of\n+\tthe .rela.iplt, and don't use the riscv_elf_append_rela to add.\n+\n 2020-10-16  Nelson Chu  <nelson.chu@sifive.com>\n \n \t* elfnn-riscv.c: Include \"objalloc.h\" since we need objalloc_alloc."
+    },
+    {
+      "sha": "a5b2c8a198cefaf029ff8c2088b0af34a44cd9de",
+      "filename": "bfd/elfnn-riscv.c",
+      "status": "modified",
+      "additions": 39,
+      "deletions": 7,
+      "changes": 46,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/51a8a7c2e3cc0730831963651a55d23d1fae624d/bfd/elfnn-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/51a8a7c2e3cc0730831963651a55d23d1fae624d/bfd/elfnn-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfnn-riscv.c?ref=51a8a7c2e3cc0730831963651a55d23d1fae624d",
+      "patch": "@@ -120,6 +120,9 @@ struct riscv_elf_link_hash_table\n   /* Used by local STT_GNU_IFUNC symbols.  */\n   htab_t loc_hash_table;\n   void * loc_hash_memory;\n+\n+  /* The index of the last unused .rel.iplt slot.  */\n+  bfd_vma last_iplt_index;\n };\n \n \n@@ -1424,6 +1427,11 @@ riscv_elf_size_dynamic_sections (bfd *output_bfd, struct bfd_link_info *info)\n      local ifunc symbols.  */\n   htab_traverse (htab->loc_hash_table, allocate_local_ifunc_dynrelocs, info);\n \n+  /* Used to resolve the dynamic relocs overwite problems when\n+     generating static executable.  */\n+  if (htab->elf.irelplt)\n+    htab->last_iplt_index = htab->elf.irelplt->reloc_count - 1;\n+\n   if (htab->elf.sgotplt)\n     {\n       struct elf_link_hash_entry *got;\n@@ -2904,6 +2912,7 @@ riscv_elf_finish_dynamic_symbol (bfd *output_bfd,\n       asection *sgot;\n       asection *srela;\n       Elf_Internal_Rela rela;\n+      bfd_boolean use_elf_append_rela = TRUE;\n \n       /* This symbol has an entry in the GOT.  Set it up.  */\n \n@@ -2920,12 +2929,18 @@ riscv_elf_finish_dynamic_symbol (bfd *output_bfd,\n \t  if (h->plt.offset == (bfd_vma) -1)\n \t    {\n \t      /* STT_GNU_IFUNC is referenced without PLT.  */\n+\n \t      if (htab->elf.splt == NULL)\n \t\t{\n-\t\t  /* use .rel[a].iplt section to store .got relocations\n+\t\t  /* Use .rela.iplt section to store .got relocations\n \t\t     in static executable.  */\n \t\t  srela = htab->elf.irelplt;\n+\n+\t\t  /* Do not use riscv_elf_append_rela to add dynamic\n+\t\t     relocs.  */\n+\t\t  use_elf_append_rela = FALSE;\n \t\t}\n+\n \t      if (SYMBOL_REFERENCES_LOCAL (info, h))\n \t\t{\n \t\t  info->callbacks->minfo (_(\"Local IFUNC function `%s' in %pB\\n\"),\n@@ -2973,14 +2988,14 @@ riscv_elf_finish_dynamic_symbol (bfd *output_bfd,\n \t      return TRUE;\n \t    }\n \t}\n-      /* If this is a local symbol reference, we just want to emit a RELATIVE\n-\t reloc.  This can happen if it is a -Bsymbolic link, or a pie link, or\n-\t the symbol was forced to be local because of a version file.\n-\t The entry in the global offset table will already have been\n-\t initialized in the relocate_section function.  */\n       else if (bfd_link_pic (info)\n \t       && SYMBOL_REFERENCES_LOCAL (info, h))\n \t{\n+\t  /* If this is a local symbol reference, we just want to emit\n+\t     a RELATIVE reloc.  This can happen if it is a -Bsymbolic link,\n+\t     or a pie link, or the symbol was forced to be local because\n+\t     of a version file.  The entry in the global offset table will\n+\t     already have been initialized in the relocate_section function.  */\n \t  BFD_ASSERT((h->got.offset & 1) != 0);\n \t  asection *sec = h->root.u.def.section;\n \t  rela.r_info = ELFNN_R_INFO (0, R_RISCV_RELATIVE);\n@@ -2998,7 +3013,24 @@ riscv_elf_finish_dynamic_symbol (bfd *output_bfd,\n \n       bfd_put_NN (output_bfd, 0,\n \t\t  sgot->contents + (h->got.offset & ~(bfd_vma) 1));\n-      riscv_elf_append_rela (output_bfd, srela, &rela);\n+\n+      if (use_elf_append_rela)\n+\triscv_elf_append_rela (output_bfd, srela, &rela);\n+      else\n+\t{\n+\t  /* Use riscv_elf_append_rela to add the dynamic relocs into\n+\t     .rela.iplt may cause the overwrite problems.  Since we insert\n+\t     the relocs for PLT didn't handle the reloc_index of .rela.iplt,\n+\t     but the riscv_elf_append_rela adds the relocs to the place\n+\t     that are calculated from the reloc_index (in seqential).\n+\n+\t     One solution is that add these dynamic relocs (GOT IFUNC)\n+\t     from the last of .rela.iplt section.  */\n+\t  bfd_vma iplt_idx = htab->last_iplt_index--;\n+\t  bfd_byte *loc = srela->contents\n+\t\t\t  + iplt_idx * sizeof (ElfNN_External_Rela);\n+\t  bed->s->swap_reloca_out (output_bfd, &rela, loc);\n+\t}\n     }\n \n   if (h->needs_copy)"
+    },
+    {
+      "sha": "780bb4b5958df516e8b78a1f1f65e6de38d9a274",
+      "filename": "ld/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/51a8a7c2e3cc0730831963651a55d23d1fae624d/ld/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/51a8a7c2e3cc0730831963651a55d23d1fae624d/ld/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/ChangeLog?ref=51a8a7c2e3cc0730831963651a55d23d1fae624d",
+      "patch": "@@ -1,3 +1,12 @@\n+2020-10-16  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* testsuite/ld-riscv-elf/ifunc-plt-got-overwrite.s: New testcase.\n+\t* testsuite/ld-riscv-elf/ifunc-plt-got-overwrite.d: Likewise.\n+\t* testsuite/ld-riscv-elf/ifunc-plt-got-overwrite-exe.rd: Likewise.\n+\t* testsuite/ld-riscv-elf/ifunc-plt-got-overwrite-pic.rd: Likewise.\n+\t* testsuite/ld-riscv-elf/ifunc-plt-got-overwrite-pie.rd: Likewise.\n+\t* testsuite/ld-riscv-elf/ld-riscv-elf.exp: Updated.\n+\n 2020-10-16  Nelson Chu  <nelson.chu@sifive.com>\n \n \t* emulparams/elf32lriscv-defs.sh: Add IREL_IN_PLT."
+    },
+    {
+      "sha": "0de47a4009f403bb5426192d95f2f70870f4f19f",
+      "filename": "ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite-exe.rd",
+      "status": "added",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/51a8a7c2e3cc0730831963651a55d23d1fae624d/ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite-exe.rd",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/51a8a7c2e3cc0730831963651a55d23d1fae624d/ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite-exe.rd",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite-exe.rd?ref=51a8a7c2e3cc0730831963651a55d23d1fae624d",
+      "patch": "@@ -0,0 +1,4 @@\n+Relocation section '.rela.plt' at .*\n+[ ]+Offset[ ]+Info[ ]+Type[ ]+.*\n+[0-9a-f]+[ \t]+[0-9a-f]+[ \t]+R_RISCV_IRELATIVE[ \t]+[0-9a-f]*\n+[0-9a-f]+[ \t]+[0-9a-f]+[ \t]+R_RISCV_IRELATIVE[ \t]+[0-9a-f]*"
+    },
+    {
+      "sha": "f65d789b0b8f86c89fc0656e515a6ca29e931324",
+      "filename": "ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite-pic.rd",
+      "status": "added",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/51a8a7c2e3cc0730831963651a55d23d1fae624d/ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite-pic.rd",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/51a8a7c2e3cc0730831963651a55d23d1fae624d/ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite-pic.rd",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite-pic.rd?ref=51a8a7c2e3cc0730831963651a55d23d1fae624d",
+      "patch": "@@ -0,0 +1,8 @@\n+Relocation section '.rela.got' at .*\n+[ ]+Offset[ ]+Info[ ]+Type[ ]+.*\n+[0-9a-f]+[ \t]+[0-9a-f]+[ \t]+R_RISCV_(32|64)[ \t]+foo2\\(\\)[ \t]+foo2 \\+ 0\n+[0-9a-f]+[ \t]+[0-9a-f]+[ \t]+R_RISCV_(32|64)[ \t]+foo1\\(\\)[ \t]+foo1 \\+ 0\n+#...\n+Relocation section '.rela.plt' at .*\n+[ ]+Offset[ ]+Info[ ]+Type[ ]+.*\n+[0-9a-f]+[ \t]+[0-9a-f]+[ \t]+R_RISCV_JUMP_SLOT[ \t]+foo1\\(\\)[ \t]+foo1 \\+ 0"
+    },
+    {
+      "sha": "32e66f0bd37cdf4916fe1b0d281d7bfb3e6993d9",
+      "filename": "ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite-pie.rd",
+      "status": "added",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/51a8a7c2e3cc0730831963651a55d23d1fae624d/ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite-pie.rd",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/51a8a7c2e3cc0730831963651a55d23d1fae624d/ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite-pie.rd",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite-pie.rd?ref=51a8a7c2e3cc0730831963651a55d23d1fae624d",
+      "patch": "@@ -0,0 +1,7 @@\n+Relocation section '.rela.got' at .*\n+[ ]+Offset[ ]+Info[ ]+Type[ ]+.*\n+[0-9a-f]+[ \t]+[0-9a-f]+[ \t]+R_RISCV_IRELATIVE[ \t]+[0-9a-f]*\n+\n+Relocation section '.rela.plt' at .*\n+[ ]+Offset[ ]+Info[ ]+Type[ ]+.*\n+[0-9a-f]+[ \t]+[0-9a-f]+[ \t]+R_RISCV_IRELATIVE[ \t]+[0-9a-f]*"
+    },
+    {
+      "sha": "333dea3ea3cb75ed1493c79132d86b79376992ca",
+      "filename": "ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite.d",
+      "status": "added",
+      "additions": 19,
+      "deletions": 0,
+      "changes": 19,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/51a8a7c2e3cc0730831963651a55d23d1fae624d/ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/51a8a7c2e3cc0730831963651a55d23d1fae624d/ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite.d?ref=51a8a7c2e3cc0730831963651a55d23d1fae624d",
+      "patch": "@@ -0,0 +1,19 @@\n+#...\n+Disassembly of section .plt:\n+#...\n+0+[0-9a-f]+ <(\\*ABS\\*\\+0x[0-9a-f]+@plt|foo@plt|.plt)>:\n+#...\n+Disassembly of section .text:\n+#...\n+0+[0-9a-f]+ <foo_resolver>:\n+#...\n+0+[0-9a-f]+ <bar>:\n+.*:[ \t]+[0-9a-f]+[ \t]+auipc[ \t]+.*\n+.*:[ \t]+[0-9a-f]+[ \t]+(lw|ld)[ \t]+.*<(_GLOBAL_OFFSET_TABLE_.*|.*)>\n+.*:[ \t]+[0-9a-f]+[ \t]+auipc[ \t]+.*\n+.*:[ \t]+[0-9a-f]+[ \t]+jalr[ \t]+.*<(.*plt.*)>\n+.*:[ \t]+[0-9a-f]+[ \t]+auipc[ \t]+.*\n+.*:[ \t]+[0-9a-f]+[ \t]+jalr[ \t]+.*<(.*plt.*)>\n+.*:[ \t]+[0-9a-f]+[ \t]+auipc[ \t]+.*\n+.*:[ \t]+[0-9a-f]+[ \t]+(lw|ld)[ \t]+.*<(_GLOBAL_OFFSET_TABLE_.*|.*)>\n+#..."
+    },
+    {
+      "sha": "6c2f8e8c42e570e54eb9c76de517767ead75a8a1",
+      "filename": "ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite.s",
+      "status": "added",
+      "additions": 38,
+      "deletions": 0,
+      "changes": 38,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/51a8a7c2e3cc0730831963651a55d23d1fae624d/ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/51a8a7c2e3cc0730831963651a55d23d1fae624d/ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/ifunc-plt-got-overwrite.s?ref=51a8a7c2e3cc0730831963651a55d23d1fae624d",
+      "patch": "@@ -0,0 +1,38 @@\n+\t.text\n+\n+\t.type\tfoo_resolver, @function\n+foo_resolver:\n+\tret\n+\t.size\tfoo_resolver, .-foo_resolver\n+\n+\t.globl\tfoo1\n+\t.type\tfoo1, %gnu_indirect_function\n+\t.set\tfoo1, foo_resolver\n+\n+\t.globl\tfoo2\n+\t.type\tfoo2, %gnu_indirect_function\n+\t.set\tfoo2, foo_resolver\n+\n+\t.globl\tbar\n+\t.type\tbar, @function\n+bar:\n+.L1:\n+\tauipc\tx1, %got_pcrel_hi (foo1)\n+.ifdef __64_bit__\n+\tld\tx1, %pcrel_lo (.L1) (x1)\n+.else\n+\tlw\tx1, %pcrel_lo (.L1) (x1)\n+.endif\n+\n+\tcall\tfoo1\n+\tcall\tfoo1@plt\n+\n+.L2:\n+\tauipc\tx2, %got_pcrel_hi (foo2)\n+.ifdef __64_bit__\n+\tld\tx2, %pcrel_lo (.L2) (x2)\n+.else\n+\tlw\tx2, %pcrel_lo (.L2) (x2)\n+.endif\n+\tret\n+\t.size\tbar, .-bar"
+    },
+    {
+      "sha": "9834041acf6e4bde91faa048a1bf00e34c95b31b",
+      "filename": "ld/testsuite/ld-riscv-elf/ld-riscv-elf.exp",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/51a8a7c2e3cc0730831963651a55d23d1fae624d/ld/testsuite/ld-riscv-elf/ld-riscv-elf.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/51a8a7c2e3cc0730831963651a55d23d1fae624d/ld/testsuite/ld-riscv-elf/ld-riscv-elf.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/ld-riscv-elf.exp?ref=51a8a7c2e3cc0730831963651a55d23d1fae624d",
+      "patch": "@@ -175,6 +175,13 @@ if [istarget \"riscv*-*-*\"] {\n     run_dump_test_ifunc \"ifunc-plt-02\" rv64 exe\n     run_dump_test_ifunc \"ifunc-plt-02\" rv64 pie\n     run_dump_test_ifunc \"ifunc-plt-02\" rv64 pic\n+    # Check the .rela.iplt overwrite issue.\n+    run_dump_test_ifunc \"ifunc-plt-got-overwrite\" rv32 exe\n+    run_dump_test_ifunc \"ifunc-plt-got-overwrite\" rv32 pie\n+    run_dump_test_ifunc \"ifunc-plt-got-overwrite\" rv32 pic\n+    run_dump_test_ifunc \"ifunc-plt-got-overwrite\" rv64 exe\n+    run_dump_test_ifunc \"ifunc-plt-got-overwrite\" rv64 pie\n+    run_dump_test_ifunc \"ifunc-plt-got-overwrite\" rv64 pic\n \n     # Setup shared libraries.\n     run_ld_link_tests {"
+    }
+  ]
+}

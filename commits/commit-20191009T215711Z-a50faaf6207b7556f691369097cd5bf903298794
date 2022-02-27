@@ -1,0 +1,110 @@
+{
+  "sha": "a50faaf6207b7556f691369097cd5bf903298794",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YTUwZmFhZjYyMDdiNzU1NmY2OTEzNjkwOTdjZDViZjkwMzI5ODc5NA==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2019-10-09T21:57:11Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2019-10-09T21:57:11Z"
+    },
+    "message": "[gdb/testsuite] Add XFAILs in gdb.rust/simple.exp for incorrect DWARF\n\nOn openSUSE Leap 15.1 using rustc version 1.36.0 (using llvm 7), I get:\n...\n(gdb) PASS: gdb.rust/simple.exp: print e2.0\nprint k^M\n$54 = simple::SpaceSaver::Thebox(40, 0x0)^M\n(gdb) FAIL: gdb.rust/simple.exp: print k\n...\nwhile we're expecting:\n...\ngdb_test \"print k\" \" = simple::SpaceSaver::Nothing\"\n...\n\nWhen using a relatively recent version of Rust with a somewhat older version\nof LLVM, the Rust compiler will emit a legacy encoding of enums (see also\nquirk_rust_enum in dwarf2read.c).\n\nSo, the variable k:\n...\n <17><3d58>: Abbrev Number: 15 (DW_TAG_variable)\n    <3d59>   DW_AT_location    : 3 byte block: 91 b8 4  (DW_OP_fbreg: 568)\n    <3d5d>   DW_AT_name        : (indirect string, offset: 0xf9a): k\n    <3d61>   DW_AT_alignment   : 1\n    <3d62>   DW_AT_decl_file   : 1\n    <3d63>   DW_AT_decl_line   : 129\n    <3d64>   DW_AT_type        : <0x4232>\n...\nhas type:\n...\n <2><4232>: Abbrev Number: 11 (DW_TAG_union_type)\n    <4233>   DW_AT_name        : (indirect string, offset: 0x3037): SpaceSaver\n    <4237>   DW_AT_byte_size   : 16\n    <4238>   DW_AT_alignment   : 8\n <3><4239>: Abbrev Number: 9 (DW_TAG_member)\n    <423a>   DW_AT_name        : (indirect string, offset: 0x29f5): RUST$ENCODED$ENUM$0$Nothing\n    <423e>   DW_AT_type        : <0x4245>\n    <4242>   DW_AT_alignment   : 8\n    <4243>   DW_AT_data_member_location: 0\n...\n\nThe \"RUST$ENCODED$ENUM$0$Nothing\" means that field 0 is both a pointer and a\ndiscriminant, and if the value is 0, then the enum is just a data-less variant\nnamed \"Nothing\".\n\nHowever, the corresponding type has two fields, where not field 0 but field 1\nis a pointer, and field 0 is a byte:\n...\n <2><4245>: Abbrev Number: 8 (DW_TAG_structure_type)\n    <4246>   DW_AT_name        : (indirect string, offset: 0x2a11): Thebox\n    <424a>   DW_AT_byte_size   : 16\n    <424b>   DW_AT_alignment   : 8\n <3><424c>: Abbrev Number: 9 (DW_TAG_member)\n    <424d>   DW_AT_name        : (indirect string, offset: 0x670): __0\n    <4251>   DW_AT_type        : <0x436b>\n    <4255>   DW_AT_alignment   : 1\n    <4256>   DW_AT_data_member_location: 8\n <3><4257>: Abbrev Number: 9 (DW_TAG_member)\n    <4258>   DW_AT_name        : (indirect string, offset: 0x1662): __1\n    <425c>   DW_AT_type        : <0x45da>\n    <4260>   DW_AT_alignment   : 8\n    <4261>   DW_AT_data_member_location: 0\n...\n\nMark this as xfail.\n\ngdb/testsuite/ChangeLog:\n\n2019-10-09  Tom de Vries  <tdevries@suse.de>\n\n\tPR testsuite/25048\n\t* gdb.rust/simple.exp: Add xfails for incorrect DWARF.",
+    "tree": {
+      "sha": "ea6d0fe80d127bccee75aef707516ffbcb1cc056",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/ea6d0fe80d127bccee75aef707516ffbcb1cc056"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/a50faaf6207b7556f691369097cd5bf903298794",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a50faaf6207b7556f691369097cd5bf903298794",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/a50faaf6207b7556f691369097cd5bf903298794",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a50faaf6207b7556f691369097cd5bf903298794/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "cff32449e888c9ccb3c7e5fee7a0c14c5dcc4178",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cff32449e888c9ccb3c7e5fee7a0c14c5dcc4178",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/cff32449e888c9ccb3c7e5fee7a0c14c5dcc4178"
+    }
+  ],
+  "stats": {
+    "total": 61,
+    "additions": 56,
+    "deletions": 5
+  },
+  "files": [
+    {
+      "sha": "4191661a2f3beaa957eaa204ba807876419a0e13",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a50faaf6207b7556f691369097cd5bf903298794/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a50faaf6207b7556f691369097cd5bf903298794/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=a50faaf6207b7556f691369097cd5bf903298794",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-10-09  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR testsuite/25048\n+\t* gdb.rust/simple.exp: Add xfails for incorrect DWARF.\n+\n 2019-10-07  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.ada/catch_ex_std.exp: Handle being unabled to catch Ada"
+    },
+    {
+      "sha": "d3edbd712bbfe5d9cc662d372ca5e947be80a2c0",
+      "filename": "gdb/testsuite/gdb.rust/simple.exp",
+      "status": "modified",
+      "additions": 51,
+      "deletions": 5,
+      "changes": 56,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a50faaf6207b7556f691369097cd5bf903298794/gdb/testsuite/gdb.rust/simple.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a50faaf6207b7556f691369097cd5bf903298794/gdb/testsuite/gdb.rust/simple.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.rust/simple.exp?ref=a50faaf6207b7556f691369097cd5bf903298794",
+      "patch": "@@ -200,7 +200,16 @@ gdb_test \"print e2.notexist\" \\\n gdb_test \"print e2.0\" \\\n     \"Variant simple::MoreComplicated::Four is not a tuple variant\"\n \n-gdb_test \"print k\" \" = simple::SpaceSaver::Nothing\"\n+set pass_pattern \" = simple::SpaceSaver::Nothing\"\n+set xfail_pattern \" = simple::SpaceSaver::Thebox\\\\($decimal, 0x0\\\\)\"\n+gdb_test_multiple \"print k\" \"\" {\n+    -re \"\\[\\r\\n\\]*(?:$pass_pattern)\\[\\r\\n\\]+$gdb_prompt $\" {\n+\tpass $gdb_test_name\n+    }\n+    -re \"\\[\\r\\n\\]*(?:$xfail_pattern)\\[\\r\\n\\]+$gdb_prompt $\" {\n+\txfail $gdb_test_name\n+    }\n+}\n gdb_test \"print l\" \" = simple::SpaceSaver::Thebox\\\\(9, $hex\\\\)\"\n gdb_test \"print *l.1\" \" = 1729\"\n \n@@ -228,16 +237,53 @@ gdb_test \"print ..=5\" \" = .*::ops::RangeToInclusive.* \\\\{end: 5\\\\}\"\n gdb_test \"print 5..\" \" = .*::ops::RangeFrom.* \\\\{start: 5\\\\}\"\n gdb_test \"print ..\" \" = .*::ops::RangeFull\"\n \n-gdb_test \"print str_some\" \\\n+set pass_pattern \\\n     \" = core::option::Option<\\[a-z\\]+::string::String>::Some\\\\(\\[a-z\\]+::string::String .*\"\n-gdb_test \"print str_none\" \" = core::option::Option<\\[a-z\\]+::string::String>::None\"\n+set xfail_pattern \" = <error reading variable>\"\n+gdb_test_multiple \"print str_some\" \"\" {\n+    -re \"\\[\\r\\n\\]*(?:$pass_pattern)\\[\\r\\n\\]+$gdb_prompt $\" {\n+\tpass $gdb_test_name\n+    }\n+    -re \"\\[\\r\\n\\]*(?:$xfail_pattern)\\[\\r\\n\\]+$gdb_prompt $\" {\n+\txfail $gdb_test_name\n+    }\n+}\n+\n+set pass_pattern \" = core::option::Option<\\[a-z\\]+::string::String>::None\"\n+gdb_test_multiple \"print str_none\" \"\" {\n+    -re \"\\[\\r\\n\\]*(?:$pass_pattern)\\[\\r\\n\\]+$gdb_prompt $\" {\n+\tpass $gdb_test_name\n+    }\n+    -re \"\\[\\r\\n\\]*(?:$xfail_pattern)\\[\\r\\n\\]+$gdb_prompt $\" {\n+\txfail $gdb_test_name\n+    }\n+}\n+\n gdb_test \"print int_some\" \" = core::option::Option<u8>::Some\\\\(1\\\\)\"\n gdb_test \"print int_none\" \" = core::option::Option<u8>::None\"\n gdb_test \"print box_some\" \" = core::option::Option<\\[a-z:\\]*Box<u8>>::Some\\\\(.*\\\\)\"\n gdb_test \"print box_none\" \" = core::option::Option<\\[a-z:\\]*Box<u8>>::None\"\n-gdb_test \"print custom_some\" \\\n+\n+set pass_pattern \\\n     \" = simple::NonZeroOptimized::Value\\\\(\\[a-z\\]+::string::String .*\"\n-gdb_test \"print custom_none\" \" = simple::NonZeroOptimized::Empty\"\n+gdb_test_multiple \"print custom_some\" \"\" {\n+    -re \"\\[\\r\\n\\]*(?:$pass_pattern)\\[\\r\\n\\]+$gdb_prompt $\" {\n+\tpass $gdb_test_name\n+    }\n+    -re \"\\[\\r\\n\\]*(?:$xfail_pattern)\\[\\r\\n\\]+$gdb_prompt $\" {\n+\txfail $gdb_test_name\n+    }\n+}\n+\n+set pass_pattern \" = simple::NonZeroOptimized::Empty\"\n+gdb_test_multiple \"print custom_none\" \"\" {\n+    -re \"\\[\\r\\n\\]*(?:$pass_pattern)\\[\\r\\n\\]+$gdb_prompt $\" {\n+\tpass $gdb_test_name\n+    }\n+    -re \"\\[\\r\\n\\]*(?:$xfail_pattern)\\[\\r\\n\\]+$gdb_prompt $\" {\n+\txfail $gdb_test_name\n+    }\n+}\n \n gdb_test \"print st\" \\\n     \" = simple::StringAtOffset {field1: \\\"hello\\\", field2: 1, field3: \\\"world\\\"}\""
+    }
+  ]
+}

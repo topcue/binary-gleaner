@@ -1,0 +1,110 @@
+{
+  "sha": "0394eed15c5bf24943850f356785152c3d65ab94",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MDM5NGVlZDE1YzViZjI0OTQzODUwZjM1Njc4NTE1MmMzZDY1YWI5NA==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2019-12-16T21:30:50Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2019-12-16T21:30:50Z"
+    },
+    "message": "jit: make gdb_symtab::blocks an std::forward_list\n\nThis patch changes the gdb_symtab::blocks manually maintained linked\nlist to be an std::forward_list, simplifying memory management.\n\nCurrently, the list is sorted as blocks are created.  With an\nstd::forward_list, it is easier (and probably a bit more efficient) to\nsort them once at the end, so this is what I did.\n\nA note about the comment on the \"next\" field:\n\n  /* gdb_blocks are linked into a tree structure.  Next points to the\n     next node at the same depth as this block and parent to the\n     parent gdb_block.  */\n\nI don't think it's true that \"next\" points to the next node at the same\ndepth.  All nodes are in a simple singly linked list, so necessarily\nsome node will point to some other node that isn't at the same depth.\n\ngdb/ChangeLog:\n\n\t* jit.c (struct gdb_block) <next>: Remove field.\n\t(struct gdb_symtab) <~gdb_symtab>: Remove.\n\t<blocks>: Change type to std::forward_list<gdb_block>.\n\t(compare_block): Remove.\n\t(jit_block_open_impl): Adjust to std::forward_list.  Place the new\n\tblock at the beginning, don't mind about sorting.\n\t(finalize_symtab): Adjust to std::forward_list, sort the blocks list\n\tbefore using it.",
+    "tree": {
+      "sha": "7c1327661892bd302782015b43c39cb7904bf271",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/7c1327661892bd302782015b43c39cb7904bf271"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/0394eed15c5bf24943850f356785152c3d65ab94",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0394eed15c5bf24943850f356785152c3d65ab94",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/0394eed15c5bf24943850f356785152c3d65ab94",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0394eed15c5bf24943850f356785152c3d65ab94/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "b61121178ec07f9da1242e439fe1a23a314ad30e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b61121178ec07f9da1242e439fe1a23a314ad30e",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b61121178ec07f9da1242e439fe1a23a314ad30e"
+    }
+  ],
+  "stats": {
+    "total": 148,
+    "additions": 54,
+    "deletions": 94
+  },
+  "files": [
+    {
+      "sha": "fa3f0a689357b9c998b51177b89bdf4016e12228",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0394eed15c5bf24943850f356785152c3d65ab94/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0394eed15c5bf24943850f356785152c3d65ab94/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=0394eed15c5bf24943850f356785152c3d65ab94",
+      "patch": "@@ -1,3 +1,14 @@\n+2019-12-16  Simon Marchi  <simon.marchi@polymtl.ca>\n+\n+\t* jit.c (struct gdb_block) <next>: Remove field.\n+\t(struct gdb_symtab) <~gdb_symtab>: Remove.\n+\t<blocks>: Change type to std::forward_list<gdb_block>.\n+\t(compare_block): Remove.\n+\t(jit_block_open_impl): Adjust to std::forward_list.  Place the new\n+\tblock at the beginning, don't mind about sorting.\n+\t(finalize_symtab): Adjust to std::forward_list, sort the blocks list\n+\tbefore using it.\n+\n 2019-12-16  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* jit.c (struct gdb_block): Add constructor, initialize"
+    },
+    {
+      "sha": "0dd11e14d2f82c4732213351aaccdb8c6776716a",
+      "filename": "gdb/jit.c",
+      "status": "modified",
+      "additions": 43,
+      "deletions": 94,
+      "changes": 137,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0394eed15c5bf24943850f356785152c3d65ab94/gdb/jit.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0394eed15c5bf24943850f356785152c3d65ab94/gdb/jit.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/jit.c?ref=0394eed15c5bf24943850f356785152c3d65ab94",
+      "patch": "@@ -437,10 +437,8 @@ struct gdb_block\n       name (name != nullptr ? xstrdup (name) : nullptr)\n   {}\n \n-  /* gdb_blocks are linked into a tree structure.  Next points to the\n-     next node at the same depth as this block and parent to the\n-     parent gdb_block.  */\n-  struct gdb_block *next = nullptr, *parent;\n+  /* The parent of this block.  */\n+  struct gdb_block *parent;\n \n   /* Points to the \"real\" block that is being built out of this\n      instance.  This block will be added to a blockvector, which will\n@@ -463,23 +461,14 @@ struct gdb_symtab\n     : file_name (file_name != nullptr ? file_name : \"\")\n   {}\n \n-  ~gdb_symtab ()\n-  {\n-    gdb_block *gdb_block_iter, *gdb_block_iter_tmp;\n-\n-    for ((gdb_block_iter = this->blocks,\n-\t  gdb_block_iter_tmp = gdb_block_iter->next);\n-         gdb_block_iter;\n-         gdb_block_iter = gdb_block_iter_tmp)\n-      {\n-        gdb_block_iter_tmp = gdb_block_iter->next;\n-\tdelete gdb_block_iter;\n-      }\n-  }\n-\n   /* The list of blocks in this symtab.  These will eventually be\n-     converted to real blocks.  */\n-  struct gdb_block *blocks = nullptr;\n+     converted to real blocks.\n+\n+     This is specifically a linked list, instead of, for example, a vector,\n+     because the pointers are returned to the user's debug info reader.  So\n+     it's important that the objects don't change location during their\n+     lifetime (which would happen with a vector of objects getting resized).  */\n+  std::forward_list<gdb_block> blocks;\n \n   /* The number of blocks inserted.  */\n   int nblocks = 0;\n@@ -550,28 +539,6 @@ jit_symtab_open_impl (struct gdb_symbol_callbacks *cb,\n   return &object->symtabs.front ();\n }\n \n-/* Returns true if the block corresponding to old should be placed\n-   before the block corresponding to new in the final blockvector.  */\n-\n-static int\n-compare_block (const struct gdb_block *const old,\n-\t       const struct gdb_block *const newobj)\n-{\n-  if (old == NULL)\n-    return 1;\n-  if (old->begin < newobj->begin)\n-    return 1;\n-  else if (old->begin == newobj->begin)\n-    {\n-      if (old->end > newobj->end)\n-\treturn 1;\n-      else\n-\treturn 0;\n-    }\n-  else\n-    return 0;\n-}\n-\n /* Called by readers to open a new gdb_block.  This function also\n    inserts the new gdb_block in the correct place in the corresponding\n    gdb_symtab.  */\n@@ -581,35 +548,12 @@ jit_block_open_impl (struct gdb_symbol_callbacks *cb,\n \t\t     struct gdb_symtab *symtab, struct gdb_block *parent,\n \t\t     GDB_CORE_ADDR begin, GDB_CORE_ADDR end, const char *name)\n {\n-  struct gdb_block *block = new gdb_block (parent, begin, end, name);\n-\n-  block->next = symtab->blocks;\n-\n-  /* Ensure that the blocks are inserted in the correct (reverse of\n-     the order expected by blockvector).  */\n-  if (compare_block (symtab->blocks, block))\n-    {\n-      symtab->blocks = block;\n-    }\n-  else\n-    {\n-      struct gdb_block *i = symtab->blocks;\n-\n-      for (;; i = i->next)\n-\t{\n-\t  /* Guaranteed to terminate, since compare_block (NULL, _)\n-\t     returns 1.  */\n-\t  if (compare_block (i->next, block))\n-\t    {\n-\t      block->next = i->next;\n-\t      i->next = block;\n-\t      break;\n-\t    }\n-\t}\n-    }\n+  /* Place the block at the beginning of the list, it will be sorted when the\n+     symtab is finalized.  */\n+  symtab->blocks.emplace_front (parent, begin, end, name);\n   symtab->nblocks++;\n \n-  return block;\n+  return &symtab->blocks.front ();\n }\n \n /* Readers call this to add a line mapping (from PC to line number) to\n@@ -655,14 +599,20 @@ static void\n finalize_symtab (struct gdb_symtab *stab, struct objfile *objfile)\n {\n   struct compunit_symtab *cust;\n-  struct gdb_block *gdb_block_iter;\n-  struct block *block_iter;\n-  int actual_nblocks, i;\n   size_t blockvector_size;\n   CORE_ADDR begin, end;\n   struct blockvector *bv;\n \n-  actual_nblocks = FIRST_LOCAL_BLOCK + stab->nblocks;\n+  int actual_nblocks = FIRST_LOCAL_BLOCK + stab->nblocks;\n+\n+  /* Sort the blocks in the order they should appear in the blockvector.  */\n+  stab->blocks.sort([] (const gdb_block &a, const gdb_block &b)\n+    {\n+      if (a.begin != b.begin)\n+\treturn a.begin < b.begin;\n+\n+      return a.end > b.end;\n+    });\n \n   cust = allocate_compunit_symtab (objfile, stab->file_name.c_str ());\n   allocate_symtab (cust, stab->file_name.c_str ());\n@@ -689,19 +639,18 @@ finalize_symtab (struct gdb_symtab *stab, struct objfile *objfile)\n \t\t\t\t\t     blockvector_size);\n   COMPUNIT_BLOCKVECTOR (cust) = bv;\n \n-  /* (begin, end) will contain the PC range this entire blockvector\n-     spans.  */\n+  /* At the end of this function, (begin, end) will contain the PC range this\n+     entire blockvector spans.  */\n   BLOCKVECTOR_MAP (bv) = NULL;\n-  begin = stab->blocks->begin;\n-  end = stab->blocks->end;\n+  begin = stab->blocks.front ().begin;\n+  end = stab->blocks.front ().end;\n   BLOCKVECTOR_NBLOCKS (bv) = actual_nblocks;\n \n   /* First run over all the gdb_block objects, creating a real block\n      object for each.  Simultaneously, keep setting the real_block\n      fields.  */\n-  for (i = (actual_nblocks - 1), gdb_block_iter = stab->blocks;\n-       i >= FIRST_LOCAL_BLOCK;\n-       i--, gdb_block_iter = gdb_block_iter->next)\n+  int block_idx = FIRST_LOCAL_BLOCK;\n+  for (gdb_block &gdb_block_iter : stab->blocks)\n     {\n       struct block *new_block = allocate_block (&objfile->objfile_obstack);\n       struct symbol *block_name = allocate_symbol (objfile);\n@@ -713,8 +662,8 @@ finalize_symtab (struct gdb_symtab *stab, struct objfile *objfile)\n       BLOCK_MULTIDICT (new_block)\n \t= mdict_create_linear (&objfile->objfile_obstack, NULL);\n       /* The address range.  */\n-      BLOCK_START (new_block) = (CORE_ADDR) gdb_block_iter->begin;\n-      BLOCK_END (new_block) = (CORE_ADDR) gdb_block_iter->end;\n+      BLOCK_START (new_block) = (CORE_ADDR) gdb_block_iter.begin;\n+      BLOCK_END (new_block) = (CORE_ADDR) gdb_block_iter.end;\n \n       /* The name.  */\n       SYMBOL_DOMAIN (block_name) = VAR_DOMAIN;\n@@ -724,22 +673,24 @@ finalize_symtab (struct gdb_symtab *stab, struct objfile *objfile)\n       SYMBOL_BLOCK_VALUE (block_name) = new_block;\n \n       block_name->name = obstack_strdup (&objfile->objfile_obstack,\n-\t\t\t\t\t gdb_block_iter->name.get ());\n+\t\t\t\t\t gdb_block_iter.name.get ());\n \n       BLOCK_FUNCTION (new_block) = block_name;\n \n-      BLOCKVECTOR_BLOCK (bv, i) = new_block;\n+      BLOCKVECTOR_BLOCK (bv, block_idx) = new_block;\n       if (begin > BLOCK_START (new_block))\n \tbegin = BLOCK_START (new_block);\n       if (end < BLOCK_END (new_block))\n \tend = BLOCK_END (new_block);\n \n-      gdb_block_iter->real_block = new_block;\n+      gdb_block_iter.real_block = new_block;\n+\n+      block_idx++;\n     }\n \n   /* Now add the special blocks.  */\n-  block_iter = NULL;\n-  for (i = 0; i < FIRST_LOCAL_BLOCK; i++)\n+  struct block *block_iter = NULL;\n+  for (enum block_enum i : { GLOBAL_BLOCK, STATIC_BLOCK })\n     {\n       struct block *new_block;\n \n@@ -762,21 +713,19 @@ finalize_symtab (struct gdb_symtab *stab, struct objfile *objfile)\n \n   /* Fill up the superblock fields for the real blocks, using the\n      real_block fields populated earlier.  */\n-  for (gdb_block_iter = stab->blocks;\n-       gdb_block_iter;\n-       gdb_block_iter = gdb_block_iter->next)\n+  for (gdb_block &gdb_block_iter : stab->blocks)\n     {\n-      if (gdb_block_iter->parent != NULL)\n+      if (gdb_block_iter.parent != NULL)\n \t{\n \t  /* If the plugin specifically mentioned a parent block, we\n \t     use that.  */\n-\t  BLOCK_SUPERBLOCK (gdb_block_iter->real_block) =\n-\t    gdb_block_iter->parent->real_block;\n+\t  BLOCK_SUPERBLOCK (gdb_block_iter.real_block) =\n+\t    gdb_block_iter.parent->real_block;\n \t}\n       else\n \t{\n \t  /* And if not, we set a default parent block.  */\n-\t  BLOCK_SUPERBLOCK (gdb_block_iter->real_block) =\n+\t  BLOCK_SUPERBLOCK (gdb_block_iter.real_block) =\n \t    BLOCKVECTOR_BLOCK (bv, STATIC_BLOCK);\n \t}\n     }"
+    }
+  ]
+}

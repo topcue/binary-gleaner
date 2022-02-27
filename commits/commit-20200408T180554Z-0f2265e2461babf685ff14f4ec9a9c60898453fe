@@ -1,0 +1,146 @@
+{
+  "sha": "0f2265e2461babf685ff14f4ec9a9c60898453fe",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MGYyMjY1ZTI0NjFiYWJmNjg1ZmYxNGY0ZWM5YTljNjA4OTg0NTNmZQ==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2020-04-08T18:05:54Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2020-04-08T18:05:54Z"
+    },
+    "message": "gdb: stop using host-dependent signal numbers in windows-tdep.c\n\nThe signal enumeration in windows-tdep.c is defined differently whether\nit is compiled on Cygwin or not.  This is problematic, since the code in\ntdep files is not supposed to be influenced by the host platform (the\nplatform GDB itself runs on).\n\nThis makes a difference in windows_gdb_signal_to_target.  An obvious\nexample of clash is SIGABRT.  Let's pretend we are cross-debugging a\nCygwin process from a MinGW (non-Cygwin Windows) GDB.  If GDB needs to\ntranslate the gdb signal number GDB_SIGNAL_ABRT into a target\nequivalent, it would obtain the MinGW number (22), despite the target\nbeing a Cygwin process.  Conversely, if debugging a MinGW process from a\nCygwin-hosted GDB, GDB_SIGNAL_ABRT would be converted to a Cygwin signal\nnumber (6) despite the target being a MinGW process.  This is wrong,\nsince we want the result to depend on the target's platform, not GDB's\nplatform.\n\nThis known flaw was accepted because at the time we had a single OS ABI\n(called Cygwin) for all Windows binaries (Cygwin ones and non-Cygwin\nones).  This limitation is now lifted, as we now have separate Windows\nand Cygwin OS ABIs.  This means we are able to detect at runtime whether\nthe binary we are debugging is a Cygwin one or non-Cygwin one.\n\nThis patch splits the signal enum in two, one for the MinGW flavors and\none for Cygwin, removing all the ifdefs that made it depend on the host\nplatform.  It then makes two separate gdb_signal_to_target gdbarch\nmethods, that are used according to the OS ABI selected at runtime.\n\nThere is a bit of re-shuffling needed in how the gdbarch'es are\ninitialized, but nothing major.\n\ngdb/ChangeLog:\n\n\t* windows-tdep.h (windows_init_abi): Add comment.\n\t(cygwin_init_abi): New declaration.\n\t* windows-tdep.c: Split signal enumeration in two, one for\n\tWindows and one for Cygwin.\n\t(windows_gdb_signal_to_target): Only deal with signal of the\n\tWindows OS ABI.\n\t(cygwin_gdb_signal_to_target): New function.\n\t(windows_init_abi): Rename to windows_init_abi_common, don't set\n\tgdb_signal_to_target gdbarch method.  Add new new function with\n\tthis name.\n\t(cygwin_init_abi): New function.\n\t* amd64-windows-tdep.c (amd64_windows_init_abi_common): Add\n\tcomment.  Don't call windows_init_abi.\n\t(amd64_windows_init_abi): Add comment, call windows_init_abi.\n\t(amd64_cygwin_init_abi): Add comment, call cygwin_init_abi.\n\t* i386-windows-tdep.c (i386_windows_init_abi): Rename to\n\ti386_windows_init_abi_common, don't call windows_init_abi.  Add\n\ta new function of this name.\n\t(i386_cygwin_init_abi): New function.\n\t(_initialize_i386_windows_tdep): Bind i386_cygwin_init_abi to\n\tOS ABI Cygwin.",
+    "tree": {
+      "sha": "9a305d08647704c5c4cba68dcbd000e9f35b95df",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/9a305d08647704c5c4cba68dcbd000e9f35b95df"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/0f2265e2461babf685ff14f4ec9a9c60898453fe",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0f2265e2461babf685ff14f4ec9a9c60898453fe",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/0f2265e2461babf685ff14f4ec9a9c60898453fe",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0f2265e2461babf685ff14f4ec9a9c60898453fe/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "3810f182ee3b14d36b37938e897ea871f1175b46",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3810f182ee3b14d36b37938e897ea871f1175b46",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/3810f182ee3b14d36b37938e897ea871f1175b46"
+    }
+  ],
+  "stats": {
+    "total": 284,
+    "additions": 205,
+    "deletions": 79
+  },
+  "files": [
+    {
+      "sha": "6d958a2d9b8020a93c924e44381b336e788c3544",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 24,
+      "deletions": 0,
+      "changes": 24,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0f2265e2461babf685ff14f4ec9a9c60898453fe/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0f2265e2461babf685ff14f4ec9a9c60898453fe/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=0f2265e2461babf685ff14f4ec9a9c60898453fe",
+      "patch": "@@ -1,3 +1,27 @@\n+2020-04-08  Simon Marchi  <simon.marchi@polymtl.ca>\n+\n+\t* windows-tdep.h (windows_init_abi): Add comment.\n+\t(cygwin_init_abi): New declaration.\n+\t* windows-tdep.c: Split signal enumeration in two, one for\n+\tWindows and one for Cygwin.\n+\t(windows_gdb_signal_to_target): Only deal with signal of the\n+\tWindows OS ABI.\n+\t(cygwin_gdb_signal_to_target): New function.\n+\t(windows_init_abi): Rename to windows_init_abi_common, don't set\n+\tgdb_signal_to_target gdbarch method.  Add new new function with\n+\tthis name.\n+\t(cygwin_init_abi): New function.\n+\t* amd64-windows-tdep.c (amd64_windows_init_abi_common): Add\n+\tcomment.  Don't call windows_init_abi.\n+\t(amd64_windows_init_abi): Add comment, call windows_init_abi.\n+\t(amd64_cygwin_init_abi): Add comment, call cygwin_init_abi.\n+\t* i386-windows-tdep.c (i386_windows_init_abi): Rename to\n+\ti386_windows_init_abi_common, don't call windows_init_abi.  Add\n+\ta new function of this name.\n+\t(i386_cygwin_init_abi): New function.\n+\t(_initialize_i386_windows_tdep): Bind i386_cygwin_init_abi to\n+\tOS ABI Cygwin.\n+\n 2020-04-08  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* dwarf2/read.c (read_gdb_index_from_buffer): Remove objfile"
+    },
+    {
+      "sha": "740152b7de8e170fac46fc280a66364908d912c1",
+      "filename": "gdb/amd64-windows-tdep.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 2,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0f2265e2461babf685ff14f4ec9a9c60898453fe/gdb/amd64-windows-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0f2265e2461babf685ff14f4ec9a9c60898453fe/gdb/amd64-windows-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/amd64-windows-tdep.c?ref=0f2265e2461babf685ff14f4ec9a9c60898453fe",
+      "patch": "@@ -1208,6 +1208,8 @@ amd64_windows_auto_wide_charset (void)\n   return \"UTF-16\";\n }\n \n+/* Common parts for gdbarch initialization for Windows and Cygwin on AMD64.  */\n+\n static void\n amd64_windows_init_abi_common (gdbarch_info info, struct gdbarch *gdbarch)\n {\n@@ -1227,8 +1229,6 @@ amd64_windows_init_abi_common (gdbarch_info info, struct gdbarch *gdbarch)\n   amd64_init_abi (info, gdbarch,\n \t\t  amd64_target_description (X86_XSTATE_SSE_MASK, false));\n \n-  windows_init_abi (info, gdbarch);\n-\n   /* Function calls.  */\n   set_gdbarch_push_dummy_call (gdbarch, amd64_windows_push_dummy_call);\n   set_gdbarch_return_value (gdbarch, amd64_windows_return_value);\n@@ -1241,19 +1241,25 @@ amd64_windows_init_abi_common (gdbarch_info info, struct gdbarch *gdbarch)\n   set_gdbarch_auto_wide_charset (gdbarch, amd64_windows_auto_wide_charset);\n }\n \n+/* gdbarch initialization for Windows on AMD64.  */\n+\n static void\n amd64_windows_init_abi (struct gdbarch_info info, struct gdbarch *gdbarch)\n {\n   amd64_windows_init_abi_common (info, gdbarch);\n+  windows_init_abi (info, gdbarch);\n \n   /* On Windows, \"long\"s are only 32bit.  */\n   set_gdbarch_long_bit (gdbarch, 32);\n }\n \n+/* gdbarch initialization for Cygwin on AMD64.  */\n+\n static void\n amd64_cygwin_init_abi (struct gdbarch_info info, struct gdbarch *gdbarch)\n {\n   amd64_windows_init_abi_common (info, gdbarch);\n+  cygwin_init_abi (info, gdbarch);\n }\n \n static gdb_osabi"
+    },
+    {
+      "sha": "3a07c862f23331a4206cebc575b55db270cb4f75",
+      "filename": "gdb/i386-windows-tdep.c",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 5,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0f2265e2461babf685ff14f4ec9a9c60898453fe/gdb/i386-windows-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0f2265e2461babf685ff14f4ec9a9c60898453fe/gdb/i386-windows-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/i386-windows-tdep.c?ref=0f2265e2461babf685ff14f4ec9a9c60898453fe",
+      "patch": "@@ -200,13 +200,13 @@ i386_windows_auto_wide_charset (void)\n   return \"UTF-16\";\n }\n \n+/* Common parts for gdbarch initialization for Windows and Cygwin on i386.  */\n+\n static void\n-i386_windows_init_abi (struct gdbarch_info info, struct gdbarch *gdbarch)\n+i386_windows_init_abi_common (struct gdbarch_info info, struct gdbarch *gdbarch)\n {\n   struct gdbarch_tdep *tdep = gdbarch_tdep (gdbarch);\n \n-  windows_init_abi (info, gdbarch);\n-\n   set_gdbarch_skip_trampoline_code (gdbarch, i386_windows_skip_trampoline_code);\n \n   set_gdbarch_skip_main_prologue (gdbarch, i386_skip_main_prologue);\n@@ -227,6 +227,24 @@ i386_windows_init_abi (struct gdbarch_info info, struct gdbarch *gdbarch)\n   set_gdbarch_auto_wide_charset (gdbarch, i386_windows_auto_wide_charset);\n }\n \n+/* gdbarch initialization for Windows on i386.  */\n+\n+static void\n+i386_windows_init_abi (struct gdbarch_info info, struct gdbarch *gdbarch)\n+{\n+  i386_windows_init_abi_common (info, gdbarch);\n+  windows_init_abi (info, gdbarch);\n+}\n+\n+/* gdbarch initialization for Cygwin on i386.  */\n+\n+static void\n+i386_cygwin_init_abi (struct gdbarch_info info, struct gdbarch *gdbarch)\n+{\n+  i386_windows_init_abi_common (info, gdbarch);\n+  cygwin_init_abi (info, gdbarch);\n+}\n+\n static gdb_osabi\n i386_windows_osabi_sniffer (bfd *abfd)\n {\n@@ -270,9 +288,8 @@ _initialize_i386_windows_tdep ()\n   gdbarch_register_osabi_sniffer (bfd_arch_i386, bfd_target_elf_flavour,\n                                   i386_cygwin_core_osabi_sniffer);\n \n-  /* The Windows and Cygwin OS ABIs are currently equivalent on i386.  */\n   gdbarch_register_osabi (bfd_arch_i386, 0, GDB_OSABI_WINDOWS,\n                           i386_windows_init_abi);\n   gdbarch_register_osabi (bfd_arch_i386, 0, GDB_OSABI_CYGWIN,\n-                          i386_windows_init_abi);\n+\t\t\t  i386_cygwin_init_abi);\n }"
+    },
+    {
+      "sha": "d1894ca08884505ea8bdba89fcd07fe0322eea8d",
+      "filename": "gdb/windows-tdep.c",
+      "status": "modified",
+      "additions": 142,
+      "deletions": 72,
+      "changes": 214,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0f2265e2461babf685ff14f4ec9a9c60898453fe/gdb/windows-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0f2265e2461babf685ff14f4ec9a9c60898453fe/gdb/windows-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/windows-tdep.c?ref=0f2265e2461babf685ff14f4ec9a9c60898453fe",
+      "patch": "@@ -41,55 +41,69 @@\n #define CYGWIN_DLL_NAME \"cygwin1.dll\"\n \n /* Windows signal numbers differ between MinGW flavors and between\n-   those and Cygwin.  The below enumeration was gleaned from the\n-   respective headers; the ones marked with MinGW64/Cygwin are defined\n-   only by MinGW64 and Cygwin, not by mingw.org's MinGW.  FIXME: We\n-   should really have distinct MinGW vs Cygwin OSABIs, and two\n-   separate enums, selected at runtime.  */\n+   those and Cygwin.  The below enumerations were gleaned from the\n+   respective headers.  */\n+\n+/* Signal numbers for the various MinGW flavors.  The ones marked with\n+   MinGW-w64 are defined by MinGW-w64, not by mingw.org's MinGW.  */\n \n enum\n-  {\n-   WINDOWS_SIGHUP = 1,\t/* MinGW64/Cygwin */\n-   WINDOWS_SIGINT = 2,\n-   WINDOWS_SIGQUIT = 3,\t/* MinGW64/Cygwin */\n-   WINDOWS_SIGILL = 4,\n-   WINDOWS_SIGTRAP = 5,\t/* MinGW64/Cygwin */\n-#ifdef __CYGWIN__\n-   WINDOWS_SIGABRT = 6,\n-#else\n-   WINDOWS_SIGIOT = 6,\t/* MinGW64 */\n-#endif\n-   WINDOWS_SIGEMT = 7,\t/* MinGW64/Cygwin */\n-   WINDOWS_SIGFPE = 8,\n-   WINDOWS_SIGKILL = 9,\t/* MinGW64/Cygwin */\n-   WINDOWS_SIGBUS = 10,\t/* MinGW64/Cygwin */\n-   WINDOWS_SIGSEGV = 11,\n-   WINDOWS_SIGSYS = 12,\t/* MinGW64/Cygwin */\n-   WINDOWS_SIGPIPE = 13,/* MinGW64/Cygwin */\n-   WINDOWS_SIGALRM = 14,/* MinGW64/Cygwin */\n-   WINDOWS_SIGTERM = 15,\n-#ifdef __CYGWIN__\n-   WINDOWS_SIGURG = 16,\n-   WINDOWS_SIGSTOP = 17,\n-   WINDOWS_SIGTSTP = 18,\n-   WINDOWS_SIGCONT = 19,\n-   WINDOWS_SIGCHLD = 20,\n-   WINDOWS_SIGTTIN = 21,\n-   WINDOWS_SIGTTOU = 22,\n-   WINDOWS_SIGIO = 23,\n-   WINDOWS_SIGXCPU = 24,\n-   WINDOWS_SIGXFSZ = 25,\n-   WINDOWS_SIGVTALRM = 26,\n-   WINDOWS_SIGPROF = 27,\n-   WINDOWS_SIGWINCH = 28,\n-   WINDOWS_SIGLOST = 29,\n-   WINDOWS_SIGUSR1 = 30,\n-   WINDOWS_SIGUSR2 = 31\n-#else\n-   WINDOWS_SIGBREAK = 21,\n-   WINDOWS_SIGABRT = 22\n-#endif\n-  };\n+{\n+  WINDOWS_SIGHUP = 1,\t/* MinGW-w64 */\n+  WINDOWS_SIGINT = 2,\n+  WINDOWS_SIGQUIT = 3,\t/* MinGW-w64 */\n+  WINDOWS_SIGILL = 4,\n+  WINDOWS_SIGTRAP = 5,\t/* MinGW-w64 */\n+  WINDOWS_SIGIOT = 6,\t/* MinGW-w64 */\n+  WINDOWS_SIGEMT = 7,\t/* MinGW-w64 */\n+  WINDOWS_SIGFPE = 8,\n+  WINDOWS_SIGKILL = 9,\t/* MinGW-w64 */\n+  WINDOWS_SIGBUS = 10,\t/* MinGW-w64 */\n+  WINDOWS_SIGSEGV = 11,\n+  WINDOWS_SIGSYS = 12,\t/* MinGW-w64 */\n+  WINDOWS_SIGPIPE = 13,\t/* MinGW-w64 */\n+  WINDOWS_SIGALRM = 14,\t/* MinGW-w64 */\n+  WINDOWS_SIGTERM = 15,\n+  WINDOWS_SIGBREAK = 21,\n+  WINDOWS_SIGABRT = 22,\n+};\n+\n+/* Signal numbers for Cygwin.  */\n+\n+enum\n+{\n+  CYGWIN_SIGHUP = 1,\n+  CYGWIN_SIGINT = 2,\n+  CYGWIN_SIGQUIT = 3,\n+  CYGWIN_SIGILL = 4,\n+  CYGWIN_SIGTRAP = 5,\n+  CYGWIN_SIGABRT = 6,\n+  CYGWIN_SIGEMT = 7,\n+  CYGWIN_SIGFPE = 8,\n+  CYGWIN_SIGKILL = 9,\n+  CYGWIN_SIGBUS = 10,\n+  CYGWIN_SIGSEGV = 11,\n+  CYGWIN_SIGSYS = 12,\n+  CYGWIN_SIGPIPE = 13,\n+  CYGWIN_SIGALRM = 14,\n+  CYGWIN_SIGTERM = 15,\n+  CYGWIN_SIGURG = 16,\n+  CYGWIN_SIGSTOP = 17,\n+  CYGWIN_SIGTSTP = 18,\n+  CYGWIN_SIGCONT = 19,\n+  CYGWIN_SIGCHLD = 20,\n+  CYGWIN_SIGTTIN = 21,\n+  CYGWIN_SIGTTOU = 22,\n+  CYGWIN_SIGIO = 23,\n+  CYGWIN_SIGXCPU = 24,\n+  CYGWIN_SIGXFSZ = 25,\n+  CYGWIN_SIGVTALRM = 26,\n+  CYGWIN_SIGPROF = 27,\n+  CYGWIN_SIGWINCH = 28,\n+  CYGWIN_SIGLOST = 29,\n+  CYGWIN_SIGUSR1 = 30,\n+  CYGWIN_SIGUSR2 = 31,\n+};\n \n struct cmd_list_element *info_w32_cmdlist;\n \n@@ -607,7 +621,7 @@ init_w32_command_list (void)\n     }\n }\n \n-/* Implementation of `gdbarch_gdb_signal_to_target'.  */\n+/* Implementation of `gdbarch_gdb_signal_to_target' for Windows.  */\n \n static int\n windows_gdb_signal_to_target (struct gdbarch *gdbarch, enum gdb_signal signal)\n@@ -646,40 +660,81 @@ windows_gdb_signal_to_target (struct gdbarch *gdbarch, enum gdb_signal signal)\n       return WINDOWS_SIGALRM;\n     case GDB_SIGNAL_TERM:\n       return WINDOWS_SIGTERM;\n-#ifdef __CYGWIN__\n+    }\n+  return -1;\n+}\n+\n+/* Implementation of `gdbarch_gdb_signal_to_target' for Cygwin.  */\n+\n+static int\n+cygwin_gdb_signal_to_target (struct gdbarch *gdbarch, enum gdb_signal signal)\n+{\n+  switch (signal)\n+    {\n+    case GDB_SIGNAL_0:\n+      return 0;\n+    case GDB_SIGNAL_HUP:\n+      return CYGWIN_SIGHUP;\n+    case GDB_SIGNAL_INT:\n+      return CYGWIN_SIGINT;\n+    case GDB_SIGNAL_QUIT:\n+      return CYGWIN_SIGQUIT;\n+    case GDB_SIGNAL_ILL:\n+      return CYGWIN_SIGILL;\n+    case GDB_SIGNAL_TRAP:\n+      return CYGWIN_SIGTRAP;\n+    case GDB_SIGNAL_ABRT:\n+      return CYGWIN_SIGABRT;\n+    case GDB_SIGNAL_EMT:\n+      return CYGWIN_SIGEMT;\n+    case GDB_SIGNAL_FPE:\n+      return CYGWIN_SIGFPE;\n+    case GDB_SIGNAL_KILL:\n+      return CYGWIN_SIGKILL;\n+    case GDB_SIGNAL_BUS:\n+      return CYGWIN_SIGBUS;\n+    case GDB_SIGNAL_SEGV:\n+      return CYGWIN_SIGSEGV;\n+    case GDB_SIGNAL_SYS:\n+      return CYGWIN_SIGSYS;\n+    case GDB_SIGNAL_PIPE:\n+      return CYGWIN_SIGPIPE;\n+    case GDB_SIGNAL_ALRM:\n+      return CYGWIN_SIGALRM;\n+    case GDB_SIGNAL_TERM:\n+      return CYGWIN_SIGTERM;\n     case GDB_SIGNAL_URG:\n-      return WINDOWS_SIGURG;\n+      return CYGWIN_SIGURG;\n     case GDB_SIGNAL_STOP:\n-      return WINDOWS_SIGSTOP;\n+      return CYGWIN_SIGSTOP;\n     case GDB_SIGNAL_TSTP:\n-      return WINDOWS_SIGTSTP;\n+      return CYGWIN_SIGTSTP;\n     case GDB_SIGNAL_CONT:\n-      return WINDOWS_SIGCONT;\n+      return CYGWIN_SIGCONT;\n     case GDB_SIGNAL_CHLD:\n-      return WINDOWS_SIGCHLD;\n+      return CYGWIN_SIGCHLD;\n     case GDB_SIGNAL_TTIN:\n-      return WINDOWS_SIGTTIN;\n+      return CYGWIN_SIGTTIN;\n     case GDB_SIGNAL_TTOU:\n-      return WINDOWS_SIGTTOU;\n+      return CYGWIN_SIGTTOU;\n     case GDB_SIGNAL_IO:\n-      return WINDOWS_SIGIO;\n+      return CYGWIN_SIGIO;\n     case GDB_SIGNAL_XCPU:\n-      return WINDOWS_SIGXCPU;\n+      return CYGWIN_SIGXCPU;\n     case GDB_SIGNAL_XFSZ:\n-      return WINDOWS_SIGXFSZ;\n+      return CYGWIN_SIGXFSZ;\n     case GDB_SIGNAL_VTALRM:\n-      return WINDOWS_SIGVTALRM;\n+      return CYGWIN_SIGVTALRM;\n     case GDB_SIGNAL_PROF:\n-      return WINDOWS_SIGPROF;\n+      return CYGWIN_SIGPROF;\n     case GDB_SIGNAL_WINCH:\n-      return WINDOWS_SIGWINCH;\n+      return CYGWIN_SIGWINCH;\n     case GDB_SIGNAL_PWR:\n-      return WINDOWS_SIGLOST;\n+      return CYGWIN_SIGLOST;\n     case GDB_SIGNAL_USR1:\n-      return WINDOWS_SIGUSR1;\n+      return CYGWIN_SIGUSR1;\n     case GDB_SIGNAL_USR2:\n-      return WINDOWS_SIGUSR2;\n-#endif\t/* __CYGWIN__ */\n+      return CYGWIN_SIGUSR2;\n     }\n   return -1;\n }\n@@ -865,11 +920,11 @@ windows_solib_create_inferior_hook (int from_tty)\n \n static struct target_so_ops windows_so_ops;\n \n-/* To be called from the various GDB_OSABI_CYGWIN handlers for the\n-   various Windows architectures and machine types.  */\n+/* Common parts for gdbarch initialization for the Windows and Cygwin OS\n+   ABIs.  */\n \n-void\n-windows_init_abi (struct gdbarch_info info, struct gdbarch *gdbarch)\n+static void\n+windows_init_abi_common (struct gdbarch_info info, struct gdbarch *gdbarch)\n {\n   set_gdbarch_wchar_bit (gdbarch, 16);\n   set_gdbarch_wchar_signed (gdbarch, 0);\n@@ -881,8 +936,6 @@ windows_init_abi (struct gdbarch_info info, struct gdbarch *gdbarch)\n   set_gdbarch_iterate_over_objfiles_in_search_order\n     (gdbarch, windows_iterate_over_objfiles_in_search_order);\n \n-  set_gdbarch_gdb_signal_to_target (gdbarch, windows_gdb_signal_to_target);\n-\n   windows_so_ops = solib_target_so_ops;\n   windows_so_ops.solib_create_inferior_hook\n     = windows_solib_create_inferior_hook;\n@@ -891,6 +944,23 @@ windows_init_abi (struct gdbarch_info info, struct gdbarch *gdbarch)\n   set_gdbarch_get_siginfo_type (gdbarch, windows_get_siginfo_type);\n }\n \n+/* See windows-tdep.h.  */\n+void\n+windows_init_abi (struct gdbarch_info info, struct gdbarch *gdbarch)\n+{\n+  windows_init_abi_common (info, gdbarch);\n+  set_gdbarch_gdb_signal_to_target (gdbarch, windows_gdb_signal_to_target);\n+}\n+\n+/* See windows-tdep.h.  */\n+\n+void\n+cygwin_init_abi (struct gdbarch_info info, struct gdbarch *gdbarch)\n+{\n+  windows_init_abi_common (info, gdbarch);\n+  set_gdbarch_gdb_signal_to_target (gdbarch, cygwin_gdb_signal_to_target);\n+}\n+\n /* Implementation of `tlb' variable.  */\n \n static const struct internalvar_funcs tlb_funcs ="
+    },
+    {
+      "sha": "cd7717bd9174576d8f6c6a477f1b1c3a33cb5f31",
+      "filename": "gdb/windows-tdep.h",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0f2265e2461babf685ff14f4ec9a9c60898453fe/gdb/windows-tdep.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0f2265e2461babf685ff14f4ec9a9c60898453fe/gdb/windows-tdep.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/windows-tdep.h?ref=0f2265e2461babf685ff14f4ec9a9c60898453fe",
+      "patch": "@@ -31,9 +31,18 @@ extern void windows_xfer_shared_library (const char* so_name,\n \t\t\t\t\t struct gdbarch *gdbarch,\n \t\t\t\t\t struct obstack *obstack);\n \n+/* To be called from the various GDB_OSABI_WINDOWS handlers for the\n+   various Windows architectures and machine types.  */\n+\n extern void windows_init_abi (struct gdbarch_info info,\n \t\t\t      struct gdbarch *gdbarch);\n \n+/* To be called from the various GDB_OSABI_CYGWIN handlers for the\n+   various Windows architectures and machine types.  */\n+\n+extern void cygwin_init_abi (struct gdbarch_info info,\n+\t\t\t     struct gdbarch *gdbarch);\n+\n /* Return true if the Portable Executable behind ABFD uses the Cygwin dll\n    (cygwin1.dll).  */\n "
+    }
+  ]
+}

@@ -1,0 +1,278 @@
+{
+  "sha": "739b5c9c778dee9e2f54d864f83a81ecb0639535",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NzM5YjVjOWM3NzhkZWU5ZTJmNTRkODY0ZjgzYTgxZWNiMDYzOTUzNQ==",
+  "commit": {
+    "author": {
+      "name": "Tamar Christina",
+      "email": "tamar.christina@arm.com",
+      "date": "2019-05-21T12:04:08Z"
+    },
+    "committer": {
+      "name": "Tamar Christina",
+      "email": "tamar.christina@arm.com",
+      "date": "2019-05-21T12:05:22Z"
+    },
+    "message": "AArch64: Implement choice between Cortex-A53 erratum workarounds. (PR ld/24373)\n\nThe Cortex-A53 erratum currently has two ways it can resolve the erratum when\nusing the flag --fix-cortex-a53-843419:\n\n1) If the address is within the range of an ADR instruction it rewrites the ADRP\n   into an ADR, and those doesn't need the use of a veneer.\n\n2) If the address is not within range, it adds a branch to a veneer which will\n   execute the final bit of the erratum workaround and branch back to the call\n   site.\n\nWhen we do this we always generate the veneers and we always align the size of\nthe text section to 4KB.  This is because we only know which workaround we can\nuse after all linking has finished and all addresses are known.  This means even\nthough the veneers are not used, we still generate the section and we still\nchange the size of the input section.\n\nThis is problematic for small memory devices as this would require the user to\ntake about a ~4KB hit in memory even though it's not even used.\n\nSince there's no real way to restart the linking process from the final write\nphase this patch solves the issue by allowing the user more control over which\nerratum workaround gets used.\n\nConcretely this changes the option --fix-cortex-a53-843419 to take optional\narguments --fix-cortex-a53-843419[=full|adr|adrp]\n\n- full (default): Use both ADRP and ADR workaround. This is equivalent to not\n\t\t  specifying any options and is the default behavior before this\n\t\t  patch.\n\n- adr: Only use the ADR workaround, this will not cause any increase in binary\n       size but linking will fail if the referenced address is out of range of\n       an ADR instruction.\n\n- adrp: Use only the ADRP workaround, this will never rewrite your ADRP.\n\nIn the cases where the user knows how big their binaries are the `adr` option\nwould prevent the unneeded overhead.\n\nbfd/ChangeLog:\n\n\tPR ld/24373\n\t* bfd-in.h (enum erratum_84319_opts): New\n\t(bfd_elf64_aarch64_set_options, bfd_elf32_aarch64_set_options): Change\n\tint to enum erratum_84319_opts.\n\t* bfd-in2.h: Regenerate.\n\t* elfnn-aarch64.c (struct elf_aarch64_link_hash_table): Change\n\tfix_erratum_843419 to use new enum, remove fix_erratum_843419_adr.\n\t(_bfd_aarch64_add_stub_entry_after): Conditionally create erratum stub.\n\t(aarch64_size_one_stub): Conditionally size erratum 843419 stubs.\n\t(_bfd_aarch64_resize_stubs): Amend comment.\n\t(elfNN_aarch64_size_stubs): Don't generate stubs when no workaround\n\trequested.\n\t(bfd_elfNN_aarch64_set_options): Use new fix_erratum_843419 enum.\n\t(_bfd_aarch64_erratum_843419_branch_to_stub): Implement selection of\n\terratum workaround.\n\t(clear_erratum_843419_entry): Update erratum conditional.\n\nld/ChangeLog:\n\n\tPR ld/24373\n\t* emultempl/aarch64elf.em (PARSE_AND_LIST_LONGOPTS): Add optional args\n\tto flags.\n\t* NEWS: Add changes to flag.\n\t(PARSE_AND_LIST_OPTIONS): Update help descriptions.\n\t(PARSE_AND_LIST_ARGS_CASES): Add new options to parser.\n\t* testsuite/ld-aarch64/aarch64-elf.exp: Add new run_dump_tests.\n\t* testsuite/ld-aarch64/erratum843419-adr.d: New test.\n\t* testsuite/ld-aarch64/erratum843419-adrp.d: New test.\n\t* testsuite/ld-aarch64/erratum843419-far-adr.d: New test.\n\t* testsuite/ld-aarch64/erratum843419-far-full.d: New test.\n\t* testsuite/ld-aarch64/erratum843419-far.s: New test.\n\t* testsuite/ld-aarch64/erratum843419-full.d: New test.\n\t* testsuite/ld-aarch64/erratum843419-near.s: New test.\n\t* testsuite/ld-aarch64/erratum843419-no-args.d: New test.",
+    "tree": {
+      "sha": "6419b5d061b0150555db64c3b1ebf0c5fc7b987d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/6419b5d061b0150555db64c3b1ebf0c5fc7b987d"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/739b5c9c778dee9e2f54d864f83a81ecb0639535",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/739b5c9c778dee9e2f54d864f83a81ecb0639535",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/739b5c9c778dee9e2f54d864f83a81ecb0639535",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/739b5c9c778dee9e2f54d864f83a81ecb0639535/comments",
+  "author": {
+    "login": "TamarChristinaArm",
+    "id": 48126768,
+    "node_id": "MDQ6VXNlcjQ4MTI2NzY4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/48126768?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/TamarChristinaArm",
+    "html_url": "https://github.com/TamarChristinaArm",
+    "followers_url": "https://api.github.com/users/TamarChristinaArm/followers",
+    "following_url": "https://api.github.com/users/TamarChristinaArm/following{/other_user}",
+    "gists_url": "https://api.github.com/users/TamarChristinaArm/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/TamarChristinaArm/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/TamarChristinaArm/subscriptions",
+    "organizations_url": "https://api.github.com/users/TamarChristinaArm/orgs",
+    "repos_url": "https://api.github.com/users/TamarChristinaArm/repos",
+    "events_url": "https://api.github.com/users/TamarChristinaArm/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/TamarChristinaArm/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "TamarChristinaArm",
+    "id": 48126768,
+    "node_id": "MDQ6VXNlcjQ4MTI2NzY4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/48126768?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/TamarChristinaArm",
+    "html_url": "https://github.com/TamarChristinaArm",
+    "followers_url": "https://api.github.com/users/TamarChristinaArm/followers",
+    "following_url": "https://api.github.com/users/TamarChristinaArm/following{/other_user}",
+    "gists_url": "https://api.github.com/users/TamarChristinaArm/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/TamarChristinaArm/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/TamarChristinaArm/subscriptions",
+    "organizations_url": "https://api.github.com/users/TamarChristinaArm/orgs",
+    "repos_url": "https://api.github.com/users/TamarChristinaArm/repos",
+    "events_url": "https://api.github.com/users/TamarChristinaArm/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/TamarChristinaArm/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "fab7c86ea474291776621eba042132f47af124e1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/fab7c86ea474291776621eba042132f47af124e1",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/fab7c86ea474291776621eba042132f47af124e1"
+    }
+  ],
+  "stats": {
+    "total": 300,
+    "additions": 273,
+    "deletions": 27
+  },
+  "files": [
+    {
+      "sha": "2e7158f5844caddcb0af09e1b6cd2670b9ede88e",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 0,
+      "changes": 19,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/739b5c9c778dee9e2f54d864f83a81ecb0639535/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/739b5c9c778dee9e2f54d864f83a81ecb0639535/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=739b5c9c778dee9e2f54d864f83a81ecb0639535",
+      "patch": "@@ -1,3 +1,22 @@\n+2019-05-21  Tamar Christina  <tamar.christina@arm.com>\n+\n+\tPR ld/24373\n+\t* bfd-in.h (enum erratum_84319_opts): New\n+\t(bfd_elf64_aarch64_set_options, bfd_elf32_aarch64_set_options): Change\n+\tint to enum erratum_84319_opts.\n+\t* bfd-in2.h: Regenerate.\n+\t* elfnn-aarch64.c (struct elf_aarch64_link_hash_table): Change\n+\tfix_erratum_843419 to use new enum, remove fix_erratum_843419_adr.\n+\t(_bfd_aarch64_add_stub_entry_after): Conditionally create erratum stub.\n+\t(aarch64_size_one_stub): Conditionally size erratum 843419 stubs.\n+\t(_bfd_aarch64_resize_stubs): Amend comment.\n+\t(elfNN_aarch64_size_stubs): Don't generate stubs when no workaround\n+\trequested.\n+\t(bfd_elfNN_aarch64_set_options): Use new fix_erratum_843419 enum.\n+\t(_bfd_aarch64_erratum_843419_branch_to_stub): Implement selection of\n+\terratum workaround.\n+\t(clear_erratum_843419_entry): Update erratum conditional.\n+\n 2019-05-21  Senthil Kumar Selvaraj  <senthilkumar.selvaraj@microchip.com>\n \n \tPR ld/24571"
+    },
+    {
+      "sha": "890a79d409e1f404a82720d84a699d03e5267db5",
+      "filename": "bfd/bfd-in.h",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 2,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/739b5c9c778dee9e2f54d864f83a81ecb0639535/bfd/bfd-in.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/739b5c9c778dee9e2f54d864f83a81ecb0639535/bfd/bfd-in.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/bfd-in.h?ref=739b5c9c778dee9e2f54d864f83a81ecb0639535",
+      "patch": "@@ -1027,12 +1027,21 @@ typedef struct\n   aarch64_enable_bti_type bti_type;\n } aarch64_bti_pac_info;\n \n+/* An enum to define what kind of erratum fixes we should apply.  This gives the\n+   user a bit more control over the sequences we generate.  */\n+typedef enum\n+{\n+  ERRAT_NONE  = (1 << 0),  /* No erratum workarounds allowed.  */\n+  ERRAT_ADR   = (1 << 1),  /* Erratum workarounds using ADR allowed.  */\n+  ERRAT_ADRP  = (1 << 2),  /* Erratum workarounds using ADRP are allowed.  */\n+} erratum_84319_opts;\n+\n extern void bfd_elf64_aarch64_set_options\n-  (bfd *, struct bfd_link_info *, int, int, int, int, int, int,\n+  (bfd *, struct bfd_link_info *, int, int, int, int, erratum_84319_opts, int,\n    aarch64_bti_pac_info);\n \n extern void bfd_elf32_aarch64_set_options\n-  (bfd *, struct bfd_link_info *, int, int, int, int, int, int,\n+  (bfd *, struct bfd_link_info *, int, int, int, int, erratum_84319_opts, int,\n    aarch64_bti_pac_info);\n \n /* ELF AArch64 mapping symbol support.  */"
+    },
+    {
+      "sha": "65e2e01efe008144e281bc66fc3f4d678ad41982",
+      "filename": "bfd/bfd-in2.h",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 2,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/739b5c9c778dee9e2f54d864f83a81ecb0639535/bfd/bfd-in2.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/739b5c9c778dee9e2f54d864f83a81ecb0639535/bfd/bfd-in2.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/bfd-in2.h?ref=739b5c9c778dee9e2f54d864f83a81ecb0639535",
+      "patch": "@@ -1034,12 +1034,21 @@ typedef struct\n   aarch64_enable_bti_type bti_type;\n } aarch64_bti_pac_info;\n \n+/* An enum to define what kind of erratum fixes we should apply.  This gives the\n+   user a bit more control over the sequences we generate.  */\n+typedef enum\n+{\n+  ERRAT_NONE  = (1 << 0),  /* No erratum workarounds allowed.  */\n+  ERRAT_ADR   = (1 << 1),  /* Erratum workarounds using ADR allowed.  */\n+  ERRAT_ADRP  = (1 << 2),  /* Erratum workarounds using ADRP are allowed.  */\n+} erratum_84319_opts;\n+\n extern void bfd_elf64_aarch64_set_options\n-  (bfd *, struct bfd_link_info *, int, int, int, int, int, int,\n+  (bfd *, struct bfd_link_info *, int, int, int, int, erratum_84319_opts, int,\n    aarch64_bti_pac_info);\n \n extern void bfd_elf32_aarch64_set_options\n-  (bfd *, struct bfd_link_info *, int, int, int, int, int, int,\n+  (bfd *, struct bfd_link_info *, int, int, int, int, erratum_84319_opts, int,\n    aarch64_bti_pac_info);\n \n /* ELF AArch64 mapping symbol support.  */"
+    },
+    {
+      "sha": "29310184d2a3afd6af4c4c41eb4ddc78aaae0854",
+      "filename": "bfd/elfnn-aarch64.c",
+      "status": "modified",
+      "additions": 54,
+      "deletions": 19,
+      "changes": 73,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/739b5c9c778dee9e2f54d864f83a81ecb0639535/bfd/elfnn-aarch64.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/739b5c9c778dee9e2f54d864f83a81ecb0639535/bfd/elfnn-aarch64.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfnn-aarch64.c?ref=739b5c9c778dee9e2f54d864f83a81ecb0639535",
+      "patch": "@@ -2628,10 +2628,7 @@ struct elf_aarch64_link_hash_table\n   int fix_erratum_835769;\n \n   /* Fix erratum 843419.  */\n-  int fix_erratum_843419;\n-\n-  /* Enable ADRP->ADR rewrite for erratum 843419 workaround.  */\n-  int fix_erratum_843419_adr;\n+  erratum_84319_opts fix_erratum_843419;\n \n   /* Don't apply link-time values for dynamic relocations.  */\n   int no_apply_dynamic_relocs;\n@@ -3229,7 +3226,10 @@ _bfd_aarch64_add_stub_entry_after (const char *stub_name,\n   asection *stub_sec;\n   struct elf_aarch64_stub_hash_entry *stub_entry;\n \n-  stub_sec = _bfd_aarch64_get_stub_for_link_section (link_section, htab);\n+  stub_sec = NULL;\n+  /* Only create the actual stub if we will end up needing it.  */\n+  if (htab->fix_erratum_843419 & ERRAT_ADRP)\n+    stub_sec = _bfd_aarch64_get_stub_for_link_section (link_section, htab);\n   stub_entry = aarch64_stub_hash_lookup (&htab->stub_hash_table, stub_name,\n \t\t\t\t\t TRUE, FALSE);\n   if (stub_entry == NULL)\n@@ -3374,14 +3374,15 @@ aarch64_build_one_stub (struct bfd_hash_entry *gen_entry,\n    we know stub section sizes.  */\n \n static bfd_boolean\n-aarch64_size_one_stub (struct bfd_hash_entry *gen_entry,\n-\t\t       void *in_arg ATTRIBUTE_UNUSED)\n+aarch64_size_one_stub (struct bfd_hash_entry *gen_entry, void *in_arg)\n {\n   struct elf_aarch64_stub_hash_entry *stub_entry;\n+  struct elf_aarch64_link_hash_table *htab;\n   int size;\n \n   /* Massage our args to the form they really have.  */\n   stub_entry = (struct elf_aarch64_stub_hash_entry *) gen_entry;\n+  htab = (struct elf_aarch64_link_hash_table *) in_arg;\n \n   switch (stub_entry->stub_type)\n     {\n@@ -3395,7 +3396,11 @@ aarch64_size_one_stub (struct bfd_hash_entry *gen_entry,\n       size = sizeof (aarch64_erratum_835769_stub);\n       break;\n     case aarch64_stub_erratum_843419_veneer:\n-      size = sizeof (aarch64_erratum_843419_stub);\n+      {\n+\tif (htab->fix_erratum_843419 == ERRAT_ADR)\n+\t  return TRUE;\n+\tsize = sizeof (aarch64_erratum_843419_stub);\n+      }\n       break;\n     default:\n       abort ();\n@@ -4060,8 +4065,10 @@ _bfd_aarch64_resize_stubs (struct elf_aarch64_link_hash_table *htab)\n       /* Ensure all stub sections have a size which is a multiple of\n \t 4096.  This is important in order to ensure that the insertion\n \t of stub sections does not in itself move existing code around\n-\t in such a way that new errata sequences are created.  */\n-      if (htab->fix_erratum_843419)\n+\t in such a way that new errata sequences are created.  We only do this\n+\t when the ADRP workaround is enabled.  If only the ADR workaround is\n+\t enabled then the stubs workaround won't ever be used.  */\n+      if (htab->fix_erratum_843419 & ERRAT_ADRP)\n \tif (section->size)\n \t  section->size = BFD_ALIGN (section->size, 0x1000);\n     }\n@@ -4284,7 +4291,7 @@ elfNN_aarch64_size_stubs (bfd *output_bfd,\n       (*htab->layout_sections_again) ();\n     }\n \n-  if (htab->fix_erratum_843419)\n+  if (htab->fix_erratum_843419 != ERRAT_NONE)\n     {\n       bfd *input_bfd;\n \n@@ -4755,7 +4762,7 @@ bfd_elfNN_aarch64_set_options (struct bfd *output_bfd,\n \t\t\t       int no_enum_warn,\n \t\t\t       int no_wchar_warn, int pic_veneer,\n \t\t\t       int fix_erratum_835769,\n-\t\t\t       int fix_erratum_843419,\n+\t\t\t       erratum_84319_opts fix_erratum_843419,\n \t\t\t       int no_apply_dynamic_relocs,\n \t\t\t       aarch64_bti_pac_info bp_info)\n {\n@@ -4764,8 +4771,10 @@ bfd_elfNN_aarch64_set_options (struct bfd *output_bfd,\n   globals = elf_aarch64_hash_table (link_info);\n   globals->pic_veneer = pic_veneer;\n   globals->fix_erratum_835769 = fix_erratum_835769;\n+  /* If the default options are used, then ERRAT_ADR will be set by default\n+     which will enable the ADRP->ADR workaround for the erratum 843419\n+     workaround.  */\n   globals->fix_erratum_843419 = fix_erratum_843419;\n-  globals->fix_erratum_843419_adr = TRUE;\n   globals->no_apply_dynamic_relocs = no_apply_dynamic_relocs;\n \n   BFD_ASSERT (is_aarch64_elf (output_bfd));\n@@ -5235,9 +5244,18 @@ _bfd_aarch64_erratum_843419_branch_to_stub (struct bfd_hash_entry *gen_entry,\n       || stub_entry->stub_type != aarch64_stub_erratum_843419_veneer)\n     return TRUE;\n \n-  insn = bfd_getl32 (contents + stub_entry->target_value);\n-  bfd_putl32 (insn,\n-\t      stub_entry->stub_sec->contents + stub_entry->stub_offset);\n+  BFD_ASSERT (((htab->fix_erratum_843419 & ERRAT_ADRP) && stub_entry->stub_sec)\n+\t      || (htab->fix_erratum_843419 & ERRAT_ADR));\n+\n+  /* Only update the stub section if we have one.  We should always have one if\n+     we're allowed to use the ADRP errata workaround, otherwise it is not\n+     required.  */\n+  if (stub_entry->stub_sec)\n+    {\n+      insn = bfd_getl32 (contents + stub_entry->target_value);\n+      bfd_putl32 (insn,\n+\t\t  stub_entry->stub_sec->contents + stub_entry->stub_offset);\n+    }\n \n   place = (section->output_section->vma + section->output_offset\n \t   + stub_entry->adrp_offset);\n@@ -5251,14 +5269,16 @@ _bfd_aarch64_erratum_843419_branch_to_stub (struct bfd_hash_entry *gen_entry,\n      ((bfd_vma) _bfd_aarch64_decode_adrp_imm (insn) << 12, 33)\n      - (place & 0xfff));\n \n-  if (htab->fix_erratum_843419_adr\n+  if ((htab->fix_erratum_843419 & ERRAT_ADR)\n       && (imm >= AARCH64_MIN_ADRP_IMM  && imm <= AARCH64_MAX_ADRP_IMM))\n     {\n       insn = (_bfd_aarch64_reencode_adr_imm (AARCH64_ADR_OP, imm)\n \t      | AARCH64_RT (insn));\n       bfd_putl32 (insn, contents + stub_entry->adrp_offset);\n+      /* Stub is not needed, don't map it out.  */\n+      stub_entry->stub_type = aarch64_stub_none;\n     }\n-  else\n+  else if (htab->fix_erratum_843419 & ERRAT_ADRP)\n     {\n       bfd_vma veneered_insn_loc;\n       bfd_vma veneer_entry_loc;\n@@ -5285,6 +5305,21 @@ _bfd_aarch64_erratum_843419_branch_to_stub (struct bfd_hash_entry *gen_entry,\n       branch_insn |= branch_offset;\n       bfd_putl32 (branch_insn, contents + stub_entry->target_value);\n     }\n+  else\n+    {\n+      abfd = stub_entry->target_section->owner;\n+      _bfd_error_handler\n+\t(_(\"%pB: error: erratum 843419 immediate 0x%lx \"\n+\t   \"out of range for ADR (input file too large) and \"\n+\t   \"--fix-cortex-a53-843419=adr used.  Run the linker with \"\n+\t   \"--fix-cortex-a53-843419=full instead\"), abfd, imm);\n+      bfd_set_error (bfd_error_bad_value);\n+      /* This function is called inside a hashtable traversal and the error\n+\t handlers called above turn into non-fatal errors.  Which means this\n+\t case ld returns an exit code 0 and also produces a broken object file.\n+\t To prevent this, issue a hard abort.  */\n+      BFD_FAIL ();\n+    }\n   return TRUE;\n }\n \n@@ -6154,7 +6189,7 @@ static void\n clear_erratum_843419_entry (struct elf_aarch64_link_hash_table *globals,\n \t\t\t    bfd_vma adrp_offset, asection *input_section)\n {\n-  if (globals->fix_erratum_843419)\n+  if (globals->fix_erratum_843419 & ERRAT_ADRP)\n     {\n       struct erratum_843419_branch_to_stub_clear_data data;\n       data.adrp_offset = adrp_offset;"
+    },
+    {
+      "sha": "77beea096c749eb96ab386f4b1b50028ee8e18d3",
+      "filename": "ld/ChangeLog",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 0,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/ChangeLog?ref=739b5c9c778dee9e2f54d864f83a81ecb0639535",
+      "patch": "@@ -1,3 +1,21 @@\n+2019-05-21  Tamar Christina  <tamar.christina@arm.com>\n+\n+\tPR ld/24373\n+\t* emultempl/aarch64elf.em (PARSE_AND_LIST_LONGOPTS): Add optional args\n+\tto flags.\n+\t* NEWS: Add changes to flag.\n+\t(PARSE_AND_LIST_OPTIONS): Update help descriptions.\n+\t(PARSE_AND_LIST_ARGS_CASES): Add new options to parser.\n+\t* testsuite/ld-aarch64/aarch64-elf.exp: Add new run_dump_tests.\n+\t* testsuite/ld-aarch64/erratum843419-adr.d: New test.\n+\t* testsuite/ld-aarch64/erratum843419-adrp.d: New test.\n+\t* testsuite/ld-aarch64/erratum843419-far-adr.d: New test.\n+\t* testsuite/ld-aarch64/erratum843419-far-full.d: New test.\n+\t* testsuite/ld-aarch64/erratum843419-far.s: New test.\n+\t* testsuite/ld-aarch64/erratum843419-full.d: New test.\n+\t* testsuite/ld-aarch64/erratum843419-near.s: New test.\n+\t* testsuite/ld-aarch64/erratum843419-no-args.d: New test.\n+\n 2019-05-21  Senthil Kumar Selvaraj  <senthilkumar.selvaraj@microchip.com>\n \n \tPR ld/24571"
+    },
+    {
+      "sha": "3a41e9fbf1654ef04587ce90a047c332af852600",
+      "filename": "ld/NEWS",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/NEWS",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/NEWS",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/NEWS?ref=739b5c9c778dee9e2f54d864f83a81ecb0639535",
+      "patch": "@@ -2,6 +2,12 @@\n \n * Add command-line option --no-print-map-discarded.\n \n+* The Cortex-A53 Erratum 843419 workaround now supports a choice of which\n+  workaround to use.  The option --fix-cortex-a53-843419 now takes an\n+  optional argument --fix-cortex-a53-843419[=full|adr|adrp] which can be\n+  used to force a particular workaround to be used.  See --help for AArch64\n+  for more details.\n+\n Changes in 2.33:\n \n * Add target handlers for AArch64 for ELF GNU program properties."
+    },
+    {
+      "sha": "b59623ec6533952734f400cc0165e59f94ac2b13",
+      "filename": "ld/emultempl/aarch64elf.em",
+      "status": "modified",
+      "additions": 26,
+      "deletions": 4,
+      "changes": 30,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/emultempl/aarch64elf.em",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/emultempl/aarch64elf.em",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/emultempl/aarch64elf.em?ref=739b5c9c778dee9e2f54d864f83a81ecb0639535",
+      "patch": "@@ -31,7 +31,7 @@ static int no_enum_size_warning = 0;\n static int no_wchar_size_warning = 0;\n static int pic_veneer = 0;\n static int fix_erratum_835769 = 0;\n-static int fix_erratum_843419 = 0;\n+static erratum_84319_opts fix_erratum_843419 = ERRAT_NONE;\n static int no_apply_dynamic_relocs = 0;\n static aarch64_plt_type plt_type = PLT_NORMAL;\n static aarch64_enable_bti_type bti_type = BTI_NONE;\n@@ -385,7 +385,7 @@ PARSE_AND_LIST_LONGOPTS='\n   { \"stub-group-size\", required_argument, NULL, OPTION_STUBGROUP_SIZE },\n   { \"no-wchar-size-warning\", no_argument, NULL, OPTION_NO_WCHAR_SIZE_WARNING},\n   { \"fix-cortex-a53-835769\", no_argument, NULL, OPTION_FIX_ERRATUM_835769},\n-  { \"fix-cortex-a53-843419\", no_argument, NULL, OPTION_FIX_ERRATUM_843419},\n+  { \"fix-cortex-a53-843419\", optional_argument, NULL, OPTION_FIX_ERRATUM_843419},\n   { \"no-apply-dynamic-relocs\", no_argument, NULL, OPTION_NO_APPLY_DYNAMIC_RELOCS},\n   { \"force-bti\", no_argument, NULL, OPTION_FORCE_BTI},\n   { \"pac-plt\", no_argument, NULL, OPTION_PAC_PLT},\n@@ -407,7 +407,17 @@ PARSE_AND_LIST_OPTIONS='\n                                 Values of +/-1 indicate the linker should\\n\\\n                                 choose suitable defaults.\\n\"));\n   fprintf (file, _(\"  --fix-cortex-a53-835769      Fix erratum 835769\\n\"));\n-  fprintf (file, _(\"  --fix-cortex-a53-843419      Fix erratum 843419\\n\"));\n+  fprintf (file, _(\"\\\n+  --fix-cortex-a53-843419[=full|adr|adrp]      Fix erratum 843419 and optionally specify which workaround to use.\\n\\\n+                                               full (default): Use both ADRP and ADR workaround, this will \\n\\\n+                                                 increase the size of your binaries.\\n\\\n+                                               adr: Only use the ADR workaround, this will not cause any increase\\n\\\n+                                                 in binary size but linking will fail if the referenced address is\\n\\\n+                                                 out of range of an ADR instruction.  This will remove the need of using\\n\\\n+                                                 a veneer and results in both performance and size benefits.\\n\\\n+                                               adrp: Use only the ADRP workaround, this will never rewrite your ADRP\\n\\\n+                                                 instruction into an ADR.  As such the workaround will always use a\\n\\\n+                                                 veneer and this will give you both a performance and size overhead.\\n\"));\n   fprintf (file, _(\"  --no-apply-dynamic-relocs    Do not apply link-time values for dynamic relocations\\n\"));\n   fprintf (file, _(\"  --force-bti                  Turn on Branch Target Identification mechanism and generate PLTs with BTI. Generate warnings for missing BTI on inputs\\n\"));\n   fprintf (file, _(\"  --pac-plt                    Protect PLTs with Pointer Authentication.\\n\"));\n@@ -435,7 +445,19 @@ PARSE_AND_LIST_ARGS_CASES='\n       break;\n \n     case OPTION_FIX_ERRATUM_843419:\n-      fix_erratum_843419 = 1;\n+      fix_erratum_843419 = ERRAT_ADR | ERRAT_ADRP;\n+      if (optarg && *optarg)\n+\t{\n+\t  if (strcmp (\"full\", optarg) == 0)\n+\t    fix_erratum_843419 = ERRAT_ADR | ERRAT_ADRP;\n+\t  else if (strcmp (\"adrp\", optarg) == 0)\n+\t    fix_erratum_843419 = ERRAT_ADRP;\n+\t  else if (strcmp (\"adr\", optarg) == 0)\n+\t    fix_erratum_843419 = ERRAT_ADR;\n+\t  else\n+\t    einfo (_(\"%P: error: unrecognized option for \"\n+\t\t     \"--fix-cortex-a53-843419: %s\\n\"), optarg);\n+\t}\n       break;\n \n     case OPTION_NO_APPLY_DYNAMIC_RELOCS:"
+    },
+    {
+      "sha": "1e4c38e691d2f45a5d8dea468ed8c3ca05e1033a",
+      "filename": "ld/testsuite/ld-aarch64/aarch64-elf.exp",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/testsuite/ld-aarch64/aarch64-elf.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/testsuite/ld-aarch64/aarch64-elf.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-aarch64/aarch64-elf.exp?ref=739b5c9c778dee9e2f54d864f83a81ecb0639535",
+      "patch": "@@ -87,6 +87,12 @@ run_ld_link_tests eh-frame-merge-lp64\n \n run_dump_test \"erratum843419\"\n run_dump_test \"erratum843419_tls_ie\"\n+run_dump_test \"erratum843419-adr\"\n+run_dump_test \"erratum843419-adrp\"\n+run_dump_test \"erratum843419-far-adr\"\n+run_dump_test \"erratum843419-far-full\"\n+run_dump_test \"erratum843419-full\"\n+run_dump_test \"erratum843419-no-args\"\n \n # Relocation Tests\n run_dump_test_lp64 \"weak-undefined\""
+    },
+    {
+      "sha": "ab4fe27e09ec22460bba259220a17d2ff25b5eb4",
+      "filename": "ld/testsuite/ld-aarch64/erratum843419-adr.d",
+      "status": "added",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/testsuite/ld-aarch64/erratum843419-adr.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/testsuite/ld-aarch64/erratum843419-adr.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-aarch64/erratum843419-adr.d?ref=739b5c9c778dee9e2f54d864f83a81ecb0639535",
+      "patch": "@@ -0,0 +1,15 @@\n+#source: erratum843419-near.s\n+#as:\n+#ld: -Ttext=0x400000 --fix-cortex-a53-843419=adr\n+#objdump: -dr\n+#...\n+\n+Disassembly of section \\.text:\n+\n+0*400000 <_start>:\n+\t...\n+  400ffc:\t10038020 \tadr\tx0, 408000 <_start\\+0x8000>\n+  401000:\tf9000042 \tstr\tx2, \\[x2\\]\n+  401004:\td2800002 \tmov\tx2, #0x0                   \t// #0\n+  401008:\tf9402001 \tldr\tx1, \\[x0, #64\\]\n+  40100c:\td503201f \tnop"
+    },
+    {
+      "sha": "371201cf0b81579495e1f3164b9cb7bdb784138a",
+      "filename": "ld/testsuite/ld-aarch64/erratum843419-adrp.d",
+      "status": "added",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/testsuite/ld-aarch64/erratum843419-adrp.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/testsuite/ld-aarch64/erratum843419-adrp.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-aarch64/erratum843419-adrp.d?ref=739b5c9c778dee9e2f54d864f83a81ecb0639535",
+      "patch": "@@ -0,0 +1,22 @@\n+#source: erratum843419-near.s\n+#as:\n+#ld: -Ttext=0x400000 --fix-cortex-a53-843419=adrp\n+#objdump: -dr\n+#...\n+\n+Disassembly of section \\.text:\n+\n+0*400000 <_start>:\n+\t...\n+  400ffc:\t90000040 \tadrp\tx0, 408000 <e843419@0002_00000010_1008\\+0x6fe8>\n+  401000:\tf9000042 \tstr\tx2, \\[x2\\]\n+  401004:\td2800002 \tmov\tx2, #0x0                   \t// #0\n+  401008:\t14000004 \tb\t401018 <e843419@0002_00000010_1008>\n+  40100c:\td503201f \tnop\n+  401010:\t14000400 \tb\t402010 <e843419@0002_00000010_1008\\+0xff8>\n+  401014:\td503201f \tnop\n+\n+0*401018 <e843419@0002_00000010_1008>:\n+  401018:\tf9402001 \tldr\tx1, \\[x0, #64\\]\n+  40101c:\t17fffffc \tb\t40100c <_start\\+0x100c>\n+\t..."
+    },
+    {
+      "sha": "acddea7ad56694dadb032298c70f8028de10b911",
+      "filename": "ld/testsuite/ld-aarch64/erratum843419-far-adr.d",
+      "status": "added",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/testsuite/ld-aarch64/erratum843419-far-adr.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/testsuite/ld-aarch64/erratum843419-far-adr.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-aarch64/erratum843419-far-adr.d?ref=739b5c9c778dee9e2f54d864f83a81ecb0639535",
+      "patch": "@@ -0,0 +1,5 @@\n+#source: erratum843419-far.s\n+#as:\n+#ld: -Ttext=0x400000 --fix-cortex-a53-843419=adr\n+#error: .*: erratum 843419 immediate 0x7ffff004 out of range for ADR \\(input file too large\\) and \\-\\-fix\\-cortex\\-a53\\-843419=adr used\\.  Run the linker with \\-\\-fix\\-cortex\\-a53\\-843419=full instead.*\n+#..."
+    },
+    {
+      "sha": "24f2be59ceea5be2079fa74bc9a8ff03717f01ff",
+      "filename": "ld/testsuite/ld-aarch64/erratum843419-far-full.d",
+      "status": "added",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/testsuite/ld-aarch64/erratum843419-far-full.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/testsuite/ld-aarch64/erratum843419-far-full.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-aarch64/erratum843419-far-full.d?ref=739b5c9c778dee9e2f54d864f83a81ecb0639535",
+      "patch": "@@ -0,0 +1,22 @@\n+#source: erratum843419-far.s\n+#as:\n+#ld: -Ttext=0x400000 --fix-cortex-a53-843419=full\n+#objdump: -dr\n+#...\n+\n+Disassembly of section \\.text:\n+\n+0*400000 <_start>:\n+\t...\n+  400ffc:\t90400000 \tadrp\tx0, 80400000 <__bss_end__\\+0x7ffedff0>\n+  401000:\tf9000042 \tstr\tx2, \\[x2\\]\n+  401004:\td2800002 \tmov\tx2, #0x0                   \t// #0\n+  401008:\t14000004 \tb\t401018 <e843419@0002_00000010_1008>\n+  40100c:\td503201f \tnop\n+  401010:\t14000400 \tb\t402010 <e843419@0002_00000010_1008\\+0xff8>\n+  401014:\td503201f \tnop\n+\n+0*401018 <e843419@0002_00000010_1008>:\n+  401018:\tf9402001 \tldr\tx1, \\[x0, #64\\]\n+  40101c:\t17fffffc \tb\t40100c <_start\\+0x100c>\n+\t..."
+    },
+    {
+      "sha": "21f1b37709a7fa03799b4222128f6567b857e162",
+      "filename": "ld/testsuite/ld-aarch64/erratum843419-far.s",
+      "status": "added",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/testsuite/ld-aarch64/erratum843419-far.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/testsuite/ld-aarch64/erratum843419-far.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-aarch64/erratum843419-far.s?ref=739b5c9c778dee9e2f54d864f83a81ecb0639535",
+      "patch": "@@ -0,0 +1,9 @@\n+.balign 0x1000\n+.globl _start\n+_start:\n+        .skip 0xffc\n+        adrp x0, _start + 0x80000000\n+        str x2, [x2]\n+        mov x2, #0\n+        ldr x1, [x0, #0x40]\n+        nop"
+    },
+    {
+      "sha": "508216d2bca2e1fec28a1db3ac0b0bf20e0e3c87",
+      "filename": "ld/testsuite/ld-aarch64/erratum843419-full.d",
+      "status": "added",
+      "additions": 20,
+      "deletions": 0,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/testsuite/ld-aarch64/erratum843419-full.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/testsuite/ld-aarch64/erratum843419-full.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-aarch64/erratum843419-full.d?ref=739b5c9c778dee9e2f54d864f83a81ecb0639535",
+      "patch": "@@ -0,0 +1,20 @@\n+#source: erratum843419-near.s\n+#as:\n+#ld: -Ttext=0x400000 --fix-cortex-a53-843419=full\n+#objdump: -dr\n+#...\n+\n+Disassembly of section \\.text:\n+\n+0*400000 <_start>:\n+\t...\n+  400ffc:\t10038020 \tadr\tx0, 408000 <_start\\+0x8000>\n+  401000:\tf9000042 \tstr\tx2, \\[x2\\]\n+  401004:\td2800002 \tmov\tx2, #0x0                   \t// #0\n+  401008:\tf9402001 \tldr\tx1, \\[x0, #64\\]\n+  40100c:\td503201f \tnop\n+  401010:\t14000400 \tb\t402010 <_start\\+0x2010>\n+  401014:\td503201f \tnop\n+  401018:\tf9402001 \tldr\tx1, \\[x0, #64\\]\n+  40101c:\t17fffffc \tb\t40100c <_start\\+0x100c>\n+\t..."
+    },
+    {
+      "sha": "262cd169a21eccaa238e380823d623a2a7d2abfe",
+      "filename": "ld/testsuite/ld-aarch64/erratum843419-near.s",
+      "status": "added",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/testsuite/ld-aarch64/erratum843419-near.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/testsuite/ld-aarch64/erratum843419-near.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-aarch64/erratum843419-near.s?ref=739b5c9c778dee9e2f54d864f83a81ecb0639535",
+      "patch": "@@ -0,0 +1,9 @@\n+.balign 0x1000\n+.globl _start\n+_start:\n+        .skip 0xffc\n+        adrp x0, _start + 0x8000\n+        str x2, [x2]\n+        mov x2, #0\n+        ldr x1, [x0, #0x40]\n+        nop"
+    },
+    {
+      "sha": "30773f6761595470200e3a51cbd373c72de6adca",
+      "filename": "ld/testsuite/ld-aarch64/erratum843419-no-args.d",
+      "status": "added",
+      "additions": 20,
+      "deletions": 0,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/testsuite/ld-aarch64/erratum843419-no-args.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/739b5c9c778dee9e2f54d864f83a81ecb0639535/ld/testsuite/ld-aarch64/erratum843419-no-args.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-aarch64/erratum843419-no-args.d?ref=739b5c9c778dee9e2f54d864f83a81ecb0639535",
+      "patch": "@@ -0,0 +1,20 @@\n+#source: erratum843419-near.s\n+#as:\n+#ld: -Ttext=0x400000 --fix-cortex-a53-843419\n+#objdump: -dr\n+#...\n+\n+Disassembly of section \\.text:\n+\n+0*400000 <_start>:\n+\t...\n+  400ffc:\t10038020 \tadr\tx0, 408000 <_start\\+0x8000>\n+  401000:\tf9000042 \tstr\tx2, \\[x2\\]\n+  401004:\td2800002 \tmov\tx2, #0x0                   \t// #0\n+  401008:\tf9402001 \tldr\tx1, \\[x0, #64\\]\n+  40100c:\td503201f \tnop\n+  401010:\t14000400 \tb\t402010 <_start\\+0x2010>\n+  401014:\td503201f \tnop\n+  401018:\tf9402001 \tldr\tx1, \\[x0, #64\\]\n+  40101c:\t17fffffc \tb\t40100c <_start\\+0x100c>\n+\t..."
+    }
+  ]
+}

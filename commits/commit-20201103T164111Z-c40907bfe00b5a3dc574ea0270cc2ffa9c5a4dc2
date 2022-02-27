@@ -1,0 +1,110 @@
+{
+  "sha": "c40907bfe00b5a3dc574ea0270cc2ffa9c5a4dc2",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YzQwOTA3YmZlMDBiNWEzZGM1NzRlYTAyNzBjYzJmZmE5YzVhNGRjMg==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-11-03T16:41:11Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-11-03T16:41:11Z"
+    },
+    "message": "[gdb/testsuite] Fix .debug_abbrev terminators\n\nThe abbreviations table for a single compilation unit has two types of\nterminators:\n- a \".byte 0\" pair denoting the end of an attribute list\n- a single \".byte 0\" denoting the end of the table\n\nHowever, at the end of the .debug_abbrev section in dw2-line-number-zero-dw.S,\nwe have four \".byte 0\" entries:\n...\n        .uleb128        0x12            /* DW_AT_high_pc */\n        .uleb128        0x01            /* DW_FORM_addr */\n        .byte        0x0                /* Terminator */\n        .byte        0x0                /* Terminator */\n        .byte        0x0                /* Terminator */\n        .byte        0x0                /* Terminator */\n...\n\nThe first two are the attribute list terminator, the third is the end-of-table\nterminator, and the last is superfluous/incorrect.\n\nFix this by emitting instead:\n...\n        .uleb128        0x12            /* DW_AT_high_pc */\n        .uleb128        0x01            /* DW_FORM_addr */\n        .byte        0x0                /* DW_AT - Terminator */\n        .byte        0x0                /* DW_FORM - Terminator */\n        .byte        0x0                /* Abbrev end - Terminator */\n...\nwhere the last comment resembles the comment for other abbreviation codes:\n...\n        .section .debug_abbrev\n.Labbrev1_begin:\n        .uleb128        2               /* Abbrev start */\n...\n\nTested on x86_64-linux.\n\ngdb/testsuite/ChangeLog:\n\n2020-11-03  Tom de Vries  <tdevries@suse.de>\n\n\t* lib/dwarf.exp (Dwarf::_handle_DW_TAG): Improve attribute list\n\tterminator comments.\n\t(Dwarf::cu, Dwarf::tu): Remove superfluous abbreviation table\n\tterminator.",
+    "tree": {
+      "sha": "9294cbf5e3e7b86cb7fe0516bbb8704a030ccc1a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/9294cbf5e3e7b86cb7fe0516bbb8704a030ccc1a"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/c40907bfe00b5a3dc574ea0270cc2ffa9c5a4dc2",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c40907bfe00b5a3dc574ea0270cc2ffa9c5a4dc2",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/c40907bfe00b5a3dc574ea0270cc2ffa9c5a4dc2",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c40907bfe00b5a3dc574ea0270cc2ffa9c5a4dc2/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "f3016d6ce178b76002edde12c30ebe7f608a8e21",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f3016d6ce178b76002edde12c30ebe7f608a8e21",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/f3016d6ce178b76002edde12c30ebe7f608a8e21"
+    }
+  ],
+  "stats": {
+    "total": 17,
+    "additions": 11,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "0659c246f34d3f6cd9f8a54d8c2c275d110a7023",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c40907bfe00b5a3dc574ea0270cc2ffa9c5a4dc2/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c40907bfe00b5a3dc574ea0270cc2ffa9c5a4dc2/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=c40907bfe00b5a3dc574ea0270cc2ffa9c5a4dc2",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-11-03  Tom de Vries  <tdevries@suse.de>\n+\n+\t* lib/dwarf.exp (Dwarf::_handle_DW_TAG): Improve attribute list\n+\tterminator comments.\n+\t(Dwarf::cu, Dwarf::tu): Remove superfluous abbreviation table\n+\tterminator.\n+\n 2020-11-02  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* gdb.base/step-over-no-symbols.exp (test_step_over): Replace"
+    },
+    {
+      "sha": "c585621ac48a5ebee382dc837c5c47468d8783b4",
+      "filename": "gdb/testsuite/lib/dwarf.exp",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 6,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c40907bfe00b5a3dc574ea0270cc2ffa9c5a4dc2/gdb/testsuite/lib/dwarf.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c40907bfe00b5a3dc574ea0270cc2ffa9c5a4dc2/gdb/testsuite/lib/dwarf.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/dwarf.exp?ref=c40907bfe00b5a3dc574ea0270cc2ffa9c5a4dc2",
+      "patch": "@@ -723,8 +723,8 @@ namespace eval Dwarf {\n \n \t_defer_output $_abbrev_section {\n \t    # Terminator.\n-\t    _op .byte 0x0 Terminator\n-\t    _op .byte 0x0 Terminator\n+\t    _op .byte 0x0 \"DW_AT - Terminator\"\n+\t    _op .byte 0x0 \"DW_FORM - Terminator\"\n \t}\n \n \tif {$has_children} {\n@@ -1111,8 +1111,7 @@ namespace eval Dwarf {\n \n \t_defer_output $_abbrev_section {\n \t    # Emit the terminator.\n-\t    _op .byte 0x0 Terminator\n-\t    _op .byte 0x0 Terminator\n+\t    _op .byte 0x0 \"Abbrev end - Terminator\"\n \t}\n \n \tdefine_label $end_label\n@@ -1220,8 +1219,7 @@ namespace eval Dwarf {\n \n \t_defer_output $_abbrev_section {\n \t    # Emit the terminator.\n-\t    _op .byte 0x0 Terminator\n-\t    _op .byte 0x0 Terminator\n+\t    _op .byte 0x0 \"Abbrev end - Terminator\"\n \t}\n \n \tdefine_label $end_label"
+    }
+  ]
+}

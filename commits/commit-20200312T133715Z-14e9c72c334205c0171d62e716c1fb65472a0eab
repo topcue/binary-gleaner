@@ -1,0 +1,110 @@
+{
+  "sha": "14e9c72c334205c0171d62e716c1fb65472a0eab",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MTRlOWM3MmMzMzQyMDVjMDE3MWQ2MmU3MTZjMWZiNjU0NzJhMGVhYg==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-03-12T13:37:15Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-03-12T13:37:15Z"
+    },
+    "message": "[gdb/testsuite] Avoid breakpoint in GLIBC in gdb.threads/execl.exp\n\nWhen running the gdb.threads/execl.exp test-case, we run into this FAIL:\n...\n(gdb) continue^M\nContinuing.^M\n^M\nThread 1 \"execl\" hit Breakpoint 2, __GI_execl (path=0x6024a0 \\\n  \"build/gdb/testsuite/outputs/gdb.threads/execl/execl1\", \\\n  arg=<optimized out>) at execl.c:51^M\n51        if (execl (new_image, new_image, NULL) == -1) \\\n  /* set breakpoint here */^M\n(gdb) FAIL: gdb.threads/execl.exp: continue across exec\n...\nThe fail is due to the continue command hitting a breakpoint in __GI_execl\nrather than main.\n\nThis problem originates from where we execute the \"b 51\" command, and get two\nbreakpoint locations:\n...\n(gdb) run ^M\nStarting program: build/gdb/testsuite/outputs/gdb.threads/execl/execl ^M\n[Thread debugging using libthread_db enabled]^M\nUsing host libthread_db library \"/lib64/libthread_db.so.1\".^M\n^M\nBreakpoint 1, main (argc=1, argv=0x7fffffffd3f8) at gdb.threads/execl.c:44^M\n44        pthread_create (&thread1, NULL, thread_function, NULL);^M\n(gdb) b 51^M\nBreakpoint 2 at 0x400787: gdb.threads/execl.c:51. (2 locations)^M\n(gdb) PASS: gdb.threads/execl.exp: set breakpoint at execl\n...\n\nAdding a \"info breakpoints\" command, we can see the locations:\n...\n(gdb) info breakpoints^M\nNum     Type           Disp Enb Address            What^M\n1       breakpoint     keep y   0x00000000004006ee in main at \\\n  gdb.threads/execl.c:44^M\n        breakpoint already hit 1 time^M\n2       breakpoint     keep y   <MULTIPLE>         ^M\n2.1                         y   0x0000000000400787 in main at \\\n  gdb.threads/execl.c:51^M\n2.2                         y   0x00007ffff758d925 in __GI_execl at \\\n  execl.c:51^M\n(gdb) PASS: gdb.threads/execl.exp: info breakpoints\n...\n\nThe fact that the __GI_execl breakpoint location is there, is a bug, filed as\nPR25656.  Without debug info for GLIBC though, the bug is not triggered.\n\nFix the FAIL by working around the bug, and deleting the breakpoint after\nhitting the first breakpoint location.\n\nTested on x86_64-linux.\n\ngdb/testsuite/ChangeLog:\n\n2020-03-12  Tom de Vries  <tdevries@suse.de>\n\n\t* gdb.threads/execl.exp: Delete breakpoint after hitting it.",
+    "tree": {
+      "sha": "73e2920d412c3646bbe7bfbda8c18b104119b62d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/73e2920d412c3646bbe7bfbda8c18b104119b62d"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/14e9c72c334205c0171d62e716c1fb65472a0eab",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/14e9c72c334205c0171d62e716c1fb65472a0eab",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/14e9c72c334205c0171d62e716c1fb65472a0eab",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/14e9c72c334205c0171d62e716c1fb65472a0eab/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "e515d67ed61f7c588a3154589a8a25c7bef66d20",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e515d67ed61f7c588a3154589a8a25c7bef66d20",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/e515d67ed61f7c588a3154589a8a25c7bef66d20"
+    }
+  ],
+  "stats": {
+    "total": 11,
+    "additions": 11,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "6fc24e19c2c06d70f29ca66eba0cfa108798d33b",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14e9c72c334205c0171d62e716c1fb65472a0eab/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14e9c72c334205c0171d62e716c1fb65472a0eab/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=14e9c72c334205c0171d62e716c1fb65472a0eab",
+      "patch": "@@ -1,3 +1,7 @@\n+2020-03-12  Tom de Vries  <tdevries@suse.de>\n+\n+\t* gdb.threads/execl.exp: Delete breakpoint after hitting it.\n+\n 2020-03-12  Tom de Vries  <tdevries@suse.de>\n \n \t* gdb.fortran/module.exp: Use exp_continue during matching of output"
+    },
+    {
+      "sha": "1649081f83be568902b57ae26892f26216bf5949",
+      "filename": "gdb/testsuite/gdb.threads/execl.exp",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14e9c72c334205c0171d62e716c1fb65472a0eab/gdb/testsuite/gdb.threads/execl.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14e9c72c334205c0171d62e716c1fb65472a0eab/gdb/testsuite/gdb.threads/execl.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/execl.exp?ref=14e9c72c334205c0171d62e716c1fb65472a0eab",
+      "patch": "@@ -42,6 +42,13 @@ gdb_test \"continue\" \".*breakpoint here.*\" \"continue to exec\"\n \n gdb_test \"info threads\" \"1 *Thread.*2 *Thread.*3 *Thread.*\" \"info threads before exec\"\n \n+# Work around PR25656, where the breakpoint above sets 2 breakpoint locations:\n+# - one on gdb.threads/execl.c:$linenumber, and\n+# - one in GLIBC's execl.c:$linenumber, in __GI_execl\n+# Delete the breakpoint to make sure we hit main upon continue, rather than\n+# __GI_execl.\n+gdb_test_no_output \"delete 2\"\n+\n # When continuing from this point we'll hit the breakpoint in main()\n # again, this time in the exec'd process.\n gdb_test \"continue\" \".*Breakpoint 1, main.*\" \\"
+    }
+  ]
+}

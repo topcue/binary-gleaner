@@ -1,0 +1,206 @@
+{
+  "sha": "77f2120b200be6cabbf6f610942fc1173a8df6d3",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NzdmMjEyMGIyMDBiZTZjYWJiZjZmNjEwOTQyZmMxMTczYThkZjZkMw==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-09-13T12:34:10Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "palves@redhat.com",
+      "date": "2020-09-13T12:34:10Z"
+    },
+    "message": "Don't drop static function bp locations w/o debug info\n\nCurrently, with a program built from these sources:\n\n $ cat extern.c\n void foo () {}\n $ cat static.c\n static void foo () {}\n $ cat main.c\n int main () { return 0; }\n\n... if you set a breakpoint on \"foo\", like:\n\n (gdb) break foo\n\n.. when there's debug info, GDB creates a breakpoint with two\nlocations, one for each of the external and static functions.\n\nBut, when there's no debug info, GDB creates a breakpoint with a\nsingle location, for the external foo.  Vis:\n\n $ gcc extern.c static.c main.c -o classify.nodebug\n $ gcc extern.c static.c main.c -o classify.debug -g\n\n $ gdb classify.nodebug\n Reading symbols from classify.nodebug...\n (No debugging symbols found in classify.nodebug)\n (gdb) b foo\n Breakpoint 1 at 0x40048b\n (gdb) info breakpoints\n Num     Type           Disp Enb Address            What\n 1       breakpoint     keep y   0x000000000040048b <foo+4>\n (gdb)\n\n $ gdb classify.debug\n Reading symbols from classify.debug...\n (gdb) b foo\n Breakpoint 1 at 0x40048b: foo. (2 locations)\n (gdb) info breakpoints\n Num     Type           Disp Enb Address            What\n 1       breakpoint     keep y   <MULTIPLE>\n 1.1                         y   0x000000000040048b in foo at extern.c:1\n 1.2                         y   0x0000000000400492 in foo at static.c:1\n\nGDB drops the static function is search_minsyms_for_name, where at the\nvery end of that function we pick only the locations with highest\nclassification, according to classify_type.\n\nThe classify_type logic was introduced here:\n\n  https://sourceware.org/pipermail/gdb-patches/2011-December/087864.html\n\nwhich said:\n\n \"Previously, linespec was trying to filter out minsyms as they were\n  seen.  However, this isn't faithful to gdb's historical approach,\n  which is to priority-order minsyms; see lookup_minimal_symbol.\"\n\nlookup_minimal_symbol's intro says, in the .c file:\n\n/* Look through all the current minimal symbol tables and find the\n   first minimal symbol that matches NAME.  If OBJF is non-NULL, limit\n   the search to that objfile.  If SFILE is non-NULL, the only file-scope\n   symbols considered will be from that source file (global symbols are\n   still preferred).  Returns a pointer to the minimal symbol that\n   matches, or NULL if no match is found.\n\n   Note:  One instance where there may be duplicate minimal symbols with\n   the same name is when the symbol tables for a shared library and the\n   symbol tables for an executable contain global symbols with the same\n   names (the dynamic linker deals with the duplication).\n\n   It's also possible to have minimal symbols with different mangled\n   names, but identical demangled names.  For example, the GNU C++ v3\n   ABI requires the generation of two (or perhaps three) copies of\n   constructor functions --- \"in-charge\", \"not-in-charge\", and\n   \"allocate\" copies; destructors may be duplicated as well.\n   Obviously, there must be distinct mangled names for each of these,\n   but the demangled names are all the same: S::S or S::~S.  */\n\nstruct bound_minimal_symbol\nlookup_minimal_symbol (const char *name, const char *sfile,\n\t\t       struct objfile *objf)\n{\n\nIf you look inside this function, you'll see:\n\n  /* External symbols are best.  */\n...\n  /* File-local symbols are next best.  */\n...\n  /* Symbols for shared library trampolines are next best.  */\n...\n\nWhile this logic is good when you're looking for the single \"best\"\nsymbol by name, I question it for linespecs, since we want to set\nbreakpoints in all the multiple locations that match.  I see no point\nin hidding static functions.\n\nNow, for breakpoints, it does make sense to filter out PLT/trampoline\nsymbols if we find the actual global matching function symbol.\nOtherwise, if we did no filtering (i.e., just removed the\nclassify_type logic), you would end up with e.g.:\n\n (gdb) b printf\n Breakpoint 1 at 0x413a60 (2 locations)\n (top-gdb) info breakpoints\n Num     Type           Disp Enb Address            What\n 1      breakpoint     keep y   <MULTIPLE>\n 1.1                         y   0x0000000000413a60 <printf@plt>\n 1.2                         y   0x00007ffff4653640 in __printf at printf.c:28\n\ninstead of this (which is what we get currently) before the shared\nlibrary is loaded (a location set in the PLT):\n\n (gdb) b printf\n Breakpoint 1 at 0x413a60\n Num     Type           Disp Enb Address            What\n 1       breakpoint     keep y   0x0000000000413a60 <printf@plt>\n\nand this after the library is loaded (only one location, no breakpoint\nin the PLT):\n\n (gdb) b printf\n Breakpoint 1 at 0x7ffff4653640: file printf.c, line 28.\n (gdb) info breakpoints\n Num     Type           Disp Enb Address            What\n 1       breakpoint     keep y   0x00007ffff4653640 in __printf at printf.c:28\n\nThis patch fixes the missing breakpoint locations issue by replacing\nthe classify_type logic in linespec.c with a different logic.\nInstead, discard a trampoline symbol if we also found a\nglobal/external symbol with the same name.  The patch adds a couple of\ntestcases testing locations in external vs static functions vs\ntrampolines/PLTs.\n\nWe now get:\n\nFor the msym-bp.exp testcase (extern vs static), without debug info:\n\n (gdb) info breakpoints\n Num     Type           Disp Enb Address            What\n 1       breakpoint     keep y   <MULTIPLE>\n 1.1                         y   0x000000000040048b <foo+4>          ### missing before patch\n 1.2                         y   0x000000000040049d <foo+4>\n\nFor the msym-bp.exp testcase (extern vs static), with debug info:\n\n (gdb) info breakpoints\n Num     Type           Disp Enb Address            What\n 1       breakpoint     keep y   <MULTIPLE>\n 1.1                         y   0x000000000040048b in foo at src/gdb/testsuite/gdb.base/msym-bp.c:21\n 1.2                         y   0x000000000040049d in foo at src/gdb/testsuite/gdb.base/msym-bp-2.c:21\n\nFor the msym-bp-shl.exp testcase (static vs plt), without debug info, before running to main:\n\n (gdb) info breakpoints\n Num     Type           Disp Enb Address            What\n 1       breakpoint     keep y   <MULTIPLE>\n 1.1                         y   0x00000000004004e0 <foo@plt>        ### missing before patch\n 1.2                         y   0x00000000004005db <foo+4>\n\nFor the msym-bp-shl.exp testcase (static vs plt), without debug info, after running to main:\n\n (gdb) info breakpoints\n Num     Type           Disp Enb Address            What\n 1       breakpoint     keep y   <MULTIPLE>\n 1.1                         y   0x00000000004005db <foo+4>          ### missing before patch\n 1.2                         y   0x00007ffff7bd65de <foo+4>\n\nFor the msym-bp-shl.exp testcase (static vs plt), with debug info, before running to main:\n\n (gdb) info breakpoints\n Num     Type           Disp Enb Address            What\n 1       breakpoint     keep y   <MULTIPLE>\n 1.1                         y   0x00000000004004e0 <foo@plt>        ### missing before patch\n 1.2                         y   0x00000000004005db in foo at src/gdb/testsuite/gdb.base/msym-bp-shl-main-2.c:21\n\nFor the msym-bp-shl.exp testcase (static vs plt), with debug info, after running to main:\n\n (gdb) info breakpoints\n Num     Type           Disp Enb Address            What\n 1       breakpoint     keep y   <MULTIPLE>\n 1.1                         y   0x00000000004005db in foo at src/gdb/testsuite/gdb.base/msym-bp-shl-main-2.c:21\n 1.2                         y   0x00007ffff7bd65de in foo at src/gdb/testsuite/gdb.base/msym-bp-shl-lib.c:21\n\ngdb/ChangeLog:\n\n\t* linespec.c (classify_mtype, compare_msyms): Delete.\n\t(search_minsyms_for_name): Remove classification logic.  Instead\n\tfilter out trampoline symbols if we also found an external\n\tfunction of the same name.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.base/msym-bp-2.c: New.\n\t* gdb.base/msym-bp-shl-lib.c: New file.\n\t* gdb.base/msym-bp-shl-main-2.c: New file.\n\t* gdb.base/msym-bp-shl-main.c: New file.\n\t* gdb.base/msym-bp-shl.exp: New file.\n\t* gdb.base/msym-bp.c: New file.\n\t* gdb.base/msym-bp.exp: New file.",
+    "tree": {
+      "sha": "e32397733089d0f520c3696e8978d3432f9077d0",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/e32397733089d0f520c3696e8978d3432f9077d0"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/77f2120b200be6cabbf6f610942fc1173a8df6d3",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/77f2120b200be6cabbf6f610942fc1173a8df6d3",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/77f2120b200be6cabbf6f610942fc1173a8df6d3",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/77f2120b200be6cabbf6f610942fc1173a8df6d3/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "1f656a652ea8d489b5aa5b7f55c535fc9e6b0b29",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1f656a652ea8d489b5aa5b7f55c535fc9e6b0b29",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/1f656a652ea8d489b5aa5b7f55c535fc9e6b0b29"
+    }
+  ],
+  "stats": {
+    "total": 410,
+    "additions": 363,
+    "deletions": 47
+  },
+  "files": [
+    {
+      "sha": "eae07964203713378258d6c5591eac74f54d6cd9",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=77f2120b200be6cabbf6f610942fc1173a8df6d3",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-09-13  Pedro Alves  <pedro@palves.net>\n+\n+\t* linespec.c (classify_mtype, compare_msyms): Delete.\n+\t(search_minsyms_for_name): Remove classification logic.  Instead\n+\tfilter out trampoline symbols if we also found an external\n+\tfunction of the same name.\n+\n 2020-09-13  Joel Brobecker  <brobecker@adacore.com>\n \n \t* NEWS: Create a new section for the next release branch."
+    },
+    {
+      "sha": "9c80864c34e0adf782efdd08a84bbbdb64a9bcd2",
+      "filename": "gdb/linespec.c",
+      "status": "modified",
+      "additions": 41,
+      "deletions": 47,
+      "changes": 88,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/linespec.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/linespec.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/linespec.c?ref=77f2120b200be6cabbf6f610942fc1173a8df6d3",
+      "patch": "@@ -4252,41 +4252,6 @@ minsym_found (struct linespec_state *self, struct objfile *objfile,\n     add_sal_to_sals (self, result, &sal, msymbol->natural_name (), 0);\n }\n \n-/* A helper function to classify a minimal_symbol_type according to\n-   priority.  */\n-\n-static int\n-classify_mtype (enum minimal_symbol_type t)\n-{\n-  switch (t)\n-    {\n-    case mst_file_text:\n-    case mst_file_data:\n-    case mst_file_bss:\n-      /* Intermediate priority.  */\n-      return 1;\n-\n-    case mst_solib_trampoline:\n-      /* Lowest priority.  */\n-      return 2;\n-\n-    default:\n-      /* Highest priority.  */\n-      return 0;\n-    }\n-}\n-\n-/* Callback for std::sort that sorts symbols by priority.  */\n-\n-static bool\n-compare_msyms (const bound_minimal_symbol &a, const bound_minimal_symbol &b)\n-{\n-  enum minimal_symbol_type ta = MSYMBOL_TYPE (a.minsym);\n-  enum minimal_symbol_type tb = MSYMBOL_TYPE (b.minsym);\n-\n-  return classify_mtype (ta) < classify_mtype (tb);\n-}\n-\n /* Helper for search_minsyms_for_name that adds the symbol to the\n    result.  */\n \n@@ -4373,24 +4338,53 @@ search_minsyms_for_name (struct collect_info *info,\n \t}\n     }\n \n-  if (!minsyms.empty ())\n+  /* Return true if TYPE is a static symbol.  */\n+  auto msymbol_type_is_static = [] (enum minimal_symbol_type type)\n     {\n-      int classification;\n+      switch (type)\n+\t{\n+\tcase mst_file_text:\n+\tcase mst_file_data:\n+\tcase mst_file_bss:\n+\treturn true;\n+\tdefault:\n+\treturn false;\n+\t}\n+    };\n \n-      std::sort (minsyms.begin (), minsyms.end (), compare_msyms);\n+  /* Add minsyms to the result set, but filter out trampoline symbols\n+     if we also found extern symbols with the same name.  I.e., don't\n+     set a breakpoint on both '<foo@plt>' and 'foo', assuming that\n+     'foo' is the symbol that the plt resolves to.  */\n+  for (const bound_minimal_symbol &item : minsyms)\n+    {\n+      bool skip = false;\n+      if (MSYMBOL_TYPE (item.minsym) == mst_solib_trampoline)\n+\t{\n+\t  for (const bound_minimal_symbol &item2 : minsyms)\n+\t    {\n+\t      if (&item2 == &item)\n+\t\tcontinue;\n \n-      /* Now the minsyms are in classification order.  So, we walk\n-\t over them and process just the minsyms with the same\n-\t classification as the very first minsym in the list.  */\n-      classification = classify_mtype (MSYMBOL_TYPE (minsyms[0].minsym));\n+\t      /* Trampoline symbols can only jump to exported\n+\t\t symbols.  */\n+\t      if (msymbol_type_is_static (MSYMBOL_TYPE (item2.minsym)))\n+\t\tcontinue;\n \n-      for (const bound_minimal_symbol &item : minsyms)\n-\t{\n-\t  if (classify_mtype (MSYMBOL_TYPE (item.minsym)) != classification)\n-\t    break;\n+\t      if (strcmp (item.minsym->linkage_name (),\n+\t\t\t  item2.minsym->linkage_name ()) != 0)\n+\t\tcontinue;\n \n-\t  info->result.minimal_symbols->push_back (item);\n+\t      /* Found a global minsym with the same name as the\n+\t\t trampoline.  Don't create a location for this\n+\t\t trampoline.  */\n+\t      skip = true;\n+\t      break;\n+\t    }\n \t}\n+\n+      if (!skip)\n+\tinfo->result.minimal_symbols->push_back (item);\n     }\n }\n "
+    },
+    {
+      "sha": "76c66acab3de52178fc38ac3abbbd1cd957a9dae",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=77f2120b200be6cabbf6f610942fc1173a8df6d3",
+      "patch": "@@ -1,3 +1,13 @@\n+2020-09-13  Pedro Alves  <pedro@palves.net>\n+\n+\t* gdb.base/msym-bp-2.c: New.\n+\t* gdb.base/msym-bp-shl-lib.c: New file.\n+\t* gdb.base/msym-bp-shl-main-2.c: New file.\n+\t* gdb.base/msym-bp-shl-main.c: New file.\n+\t* gdb.base/msym-bp-shl.exp: New file.\n+\t* gdb.base/msym-bp.c: New file.\n+\t* gdb.base/msym-bp.exp: New file.\n+\n 2020-09-13  Joel Brobecker  <brobecker@adacore.com>\n \n \t* gdb.base/default.exp: Change $_gdb_major to 11."
+    },
+    {
+      "sha": "b5a399ee49239beb38c9bf1ca17a7fe7848c0abc",
+      "filename": "gdb/testsuite/gdb.base/msym-bp-2.c",
+      "status": "added",
+      "additions": 21,
+      "deletions": 0,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/testsuite/gdb.base/msym-bp-2.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/testsuite/gdb.base/msym-bp-2.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/msym-bp-2.c?ref=77f2120b200be6cabbf6f610942fc1173a8df6d3",
+      "patch": "@@ -0,0 +1,21 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+void\n+foo (void)\n+{\n+}"
+    },
+    {
+      "sha": "b5a399ee49239beb38c9bf1ca17a7fe7848c0abc",
+      "filename": "gdb/testsuite/gdb.base/msym-bp-shl-lib.c",
+      "status": "added",
+      "additions": 21,
+      "deletions": 0,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/testsuite/gdb.base/msym-bp-shl-lib.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/testsuite/gdb.base/msym-bp-shl-lib.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/msym-bp-shl-lib.c?ref=77f2120b200be6cabbf6f610942fc1173a8df6d3",
+      "patch": "@@ -0,0 +1,21 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+void\n+foo (void)\n+{\n+}"
+    },
+    {
+      "sha": "520701e725ca3addabae879030fa9e2cb2841583",
+      "filename": "gdb/testsuite/gdb.base/msym-bp-shl-main-2.c",
+      "status": "added",
+      "additions": 21,
+      "deletions": 0,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/testsuite/gdb.base/msym-bp-shl-main-2.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/testsuite/gdb.base/msym-bp-shl-main-2.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/msym-bp-shl-main-2.c?ref=77f2120b200be6cabbf6f610942fc1173a8df6d3",
+      "patch": "@@ -0,0 +1,21 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+static void\n+foo (void)\n+{\n+}"
+    },
+    {
+      "sha": "d6f32229c222c4214619a921c4f1db7582cdee1d",
+      "filename": "gdb/testsuite/gdb.base/msym-bp-shl-main.c",
+      "status": "added",
+      "additions": 25,
+      "deletions": 0,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/testsuite/gdb.base/msym-bp-shl-main.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/testsuite/gdb.base/msym-bp-shl-main.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/msym-bp-shl-main.c?ref=77f2120b200be6cabbf6f610942fc1173a8df6d3",
+      "patch": "@@ -0,0 +1,25 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+extern void foo (void);\n+\n+int\n+main ()\n+{\n+  foo ();\n+  return 0;\n+}"
+    },
+    {
+      "sha": "fee1d7233fd0f42fbf7c3396d579291e1121e9e9",
+      "filename": "gdb/testsuite/gdb.base/msym-bp-shl.exp",
+      "status": "added",
+      "additions": 107,
+      "deletions": 0,
+      "changes": 107,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/testsuite/gdb.base/msym-bp-shl.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/testsuite/gdb.base/msym-bp-shl.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/msym-bp-shl.exp?ref=77f2120b200be6cabbf6f610942fc1173a8df6d3",
+      "patch": "@@ -0,0 +1,107 @@\n+# Copyright 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test that when setting a breakpoint at \"foo\", GDB creates a location\n+# for an unresolved <foo@plt> PLT in the main binary, even when a\n+# static function named \"foo\" exists in the shared library.  Tests\n+# both with and without debug info.\n+\n+if {[skip_shlib_tests]} {\n+    return 0\n+}\n+\n+standard_testfile msym-bp-shl-main.c msym-bp-shl-main-2.c msym-bp-shl-lib.c\n+set srcfile ${srcdir}/${subdir}/${srcfile}\n+set srcfile2 ${srcdir}/${subdir}/${srcfile2}\n+set libsrc ${srcdir}/${subdir}/${srcfile3}\n+\n+# Run \"info breakpoints\", and check that we find the two locations,\n+# LOC_A and LOC_B, in either order.\n+proc test_info_break_2 {loc_a loc_b} {\n+    set re1 \".*\\.1.*${loc_a}\\r\\n.*\\.2.*${loc_b}\"\n+    set re2 \".*\\.1.*${loc_b}\\r\\n.*\\.2.*${loc_a}\"\n+    gdb_test \"info breakpoint\" \"$re1|$re2\"\n+}\n+\n+proc test {debug} {\n+    global testfile binfile srcfile srcfile2 libsrc\n+    global decimal\n+\n+    if {$debug} {\n+\tset options \"debug\"\n+    } else {\n+\tset options \"\"\n+    }\n+\n+    set bin ${binfile}-$debug\n+    set lib [standard_output_file msym-bp-shl-lib-$debug.sl]\n+\n+    set exec_opts [list $options shlib=${lib}]\n+\n+    if { [gdb_compile_shlib $libsrc $lib $options] != \"\"\n+\t || [gdb_compile [list $srcfile $srcfile2] $bin \\\n+\t\t executable $exec_opts] != \"\"} {\n+\tuntested \"failed to compile\"\n+\treturn\n+    }\n+\n+    clean_restart $bin\n+    gdb_load_shlib $lib\n+\n+    # Should find two locations: the static foo in the\n+    # msym-bp-shl-main-2 file, and <foo@plt>, both in the main binary.\n+    with_test_prefix \"before run\" {\n+\tgdb_test \"break foo\" \"\\\\(2 locations\\\\)\"\n+\n+\tif {$debug} {\n+\t    test_info_break_2 \\\n+\t\t\"<foo@plt.*>\" \\\n+\t\t\"in foo at .*msym-bp-shl-main-2.c:$decimal\"\n+\t} else {\n+\t    test_info_break_2 \\\n+\t\t\"<foo@plt.*>\" \\\n+\t\t\"<foo\\\\+$decimal>\"\n+\t}\n+    }\n+\n+    if ![runto_main] {\n+\tfail \"can't run to main\"\n+\treturn\n+    }\n+\n+    delete_breakpoints\n+\n+    # Should still find two locations, but the <foo@plt> PLT location\n+    # should not be present anymore.  I.e., we should find the static\n+    # foo in the msym-bp-shl-main-2 file, and the extern foo in the\n+    # shared library.\n+    with_test_prefix \"at main\" {\n+\tgdb_test \"break foo\" \"\\\\(2 locations\\\\)\"\n+\n+\tif {$debug} {\n+\t    test_info_break_2 \\\n+\t\t\"in foo at .*msym-bp-shl-main-2.c:$decimal\" \\\n+\t\t\"in foo at .*msym-bp-shl-lib.c:$decimal\"\n+\t} else {\n+\t    test_info_break_2 \\\n+\t\t\"<foo\\\\+$decimal>\" \\\n+\t\t\"<foo\\\\+$decimal>\"\n+\t}\n+    }\n+}\n+\n+foreach_with_prefix debug {0 1} {\n+    test $debug\n+}"
+    },
+    {
+      "sha": "2257d3f7e9b6c55d5cd27f869f977eb58759eb72",
+      "filename": "gdb/testsuite/gdb.base/msym-bp.c",
+      "status": "added",
+      "additions": 27,
+      "deletions": 0,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/testsuite/gdb.base/msym-bp.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/testsuite/gdb.base/msym-bp.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/msym-bp.c?ref=77f2120b200be6cabbf6f610942fc1173a8df6d3",
+      "patch": "@@ -0,0 +1,27 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+static void\n+foo (void)\n+{\n+}\n+\n+int\n+main (void)\n+{\n+  return 0;\n+}"
+    },
+    {
+      "sha": "c4bef7c188b0e5574556ec9fdf1b9e767199dfd2",
+      "filename": "gdb/testsuite/gdb.base/msym-bp.exp",
+      "status": "added",
+      "additions": 83,
+      "deletions": 0,
+      "changes": 83,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/testsuite/gdb.base/msym-bp.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77f2120b200be6cabbf6f610942fc1173a8df6d3/gdb/testsuite/gdb.base/msym-bp.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/msym-bp.exp?ref=77f2120b200be6cabbf6f610942fc1173a8df6d3",
+      "patch": "@@ -0,0 +1,83 @@\n+# This testcase is part of GDB, the GNU debugger.\n+\n+# Copyright 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test that when setting breakpoints, setting a breakpoint on \"foo\"\n+# creates locations for all external and static functions called \"foo\"\n+# in the program, with and without debug info.\n+\n+standard_testfile .c msym-bp-2.c\n+\n+# Run \"info breakpoints\", and check that we find the two locations,\n+# LOC_A and LOC_B, in either order.\n+proc test_info_break_2 {loc_a loc_b} {\n+    set re1 \".*\\.1.*${loc_a}\\r\\n.*\\.2.*${loc_b}\"\n+    set re2 \".*\\.1.*${loc_b}\\r\\n.*\\.2.*${loc_a}\"\n+    gdb_test \"info breakpoint\" \"$re1|$re2\"\n+}\n+\n+proc test {debug} {\n+    global testfile srcfile srcfile2\n+    global decimal\n+\n+    if {$debug} {\n+\tset options \"debug\"\n+    } else {\n+\tset options \"\"\n+    }\n+\n+    if { [prepare_for_testing \"failed to prepare\" $testfile-$debug \\\n+\t      [list $srcfile $srcfile2] $options] } {\n+\treturn -1\n+    }\n+\n+    # Should find two locations: the static foo in the msym-bp.c file,\n+    # and the extern foo in the msym-bp-2.c file.  Same result\n+    # expected before and after running to main.\n+    proc test_break {prefix} {\n+\tglobal decimal\n+\tupvar debug debug\n+\n+\twith_test_prefix $prefix {\n+\t    gdb_test \"break foo\" \"\\\\(2 locations\\\\)\"\n+\n+\t    if {$debug} {\n+\t\ttest_info_break_2 \\\n+\t\t    \"in foo at .*msym-bp.c:$decimal\" \\\n+\t\t    \"in foo at .*msym-bp-2.c:$decimal\"\n+\t    } else {\n+\t\ttest_info_break_2 \\\n+\t\t    \"<foo\\\\+$decimal>\" \\\n+\t\t    \"<foo\\\\+$decimal>\"\n+\t    }\n+\t}\n+    }\n+\n+    test_break \"before run\"\n+\n+    if ![runto_main] {\n+\tfail \"can't run to main\"\n+\treturn\n+    }\n+\n+    delete_breakpoints\n+\n+    test_break \"at main\"\n+}\n+\n+foreach_with_prefix debug {0 1} {\n+    test $debug\n+}"
+    }
+  ]
+}

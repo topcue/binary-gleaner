@@ -1,0 +1,170 @@
+{
+  "sha": "c21f37a889dbf57077981970a1b6167a0dcb39af",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YzIxZjM3YTg4OWRiZjU3MDc3OTgxOTcwYTFiNjE2N2EwZGNiMzlhZg==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2020-10-21T14:43:48Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2020-10-21T14:43:48Z"
+    },
+    "message": "gdb: make gdbarch_make_corefile_notes return a unique ptr\n\nThis patch starts by making the gdbarch_make_corefile_notes function\nreturn a gdb::unique_xmalloc_ptr<char> and takes care of the fallouts,\nmostly in linux-tdep.c and fbsd-tdep.c.\n\nThe difficulty in these files is that they use the BFD API for writing\ncore files, where you pass in a pointer to a malloc-ed buffer (or NULL\nin the beginning), it re-allocs it if needed, and returns you the\npossibly updated pointer.  I therefore used this pattern everywhere:\n\n  note_data.reset (elfcore_write_note (obfd, note_data.release (), ...)\n\nThis hands over the ownership of note_data to the BFD function for the\nduration of the call, and then puts its back in note_data right after\nthe call.\n\ngdb/ChangeLog:\n\n\t* gdbarch.sh (make_corefile_notes): Return unique pointer.\n\t* gdbarch.c: Re-generate.\n\t* gdbarch.h: Re-generate.\n\t* gcore.c (write_gcore_file_1): Adjust.\n\t* fbsd-tdep.c (struct fbsd_collect_regset_section_cb_data): Add\n\tconstructor.\n\t<note_data>: Change type to unique pointer.\n\t<abort_iteration>: Change type to bool.\n\t(fbsd_collect_regset_section_cb): Adjust to unique pointer.\n\t(fbsd_collect_thread_registers): Return void, adjust.\n\t(struct fbsd_corefile_thread_data): Add construtor.\n\t<note_data>: Change type to unique pointer.\n\t(fbsd_corefile_thread): Adjust.\n\t(fbsd_make_corefile_notes): Return unique pointer, adjust.\n\t* linux-tdep.c (linux_make_mappings_corefile_notes): Change type\n\tto unique pointer, adjust.\n\t(struct linux_collect_regset_section_cb_data): Add constructor.\n\t<note_data>: Change type to unique pointer.\n\t<abort_iteration>: Change type to bool.\n\t(linux_collect_thread_registers): Return void, adjust.\n\t(struct linux_corefile_thread_data): Add constructor.\n\t<note_data>: Change type to unique pointer.\n\t(linux_corefile_thread): Adjust.\n\t(linux_make_corefile_notes): Return unique pointer, adjust.\n\nChange-Id: I1e03476bb47b87c6acb3e12204d193f38cc4e02b",
+    "tree": {
+      "sha": "9fb1572976cf1664ed89cb7749d7b706c5edf6d7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/9fb1572976cf1664ed89cb7749d7b706c5edf6d7"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/c21f37a889dbf57077981970a1b6167a0dcb39af",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c21f37a889dbf57077981970a1b6167a0dcb39af",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/c21f37a889dbf57077981970a1b6167a0dcb39af",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c21f37a889dbf57077981970a1b6167a0dcb39af/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "4dbe16c8115cd9820cadba5300cbfe04f518269f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4dbe16c8115cd9820cadba5300cbfe04f518269f",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/4dbe16c8115cd9820cadba5300cbfe04f518269f"
+    }
+  ],
+  "stats": {
+    "total": 307,
+    "additions": 185,
+    "deletions": 122
+  },
+  "files": [
+    {
+      "sha": "89dff4bbd89d186bffd02701281dc559dd9a2cb0",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 27,
+      "deletions": 0,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c21f37a889dbf57077981970a1b6167a0dcb39af/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c21f37a889dbf57077981970a1b6167a0dcb39af/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=c21f37a889dbf57077981970a1b6167a0dcb39af",
+      "patch": "@@ -1,3 +1,30 @@\n+2020-10-21  Simon Marchi  <simon.marchi@polymtl.ca>\n+\n+\t* gdbarch.sh (make_corefile_notes): Return unique pointer.\n+\t* gdbarch.c: Re-generate.\n+\t* gdbarch.h: Re-generate.\n+\t* gcore.c (write_gcore_file_1): Adjust.\n+\t* fbsd-tdep.c (struct fbsd_collect_regset_section_cb_data): Add\n+\tconstructor.\n+\t<note_data>: Change type to unique pointer.\n+\t<abort_iteration>: Change type to bool.\n+\t(fbsd_collect_regset_section_cb): Adjust to unique pointer.\n+\t(fbsd_collect_thread_registers): Return void, adjust.\n+\t(struct fbsd_corefile_thread_data): Add construtor.\n+\t<note_data>: Change type to unique pointer.\n+\t(fbsd_corefile_thread): Adjust.\n+\t(fbsd_make_corefile_notes): Return unique pointer, adjust.\n+\t* linux-tdep.c (linux_make_mappings_corefile_notes): Change type\n+\tto unique pointer, adjust.\n+\t(struct linux_collect_regset_section_cb_data): Add constructor.\n+\t<note_data>: Change type to unique pointer.\n+\t<abort_iteration>: Change type to bool.\n+\t(linux_collect_thread_registers): Return void, adjust.\n+\t(struct linux_corefile_thread_data): Add constructor.\n+\t<note_data>: Change type to unique pointer.\n+\t(linux_corefile_thread): Adjust.\n+\t(linux_make_corefile_notes): Return unique pointer, adjust.\n+\n 2020-10-20  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* gdbarch.sh (displaced_step_hw_singlestep): Return bool."
+    },
+    {
+      "sha": "f7ee35b39d4808be8355fb485bcd461feedacf95",
+      "filename": "gdb/fbsd-tdep.c",
+      "status": "modified",
+      "additions": 72,
+      "deletions": 49,
+      "changes": 121,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c21f37a889dbf57077981970a1b6167a0dcb39af/gdb/fbsd-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c21f37a889dbf57077981970a1b6167a0dcb39af/gdb/fbsd-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/fbsd-tdep.c?ref=c21f37a889dbf57077981970a1b6167a0dcb39af",
+      "patch": "@@ -589,13 +589,27 @@ find_signalled_thread (struct thread_info *info, void *data)\n \n struct fbsd_collect_regset_section_cb_data\n {\n+  fbsd_collect_regset_section_cb_data (const struct regcache *regcache,\n+\t\t\t\t       bfd *obfd,\n+\t\t\t\t       gdb::unique_xmalloc_ptr<char> &note_data,\n+\t\t\t\t       int *note_size,\n+\t\t\t\t       unsigned long lwp,\n+\t\t\t\t       gdb_signal stop_signal)\n+    : regcache (regcache),\n+      obfd (obfd),\n+      note_data (note_data),\n+      note_size (note_size),\n+      lwp (lwp),\n+      stop_signal (stop_signal)\n+  {}\n+\n   const struct regcache *regcache;\n   bfd *obfd;\n-  char *note_data;\n+  gdb::unique_xmalloc_ptr<char> &note_data;\n   int *note_size;\n   unsigned long lwp;\n   enum gdb_signal stop_signal;\n-  int abort_iteration;\n+  bool abort_iteration = false;\n };\n \n static void\n@@ -617,50 +631,58 @@ fbsd_collect_regset_section_cb (const char *sect_name, int supply_size,\n \n   /* PRSTATUS still needs to be treated specially.  */\n   if (strcmp (sect_name, \".reg\") == 0)\n-    data->note_data = (char *) elfcore_write_prstatus\n-      (data->obfd, data->note_data, data->note_size, data->lwp,\n-       gdb_signal_to_host (data->stop_signal), buf);\n+    data->note_data.reset (elfcore_write_prstatus\n+\t\t\t     (data->obfd, data->note_data.release (),\n+\t\t\t      data->note_size, data->lwp,\n+\t\t\t      gdb_signal_to_host (data->stop_signal),\n+\t\t\t      buf));\n   else\n-    data->note_data = (char *) elfcore_write_register_note\n-      (data->obfd, data->note_data, data->note_size,\n-       sect_name, buf, collect_size);\n+    data->note_data.reset (elfcore_write_register_note\n+\t\t\t     (data->obfd, data->note_data.release (),\n+\t\t\t      data->note_size, sect_name, buf,\n+\t\t\t      collect_size));\n   xfree (buf);\n \n   if (data->note_data == NULL)\n-    data->abort_iteration = 1;\n+    data->abort_iteration = true;\n }\n \n /* Records the thread's register state for the corefile note\n    section.  */\n \n-static char *\n+static void\n fbsd_collect_thread_registers (const struct regcache *regcache,\n \t\t\t       ptid_t ptid, bfd *obfd,\n-\t\t\t       char *note_data, int *note_size,\n+\t\t\t       gdb::unique_xmalloc_ptr<char> &note_data,\n+\t\t\t       int *note_size,\n \t\t\t       enum gdb_signal stop_signal)\n {\n-  struct gdbarch *gdbarch = regcache->arch ();\n-  struct fbsd_collect_regset_section_cb_data data;\n-\n-  data.regcache = regcache;\n-  data.obfd = obfd;\n-  data.note_data = note_data;\n-  data.note_size = note_size;\n-  data.stop_signal = stop_signal;\n-  data.abort_iteration = 0;\n-  data.lwp = ptid.lwp ();\n-\n-  gdbarch_iterate_over_regset_sections (gdbarch,\n+  fbsd_collect_regset_section_cb_data data (regcache, obfd, note_data,\n+\t\t\t\t\t    note_size, ptid.lwp (),\n+\t\t\t\t\t    stop_signal);\n+\n+  gdbarch_iterate_over_regset_sections (regcache->arch (),\n \t\t\t\t\tfbsd_collect_regset_section_cb,\n \t\t\t\t\t&data, regcache);\n-  return data.note_data;\n }\n \n struct fbsd_corefile_thread_data\n {\n+  fbsd_corefile_thread_data (struct gdbarch *gdbarch,\n+\t\t\t     bfd *obfd,\n+\t\t\t     gdb::unique_xmalloc_ptr<char> &note_data,\n+\t\t\t     int *note_size,\n+\t\t\t     gdb_signal stop_signal)\n+    : gdbarch (gdbarch),\n+      obfd (obfd),\n+      note_data (note_data),\n+      note_size (note_size),\n+      stop_signal (stop_signal)\n+  {}\n+\n   struct gdbarch *gdbarch;\n   bfd *obfd;\n-  char *note_data;\n+  gdb::unique_xmalloc_ptr<char> &note_data;\n   int *note_size;\n   enum gdb_signal stop_signal;\n };\n@@ -679,9 +701,9 @@ fbsd_corefile_thread (struct thread_info *info,\n \n   target_fetch_registers (regcache, -1);\n \n-  args->note_data = fbsd_collect_thread_registers\n-    (regcache, info->ptid, args->obfd, args->note_data,\n-     args->note_size, args->stop_signal);\n+  fbsd_collect_thread_registers (regcache, info->ptid, args->obfd,\n+\t\t\t\t args->note_data, args->note_size,\n+\t\t\t\t args->stop_signal);\n }\n \n /* Return a byte_vector containing the contents of a core dump note\n@@ -709,11 +731,10 @@ fbsd_make_note_desc (enum target_object object, uint32_t structsize)\n /* Create appropriate note sections for a corefile, returning them in\n    allocated memory.  */\n \n-static char *\n+static gdb::unique_xmalloc_ptr<char>\n fbsd_make_corefile_notes (struct gdbarch *gdbarch, bfd *obfd, int *note_size)\n {\n-  struct fbsd_corefile_thread_data thread_args;\n-  char *note_data = NULL;\n+  gdb::unique_xmalloc_ptr<char> note_data;\n   Elf_Internal_Ehdr *i_ehdrp;\n   struct thread_info *curr_thr, *signalled_thr;\n \n@@ -732,8 +753,9 @@ fbsd_make_corefile_notes (struct gdbarch *gdbarch, bfd *obfd, int *note_size)\n       if (infargs != NULL)\n \tpsargs = psargs + \" \" + infargs;\n \n-      note_data = elfcore_write_prpsinfo (obfd, note_data, note_size,\n-\t\t\t\t\t  fname, psargs.c_str ());\n+      note_data.reset (elfcore_write_prpsinfo (obfd, note_data.release (),\n+\t\t\t\t\t       note_size, fname,\n+\t\t\t\t\t       psargs.c_str ()));\n     }\n \n   /* Thread register information.  */\n@@ -760,11 +782,8 @@ fbsd_make_corefile_notes (struct gdbarch *gdbarch, bfd *obfd, int *note_size)\n \tsignalled_thr = curr_thr;\n     }\n \n-  thread_args.gdbarch = gdbarch;\n-  thread_args.obfd = obfd;\n-  thread_args.note_data = note_data;\n-  thread_args.note_size = note_size;\n-  thread_args.stop_signal = signalled_thr->suspend.stop_signal;\n+  fbsd_corefile_thread_data thread_args (gdbarch, obfd, note_data, note_size,\n+\t\t\t\t\t signalled_thr->suspend.stop_signal);\n \n   fbsd_corefile_thread (signalled_thr, &thread_args);\n   for (thread_info *thr : current_inferior ()->non_exited_threads ())\n@@ -775,17 +794,17 @@ fbsd_make_corefile_notes (struct gdbarch *gdbarch, bfd *obfd, int *note_size)\n       fbsd_corefile_thread (thr, &thread_args);\n     }\n \n-  note_data = thread_args.note_data;\n-\n   /* Auxiliary vector.  */\n   uint32_t structsize = gdbarch_ptr_bit (gdbarch) / 4; /* Elf_Auxinfo  */\n   gdb::optional<gdb::byte_vector> note_desc =\n     fbsd_make_note_desc (TARGET_OBJECT_AUXV, structsize);\n   if (note_desc && !note_desc->empty ())\n     {\n-      note_data = elfcore_write_note (obfd, note_data, note_size, \"FreeBSD\",\n-\t\t\t\t      NT_FREEBSD_PROCSTAT_AUXV,\n-\t\t\t\t      note_desc->data (), note_desc->size ());\n+      note_data.reset (elfcore_write_note (obfd, note_data.release (),\n+\t\t\t\t\t   note_size, \"FreeBSD\",\n+\t\t\t\t\t   NT_FREEBSD_PROCSTAT_AUXV,\n+\t\t\t\t\t   note_desc->data (),\n+\t\t\t\t\t   note_desc->size ()));\n       if (!note_data)\n \treturn NULL;\n     }\n@@ -794,19 +813,23 @@ fbsd_make_corefile_notes (struct gdbarch *gdbarch, bfd *obfd, int *note_size)\n   note_desc = fbsd_make_note_desc (TARGET_OBJECT_FREEBSD_VMMAP, 0);\n   if (note_desc && !note_desc->empty ())\n     {\n-      note_data = elfcore_write_note (obfd, note_data, note_size, \"FreeBSD\",\n-\t\t\t\t      NT_FREEBSD_PROCSTAT_VMMAP,\n-\t\t\t\t      note_desc->data (), note_desc->size ());\n+      note_data.reset (elfcore_write_note (obfd, note_data.release (),\n+\t\t\t\t\t   note_size, \"FreeBSD\",\n+\t\t\t\t\t   NT_FREEBSD_PROCSTAT_VMMAP,\n+\t\t\t\t\t   note_desc->data (),\n+\t\t\t\t\t   note_desc->size ()));\n       if (!note_data)\n \treturn NULL;\n     }\n \n   note_desc = fbsd_make_note_desc (TARGET_OBJECT_FREEBSD_PS_STRINGS, 0);\n   if (note_desc && !note_desc->empty ())\n     {\n-      note_data = elfcore_write_note (obfd, note_data, note_size, \"FreeBSD\",\n-\t\t\t\t      NT_FREEBSD_PROCSTAT_PSSTRINGS,\n-\t\t\t\t      note_desc->data (), note_desc->size ());\n+      note_data.reset (elfcore_write_note (obfd, note_data.release (),\n+\t\t\t\t\t   note_size, \"FreeBSD\",\n+\t\t\t\t\t   NT_FREEBSD_PROCSTAT_PSSTRINGS,\n+\t\t\t\t\t   note_desc->data (),\n+\t\t\t\t\t   note_desc->size ()));\n       if (!note_data)\n \treturn NULL;\n     }"
+    },
+    {
+      "sha": "4a305ba95a8478573d88aac0b9d6f33c80413735",
+      "filename": "gdb/gcore.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c21f37a889dbf57077981970a1b6167a0dcb39af/gdb/gcore.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c21f37a889dbf57077981970a1b6167a0dcb39af/gdb/gcore.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gcore.c?ref=c21f37a889dbf57077981970a1b6167a0dcb39af",
+      "patch": "@@ -80,8 +80,8 @@ write_gcore_file_1 (bfd *obfd)\n   if (!gdbarch_make_corefile_notes_p (target_gdbarch ()))\n     note_data.reset (target_make_corefile_notes (obfd, &note_size));\n   else\n-    note_data.reset (gdbarch_make_corefile_notes (target_gdbarch (), obfd,\n-\t\t\t\t\t\t  &note_size));\n+    note_data = gdbarch_make_corefile_notes (target_gdbarch (), obfd,\n+\t\t\t\t\t     &note_size);\n \n   if (note_data == NULL || note_size == 0)\n     error (_(\"Target does not support core file generation.\"));"
+    },
+    {
+      "sha": "285d9f9b46d44beebe870dae77008741c602eb56",
+      "filename": "gdb/gdbarch.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c21f37a889dbf57077981970a1b6167a0dcb39af/gdb/gdbarch.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c21f37a889dbf57077981970a1b6167a0dcb39af/gdb/gdbarch.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbarch.c?ref=c21f37a889dbf57077981970a1b6167a0dcb39af",
+      "patch": "@@ -3700,7 +3700,7 @@ gdbarch_make_corefile_notes_p (struct gdbarch *gdbarch)\n   return gdbarch->make_corefile_notes != NULL;\n }\n \n-char *\n+gdb::unique_xmalloc_ptr<char>\n gdbarch_make_corefile_notes (struct gdbarch *gdbarch, bfd *obfd, int *note_size)\n {\n   gdb_assert (gdbarch != NULL);"
+    },
+    {
+      "sha": "ae65f290fc847ab8e1029c161063945f7b020cea",
+      "filename": "gdb/gdbarch.h",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c21f37a889dbf57077981970a1b6167a0dcb39af/gdb/gdbarch.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c21f37a889dbf57077981970a1b6167a0dcb39af/gdb/gdbarch.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbarch.h?ref=c21f37a889dbf57077981970a1b6167a0dcb39af",
+      "patch": "@@ -912,8 +912,8 @@ extern void set_gdbarch_iterate_over_regset_sections (struct gdbarch *gdbarch, g\n \n extern bool gdbarch_make_corefile_notes_p (struct gdbarch *gdbarch);\n \n-typedef char * (gdbarch_make_corefile_notes_ftype) (struct gdbarch *gdbarch, bfd *obfd, int *note_size);\n-extern char * gdbarch_make_corefile_notes (struct gdbarch *gdbarch, bfd *obfd, int *note_size);\n+typedef gdb::unique_xmalloc_ptr<char> (gdbarch_make_corefile_notes_ftype) (struct gdbarch *gdbarch, bfd *obfd, int *note_size);\n+extern gdb::unique_xmalloc_ptr<char> gdbarch_make_corefile_notes (struct gdbarch *gdbarch, bfd *obfd, int *note_size);\n extern void set_gdbarch_make_corefile_notes (struct gdbarch *gdbarch, gdbarch_make_corefile_notes_ftype *make_corefile_notes);\n \n /* Find core file memory regions */"
+    },
+    {
+      "sha": "5f1e2f9d9583c202d334b82dac7b2fddedc92ea2",
+      "filename": "gdb/gdbarch.sh",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c21f37a889dbf57077981970a1b6167a0dcb39af/gdb/gdbarch.sh",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c21f37a889dbf57077981970a1b6167a0dcb39af/gdb/gdbarch.sh",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbarch.sh?ref=c21f37a889dbf57077981970a1b6167a0dcb39af",
+      "patch": "@@ -715,7 +715,7 @@ F;CORE_ADDR;fetch_pointer_argument;struct frame_info *frame, int argi, struct ty\n M;void;iterate_over_regset_sections;iterate_over_regset_sections_cb *cb, void *cb_data, const struct regcache *regcache;cb, cb_data, regcache\n \n # Create core file notes\n-M;char *;make_corefile_notes;bfd *obfd, int *note_size;obfd, note_size\n+M;gdb::unique_xmalloc_ptr<char>;make_corefile_notes;bfd *obfd, int *note_size;obfd, note_size\n \n # Find core file memory regions\n M;int;find_memory_regions;find_memory_region_ftype func, void *data;func, data"
+    },
+    {
+      "sha": "cce75474d7a95b0ffff417d15147e6d91486b981",
+      "filename": "gdb/linux-tdep.c",
+      "status": "modified",
+      "additions": 80,
+      "deletions": 67,
+      "changes": 147,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c21f37a889dbf57077981970a1b6167a0dcb39af/gdb/linux-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c21f37a889dbf57077981970a1b6167a0dcb39af/gdb/linux-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/linux-tdep.c?ref=c21f37a889dbf57077981970a1b6167a0dcb39af",
+      "patch": "@@ -1548,12 +1548,12 @@ linux_make_mappings_callback (ULONGEST vaddr, ULONGEST size,\n \n /* Write the file mapping data to the core file, if possible.  OBFD is\n    the output BFD.  NOTE_DATA is the current note data, and NOTE_SIZE\n-   is a pointer to the note size.  Returns the new NOTE_DATA and\n-   updates NOTE_SIZE.  */\n+   is a pointer to the note size.  Updates NOTE_DATA and NOTE_SIZE.  */\n \n-static char *\n+static void\n linux_make_mappings_corefile_notes (struct gdbarch *gdbarch, bfd *obfd,\n-\t\t\t\t    char *note_data, int *note_size)\n+\t\t\t\t    gdb::unique_xmalloc_ptr<char> &note_data,\n+\t\t\t\t    int *note_size)\n {\n   struct linux_make_mappings_data mapping_data;\n   struct type *long_type\n@@ -1590,13 +1590,12 @@ linux_make_mappings_corefile_notes (struct gdbarch *gdbarch, bfd *obfd,\n       obstack_grow (&data_obstack, obstack_base (&filename_obstack),\n \t\t    size);\n \n-      note_data = elfcore_write_note (obfd, note_data, note_size,\n-\t\t\t\t      \"CORE\", NT_FILE,\n-\t\t\t\t      obstack_base (&data_obstack),\n-\t\t\t\t      obstack_object_size (&data_obstack));\n+      note_data.reset (elfcore_write_note\n+\t\t\t (obfd, note_data.release (),\n+\t\t\t  note_size, \"CORE\", NT_FILE,\n+\t\t\t  obstack_base (&data_obstack),\n+\t\t\t  obstack_object_size (&data_obstack)));\n     }\n-\n-  return note_data;\n }\n \n /* Structure for passing information from\n@@ -1605,14 +1604,26 @@ linux_make_mappings_corefile_notes (struct gdbarch *gdbarch, bfd *obfd,\n \n struct linux_collect_regset_section_cb_data\n {\n+  linux_collect_regset_section_cb_data (struct gdbarch *gdbarch,\n+\t\t\t\t\tconst struct regcache *regcache,\n+\t\t\t\t\tbfd *obfd,\n+\t\t\t\t\tgdb::unique_xmalloc_ptr<char> &note_data,\n+\t\t\t\t\tint *note_size,\n+\t\t\t\t\tunsigned long lwp,\n+\t\t\t\t\tgdb_signal stop_signal)\n+    : gdbarch (gdbarch), regcache (regcache), obfd (obfd),\n+      note_data (note_data), note_size (note_size), lwp (lwp),\n+      stop_signal (stop_signal)\n+  {}\n+\n   struct gdbarch *gdbarch;\n   const struct regcache *regcache;\n   bfd *obfd;\n-  char *note_data;\n+  gdb::unique_xmalloc_ptr<char> &note_data;\n   int *note_size;\n   unsigned long lwp;\n   enum gdb_signal stop_signal;\n-  int abort_iteration;\n+  bool abort_iteration = false;\n };\n \n /* Callback for iterate_over_regset_sections that records a single\n@@ -1645,47 +1656,44 @@ linux_collect_regset_section_cb (const char *sect_name, int supply_size,\n \n   /* PRSTATUS still needs to be treated specially.  */\n   if (strcmp (sect_name, \".reg\") == 0)\n-    data->note_data = (char *) elfcore_write_prstatus\n-      (data->obfd, data->note_data, data->note_size, data->lwp,\n-       gdb_signal_to_host (data->stop_signal), buf.data ());\n+    data->note_data.reset (elfcore_write_prstatus\n+\t\t\t     (data->obfd, data->note_data.release (),\n+\t\t\t      data->note_size, data->lwp,\n+\t\t\t      gdb_signal_to_host (data->stop_signal),\n+\t\t\t      buf.data ()));\n   else\n-    data->note_data = (char *) elfcore_write_register_note\n-      (data->obfd, data->note_data, data->note_size,\n-       sect_name, buf.data (), collect_size);\n+    data->note_data.reset (elfcore_write_register_note\n+\t\t\t   (data->obfd, data->note_data.release (),\n+\t\t\t    data->note_size, sect_name, buf.data (),\n+\t\t\t    collect_size));\n \n   if (data->note_data == NULL)\n-    data->abort_iteration = 1;\n+    data->abort_iteration = true;\n }\n \n /* Records the thread's register state for the corefile note\n    section.  */\n \n-static char *\n+static void\n linux_collect_thread_registers (const struct regcache *regcache,\n \t\t\t\tptid_t ptid, bfd *obfd,\n-\t\t\t\tchar *note_data, int *note_size,\n+\t\t\t\tgdb::unique_xmalloc_ptr<char> &note_data,\n+\t\t\t\tint *note_size,\n \t\t\t\tenum gdb_signal stop_signal)\n {\n   struct gdbarch *gdbarch = regcache->arch ();\n-  struct linux_collect_regset_section_cb_data data;\n-\n-  data.gdbarch = gdbarch;\n-  data.regcache = regcache;\n-  data.obfd = obfd;\n-  data.note_data = note_data;\n-  data.note_size = note_size;\n-  data.stop_signal = stop_signal;\n-  data.abort_iteration = 0;\n \n   /* For remote targets the LWP may not be available, so use the TID.  */\n-  data.lwp = ptid.lwp ();\n-  if (!data.lwp)\n-    data.lwp = ptid.tid ();\n+  long lwp = ptid.lwp ();\n+  if (lwp == 0)\n+    lwp = ptid.tid ();\n+\n+  linux_collect_regset_section_cb_data data (gdbarch, regcache, obfd, note_data,\n+\t\t\t\t\t     note_size, lwp, stop_signal);\n \n   gdbarch_iterate_over_regset_sections (gdbarch,\n \t\t\t\t\tlinux_collect_regset_section_cb,\n \t\t\t\t\t&data, regcache);\n-  return data.note_data;\n }\n \n /* Fetch the siginfo data for the specified thread, if it exists.  If\n@@ -1718,9 +1726,16 @@ linux_get_siginfo_data (thread_info *thread, struct gdbarch *gdbarch)\n \n struct linux_corefile_thread_data\n {\n+  linux_corefile_thread_data (struct gdbarch *gdbarch, bfd *obfd,\n+\t\t\t      gdb::unique_xmalloc_ptr<char> &note_data,\n+\t\t\t      int *note_size, gdb_signal stop_signal)\n+    : gdbarch (gdbarch), obfd (obfd), note_data (note_data),\n+      note_size (note_size), stop_signal (stop_signal)\n+  {}\n+\n   struct gdbarch *gdbarch;\n   bfd *obfd;\n-  char *note_data;\n+  gdb::unique_xmalloc_ptr<char> &note_data;\n   int *note_size;\n   enum gdb_signal stop_signal;\n };\n@@ -1740,20 +1755,22 @@ linux_corefile_thread (struct thread_info *info,\n   target_fetch_registers (regcache, -1);\n   gdb::byte_vector siginfo_data = linux_get_siginfo_data (info, args->gdbarch);\n \n-  args->note_data = linux_collect_thread_registers\n-    (regcache, info->ptid, args->obfd, args->note_data,\n-     args->note_size, args->stop_signal);\n+  linux_collect_thread_registers (regcache, info->ptid, args->obfd,\n+\t\t\t\t  args->note_data, args->note_size,\n+\t\t\t\t  args->stop_signal);\n \n   /* Don't return anything if we got no register information above,\n      such a core file is useless.  */\n   if (args->note_data != NULL)\n-    if (!siginfo_data.empty ())\n-      args->note_data = elfcore_write_note (args->obfd,\n-\t\t\t\t\t    args->note_data,\n-\t\t\t\t\t    args->note_size,\n-\t\t\t\t\t    \"CORE\", NT_SIGINFO,\n-\t\t\t\t\t    siginfo_data.data (),\n-\t\t\t\t\t    siginfo_data.size ());\n+    {\n+      if (!siginfo_data.empty ())\n+\targs->note_data.reset (elfcore_write_note (args->obfd,\n+\t\t\t\t\t\t   args->note_data.release (),\n+\t\t\t\t\t\t   args->note_size,\n+\t\t\t\t\t\t   \"CORE\", NT_SIGINFO,\n+\t\t\t\t\t\t   siginfo_data.data (),\n+\t\t\t\t\t\t   siginfo_data.size ()));\n+    }\n }\n \n /* Fill the PRPSINFO structure with information about the process being\n@@ -1971,26 +1988,25 @@ find_signalled_thread ()\n /* Build the note section for a corefile, and return it in a malloc\n    buffer.  */\n \n-static char *\n+static gdb::unique_xmalloc_ptr<char>\n linux_make_corefile_notes (struct gdbarch *gdbarch, bfd *obfd, int *note_size)\n {\n-  struct linux_corefile_thread_data thread_args;\n   struct elf_internal_linux_prpsinfo prpsinfo;\n-  char *note_data = NULL;\n+  gdb::unique_xmalloc_ptr<char> note_data;\n \n   if (! gdbarch_iterate_over_regset_sections_p (gdbarch))\n     return NULL;\n \n   if (linux_fill_prpsinfo (&prpsinfo))\n     {\n       if (gdbarch_ptr_bit (gdbarch) == 64)\n-\tnote_data = elfcore_write_linux_prpsinfo64 (obfd,\n-\t\t\t\t\t\t    note_data, note_size,\n-\t\t\t\t\t\t    &prpsinfo);\n+\tnote_data.reset (elfcore_write_linux_prpsinfo64 (obfd,\n+\t\t\t\t\t\t\t note_data.release (),\n+\t\t\t\t\t\t\t note_size, &prpsinfo));\n       else\n-\tnote_data = elfcore_write_linux_prpsinfo32 (obfd,\n-\t\t\t\t\t\t    note_data, note_size,\n-\t\t\t\t\t\t    &prpsinfo);\n+\tnote_data.reset (elfcore_write_linux_prpsinfo32 (obfd,\n+\t\t\t\t\t\t\t note_data.release (),\n+\t\t\t\t\t\t\t note_size, &prpsinfo));\n     }\n \n   /* Thread register information.  */\n@@ -2007,15 +2023,14 @@ linux_make_corefile_notes (struct gdbarch *gdbarch, bfd *obfd, int *note_size)\n      \"First thread\" is what tools use to infer the signalled\n      thread.  */\n   thread_info *signalled_thr = find_signalled_thread ();\n-\n-  thread_args.gdbarch = gdbarch;\n-  thread_args.obfd = obfd;\n-  thread_args.note_data = note_data;\n-  thread_args.note_size = note_size;\n+  gdb_signal stop_signal;\n   if (signalled_thr != nullptr)\n-    thread_args.stop_signal = signalled_thr->suspend.stop_signal;\n+    stop_signal = signalled_thr->suspend.stop_signal;\n   else\n-    thread_args.stop_signal = GDB_SIGNAL_0;\n+    stop_signal = GDB_SIGNAL_0;\n+\n+  linux_corefile_thread_data thread_args (gdbarch, obfd, note_data, note_size,\n+\t\t\t\t\t  stop_signal);\n \n   if (signalled_thr != nullptr)\n     linux_corefile_thread (signalled_thr, &thread_args);\n@@ -2027,7 +2042,6 @@ linux_make_corefile_notes (struct gdbarch *gdbarch, bfd *obfd, int *note_size)\n       linux_corefile_thread (thr, &thread_args);\n     }\n \n-  note_data = thread_args.note_data;\n   if (!note_data)\n     return NULL;\n \n@@ -2036,17 +2050,16 @@ linux_make_corefile_notes (struct gdbarch *gdbarch, bfd *obfd, int *note_size)\n     target_read_alloc (current_top_target (), TARGET_OBJECT_AUXV, NULL);\n   if (auxv && !auxv->empty ())\n     {\n-      note_data = elfcore_write_note (obfd, note_data, note_size,\n-\t\t\t\t      \"CORE\", NT_AUXV, auxv->data (),\n-\t\t\t\t      auxv->size ());\n+      note_data.reset (elfcore_write_note (obfd, note_data.release (),\n+\t\t\t\t\t   note_size, \"CORE\", NT_AUXV,\n+\t\t\t\t\t   auxv->data (), auxv->size ()));\n \n       if (!note_data)\n \treturn NULL;\n     }\n \n   /* File mappings.  */\n-  note_data = linux_make_mappings_corefile_notes (gdbarch, obfd,\n-\t\t\t\t\t\t  note_data, note_size);\n+  linux_make_mappings_corefile_notes (gdbarch, obfd, note_data, note_size);\n \n   return note_data;\n }"
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "sha": "5de9eada3b4e39c89431765b1c59159cb04878ed",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NWRlOWVhZGEzYjRlMzljODk0MzE3NjViMWM1OTE1OWNiMDQ4NzhlZA==",
+  "commit": {
+    "author": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2019-08-02T23:46:01Z"
+    },
+    "committer": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2019-10-03T16:04:55Z"
+    },
+    "message": "libctf: teach ctf_add_type how forwards work\n\nThis machinery has been broken for as long as Solaris has existed.\nForwards are meant to encode \"struct foo;\", \"enum foo;\" or \"union\nfoo;\".  Obviously these all exist in distinct namespaces, so forwards\nstore the type kind they forward to in their ctt_type member\n(which makes conceptual sense if you squint at it).  The addition\nmachinery uses this to promote forwards to the appropriate type as\nneeded.\n\nUnfortunately ctf_add_type does not: it checks the global namespace\n(which is always wrong), and so fails with a spurious conflict if you\nhave, say, a typedef and then a forward comes along with the same name,\neven if it's a forward to something like a struct.  (This was observed\nwith <libio.h>, which has \"struct _IO_FILE;\" and also\n\"typedef struct _IO_FILE _IO_FILE\").  We should look at the recorded\ntype kind and look in the appropriate namespace.   We should also,\nwhen creating the forward in the new container, use that type kind,\nrather than just defaulting to CTF_K_STRUCT and hoping that what\neventually comes along is a struct.\n\nThis bug is as old as the first implementation of ctf_add_type in\nSolaris.  But we also want a new feature for the linker, closely-related\nand touching the same code so we add it here: not only do we want a\nforward followed by a struct/union/enum to promote the forward, but\nwe want want a struct/union/enum followed by a forward to act as a NOP\nand return the existing type, because when we're adding many files\nin succession to a target link, there will often be already-promoted\nforwards (in the shape of a struct/union/enum) that want to unify\nwith duplicate forwards coming from other object files.\n\nv5: fix tabdamage.\n\nlibctf/\n\t* ctf-create.c (ctf_add_type): Look up and use the forwarded-to\n\ttype kind.  Allow forwards to unify with pre-existing structs/\n\tunions/enums.",
+    "tree": {
+      "sha": "508fc217b67c09bed5b32bca747d9ae4f683ff4e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/508fc217b67c09bed5b32bca747d9ae4f683ff4e"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/5de9eada3b4e39c89431765b1c59159cb04878ed",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5de9eada3b4e39c89431765b1c59159cb04878ed",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/5de9eada3b4e39c89431765b1c59159cb04878ed",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5de9eada3b4e39c89431765b1c59159cb04878ed/comments",
+  "author": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "49ea9b450bb1ca97f6e40c420c8cde5878e11048",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/49ea9b450bb1ca97f6e40c420c8cde5878e11048",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/49ea9b450bb1ca97f6e40c420c8cde5878e11048"
+    }
+  ],
+  "stats": {
+    "total": 49,
+    "additions": 35,
+    "deletions": 14
+  },
+  "files": [
+    {
+      "sha": "28be75796689c875ff05bc89205afe4f564d8c8c",
+      "filename": "libctf/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5de9eada3b4e39c89431765b1c59159cb04878ed/libctf/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5de9eada3b4e39c89431765b1c59159cb04878ed/libctf/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ChangeLog?ref=5de9eada3b4e39c89431765b1c59159cb04878ed",
+      "patch": "@@ -1,3 +1,9 @@\n+2019-08-03  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-create.c (ctf_add_type): Look up and use the forwarded-to\n+\ttype kind.  Allow forwards to unify with pre-existing structs/\n+\tunions/enums.\n+\n 2019-07-30  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctf-impl.h (ctf_file_t) <ctf_link_cu_mappping>: New."
+    },
+    {
+      "sha": "8eb16738a11844cb15b98ae22e44895d526465bb",
+      "filename": "libctf/ctf-create.c",
+      "status": "modified",
+      "additions": 29,
+      "deletions": 14,
+      "changes": 43,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5de9eada3b4e39c89431765b1c59159cb04878ed/libctf/ctf-create.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5de9eada3b4e39c89431765b1c59159cb04878ed/libctf/ctf-create.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-create.c?ref=5de9eada3b4e39c89431765b1c59159cb04878ed",
+      "patch": "@@ -1552,7 +1552,7 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n   ctf_id_t tmp;\n \n   const char *name;\n-  uint32_t kind, flag, vlen;\n+  uint32_t kind, forward_kind, flag, vlen;\n \n   const ctf_type_t *src_tp, *dst_tp;\n   ctf_bundle_t src, dst;\n@@ -1576,7 +1576,11 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n   flag = LCTF_INFO_ISROOT (src_fp, src_tp->ctt_info);\n   vlen = LCTF_INFO_VLEN (src_fp, src_tp->ctt_info);\n \n-  switch (kind)\n+  forward_kind = kind;\n+  if (kind == CTF_K_FORWARD)\n+    forward_kind = src_tp->ctt_type;\n+\n+  switch (forward_kind)\n     {\n     case CTF_K_STRUCT:\n       hp = dst_fp->ctf_structs;\n@@ -1605,16 +1609,30 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n \n   /* If an identically named dst_type exists, fail with ECTF_CONFLICT\n      unless dst_type is a forward declaration and src_type is a struct,\n-     union, or enum (i.e. the definition of the previous forward decl).  */\n+     union, or enum (i.e. the definition of the previous forward decl).\n \n-  if (dst_type != CTF_ERR && dst_kind != kind\n-      && (dst_kind != CTF_K_FORWARD\n-\t  || (kind != CTF_K_ENUM && kind != CTF_K_STRUCT\n-\t      && kind != CTF_K_UNION)))\n+     We also allow addition in the opposite order (addition of a forward when a\n+     struct, union, or enum already exists), which is a NOP and returns the\n+     already-present struct, union, or enum.  */\n+\n+  if (dst_type != CTF_ERR && dst_kind != kind)\n     {\n-      ctf_dprintf (\"Conflict for type %s: kinds differ, new: %i; \"\n-\t\t   \"old (ID %lx): %i\\n\", name, kind, dst_type, dst_kind);\n-      return (ctf_set_errno (dst_fp, ECTF_CONFLICT));\n+      if (kind == CTF_K_FORWARD\n+\t  && (dst_kind == CTF_K_ENUM || dst_kind == CTF_K_STRUCT\n+\t      || dst_kind == CTF_K_UNION))\n+\t{\n+\t  ctf_add_type_mapping (src_fp, src_type, dst_fp, dst_type);\n+\t  return dst_type;\n+\t}\n+\n+      if (dst_kind != CTF_K_FORWARD\n+\t  || (kind != CTF_K_ENUM && kind != CTF_K_STRUCT\n+\t      && kind != CTF_K_UNION))\n+\t{\n+\t  ctf_dprintf (\"Conflict for type %s: kinds differ, new: %i; \"\n+\t\t       \"old (ID %lx): %i\\n\", name, kind, dst_type, dst_kind);\n+\t  return (ctf_set_errno (dst_fp, ECTF_CONFLICT));\n+\t}\n     }\n \n   /* We take special action for an integer, float, or slice since it is\n@@ -1924,10 +1942,7 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n \n     case CTF_K_FORWARD:\n       if (dst_type == CTF_ERR)\n-\t{\n-\t  dst_type = ctf_add_forward (dst_fp, flag,\n-\t\t\t\t      name, CTF_K_STRUCT); /* Assume STRUCT. */\n-\t}\n+\t  dst_type = ctf_add_forward (dst_fp, flag, name, forward_kind);\n       break;\n \n     case CTF_K_TYPEDEF:"
+    }
+  ]
+}

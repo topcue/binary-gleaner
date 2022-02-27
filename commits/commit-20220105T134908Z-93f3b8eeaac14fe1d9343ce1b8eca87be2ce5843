@@ -1,0 +1,110 @@
+{
+  "sha": "93f3b8eeaac14fe1d9343ce1b8eca87be2ce5843",
+  "node_id": "C_kwDOANOeidoAKDkzZjNiOGVlYWFjMTRmZTFkOTM0M2NlMWI4ZWNhODdiZTJjZTU4NDM",
+  "commit": {
+    "author": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2022-01-03T16:48:37Z"
+    },
+    "committer": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2022-01-05T13:49:08Z"
+    },
+    "message": "Fix pager regression\n\nThe patch to fix paging with redirection caused a regression in the\ninternal AdaCore test suite.  The problem occurs when running an MI\ncommand from the CLI using interpreter-exec, when paging is enabled.\nThis scenario isn't covered by the current test suite, so this patch\nincludes a new test.\n\nThe problem is that, in this situation, MI does:\n\n  fputs_unfiltered (strcmp (context->command, \"target-select\") == 0\n\t\t     ? \"^connected\" : \"^done\", mi->raw_stdout);\n\nHere raw_stdout is a stdio_file wrapping stdout, so the pager thinks\nthat it is ok to buffer the output.  However, in this setup, it isn't\nok, and flushing the wrap buffer doesn't really work properly.  Also,\nMI next does:\n\n  mi_out_put (uiout, mi->raw_stdout);\n\n... but this uses ui_file::write, which also doesn't flush the wrap\nbuffer.\n\nI think all this will be fixed by the pager rewrite series I'm working\non.  However, in the meantime, adding the old gdb_stdout check back to\nthe pager fixes this problem.\n\nRegression tested on x86-64 Fedora 34.",
+    "tree": {
+      "sha": "ecabfa0adc00be7840c212b6bee26b752665f2b2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/ecabfa0adc00be7840c212b6bee26b752665f2b2"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/93f3b8eeaac14fe1d9343ce1b8eca87be2ce5843",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/93f3b8eeaac14fe1d9343ce1b8eca87be2ce5843",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/93f3b8eeaac14fe1d9343ce1b8eca87be2ce5843",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/93f3b8eeaac14fe1d9343ce1b8eca87be2ce5843/comments",
+  "author": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "74e315dbfe5200c473b226e937935fb8ce391489",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/74e315dbfe5200c473b226e937935fb8ce391489",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/74e315dbfe5200c473b226e937935fb8ce391489"
+    }
+  ],
+  "stats": {
+    "total": 11,
+    "additions": 11,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "ffc180aad4dbc61dc76dcf6626772f0e02ff8829",
+      "filename": "gdb/testsuite/gdb.base/page-logging.exp",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/93f3b8eeaac14fe1d9343ce1b8eca87be2ce5843/gdb/testsuite/gdb.base/page-logging.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/93f3b8eeaac14fe1d9343ce1b8eca87be2ce5843/gdb/testsuite/gdb.base/page-logging.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/page-logging.exp?ref=93f3b8eeaac14fe1d9343ce1b8eca87be2ce5843",
+      "patch": "@@ -48,3 +48,13 @@ if {$ok} {\n     fail \"printf without paging\"\n }\n gdb_test \"set logging enabled off\" \"Done logging to .*\"\n+\n+set cmd \"interpreter-exec mi2 \\\"-data-evaluate-expression 23\\\"\"\n+gdb_test_multiple $cmd $cmd {\n+    -re \".done.value=.23\\[^\\n\\]+\\r\\n$gdb_prompt \" {\n+\tpass \"$cmd\"\n+\tgdb_expect 1 {\n+\t    -re \"\\r\\n$gdb_prompt $\" { }\n+\t}\n+    }\n+}"
+    },
+    {
+      "sha": "df4e6c1fd58e1ea63a6baa39bfca5eb1d222760f",
+      "filename": "gdb/utils.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/93f3b8eeaac14fe1d9343ce1b8eca87be2ce5843/gdb/utils.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/93f3b8eeaac14fe1d9343ce1b8eca87be2ce5843/gdb/utils.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/utils.c?ref=93f3b8eeaac14fe1d9343ce1b8eca87be2ce5843",
+      "patch": "@@ -1750,6 +1750,7 @@ fputs_maybe_filtered (const char *linebuffer, struct ui_file *stream,\n \n   /* Don't do any filtering if it is disabled.  */\n   if (!stream->can_page ()\n+      || stream != gdb_stdout\n       || !pagination_enabled\n       || pagination_disabled_for_command\n       || batch_flag"
+    }
+  ]
+}

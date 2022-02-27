@@ -1,0 +1,218 @@
+{
+  "sha": "ae41200ba807f4342ae7ea5334a29cd6f519b02c",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YWU0MTIwMGJhODA3ZjQzNDJhZTdlYTUzMzRhMjljZDZmNTE5YjAyYw==",
+  "commit": {
+    "author": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2020-11-20T13:34:04Z"
+    },
+    "committer": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2020-11-20T13:34:05Z"
+    },
+    "message": "libctf, include, binutils, gdb: rename CTF-opening functions\n\nThe functions that return ctf_dict_t's given a ctf_archive_t and a name\nare very clumsily named.  It sounds like they return *archives*, not\ndictionaries, and the names are very long and clunky.  Why do we\nhave a ctf_arc_open_by_name when it opens a dictionary, not an archive,\nand when there is no way to open a dictionary in any other way?  The\nanswer is purely internal: the function is located in ctf-archive.c,\nand everything in there was called ctf_arc_*, and there is another\nway to open a dict (by offset in the archive), that is internal to\nctf-archive.c and that nothing else can call.\n\nThis is clearly bad naming. The internal organization of the source tree\nshould not dictate public API names!\n\nSo rename things (keeping the old, bad names for compatibility), and\nadjust all users.  You now open a dict using ctf_dict_open, and\nopen it giving ELF sections via ctf_dict_open_sections.\n\nbinutils/ChangeLog\n2020-11-20  Nick Alcock  <nick.alcock@oracle.com>\n\n\t* objdump.c (dump_ctf): Use ctf_dict_open, not\n\tctf_arc_open_by_name.\n\t* readelf.c (dump_section_as_ctf): Likewise.\n\ngdb/ChangeLog\n2020-11-20  Nick Alcock  <nick.alcock@oracle.com>\n\n\t* ctfread.c (elfctf_build_psymtabs): Use ctf_dict_open, not\n\tctf_arc_open_by_name.\n\ninclude/ChangeLog\n2020-11-20  Nick Alcock  <nick.alcock@oracle.com>\n\n\t* ctf-api.h (ctf_arc_open_by_name): Rename to...\n\t(ctf_dict_open): ... this, keeping compatibility function.\n\t(ctf_arc_open_by_name_sections): Rename to...\n\t(ctf_dict_open_sections): ... this, keeping compatibility function.\n\nlibctf/ChangeLog\n2020-11-20  Nick Alcock  <nick.alcock@oracle.com>\n\n\t* ctf-archive.c (ctf_arc_open_by_offset): Rename to...\n\t(ctf_dict_open_by_offset): ... this.  Adjust callers.\n\t(ctf_arc_open_by_name_internal): Rename to...\n\t(ctf_dict_open_internal): ... this.  Adjust callers.\n\t(ctf_arc_open_by_name_sections): Rename to...\n\t(ctf_dict_open_sections): ... this, keeping compatibility function.\n\t(ctf_arc_open_by_name): Rename to...\n\t(ctf_dict_open): ... this, keeping compatibility function.\n\t* libctf.ver: New functions added.\n\t* ctf-link.c (ctf_link_one_input_archive): Adjusted accordingly.\n\t(ctf_link_deduplicating_open_inputs): Likewise.",
+    "tree": {
+      "sha": "8f07eb4181e8e20ad4b91c0497fcae48252901d8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/8f07eb4181e8e20ad4b91c0497fcae48252901d8"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ae41200ba807f4342ae7ea5334a29cd6f519b02c",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ae41200ba807f4342ae7ea5334a29cd6f519b02c",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ae41200ba807f4342ae7ea5334a29cd6f519b02c",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ae41200ba807f4342ae7ea5334a29cd6f519b02c/comments",
+  "author": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "139633c307eb6f5746ea04f94a0b6382e51bccb9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/139633c307eb6f5746ea04f94a0b6382e51bccb9",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/139633c307eb6f5746ea04f94a0b6382e51bccb9"
+    }
+  ],
+  "stats": {
+    "total": 143,
+    "additions": 100,
+    "deletions": 43
+  },
+  "files": [
+    {
+      "sha": "8b7cba02859bf11ccf29762332495410f3601666",
+      "filename": "binutils/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae41200ba807f4342ae7ea5334a29cd6f519b02c/binutils/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae41200ba807f4342ae7ea5334a29cd6f519b02c/binutils/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/ChangeLog?ref=ae41200ba807f4342ae7ea5334a29cd6f519b02c",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-11-20  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* objdump.c (dump_ctf): Use ctf_dict_open, not\n+\tctf_arc_open_by_name.\n+\t* readelf.c (dump_section_as_ctf): Likewise.\n+\n 2020-11-20  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* objdump.c (dump_ctf_errs): Rename ctf_file_t to ctf_dict_t."
+    },
+    {
+      "sha": "bf8234987f02ed4276d7c739e34277b0f4f80007",
+      "filename": "binutils/objdump.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae41200ba807f4342ae7ea5334a29cd6f519b02c/binutils/objdump.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae41200ba807f4342ae7ea5334a29cd6f519b02c/binutils/objdump.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/objdump.c?ref=ae41200ba807f4342ae7ea5334a29cd6f519b02c",
+      "patch": "@@ -4194,7 +4194,7 @@ dump_ctf (bfd *abfd, const char *sect_name, const char *parent_name)\n   /* Assume that the applicable parent archive member is the default one.\n      (This is what all known implementations are expected to do, if they\n      put CTFs and their parents in archives together.)  */\n-  if ((parent = ctf_arc_open_by_name (lookparent, NULL, &err)) == NULL)\n+  if ((parent = ctf_dict_open (lookparent, NULL, &err)) == NULL)\n     {\n       dump_ctf_errs (NULL);\n       non_fatal (_(\"CTF open failure: %s\"), ctf_errmsg (err));"
+    },
+    {
+      "sha": "a79f29548a1bab8e9fe90688c05d007071af5596",
+      "filename": "binutils/readelf.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae41200ba807f4342ae7ea5334a29cd6f519b02c/binutils/readelf.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae41200ba807f4342ae7ea5334a29cd6f519b02c/binutils/readelf.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/readelf.c?ref=ae41200ba807f4342ae7ea5334a29cd6f519b02c",
+      "patch": "@@ -14775,7 +14775,7 @@ dump_section_as_ctf (Elf_Internal_Shdr * section, Filedata * filedata)\n   /* Assume that the applicable parent archive member is the default one.\n      (This is what all known implementations are expected to do, if they\n      put CTFs and their parents in archives together.)  */\n-  if ((parent = ctf_arc_open_by_name (lookparent, NULL, &err)) == NULL)\n+  if ((parent = ctf_dict_open (lookparent, NULL, &err)) == NULL)\n     {\n       dump_ctf_errs (NULL);\n       error (_(\"CTF open failure: %s\\n\"), ctf_errmsg (err));"
+    },
+    {
+      "sha": "0fb0997779bc488569b7cc84e7bb1a39d718691e",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae41200ba807f4342ae7ea5334a29cd6f519b02c/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae41200ba807f4342ae7ea5334a29cd6f519b02c/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=ae41200ba807f4342ae7ea5334a29cd6f519b02c",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-11-20  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctfread.c (elfctf_build_psymtabs): Use ctf_dict_open, not\n+\tctf_arc_open_by_name.\n+\n 2020-11-20  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctfread.c: Change uses of ctf_file_t to ctf_dict_t."
+    },
+    {
+      "sha": "d532e01a0e6057f873c4d0aeb2d6e26794bf1439",
+      "filename": "gdb/ctfread.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae41200ba807f4342ae7ea5334a29cd6f519b02c/gdb/ctfread.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae41200ba807f4342ae7ea5334a29cd6f519b02c/gdb/ctfread.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ctfread.c?ref=ae41200ba807f4342ae7ea5334a29cd6f519b02c",
+      "patch": "@@ -1482,9 +1482,9 @@ elfctf_build_psymtabs (struct objfile *of)\n     error (_(\"ctf_bfdopen failed on %s - %s\"),\n \t   bfd_get_filename (abfd), ctf_errmsg (err));\n \n-  ctf_dict_t *fp = ctf_arc_open_by_name (arc, NULL, &err);\n+  ctf_dict_t *fp = ctf_dict_open (arc, NULL, &err);\n   if (fp == NULL)\n-    error (_(\"ctf_arc_open_by_name failed on %s - %s\"),\n+    error (_(\"ctf_dict_open failed on %s - %s\"),\n \t   bfd_get_filename (abfd), ctf_errmsg (err));\n   ctf_dict_key.emplace (of, fp);\n "
+    },
+    {
+      "sha": "11ec1f4c712400cbf101c2c7d297d4a7112e2f83",
+      "filename": "include/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae41200ba807f4342ae7ea5334a29cd6f519b02c/include/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae41200ba807f4342ae7ea5334a29cd6f519b02c/include/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ChangeLog?ref=ae41200ba807f4342ae7ea5334a29cd6f519b02c",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-11-20  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-api.h (ctf_arc_open_by_name): Rename to...\n+\t(ctf_dict_open): ... this, keeping compatibility function.\n+\t(ctf_arc_open_by_name_sections): Rename to...\n+\t(ctf_dict_open_sections): ... this, keeping compatibility function.\n+\n 2020-11-20  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctf-api.h (ctf_file_t): Rename to..."
+    },
+    {
+      "sha": "38d7758a48e635d2193cece93e6ad8d14fe717b0",
+      "filename": "include/ctf-api.h",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 6,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae41200ba807f4342ae7ea5334a29cd6f519b02c/include/ctf-api.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae41200ba807f4342ae7ea5334a29cd6f519b02c/include/ctf-api.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ctf-api.h?ref=ae41200ba807f4342ae7ea5334a29cd6f519b02c",
+      "patch": "@@ -306,12 +306,12 @@ extern ctf_archive_t *ctf_arc_bufopen (const ctf_sect_t *,\n \t\t\t\t       const ctf_sect_t *,\n \t\t\t\t       int *);\n extern void ctf_arc_close (ctf_archive_t *);\n-extern ctf_dict_t *ctf_arc_open_by_name (const ctf_archive_t *,\n-\t\t\t\t\t const char *, int *);\n-extern ctf_dict_t *ctf_arc_open_by_name_sections (const ctf_archive_t *,\n-\t\t\t\t\t\t  const ctf_sect_t *,\n-\t\t\t\t\t\t  const ctf_sect_t *,\n-\t\t\t\t\t\t  const char *, int *);\n+extern ctf_dict_t *ctf_dict_open (const ctf_archive_t *,\n+\t\t\t\t  const char *, int *);\n+extern ctf_dict_t *ctf_dict_open_sections (const ctf_archive_t *,\n+\t\t\t\t\t   const ctf_sect_t *,\n+\t\t\t\t\t   const ctf_sect_t *,\n+\t\t\t\t\t   const char *, int *);\n extern size_t ctf_archive_count (const ctf_archive_t *);\n \n /* The next functions return or close real CTF files, or write out CTF archives,\n@@ -511,6 +511,12 @@ struct ctf_file;\n typedef struct ctf_dict ctf_file_t;\n extern void ctf_file_close (ctf_file_t *);\n extern ctf_dict_t *ctf_parent_file (ctf_dict_t *);\n+extern ctf_dict_t *ctf_arc_open_by_name (const ctf_archive_t *,\n+\t\t\t\t\t const char *, int *);\n+extern ctf_dict_t *ctf_arc_open_by_name_sections (const ctf_archive_t *,\n+\t\t\t\t\t\t  const ctf_sect_t *,\n+\t\t\t\t\t\t  const ctf_sect_t *,\n+\t\t\t\t\t\t  const char *, int *);\n \n #ifdef\t__cplusplus\n }"
+    },
+    {
+      "sha": "804f1314af25b2cd1bcce15d8f61d8abcf061753",
+      "filename": "libctf/ChangeLog",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae41200ba807f4342ae7ea5334a29cd6f519b02c/libctf/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae41200ba807f4342ae7ea5334a29cd6f519b02c/libctf/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ChangeLog?ref=ae41200ba807f4342ae7ea5334a29cd6f519b02c",
+      "patch": "@@ -1,3 +1,17 @@\n+2020-11-20  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-archive.c (ctf_arc_open_by_offset): Rename to...\n+\t(ctf_dict_open_by_offset): ... this.  Adjust callers.\n+\t(ctf_arc_open_by_name_internal): Rename to...\n+\t(ctf_dict_open_internal): ... this.  Adjust callers.\n+\t(ctf_arc_open_by_name_sections): Rename to...\n+\t(ctf_dict_open_sections): ... this, keeping compatibility function.\n+\t(ctf_arc_open_by_name): Rename to...\n+\t(ctf_dict_open): ... this, keeping compatibility function.\n+\t* libctf.ver: New functions added.\n+\t* ctf-link.c (ctf_link_one_input_archive): Adjusted accordingly.\n+\t(ctf_link_deduplicating_open_inputs): Likewise.\n+\n 2020-11-20  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctf-impl.h: Rename ctf_file_t to ctf_dict_t: all declarations"
+    },
+    {
+      "sha": "72cdef91ac4e53f89f017f531e29d182c4adf024",
+      "filename": "libctf/ctf-archive.c",
+      "status": "modified",
+      "additions": 46,
+      "deletions": 29,
+      "changes": 75,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae41200ba807f4342ae7ea5334a29cd6f519b02c/libctf/ctf-archive.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae41200ba807f4342ae7ea5334a29cd6f519b02c/libctf/ctf-archive.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-archive.c?ref=ae41200ba807f4342ae7ea5334a29cd6f519b02c",
+      "patch": "@@ -33,10 +33,10 @@\n #endif\n \n static off_t arc_write_one_ctf (ctf_dict_t * f, int fd, size_t threshold);\n-static ctf_dict_t *ctf_arc_open_by_offset (const struct ctf_archive *arc,\n-\t\t\t\t\t   const ctf_sect_t *symsect,\n-\t\t\t\t\t   const ctf_sect_t *strsect,\n-\t\t\t\t\t   size_t offset, int *errp);\n+static ctf_dict_t *ctf_dict_open_by_offset (const struct ctf_archive *arc,\n+\t\t\t\t\t    const ctf_sect_t *symsect,\n+\t\t\t\t\t    const ctf_sect_t *strsect,\n+\t\t\t\t\t    size_t offset, int *errp);\n static int sort_modent_by_name (const void *one, const void *two, void *n);\n static void *arc_mmap_header (int fd, size_t headersz);\n static void *arc_mmap_file (int fd, size_t size);\n@@ -506,18 +506,18 @@ ctf_arc_close (ctf_archive_t *arc)\n /* Return the ctf_dict_t with the given name, or NULL if none, setting 'err' if\n    non-NULL.  A name of NULL means to open the default file.  */\n static ctf_dict_t *\n-ctf_arc_open_by_name_internal (const struct ctf_archive *arc,\n-\t\t\t       const ctf_sect_t *symsect,\n-\t\t\t       const ctf_sect_t *strsect,\n-\t\t\t       const char *name, int *errp)\n+ctf_dict_open_internal (const struct ctf_archive *arc,\n+\t\t\tconst ctf_sect_t *symsect,\n+\t\t\tconst ctf_sect_t *strsect,\n+\t\t\tconst char *name, int *errp)\n {\n   struct ctf_archive_modent *modent;\n   const char *search_nametbl;\n \n   if (name == NULL)\n     name = _CTF_SECTION;\t\t /* The default name.  */\n \n-  ctf_dprintf (\"ctf_arc_open_by_name(%s): opening\\n\", name);\n+  ctf_dprintf (\"ctf_dict_open_internal(%s): opening\\n\", name);\n \n   modent = (ctf_archive_modent_t *) ((char *) arc\n \t\t\t\t     + sizeof (struct ctf_archive));\n@@ -536,8 +536,8 @@ ctf_arc_open_by_name_internal (const struct ctf_archive *arc,\n       return NULL;\n     }\n \n-  return ctf_arc_open_by_offset (arc, symsect, strsect,\n-\t\t\t\t le64toh (modent->ctf_offset), errp);\n+  return ctf_dict_open_by_offset (arc, symsect, strsect,\n+\t\t\t\t  le64toh (modent->ctf_offset), errp);\n }\n \n /* Return the ctf_dict_t with the given name, or NULL if none, setting 'err' if\n@@ -547,17 +547,17 @@ ctf_arc_open_by_name_internal (const struct ctf_archive *arc,\n \n    Public entry point.  */\n ctf_dict_t *\n-ctf_arc_open_by_name_sections (const ctf_archive_t *arc,\n-\t\t\t       const ctf_sect_t *symsect,\n-\t\t\t       const ctf_sect_t *strsect,\n-\t\t\t       const char *name,\n-\t\t\t       int *errp)\n+ctf_dict_open_sections (const ctf_archive_t *arc,\n+\t\t\tconst ctf_sect_t *symsect,\n+\t\t\tconst ctf_sect_t *strsect,\n+\t\t\tconst char *name,\n+\t\t\tint *errp)\n {\n   if (arc->ctfi_is_archive)\n     {\n       ctf_dict_t *ret;\n-      ret = ctf_arc_open_by_name_internal (arc->ctfi_archive, symsect, strsect,\n-\t\t\t\t\t   name, errp);\n+      ret = ctf_dict_open_internal (arc->ctfi_archive, symsect, strsect,\n+\t\t\t\t    name, errp);\n       if (ret)\n \tret->ctf_archive = (ctf_archive_t *) arc;\n       return ret;\n@@ -581,7 +581,7 @@ ctf_arc_open_by_name_sections (const ctf_archive_t *arc,\n \n    Public entry point.  */\n ctf_dict_t *\n-ctf_arc_open_by_name (const ctf_archive_t *arc, const char *name, int *errp)\n+ctf_dict_open (const ctf_archive_t *arc, const char *name, int *errp)\n {\n   const ctf_sect_t *symsect = &arc->ctfi_symsect;\n   const ctf_sect_t *strsect = &arc->ctfi_strsect;\n@@ -591,21 +591,21 @@ ctf_arc_open_by_name (const ctf_archive_t *arc, const char *name, int *errp)\n   if (strsect->cts_name == NULL)\n     strsect = NULL;\n \n-  return ctf_arc_open_by_name_sections (arc, symsect, strsect, name, errp);\n+  return ctf_dict_open_sections (arc, symsect, strsect, name, errp);\n }\n \n /* Return the ctf_dict_t at the given ctfa_ctfs-relative offset, or NULL if\n    none, setting 'err' if non-NULL.  */\n static ctf_dict_t *\n-ctf_arc_open_by_offset (const struct ctf_archive *arc,\n-\t\t\tconst ctf_sect_t *symsect,\n-\t\t\tconst ctf_sect_t *strsect, size_t offset,\n-\t\t\tint *errp)\n+ctf_dict_open_by_offset (const struct ctf_archive *arc,\n+\t\t\t const ctf_sect_t *symsect,\n+\t\t\t const ctf_sect_t *strsect, size_t offset,\n+\t\t\t int *errp)\n {\n   ctf_sect_t ctfsect;\n   ctf_dict_t *fp;\n \n-  ctf_dprintf (\"ctf_arc_open_by_offset(%lu): opening\\n\", (unsigned long) offset);\n+  ctf_dprintf (\"ctf_dict_open_by_offset(%lu): opening\\n\", (unsigned long) offset);\n \n   memset (&ctfsect, 0, sizeof (ctf_sect_t));\n \n@@ -621,6 +621,24 @@ ctf_arc_open_by_offset (const struct ctf_archive *arc,\n   return fp;\n }\n \n+/* Backward compatibility.  */\n+ctf_dict_t *\n+ctf_arc_open_by_name (const ctf_archive_t *arc, const char *name,\n+\t\t      int *errp)\n+{\n+  return ctf_dict_open (arc, name, errp);\n+}\n+\n+ctf_dict_t *\n+ctf_arc_open_by_name_sections (const ctf_archive_t *arc,\n+\t\t\t       const ctf_sect_t *symsect,\n+\t\t\t       const ctf_sect_t *strsect,\n+\t\t\t       const char *name,\n+\t\t\t       int *errp)\n+{\n+  return ctf_dict_open_sections (arc, symsect, strsect, name, errp);\n+}\n+\n /* Return the number of members in an archive.  */\n size_t\n ctf_archive_count (const ctf_archive_t *wrapper)\n@@ -699,8 +717,8 @@ ctf_archive_iter_internal (const ctf_archive_t *wrapper,\n       const char *name;\n \n       name = &nametbl[le64toh (modent[i].name_offset)];\n-      if ((f = ctf_arc_open_by_name_internal (arc, symsect, strsect,\n-\t\t\t\t\t      name, &rc)) == NULL)\n+      if ((f = ctf_dict_open_internal (arc, symsect, strsect,\n+\t\t\t\t    name, &rc)) == NULL)\n \treturn rc;\n \n       f->ctf_archive = (ctf_archive_t *) wrapper;\n@@ -837,8 +855,7 @@ ctf_archive_next (const ctf_archive_t *wrapper, ctf_next_t **it, const char **na\n   if (name)\n     *name = name_;\n \n-  f = ctf_arc_open_by_name_internal (arc, symsect, strsect,\n-\t\t\t\t     name_, errp);\n+  f = ctf_dict_open_internal (arc, symsect, strsect, name_, errp);\n   f->ctf_archive = (ctf_archive_t *) wrapper;\n   return f;\n }"
+    },
+    {
+      "sha": "192d4fd662213ea163e5fd144de9520534e8fc92",
+      "filename": "libctf/ctf-link.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae41200ba807f4342ae7ea5334a29cd6f519b02c/libctf/ctf-link.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae41200ba807f4342ae7ea5334a29cd6f519b02c/libctf/ctf-link.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-link.c?ref=ae41200ba807f4342ae7ea5334a29cd6f519b02c",
+      "patch": "@@ -789,8 +789,8 @@ ctf_link_one_input_archive (void *key, void *value, void *arg_)\n \n   arg->in_file_name = file_name;\n   arg->done_parent = 0;\n-  if ((arg->in_fp_parent = ctf_arc_open_by_name (input->clin_arc, NULL,\n-\t\t\t\t\t\t &err)) == NULL)\n+  if ((arg->in_fp_parent = ctf_dict_open (input->clin_arc,\n+\t\t\t\t\t  NULL, &err)) == NULL)\n     if (err != ECTF_ARNNAME)\n       {\n \tctf_err_warn (arg->out_fp, 1, 0,\n@@ -1015,8 +1015,8 @@ ctf_link_deduplicating_open_inputs (ctf_dict_t *fp, ctf_dynhash_t *cu_names,\n \t multiple members.  We assume, as elsewhere, that the parent is named\n \t _CTF_SECTION.  */\n \n-      if ((parent_fp = ctf_arc_open_by_name (one_input->clin_arc,\n-\t\t\t\t\t     _CTF_SECTION, &err)) == NULL)\n+      if ((parent_fp = ctf_dict_open (one_input->clin_arc, _CTF_SECTION,\n+\t\t\t\t      &err)) == NULL)\n \t{\n \t  if (err != ECTF_NOMEMBNAM)\n \t    {"
+    },
+    {
+      "sha": "cf4fa7396b52e102c3919a29fe9bb41dcd77630d",
+      "filename": "libctf/libctf.ver",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae41200ba807f4342ae7ea5334a29cd6f519b02c/libctf/libctf.ver",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae41200ba807f4342ae7ea5334a29cd6f519b02c/libctf/libctf.ver",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/libctf.ver?ref=ae41200ba807f4342ae7ea5334a29cd6f519b02c",
+      "patch": "@@ -177,6 +177,8 @@ LIBCTF_1.0 {\n \n LIBCTF_1.1 {\n     global:\n+\tctf_dict_open;\n+\tctf_dict_open_sections;\n \tctf_dict_close;\n \tctf_parent_dict;\n } LIBCTF_1.0;"
+    }
+  ]
+}

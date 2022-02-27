@@ -1,0 +1,110 @@
+{
+  "sha": "a1c4010369aaa3ead33b7a5c248be9693d51b856",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YTFjNDAxMDM2OWFhYTNlYWQzM2I3YTVjMjQ4YmU5NjkzZDUxYjg1Ng==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2021-02-02T15:40:51Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-02-02T15:40:51Z"
+    },
+    "message": "gdb/dwarf: read correct rnglist/loclist header in read_{rng,loc}list_index\n\nWhen loading the binary from PR 26813 in GDB, we get:\n\n    DW_FORM_rnglistx index pointing outside of .debug_rnglists offset array [in module /home/simark/build/binutils-gdb/gdb/MagicPurse]\n\n... and the symbols fail to load.\n\nIn read_rnglist_index and read_loclist_index, we read the header\n(documented in sections 7.28 and 7.29 of DWARF 5) of the CU's\ncontribution to the .debug_rnglists / .debug_loclists sections to\nvalidate that the index we want to read makes sense.  However, we always\nread the header at the beginning of the section, rather than the header\nfor the contribution from which we want to read the index.\n\nTo illustrate, here's what the binary from PR 26813 contains.  There are\ntwo compile units:\n\n0x0000000c: DW_TAG_compile_unit 1\n              DW_AT_ranges [DW_FORM_rnglistx]: 0x0\n              DW_AT_rnglists_base [DW_FORM_sec_offset]: 0xC\n\n0x00003ec9: DW_TAG_compile_unit 2\n              DW_AT_ranges [DW_FORM_rnglistx]: 0xB\n              DW_AT_rnglists_base [DW_FORM_sec_offset]: 0x85\n\nThe layout of the .debug_rnglists is the following:\n\n    [0x00, 0x0B]: header for CU 1's contribution\n    [0x0C, 0x0F]: list of offsets for CU 1 (1 element)\n    [0x10, 0x78]: range lists data for CU 1\n\n    [0x79, 0x84]: header for CU 2's contribution\n    [0x85, 0xB4]: list of offsets for CU 2 (12 elements)\n    [0xB5, 0xBD7]: range lists data for CU 2\n\nThe DW_AT_rnglists_base attrbute points to the beginning of the list of\noffsets for that CU, relative to the start of the .debug_rnglists\nsection.  That's right after the header for that contribution.\n\nWhen we try to read the DW_AT_ranges attribute for CU 2,\nread_rnglist_index reads the header for CU 1 instead of the one for CU\n2.  Since there's only one element in CU 1's offset list, it believes\n(wrongfully) that the index 0xB is out of range.\n\nFix it by reading the header just before where DW_AT_rnglists_base\npoints to.  With this patch, I am able to load GDB built with clang-11\nand -gdwarf-5 in itself, with and without -readnow.\n\ngdb/ChangeLog:\n\n\tPR gdb/26813\n\t* dwarf2/read.c (read_loclists_rnglists_header): Add\n\theader_offset parameter and use it.\n\t(read_loclist_index): Read header of the current contribution,\n\tnot the one at the beginning of the section.\n\t(read_rnglist_index): Likewise.\n\nChange-Id: Ie53ff8251af8c1556f0a83a31aa8572044b79e3d",
+    "tree": {
+      "sha": "c0db73d109e47f31f03f9bb8a41307bc177e965f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c0db73d109e47f31f03f9bb8a41307bc177e965f"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/a1c4010369aaa3ead33b7a5c248be9693d51b856",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a1c4010369aaa3ead33b7a5c248be9693d51b856",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/a1c4010369aaa3ead33b7a5c248be9693d51b856",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a1c4010369aaa3ead33b7a5c248be9693d51b856/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "b1829e1bf2ee1c973694c802afaa3b7da2ffb4de",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b1829e1bf2ee1c973694c802afaa3b7da2ffb4de",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b1829e1bf2ee1c973694c802afaa3b7da2ffb4de"
+    }
+  ],
+  "stats": {
+    "total": 53,
+    "additions": 47,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "24bf65ebc7fc7494ea0b08e376d4cdd21b3b4e37",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a1c4010369aaa3ead33b7a5c248be9693d51b856/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a1c4010369aaa3ead33b7a5c248be9693d51b856/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=a1c4010369aaa3ead33b7a5c248be9693d51b856",
+      "patch": "@@ -1,3 +1,12 @@\n+2021-02-02  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\tPR gdb/26813\n+\t* dwarf2/read.c (read_loclists_rnglists_header): Add\n+\theader_offset parameter and use it.\n+\t(read_loclist_index): Read header of the current contribution,\n+\tnot the one at the beginning of the section.\n+\t(read_rnglist_index): Likewise.\n+\n 2021-02-02  Simon Marchi  <simon.marchi@efficios.com>\n \n \tPR gdb/26813"
+    },
+    {
+      "sha": "ab135dcbb11778284fa1334bef628964f9c22e56",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 38,
+      "deletions": 6,
+      "changes": 44,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a1c4010369aaa3ead33b7a5c248be9693d51b856/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a1c4010369aaa3ead33b7a5c248be9693d51b856/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=a1c4010369aaa3ead33b7a5c248be9693d51b856",
+      "patch": "@@ -20164,22 +20164,30 @@ partial_die_info::fixup (struct dwarf2_cu *cu)\n }\n \n /* Read the .debug_loclists or .debug_rnglists header (they are the same format)\n-   contents from the given SECTION in the HEADER.  */\n+   contents from the given SECTION in the HEADER.\n+\n+   HEADER_OFFSET is the offset of the header in the section.  */\n static void\n read_loclists_rnglists_header (struct loclists_rnglists_header *header,\n-\t\t\t       struct dwarf2_section_info *section)\n+\t\t\t       struct dwarf2_section_info *section,\n+\t\t\t       sect_offset header_offset)\n {\n   unsigned int bytes_read;\n   bfd *abfd = section->get_bfd_owner ();\n-  const gdb_byte *info_ptr = section->buffer;\n+  const gdb_byte *info_ptr = section->buffer + to_underlying (header_offset);\n+\n   header->length = read_initial_length (abfd, info_ptr, &bytes_read);\n   info_ptr += bytes_read;\n+\n   header->version = read_2_bytes (abfd, info_ptr);\n   info_ptr += 2;\n+\n   header->addr_size = read_1_byte (abfd, info_ptr);\n   info_ptr += 1;\n+\n   header->segment_collector_size = read_1_byte (abfd, info_ptr);\n   info_ptr += 1;\n+\n   header->offset_entry_count = read_4_bytes (abfd, info_ptr);\n }\n \n@@ -20213,21 +20221,36 @@ read_loclist_index (struct dwarf2_cu *cu, ULONGEST loclist_index)\n   dwarf2_per_objfile *per_objfile = cu->per_objfile;\n   struct objfile *objfile = per_objfile->objfile;\n   bfd *abfd = objfile->obfd;\n+  ULONGEST loclist_header_size =\n+    (cu->header.initial_length_size == 4 ? LOCLIST_HEADER_SIZE32\n+     : LOCLIST_HEADER_SIZE64);\n   ULONGEST loclist_base = lookup_loclist_base (cu);\n \n   /* Offset in .debug_loclists of the offset for LOCLIST_INDEX.  */\n   ULONGEST start_offset =\n     loclist_base + loclist_index * cu->header.offset_size;\n \n+  /* Get loclists section.  */\n   struct dwarf2_section_info *section = cu_debug_loc_section (cu);\n \n+  /* Read the loclists section content.  */\n   section->read (objfile);\n   if (section->buffer == NULL)\n     error (_(\"DW_FORM_loclistx used without .debug_loclists \"\n \t     \"section [in module %s]\"), objfile_name (objfile));\n \n+  /* DW_AT_loclists_base points after the .debug_loclists contribution header,\n+     so if loclist_base is smaller than the header size, we have a problem.  */\n+  if (loclist_base < loclist_header_size)\n+    error (_(\"DW_AT_loclists_base is smaller than header size [in module %s]\"),\n+\t   objfile_name (objfile));\n+\n+  /* Read the header of the loclists contribution.  */\n   struct loclists_rnglists_header header;\n-  read_loclists_rnglists_header (&header, section);\n+  read_loclists_rnglists_header (&header, section,\n+\t\t\t\t (sect_offset) (loclist_base - loclist_header_size));\n+\n+  /* Verify the loclist index is valid.  */\n   if (loclist_index >= header.offset_entry_count)\n     error (_(\"DW_FORM_loclistx pointing outside of \"\n \t     \".debug_loclists offset array [in module %s]\"),\n@@ -20276,9 +20299,18 @@ read_rnglist_index (struct dwarf2_cu *cu, ULONGEST rnglist_index,\n \t     \"[in module %s]\"),\n \t   objfile_name (objfile));\n \n-  /* Verify the rnglist index is valid.  */\n+  /* DW_AT_rnglists_base points after the .debug_rnglists contribution header,\n+     so if rnglist_base is smaller than the header size, we have a problem.  */\n+  if (rnglist_base < rnglist_header_size)\n+    error (_(\"DW_AT_rnglists_base is smaller than header size [in module %s]\"),\n+\t   objfile_name (objfile));\n+\n+  /* Read the header of the rnglists contribution.  */\n   struct loclists_rnglists_header header;\n-  read_loclists_rnglists_header (&header, section);\n+  read_loclists_rnglists_header (&header, section,\n+\t\t\t\t (sect_offset) (rnglist_base - rnglist_header_size));\n+\n+  /* Verify the rnglist index is valid.  */\n   if (rnglist_index >= header.offset_entry_count)\n     error (_(\"DW_FORM_rnglistx index pointing outside of \"\n \t     \".debug_rnglists offset array [in module %s]\"),"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "sha": "9039747fb4863c13eaf07f84bb28d50660fb8d85",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OTAzOTc0N2ZiNDg2M2MxM2VhZjA3Zjg0YmIyOGQ1MDY2MGZiOGQ4NQ==",
+  "commit": {
+    "author": {
+      "name": "Alan Modra",
+      "email": "amodra@gmail.com",
+      "date": "2021-07-10T00:04:30Z"
+    },
+    "committer": {
+      "name": "Alan Modra",
+      "email": "amodra@gmail.com",
+      "date": "2021-07-10T03:53:54Z"
+    },
+    "message": "PR28069, assertion fail in dwarf.c:display_discr_list\n\nWe shouldn't be asserting on anything to do with leb128 values, or\nreporting file and line numbers when something unexpected happens.\nleb128 data is of indeterminate length, perfect for fuzzer mayhem.\nIt would only make sense to assert or report dwarf.c/readelf.c source\nlines if the code had already sized and sanity checked the leb128\nvalues.\n\nAfter removing the assertions, the testcase then gave:\n\n    <37>   DW_AT_discr_list  : 5 byte block: 0 0 0 0 0 \t(label 0, label 0, label 0, label 0, <corrupt>\nreadelf: Warning: corrupt discr_list - unrecognized discriminant byte 0x5\n\n    <3d>   DW_AT_encoding    : 0\t(void)\n    <3e>   DW_AT_identifier_case: 0\t(case_sensitive)\n    <3f>   DW_AT_virtuality  : 0\t(none)\n    <40>   DW_AT_decimal_sign: 5\t(trailing separate)\n\nSo the DW_AT_discr_list was showing more data than just the 5 byte\nblock.  That happened due to \"end\" pointing a long way past the end of\nblock, and uvalue decrementing past zero on one of the leb128 bytes.\n\n\tPR 28069\n\t* dwarf.c (display_discr_list): Remove assertions.  Delete \"end\"\n\tparameter, use initial \"data\" pointer as the end.  Formatting.\n\tDon't count down bytes as they are read.\n\t(read_and_display_attr_value): Adjust display_discr_list call.\n\t(read_and_print_leb128): Don't pass __FILE__ and __LINE__ to\n\treport_leb_status.\n\t* dwarf.h (report_leb_status): Don't report file and line\n\tnumbers.  Delete file and lnum parameters,\n\t(READ_ULEB, READ_SLEB): Adjust.",
+    "tree": {
+      "sha": "1d5385789086f82eb6db07ccbb2a12e18eaf5eba",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/1d5385789086f82eb6db07ccbb2a12e18eaf5eba"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/9039747fb4863c13eaf07f84bb28d50660fb8d85",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9039747fb4863c13eaf07f84bb28d50660fb8d85",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/9039747fb4863c13eaf07f84bb28d50660fb8d85",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9039747fb4863c13eaf07f84bb28d50660fb8d85/comments",
+  "author": {
+    "login": "amodra",
+    "id": 6006325,
+    "node_id": "MDQ6VXNlcjYwMDYzMjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6006325?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/amodra",
+    "html_url": "https://github.com/amodra",
+    "followers_url": "https://api.github.com/users/amodra/followers",
+    "following_url": "https://api.github.com/users/amodra/following{/other_user}",
+    "gists_url": "https://api.github.com/users/amodra/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/amodra/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/amodra/subscriptions",
+    "organizations_url": "https://api.github.com/users/amodra/orgs",
+    "repos_url": "https://api.github.com/users/amodra/repos",
+    "events_url": "https://api.github.com/users/amodra/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/amodra/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "amodra",
+    "id": 6006325,
+    "node_id": "MDQ6VXNlcjYwMDYzMjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6006325?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/amodra",
+    "html_url": "https://github.com/amodra",
+    "followers_url": "https://api.github.com/users/amodra/followers",
+    "following_url": "https://api.github.com/users/amodra/following{/other_user}",
+    "gists_url": "https://api.github.com/users/amodra/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/amodra/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/amodra/subscriptions",
+    "organizations_url": "https://api.github.com/users/amodra/orgs",
+    "repos_url": "https://api.github.com/users/amodra/repos",
+    "events_url": "https://api.github.com/users/amodra/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/amodra/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "34c54daa337da9fadf87d2706d6a590ae1f88f4d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/34c54daa337da9fadf87d2706d6a590ae1f88f4d",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/34c54daa337da9fadf87d2706d6a590ae1f88f4d"
+    }
+  ],
+  "stats": {
+    "total": 47,
+    "additions": 26,
+    "deletions": 21
+  },
+  "files": [
+    {
+      "sha": "6f4946b36aa9ef3fd6d1bdc111c4611d68aae722",
+      "filename": "binutils/ChangeLog",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9039747fb4863c13eaf07f84bb28d50660fb8d85/binutils/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9039747fb4863c13eaf07f84bb28d50660fb8d85/binutils/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/ChangeLog?ref=9039747fb4863c13eaf07f84bb28d50660fb8d85",
+      "patch": "@@ -1,3 +1,16 @@\n+2021-07-10  Alan Modra  <amodra@gmail.com>\n+\n+\tPR 28069\n+\t* dwarf.c (display_discr_list): Remove assertions.  Delete \"end\"\n+\tparameter, use initial \"data\" pointer as the end.  Formatting.\n+\tDon't count down bytes as they are read.\n+\t(read_and_display_attr_value): Adjust display_discr_list call.\n+\t(read_and_print_leb128): Don't pass __FILE__ and __LINE__ to\n+\treport_leb_status.\n+\t* dwarf.h (report_leb_status): Don't report file and line\n+\tnumbers.  Delete file and lnum parameters,\n+\t(READ_ULEB, READ_SLEB): Adjust.\n+\n 2021-07-07  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>\n \n \t* configure.ac: Check for strnlen declaration."
+    },
+    {
+      "sha": "fbd5d6aea5a4019ecf48e17f1fb55563cd6ef370",
+      "filename": "binutils/dwarf.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 16,
+      "changes": 24,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9039747fb4863c13eaf07f84bb28d50660fb8d85/binutils/dwarf.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9039747fb4863c13eaf07f84bb28d50660fb8d85/binutils/dwarf.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/dwarf.c?ref=9039747fb4863c13eaf07f84bb28d50660fb8d85",
+      "patch": "@@ -2280,7 +2280,7 @@ read_and_print_leb128 (unsigned char *data,\n   int status;\n   dwarf_vma val = read_leb128 (data, end, is_signed, bytes_read, &status);\n   if (status != 0)\n-    report_leb_status (status, __FILE__, __LINE__);\n+    report_leb_status (status);\n   else\n     printf (\"%s\", dwarf_vmatoa (is_signed ? \"d\" : \"u\", val));\n }\n@@ -2289,9 +2289,10 @@ static void\n display_discr_list (unsigned long          form,\n \t\t    dwarf_vma              uvalue,\n \t\t    unsigned char *        data,\n-\t\t    unsigned const char *  end,\n \t\t    int                    level)\n {\n+  unsigned char *end = data;\n+\n   if (uvalue == 0)\n     {\n       printf (\"[default]\");\n@@ -2320,41 +2321,32 @@ display_discr_list (unsigned long          form,\n       return;\n     }\n \n-  bool is_signed =\n-    (level > 0 && level <= MAX_CU_NESTING)\n-    ? level_type_signed [level - 1] : false;\n+  bool is_signed = (level > 0 && level <= MAX_CU_NESTING\n+\t\t    ? level_type_signed [level - 1] : false);\n \n   printf (\"(\");\n-  while (uvalue)\n+  while (data < end)\n     {\n       unsigned char     discriminant;\n       unsigned int      bytes_read;\n \n       SAFE_BYTE_GET_AND_INC (discriminant, data, 1, end);\n-      -- uvalue;\n \n-      assert (uvalue > 0);\n       switch (discriminant)\n \t{\n \tcase DW_DSC_label:\n \t  printf (\"label \");\n \t  read_and_print_leb128 (data, & bytes_read, end, is_signed);\n-\t  assert (bytes_read <= uvalue && bytes_read > 0);\n-\t  uvalue -= bytes_read;\n \t  data += bytes_read;\n \t  break;\n \n \tcase DW_DSC_range:\n \t  printf (\"range \");\n \t  read_and_print_leb128 (data, & bytes_read, end, is_signed);\n-\t  assert (bytes_read <= uvalue && bytes_read > 0);\n-\t  uvalue -= bytes_read;\n \t  data += bytes_read;\n \n \t  printf (\"..\");\n \t  read_and_print_leb128 (data, & bytes_read, end, is_signed);\n-\t  assert (bytes_read <= uvalue && bytes_read > 0);\n-\t  uvalue -= bytes_read;\n \t  data += bytes_read;\n \t  break;\n \n@@ -2365,7 +2357,7 @@ display_discr_list (unsigned long          form,\n \t  return;\n \t}\n \n-      if (uvalue)\n+      if (data < end)\n \tprintf (\", \");\n     }\n \n@@ -3230,7 +3222,7 @@ read_and_display_attr_value (unsigned long           attribute,\n \n     case DW_AT_discr_list:\n       printf (\"\\t\");\n-      display_discr_list (form, uvalue, data, end, level);\n+      display_discr_list (form, uvalue, data, level);\n       break;\n \n     case DW_AT_frame_base:"
+    },
+    {
+      "sha": "887b720f632b4220c36c5b40ea5ff0bffbe617dc",
+      "filename": "binutils/dwarf.h",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 5,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9039747fb4863c13eaf07f84bb28d50660fb8d85/binutils/dwarf.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9039747fb4863c13eaf07f84bb28d50660fb8d85/binutils/dwarf.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/dwarf.h?ref=9039747fb4863c13eaf07f84bb28d50660fb8d85",
+      "patch": "@@ -264,12 +264,12 @@ extern unsigned char * get_build_id (void *);\n #endif\n \n static inline void\n-report_leb_status (int status, const char *file, unsigned long lnum)\n+report_leb_status (int status)\n {\n   if ((status & 1) != 0)\n-    error (_(\"%s:%lu: end of data encountered whilst reading LEB\\n\"), file, lnum);\n+    error (_(\"end of data encountered whilst reading LEB\\n\"));\n   else if ((status & 2) != 0)\n-    error (_(\"%s:%lu: read LEB value is too large to store in destination variable\\n\"), file, lnum);\n+    error (_(\"read LEB value is too large to store in destination variable\\n\"));\n }\n \n #define SKIP_ULEB(start, end)\t\t\t\t\t\\\n@@ -302,7 +302,7 @@ report_leb_status (int status, const char *file, unsigned long lnum)\n       (var) = _val;\t\t\t\t\t\t\\\n       if ((var) != _val)\t\t\t\t\t\\\n \t_status |= 2;\t\t\t\t\t\t\\\n-      report_leb_status (_status, __FILE__, __LINE__);\t\t\\\n+      report_leb_status (_status);\t\t\t\t\\\n     }\t\t\t\t\t\t\t\t\\\n   while (0)\n \n@@ -318,6 +318,6 @@ report_leb_status (int status, const char *file, unsigned long lnum)\n       (var) = _val;\t\t\t\t\t\t\\\n       if ((var) != _val)\t\t\t\t\t\\\n \t_status |= 2;\t\t\t\t\t\t\\\n-      report_leb_status (_status, __FILE__, __LINE__);\t\t\\\n+      report_leb_status (_status);\t\t\t\t\\\n     }\t\t\t\t\t\t\t\t\\\n   while (0)"
+    }
+  ]
+}

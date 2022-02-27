@@ -1,0 +1,146 @@
+{
+  "sha": "cada5fc921e39a1945c422eea055c8b326d8d353",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6Y2FkYTVmYzkyMWUzOWExOTQ1YzQyMmVlYTA1NWM4YjMyNmQ4ZDM1Mw==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-03-11T12:30:13Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-03-19T11:16:53Z"
+    },
+    "message": "gdb: Handle W and X remote packets without giving a warning\n\nIn this commit:\n\n  commit 24ed6739b699f329c2c45aedee5f8c7d2f54e493\n  Date:   Thu Jan 30 14:35:40 2020 +0000\n\n      gdb/remote: Restore support for 'S' stop reply packet\n\nA regression was introduced such that the W and X packets would give a\nwarning in some cases.  The warning was:\n\n  warning: multi-threaded target stopped without sending a thread-id, using first non-exited thread\n\nThis problem would arise when:\n\n  1. The multi-process extensions to the remote protocol were not\n  being used, and\n\n  2. The inferior has multiple threads.\n\nIn this case when the W (or X) packet arrives the ptid of the\nstop_reply is set to null_ptid, then when we arrive in\nprocess_stop_reply GDB spots that we have multiple non-exited theads,\nbut the stop event didn't specify a thread-id.\n\nThe problem with this is that the W (and X) packets are actually\nprocess wide events, they apply to all threads.  So not specifying a\nthread-id is not a problem, in fact, the best these packets allow is\nfor the remote to specify a process-id, not a thread-id.\n\nIf we look at how the W (and X) packets deal with a specified\nprocess-id, then what happens is GDB sets to stop_reply ptid to a\nvalue which indicates all threads in the process, this is done by\ncreating a value `ptid_t (pid)`, which sets the pid field of the\nptid_t, but leaves the tid field as 0, indicating all threads.\n\nSo, this commit does the same thing for the case where there is not\nprocess-id specified.  In process_stop_reply we not distinguish\nbetween stop events that apply to all threads, and those that apply to\nonly one.  If the stop event applies to only one thread then we treat\nit as before.  If, however, the stop event applies to all threads,\nthen we find the first non-exited thread, and use the pid from this\nthread to create a `ptid_t (pid)` value.\n\nIf the target has multiple inferiors, and receives a process wide\nevent without specifying a process-id GDB now gives this warning:\n\n  warning: multi-inferior target stopped without sending a process-id, using first non-exited inferior\n\ngdb/ChangeLog:\n\n\t* remote.c (remote_target::process_stop_reply): Handle events for\n\tall threads differently.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.server/exit-multiple-threads.c: New file.\n\t* gdb.server/exit-multiple-threads.exp: New file.",
+    "tree": {
+      "sha": "99e4d731b9a132f96adfad10705760e6ee20e01c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/99e4d731b9a132f96adfad10705760e6ee20e01c"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/cada5fc921e39a1945c422eea055c8b326d8d353",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cada5fc921e39a1945c422eea055c8b326d8d353",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/cada5fc921e39a1945c422eea055c8b326d8d353",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cada5fc921e39a1945c422eea055c8b326d8d353/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "6b8c53f2f1c0cf5bee46120d892d4c72571375eb",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6b8c53f2f1c0cf5bee46120d892d4c72571375eb",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/6b8c53f2f1c0cf5bee46120d892d4c72571375eb"
+    }
+  ],
+  "stats": {
+    "total": 394,
+    "additions": 384,
+    "deletions": 10
+  },
+  "files": [
+    {
+      "sha": "7f87eceaf70714773d576d922e2390a64a6c41f9",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cada5fc921e39a1945c422eea055c8b326d8d353/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cada5fc921e39a1945c422eea055c8b326d8d353/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=cada5fc921e39a1945c422eea055c8b326d8d353",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-03-19  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* remote.c (remote_target::process_stop_reply): Handle events for\n+\tall threads differently.\n+\n 2020-03-19  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* completer.c (completion_tracker::remove_completion): Define new"
+    },
+    {
+      "sha": "ce60fe400c592c16fec83b4ab058414fda465d63",
+      "filename": "gdb/remote.c",
+      "status": "modified",
+      "additions": 36,
+      "deletions": 10,
+      "changes": 46,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cada5fc921e39a1945c422eea055c8b326d8d353/gdb/remote.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cada5fc921e39a1945c422eea055c8b326d8d353/gdb/remote.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/remote.c?ref=cada5fc921e39a1945c422eea055c8b326d8d353",
+      "patch": "@@ -7668,28 +7668,54 @@ remote_target::process_stop_reply (struct stop_reply *stop_reply,\n      non-exited thread in the current target.  */\n   if (ptid == null_ptid)\n     {\n+      /* Some stop events apply to all threads in an inferior, while others\n+\t only apply to a single thread.  */\n+      bool is_stop_for_all_threads\n+\t= (status->kind == TARGET_WAITKIND_EXITED\n+\t   || status->kind == TARGET_WAITKIND_SIGNALLED);\n+\n       for (thread_info *thr : all_non_exited_threads (this))\n \t{\n-\t  if (ptid != null_ptid)\n+\t  if (ptid != null_ptid\n+\t      && (!is_stop_for_all_threads\n+\t\t  || ptid.pid () != thr->ptid.pid ()))\n \t    {\n \t      static bool warned = false;\n \n \t      if (!warned)\n \t\t{\n \t\t  /* If you are seeing this warning then the remote target\n-\t\t     has multiple threads and either sent an 'S' stop\n-\t\t     packet, or a 'T' stop packet without a thread-id.  In\n-\t\t     both of these cases GDB is unable to know which thread\n-\t\t     just stopped and is now having to guess.  The correct\n-\t\t     action is to fix the remote target to send the correct\n-\t\t     packet (a 'T' packet and include a thread-id).  */\n-\t\t  warning (_(\"multi-threaded target stopped without sending \"\n-\t\t\t     \"a thread-id, using first non-exited thread\"));\n+\t\t     has stopped without specifying a thread-id, but the\n+\t\t     target does have multiple threads (or inferiors), and\n+\t\t     so GDB is having to guess which thread stopped.\n+\n+\t\t     Examples of what might cause this are the target\n+\t\t     sending and 'S' stop packet, or a 'T' stop packet and\n+\t\t     not including a thread-id.\n+\n+\t\t     Additionally, the target might send a 'W' or 'X\n+\t\t     packet without including a process-id, when the target\n+\t\t     has multiple running inferiors.  */\n+\t\t  if (is_stop_for_all_threads)\n+\t\t    warning (_(\"multi-inferior target stopped without \"\n+\t\t\t       \"sending a process-id, using first \"\n+\t\t\t       \"non-exited inferior\"));\n+\t\t  else\n+\t\t    warning (_(\"multi-threaded target stopped without \"\n+\t\t\t       \"sending a thread-id, using first \"\n+\t\t\t       \"non-exited thread\"));\n \t\t  warned = true;\n \t\t}\n \t      break;\n \t    }\n-\t  ptid = thr->ptid;\n+\n+\t  /* If this is a stop for all threads then don't use a particular\n+\t     threads ptid, instead create a new ptid where only the pid\n+\t     field is set.  */\n+\t  if (is_stop_for_all_threads)\n+\t    ptid = ptid_t (thr->ptid.pid ());\n+\t  else\n+\t    ptid = thr->ptid;\n \t}\n       gdb_assert (ptid != null_ptid);\n     }"
+    },
+    {
+      "sha": "cb65ffa784c77f173c9da67f759824dfe7e0a529",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cada5fc921e39a1945c422eea055c8b326d8d353/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cada5fc921e39a1945c422eea055c8b326d8d353/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=cada5fc921e39a1945c422eea055c8b326d8d353",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-03-19  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.server/exit-multiple-threads.c: New file.\n+\t* gdb.server/exit-multiple-threads.exp: New file.\n+\n 2020-03-19  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.fortran/mixed-lang-stack.c: New file."
+    },
+    {
+      "sha": "81be8418433fab9f2f2e43ab2ac163c71e6e1848",
+      "filename": "gdb/testsuite/gdb.server/exit-multiple-threads.c",
+      "status": "added",
+      "additions": 202,
+      "deletions": 0,
+      "changes": 202,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cada5fc921e39a1945c422eea055c8b326d8d353/gdb/testsuite/gdb.server/exit-multiple-threads.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cada5fc921e39a1945c422eea055c8b326d8d353/gdb/testsuite/gdb.server/exit-multiple-threads.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.server/exit-multiple-threads.c?ref=cada5fc921e39a1945c422eea055c8b326d8d353",
+      "patch": "@@ -0,0 +1,202 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#include <pthread.h>\n+#include <sys/types.h>\n+#include <stdio.h>\n+#include <unistd.h>\n+#include <stdlib.h>\n+#include <pthread.h>\n+\n+/* The number of threads to create.  */\n+int thread_count = 3;\n+\n+/* Counter accessed from threads to ensure that all threads have been\n+   started.  Is initialised to THREAD_COUNT and each thread decrements it\n+   upon startup.  */\n+volatile int counter;\n+\n+/* Lock guarding COUNTER. */\n+pthread_mutex_t counter_mutex = PTHREAD_MUTEX_INITIALIZER;\n+\n+/* Is initialised with our pid, GDB will read this.  */\n+pid_t global_pid;\n+\n+/* Just somewhere to put a breakpoint.  */\n+static void\n+breakpt ()\n+{\n+  /* Nothing.  */\n+}\n+\n+/* Thread safe decrement of the COUNTER global.  */\n+static void\n+decrement_counter ()\n+{\n+  if (pthread_mutex_lock (&counter_mutex) != 0)\n+    abort ();\n+  --counter;\n+  if (pthread_mutex_unlock (&counter_mutex) != 0)\n+    abort ();\n+}\n+\n+/* Thread safe read of the COUNTER global.  */\n+static int\n+read_counter ()\n+{\n+  int val;\n+\n+  if (pthread_mutex_lock (&counter_mutex) != 0)\n+    abort ();\n+  val = counter;\n+  if (pthread_mutex_unlock (&counter_mutex) != 0)\n+    abort ();\n+\n+  return val;\n+}\n+\n+#if defined DO_EXIT_TEST\n+\n+/* Thread entry point.  ARG is a pointer to a single integer, the ID for\n+   this thread numbered 1 to THREAD_COUNT (a global).  */\n+static void *\n+thread_worker_exiting (void *arg)\n+{\n+  int id;\n+\n+  id = *((int *) arg);\n+\n+  decrement_counter ();\n+\n+  if (id != thread_count)\n+    {\n+      int i;\n+\n+      /* All threads except the last one will wait here while the test is\n+\t carried out.  Don't wait forever though, just in case the test\n+\t goes wrong.  */\n+      for (i = 0; i < 60; ++i)\n+\tsleep (1);\n+    }\n+  else\n+    {\n+      /* The last thread waits here until all other threads have been\n+\t created.  */\n+      while (read_counter () > 0)\n+\tsleep (1);\n+\n+      /* Hit the breakpoint so GDB can stop.  */\n+      breakpt ();\n+\n+      /* And exit all threads.  */\n+      exit (0);\n+    }\n+\n+  return NULL;\n+}\n+\n+#define thread_worker thread_worker_exiting\n+\n+#elif defined DO_SIGNAL_TEST\n+\n+/* Thread entry point.  ARG is a pointer to a single integer, the ID for\n+   this thread numbered 1 to THREAD_COUNT (a global).  */\n+static void *\n+thread_worker_signalling (void *arg)\n+{\n+  int i, id;\n+\n+  id = *((int *) arg);\n+\n+  decrement_counter ();\n+\n+  if (id == thread_count)\n+    {\n+      /* The last thread waits here until all other threads have been\n+\t created.  */\n+      while (read_counter () > 0)\n+\tsleep (1);\n+\n+      /* Hit the breakpoint so GDB can stop.  */\n+      breakpt ();\n+    }\n+\n+  /* All threads wait here while the testsuite sends us a signal.  Don't\n+     block forever though, just in case the test goes wrong.  */\n+  for (i = 0; i < 60; ++i)\n+    sleep (1);\n+\n+  return NULL;\n+}\n+\n+#define thread_worker thread_worker_signalling\n+\n+#else\n+\n+#error \"Compile with DO_EXIT_TEST or DO_SIGNAL_TEST defined\"\n+\n+#endif\n+\n+struct thread_info\n+{\n+  pthread_t thread;\n+  int id;\n+};\n+\n+int\n+main ()\n+{\n+  int i, max = thread_count;\n+\n+  /* Put the pid somewhere easy for GDB to read.  */\n+  global_pid = getpid ();\n+\n+  /* Space to hold all of the thread_info objects.  */\n+  struct thread_info *info = malloc (sizeof (struct thread_info) * max);\n+  if (info == NULL)\n+    abort ();\n+\n+  /* Initialise the counter.  Don't do this under lock as we only have the\n+     main thread at this point.  */\n+  counter = thread_count;\n+\n+  /* Create all of the threads.  */\n+  for (i = 0; i < max; ++i)\n+    {\n+      struct thread_info *thr = &info[i];\n+      thr->id = i + 1;\n+      if (pthread_create (&thr->thread, NULL, thread_worker, &thr->id) != 0)\n+\tabort ();\n+    }\n+\n+  /* Gather in all of the threads.  This never completes, as the\n+     final thread created will exit the process, and all of the other\n+     threads block forever.  Still, it gives the main thread something to\n+     do.  */\n+  for (i = 0; i < max; ++i)\n+    {\n+      struct thread_info *thr = &info[i];\n+      if (pthread_join (thr->thread, NULL) != 0)\n+\tabort ();\n+    }\n+\n+  free (info);\n+\n+  /* Return non-zero.  We should never get here, but if we do make sure we\n+     indicate something has gone wrong.  */\n+  return 1;\n+}"
+    },
+    {
+      "sha": "aede2f799d93433d6b441d34b6e96ca7c93b93e0",
+      "filename": "gdb/testsuite/gdb.server/exit-multiple-threads.exp",
+      "status": "added",
+      "additions": 136,
+      "deletions": 0,
+      "changes": 136,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cada5fc921e39a1945c422eea055c8b326d8d353/gdb/testsuite/gdb.server/exit-multiple-threads.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cada5fc921e39a1945c422eea055c8b326d8d353/gdb/testsuite/gdb.server/exit-multiple-threads.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.server/exit-multiple-threads.exp?ref=cada5fc921e39a1945c422eea055c8b326d8d353",
+      "patch": "@@ -0,0 +1,136 @@\n+# This testcase is part of GDB, the GNU debugger.\n+#\n+# Copyright 2020 Free Software Foundation, Inc.\n+#\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test that GDB can handle receiving the W and X packets for a target\n+# with multiple threads, but only a single inferior.\n+#\n+# Specifically, check GDB handles this case where multi-process\n+# extensions are turned off.  At one point this was causing GDB to\n+# give a warning when the exit arrived that the remote needed to\n+# include a thread-id, which was not correct.\n+\n+load_lib gdbserver-support.exp\n+\n+if { [skip_gdbserver_tests] } {\n+    verbose \"skipping gdbserver tests\"\n+    return -1\n+}\n+\n+standard_testfile\n+\n+# Start up GDB and GDBserver debugging EXECUTABLE.  When\n+# DISABLE_MULTI_PROCESS is true then disable GDB's remote\n+# multi-process support, otherwise, leave it enabled.\n+#\n+# Places a breakpoint in function 'breakpt' and then continues to the\n+# breakpoint, at which point it runs 'info threads'.\n+proc prepare_for_test { executable disable_multi_process } {\n+    clean_restart ${executable}\n+\n+    # Make sure we're disconnected, in case we're testing with an\n+    # extended-remote board, therefore already connected.\n+    gdb_test \"disconnect\" \".*\"\n+\n+    # Disable XML-based thread listing, and possible the multi-process\n+    # extensions.\n+    gdb_test_no_output \"set remote threads-packet off\"\n+    if { $disable_multi_process } {\n+\tgdb_test_no_output \"set remote multiprocess-feature-packet off\"\n+    }\n+\n+    # Start gdbserver and connect.\n+    set res [gdbserver_start \"\" $executable]\n+    set gdbserver_protocol [lindex $res 0]\n+    set gdbserver_gdbport [lindex $res 1]\n+    set res [gdb_target_cmd $gdbserver_protocol $gdbserver_gdbport]\n+    if ![gdb_assert {$res == 0} \"connect\"] {\n+\treturn\n+    }\n+\n+    # Run until we hit the breakpt function, then list all threads.\n+    gdb_breakpoint \"breakpt\"\n+    gdb_continue_to_breakpoint \"breakpt\"\n+    gdb_test \"info threads\" \".*\"\n+}\n+\n+# Run the tests where the inferior exits normally (the W packet) while\n+# we have multiple-threads.  EXECUTABLE is the binary under test, and\n+# DISABLE_MULTI_PROCESS indicates if we should disable GDB's remote\n+# multi-process support.\n+proc run_exit_test { executable disable_multi_process } {\n+    global decimal\n+\n+    prepare_for_test ${executable} ${disable_multi_process}\n+\n+    # Finally, continue until the process exits, ensure we don't see\n+    # any warnings between \"Continuing.\" and the final process has\n+    # exited message.\n+    if { $disable_multi_process } {\n+\tset process_pattern \"Remote target\"\n+    } else {\n+\tset process_pattern \"process $decimal\"\n+    }\n+    gdb_test \"continue\" \\\n+\t[multi_line \\\n+\t     \"Continuing\\\\.\" \\\n+\t     \"\\\\\\[Inferior $decimal \\\\\\(${process_pattern}\\\\\\) exited normally\\\\\\]\" ] \\\n+\t\"continue until process exits\"\n+}\n+\n+# Run the tests where the inferior exits with a signal (the X packet)\n+# while we have multiple-threads.  EXECUTABLE is the binary under\n+# test, and DISABLE_MULTI_PROCESS indicates if we should disable GDB's\n+# remote multi-process support.\n+proc run_signal_test { executable disable_multi_process } {\n+    global decimal gdb_prompt\n+\n+    prepare_for_test ${executable} ${disable_multi_process}\n+\n+    set inf_pid [get_valueof \"/d\" \"global_pid\" \"unknown\"]\n+    gdb_assert ![string eq ${inf_pid} \"unknown\"] \"read the pid\"\n+\n+    # This sets the inferior running again, with all threads going\n+    # into a long delay loop.\n+    send_gdb \"continue\\n\"\n+\n+    # Send the inferior a signal to kill it.\n+    sleep 1\n+    remote_exec target \"kill -9 ${inf_pid}\"\n+\n+    # Process the output from GDB.\n+    gdb_test_multiple \"\" \"inferior exited with signal\" {\n+\t-re \"Continuing\\\\.\\r\\n\\r\\nProgram terminated with signal SIGKILL, Killed.\\r\\nThe program no longer exists.\\r\\n$gdb_prompt $\" {\n+\t    pass $gdb_test_name\n+\t}\n+    }\n+}\n+\n+# Run all of the tests.\n+foreach_with_prefix test { exit signal } {\n+    set def \"DO_[string toupper $test]_TEST\"\n+    set func \"run_${test}_test\"\n+\n+    set executable \"$binfile-${test}\"\n+    if [prepare_for_testing \"failed to prepare\" $executable $srcfile \\\n+\t    [list debug pthreads additional_flags=-D${def}]] {\n+\treturn -1\n+    }\n+\n+    foreach_with_prefix multi_process { 0 1 } {\n+\t$func ${executable} ${multi_process}\n+    }\n+}"
+    }
+  ]
+}

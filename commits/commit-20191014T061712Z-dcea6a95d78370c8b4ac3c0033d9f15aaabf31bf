@@ -1,0 +1,146 @@
+{
+  "sha": "dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZGNlYTZhOTVkNzgzNzBjOGI0YWMzYzAwMzNkOWYxNWFhYWJmMzFiZg==",
+  "commit": {
+    "author": {
+      "name": "Alan Modra",
+      "email": "amodra@gmail.com",
+      "date": "2019-10-14T03:05:21Z"
+    },
+    "committer": {
+      "name": "Alan Modra",
+      "email": "amodra@gmail.com",
+      "date": "2019-10-14T06:17:12Z"
+    },
+    "message": "qsort issues\n\nqsort isn't guaranteed to be a stable sort, that is, elements\ncomparing equal according to the comparison function may be reordered\nrelative to their original ordering.  Of course sometimes you may not\ncare, but even in those cases it is good to force some ordering\n(ie. not have the comparison function return 0) so that linker output\nis reproducible over different libc qsort implementations.\n\nOne way to make qsort stable (which the glibc manual incorrectly says\nis the only way) is to augment the elements being sorted with a\nmonotonic counter of some kind, and use that counter as the final\narbiter of ordering in the comparison function.\n\nAnother way is to set up an array of pointers into the array of\nelements, first pointer to first element, second pointer to second\nelement and so so, and sort the pointer array rather than the element\narray.  Final arbiter in the comparison function then is the pointer\ndifference.  This works well with, for example, the symbol pointers\nreturned by _bfd_elf_canonicalize_symtab which point into a symbol\narray.\n\nThis patch fixes a few places where sorting by symbol pointers is\nappropriate, and adds comments where qsort stability is a non-issue.\n\n\t* elf-strtab.c (strrevcmp): Comment.\n\t* merge.c (strrevcmp): Likewise.\n\t* elf64-ppc.c (compare_symbols): Correct final pointer comparison.\n\tComment on why comparing pointers ensures a stable sort.\n\t* elflink.c (struct elf_symbol): Add void* to union.\n\t(elf_sort_elf_symbol): Ensure a stable sort with pointer comparison.\n\t(elf_sym_name_compare): Likewise.\n\t(bfd_elf_match_symbols_in_sections): Style fix.\n\t(elf_link_sort_cmp1): Comment.",
+    "tree": {
+      "sha": "eb0093b4b0be719e02bebfd55874c649e32a8438",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/eb0093b4b0be719e02bebfd55874c649e32a8438"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf/comments",
+  "author": {
+    "login": "amodra",
+    "id": 6006325,
+    "node_id": "MDQ6VXNlcjYwMDYzMjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6006325?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/amodra",
+    "html_url": "https://github.com/amodra",
+    "followers_url": "https://api.github.com/users/amodra/followers",
+    "following_url": "https://api.github.com/users/amodra/following{/other_user}",
+    "gists_url": "https://api.github.com/users/amodra/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/amodra/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/amodra/subscriptions",
+    "organizations_url": "https://api.github.com/users/amodra/orgs",
+    "repos_url": "https://api.github.com/users/amodra/repos",
+    "events_url": "https://api.github.com/users/amodra/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/amodra/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "amodra",
+    "id": 6006325,
+    "node_id": "MDQ6VXNlcjYwMDYzMjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6006325?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/amodra",
+    "html_url": "https://github.com/amodra",
+    "followers_url": "https://api.github.com/users/amodra/followers",
+    "following_url": "https://api.github.com/users/amodra/following{/other_user}",
+    "gists_url": "https://api.github.com/users/amodra/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/amodra/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/amodra/subscriptions",
+    "organizations_url": "https://api.github.com/users/amodra/orgs",
+    "repos_url": "https://api.github.com/users/amodra/repos",
+    "events_url": "https://api.github.com/users/amodra/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/amodra/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "ec9bd0a22dd42327ae9943937a96f1e865fb5d46",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ec9bd0a22dd42327ae9943937a96f1e865fb5d46",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/ec9bd0a22dd42327ae9943937a96f1e865fb5d46"
+    }
+  ],
+  "stats": {
+    "total": 68,
+    "additions": 60,
+    "deletions": 8
+  },
+  "files": [
+    {
+      "sha": "8d4404ebf1b2ee607cbd7a746996397d9001336d",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf",
+      "patch": "@@ -1,3 +1,15 @@\n+2019-10-14  Alan Modra  <amodra@gmail.com>\n+\n+\t* elf-strtab.c (strrevcmp): Comment.\n+\t* merge.c (strrevcmp): Likewise.\n+\t* elf64-ppc.c (compare_symbols): Correct final pointer comparison.\n+\tComment on why comparing pointers ensures a stable sort.\n+\t* elflink.c (struct elf_symbol): Add void* to union.\n+\t(elf_sort_elf_symbol): Ensure a stable sort with pointer comparison.\n+\t(elf_sym_name_compare): Likewise.\n+\t(bfd_elf_match_symbols_in_sections): Style fix.\n+\t(elf_link_sort_cmp1): Comment.\n+\n 2019-10-14  Alan Modra  <amodra@gmail.com>\n \n \tPR 24955"
+    },
+    {
+      "sha": "55e138a6319cb105a8a2482aa56bc72678201bf5",
+      "filename": "bfd/elf-strtab.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf/bfd/elf-strtab.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf/bfd/elf-strtab.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf-strtab.c?ref=dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf",
+      "patch": "@@ -334,7 +334,9 @@ _bfd_elf_strtab_emit (register bfd *abfd, struct elf_strtab_hash *tab)\n   return TRUE;\n }\n \n-/* Compare two elf_strtab_hash_entry structures.  Called via qsort.  */\n+/* Compare two elf_strtab_hash_entry structures.  Called via qsort.\n+   Won't ever return zero as all entries differ, so there is no issue\n+   with qsort stability here.  */\n \n static int\n strrevcmp (const void *a, const void *b)"
+    },
+    {
+      "sha": "2731e78618dd6110cbd9401c31cc0adb9300a4a0",
+      "filename": "bfd/elf64-ppc.c",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 1,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf/bfd/elf64-ppc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf/bfd/elf64-ppc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf64-ppc.c?ref=dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf",
+      "patch": "@@ -2101,7 +2101,17 @@ compare_symbols (const void *ap, const void *bp)\n   if ((a->flags & BSF_DYNAMIC) == 0 && (b->flags & BSF_DYNAMIC) != 0)\n     return 1;\n \n-  return a > b;\n+  /* Finally, sort on where the symbol is in memory.  The symbols will\n+     be in at most two malloc'd blocks, one for static syms, one for\n+     dynamic syms, and we distinguish the two blocks above by testing\n+     BSF_DYNAMIC.  Since we are sorting the symbol pointers which were\n+     originally in the same order as the symbols (and we're not\n+     sorting the symbols themselves), this ensures a stable sort.  */\n+  if (a < b)\n+    return -1;\n+  if (a > b)\n+    return 1;\n+  return 0;\n }\n \n /* Search SYMS for a symbol of the given VALUE.  */"
+    },
+    {
+      "sha": "9d8dcff9a398f407739a69453b02f89ea0927278",
+      "filename": "bfd/elflink.c",
+      "status": "modified",
+      "additions": 31,
+      "deletions": 6,
+      "changes": 37,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf/bfd/elflink.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf/bfd/elflink.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elflink.c?ref=dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf",
+      "patch": "@@ -7862,6 +7862,7 @@ struct elf_symbol\n     {\n       Elf_Internal_Sym *isym;\n       struct elf_symbuf_symbol *ssym;\n+      void *p;\n     } u;\n   const char *name;\n };\n@@ -7874,15 +7875,26 @@ elf_sort_elf_symbol (const void *arg1, const void *arg2)\n   const Elf_Internal_Sym *s1 = *(const Elf_Internal_Sym **) arg1;\n   const Elf_Internal_Sym *s2 = *(const Elf_Internal_Sym **) arg2;\n \n-  return s1->st_shndx - s2->st_shndx;\n+  if (s1->st_shndx != s2->st_shndx)\n+    return s1->st_shndx > s2->st_shndx ? 1 : -1;\n+  /* Final sort by the address of the sym in the symbuf ensures\n+     a stable sort.  */\n+  if (s1 != s2)\n+    return s1 > s2 ? 1 : -1;\n+  return 0;\n }\n \n static int\n elf_sym_name_compare (const void *arg1, const void *arg2)\n {\n   const struct elf_symbol *s1 = (const struct elf_symbol *) arg1;\n   const struct elf_symbol *s2 = (const struct elf_symbol *) arg2;\n-  return strcmp (s1->name, s2->name);\n+  int ret = strcmp (s1->name, s2->name);\n+  if (ret != 0)\n+    return ret;\n+  if (s1->u.p != s2->u.p)\n+    return s1->u.p > s2->u.p ? 1 : -1;\n+  return 0;\n }\n \n static struct elf_symbuf_head *\n@@ -8005,8 +8017,10 @@ bfd_elf_match_symbols_in_sections (asection *sec1, asection *sec2,\n \tgoto done;\n \n       if (!info->reduce_memory_overheads)\n-\telf_tdata (bfd1)->symbuf = ssymbuf1\n-\t  = elf_create_symbuf (symcount1, isymbuf1);\n+\t{\n+\t  ssymbuf1 = elf_create_symbuf (symcount1, isymbuf1);\n+\t  elf_tdata (bfd1)->symbuf = ssymbuf1;\n+\t}\n     }\n \n   if (ssymbuf1 == NULL || ssymbuf2 == NULL)\n@@ -8017,8 +8031,10 @@ bfd_elf_match_symbols_in_sections (asection *sec1, asection *sec2,\n \tgoto done;\n \n       if (ssymbuf1 != NULL && !info->reduce_memory_overheads)\n-\telf_tdata (bfd2)->symbuf = ssymbuf2\n-\t  = elf_create_symbuf (symcount2, isymbuf2);\n+\t{\n+\t  ssymbuf2 = elf_create_symbuf (symcount2, isymbuf2);\n+\t  elf_tdata (bfd2)->symbuf = ssymbuf2;\n+\t}\n     }\n \n   if (ssymbuf1 != NULL && ssymbuf2 != NULL)\n@@ -9060,6 +9076,15 @@ struct elf_link_sort_rela\n   Elf_Internal_Rela rela[1];\n };\n \n+/* qsort stability here and for cmp2 is only an issue if multiple\n+   dynamic relocations are emitted at the same address.  But targets\n+   that apply a series of dynamic relocations each operating on the\n+   result of the prior relocation can't use -z combreloc as\n+   implemented anyway.  Such schemes tend to be broken by sorting on\n+   symbol index.  That leaves dynamic NONE relocs as the only other\n+   case where ld might emit multiple relocs at the same address, and\n+   those are only emitted due to target bugs.  */\n+\n static int\n elf_link_sort_cmp1 (const void *A, const void *B)\n {"
+    },
+    {
+      "sha": "11be669c2c38057c546698cf18731c41b3c1efa3",
+      "filename": "bfd/merge.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf/bfd/merge.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf/bfd/merge.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/merge.c?ref=dcea6a95d78370c8b4ac3c0033d9f15aaabf31bf",
+      "patch": "@@ -555,6 +555,9 @@ record_section (struct sec_merge_info *sinfo,\n   return FALSE;\n }\n \n+/* qsort comparison function.  Won't ever return zero as all entries\n+   differ, so there is no issue with qsort stability here.  */\n+\n static int\n strrevcmp (const void *a, const void *b)\n {"
+    }
+  ]
+}

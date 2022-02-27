@@ -1,0 +1,72 @@
+{
+  "sha": "6ea815e78134babf819920845e537d2e2f2abbc1",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NmVhODE1ZTc4MTM0YmFiZjgxOTkyMDg0NWU1MzdkMmUyZjJhYmJjMQ==",
+  "commit": {
+    "author": {
+      "name": "Pedro Franco de Carvalho",
+      "email": "pedromfc@linux.ibm.com",
+      "date": "2020-08-14T18:41:14Z"
+    },
+    "committer": {
+      "name": "Pedro Franco de Carvalho",
+      "email": "pedromfc@linux.ibm.com",
+      "date": "2020-08-14T18:41:14Z"
+    },
+    "message": "[PowerPC] Always clear watchpoint with PTRACE_SET_DEBUGREG\n\nThis patches changes low_prepare_to_resume in the ppc linux native target\nto always clear the watchpoint when the old PTRACE_SET_DEBUGREG interface\nis used, even if another watchpoint GDB requested to the target is\nwritten right after using the same call.\n\nThe reason for this is that there were some older kernel versions for\nwhich overwriting a watchpoint with PTRACE_SET_DEBUGREG would not\nre-activate the watchpoint if it was previouly disabled following a hit.\nThis happened when the kernel was configured with CONFIG_HW_BREAKPOINT on\nand uses perf events to install watchpoints.\n\nPreviously, the ppc linux native target would immediately remove or\ninsert watchpoints following a request from the upper layers.  This was\nchanged in commit 227c0bf4b3dd0cf65dceb58e729e9da81b38b5a7 to fix other\nissues, which caused watchpoint requests to be applied to the inferior\nonly in low_prepare_to_resume, right before the inferior is resumed.\n\nUsually, but maybe not always, after a hit, GDB will remove the\nwatchpoint, resume the inferior for a single-step, possibly report the\nwatchpoint hit to the user, and then re-insert the watchpoint before the\ninferior is next resumed.  In this case there would be no problems, but\nsince I can't guarantee that there aren't other paths in GDB that allow\nthe user to set a new watchpoint after the first one hit, and after its\ndeletion by GDB, but before the inferior is resumed, there is a chance\nthat PTRACE_SET_DEBUGREG could be called directly without the watchpoint\nfirst having been cleared, which could cause a false negative with the\nolder kernel versions.\n\nThis issue would affect kernel versions starting from this commit:\n\n5aae8a53708025d4e718f0d2e7c2f766779ddc71\n\nUp to the fix in this commit:\n\na53fd61ac2f411745471c1c877d5e072fbbf0e5c\n\ngdb/ChangeLog:\n\n\tPR breakpoints/26385\n\t* ppc-linux-nat.c (ppc_linux_nat_target::low_prepare_to_resume):\n\tAlways clear watchpoint with PTRACE_SET_DEBUGREG.",
+    "tree": {
+      "sha": "fd22594375252e1655893e380148c5a3a68dd3ce",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/fd22594375252e1655893e380148c5a3a68dd3ce"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/6ea815e78134babf819920845e537d2e2f2abbc1",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6ea815e78134babf819920845e537d2e2f2abbc1",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/6ea815e78134babf819920845e537d2e2f2abbc1",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6ea815e78134babf819920845e537d2e2f2abbc1/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "6e562fa3ba95b5415b269410137c0ca3e620a08d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6e562fa3ba95b5415b269410137c0ca3e620a08d",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/6e562fa3ba95b5415b269410137c0ca3e620a08d"
+    }
+  ],
+  "stats": {
+    "total": 27,
+    "additions": 18,
+    "deletions": 9
+  },
+  "files": [
+    {
+      "sha": "5106b28523b8307b3440734834938a9d63fa7ac4",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6ea815e78134babf819920845e537d2e2f2abbc1/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6ea815e78134babf819920845e537d2e2f2abbc1/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=6ea815e78134babf819920845e537d2e2f2abbc1",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-08-14  Pedro Franco de Carvalho  <pedromfc@linux.ibm.com>\n+\n+\tPR breakpoints/26385\n+\t* ppc-linux-nat.c (ppc_linux_nat_target::low_prepare_to_resume):\n+\tAlways clear watchpoint with PTRACE_SET_DEBUGREG.\n+\n 2020-08-14  Pedro Franco de Carvalho  <pedromfc@linux.ibm.com>\n \n \t* ppc-linux-nat.c (ppc_linux_dreg_interface::detect)"
+    },
+    {
+      "sha": "5f823d7eeb3faf721317fadb650abc39c6ae7d63",
+      "filename": "gdb/ppc-linux-nat.c",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 9,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6ea815e78134babf819920845e537d2e2f2abbc1/gdb/ppc-linux-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6ea815e78134babf819920845e537d2e2f2abbc1/gdb/ppc-linux-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ppc-linux-nat.c?ref=6ea815e78134babf819920845e537d2e2f2abbc1",
+      "patch": "@@ -2909,20 +2909,23 @@ ppc_linux_nat_target::low_prepare_to_resume (struct lwp_info *lp)\n     {\n       gdb_assert (m_dreg_interface.debugreg_p ());\n \n-      /* Passing 0 to PTRACE_SET_DEBUGREG will clear the\n-\t watchpoint.  */\n-      long wp = 0;\n+      /* Passing 0 to PTRACE_SET_DEBUGREG will clear the watchpoint.  We\n+\t always clear the watchpoint instead of just overwriting it, in\n+\t case there is a request for a new watchpoint, because on some\n+\t older kernel versions and configurations simply overwriting the\n+\t watchpoint after it was hit would not re-enable it.  */\n+      if (ptrace (PTRACE_SET_DEBUGREG, lp->ptid.lwp (), 0, 0) < 0)\n+\tperror_with_name (_(\"Error clearing hardware watchpoint\"));\n \n       /* GDB requested a watchpoint to be installed.  */\n       if (process_it != m_process_info.end ()\n \t  && process_it->second.requested_wp_val.has_value ())\n-\twp = *(process_it->second.requested_wp_val);\n-\n-      long ret = ptrace (PTRACE_SET_DEBUGREG, lp->ptid.lwp (),\n-\t\t\t 0, wp);\n+\t{\n+\t  long wp = *(process_it->second.requested_wp_val);\n \n-      if (ret < 0)\n-\tperror_with_name (_(\"Error setting hardware watchpoint\"));\n+\t  if (ptrace (PTRACE_SET_DEBUGREG, lp->ptid.lwp (), 0, wp) < 0)\n+\t    perror_with_name (_(\"Error setting hardware watchpoint\"));\n+\t}\n     }\n \n   lp_arch_info->debug_regs_stale = false;"
+    }
+  ]
+}

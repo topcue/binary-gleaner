@@ -1,0 +1,182 @@
+{
+  "sha": "13221aec0d87c701c463d4fa54aa70096d0f43a7",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MTMyMjFhZWMwZDg3YzcwMWM0NjNkNGZhNTRhYTcwMDk2ZDBmNDNhNw==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-06-22T09:17:53Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-06-25T19:43:06Z"
+    },
+    "message": "gdb: replace NULL terminated array with array_view\n\nAfter the previous commit, this commit updates the value_struct_elt\nfunction to take an array_view rather than a NULL terminated array of\nvalues.\n\nThe requirement for a NULL terminated array of values actually stems\nfrom typecmp, so the change from an array to array_view needs to be\npropagated through to this function.\n\nWhile making this change I noticed that this fixes another bug, in\nvalue_x_binop and value_x_unop GDB creates an array of values which\ndoesn't have a NULL at the end.  An array_view of this array is passed\nto value_user_defined_op, which then unpacks the array_view and passed\nthe raw array to value_struct_elt, but only if the language is not\nC++.\n\nAs value_x_binop and value_x_unop can only request member functions\nwith the names of C++ operators, then most of the time, assuming the\ninferior is not a C++ program, then GDB will not find a matching\nmember function with the call to value_struct_elt, and so typecmp will\nnever be called, and so, GDB will avoid undefined behaviour.\n\nHowever, it is worth remembering that, when GDB's language is set to\n\"auto\", the current language is selected based on the language of the\ncurrent compilation unit.  As C++ programs usually link against libc,\nwhich is written in C, then, if the inferior is stopped in libc GDB\nwill set the language to C.  And so, it is possible that we will end\nup using value_struct_elt to try and lookup, and match, a C++\noperator.  If this occurs then GDB will experience undefined\nbehaviour.\n\nI have extended the test added in the previous commit to also cover\nthis case.\n\nFinally, this commit changes the API from passing around a pointer to\nan array to passing around a pointer to an array_view.  The reason for\nthis is that we need to be able to distinguish between the cases where\nwe call value_struct_elt with no arguments, i.e. we are looking up a\nstruct member, but we either don't have the arguments we want to pass\nyet, or we don't expect there to be any need for GDB to use the\nargument types to resolve any overloading; and the second case where\nwe call value_struct_elt looking for a function that takes no\narguments, that is, the argument list is empty.\n\nNOTE: While writing this I realise that if we pass an array_view at\nall then it will always have at least one item in it, the `this'\npointer for the object we are planning to call the method on.  So we\ncould, I guess, pass an empty array_view to indicate the case where we\ndon't know anything about the arguments, and when the array_view is\nlength 1 or more, it means we do have the arguments.  However, though\nwe could do this, I don't think this would be better, the length 0 vs\nlength 1 difference seems a little too subtle, I think that there's a\nbetter solution...\n\nI think a better solution would be to wrap the array_view in a\ngdb::optional, this would make the whole, do we have an array view or\nnot question explicit.\n\nI haven't done this as part of this commit as making that change is\nmuch more extensive, every user of value_struct_elt will need to be\nupdated, and as this commit already contains a bug fix, I wanted to\nkeep the large refactoring in a separate commit, so, check out the\nnext commit for the use of gdb::optional.\n\ngdb/ChangeLog:\n\n\tPR gdb/27994\n\t* eval.c (structop_base_operation::evaluate_funcall): Pass\n\tarray_view instead of array to value_struct_elt.\n\t* valarith.c (value_user_defined_op): Likewise.\n\t* valops.c (typecmp): Change parameter type from array pointer to\n\tarray_view.  Update header comment, and update body accordingly.\n\t(search_struct_method): Likewise.\n\t(value_struct_elt): Likewise.\n\t* value.h (value_struct_elt): Update declaration.\n\ngdb/testsuite/ChangeLog:\n\n\tPR gdb/27994\n\t* gdb.cp/method-call-in-c.cc (struct foo_type): Add operator+=,\n\tchange initial value of var member variable.\n\t(main): Make use of foo_type's operator+=.\n\t* gdb.cp/method-call-in-c.exp: Test use of operator+=.",
+    "tree": {
+      "sha": "8d97d0e424f8d083c7359eb860495424014b448f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/8d97d0e424f8d083c7359eb860495424014b448f"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/13221aec0d87c701c463d4fa54aa70096d0f43a7",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/13221aec0d87c701c463d4fa54aa70096d0f43a7",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/13221aec0d87c701c463d4fa54aa70096d0f43a7",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/13221aec0d87c701c463d4fa54aa70096d0f43a7/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "79bd4d34f0583f1c1cea60fa94986e222ade33b8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/79bd4d34f0583f1c1cea60fa94986e222ade33b8",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/79bd4d34f0583f1c1cea60fa94986e222ade33b8"
+    }
+  ],
+  "stats": {
+    "total": 115,
+    "additions": 70,
+    "deletions": 45
+  },
+  "files": [
+    {
+      "sha": "9396aadca9d43b0230fa6615c64eabc136d3304c",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/13221aec0d87c701c463d4fa54aa70096d0f43a7/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/13221aec0d87c701c463d4fa54aa70096d0f43a7/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=13221aec0d87c701c463d4fa54aa70096d0f43a7",
+      "patch": "@@ -1,3 +1,15 @@\n+2021-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\tPR gdb/27994\n+\t* eval.c (structop_base_operation::evaluate_funcall): Pass\n+\tarray_view instead of array to value_struct_elt.\n+\t* valarith.c (value_user_defined_op): Likewise.\n+\t* valops.c (typecmp): Change parameter type from array pointer to\n+\tarray_view.  Update header comment, and update body accordingly.\n+\t(search_struct_method): Likewise.\n+\t(value_struct_elt): Likewise.\n+\t* value.h (value_struct_elt): Update declaration.\n+\n 2021-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \tPR gdb/27994"
+    },
+    {
+      "sha": "5a72bf1becb215953ef6d159bfd945bbdf2b0c4d",
+      "filename": "gdb/eval.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 11,
+      "changes": 19,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/13221aec0d87c701c463d4fa54aa70096d0f43a7/gdb/eval.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/13221aec0d87c701c463d4fa54aa70096d0f43a7/gdb/eval.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/eval.c?ref=13221aec0d87c701c463d4fa54aa70096d0f43a7",
+      "patch": "@@ -872,9 +872,9 @@ structop_base_operation::evaluate_funcall\n      (struct type *expect_type, struct expression *exp, enum noside noside,\n       const std::vector<operation_up> &args)\n {\n-  /* Allocate space for the function call arguments.  Include space for a\n-     `this' pointer at the start, and a trailing nullptr.  */\n-  std::vector<value *> vals (args.size () + 2);\n+  /* Allocate space for the function call arguments, Including space for a\n+     `this' pointer at the start.  */\n+  std::vector<value *> vals (args.size () + 1);\n   /* First, evaluate the structure into vals[0].  */\n   enum exp_opcode op = opcode ();\n   if (op == STRUCTOP_STRUCT)\n@@ -920,16 +920,13 @@ structop_base_operation::evaluate_funcall\n \t}\n     }\n \n-  /* Evaluate the arguments, and add the trailing nullptr.  The '+ 1' here\n-     is to allow for the `this' pointer we placed into vals[0].  */\n+  /* Evaluate the arguments.  The '+ 1' here is to allow for the `this'\n+     pointer we placed into vals[0].  */\n   for (int i = 0; i < args.size (); ++i)\n     vals[i + 1] = args[i]->evaluate_with_coercion (exp, noside);\n-  vals[args.size () + 1] = nullptr;\n \n-  /* The array view includes the `this' pointer, but not the trailing\n-     nullptr.  */\n-  gdb::array_view<value *> arg_view\n-    = gdb::make_array_view (&vals[0], args.size () + 1);\n+  /* The array view includes the `this' pointer.  */\n+  gdb::array_view<value *> arg_view (vals);\n \n   int static_memfuncp;\n   value *callee;\n@@ -950,7 +947,7 @@ structop_base_operation::evaluate_funcall\n     {\n       struct value *temp = vals[0];\n \n-      callee = value_struct_elt (&temp, &vals[0], tstr,\n+      callee = value_struct_elt (&temp, &arg_view, tstr,\n \t\t\t\t &static_memfuncp,\n \t\t\t\t op == STRUCTOP_STRUCT\n \t\t\t\t ? \"structure\" : \"structure pointer\");"
+    },
+    {
+      "sha": "b155c71f7ce16fa856f4b061132dc94020a0feef",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/13221aec0d87c701c463d4fa54aa70096d0f43a7/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/13221aec0d87c701c463d4fa54aa70096d0f43a7/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=13221aec0d87c701c463d4fa54aa70096d0f43a7",
+      "patch": "@@ -1,3 +1,11 @@\n+2021-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\tPR gdb/27994\n+\t* gdb.cp/method-call-in-c.cc (struct foo_type): Add operator+=,\n+\tchange initial value of var member variable.\n+\t(main): Make use of foo_type's operator+=.\n+\t* gdb.cp/method-call-in-c.exp: Test use of operator+=.\n+\n 2021-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \tPR gdb/27994"
+    },
+    {
+      "sha": "95f3f3c22de2db656c3b68a5fbe3a19b7607b27b",
+      "filename": "gdb/testsuite/gdb.cp/method-call-in-c.cc",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 1,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/13221aec0d87c701c463d4fa54aa70096d0f43a7/gdb/testsuite/gdb.cp/method-call-in-c.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/13221aec0d87c701c463d4fa54aa70096d0f43a7/gdb/testsuite/gdb.cp/method-call-in-c.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.cp/method-call-in-c.cc?ref=13221aec0d87c701c463d4fa54aa70096d0f43a7",
+      "patch": "@@ -29,7 +29,13 @@ struct foo_type\n     return var++;\n   }\n \n-  int var = 123;\n+  foo_type &operator+= (const baz_type &rhs)\n+  {\n+    var += (rhs.a + rhs.b + rhs.c);\n+    return *this;\n+  }\n+\n+  int var = 120;\n };\n \n int\n@@ -40,5 +46,7 @@ main (void)\n \n   foo_type foo;\n \n+  foo += b;\n+\n   return foo.func (b, f);\t/* Break here.  */\n }"
+    },
+    {
+      "sha": "411ba6790b12bfb073abb631046b406e0d13dd6f",
+      "filename": "gdb/testsuite/gdb.cp/method-call-in-c.exp",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/13221aec0d87c701c463d4fa54aa70096d0f43a7/gdb/testsuite/gdb.cp/method-call-in-c.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/13221aec0d87c701c463d4fa54aa70096d0f43a7/gdb/testsuite/gdb.cp/method-call-in-c.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.cp/method-call-in-c.exp?ref=13221aec0d87c701c463d4fa54aa70096d0f43a7",
+      "patch": "@@ -39,5 +39,9 @@ foreach_with_prefix lang { c++ c } {\n \n \tgdb_test \"print foo.func (b, f)\" \" = ${result}\"\n \tincr result\n+\n+\tset result [expr $result + 3]\n+\tgdb_test \"print foo += b\" \\\n+\t    \" = \\\\((?:struct )?foo_type &\\\\) @${hex}: \\\\\\{var = ${result}\\\\\\}\"\n     }\n }"
+    },
+    {
+      "sha": "d61ad9170f819cb13754f29cb87af045c8ed814f",
+      "filename": "gdb/valarith.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/13221aec0d87c701c463d4fa54aa70096d0f43a7/gdb/valarith.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/13221aec0d87c701c463d4fa54aa70096d0f43a7/gdb/valarith.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/valarith.c?ref=13221aec0d87c701c463d4fa54aa70096d0f43a7",
+      "patch": "@@ -344,7 +344,7 @@ value_user_defined_op (struct value **argp, gdb::array_view<value *> args,\n \t\t\t\t\t  noside);\n     }\n   else\n-    result = value_struct_elt (argp, args.data (), name, static_memfuncp,\n+    result = value_struct_elt (argp, &args, name, static_memfuncp,\n \t\t\t       \"structure\");\n \n   return result;"
+    },
+    {
+      "sha": "0af7a6c3f27c18e892f76c252fe1c865b878fc5b",
+      "filename": "gdb/valops.c",
+      "status": "modified",
+      "additions": 27,
+      "deletions": 31,
+      "changes": 58,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/13221aec0d87c701c463d4fa54aa70096d0f43a7/gdb/valops.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/13221aec0d87c701c463d4fa54aa70096d0f43a7/gdb/valops.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/valops.c?ref=13221aec0d87c701c463d4fa54aa70096d0f43a7",
+      "patch": "@@ -44,14 +44,14 @@\n \n /* Local functions.  */\n \n-static int typecmp (int staticp, int varargs, int nargs,\n-\t\t    struct field t1[], struct value *t2[]);\n+static int typecmp (bool staticp, bool varargs, int nargs,\n+\t\t    struct field t1[], const gdb::array_view<value *> t2);\n \n static struct value *search_struct_field (const char *, struct value *, \n \t\t\t\t\t  struct type *, int);\n \n static struct value *search_struct_method (const char *, struct value **,\n-\t\t\t\t\t   struct value **,\n+\t\t\t\t\t   gdb::array_view<value *> *,\n \t\t\t\t\t   LONGEST, int *, struct type *);\n \n static int find_oload_champ_namespace (gdb::array_view<value *> args,\n@@ -1785,15 +1785,15 @@ value_string (const char *ptr, ssize_t len, struct type *char_type)\n }\n \n \f\n-/* See if we can pass arguments in T2 to a function which takes\n-   arguments of types T1.  T1 is a list of NARGS arguments, and T2 is\n-   a NULL-terminated vector.  If some arguments need coercion of some\n-   sort, then the coerced values are written into T2.  Return value is\n+/* See if we can pass arguments in T2 to a function which takes arguments\n+   of types T1.  T1 is a list of NARGS arguments, and T2 is an array_view\n+   of the values we're trying to pass.  If some arguments need coercion of\n+   some sort, then the coerced values are written into T2.  Return value is\n    0 if the arguments could be matched, or the position at which they\n    differ if not.\n \n    STATICP is nonzero if the T1 argument list came from a static\n-   member function.  T2 will still include the ``this'' pointer, but\n+   member function.  T2 must still include the ``this'' pointer, but\n    it will be skipped.\n \n    For non-static member functions, we ignore the first argument,\n@@ -1803,27 +1803,23 @@ value_string (const char *ptr, ssize_t len, struct type *char_type)\n    requested operation is type secure, shouldn't we?  FIXME.  */\n \n static int\n-typecmp (int staticp, int varargs, int nargs,\n-\t struct field t1[], struct value *t2[])\n+typecmp (bool staticp, bool varargs, int nargs,\n+\t struct field t1[], gdb::array_view<value *> t2)\n {\n   int i;\n \n-  if (t2 == 0)\n-    internal_error (__FILE__, __LINE__, \n-\t\t    _(\"typecmp: no argument list\"));\n-\n   /* Skip ``this'' argument if applicable.  T2 will always include\n      THIS.  */\n   if (staticp)\n-    t2 ++;\n+    t2 = t2.slice (1);\n \n   for (i = 0;\n        (i < nargs) && t1[i].type ()->code () != TYPE_CODE_VOID;\n        i++)\n     {\n       struct type *tt1, *tt2;\n \n-      if (!t2[i])\n+      if (i == t2.size ())\n \treturn i + 1;\n \n       tt1 = check_typedef (t1[i].type ());\n@@ -1868,7 +1864,7 @@ typecmp (int staticp, int varargs, int nargs,\n       if (t1[i].type ()->code () != value_type (t2[i])->code ())\n \treturn i + 1;\n     }\n-  if (varargs || t2[i] == NULL)\n+  if (varargs || i == t2.size ())\n     return 0;\n   return i + 1;\n }\n@@ -2181,16 +2177,16 @@ search_struct_field (const char *name, struct value *arg1,\n    ARG1 by OFFSET bytes, and search in it assuming it has (class) type\n    TYPE.\n \n-   The ARGS array is a list of argument values used to help finding NAME,\n-   though ARGS can be nullptr.  If ARGS is not nullptr then the list itself\n-   must have a NULL at the end.\n+   The ARGS array pointer is to a list of argument values used to help\n+   finding NAME, though ARGS can be nullptr.  The contents of ARGS can be\n+   adjusted if type coercion is required in order to find a matching NAME.\n \n    If found, return value, else if name matched and args not return\n    (value) -1, else return NULL.  */\n \n static struct value *\n search_struct_method (const char *name, struct value **arg1p,\n-\t\t      struct value **args, LONGEST offset,\n+\t\t      gdb::array_view<value *> *args, LONGEST offset,\n \t\t      int *static_memfuncp, struct type *type)\n {\n   int i;\n@@ -2209,10 +2205,10 @@ search_struct_method (const char *name, struct value **arg1p,\n \n \t  name_matched = 1;\n \t  check_stub_method_group (type, i);\n-\t  if (j > 0 && args == 0)\n+\t  if (j > 0 && args == nullptr)\n \t    error (_(\"cannot resolve overloaded method \"\n \t\t     \"`%s': no arguments supplied\"), name);\n-\t  else if (j == 0 && args == 0)\n+\t  else if (j == 0 && args == nullptr)\n \t    {\n \t      v = value_fn_field (arg1p, f, j, type, offset);\n \t      if (v != NULL)\n@@ -2221,10 +2217,11 @@ search_struct_method (const char *name, struct value **arg1p,\n \t  else\n \t    while (j >= 0)\n \t      {\n+\t\tgdb_assert (args != nullptr);\n \t\tif (!typecmp (TYPE_FN_FIELD_STATIC_P (f, j),\n \t\t\t      TYPE_FN_FIELD_TYPE (f, j)->has_varargs (),\n \t\t\t      TYPE_FN_FIELD_TYPE (f, j)->num_fields (),\n-\t\t\t      TYPE_FN_FIELD_ARGS (f, j), args))\n+\t\t\t      TYPE_FN_FIELD_ARGS (f, j), *args))\n \t\t  {\n \t\t    if (TYPE_FN_FIELD_VIRTUAL_P (f, j))\n \t\t      return value_virtual_fn_field (arg1p, f, j, \n@@ -2313,8 +2310,7 @@ search_struct_method (const char *name, struct value **arg1p,\n    ERR is used in the error message if *ARGP's type is wrong.\n \n    C++: ARGS is a list of argument types to aid in the selection of\n-   an appropriate method.  Also, handle derived types.  The array ARGS must\n-   have a NULL at the end.\n+   an appropriate method.  Also, handle derived types.\n \n    STATIC_MEMFUNCP, if non-NULL, points to a caller-supplied location\n    where the truthvalue of whether the function that was resolved was\n@@ -2324,7 +2320,7 @@ search_struct_method (const char *name, struct value **arg1p,\n    found.  */\n \n struct value *\n-value_struct_elt (struct value **argp, struct value **args,\n+value_struct_elt (struct value **argp, gdb::array_view<value *> *args,\n \t\t  const char *name, int *static_memfuncp, const char *err)\n {\n   struct type *t;\n@@ -2354,7 +2350,7 @@ value_struct_elt (struct value **argp, struct value **args,\n   if (static_memfuncp)\n     *static_memfuncp = 0;\n \n-  if (!args)\n+  if (args == nullptr)\n     {\n       /* if there are no arguments ...do this...  */\n \n@@ -2366,7 +2362,7 @@ value_struct_elt (struct value **argp, struct value **args,\n \n       /* C++: If it was not found as a data field, then try to\n \t return it as a pointer to a method.  */\n-      v = search_struct_method (name, argp, args, 0, \n+      v = search_struct_method (name, argp, args, 0,\n \t\t\t\tstatic_memfuncp, t);\n \n       if (v == (struct value *) - 1)\n@@ -2381,9 +2377,9 @@ value_struct_elt (struct value **argp, struct value **args,\n       return v;\n     }\n \n-  v = search_struct_method (name, argp, args, 0, \n+  v = search_struct_method (name, argp, args, 0,\n \t\t\t    static_memfuncp, t);\n-  \n+\n   if (v == (struct value *) - 1)\n     {\n       error (_(\"One of the arguments you tried to pass to %s could not \""
+    },
+    {
+      "sha": "40ad28e3dbb2787b921f35f9fc97f4e0672403b5",
+      "filename": "gdb/value.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/13221aec0d87c701c463d4fa54aa70096d0f43a7/gdb/value.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/13221aec0d87c701c463d4fa54aa70096d0f43a7/gdb/value.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/value.h?ref=13221aec0d87c701c463d4fa54aa70096d0f43a7",
+      "patch": "@@ -826,7 +826,7 @@ extern struct value *value_neg (struct value *arg1);\n extern struct value *value_complement (struct value *arg1);\n \n extern struct value *value_struct_elt (struct value **argp,\n-\t\t\t\t       struct value **args,\n+\t\t\t\t       gdb::array_view <value *> *args,\n \t\t\t\t       const char *name, int *static_memfuncp,\n \t\t\t\t       const char *err);\n "
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "sha": "b9f3fbc9f3453bcb24fece0c46acf581d13d3f64",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YjlmM2ZiYzlmMzQ1M2JjYjI0ZmVjZTBjNDZhY2Y1ODFkMTNkM2Y2NA==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-08-06T14:44:17Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-08-06T14:44:17Z"
+    },
+    "message": "[gdb/symtab] Fix zero address complaint for shlib\n\nIn PR28004 the following warning / Internal error is reported:\n...\n$ gdb -q -batch \\\n    -iex \"set sysroot $(pwd -P)/repro\" \\\n    ./repro/gdb \\\n    ./repro/core \\\n    -ex bt\n  ...\n Program terminated with signal SIGABRT, Aborted.\n #0  0x00007ff8fe8e5d22 in raise () from repro/usr/lib/libc.so.6\n [Current thread is 1 (LWP 1762498)]\n #1  0x00007ff8fe8cf862 in abort () from repro/usr/lib/libc.so.6\n warning: (Internal error: pc 0x7ff8feb2c21d in read in psymtab, \\\n           but not in symtab.)\n warning: (Internal error: pc 0x7ff8feb2c218 in read in psymtab, \\\n           but not in symtab.)\n  ...\n #2  0x00007ff8feb2c21e in __gnu_debug::_Error_formatter::_M_error() const \\\n   [clone .cold] (warning: (Internal error: pc 0x7ff8feb2c21d in read in \\\n   psymtab, but not in symtab.)\n\n) from repro/usr/lib/libstdc++.so.6\n...\n\nThe warning is about the following:\n- in find_pc_sect_compunit_symtab we try to find the address\n  (0x7ff8feb2c218 / 0x7ff8feb2c21d) in the symtabs.\n- that fails, so we try again in the partial symtabs.\n- we find a matching partial symtab\n- however, the partial symtab has a full symtab, so\n  we should have found a matching symtab in the first step.\n\nThe addresses are:\n...\n(gdb) info sym 0x7ff8feb2c218\n__gnu_debug::_Error_formatter::_M_error() const [clone .cold] in \\\n  section .text of repro/usr/lib/libstdc++.so.6\n(gdb) info sym 0x7ff8feb2c21d\n__gnu_debug::_Error_formatter::_M_error() const [clone .cold] + 5 in \\\n  section .text of repro/usr/lib/libstdc++.so.6\n...\nwhich correspond to unrelocated addresses 0x9c218 and 0x9c21d:\n...\n$ nm -C  repro/usr/lib/libstdc++.so.6.0.29 | grep 000000000009c218\n000000000009c218 t __gnu_debug::_Error_formatter::_M_error() const \\\n  [clone .cold]\n...\nwhich belong to function __gnu_debug::_Error_formatter::_M_error() in\n/build/gcc/src/gcc/libstdc++-v3/src/c++11/debug.cc.\n\nThe partial symtab that is found for the addresses is instead the one for\n/build/gcc/src/gcc/libstdc++-v3/src/c++98/bitmap_allocator.cc, which is\nincorrect.\n\nThis happens as follows.\n\nThe bitmap_allocator.cc CU has DW_AT_ranges at .debug_rnglist offset 0x4b50:\n...\n    00004b50 0000000000000000 0000000000000056\n    00004b5a 00000000000a4790 00000000000a479c\n    00004b64 00000000000a47a0 00000000000a47ac\n...\n\nWhen reading the first range 0x0..0x56, it doesn't trigger the \"start address\nof zero\" complaint here:\n...\n      /* A not-uncommon case of bad debug info.\n         Don't pollute the addrmap with bad data.  */\n      if (range_beginning + baseaddr == 0\n          && !per_objfile->per_bfd->has_section_at_zero)\n        {\n          complaint (_(\".debug_rnglists entry has start address of zero\"\n                       \" [in module %s]\"), objfile_name (objfile));\n          continue;\n        }\n...\nbecause baseaddr != 0, which seems incorrect given that when loading the\nshared library individually in gdb (and consequently baseaddr == 0), we do see\nthe complaint.\n\nConsequently, we run into this case in dwarf2_get_pc_bounds:\n...\n  if (low == 0 && !per_objfile->per_bfd->has_section_at_zero)\n    return PC_BOUNDS_INVALID;\n...\nwhich then results in this code in process_psymtab_comp_unit_reader being\ncalled with cu_bounds_kind == PC_BOUNDS_INVALID, which sets the set_addrmap\nargument to 1:\n...\n      scan_partial_symbols (first_die, &lowpc, &highpc,\n                            cu_bounds_kind <= PC_BOUNDS_INVALID, cu);\n...\nand consequently, the CU addrmap gets build using address info from the\nfunctions.\n\nDuring that process, addrmap_set_empty is called with a range that includes\n0x9c218 and 0x9c21d:\n...\n(gdb) p /x start\n$7 = 0x9989c\n(gdb) p /x end_inclusive\n$8 = 0xb200d\n...\nbut it's called for a function at DIE 0x54153 with DW_AT_ranges at 0x40ae:\n...\n    000040ae 00000000000b1ee0 00000000000b200e\n    000040b9 000000000009989c 00000000000998c4\n    000040c3 <End of list>\n...\nand neither range includes 0x9c218 and 0x9c21d.\n\nThis is caused by this code in partial_die_info::read:\n...\n            if (dwarf2_ranges_read (ranges_offset, &lowpc, &highpc, cu,\n                                    nullptr, tag))\n             has_pc_info = 1;\n...\nwhich pretends that the function is located at addresses 0x9989c..0xb200d,\nwhich is indeed not the case.\n\nThis patch fixes the first problem encountered: fix the \"start address of\nzero\" complaint warning by removing the baseaddr part from the condition.\nSame for dwarf2_ranges_process.\n\nThe effect is that:\n- the complaint is triggered, and\n- the warning / Internal error is no longer triggered.\n\nThis does not fix the observed problem in partial_die_info::read, which is\nfiled as PR28200.\n\nTested on x86_64-linux.\n\nCo-Authored-By: Simon Marchi <simon.marchi@polymtl.ca>\n\ngdb/ChangeLog:\n\n2021-07-29  Simon Marchi  <simon.marchi@polymtl.ca>\n\t    Tom de Vries  <tdevries@suse.de>\n\n\tPR symtab/28004\n\t* gdb/dwarf2/read.c (dwarf2_rnglists_process, dwarf2_ranges_process):\n\tFix zero address complaint.\n\t* gdb/testsuite/gdb.dwarf2/dw2-zero-range-shlib.c: New test.\n\t* gdb/testsuite/gdb.dwarf2/dw2-zero-range.c: New test.\n\t* gdb/testsuite/gdb.dwarf2/dw2-zero-range.exp: New file.",
+    "tree": {
+      "sha": "e17f7783b82f1dce2573218e9d6ac3e5ca7f6b49",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/e17f7783b82f1dce2573218e9d6ac3e5ca7f6b49"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/b9f3fbc9f3453bcb24fece0c46acf581d13d3f64",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b9f3fbc9f3453bcb24fece0c46acf581d13d3f64",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/b9f3fbc9f3453bcb24fece0c46acf581d13d3f64",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b9f3fbc9f3453bcb24fece0c46acf581d13d3f64/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "7fc8d4f48b47b7e0e3ad3288d200df3d9556ea83",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7fc8d4f48b47b7e0e3ad3288d200df3d9556ea83",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/7fc8d4f48b47b7e0e3ad3288d200df3d9556ea83"
+    }
+  ],
+  "stats": {
+    "total": 240,
+    "additions": 232,
+    "deletions": 8
+  },
+  "files": [
+    {
+      "sha": "bac02b5a1bdfdf94055ef541a3a6e58c432a5718",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 8,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b9f3fbc9f3453bcb24fece0c46acf581d13d3f64/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b9f3fbc9f3453bcb24fece0c46acf581d13d3f64/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=b9f3fbc9f3453bcb24fece0c46acf581d13d3f64",
+      "patch": "@@ -13631,7 +13631,6 @@ dwarf2_rnglists_process (unsigned offset, struct dwarf2_cu *cu,\n   /* Base address selection entry.  */\n   gdb::optional<CORE_ADDR> base;\n   const gdb_byte *buffer;\n-  CORE_ADDR baseaddr;\n   bool overflow = false;\n   ULONGEST addr_index;\n   struct dwarf2_section_info *rnglists_section;\n@@ -13648,8 +13647,6 @@ dwarf2_rnglists_process (unsigned offset, struct dwarf2_cu *cu,\n     }\n   buffer = rnglists_section->buffer + offset;\n \n-  baseaddr = objfile->text_section_offset ();\n-\n   while (1)\n     {\n       /* Initialize it due to a false compiler warning.  */\n@@ -13791,7 +13788,7 @@ dwarf2_rnglists_process (unsigned offset, struct dwarf2_cu *cu,\n \n       /* A not-uncommon case of bad debug info.\n \t Don't pollute the addrmap with bad data.  */\n-      if (range_beginning + baseaddr == 0\n+      if (range_beginning == 0\n \t  && !per_objfile->per_bfd->has_section_at_zero)\n \t{\n \t  complaint (_(\".debug_rnglists entry has start address of zero\"\n@@ -13833,7 +13830,6 @@ dwarf2_ranges_process (unsigned offset, struct dwarf2_cu *cu, dwarf_tag tag,\n   gdb::optional<CORE_ADDR> base;\n   unsigned int dummy;\n   const gdb_byte *buffer;\n-  CORE_ADDR baseaddr;\n \n   if (cu_header->version >= 5)\n     return dwarf2_rnglists_process (offset, cu, tag, callback);\n@@ -13849,8 +13845,6 @@ dwarf2_ranges_process (unsigned offset, struct dwarf2_cu *cu, dwarf_tag tag,\n     }\n   buffer = per_objfile->per_bfd->ranges.buffer + offset;\n \n-  baseaddr = objfile->text_section_offset ();\n-\n   while (1)\n     {\n       CORE_ADDR range_beginning, range_end;\n@@ -13901,7 +13895,7 @@ dwarf2_ranges_process (unsigned offset, struct dwarf2_cu *cu, dwarf_tag tag,\n \n       /* A not-uncommon case of bad debug info.\n \t Don't pollute the addrmap with bad data.  */\n-      if (range_beginning + baseaddr == 0\n+      if (range_beginning == 0\n \t  && !per_objfile->per_bfd->has_section_at_zero)\n \t{\n \t  complaint (_(\".debug_ranges entry has start address of zero\""
+    },
+    {
+      "sha": "1ddc8d6677bc0e6dc1d6042fba017be4e9a481ca",
+      "filename": "gdb/testsuite/gdb.dwarf2/dw2-zero-range-shlib.c",
+      "status": "added",
+      "additions": 21,
+      "deletions": 0,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b9f3fbc9f3453bcb24fece0c46acf581d13d3f64/gdb/testsuite/gdb.dwarf2/dw2-zero-range-shlib.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b9f3fbc9f3453bcb24fece0c46acf581d13d3f64/gdb/testsuite/gdb.dwarf2/dw2-zero-range-shlib.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/dw2-zero-range-shlib.c?ref=b9f3fbc9f3453bcb24fece0c46acf581d13d3f64",
+      "patch": "@@ -0,0 +1,21 @@\n+/*\n+   Copyright 2021 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+void\n+foo (void)\n+{\n+  asm (\"foo_label: .globl foo_label\");\n+}"
+    },
+    {
+      "sha": "894a04df786e0304b64f744911d3815df5624eb0",
+      "filename": "gdb/testsuite/gdb.dwarf2/dw2-zero-range.c",
+      "status": "added",
+      "additions": 24,
+      "deletions": 0,
+      "changes": 24,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b9f3fbc9f3453bcb24fece0c46acf581d13d3f64/gdb/testsuite/gdb.dwarf2/dw2-zero-range.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b9f3fbc9f3453bcb24fece0c46acf581d13d3f64/gdb/testsuite/gdb.dwarf2/dw2-zero-range.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/dw2-zero-range.c?ref=b9f3fbc9f3453bcb24fece0c46acf581d13d3f64",
+      "patch": "@@ -0,0 +1,24 @@\n+/*\n+   Copyright 2021 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+extern void foo (void);\n+\n+int\n+main (void)\n+{\n+  asm (\"main_label: .globl main_label\");\n+  foo ();\n+}"
+    },
+    {
+      "sha": "4f2ac0fe77c3caf4659a7896ec42b64a757e2c35",
+      "filename": "gdb/testsuite/gdb.dwarf2/dw2-zero-range.exp",
+      "status": "added",
+      "additions": 185,
+      "deletions": 0,
+      "changes": 185,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b9f3fbc9f3453bcb24fece0c46acf581d13d3f64/gdb/testsuite/gdb.dwarf2/dw2-zero-range.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b9f3fbc9f3453bcb24fece0c46acf581d13d3f64/gdb/testsuite/gdb.dwarf2/dw2-zero-range.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/dw2-zero-range.exp?ref=b9f3fbc9f3453bcb24fece0c46acf581d13d3f64",
+      "patch": "@@ -0,0 +1,185 @@\n+# Copyright 2021 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Check that the \".debug_ranges entry has start address of zero\" complaint\n+# is triggered for a loaded shared lib.\n+\n+load_lib dwarf.exp\n+\n+# This test can only be run on targets which support DWARF-2 and use gas.\n+if {![dwarf2_support]} {\n+    verbose \"Skipping $gdb_test_file_name.\"\n+    return 0\n+}\n+\n+if {[skip_shlib_tests]} {\n+    return 0\n+}\n+\n+standard_testfile .c -shlib.c -dw.S\n+\n+# Test with both a .debug_ranges section (DWARF 4) and a .debug_rnglists\n+# section (DWARF 5).\n+\n+foreach_with_prefix ranges_sect {ranges rnglists} {\n+    set asm_file [standard_output_file ${ranges_sect}-$srcfile3]\n+\n+    if { $ranges_sect == \"ranges\" } {\n+\tDwarf::assemble $asm_file {\n+\t    global srcdir subdir srcfile2\n+\t    declare_labels ranges_label\n+\n+\t    cu {} {\n+\t\tcompile_unit {\n+\t\t    {language @DW_LANG_C}\n+\t\t    {name $srcfile2}\n+\t\t    {ranges ${ranges_label} DW_FORM_sec_offset}\n+\t\t} {\n+\t\t    subprogram {\n+\t\t\t{external 1 flag}\n+\t\t\t{name foo}\n+\t\t    }\n+\t\t}\n+\t    }\n+\n+\t    ranges {is_64 [is_64_target]} {\n+\t\tranges_label: sequence {\n+\t\t    base 0\n+\t\t    range 0 1\n+\t\t}\n+\t    }\n+\t}\n+    } elseif { $ranges_sect == \"rnglists\" } {\n+\tDwarf::assemble $asm_file {\n+\t    global srcdir subdir srcfile2\n+\t    declare_labels rnglists_label\n+\n+\t    cu {\n+\t\tversion 5\n+\t    } {\n+\t\tcompile_unit {\n+\t\t    {language @DW_LANG_C}\n+\t\t    {name $srcfile2}\n+\t\t    {ranges ${rnglists_label} DW_FORM_sec_offset}\n+\t\t} {\n+\t\t    subprogram {\n+\t\t\t{external 1 flag}\n+\t\t\t{name foo}\n+\t\t    }\n+\t\t}\n+\t    }\n+\n+\t    rnglists {\n+\t\ttable {\n+\t\t    rnglists_label: list_ {\n+\t\t\tstart_end 0 1\n+\t\t    }\n+\t\t}\n+\t    }\n+\t}\n+    } else {\n+\terror \"invalid ranges section kind\"\n+    }\n+\n+    set lib1 [standard_output_file shr1.sl]\n+    set lib_opts \"nodebug\"\n+\n+    set sources [list ${srcdir}/${subdir}/$srcfile2 $asm_file]\n+    if { [gdb_compile_shlib $sources ${lib1} $lib_opts] != \"\" } {\n+\tuntested \"failed to compile\"\n+\treturn -1\n+    }\n+\n+    set exec_opts [list debug shlib=${lib1}]\n+    set sources ${srcdir}/${subdir}/${srcfile}\n+    if { [gdb_compile $sources  ${binfile} executable \\\n+\t      $exec_opts] != \"\"} {\n+\tuntested \"failed to compile\"\n+\treturn -1\n+    }\n+\n+    clean_restart $binfile\n+\n+    set readnow_p [readnow]\n+\n+    # Don't load the symbols for $lib1 during runto_main.\n+    # Instead, we do this afterwards using \"sharedlibrary $lib1\".\n+    gdb_test_no_output \"set auto-solib-add off\"\n+\n+    if { ![runto_main] } {\n+\tfail \"cannot run to main.\"\n+\treturn -1\n+    }\n+\n+    set complaint_re \".debug_${ranges_sect} entry has start address of zero\"\n+    set re \\\n+\t\"During symbol reading: $complaint_re \\\\\\[in module \\[^\\r\\n\\]*\\\\\\]\"\n+\n+    # Test for presence of complaint, with lib1 relocated.\n+    with_complaints 1 {\n+\tset test \"Zero address complaint - relocated - psymtab\"\n+\tset have_complaint 0\n+\tgdb_test_multiple \"sharedlibrary $lib1\" $test {\n+\t    -re -wrap $re {\n+\t\tset have_complaint 1\n+\t    }\n+\t    -re -wrap \"\" {\n+\t    }\n+\t}\n+\n+\tif { $have_complaint } {\n+\t    pass $test\n+\t} else {\n+\t    set index [have_index $lib1]\n+\t    if { $index == \"gdb_index\" } {\n+\t\tkfail symtab/28159 $test\n+\t    } else {\n+\t\tfail $test\n+\t    }\n+\t}\n+    }\n+\n+    if { ! $readnow_p } {\n+\twith_complaints 1 {\n+\t    gdb_test \"maint expand-symtabs $srcfile2\" $re \\\n+\t\t\"Zero address complaint - relocated - symtab\"\n+\t}\n+    }\n+\n+    clean_restart\n+    # Test for presence of complaint, with lib1 unrelocated.\n+    with_complaints 1 {\n+\tgdb_load $lib1\n+\tset test \"Zero address complaint - unrelocated - psymtab\"\n+\tset have_complaint [regexp $re.* $gdb_file_cmd_msg]\n+\tif { $have_complaint } {\n+\t    pass $test\n+\t} else {\n+\t    set index [have_index $lib1]\n+\t    if { $index == \"gdb_index\" } {\n+\t\tkfail symtab/28159 $test\n+\t    } else {\n+\t\tfail $test\n+\t    }\n+\t}\n+    }\n+\n+    if { ! $readnow_p } {\n+\twith_complaints 1 {\n+\t    gdb_test \"maint expand-symtabs $srcfile2\" $re \\\n+\t\t\"Zero address complaint - unrelocated - symtab\"\n+\t}\n+    }\n+}"
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "sha": "00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MDBkNGQxYjBhM2E0ZDI2YzlkNzQxYjE0ZTYwMWVkMmI4NmZlMzllZQ==",
+  "commit": {
+    "author": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2020-11-20T14:33:11Z"
+    },
+    "committer": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2020-12-01T07:23:02Z"
+    },
+    "message": "RISC-V: Support to add implicit extensions for G.\n\nG is a special case, consider the ISA spec github issue as follows,\nhttps://github.com/riscv/riscv-isa-manual/issues/575\n\nMy understand is that - i, m, a, f and d extensions are not g's implicit\nextensions, they are g's expansions.  The zifencei is the implicit extension\nof g, and so is zicsr, since it is implicited by f (or i2p1).  However,\nwe add the g with the RISCV_UNKNOWN_VERSION to the subset list, and it\nwill not output to the arch string, it is only used to check what implicit\nextensions are need to be added.\n\n\tbfd/\n\t* elfxx-riscv.c (riscv_parse_add_subset): Allow to add g with\n\tRISCV_UNKNOWN_VERSION versions.\n\t(riscv_parse_std_ext): Add g to the subset list, we only use it\n\tto add the implicit extensions, but won't output it to arch string.\n\t(riscv_parse_add_implicit_subsets): Add implicit zicsr and zifencei\n\tfor g extension.\n\t(riscv_arch_str1): Do not output g to the arch string.\n\t* elfxx-riscv.h (RISCV_UNKNOWN_VERSION): Moved to include/opcode/riscv.h.\n\n\tgas/\n\t* testsuite/gas/riscv/attribute-10.d: Updated.\n\t* testsuite/gas/riscv/march-imply-g.d: New testcase for g.\n\t* testsuite/gas/riscv/march-imply-unsupported.d: The zicsr and zifencei\n\tare not supported in the ISA spec v2.2, so don't add and output them.\n\n\tinclude/\n\t* opcode/riscv.h (RISCV_UNKNOWN_VERSION): added.",
+    "tree": {
+      "sha": "8dfd78b2367272c63ce78996ac12c43c710c4e81",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/8dfd78b2367272c63ce78996ac12c43c710c4e81"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "dfe92496678a200464e54d80e96a608bfea338b9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/dfe92496678a200464e54d80e96a608bfea338b9",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/dfe92496678a200464e54d80e96a608bfea338b9"
+    }
+  ],
+  "stats": {
+    "total": 67,
+    "additions": 58,
+    "deletions": 9
+  },
+  "files": [
+    {
+      "sha": "2a5ae822cc501a97455288f3b4539b0ec8315475",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee",
+      "patch": "@@ -1,3 +1,14 @@\n+2020-12-01  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* elfxx-riscv.c (riscv_parse_add_subset): Allow to add g with\n+\tRISCV_UNKNOWN_VERSION versions.\n+\t(riscv_parse_std_ext): Add g to the subset list, we only use it\n+\tto add the implicit extensions, but won't output it to arch string.\n+\t(riscv_parse_add_implicit_subsets): Add implicit zicsr and zifencei\n+\tfor g extension.\n+\t(riscv_arch_str1): Do not output g to the arch string.\n+\t* elfxx-riscv.h (RISCV_UNKNOWN_VERSION): Moved to include/opcode/riscv.h.\n+\n 2020-12-01  Nelson Chu  <nelson.chu@sifive.com>\n \n \t* elfnn-riscv.c (riscv_merge_std_ext): Updated since"
+    },
+    {
+      "sha": "711b367718046341d4cf0d5268e89a8586b958e1",
+      "filename": "bfd/elfxx-riscv.c",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 6,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee/bfd/elfxx-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee/bfd/elfxx-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfxx-riscv.c?ref=00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee",
+      "patch": "@@ -1173,6 +1173,7 @@ riscv_parse_add_subset (riscv_parse_subset_t *rps,\n     rps->get_default_version (subset, &major_version, &minor_version);\n \n   if (!implicit\n+      && strcmp (subset, \"g\") != 0\n       && (major_version == RISCV_UNKNOWN_VERSION\n \t  || minor_version == RISCV_UNKNOWN_VERSION))\n     {\n@@ -1354,15 +1355,18 @@ riscv_parse_std_ext (riscv_parse_subset_t *rps,\n \tbreak;\n \n       case 'g':\n-\t/* The g-ext shouldn't has the version, so we just\n-\t   skip the setting if user set a version to it.  */\n \tp = riscv_parsing_subset_version (rps, march, ++p,\n \t\t\t\t\t  &major_version,\n \t\t\t\t\t  &minor_version, TRUE);\n \t/* i-ext must be enabled.  */\n \triscv_parse_add_subset (rps, \"i\",\n \t\t\t\tRISCV_UNKNOWN_VERSION,\n \t\t\t\tRISCV_UNKNOWN_VERSION, FALSE);\n+\t/* g-ext is used to add the implicit extensions, but will\n+\t   not be output to the arch string.  */\n+\triscv_parse_add_subset (rps, \"g\",\n+\t\t\t\tmajor_version,\n+\t\t\t\tminor_version, FALSE);\n \tfor ( ; *std_exts != 'q'; std_exts++)\n \t  {\n \t    subset[0] = *std_exts;\n@@ -1742,6 +1746,16 @@ riscv_parse_add_implicit_subsets (riscv_parse_subset_t *rps)\n     riscv_parse_add_subset (rps, \"zicsr\",\n \t\t\t    RISCV_UNKNOWN_VERSION,\n \t\t\t    RISCV_UNKNOWN_VERSION, TRUE);\n+\n+  if ((riscv_lookup_subset (rps->subset_list, \"g\", &subset)))\n+    {\n+      riscv_parse_add_subset (rps, \"zicsr\",\n+\t\t\t      RISCV_UNKNOWN_VERSION,\n+\t\t\t      RISCV_UNKNOWN_VERSION, TRUE);\n+      riscv_parse_add_subset (rps, \"zifencei\",\n+\t\t\t      RISCV_UNKNOWN_VERSION,\n+\t\t\t      RISCV_UNKNOWN_VERSION, TRUE);\n+    }\n }\n \n /* Function for parsing arch string.\n@@ -1911,10 +1925,11 @@ riscv_arch_str1 (riscv_subset_t *subset,\n \n   strncat (attr_str, buf, bufsz);\n \n-  /* Skip 'i' extension after 'e'.  */\n-  if ((strcasecmp (subset->name, \"e\") == 0)\n-      && subset->next\n-      && (strcasecmp (subset->next->name, \"i\") == 0))\n+  /* Skip 'i' extension after 'e', and skip 'g' extension.  */\n+  if (subset->next\n+      && ((strcmp (subset->name, \"e\") == 0\n+\t   && strcmp (subset->next->name, \"i\") == 0)\n+\t  || strcmp (subset->next->name, \"g\") == 0))\n     riscv_arch_str1 (subset->next->next, attr_str, buf, bufsz);\n   else\n     riscv_arch_str1 (subset->next, attr_str, buf, bufsz);"
+    },
+    {
+      "sha": "4e03ce1e8697d5ba52e1dcb757a13b45555fc516",
+      "filename": "bfd/elfxx-riscv.h",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee/bfd/elfxx-riscv.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee/bfd/elfxx-riscv.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfxx-riscv.h?ref=00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee",
+      "patch": "@@ -33,8 +33,6 @@ riscv_reloc_type_lookup (bfd *, bfd_reloc_code_real_type);\n extern reloc_howto_type *\n riscv_elf_rtype_to_howto (bfd *, unsigned int r_type);\n \n-#define RISCV_UNKNOWN_VERSION -1\n-\n /* The information of architecture attribute.  */\n struct riscv_subset_t\n {"
+    },
+    {
+      "sha": "c0102b51a493f4789d0a2a56db353c01db595c20",
+      "filename": "gas/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee/gas/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee/gas/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/ChangeLog?ref=00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-12-01  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* testsuite/gas/riscv/attribute-10.d: Updated.\n+\t* testsuite/gas/riscv/march-imply-g.d: New testcase for g.\n+\t* testsuite/gas/riscv/march-imply-unsupported.d: The zicsr and zifencei\n+\tare not supported in the ISA spec v2.2, so don't add and output them.\n+\n 2020-12-01  Nelson Chu  <nelson.chu@sifive.com>\n \n \t* config/tc-riscv.c (riscv_subset_supports): Updated."
+    },
+    {
+      "sha": "30b82d7207335d26774ddad25ff753ac29b44c48",
+      "filename": "gas/testsuite/gas/riscv/attribute-10.d",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee/gas/testsuite/gas/riscv/attribute-10.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee/gas/testsuite/gas/riscv/attribute-10.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/attribute-10.d?ref=00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee",
+      "patch": "@@ -3,4 +3,4 @@\n #source: empty.s\n Attribute Section: riscv\n File Attributes\n-  Tag_RISCV_arch: \"rv32i2p1_m2p0_a2p1_f2p2_d2p2_c2p0_zicsr2p0\"\n+  Tag_RISCV_arch: \"rv32i2p1_m2p0_a2p1_f2p2_d2p2_c2p0_zicsr2p0_zifencei2p0\""
+    },
+    {
+      "sha": "33a243d78d7264bcc4f34cb85d55e3efde4e8d0a",
+      "filename": "gas/testsuite/gas/riscv/march-imply-g.d",
+      "status": "added",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee/gas/testsuite/gas/riscv/march-imply-g.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee/gas/testsuite/gas/riscv/march-imply-g.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-imply-g.d?ref=00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee",
+      "patch": "@@ -0,0 +1,6 @@\n+#as: -march=rv32g -march-attr -misa-spec=20191213\n+#readelf: -A\n+#source: empty.s\n+Attribute Section: riscv\n+File Attributes\n+  Tag_RISCV_arch: \"rv32i2p1_m2p0_a2p1_f2p2_d2p2_zicsr2p0_zifencei2p0\""
+    },
+    {
+      "sha": "2e19e09abf29eb413af405917e1aa76a4f3ec748",
+      "filename": "gas/testsuite/gas/riscv/march-imply-unsupported.d",
+      "status": "added",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee/gas/testsuite/gas/riscv/march-imply-unsupported.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee/gas/testsuite/gas/riscv/march-imply-unsupported.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-imply-unsupported.d?ref=00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee",
+      "patch": "@@ -0,0 +1,6 @@\n+#as: -march=rv32g -march-attr -misa-spec=2.2\n+#readelf: -A\n+#source: empty.s\n+Attribute Section: riscv\n+File Attributes\n+  Tag_RISCV_arch: \"rv32i2p0_m2p0_a2p0_f2p0_d2p0\""
+    },
+    {
+      "sha": "81486ad7cbd155aa02217d09d2f16cbc4c6525be",
+      "filename": "include/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee/include/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee/include/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ChangeLog?ref=00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee",
+      "patch": "@@ -1,3 +1,7 @@\n+2020-12-01  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* opcode/riscv.h (RISCV_UNKNOWN_VERSION): added.\n+\n 2020-12-01  Nelson Chu  <nelson.chu@sifive.com>\n \n \t* opcode/riscv.h (riscv_ext_version):"
+    },
+    {
+      "sha": "680780a664e28e983900b9dc2e933ce3664e8f81",
+      "filename": "include/opcode/riscv.h",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee/include/opcode/riscv.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee/include/opcode/riscv.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/opcode/riscv.h?ref=00d4d1b0a3a4d26c9d741b14e601ed2b86fe39ee",
+      "patch": "@@ -354,6 +354,8 @@ enum riscv_isa_spec_class\n   ISA_SPEC_CLASS_20191213\n };\n \n+#define RISCV_UNKNOWN_VERSION -1\n+\n /* This structure holds version information for specific ISA.  */\n \n struct riscv_ext_version"
+    }
+  ]
+}

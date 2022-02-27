@@ -1,0 +1,182 @@
+{
+  "sha": "3747999c6bd40a7ac905ef306a82214b336067b6",
+  "node_id": "C_kwDOANOeidoAKDM3NDc5OTljNmJkNDBhN2FjOTA1ZWYzMDZhODIyMTRiMzM2MDY3YjY",
+  "commit": {
+    "author": {
+      "name": "H.J. Lu",
+      "email": "hjl.tools@gmail.com",
+      "date": "2021-12-27T18:13:06Z"
+    },
+    "committer": {
+      "name": "H.J. Lu",
+      "email": "hjl.tools@gmail.com",
+      "date": "2022-01-08T01:58:20Z"
+    },
+    "message": "ld: Extract _bfd_elf_link_iterate_on_relocs\n\nDT_RELR encodes consecutive R_*_RELATIVE relocations in GOT (the global\noffset table) and data sections in a compact format:\n\nhttps://groups.google.com/g/generic-abi/c/bX460iggiKg\n\nOn some targets, R_*_RELATIVE relocations are counted and the GOT offsets\nare allocated when setting the dynamic section sizes after seeing all\nrelocations.  R_*_RELATIVE relocations are generated while relocating\nsections after section layout has been finalized.\n\nTo prepare for DT_RELR implementation on these targets, extract\n_bfd_elf_link_iterate_on_relocs from _bfd_elf_link_check_relocs so\nthat a backend can scan relocations in elf_backend_always_size_sections\n\nFor x86 targets, the old check_relocs is renamed to scan_relocs and a\nnew check_relocs is added to chek input sections and create dynamic\nrelocation sections so that they will be mapped to output sections.\nscan_relocs is now called from elf_backend_always_size_sections.\n\nSince relocations are scanned after __start, __stop, .startof. and\n.sizeof. symbols have been finalized on x86, __[start|stop]_SECNAME for\n--gc-sections -z start-stop-gc are now zero when all SECNAME sections\nbeen garbage collected.  This is no need for elf_x86_start_stop_gc_p.\n\nbfd/\n\n\t* elf-bfd.h (_bfd_elf_link_iterate_on_relocs): New.\n\t* elf32-i386.c (elf_i386_convert_load_reloc): Don't call\n\telf_x86_start_stop_gc_p.\n\t(elf_i386_check_relocs): Renamed to ...\n\t(elf_i386_scan_relocs): This.  Don't call\n\t_bfd_elf_make_dynamic_reloc_section.\n\t(elf_i386_always_size_sections): New.\n\t(elf_backend_check_relocs): Removed.\n\t(elf_backend_always_size_sections): New.\n\t* elf64-x86-64.c (elf_x86_64_convert_load_reloc): Don't call\n\telf_x86_start_stop_gc_p.\n\t(elf_x86_64_check_relocs): Renamed to ...\n\t(elf_x86_64_scan_relocs): This.  Don't call\n\t_bfd_elf_make_dynamic_reloc_section.\n\t(elf_x86_64_always_size_sections): New.\n\t(elf_backend_check_relocs): Removed.\n\t(elf_backend_always_size_sections): New.\n\t* elflink.c (elf_link_check_or_scan_relocs):\n\tNew.  Extracted from _bfd_elf_link_check_relocs.\n\t(_bfd_elf_link_check_relocs): Call elf_link_check_or_scan_relocs.\n\t* elfxx-x86.c (_bfd_x86_elf_check_relocs): New.\n\t* elfxx-x86.h (X86_64_NEED_DYNAMIC_RELOC_TYPE_P): New.\n\t(I386_NEED_DYNAMIC_RELOC_TYPE_P): Likewise.\n\t(X86_NEED_DYNAMIC_RELOC_TYPE_P): Likewise.\n\t(_bfd_x86_elf_check_relocs): Likewise.\n\t(elf_backend_check_relocs): Likewise.\n\t(elf_backend_always_size_sections): Removed.\n\t(elf_x86_start_stop_gc_p): Likewise.\n\nld/\n\n\t* testsuite/ld-i386/pr27491-1a.d: Updated.\n\t* testsuite/ld-x86-64/pr27491-1a.d: Likewise.",
+    "tree": {
+      "sha": "b05f73242942f28863f14a2a26929104b1d5ee86",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/b05f73242942f28863f14a2a26929104b1d5ee86"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/3747999c6bd40a7ac905ef306a82214b336067b6",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3747999c6bd40a7ac905ef306a82214b336067b6",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/3747999c6bd40a7ac905ef306a82214b336067b6",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3747999c6bd40a7ac905ef306a82214b336067b6/comments",
+  "author": {
+    "login": "hjl-tools",
+    "id": 1072356,
+    "node_id": "MDQ6VXNlcjEwNzIzNTY=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1072356?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/hjl-tools",
+    "html_url": "https://github.com/hjl-tools",
+    "followers_url": "https://api.github.com/users/hjl-tools/followers",
+    "following_url": "https://api.github.com/users/hjl-tools/following{/other_user}",
+    "gists_url": "https://api.github.com/users/hjl-tools/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/hjl-tools/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/hjl-tools/subscriptions",
+    "organizations_url": "https://api.github.com/users/hjl-tools/orgs",
+    "repos_url": "https://api.github.com/users/hjl-tools/repos",
+    "events_url": "https://api.github.com/users/hjl-tools/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/hjl-tools/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "hjl-tools",
+    "id": 1072356,
+    "node_id": "MDQ6VXNlcjEwNzIzNTY=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1072356?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/hjl-tools",
+    "html_url": "https://github.com/hjl-tools",
+    "followers_url": "https://api.github.com/users/hjl-tools/followers",
+    "following_url": "https://api.github.com/users/hjl-tools/following{/other_user}",
+    "gists_url": "https://api.github.com/users/hjl-tools/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/hjl-tools/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/hjl-tools/subscriptions",
+    "organizations_url": "https://api.github.com/users/hjl-tools/orgs",
+    "repos_url": "https://api.github.com/users/hjl-tools/repos",
+    "events_url": "https://api.github.com/users/hjl-tools/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/hjl-tools/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "ce230579c65b9e04c830f35cb78ff33206e65db1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ce230579c65b9e04c830f35cb78ff33206e65db1",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/ce230579c65b9e04c830f35cb78ff33206e65db1"
+    }
+  ],
+  "stats": {
+    "total": 293,
+    "additions": 191,
+    "deletions": 102
+  },
+  "files": [
+    {
+      "sha": "81f8fd47db7b3cadcb96bcd222187867dd38ba9c",
+      "filename": "bfd/elf-bfd.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3747999c6bd40a7ac905ef306a82214b336067b6/bfd/elf-bfd.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3747999c6bd40a7ac905ef306a82214b336067b6/bfd/elf-bfd.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf-bfd.h?ref=3747999c6bd40a7ac905ef306a82214b336067b6",
+      "patch": "@@ -2632,6 +2632,10 @@ extern int bfd_elf_add_dt_needed_tag\n   (bfd *, struct bfd_link_info *);\n extern bool _bfd_elf_link_check_relocs\n   (bfd *, struct bfd_link_info *);\n+extern bool _bfd_elf_link_iterate_on_relocs\n+ (bfd *, struct bfd_link_info *,\n+  bool (*) (bfd *, struct bfd_link_info *, asection *,\n+\t    const Elf_Internal_Rela *));\n \n extern bool bfd_elf_link_record_dynamic_symbol\n   (struct bfd_link_info *, struct elf_link_hash_entry *);"
+    },
+    {
+      "sha": "d1f61be5044b4d13591772e07c60142eb6389bbf",
+      "filename": "bfd/elf32-i386.c",
+      "status": "modified",
+      "additions": 28,
+      "deletions": 30,
+      "changes": 58,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3747999c6bd40a7ac905ef306a82214b336067b6/bfd/elf32-i386.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3747999c6bd40a7ac905ef306a82214b336067b6/bfd/elf32-i386.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf32-i386.c?ref=3747999c6bd40a7ac905ef306a82214b336067b6",
+      "patch": "@@ -522,7 +522,7 @@ elf_i386_grok_psinfo (bfd *abfd, Elf_Internal_Note *note)\n    Functions named elf_i386_* are called by external routines, other\n    functions are only called locally.  elf_i386_* functions appear\n    in this file more or less in the order in which they are called\n-   from external routines.  eg. elf_i386_check_relocs is called\n+   from external routines.  eg. elf_i386_scan_relocs is called\n    early in the link process, elf_i386_finish_dynamic_sections is\n    one of the last functions.  */\n \n@@ -1106,7 +1106,7 @@ elf_i386_tls_transition (struct bfd_link_info *info, bfd *abfd,\n \t    }\n \n \t  /* We checked the transition before when we were called from\n-\t     elf_i386_check_relocs.  We only want to check the new\n+\t     elf_i386_scan_relocs.  We only want to check the new\n \t     transition which hasn't been checked before.  */\n \t  check = new_to_type != to_type && from_type == to_type;\n \t  to_type = new_to_type;\n@@ -1387,11 +1387,6 @@ elf_i386_convert_load_reloc (bfd *abfd, Elf_Internal_Shdr *symtab_hdr,\n \t       || h->root.type == bfd_link_hash_defweak)\n \t      && local_ref))\n \t{\n-\t  /* Skip __start_SECNAME/__stop_SECNAME when --gc-sections\n-\t     -z start-stop-gc are used.  */\n-\t  if (elf_x86_start_stop_gc_p (link_info, h))\n-\t    return true;\n-\n \tconvert_load:\n \t  if (opcode == 0x8b)\n \t    {\n@@ -1452,21 +1447,20 @@ elf_i386_convert_load_reloc (bfd *abfd, Elf_Internal_Shdr *symtab_hdr,\n }\n \n /* Look through the relocs for a section during the first phase, and\n-   calculate needed space in the global offset table, procedure linkage\n-   table, and dynamic reloc sections.  */\n+   calculate needed space in the global offset table, and procedure\n+   linkage table.  */\n \n static bool\n-elf_i386_check_relocs (bfd *abfd,\n-\t\t       struct bfd_link_info *info,\n-\t\t       asection *sec,\n-\t\t       const Elf_Internal_Rela *relocs)\n+elf_i386_scan_relocs (bfd *abfd,\n+\t\t      struct bfd_link_info *info,\n+\t\t      asection *sec,\n+\t\t      const Elf_Internal_Rela *relocs)\n {\n   struct elf_x86_link_hash_table *htab;\n   Elf_Internal_Shdr *symtab_hdr;\n   struct elf_link_hash_entry **sym_hashes;\n   const Elf_Internal_Rela *rel;\n   const Elf_Internal_Rela *rel_end;\n-  asection *sreloc;\n   bfd_byte *contents;\n   bool converted;\n \n@@ -1496,8 +1490,6 @@ elf_i386_check_relocs (bfd *abfd,\n \n   converted = false;\n \n-  sreloc = NULL;\n-\n   rel_end = relocs + sec->reloc_count;\n   for (rel = relocs; rel < rel_end; rel++)\n     {\n@@ -1818,18 +1810,6 @@ elf_i386_check_relocs (bfd *abfd,\n \t      struct elf_dyn_relocs *p;\n \t      struct elf_dyn_relocs **head;\n \n-\t      /* We must copy these reloc types into the output file.\n-\t\t Create a reloc section in dynobj and make room for\n-\t\t this reloc.  */\n-\t      if (sreloc == NULL)\n-\t\t{\n-\t\t  sreloc = _bfd_elf_make_dynamic_reloc_section\n-\t\t    (sec, htab->elf.dynobj, 2, abfd, /*rela?*/ false);\n-\n-\t\t  if (sreloc == NULL)\n-\t\t    goto error_return;\n-\t\t}\n-\n \t      /* If this is a global symbol, we count the number of\n \t\t relocations we need for this symbol.  */\n \t      if (h != NULL)\n@@ -1924,6 +1904,24 @@ elf_i386_check_relocs (bfd *abfd,\n   return false;\n }\n \n+static bool\n+elf_i386_always_size_sections (bfd *output_bfd,\n+\t\t\t       struct bfd_link_info *info)\n+{\n+  bfd *abfd;\n+\n+  /* Scan relocations after rel_from_abs has been set on __ehdr_start.  */\n+  for (abfd = info->input_bfds;\n+       abfd != (bfd *) NULL;\n+       abfd = abfd->link.next)\n+    if (bfd_get_flavour (abfd) == bfd_target_elf_flavour\n+\t&& !_bfd_elf_link_iterate_on_relocs (abfd, info,\n+\t\t\t\t\t     elf_i386_scan_relocs))\n+      return false;\n+\n+  return _bfd_x86_elf_always_size_sections (output_bfd, info);\n+}\n+\n /* Set the correct type for an x86 ELF section.  We do this by the\n    section name, which is a hack, but ought to work.  */\n \n@@ -2000,7 +1998,7 @@ elf_i386_relocate_section (bfd *output_bfd,\n   bool is_vxworks_tls;\n   unsigned plt_entry_size;\n \n-  /* Skip if check_relocs failed.  */\n+  /* Skip if check_relocs or scan_relocs failed.  */\n   if (input_section->check_relocs_failed)\n     return false;\n \n@@ -4390,7 +4388,7 @@ elf_i386_link_setup_gnu_properties (struct bfd_link_info *info)\n #define bfd_elf32_get_synthetic_symtab\t      elf_i386_get_synthetic_symtab\n \n #define elf_backend_relocs_compatible\t      _bfd_elf_relocs_compatible\n-#define elf_backend_check_relocs\t      elf_i386_check_relocs\n+#define elf_backend_always_size_sections      elf_i386_always_size_sections\n #define elf_backend_create_dynamic_sections   _bfd_elf_create_dynamic_sections\n #define elf_backend_fake_sections\t      elf_i386_fake_sections\n #define elf_backend_finish_dynamic_sections   elf_i386_finish_dynamic_sections"
+    },
+    {
+      "sha": "ad885f89e1179c1c14df8b320786973cd2d94a69",
+      "filename": "bfd/elf64-x86-64.c",
+      "status": "modified",
+      "additions": 26,
+      "deletions": 29,
+      "changes": 55,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3747999c6bd40a7ac905ef306a82214b336067b6/bfd/elf64-x86-64.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3747999c6bd40a7ac905ef306a82214b336067b6/bfd/elf64-x86-64.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf64-x86-64.c?ref=3747999c6bd40a7ac905ef306a82214b336067b6",
+      "patch": "@@ -1309,7 +1309,7 @@ elf_x86_64_tls_transition (struct bfd_link_info *info, bfd *abfd,\n \t    }\n \n \t  /* We checked the transition before when we were called from\n-\t     elf_x86_64_check_relocs.  We only want to check the new\n+\t     elf_x86_64_scan_relocs.  We only want to check the new\n \t     transition which hasn't been checked before.  */\n \t  check = new_to_type != to_type && from_type == to_type;\n \t  to_type = new_to_type;\n@@ -1628,11 +1628,6 @@ elf_x86_64_convert_load_reloc (bfd *abfd,\n \t\t\t   || h->root.type == bfd_link_hash_defweak)\n \t\t\t  && h->root.u.def.section == bfd_und_section_ptr))))\n \t    {\n-\t      /* Skip __start_SECNAME/__stop_SECNAME when --gc-sections\n-\t         -z start-stop-gc are used.  */\n-\t      if (elf_x86_start_stop_gc_p (link_info, h))\n-\t\treturn true;\n-\n \t      /* Skip since R_X86_64_32/R_X86_64_32S may overflow.  */\n \t      if (no_overflow)\n \t\treturn true;\n@@ -1823,20 +1818,19 @@ elf_x86_64_convert_load_reloc (bfd *abfd,\n }\n \n /* Look through the relocs for a section during the first phase, and\n-   calculate needed space in the global offset table, procedure\n-   linkage table, and dynamic reloc sections.  */\n+   calculate needed space in the global offset table, and procedure\n+   linkage table.  */\n \n static bool\n-elf_x86_64_check_relocs (bfd *abfd, struct bfd_link_info *info,\n-\t\t\t asection *sec,\n-\t\t\t const Elf_Internal_Rela *relocs)\n+elf_x86_64_scan_relocs (bfd *abfd, struct bfd_link_info *info,\n+\t\t\tasection *sec,\n+\t\t\tconst Elf_Internal_Rela *relocs)\n {\n   struct elf_x86_link_hash_table *htab;\n   Elf_Internal_Shdr *symtab_hdr;\n   struct elf_link_hash_entry **sym_hashes;\n   const Elf_Internal_Rela *rel;\n   const Elf_Internal_Rela *rel_end;\n-  asection *sreloc;\n   bfd_byte *contents;\n   bool converted;\n \n@@ -1866,8 +1860,6 @@ elf_x86_64_check_relocs (bfd *abfd, struct bfd_link_info *info,\n \n   converted = false;\n \n-  sreloc = NULL;\n-\n   rel_end = relocs + sec->reloc_count;\n   for (rel = relocs; rel < rel_end; rel++)\n     {\n@@ -2263,19 +2255,6 @@ elf_x86_64_check_relocs (bfd *abfd, struct bfd_link_info *info,\n \t      struct elf_dyn_relocs *p;\n \t      struct elf_dyn_relocs **head;\n \n-\t      /* We must copy these reloc types into the output file.\n-\t\t Create a reloc section in dynobj and make room for\n-\t\t this reloc.  */\n-\t      if (sreloc == NULL)\n-\t\t{\n-\t\t  sreloc = _bfd_elf_make_dynamic_reloc_section\n-\t\t    (sec, htab->elf.dynobj, ABI_64_P (abfd) ? 3 : 2,\n-\t\t     abfd, /*rela?*/ true);\n-\n-\t\t  if (sreloc == NULL)\n-\t\t    goto error_return;\n-\t\t}\n-\n \t      /* If this is a global symbol, we count the number of\n \t\t relocations we need for this symbol.  */\n \t      if (h != NULL)\n@@ -2371,6 +2350,24 @@ elf_x86_64_check_relocs (bfd *abfd, struct bfd_link_info *info,\n   return false;\n }\n \n+static bool\n+elf_x86_64_always_size_sections (bfd *output_bfd,\n+\t\t\t\t struct bfd_link_info *info)\n+{\n+  bfd *abfd;\n+\n+  /* Scan relocations after rel_from_abs has been set on __ehdr_start.  */\n+  for (abfd = info->input_bfds;\n+       abfd != (bfd *) NULL;\n+       abfd = abfd->link.next)\n+    if (bfd_get_flavour (abfd) == bfd_target_elf_flavour\n+\t&& !_bfd_elf_link_iterate_on_relocs (abfd, info,\n+\t\t\t\t\t     elf_x86_64_scan_relocs))\n+      return false;\n+\n+  return _bfd_x86_elf_always_size_sections (output_bfd, info);\n+}\n+\n /* Return the relocation value for @tpoff relocation\n    if STT_TLS virtual address is ADDRESS.  */\n \n@@ -2413,7 +2410,7 @@ elf_x86_64_relocate_section (bfd *output_bfd,\n   unsigned int plt_entry_size;\n   bool status;\n \n-  /* Skip if check_relocs failed.  */\n+  /* Skip if check_relocs or scan_relocs failed.  */\n   if (input_section->check_relocs_failed)\n     return false;\n \n@@ -5238,7 +5235,7 @@ elf_x86_64_special_sections[]=\n   elf_x86_64_reloc_name_lookup\n \n #define elf_backend_relocs_compatible\t    elf_x86_64_relocs_compatible\n-#define elf_backend_check_relocs\t    elf_x86_64_check_relocs\n+#define elf_backend_always_size_sections    elf_x86_64_always_size_sections\n #define elf_backend_create_dynamic_sections _bfd_elf_create_dynamic_sections\n #define elf_backend_finish_dynamic_sections elf_x86_64_finish_dynamic_sections\n #define elf_backend_finish_dynamic_symbol   elf_x86_64_finish_dynamic_symbol"
+    },
+    {
+      "sha": "059461b57257adc3aeada860633592b62796551b",
+      "filename": "bfd/elflink.c",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 4,
+      "changes": 23,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3747999c6bd40a7ac905ef306a82214b336067b6/bfd/elflink.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3747999c6bd40a7ac905ef306a82214b336067b6/bfd/elflink.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elflink.c?ref=3747999c6bd40a7ac905ef306a82214b336067b6",
+      "patch": "@@ -4008,10 +4008,13 @@ _bfd_elf_notice_as_needed (bfd *ibfd,\n   return (*info->callbacks->notice) (info, NULL, NULL, ibfd, NULL, act, 0);\n }\n \n-/* Check relocations an ELF object file.  */\n+/* Call ACTION on each relocation in an ELF object file.  */\n \n bool\n-_bfd_elf_link_check_relocs (bfd *abfd, struct bfd_link_info *info)\n+_bfd_elf_link_iterate_on_relocs\n+  (bfd *abfd, struct bfd_link_info *info,\n+   bool (*action) (bfd *, struct bfd_link_info *, asection *,\n+\t\t   const Elf_Internal_Rela *))\n {\n   const struct elf_backend_data *bed = get_elf_backend_data (abfd);\n   struct elf_link_hash_table *htab = elf_hash_table (info);\n@@ -4035,7 +4038,6 @@ _bfd_elf_link_check_relocs (bfd *abfd, struct bfd_link_info *info)\n      different format.  It probably can't be done.  */\n   if ((abfd->flags & DYNAMIC) == 0\n       && is_elf_hash_table (&htab->root)\n-      && bed->check_relocs != NULL\n       && elf_object_id (abfd) == elf_hash_table_id (htab)\n       && (*bed->relocs_compatible) (abfd->xvec, info->output_bfd->xvec))\n     {\n@@ -4070,7 +4072,7 @@ _bfd_elf_link_check_relocs (bfd *abfd, struct bfd_link_info *info)\n \t  if (internal_relocs == NULL)\n \t    return false;\n \n-\t  ok = (*bed->check_relocs) (abfd, info, o, internal_relocs);\n+\t  ok = action (abfd, info, o, internal_relocs);\n \n \t  if (elf_section_data (o)->relocs != internal_relocs)\n \t    free (internal_relocs);\n@@ -4083,6 +4085,19 @@ _bfd_elf_link_check_relocs (bfd *abfd, struct bfd_link_info *info)\n   return true;\n }\n \n+/* Check relocations in an ELF object file.  This is called after\n+   all input files have been opened.  */\n+\n+bool\n+_bfd_elf_link_check_relocs (bfd *abfd, struct bfd_link_info *info)\n+{\n+  const struct elf_backend_data *bed = get_elf_backend_data (abfd);\n+  if (bed->check_relocs != NULL)\n+    return _bfd_elf_link_iterate_on_relocs (abfd, info,\n+\t\t\t\t\t    bed->check_relocs);\n+  return true;\n+}\n+\n /* Add symbols from an ELF object file to the linker hash table.  */\n \n static bool"
+    },
+    {
+      "sha": "25f7717ea88637945d9e633042950d6260c26cc7",
+      "filename": "bfd/elfxx-x86.c",
+      "status": "modified",
+      "additions": 85,
+      "deletions": 0,
+      "changes": 85,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3747999c6bd40a7ac905ef306a82214b336067b6/bfd/elfxx-x86.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3747999c6bd40a7ac905ef306a82214b336067b6/bfd/elfxx-x86.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfxx-x86.c?ref=3747999c6bd40a7ac905ef306a82214b336067b6",
+      "patch": "@@ -892,6 +892,91 @@ _bfd_x86_elf_link_check_relocs (bfd *abfd, struct bfd_link_info *info)\n   return _bfd_elf_link_check_relocs (abfd, info);\n }\n \n+/* Look through the relocs for a section before allocation to make the\n+   dynamic reloc section.  */\n+\n+bool\n+_bfd_x86_elf_check_relocs (bfd *abfd,\n+\t\t\t   struct bfd_link_info *info,\n+\t\t\t   asection *sec,\n+\t\t\t   const Elf_Internal_Rela *relocs)\n+{\n+  struct elf_x86_link_hash_table *htab;\n+  Elf_Internal_Shdr *symtab_hdr;\n+  struct elf_link_hash_entry **sym_hashes;\n+  const Elf_Internal_Rela *rel;\n+  const Elf_Internal_Rela *rel_end;\n+  asection *sreloc;\n+  const struct elf_backend_data *bed;\n+  bool is_x86_64;\n+\n+  if (bfd_link_relocatable (info))\n+    return true;\n+\n+  bed = get_elf_backend_data (abfd);\n+  htab = elf_x86_hash_table (info, bed->target_id);\n+  if (htab == NULL)\n+    {\n+      sec->check_relocs_failed = 1;\n+      return false;\n+    }\n+\n+  is_x86_64 = bed->target_id == X86_64_ELF_DATA;\n+\n+  symtab_hdr = &elf_symtab_hdr (abfd);\n+  sym_hashes = elf_sym_hashes (abfd);\n+\n+  rel_end = relocs + sec->reloc_count;\n+  for (rel = relocs; rel < rel_end; rel++)\n+    {\n+      unsigned int r_type;\n+      unsigned int r_symndx;\n+      struct elf_link_hash_entry *h;\n+\n+      r_symndx = htab->r_sym (rel->r_info);\n+      r_type = ELF32_R_TYPE (rel->r_info);\n+\n+      if (r_symndx >= NUM_SHDR_ENTRIES (symtab_hdr))\n+\t{\n+\t  /* xgettext:c-format */\n+\t  _bfd_error_handler (_(\"%pB: bad symbol index: %d\"),\n+\t\t\t      abfd, r_symndx);\n+\t  goto error_return;\n+\t}\n+\n+      if (r_symndx < symtab_hdr->sh_info)\n+\th = NULL;\n+      else\n+\t{\n+\t  h = sym_hashes[r_symndx - symtab_hdr->sh_info];\n+\t  while (h->root.type == bfd_link_hash_indirect\n+\t\t || h->root.type == bfd_link_hash_warning)\n+\t    h = (struct elf_link_hash_entry *) h->root.u.i.link;\n+\t}\n+\n+      if (X86_NEED_DYNAMIC_RELOC_TYPE_P (is_x86_64, r_type)\n+\t  && NEED_DYNAMIC_RELOCATION_P (is_x86_64, info, true, h, sec,\n+\t\t\t\t\tr_type, htab->pointer_r_type))\n+\t{\n+\t  /* We may copy these reloc types into the output file.\n+\t     Create a reloc section in dynobj and make room for\n+\t     this reloc.  */\n+\t  sreloc = _bfd_elf_make_dynamic_reloc_section\n+\t    (sec, htab->elf.dynobj, ABI_64_P (abfd) ? 3 : 2,\n+\t     abfd, sec->use_rela_p);\n+\n+\t  if (sreloc != NULL)\n+\t    return true;\n+\n+  error_return:\n+\t  sec->check_relocs_failed = 1;\n+\t  return false;\n+\t}\n+    }\n+\n+  return true;\n+}\n+\n bool\n _bfd_elf_x86_valid_reloc_p (asection *input_section,\n \t\t\t    struct bfd_link_info *info,"
+    },
+    {
+      "sha": "1bb80280918c6da770eadb34aac9f0c40e901e5a",
+      "filename": "bfd/elfxx-x86.h",
+      "status": "modified",
+      "additions": 25,
+      "deletions": 35,
+      "changes": 60,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3747999c6bd40a7ac905ef306a82214b336067b6/bfd/elfxx-x86.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3747999c6bd40a7ac905ef306a82214b336067b6/bfd/elfxx-x86.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfxx-x86.h?ref=3747999c6bd40a7ac905ef306a82214b336067b6",
+      "patch": "@@ -47,6 +47,25 @@\n #define X86_SIZE_TYPE_P(IS_X86_64, TYPE) \\\n   ((IS_X86_64) ? X86_64_SIZE_TYPE_P(TYPE) : I386_SIZE_TYPE_P (TYPE))\n \n+#define X86_64_NEED_DYNAMIC_RELOC_TYPE_P(TYPE) \\\n+  (X86_64_SIZE_TYPE_P (TYPE) \\\n+   || X86_64_PCREL_TYPE_P (TYPE) \\\n+   || (TYPE) == R_X86_64_8 \\\n+   || (TYPE) == R_X86_64_16 \\\n+   || (TYPE) == R_X86_64_32 \\\n+   || (TYPE) == R_X86_64_32S \\\n+   || (TYPE) == R_X86_64_64)\n+#define I386_NEED_DYNAMIC_RELOC_TYPE_P(TYPE) \\\n+  (I386_SIZE_TYPE_P (TYPE) \\\n+   || I386_PCREL_TYPE_P (TYPE) \\\n+   || (TYPE) == R_386_32 \\\n+   || (TYPE) == R_386_TLS_LE \\\n+   || (TYPE) == R_386_TLS_LE_32)\n+#define X86_NEED_DYNAMIC_RELOC_TYPE_P(IS_X86_64, TYPE) \\\n+  ((IS_X86_64) \\\n+   ? X86_64_NEED_DYNAMIC_RELOC_TYPE_P (TYPE) \\\n+   : I386_NEED_DYNAMIC_RELOC_TYPE_P (TYPE))\n+\n #define PLT_CIE_LENGTH\t\t20\n #define PLT_FDE_LENGTH\t\t36\n #define PLT_FDE_START_OFFSET\t4 + PLT_CIE_LENGTH + 8\n@@ -653,6 +672,10 @@ extern int _bfd_x86_elf_compare_relocs\n extern bool _bfd_x86_elf_link_check_relocs\n   (bfd *, struct bfd_link_info *);\n \n+extern bool _bfd_x86_elf_check_relocs\n+  (bfd *, struct bfd_link_info *, asection *,\n+   const Elf_Internal_Rela *);\n+\n extern bool _bfd_elf_x86_valid_reloc_p\n   (asection *, struct bfd_link_info *, struct elf_x86_link_hash_table *,\n    const Elf_Internal_Rela *, struct elf_link_hash_entry *,\n@@ -730,10 +753,10 @@ extern void _bfd_x86_elf_link_report_relative_reloc\n #define bfd_elf32_bfd_link_check_relocs \\\n   _bfd_x86_elf_link_check_relocs\n \n+#define elf_backend_check_relocs \\\n+  _bfd_x86_elf_check_relocs\n #define elf_backend_size_dynamic_sections \\\n   _bfd_x86_elf_size_dynamic_sections\n-#define elf_backend_always_size_sections \\\n-  _bfd_x86_elf_always_size_sections\n #define elf_backend_merge_symbol_attribute \\\n   _bfd_x86_elf_merge_symbol_attribute\n #define elf_backend_copy_indirect_symbol \\\n@@ -757,39 +780,6 @@ extern void _bfd_x86_elf_link_report_relative_reloc\n \n #define ELF_P_ALIGN ELF_MINPAGESIZE\n \n-/* Return true if H is a __start_SECNAME/__stop_SECNAME symbol for the\n-   SECNAME section which has been garbage collected by --gc-sections\n-   -z start-stop-gc.  */\n-\n-static inline bool\n-elf_x86_start_stop_gc_p (struct bfd_link_info *link_info,\n-\t\t\t struct elf_link_hash_entry *h)\n-{\n-  if (h->start_stop\n-      && link_info->gc_sections\n-      && link_info->start_stop_gc)\n-    {\n-      asection *s = h->root.u.def.section;\n-\n-      do\n-\t{\n-\t  /* Return false if any SECNAME section is kept.  */\n-\t  if (s->gc_mark)\n-\t    return false;\n-\t  s = bfd_get_next_section_by_name (s->owner, s);\n-\t}\n-      while (s != NULL);\n-\n-      /* Return true only if all SECNAME sections have been garbage\n-\t collected.  */\n-      return true;\n-    }\n-\n-  /* Return false if H isn't a __start_SECNAME/__stop_SECNAME symbol or\n-     --gc-sections or -z start-stop-gc isn't used.  */\n-  return false;\n-}\n-\n /* Allocate x86 GOT info for local symbols.  */\n \n static inline bool"
+    },
+    {
+      "sha": "39b25f6507f19bd5d043d70cf3508580306a749a",
+      "filename": "ld/testsuite/ld-i386/pr27491-1a.d",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3747999c6bd40a7ac905ef306a82214b336067b6/ld/testsuite/ld-i386/pr27491-1a.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3747999c6bd40a7ac905ef306a82214b336067b6/ld/testsuite/ld-i386/pr27491-1a.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-i386/pr27491-1a.d?ref=3747999c6bd40a7ac905ef306a82214b336067b6",
+      "patch": "@@ -9,6 +9,6 @@\n Disassembly of section .text:\n \n [a-f0-9]+ <foo>:\n- +[a-f0-9]+:\t8b 83 ([0-9a-f]{2} ){4}[ \\t]+mov +-0x[a-f0-9]+\\(%ebx\\),%eax\n- +[a-f0-9]+:\t8b 83 ([0-9a-f]{2} ){4}[ \\t]+mov +-0x[a-f0-9]+\\(%ebx\\),%eax\n+ +[a-f0-9]+:\tc7 c0 00 00 00 00    \tmov    \\$0x0,%eax\n+ +[a-f0-9]+:\tc7 c0 00 00 00 00    \tmov    \\$0x0,%eax\n #pass"
+    },
+    {
+      "sha": "215124c6401d0444f2d4dcfae3966a449d1e96c1",
+      "filename": "ld/testsuite/ld-x86-64/pr27491-1a.d",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3747999c6bd40a7ac905ef306a82214b336067b6/ld/testsuite/ld-x86-64/pr27491-1a.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3747999c6bd40a7ac905ef306a82214b336067b6/ld/testsuite/ld-x86-64/pr27491-1a.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr27491-1a.d?ref=3747999c6bd40a7ac905ef306a82214b336067b6",
+      "patch": "@@ -9,6 +9,6 @@\n Disassembly of section .text:\n \n [a-f0-9]+ <foo>:\n- +[a-f0-9]+:\t48 8b 05 ([0-9a-f]{2} ){4}[ \\t]+mov +0x[a-f0-9]+\\(%rip\\),%rax[ \\t]+# [a-f0-9]+ <_DYNAMIC\\+0x[a-f0-9]+>\n- +[a-f0-9]+:\t48 8b 05 ([0-9a-f]{2} ){4}[ \\t]+mov +0x[a-f0-9]+\\(%rip\\),%rax[ \\t]+# [a-f0-9]+ <_DYNAMIC\\+0x[a-f0-9]+>\n+ +[a-f0-9]+:\t48 c7 c0 00 00 00 00 \tmov    \\$0x0,%rax\n+ +[a-f0-9]+:\t48 c7 c0 00 00 00 00 \tmov    \\$0x0,%rax\n #pass"
+    }
+  ]
+}

@@ -1,0 +1,254 @@
+{
+  "sha": "2a50938ab740296a1d6df67feea9401e57e4d90e",
+  "node_id": "C_kwDOANOeidoAKDJhNTA5MzhhYjc0MDI5NmExZDZkZjY3ZmVlYTk0MDFlNTdlNGQ5MGU",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-10-26T03:29:34Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-12-03T21:41:38Z"
+    },
+    "message": "gdb: make extract_integer take an array_view\n\nI think it would make sense for extract_integer, extract_signed_integer\nand extract_unsigned_integer to take an array_view.  This way, when we\nextract an integer, we can validate that we don't overflow the buffer\npassed by the caller (e.g. ask to extract a 4-byte integer but pass a\n2-byte buffer).\n\n - Change extract_integer to take an array_view\n - Add overloads of extract_signed_integer and extract_unsigned_integer\n   that take array_views.  Keep the existing versions so we don't\n   need to change all callers, but make them call the array_view\n   versions.\n\nThis shortens some places like:\n\n  result = extract_unsigned_integer (value_contents (result_val).data (),\n\t\t\t\t     TYPE_LENGTH (value_type (result_val)),\n\t\t\t\t     byte_order);\n\ninto\n\n  result = extract_unsigned_integer (value_contents (result_val), byte_order);\n\nvalue_contents returns an array view that is of length\n`TYPE_LENGTH (value_type (result_val))` already, so the length is\nimplicitly communicated through the array view.\n\nChange-Id: Ic1c1f98c88d5c17a8486393af316f982604d6c95",
+    "tree": {
+      "sha": "c0a570783faab4b4e5225e14a434739fa0264536",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c0a570783faab4b4e5225e14a434739fa0264536"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/2a50938ab740296a1d6df67feea9401e57e4d90e",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2a50938ab740296a1d6df67feea9401e57e4d90e",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/2a50938ab740296a1d6df67feea9401e57e4d90e",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2a50938ab740296a1d6df67feea9401e57e4d90e/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "4bce7cdaf481901edbc5ee47d953ea7e8efb56ca",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4bce7cdaf481901edbc5ee47d953ea7e8efb56ca",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/4bce7cdaf481901edbc5ee47d953ea7e8efb56ca"
+    }
+  ],
+  "stats": {
+    "total": 115,
+    "additions": 60,
+    "deletions": 55
+  },
+  "files": [
+    {
+      "sha": "3fe3d3949328b8d94d189ed552644eae0c796db3",
+      "filename": "gdb/amd64-linux-tdep.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/amd64-linux-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/amd64-linux-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/amd64-linux-tdep.c?ref=2a50938ab740296a1d6df67feea9401e57e4d90e",
+      "patch": "@@ -237,7 +237,7 @@ amd64_linux_get_syscall_number (struct gdbarch *gdbarch,\n      is stored at %rax register.  */\n   regcache->cooked_read (AMD64_LINUX_ORIG_RAX_REGNUM, buf);\n \n-  ret = extract_signed_integer (buf, 8, byte_order);\n+  ret = extract_signed_integer (buf, byte_order);\n \n   return ret;\n }"
+    },
+    {
+      "sha": "3b6a0e63905e0f3585403edcfa2d0fb8371c2ea3",
+      "filename": "gdb/defs.h",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 3,
+      "changes": 23,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/defs.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/defs.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/defs.h?ref=2a50938ab740296a1d6df67feea9401e57e4d90e",
+      "patch": "@@ -63,6 +63,7 @@\n \n #include \"gdbsupport/host-defs.h\"\n #include \"gdbsupport/enum-flags.h\"\n+#include \"gdbsupport/array-view.h\"\n \n /* Scope types enumerator.  List the types of scopes the compiler will\n    accept.  */\n@@ -500,20 +501,36 @@ enum symbol_needs_kind\n /* In findvar.c.  */\n \n template<typename T, typename = RequireLongest<T>>\n-T extract_integer (const gdb_byte *addr, int len, enum bfd_endian byte_order);\n+T extract_integer (gdb::array_view<const gdb_byte>, enum bfd_endian byte_order);\n+\n+static inline LONGEST\n+extract_signed_integer (gdb::array_view<const gdb_byte> buf,\n+\t\t\tenum bfd_endian byte_order)\n+{\n+  return extract_integer<LONGEST> (buf, byte_order);\n+}\n \n static inline LONGEST\n extract_signed_integer (const gdb_byte *addr, int len,\n \t\t\tenum bfd_endian byte_order)\n {\n-  return extract_integer<LONGEST> (addr, len, byte_order);\n+  return extract_signed_integer (gdb::array_view<const gdb_byte> (addr, len),\n+\t\t\t\t byte_order);\n+}\n+\n+static inline ULONGEST\n+extract_unsigned_integer (gdb::array_view<const gdb_byte> buf,\n+\t\t\t  enum bfd_endian byte_order)\n+{\n+  return extract_integer<ULONGEST> (buf, byte_order);\n }\n \n static inline ULONGEST\n extract_unsigned_integer (const gdb_byte *addr, int len,\n \t\t\t  enum bfd_endian byte_order)\n {\n-  return extract_integer<ULONGEST> (addr, len, byte_order);\n+  return extract_unsigned_integer (gdb::array_view<const gdb_byte> (addr, len),\n+\t\t\t\t   byte_order);\n }\n \n extern int extract_long_unsigned_integer (const gdb_byte *, int,"
+    },
+    {
+      "sha": "b267785ef51ae5c3b47520bea7d9f93ea81b118f",
+      "filename": "gdb/dwarf2/expr.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 5,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/dwarf2/expr.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/dwarf2/expr.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/expr.c?ref=2a50938ab740296a1d6df67feea9401e57e4d90e",
+      "patch": "@@ -577,8 +577,7 @@ indirect_pieced_value (value *value)\n      encode address spaces and other things in CORE_ADDR.  */\n   bfd_endian byte_order = gdbarch_byte_order (get_frame_arch (frame));\n   LONGEST byte_offset\n-    = extract_signed_integer (value_contents (value).data (),\n-\t\t\t      TYPE_LENGTH (type), byte_order);\n+    = extract_signed_integer (value_contents (value), byte_order);\n   byte_offset += piece->v.ptr.offset;\n \n   return indirect_synthetic_pointer (piece->v.ptr.die_sect_off,\n@@ -1157,9 +1156,7 @@ dwarf_expr_context::fetch_address (int n)\n   ULONGEST result;\n \n   dwarf_require_integral (value_type (result_val));\n-  result = extract_unsigned_integer (value_contents (result_val).data (),\n-\t\t\t\t     TYPE_LENGTH (value_type (result_val)),\n-\t\t\t\t     byte_order);\n+  result = extract_unsigned_integer (value_contents (result_val), byte_order);\n \n   /* For most architectures, calling extract_unsigned_integer() alone\n      is sufficient for extracting an address.  However, some"
+    },
+    {
+      "sha": "4da7798544b95a0c1d1739cd382b18e86adeba91",
+      "filename": "gdb/fbsd-tdep.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/fbsd-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/fbsd-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/fbsd-tdep.c?ref=2a50938ab740296a1d6df67feea9401e57e4d90e",
+      "patch": "@@ -611,7 +611,7 @@ fbsd_core_xfer_siginfo (struct gdbarch *gdbarch, gdb_byte *readbuf,\n \t\t\t\t LWPINFO_OFFSET + LWPINFO_PL_FLAGS, 4))\n     return -1;\n \n-  int pl_flags = extract_signed_integer (buf, 4, gdbarch_byte_order (gdbarch));\n+  int pl_flags = extract_signed_integer (buf, gdbarch_byte_order (gdbarch));\n   if (!(pl_flags & PL_FLAG_SI))\n     return -1;\n \n@@ -1933,7 +1933,7 @@ fbsd_read_integer_by_name (struct gdbarch *gdbarch, const char *name)\n   if (target_read_memory (BMSYMBOL_VALUE_ADDRESS (ms), buf, sizeof buf) != 0)\n     error (_(\"Unable to read value of '%s'\"), name);\n \n-  return extract_signed_integer (buf, sizeof buf, gdbarch_byte_order (gdbarch));\n+  return extract_signed_integer (buf, gdbarch_byte_order (gdbarch));\n }\n \n /* Lookup offsets of fields in the runtime linker's 'Obj_Entry'\n@@ -2004,7 +2004,7 @@ fbsd_get_tls_index (struct gdbarch *gdbarch, CORE_ADDR lm_addr)\n     throw_error (TLS_GENERIC_ERROR,\n \t\t _(\"Cannot find thread-local variables on this target\"));\n \n-  return extract_signed_integer (buf, sizeof buf, gdbarch_byte_order (gdbarch));\n+  return extract_signed_integer (buf, gdbarch_byte_order (gdbarch));\n }\n \n /* See fbsd-tdep.h.  */"
+    },
+    {
+      "sha": "a0031d2dadd95e12480608c3f5d0793af1bbef11",
+      "filename": "gdb/findvar.c",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 18,
+      "changes": 35,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/findvar.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/findvar.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/findvar.c?ref=2a50938ab740296a1d6df67feea9401e57e4d90e",
+      "patch": "@@ -48,14 +48,11 @@ you lose\n \n template<typename T, typename>\n T\n-extract_integer (const gdb_byte *addr, int len, enum bfd_endian byte_order)\n+extract_integer (gdb::array_view<const gdb_byte> buf, enum bfd_endian byte_order)\n {\n   typename std::make_unsigned<T>::type retval = 0;\n-  const unsigned char *p;\n-  const unsigned char *startaddr = addr;\n-  const unsigned char *endaddr = startaddr + len;\n \n-  if (len > (int) sizeof (T))\n+  if (buf.size () > (int) sizeof (T))\n     error (_(\"\\\n That operation is not available on integers of more than %d bytes.\"),\n \t   (int) sizeof (T));\n@@ -64,36 +61,38 @@ That operation is not available on integers of more than %d bytes.\"),\n      the least significant.  */\n   if (byte_order == BFD_ENDIAN_BIG)\n     {\n-      p = startaddr;\n+      size_t i = 0;\n+\n       if (std::is_signed<T>::value)\n \t{\n \t  /* Do the sign extension once at the start.  */\n-\t  retval = ((LONGEST) * p ^ 0x80) - 0x80;\n-\t  ++p;\n+\t  retval = ((LONGEST) buf[i] ^ 0x80) - 0x80;\n+\t  ++i;\n \t}\n-      for (; p < endaddr; ++p)\n-\tretval = (retval << 8) | *p;\n+      for (; i < buf.size (); ++i)\n+\tretval = (retval << 8) | buf[i];\n     }\n   else\n     {\n-      p = endaddr - 1;\n+      ssize_t i = buf.size () - 1;\n+\n       if (std::is_signed<T>::value)\n \t{\n \t  /* Do the sign extension once at the start.  */\n-\t  retval = ((LONGEST) * p ^ 0x80) - 0x80;\n-\t  --p;\n+\t  retval = ((LONGEST) buf[i] ^ 0x80) - 0x80;\n+\t  --i;\n \t}\n-      for (; p >= startaddr; --p)\n-\tretval = (retval << 8) | *p;\n+      for (; i >= 0; --i)\n+\tretval = (retval << 8) | buf[i];\n     }\n   return retval;\n }\n \n /* Explicit instantiations.  */\n-template LONGEST extract_integer<LONGEST> (const gdb_byte *addr, int len,\n+template LONGEST extract_integer<LONGEST> (gdb::array_view<const gdb_byte> buf,\n \t\t\t\t\t   enum bfd_endian byte_order);\n-template ULONGEST extract_integer<ULONGEST> (const gdb_byte *addr, int len,\n-\t\t\t\t\t     enum bfd_endian byte_order);\n+template ULONGEST extract_integer<ULONGEST>\n+  (gdb::array_view<const gdb_byte> buf, enum bfd_endian byte_order);\n \n /* Sometimes a long long unsigned integer can be extracted as a\n    LONGEST value.  This is done so that we can print these values"
+    },
+    {
+      "sha": "7944d1edef8d5f1a97f40754ffd939e0313c5763",
+      "filename": "gdb/frame.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 3,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/frame.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/frame.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/frame.c?ref=2a50938ab740296a1d6df67feea9401e57e4d90e",
+      "patch": "@@ -1288,7 +1288,6 @@ frame_unwind_register_signed (frame_info *next_frame, int regnum)\n {\n   struct gdbarch *gdbarch = frame_unwind_arch (next_frame);\n   enum bfd_endian byte_order = gdbarch_byte_order (gdbarch);\n-  int size = register_size (gdbarch, regnum);\n   struct value *value = frame_unwind_register_value (next_frame, regnum);\n \n   gdb_assert (value != NULL);\n@@ -1304,8 +1303,7 @@ frame_unwind_register_signed (frame_info *next_frame, int regnum)\n \t\t   _(\"Register %d is not available\"), regnum);\n     }\n \n-  LONGEST r = extract_signed_integer (value_contents_all (value).data (), size,\n-\t\t\t\t      byte_order);\n+  LONGEST r = extract_signed_integer (value_contents_all (value), byte_order);\n \n   release_value (value);\n   return r;"
+    },
+    {
+      "sha": "3e2729f6c9189ea7f1a1b09615b7ae3a93c33aee",
+      "filename": "gdb/frv-tdep.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/frv-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/frv-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/frv-tdep.c?ref=2a50938ab740296a1d6df67feea9401e57e4d90e",
+      "patch": "@@ -596,7 +596,7 @@ frv_analyze_prologue (struct gdbarch *gdbarch, CORE_ADDR pc,\n \n       if (target_read_memory (pc, buf, sizeof buf) != 0)\n \tbreak;\n-      op = extract_signed_integer (buf, sizeof buf, byte_order);\n+      op = extract_signed_integer (buf, byte_order);\n \n       next_pc = pc + 4;\n "
+    },
+    {
+      "sha": "9021414a460ec5be57c4ac611fe318dee7c00e12",
+      "filename": "gdb/hppa-bsd-tdep.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/hppa-bsd-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/hppa-bsd-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/hppa-bsd-tdep.c?ref=2a50938ab740296a1d6df67feea9401e57e4d90e",
+      "patch": "@@ -75,7 +75,7 @@ hppabsd_find_global_pointer (struct gdbarch *gdbarch, struct value *function)\n \t      if (target_read_memory (addr, buf, sizeof buf) != 0)\n \t\tbreak;\n \n-\t      tag = extract_signed_integer (buf, sizeof buf, byte_order);\n+\t      tag = extract_signed_integer (buf, byte_order);\n \t      if (tag == DT_PLTGOT)\n \t\t{\n \t\t  CORE_ADDR pltgot;"
+    },
+    {
+      "sha": "6bb8580aa62edf3cbe67a7958ea803d34147b787",
+      "filename": "gdb/hppa-linux-tdep.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/hppa-linux-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/hppa-linux-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/hppa-linux-tdep.c?ref=2a50938ab740296a1d6df67feea9401e57e4d90e",
+      "patch": "@@ -384,7 +384,7 @@ hppa_linux_find_global_pointer (struct gdbarch *gdbarch,\n \t      status = target_read_memory (addr, buf, sizeof (buf));\n \t      if (status != 0)\n \t\tbreak;\n-\t      tag = extract_signed_integer (buf, sizeof (buf), byte_order);\n+\t      tag = extract_signed_integer (buf, byte_order);\n \n \t      if (tag == DT_PLTGOT)\n \t\t{"
+    },
+    {
+      "sha": "7c6274589c9b444bb49b69d19231ee4b6bd2339f",
+      "filename": "gdb/i386-linux-tdep.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/i386-linux-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/i386-linux-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/i386-linux-tdep.c?ref=2a50938ab740296a1d6df67feea9401e57e4d90e",
+      "patch": "@@ -549,7 +549,7 @@ i386_linux_get_syscall_number_from_regcache (struct regcache *regcache)\n      is stored at %eax register.  */\n   regcache->cooked_read (I386_LINUX_ORIG_EAX_REGNUM, buf);\n \n-  ret = extract_signed_integer (buf, 4, byte_order);\n+  ret = extract_signed_integer (buf, byte_order);\n \n   return ret;\n }"
+    },
+    {
+      "sha": "f1af7cb0fec8826512ae8cf0d32a5603aec34841",
+      "filename": "gdb/ia64-tdep.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/ia64-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/ia64-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ia64-tdep.c?ref=2a50938ab740296a1d6df67feea9401e57e4d90e",
+      "patch": "@@ -3450,7 +3450,7 @@ ia64_find_global_pointer_from_dynamic_section (struct gdbarch *gdbarch,\n \t      status = target_read_memory (addr, buf, sizeof (buf));\n \t      if (status != 0)\n \t\tbreak;\n-\t      tag = extract_signed_integer (buf, sizeof (buf), byte_order);\n+\t      tag = extract_signed_integer (buf, byte_order);\n \n \t      if (tag == DT_PLTGOT)\n \t\t{\n@@ -3531,7 +3531,7 @@ find_extant_func_descr (struct gdbarch *gdbarch, CORE_ADDR faddr)\n \t      status = target_read_memory (addr, buf, sizeof (buf));\n \t      if (status != 0)\n \t\tbreak;\n-\t      faddr2 = extract_signed_integer (buf, sizeof (buf), byte_order);\n+\t      faddr2 = extract_signed_integer (buf, byte_order);\n \n \t      if (faddr == faddr2)\n \t\treturn addr;"
+    },
+    {
+      "sha": "b3ecba2fbe62231775a46bae1c185c9eace74de3",
+      "filename": "gdb/regcache.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 13,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/regcache.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/regcache.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/regcache.c?ref=2a50938ab740296a1d6df67feea9401e57e4d90e",
+      "patch": "@@ -620,15 +620,12 @@ template<typename T, typename>\n enum register_status\n readable_regcache::raw_read (int regnum, T *val)\n {\n-  gdb_byte *buf;\n-  enum register_status status;\n-\n   assert_regnum (regnum);\n-  buf = (gdb_byte *) alloca (m_descr->sizeof_register[regnum]);\n-  status = raw_read (regnum, buf);\n+  size_t len = m_descr->sizeof_register[regnum];\n+  gdb_byte *buf = (gdb_byte *) alloca (len);\n+  register_status status = raw_read (regnum, buf);\n   if (status == REG_VALID)\n-    *val = extract_integer<T> (buf,\n-\t\t\t       m_descr->sizeof_register[regnum],\n+    *val = extract_integer<T> ({buf, len},\n \t\t\t       gdbarch_byte_order (m_descr->gdbarch));\n   else\n     *val = 0;\n@@ -772,14 +769,12 @@ template<typename T, typename>\n enum register_status\n readable_regcache::cooked_read (int regnum, T *val)\n {\n-  enum register_status status;\n-  gdb_byte *buf;\n-\n   gdb_assert (regnum >= 0 && regnum < m_descr->nr_cooked_registers);\n-  buf = (gdb_byte *) alloca (m_descr->sizeof_register[regnum]);\n-  status = cooked_read (regnum, buf);\n+  size_t len = m_descr->sizeof_register[regnum];\n+  gdb_byte *buf = (gdb_byte *) alloca (len);\n+  register_status status = cooked_read (regnum, buf);\n   if (status == REG_VALID)\n-    *val = extract_integer<T> (buf, m_descr->sizeof_register[regnum],\n+    *val = extract_integer<T> ({buf, len},\n \t\t\t       gdbarch_byte_order (m_descr->gdbarch));\n   else\n     *val = 0;"
+    },
+    {
+      "sha": "e48bb39166e7d9da985e9822bcc82fc3a61dd789",
+      "filename": "gdb/unittests/gmp-utils-selftests.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/unittests/gmp-utils-selftests.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/unittests/gmp-utils-selftests.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/unittests/gmp-utils-selftests.c?ref=2a50938ab740296a1d6df67feea9401e57e4d90e",
+      "patch": "@@ -299,7 +299,7 @@ write_and_extract (T val, size_t buf_len, enum bfd_endian byte_order)\n   gdb_byte *buf = (gdb_byte *) alloca (buf_len);\n   v.write ({buf, buf_len}, byte_order, !std::is_signed<T>::value);\n \n-  return extract_integer<T> (buf, buf_len, byte_order);\n+  return extract_integer<T> ({buf, buf_len}, byte_order);\n }\n \n /* Test the gdb_mpz::write method over a reasonable range of values."
+    },
+    {
+      "sha": "779ca93edd7df016cf9e93c09e1e74e485713b35",
+      "filename": "gdb/valops.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/valops.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2a50938ab740296a1d6df67feea9401e57e4d90e/gdb/valops.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/valops.c?ref=2a50938ab740296a1d6df67feea9401e57e4d90e",
+      "patch": "@@ -587,8 +587,7 @@ value_cast (struct type *type, struct value *arg2)\n \t bits.  */\n       if (code2 == TYPE_CODE_PTR)\n \tlongest = extract_unsigned_integer\n-\t\t    (value_contents (arg2).data (), TYPE_LENGTH (type2),\n-\t\t     type_byte_order (type2));\n+\t\t    (value_contents (arg2), type_byte_order (type2));\n       else\n \tlongest = value_as_long (arg2);\n       return value_from_longest (to_type, convert_to_boolean ?"
+    }
+  ]
+}

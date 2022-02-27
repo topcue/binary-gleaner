@@ -1,0 +1,132 @@
+{
+  "sha": "9d1da81b261a20050ef2ad01a5b4c8cf78404222",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OWQxZGE4MWIyNjFhMjAwNTBlZjJhZDAxYTViNGM4Y2Y3ODQwNDIyMg==",
+  "commit": {
+    "author": {
+      "name": "Jim Wilson",
+      "email": "jimw@sifive.com",
+      "date": "2019-09-20T22:01:20Z"
+    },
+    "committer": {
+      "name": "Jim Wilson",
+      "email": "jimw@sifive.com",
+      "date": "2019-09-20T22:01:20Z"
+    },
+    "message": "RISC-V: Optimize lui and auipc relaxations for undefweak symbol.\n\nFor the lui and auipc relaxations, since the symbol value of an undefined weak\nsymbol is always be zero, we can optimize the patterns into a single LI/MV/ADDI\ninstruction.\n\n\tbfd/\n\t* elfnn-riscv.c (riscv_pcgp_hi_reloc): Add new field undefined_weak.\n\t(riscv_record_pcgp_hi_reloc): New parameter undefined_weak.\n\tSet undefined_weak field from it.\n\t(relax_func_t): New parameter undefined_weak.\n\t(_bfd_riscv_relax_call): New ignored parameter undefined_weak.\n\t(_bfd_riscv_relax_tls_le): Likewise.\n\t(_bfd_riscv_relax_align): Likewise.\n\t(_bfd_riscv_relax_delete): Likewise.\n\t(_bfd_riscv_relax_lui): New parameter undefined_weak.  If true,\n\tallow relaxing.  For LO12* relocs, set rs1 to x0 when undefined_weak.\n\t(_bfd_riscv_relax_pc): New parameter undefined_weak.  For LO12* relocs,\n\tset undefined_weak from hi_reloc.  If true, allow relaxing.  For LO12*\n\trelocs, set rs1 to x0 when undefined_weak and change to non-pcrel\n\treloc.\n\t(_bfd_riscv_relax_section): New local undefined_weak.  Set for\n\tundef weak relocs that can be relaxed.  Pass to relax_func call.\n\n\tld/\n\t* testsuite/ld-riscv-elf/weakref32.s: Add relaxable undef weak code.\n\t* testsuite/ld-riscv-elf/weakref64.s: Likewise.\n\t* testsuite/ld-riscv-elf/weakref32.d: Updated.\n\t* testsuite/ld-riscv-elf/weakref64.d: Updated.",
+    "tree": {
+      "sha": "bc9c73aaa8be63ebed399e1d3666a7fc84811883",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/bc9c73aaa8be63ebed399e1d3666a7fc84811883"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/9d1da81b261a20050ef2ad01a5b4c8cf78404222",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9d1da81b261a20050ef2ad01a5b4c8cf78404222",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/9d1da81b261a20050ef2ad01a5b4c8cf78404222",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9d1da81b261a20050ef2ad01a5b4c8cf78404222/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "abf516c6931af1683d1e51203de1ca01467f9f85",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/abf516c6931af1683d1e51203de1ca01467f9f85",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/abf516c6931af1683d1e51203de1ca01467f9f85"
+    }
+  ],
+  "stats": {
+    "total": 225,
+    "additions": 174,
+    "deletions": 51
+  },
+  "files": [
+    {
+      "sha": "b1a4aebd214810864649298156370141de401ca3",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 0,
+      "changes": 19,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9d1da81b261a20050ef2ad01a5b4c8cf78404222/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9d1da81b261a20050ef2ad01a5b4c8cf78404222/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=9d1da81b261a20050ef2ad01a5b4c8cf78404222",
+      "patch": "@@ -1,3 +1,22 @@\n+2019-09-20  Nelson Chu <nelson.chu@sifive.com>\n+\n+\t* elfnn-riscv.c (riscv_pcgp_hi_reloc): Add new field undefined_weak.\n+\t(riscv_record_pcgp_hi_reloc): New parameter undefined_weak.\n+\tSet undefined_weak field from it.\n+\t(relax_func_t): New parameter undefined_weak.\n+\t(_bfd_riscv_relax_call): New ignored parameter undefined_weak.\n+\t(_bfd_riscv_relax_tls_le): Likewise.\n+\t(_bfd_riscv_relax_align): Likewise.\n+\t(_bfd_riscv_relax_delete): Likewise.\n+\t(_bfd_riscv_relax_lui): New parameter undefined_weak.  If true,\n+\tallow relaxing.  For LO12* relocs, set rs1 to x0 when undefined_weak.\n+\t(_bfd_riscv_relax_pc): New parameter undefined_weak.  For LO12* relocs,\n+\tset undefined_weak from hi_reloc.  If true, allow relaxing.  For LO12*\n+\trelocs, set rs1 to x0 when undefined_weak and change to non-pcrel\n+\treloc.\n+\t(_bfd_riscv_relax_section): New local undefined_weak.  Set for\n+\tundef weak relocs that can be relaxed.  Pass to relax_func call.\n+\n 2019-09-20  Alan Modra  <amodra@gmail.com>\n \n \t* bfd-in.h (bfd_section_name, bfd_section_size, bfd_section_vma),"
+    },
+    {
+      "sha": "4ffe6a36e68f6c6c8e2301627dceedfef908f2db",
+      "filename": "bfd/elfnn-riscv.c",
+      "status": "modified",
+      "additions": 116,
+      "deletions": 27,
+      "changes": 143,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9d1da81b261a20050ef2ad01a5b4c8cf78404222/bfd/elfnn-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9d1da81b261a20050ef2ad01a5b4c8cf78404222/bfd/elfnn-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfnn-riscv.c?ref=9d1da81b261a20050ef2ad01a5b4c8cf78404222",
+      "patch": "@@ -3319,6 +3319,7 @@ struct riscv_pcgp_hi_reloc\n   bfd_vma hi_addr;\n   unsigned hi_sym;\n   asection *sym_sec;\n+  bfd_boolean undefined_weak;\n   riscv_pcgp_hi_reloc *next;\n };\n \n@@ -3377,7 +3378,8 @@ riscv_free_pcgp_relocs (riscv_pcgp_relocs *p,\n static bfd_boolean\n riscv_record_pcgp_hi_reloc (riscv_pcgp_relocs *p, bfd_vma hi_sec_off,\n \t\t\t    bfd_vma hi_addend, bfd_vma hi_addr,\n-\t\t\t    unsigned hi_sym, asection *sym_sec)\n+\t\t\t    unsigned hi_sym, asection *sym_sec,\n+\t\t\t    bfd_boolean undefined_weak)\n {\n   riscv_pcgp_hi_reloc *new = bfd_malloc (sizeof(*new));\n   if (!new)\n@@ -3387,6 +3389,7 @@ riscv_record_pcgp_hi_reloc (riscv_pcgp_relocs *p, bfd_vma hi_sec_off,\n   new->hi_addr = hi_addr;\n   new->hi_sym = hi_sym;\n   new->sym_sec = sym_sec;\n+  new->undefined_weak = undefined_weak;\n   new->next = p->hi;\n   p->hi = new;\n   return TRUE;\n@@ -3439,7 +3442,8 @@ typedef bfd_boolean (*relax_func_t) (bfd *, asection *, asection *,\n \t\t\t\t     struct bfd_link_info *,\n \t\t\t\t     Elf_Internal_Rela *,\n \t\t\t\t     bfd_vma, bfd_vma, bfd_vma, bfd_boolean *,\n-\t\t\t\t     riscv_pcgp_relocs *);\n+\t\t\t\t     riscv_pcgp_relocs *,\n+\t\t\t\t     bfd_boolean undefined_weak);\n \n /* Relax AUIPC + JALR into JAL.  */\n \n@@ -3451,7 +3455,8 @@ _bfd_riscv_relax_call (bfd *abfd, asection *sec, asection *sym_sec,\n \t\t       bfd_vma max_alignment,\n \t\t       bfd_vma reserve_size ATTRIBUTE_UNUSED,\n \t\t       bfd_boolean *again,\n-\t\t       riscv_pcgp_relocs *pcgp_relocs ATTRIBUTE_UNUSED)\n+\t\t       riscv_pcgp_relocs *pcgp_relocs ATTRIBUTE_UNUSED,\n+\t\t       bfd_boolean undefined_weak ATTRIBUTE_UNUSED)\n {\n   bfd_byte *contents = elf_section_data (sec)->this_hdr.contents;\n   bfd_signed_vma foff = symval - (sec_addr (sec) + rel->r_offset);\n@@ -3539,7 +3544,8 @@ _bfd_riscv_relax_lui (bfd *abfd,\n \t\t      bfd_vma max_alignment,\n \t\t      bfd_vma reserve_size,\n \t\t      bfd_boolean *again,\n-\t\t      riscv_pcgp_relocs *pcgp_relocs ATTRIBUTE_UNUSED)\n+\t\t      riscv_pcgp_relocs *pcgp_relocs ATTRIBUTE_UNUSED,\n+\t\t      bfd_boolean undefined_weak)\n {\n   bfd_byte *contents = elf_section_data (sec)->this_hdr.contents;\n   bfd_vma gp = riscv_global_pointer_value (link_info);\n@@ -3561,21 +3567,38 @@ _bfd_riscv_relax_lui (bfd *abfd,\n \n   /* Is the reference in range of x0 or gp?\n      Valid gp range conservatively because of alignment issue.  */\n-  if (VALID_ITYPE_IMM (symval)\n-      || (symval >= gp\n-\t  && VALID_ITYPE_IMM (symval - gp + max_alignment + reserve_size))\n-      || (symval < gp\n-\t  && VALID_ITYPE_IMM (symval - gp - max_alignment - reserve_size)))\n+  if (undefined_weak\n+      || (VALID_ITYPE_IMM (symval)\n+\t  || (symval >= gp\n+\t      && VALID_ITYPE_IMM (symval - gp + max_alignment + reserve_size))\n+\t  || (symval < gp\n+\t      && VALID_ITYPE_IMM (symval - gp - max_alignment - reserve_size))))\n     {\n       unsigned sym = ELFNN_R_SYM (rel->r_info);\n       switch (ELFNN_R_TYPE (rel->r_info))\n \t{\n \tcase R_RISCV_LO12_I:\n-\t  rel->r_info = ELFNN_R_INFO (sym, R_RISCV_GPREL_I);\n+\t  if (undefined_weak)\n+\t    {\n+\t      /* Change the RS1 to zero.  */\n+\t      bfd_vma insn = bfd_get_32 (abfd, contents + rel->r_offset);\n+\t      insn &= ~(OP_MASK_RS1 << OP_SH_RS1);\n+\t      bfd_put_32 (abfd, insn, contents + rel->r_offset);\n+\t    }\n+\t  else\n+\t    rel->r_info = ELFNN_R_INFO (sym, R_RISCV_GPREL_I);\n \t  return TRUE;\n \n \tcase R_RISCV_LO12_S:\n-\t  rel->r_info = ELFNN_R_INFO (sym, R_RISCV_GPREL_S);\n+\t  if (undefined_weak)\n+\t    {\n+\t      /* Change the RS1 to zero.  */\n+\t      bfd_vma insn = bfd_get_32 (abfd, contents + rel->r_offset);\n+\t      insn &= ~(OP_MASK_RS1 << OP_SH_RS1);\n+\t      bfd_put_32 (abfd, insn, contents + rel->r_offset);\n+\t    }\n+\t  else\n+\t    rel->r_info = ELFNN_R_INFO (sym, R_RISCV_GPREL_S);\n \t  return TRUE;\n \n \tcase R_RISCV_HI20:\n@@ -3634,7 +3657,8 @@ _bfd_riscv_relax_tls_le (bfd *abfd,\n \t\t\t bfd_vma max_alignment ATTRIBUTE_UNUSED,\n \t\t\t bfd_vma reserve_size ATTRIBUTE_UNUSED,\n \t\t\t bfd_boolean *again,\n-\t\t\t riscv_pcgp_relocs *prcel_relocs ATTRIBUTE_UNUSED)\n+\t\t\t riscv_pcgp_relocs *prcel_relocs ATTRIBUTE_UNUSED,\n+\t\t\t bfd_boolean undefined_weak ATTRIBUTE_UNUSED)\n {\n   /* See if this symbol is in range of tp.  */\n   if (RISCV_CONST_HIGH_PART (tpoff (link_info, symval)) != 0)\n@@ -3674,7 +3698,8 @@ _bfd_riscv_relax_align (bfd *abfd, asection *sec,\n \t\t\tbfd_vma max_alignment ATTRIBUTE_UNUSED,\n \t\t\tbfd_vma reserve_size ATTRIBUTE_UNUSED,\n \t\t\tbfd_boolean *again ATTRIBUTE_UNUSED,\n-\t\t\triscv_pcgp_relocs *pcrel_relocs ATTRIBUTE_UNUSED)\n+\t\t\triscv_pcgp_relocs *pcrel_relocs ATTRIBUTE_UNUSED,\n+\t\t\tbfd_boolean undefined_weak ATTRIBUTE_UNUSED)\n {\n   bfd_byte *contents = elf_section_data (sec)->this_hdr.contents;\n   bfd_vma alignment = 1, pos;\n@@ -3732,8 +3757,10 @@ _bfd_riscv_relax_pc  (bfd *abfd ATTRIBUTE_UNUSED,\n \t\t      bfd_vma max_alignment,\n \t\t      bfd_vma reserve_size,\n \t\t      bfd_boolean *again ATTRIBUTE_UNUSED,\n-\t\t      riscv_pcgp_relocs *pcgp_relocs)\n+\t\t      riscv_pcgp_relocs *pcgp_relocs,\n+\t\t      bfd_boolean undefined_weak)\n {\n+  bfd_byte *contents = elf_section_data (sec)->this_hdr.contents;\n   bfd_vma gp = riscv_global_pointer_value (link_info);\n \n   BFD_ASSERT (rel->r_offset + 4 <= sec->size);\n@@ -3763,12 +3790,19 @@ _bfd_riscv_relax_pc  (bfd *abfd ATTRIBUTE_UNUSED,\n \thi_reloc = *hi;\n \tsymval = hi_reloc.hi_addr;\n \tsym_sec = hi_reloc.sym_sec;\n+\n+\t/* We can not know whether the undefined weak symbol is referenced\n+\t   according to the information of R_RISCV_PCREL_LO12_I/S.  Therefore,\n+\t   we have to record the 'undefined_weak' flag when handling the\n+\t   corresponding R_RISCV_HI20 reloc in riscv_record_pcgp_hi_reloc.  */\n+\tundefined_weak = hi_reloc.undefined_weak;\n       }\n       break;\n \n     case R_RISCV_PCREL_HI20:\n       /* Mergeable symbols and code might later move out of range.  */\n-      if (sym_sec->flags & (SEC_MERGE | SEC_CODE))\n+      if (! undefined_weak\n+\t  && sym_sec->flags & (SEC_MERGE | SEC_CODE))\n \treturn TRUE;\n \n       /* If the cooresponding lo relocation has already been seen then it's not\n@@ -3796,23 +3830,50 @@ _bfd_riscv_relax_pc  (bfd *abfd ATTRIBUTE_UNUSED,\n \n   /* Is the reference in range of x0 or gp?\n      Valid gp range conservatively because of alignment issue.  */\n-  if (VALID_ITYPE_IMM (symval)\n-      || (symval >= gp\n-\t  && VALID_ITYPE_IMM (symval - gp + max_alignment + reserve_size))\n-      || (symval < gp\n-\t  && VALID_ITYPE_IMM (symval - gp - max_alignment - reserve_size)))\n+  if (undefined_weak\n+      || (VALID_ITYPE_IMM (symval)\n+\t  || (symval >= gp\n+\t      && VALID_ITYPE_IMM (symval - gp + max_alignment + reserve_size))\n+\t  || (symval < gp\n+\t      && VALID_ITYPE_IMM (symval - gp - max_alignment - reserve_size))))\n     {\n       unsigned sym = hi_reloc.hi_sym;\n       switch (ELFNN_R_TYPE (rel->r_info))\n \t{\n \tcase R_RISCV_PCREL_LO12_I:\n-\t  rel->r_info = ELFNN_R_INFO (sym, R_RISCV_GPREL_I);\n-\t  rel->r_addend += hi_reloc.hi_addend;\n+\t  if (undefined_weak)\n+\t    {\n+\t      /* Change the RS1 to zero, and then modify the relocation\n+\t\t type to R_RISCV_LO12_I.  */\n+\t      bfd_vma insn = bfd_get_32 (abfd, contents + rel->r_offset);\n+\t      insn &= ~(OP_MASK_RS1 << OP_SH_RS1);\n+\t      bfd_put_32 (abfd, insn, contents + rel->r_offset);\n+\t      rel->r_info = ELFNN_R_INFO (sym, R_RISCV_LO12_I);\n+\t      rel->r_addend = hi_reloc.hi_addend;\n+\t    }\n+\t  else\n+\t    {\n+\t      rel->r_info = ELFNN_R_INFO (sym, R_RISCV_GPREL_I);\n+\t      rel->r_addend += hi_reloc.hi_addend;\n+\t    }\n \t  return TRUE;\n \n \tcase R_RISCV_PCREL_LO12_S:\n-\t  rel->r_info = ELFNN_R_INFO (sym, R_RISCV_GPREL_S);\n-\t  rel->r_addend += hi_reloc.hi_addend;\n+\t  if (undefined_weak)\n+\t    {\n+\t      /* Change the RS1 to zero, and then modify the relocation\n+\t\t type to R_RISCV_LO12_S.  */\n+\t      bfd_vma insn = bfd_get_32 (abfd, contents + rel->r_offset);\n+\t      insn &= ~(OP_MASK_RS1 << OP_SH_RS1);\n+\t      bfd_put_32 (abfd, insn, contents + rel->r_offset);\n+\t      rel->r_info = ELFNN_R_INFO (sym, R_RISCV_LO12_S);\n+\t      rel->r_addend = hi_reloc.hi_addend;\n+\t    }\n+\t  else\n+\t    {\n+\t      rel->r_info = ELFNN_R_INFO (sym, R_RISCV_GPREL_S);\n+\t      rel->r_addend += hi_reloc.hi_addend;\n+\t    }\n \t  return TRUE;\n \n \tcase R_RISCV_PCREL_HI20:\n@@ -3821,7 +3882,8 @@ _bfd_riscv_relax_pc  (bfd *abfd ATTRIBUTE_UNUSED,\n \t\t\t\t      rel->r_addend,\n \t\t\t\t      symval,\n \t\t\t\t      ELFNN_R_SYM(rel->r_info),\n-\t\t\t\t      sym_sec);\n+\t\t\t\t      sym_sec,\n+\t\t\t\t      undefined_weak);\n \t  /* We can delete the unnecessary AUIPC and reloc.  */\n \t  rel->r_info = ELFNN_R_INFO (0, R_RISCV_DELETE);\n \t  rel->r_addend = 4;\n@@ -3847,7 +3909,8 @@ _bfd_riscv_relax_delete (bfd *abfd,\n \t\t\t bfd_vma max_alignment ATTRIBUTE_UNUSED,\n \t\t\t bfd_vma reserve_size ATTRIBUTE_UNUSED,\n \t\t\t bfd_boolean *again ATTRIBUTE_UNUSED,\n-\t\t\t riscv_pcgp_relocs *pcgp_relocs ATTRIBUTE_UNUSED)\n+\t\t\t riscv_pcgp_relocs *pcgp_relocs ATTRIBUTE_UNUSED,\n+\t\t\t bfd_boolean undefined_weak ATTRIBUTE_UNUSED)\n {\n   if (!riscv_relax_delete_bytes(abfd, sec, rel->r_offset, rel->r_addend,\n \t\t\t\tlink_info))\n@@ -3914,6 +3977,7 @@ _bfd_riscv_relax_section (bfd *abfd, asection *sec,\n       int type = ELFNN_R_TYPE (rel->r_info);\n       bfd_vma symval;\n       char symtype;\n+      bfd_boolean undefined_weak = FALSE;\n \n       relax_func = NULL;\n       if (info->relax_pass == 0)\n@@ -4008,11 +4072,36 @@ _bfd_riscv_relax_section (bfd *abfd, asection *sec,\n \t\t || h->root.type == bfd_link_hash_warning)\n \t    h = (struct elf_link_hash_entry *) h->root.u.i.link;\n \n+\t  if (h->root.type == bfd_link_hash_undefweak\n+\t      && (relax_func == _bfd_riscv_relax_lui\n+\t\t  || relax_func == _bfd_riscv_relax_pc))\n+\t    {\n+\t      /* For the lui and auipc relaxations, since the symbol\n+\t\t value of an undefined weak symbol is always be zero,\n+\t\t we can optimize the patterns into a single LI/MV/ADDI\n+\t\t instruction.\n+\n+\t\t Note that, creating shared libraries and pie output may\n+\t\t break the rule above.  Fortunately, since we do not relax\n+\t\t pc relocs when creating shared libraries and pie output,\n+\t\t and the absolute address access for R_RISCV_HI20 isn't\n+\t\t allowed when \"-fPIC\" is set, the problem of creating shared\n+\t\t libraries can not happen currently.  Once we support the\n+\t\t auipc relaxations when creating shared libraries, then we will\n+\t\t need the more rigorous checking for this optimization.  */\n+\t      undefined_weak = TRUE;\n+\t    }\n+\n \t  if (h->plt.offset != MINUS_ONE)\n \t    {\n \t      sym_sec = htab->elf.splt;\n \t      symval = h->plt.offset;\n \t    }\n+\t  else if (undefined_weak)\n+\t    {\n+\t      symval = 0;\n+\t      sym_sec = bfd_und_section_ptr;\n+\t    }\n \t  else if (h->root.u.def.section->output_section == NULL\n \t\t   || (h->root.type != bfd_link_hash_defined\n \t\t       && h->root.type != bfd_link_hash_defweak))\n@@ -4065,7 +4154,7 @@ _bfd_riscv_relax_section (bfd *abfd, asection *sec,\n \n       if (!relax_func (abfd, sec, sym_sec, info, rel, symval,\n \t\t       max_alignment, reserve_size, again,\n-\t\t       &pcgp_relocs))\n+\t\t       &pcgp_relocs, undefined_weak))\n \tgoto fail;\n     }\n "
+    },
+    {
+      "sha": "57d4df713aa6da903674a6eb3fb91bea13b821f3",
+      "filename": "ld/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9d1da81b261a20050ef2ad01a5b4c8cf78404222/ld/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9d1da81b261a20050ef2ad01a5b4c8cf78404222/ld/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/ChangeLog?ref=9d1da81b261a20050ef2ad01a5b4c8cf78404222",
+      "patch": "@@ -1,3 +1,10 @@\n+2019-09-20  Nelson Chu <nelson.chu@sifive.com>\n+\n+\t* testsuite/ld-riscv-elf/weakref32.s: Add relaxable undef weak code.\n+\t* testsuite/ld-riscv-elf/weakref64.s: Likewise.\n+\t* testsuite/ld-riscv-elf/weakref32.d: Updated.\n+\t* testsuite/ld-riscv-elf/weakref64.d: Updated.\n+\n 2019-09-20  Alan Modra  <amodra@gmail.com>\n \n \t* emultempl/xtensaelf.em (xtensa_get_section_deps): Comment."
+    },
+    {
+      "sha": "eaeb6dae7e358aa93eac557e45fc522351bfb128",
+      "filename": "ld/testsuite/ld-riscv-elf/weakref32.d",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 12,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9d1da81b261a20050ef2ad01a5b4c8cf78404222/ld/testsuite/ld-riscv-elf/weakref32.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9d1da81b261a20050ef2ad01a5b4c8cf78404222/ld/testsuite/ld-riscv-elf/weakref32.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/weakref32.d?ref=9d1da81b261a20050ef2ad01a5b4c8cf78404222",
+      "patch": "@@ -5,15 +5,16 @@\n Disassembly of section \\.text:\n \n 90000000 <_start>:\n-90000000:\t70000797          \tauipc\ta5,0x70000\n-90000004:\t00078793          \tmv\ta5,a5\n-90000008:\t02078263          \tbeqz\ta5,9000002c <_start\\+0x2c>\n-9000000c:\tff010113          \taddi\tsp,sp,-16\n-90000010:\t00112623          \tsw\tra,12\\(sp\\)\n-90000014:\t00000097          \tauipc\tra,0x0\n-90000018:\t000000e7          \tjalr\tzero # 0 <_start\\-0x90000000>\n-9000001c:\t00c12083          \tlw\tra,12\\(sp\\)\n-90000020:\t01010113          \taddi\tsp,sp,16\n-90000024:\t00000317          \tauipc\tt1,0x0\n-90000028:\t00000067          \tjr\tzero # 0 <_start\\-0x90000000>\n-9000002c:\t00008067          \tret\n+90000000:\t00000793          \tli\ta5,0\n+90000004:\t02078663          \tbeqz\ta5,90000030 <_start\\+0x30>\n+90000008:\t00000793          \tli\ta5,0\n+9000000c:\t02078263          \tbeqz\ta5,90000030 <_start\\+0x30>\n+90000010:\tff010113          \taddi\tsp,sp,-16\n+90000014:\t00112623          \tsw\tra,12\\(sp\\)\n+90000018:\t00000097          \tauipc\tra,0x0\n+9000001c:\t000000e7          \tjalr\tzero # 0 <_start\\-0x90000000>\n+90000020:\t00c12083          \tlw\tra,12\\(sp\\)\n+90000024:\t01010113          \taddi\tsp,sp,16\n+90000028:\t00000317          \tauipc\tt1,0x0\n+9000002c:\t00000067          \tjr\tzero # 0 <_start\\-0x90000000>\n+90000030:\t00008067          \tret"
+    },
+    {
+      "sha": "6c3d84de5f2ac69680313deb0917b30e138f707b",
+      "filename": "ld/testsuite/ld-riscv-elf/weakref32.s",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9d1da81b261a20050ef2ad01a5b4c8cf78404222/ld/testsuite/ld-riscv-elf/weakref32.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9d1da81b261a20050ef2ad01a5b4c8cf78404222/ld/testsuite/ld-riscv-elf/weakref32.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/weakref32.s?ref=9d1da81b261a20050ef2ad01a5b4c8cf78404222",
+      "patch": "@@ -4,6 +4,9 @@\n \t.globl\t_start\n \t.type\t_start, @function\n _start:\n+\tlui\ta5,%hi(f)\n+\taddi\ta5,a5,%lo(f)\n+\tbeq\ta5,zero,.L1\n \tlla\ta5,f\n \tbeqz\ta5,.L1\n \taddi\tsp,sp,-16"
+    },
+    {
+      "sha": "cc718a91a31f9a60b197ec4deda2b3c228c8c5e5",
+      "filename": "ld/testsuite/ld-riscv-elf/weakref64.d",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 12,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9d1da81b261a20050ef2ad01a5b4c8cf78404222/ld/testsuite/ld-riscv-elf/weakref64.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9d1da81b261a20050ef2ad01a5b4c8cf78404222/ld/testsuite/ld-riscv-elf/weakref64.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/weakref64.d?ref=9d1da81b261a20050ef2ad01a5b4c8cf78404222",
+      "patch": "@@ -5,15 +5,16 @@\n Disassembly of section \\.text:\n \n 0000000090000000 <_start>:\n-    90000000:\t000007b7          \tlui\ta5,0x0\n-    90000004:\t00078793          \tmv\ta5,a5\n-    90000008:\t02078263          \tbeqz\ta5,9000002c <_start\\+0x2c>\n-    9000000c:\tff010113          \taddi\tsp,sp,-16\n-    90000010:\t00113423          \tsd\tra,8\\(sp\\)\n-    90000014:\t00000097          \tauipc\tra,0x0\n-    90000018:\t000000e7          \tjalr\tzero # 0 <_start\\-0x90000000>\n-    9000001c:\t00813083          \tld\tra,8\\(sp\\)\n-    90000020:\t01010113          \taddi\tsp,sp,16\n-    90000024:\t00000317          \tauipc\tt1,0x0\n-    90000028:\t00000067          \tjr\tzero # 0 <_start\\-0x90000000>\n-    9000002c:\t00008067          \tret\n+    90000000:\t00000793          \tli\ta5,0\n+    90000004:\t02078663          \tbeqz\ta5,90000030 <_start\\+0x30>\n+    90000008:\t00000793          \tli\ta5,0\n+    9000000c:\t02078263          \tbeqz\ta5,90000030 <_start\\+0x30>\n+    90000010:\tff010113          \taddi\tsp,sp,-16\n+    90000014:\t00113423          \tsd\tra,8\\(sp\\)\n+    90000018:\t00000097          \tauipc\tra,0x0\n+    9000001c:\t000000e7          \tjalr\tzero # 0 <_start\\-0x90000000>\n+    90000020:\t00813083          \tld\tra,8\\(sp\\)\n+    90000024:\t01010113          \taddi\tsp,sp,16\n+    90000028:\t00000317          \tauipc\tt1,0x0\n+    9000002c:\t00000067          \tjr\tzero # 0 <_start\\-0x90000000>\n+    90000030:\t00008067          \tret"
+    },
+    {
+      "sha": "83bcd2856356b47b7f8845f9fc3938f0f2c34bd7",
+      "filename": "ld/testsuite/ld-riscv-elf/weakref64.s",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9d1da81b261a20050ef2ad01a5b4c8cf78404222/ld/testsuite/ld-riscv-elf/weakref64.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9d1da81b261a20050ef2ad01a5b4c8cf78404222/ld/testsuite/ld-riscv-elf/weakref64.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/weakref64.s?ref=9d1da81b261a20050ef2ad01a5b4c8cf78404222",
+      "patch": "@@ -4,6 +4,9 @@\n \t.globl\t_start\n \t.type\t_start, @function\n _start:\n+\tlui\ta5,%hi(f)\n+\taddi\ta5,a5,%lo(f)\n+\tbeq\ta5,zero,.L1\n \tlla\ta5,f\n \tbeqz\ta5,.L1\n \taddi\tsp,sp,-16"
+    }
+  ]
+}

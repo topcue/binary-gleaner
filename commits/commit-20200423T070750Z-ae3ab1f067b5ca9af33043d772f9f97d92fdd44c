@@ -1,0 +1,110 @@
+{
+  "sha": "ae3ab1f067b5ca9af33043d772f9f97d92fdd44c",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YWUzYWIxZjA2N2I1Y2E5YWYzMzA0M2Q3NzJmOWY5N2Q5MmZkZDQ0Yw==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-04-23T07:07:50Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-04-23T07:07:50Z"
+    },
+    "message": "[gdb/symtab] Fix disassembly of non-contiguous functions\n\nWhen running test-case gdb.dwarf2/dw2-ranges-func.exp with target board\nreadnow, we have:\n...\nFAIL: gdb.dwarf2/dw2-ranges-func.exp: disassemble foo (pattern 2)\n...\n\nThe function foo consists of two ranges:\n...\n <1><12f>: Abbrev Number: 7 (DW_TAG_subprogram)\n    <130>   DW_AT_external    : 1\n    <131>   DW_AT_name        : foo\n    <135>   DW_AT_ranges      : 0x40\n...\nwhich are listed here:\n...\n    00000040 00000000004004c1 00000000004004dc\n    00000040 00000000004004ae 00000000004004ba\n...\n\nNormally the disassemble instruction lists both ranges, but with -readnow it\nonly lists the first.\n\nThis is due to function find_pc_partial_function, which only interacts with\npartial symtabs, but not with expanded ones.\n\nFix this by using find_pc_sect_compunit_symtab in find_pc_partial_function.\n\nTested on x86_64, with native and target board readnow.\n\nThis fixes 19 FAILs for target board readnow, in test-cases\ngdb.arch/amd64-entry-value.exp, gdb.base/multi-forks.exp,\ngdb.dwarf2/dw2-ranges-func.exp and gdb.linespec/skip-two.exp.\n\ngdb/ChangeLog:\n\n2020-04-23  Tom de Vries  <tdevries@suse.de>\n\n\t* blockframe.c (find_pc_partial_function): Use\n\tfind_pc_sect_compunit_symtab rather than\n\tobjfile->sf->qf->find_pc_sect_compunit_symtab.",
+    "tree": {
+      "sha": "e3ba393d7d381c3f00a3a8b052b9c35c3ff5e2d8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/e3ba393d7d381c3f00a3a8b052b9c35c3ff5e2d8"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ae3ab1f067b5ca9af33043d772f9f97d92fdd44c",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ae3ab1f067b5ca9af33043d772f9f97d92fdd44c",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ae3ab1f067b5ca9af33043d772f9f97d92fdd44c",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ae3ab1f067b5ca9af33043d772f9f97d92fdd44c/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "30ce8e47fad9b057b6d7af9e1d43061126d34d20",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/30ce8e47fad9b057b6d7af9e1d43061126d34d20",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/30ce8e47fad9b057b6d7af9e1d43061126d34d20"
+    }
+  ],
+  "stats": {
+    "total": 20,
+    "additions": 7,
+    "deletions": 13
+  },
+  "files": [
+    {
+      "sha": "571ca4b2120d824ad481008e355d1a3123de24ae",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae3ab1f067b5ca9af33043d772f9f97d92fdd44c/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae3ab1f067b5ca9af33043d772f9f97d92fdd44c/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=ae3ab1f067b5ca9af33043d772f9f97d92fdd44c",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-04-23  Tom de Vries  <tdevries@suse.de>\n+\n+\t* blockframe.c (find_pc_partial_function): Use\n+\tfind_pc_sect_compunit_symtab rather than\n+\tobjfile->sf->qf->find_pc_sect_compunit_symtab.\n+\n 2020-04-22  Tom de Vries  <tdevries@suse.de>\n \n \tPR symtab/25764"
+    },
+    {
+      "sha": "09c3eed48db9d4d638befa8b39f84ed690ad10c7",
+      "filename": "gdb/blockframe.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 13,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae3ab1f067b5ca9af33043d772f9f97d92fdd44c/gdb/blockframe.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae3ab1f067b5ca9af33043d772f9f97d92fdd44c/gdb/blockframe.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/blockframe.c?ref=ae3ab1f067b5ca9af33043d772f9f97d92fdd44c",
+      "patch": "@@ -236,19 +236,7 @@ find_pc_partial_function (CORE_ADDR pc, const char **name, CORE_ADDR *address,\n     goto return_cached_value;\n \n   msymbol = lookup_minimal_symbol_by_pc_section (mapped_pc, section);\n-  for (objfile *objfile : current_program_space->objfiles ())\n-    {\n-      if (objfile->sf)\n-\t{\n-\t  compunit_symtab\n-\t    = objfile->sf->qf->find_pc_sect_compunit_symtab (objfile, msymbol,\n-\t\t\t\t\t\t\t     mapped_pc,\n-\t\t\t\t\t\t\t     section,\n-\t\t\t\t\t\t\t     0);\n-\t}\n-      if (compunit_symtab != NULL)\n-\tbreak;\n-    }\n+  compunit_symtab = find_pc_sect_compunit_symtab (mapped_pc, section);\n \n   if (compunit_symtab != NULL)\n     {"
+    }
+  ]
+}

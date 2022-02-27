@@ -1,0 +1,98 @@
+{
+  "sha": "fb550a919a88bf4e3950dd7bcdf72f0a18d94206",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZmI1NTBhOTE5YTg4YmY0ZTM5NTBkZDdiY2RmNzJmMGExOGQ5NDIwNg==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-06-10T09:44:43Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-08-11T11:35:14Z"
+    },
+    "message": "gdb: terminate upon receipt of SIGFPE\n\nGDB's SIGFPE handling is broken, this is PR gdb/16505 and\nPR gdb/17891.\n\nWe currently try to use an async event token to process SIGFPE.  So,\nwhen a SIGFPE arrives the signal handler calls\nmark_async_signal_handler then returns, effectively ignoring the\nsignal (for now).\n\nThe intention is that later the event loop will see that the async\ntoken associated with SIGFPE has been marked and will call the async\nhandler, which just throws an error.\n\nThe problem is that SIGFPE is not safe to ignore.  Ignoring a\nSIGFPE (unless it is generated artificially, e.g. by raise()) is\nundefined behaviour, after ignoring the signal on many targets we\nreturn to the instruction that caused the SIGFPE to be raised, which\nimmediately causes another SIGFPE to be raised, we get stuck in an\ninfinite loop.  The behaviour is certainly true on x86-64.\n\nTo view this behaviour I simply added some dummy code to GDB that\nperformed an integer divide by zero, compiled this on x86-64\nGNU/Linux, ran GDB and saw GDB hang.\n\nIn this commit, I propose to remove all special handling of SIGFPE and\ninstead just let GDB make use of the default SIGFPE action, that is,\nto terminate the process.\n\nThe only user visible change here should be:\n\n  - If a user sends a SIGFPE to GDB using something like kill,\n    previously GDB would just print an error and remain alive, now GDB\n    will terminate.  This is inline with what happens if the user\n    sends GDB a SIGSEGV from kill though, so I don't see this as an\n    issue.\n\n  - If a bug in GDB causes a real SIGFPE, previously the users GDB\n    session would hang.  Now the GDB session will terminate.  Again,\n    this is inline with what happens if GDB receives a SIGSEGV due to\n    an internal bug.\n\nIn bug gdb/16505 there is mention that it would be nice if GDB did\nmore than just terminate when receiving a fatal signal.  I haven't\ndone that in this commit, but later commits will move in that\ndirection.\n\nBug: https://sourceware.org/bugzilla/show_bug.cgi?id=16505\nBug: https://sourceware.org/bugzilla/show_bug.cgi?id=17891",
+    "tree": {
+      "sha": "c4f38846c2e5e1e9907588656ca923d08f36405b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c4f38846c2e5e1e9907588656ca923d08f36405b"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/fb550a919a88bf4e3950dd7bcdf72f0a18d94206",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/fb550a919a88bf4e3950dd7bcdf72f0a18d94206",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/fb550a919a88bf4e3950dd7bcdf72f0a18d94206",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/fb550a919a88bf4e3950dd7bcdf72f0a18d94206/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "cc9faa98adc96788e6a560c685bbd8e69c856cb7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cc9faa98adc96788e6a560c685bbd8e69c856cb7",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/cc9faa98adc96788e6a560c685bbd8e69c856cb7"
+    }
+  ],
+  "stats": {
+    "total": 25,
+    "additions": 1,
+    "deletions": 24
+  },
+  "files": [
+    {
+      "sha": "ab5179b7d326d24500af1c960b1287dd52b6bf2c",
+      "filename": "gdb/event-top.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 24,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/fb550a919a88bf4e3950dd7bcdf72f0a18d94206/gdb/event-top.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/fb550a919a88bf4e3950dd7bcdf72f0a18d94206/gdb/event-top.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/event-top.c?ref=fb550a919a88bf4e3950dd7bcdf72f0a18d94206",
+      "patch": "@@ -58,7 +58,6 @@ static void handle_sigquit (int sig);\n #ifdef SIGHUP\n static void handle_sighup (int sig);\n #endif\n-static void handle_sigfpe (int sig);\n \n /* Functions to be invoked by the event loop in response to\n    signals.  */\n@@ -68,7 +67,6 @@ static void async_do_nothing (gdb_client_data);\n #ifdef SIGHUP\n static void async_disconnect (gdb_client_data);\n #endif\n-static void async_float_handler (gdb_client_data);\n #ifdef SIGTSTP\n static void async_sigtstp_handler (gdb_client_data);\n #endif\n@@ -111,7 +109,6 @@ static struct async_signal_handler *sighup_token;\n #ifdef SIGQUIT\n static struct async_signal_handler *sigquit_token;\n #endif\n-static struct async_signal_handler *sigfpe_token;\n #ifdef SIGTSTP\n static struct async_signal_handler *sigtstp_token;\n #endif\n@@ -904,7 +901,7 @@ static struct serial_event *quit_serial_event;\n \n /* Initialization of signal handlers and tokens.  There is a function\n    handle_sig* for each of the signals GDB cares about.  Specifically:\n-   SIGINT, SIGFPE, SIGQUIT, SIGTSTP, SIGHUP, SIGWINCH.  These\n+   SIGINT, SIGQUIT, SIGTSTP, SIGHUP, SIGWINCH.  These\n    functions are the actual signal handlers associated to the signals\n    via calls to signal().  The only job for these functions is to\n    enqueue the appropriate event/procedure with the event loop.  Such\n@@ -955,9 +952,6 @@ async_init_signals (void)\n     sighup_token =\n       create_async_signal_handler (async_do_nothing, NULL, \"sighup\");\n #endif\n-  signal (SIGFPE, handle_sigfpe);\n-  sigfpe_token =\n-    create_async_signal_handler (async_float_handler, NULL, \"sigfpe\");\n \n #ifdef SIGTSTP\n   sigtstp_token =\n@@ -1198,23 +1192,6 @@ async_sigtstp_handler (gdb_client_data arg)\n }\n #endif /* SIGTSTP */\n \n-/* Tell the event loop what to do if SIGFPE is received.\n-   See event-signal.c.  */\n-static void\n-handle_sigfpe (int sig)\n-{\n-  mark_async_signal_handler (sigfpe_token);\n-  signal (sig, handle_sigfpe);\n-}\n-\n-/* Event loop will call this function to process a SIGFPE.  */\n-static void\n-async_float_handler (gdb_client_data arg)\n-{\n-  /* This message is based on ANSI C, section 4.7.  Note that integer\n-     divide by zero causes this, so \"float\" is a misnomer.  */\n-  error (_(\"Erroneous arithmetic operation.\"));\n-}\n \f\n \n /* Set things up for readline to be invoked via the alternate"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "sha": "0d4e283965dae2c05cf0c85dccea6144a2c6293e",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MGQ0ZTI4Mzk2NWRhZTJjMDVjZjBjODVkY2NlYTYxNDRhMmM2MjkzZQ==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-07-06T10:05:37Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-07-06T10:05:37Z"
+    },
+    "message": "[gdb/testsuite] Remove read1 timeout factor from gdb.base/info-macros.exp\n\nAt the moment some check-read1 timeouts are handled like this in\ngdb.base/info-macros.exp:\n...\ngdb_test_multiple_with_read1_timeout_factor 10 \"$test\" $testname {\n  -re \"$r1$r2$r3\" {\n     pass $testname\n  }\n  -re \".*#define TWO.*\\r\\n$gdb_prompt\" {\n     fail $testname\n  }\n  -re \".*#define THREE.*\\r\\n$gdb_prompt\" {\n     fail $testname\n  }\n  -re \".*#define FOUR.*\\r\\n$gdb_prompt\" {\n     fail $testname\n  }\n}\n...\nwhich is not ideal.\n\nWe could use gdb_test_lines, but it currently doesn't support verifying\nthe absence of regexps, which is done using the clauses above calling fail.\n\nFix this by using gdb_test_lines and adding a -re-not syntax to\ngdb_test_lines, such that we can do:\n...\ngdb_test_lines $test $testname $r1.*$r2 \\\n    -re-not \"#define TWO\" \\\n    -re-not \"#define THREE\" \\\n    -re-not \"#define FOUR\"\n...\n\nTested on x86_64-linux, whith make targets check and check-read1.\n\nAlso observed that check-read1 execution time is reduced from 6m35s to 13s.\n\ngdb/testsuite/ChangeLog:\n\n2021-07-06  Tom de Vries  <tdevries@suse.de>\n\n\t* gdb.base/info-macros.exp: Replace use of\n\tgdb_test_multiple_with_read1_timeout_factor with gdb_test_lines.\n\t(gdb_test_multiple_with_read1_timeout_factor): Remove.\n\t* lib/gdb.exp (gdb_test_lines): Add handling or -re-not <regexp>.",
+    "tree": {
+      "sha": "e96abc679c483f14d263a9cab17177405d094f51",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/e96abc679c483f14d263a9cab17177405d094f51"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/0d4e283965dae2c05cf0c85dccea6144a2c6293e",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0d4e283965dae2c05cf0c85dccea6144a2c6293e",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/0d4e283965dae2c05cf0c85dccea6144a2c6293e",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0d4e283965dae2c05cf0c85dccea6144a2c6293e/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "70a590636b4fcb0818233c65c92163254140a2fd",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/70a590636b4fcb0818233c65c92163254140a2fd",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/70a590636b4fcb0818233c65c92163254140a2fd"
+    }
+  ],
+  "stats": {
+    "total": 217,
+    "additions": 81,
+    "deletions": 136
+  },
+  "files": [
+    {
+      "sha": "a7fa58d769a87332191fc5229816d452de9d9f7e",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0d4e283965dae2c05cf0c85dccea6144a2c6293e/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0d4e283965dae2c05cf0c85dccea6144a2c6293e/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=0d4e283965dae2c05cf0c85dccea6144a2c6293e",
+      "patch": "@@ -1,3 +1,10 @@\n+2021-07-06  Tom de Vries  <tdevries@suse.de>\n+\n+\t* gdb.base/info-macros.exp: Replace use of\n+\tgdb_test_multiple_with_read1_timeout_factor with gdb_test_lines.\n+\t(gdb_test_multiple_with_read1_timeout_factor): Remove.\n+\t* lib/gdb.exp (gdb_test_lines): Add handling or -re-not <regexp>.\n+\n 2021-07-05  Tom de Vries  <tdevries@suse.de>\n \n \t* gdb.fortran/ptype-on-functions.exp: Allow both $integer8 and"
+    },
+    {
+      "sha": "538279fd309ae863463878830f759a931ac28df9",
+      "filename": "gdb/testsuite/gdb.base/info-macros.exp",
+      "status": "modified",
+      "additions": 46,
+      "deletions": 133,
+      "changes": 179,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0d4e283965dae2c05cf0c85dccea6144a2c6293e/gdb/testsuite/gdb.base/info-macros.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0d4e283965dae2c05cf0c85dccea6144a2c6293e/gdb/testsuite/gdb.base/info-macros.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/info-macros.exp?ref=0d4e283965dae2c05cf0c85dccea6144a2c6293e",
+      "patch": "@@ -117,161 +117,74 @@ gdb_test \"$test\" \"$r1$r2$r3$r4\"\n set test \"info macro  -a  --  FOO\"\n gdb_test \"$test\" \"$r1$r2$r3$r4\"\n \n-proc gdb_test_multiple_with_read1_timeout_factor { factor command message \\\n-\t\t\t\t\t\t       user_code } {\n-    with_read1_timeout_factor $factor {\n-        uplevel [list gdb_test_multiple $command $message $user_code]\n-    }\n-}\n-\n set test \"info macros\"\n-set r1 \".*#define FOO \\\"hello\\\"\"\n-set r2 \".*#define ONE\"\n-set r3 \".*\\r\\n$gdb_prompt\"\n+set r1 \"#define FOO \\\"hello\\\"\"\n+set r2 \"#define ONE\"\n set testname \"$test 2\"\n-gdb_test_multiple_with_read1_timeout_factor 10 \"$test\" $testname {\n-  -re \"$r1$r2$r3\" {\n-     pass $testname\n-  }\n-  -re \".*#define TWO.*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \".*#define THREE.*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \".*#define FOUR.*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-}\n+gdb_test_lines $test $testname $r1.*$r2 \\\n+    -re-not \"#define TWO\" \\\n+    -re-not \"#define THREE\" \\\n+    -re-not \"#define FOUR\"\n+\n gdb_test \"next\" \".*\" \"\"\n \n-set r1 \".*#define FOO \\\" \\\"\"\n-set r2 \".*#define ONE\"\n-set r3 \".*#define TWO\"\n-set r4 \".*\\r\\n$gdb_prompt\"\n+set r1 \"#define FOO \\\" \\\"\"\n+set r2 \"#define ONE\"\n+set r3 \"#define TWO\"\n set testname \"$test 3\"\n-gdb_test_multiple_with_read1_timeout_factor 10 \"$test\" $testname {\n-  -re \".*#define THREE.*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \".*#define FOUR.*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \"$r1$r2$r3$r4\" {\n-     pass $testname\n-  }\n-}\n+gdb_test_lines $test $testname $r1.*$r2.*$r3 \\\n+    -re-not \"#define THREE\" \\\n+    -re-not \"#define FOUR\"\n+\n gdb_test \"next\" \".*\" \"\"\n \n # in alpabetical order...\n-set r1 \".*#define FOO \\\"world\\\"\"\n-set r2 \".*#define ONE\"\n-set r3 \".*#define THREE\"\n-set r4 \".*#define TWO\"\n-set r5 \".*\\r\\n$gdb_prompt\"\n+set r1 \"#define FOO \\\"world\\\"\"\n+set r2 \"#define ONE\"\n+set r3 \"#define THREE\"\n+set r4 \"#define TWO\"\n set testname \"$test 4\"\n-gdb_test_multiple_with_read1_timeout_factor 10 \"$test\" $testname {\n-  -re \".*#define FOUR.*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \"$r1$r2$r3$r4$r5\" {\n-     pass $testname\n-  }\n-}\n+gdb_test_lines $test $testname $r1.*$r2.*$r3.*$r4 \\\n+    -re-not \"#define FOUR\"\n+\n # same as above with a linespec.\n set test \"info macros *\\$pc\"\n-gdb_test_multiple_with_read1_timeout_factor 10 \"$test\" $test {\n-  -re \".*#define FOUR.*\\r\\n$gdb_prompt\" {\n-     fail $test\n-  }\n-  -re \"$r1$r2$r3$r4$r5\" {\n-     pass $test\n-  }\n-}\n+gdb_test_lines $test \"\" $r1.*$r2.*$r3.*$r4 \\\n+    -re-not \"#define FOUR\"\n gdb_test \"next\" \".*\" \"\"\n \n-set r1 \".*#define FOO \\\" \\\"\"\n-set r2 \".*#define ONE\"\n-set r3 \".*#define TWO.\"\n-set r4 \".*\\r\\n$gdb_prompt\"\n+set r1 \"#define FOO \\\" \\\"\"\n+set r2 \"#define ONE\"\n+set r3 \"#define TWO.\"\n set test \"info macros\"\n set testname \"$test 5\"\n-gdb_test_multiple_with_read1_timeout_factor 10 \"$test\" $test {\n-  -re \".*#define THREE.*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \".*#define FOUR.*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \"$r1$r2$r3$r4\" {\n-     pass $testname\n-  }\n-}\n+gdb_test_lines $test $testname $r1.*$r2.*$r3 \\\n+    -re-not \"#define THREE\" \\\n+    -re-not \"#define FOUR\"\n gdb_test \"next\" \".*\" \"\"\n gdb_test \"next\" \".*\" \"\"\n \n-set r1 \".*#define DEF_MACROS\"\n-set r2 \".*\\r\\n$gdb_prompt\"\n+set r1 \"#define DEF_MACROS\"\n set testname \"$test 6\"\n-gdb_test_multiple_with_read1_timeout_factor 10 \"$test\" $testname {\n-  -re \".*#define FOO \\\" \\\".*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \".*#define FOO \\\"hello\\\".*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \".*#define FOO \\\"world\\\".*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \".*#define FOO\\\\(a\\\\) foo = a.*\" {\n-     fail $testname\n-  }\n-  -re \".*#define ONE.*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \".*#define TWO.*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \".*#define THREE.*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \".*#define FOUR.*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \"$r1$r2\" {\n-     pass $testname\n-  }\n-}\n+gdb_test_lines $test $testname $r1 \\\n+    -re-not \"#define FOO\" \\\n+    -re-not \"#define ONE\" \\\n+    -re-not \"#define TWO\" \\\n+    -re-not \"#define THREE\" \\\n+    -re-not \"#define FOUR\"\n \n gdb_test \"next\" \".*\" \"\"\n-set r1 \".*#define DEF_MACROS\"\n-set r2 \".*#define FOO\\\\(a\\\\) foo = a\"\n-set r3 \".*#define FOUR\"\n-set r4 \".*\\r\\n$gdb_prompt\"\n+set r1 \"#define DEF_MACROS\"\n+set r2 \"#define FOO\\\\(a\\\\) foo = a\"\n+set r3 \"#define FOUR\"\n set testname \"$test 7\"\n-gdb_test_multiple_with_read1_timeout_factor 10 \"$test\" $testname {\n-  -re \".*#define FOO \\\" \\\".*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \".*#define FOO \\\"hello\\\".*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \".*#define FOO \\\"world\\\".*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \".*#define ONE.*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \".*#define TWO.*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \".*#define THREE.*\\r\\n$gdb_prompt\" {\n-     fail $testname\n-  }\n-  -re \"$r1$r2$r3$r4\" {\n-     pass $testname\n-  }\n-}\n+gdb_test_lines $test $testname $r1.*$r2.*$r3 \\\n+    -re-not \"#define FOO \\\" \\\"\" \\\n+    -re-not \"#define FOO \\\"hello\\\"\" \\\n+    -re-not \"#define FOO \\\"world\\\"\" \\\n+    -re-not \"#define ONE\" \\\n+    -re-not \"#define TWO\" \\\n+    -re-not \"#define THREE\"\n \n set test \"info macros info-macros.c:42\"\n "
+    },
+    {
+      "sha": "6b6a70a89b0410fd250bd6c3d5eccdadcddfc60c",
+      "filename": "gdb/testsuite/lib/gdb.exp",
+      "status": "modified",
+      "additions": 28,
+      "deletions": 3,
+      "changes": 31,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0d4e283965dae2c05cf0c85dccea6144a2c6293e/gdb/testsuite/lib/gdb.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0d4e283965dae2c05cf0c85dccea6144a2c6293e/gdb/testsuite/lib/gdb.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/gdb.exp?ref=0d4e283965dae2c05cf0c85dccea6144a2c6293e",
+      "patch": "@@ -1443,13 +1443,34 @@ proc gdb_test_sequence { args } {\n #  '<line1>^M\n #   <line2>^M\n #  '\n+#\n+# Optionally, additional -re-not <regexp> arguments can be specified, to\n+# ensure that a regexp is not match by the COMMAND output.\n+# Such an additional argument generates an additional PASS/FAIL of the form:\n+#   PASS: test-case.exp: $message: pattern not matched: <regexp>\n+\n+proc gdb_test_lines { command message re args } {\n+    set re_not [list]\n+\n+    for {set i 0} {$i < [llength $args]} {incr i} {\n+\tset arg [lindex $args $i]\n+\tif { $arg == \"-re-not\" } {\n+\t    incr i\n+\t    if { [llength $args] == $i } {\n+\t\terror \"Missing argument for -re-not\"\n+\t\tbreak\n+\t    }\n+\t    set arg [lindex $args $i]\n+\t    lappend re_not $arg\n+\t} else {\n+\t    error \"Unhandled argument: $arg\"\n+\t}\n+    }\n \n-proc gdb_test_lines { command message re } {\n-    set found 0\n-    set idx 0\n     if { $message == \"\"} {\n \tset message $command\n     }\n+\n     set lines \"\"\n     gdb_test_multiple $command $message {\n \t-re \"\\r\\n(\\[^\\r\\n\\]*)(?=\\r\\n)\" {\n@@ -1467,6 +1488,10 @@ proc gdb_test_lines { command message re } {\n     }\n \n     gdb_assert { [regexp $re $lines] } $message\n+\n+    foreach re $re_not {\n+\tgdb_assert { ![regexp $re $lines] } \"$message: pattern not matched: $re\"\n+    }\n }\n \n # Test that a command gives an error.  For pass or fail, return"
+    }
+  ]
+}

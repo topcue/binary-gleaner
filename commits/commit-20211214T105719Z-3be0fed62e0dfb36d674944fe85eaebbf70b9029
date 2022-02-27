@@ -1,0 +1,60 @@
+{
+  "sha": "3be0fed62e0dfb36d674944fe85eaebbf70b9029",
+  "node_id": "C_kwDOANOeidoAKDNiZTBmZWQ2MmUwZGZiMzZkNjc0OTQ0ZmU4NWVhZWJiZjcwYjkwMjk",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-11-08T12:25:56Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-12-14T10:57:19Z"
+    },
+    "message": "gdb/mi: int to bool conversion in mi_execute_cli_command\n\nChange an argument of mi_execute_cli_command from int to bool.  Update\nthe callers to take this into account.  Within mi_execute_cli_command,\nupdate a comparison of a pointer to 0 with a comparison to nullptr,\nand add an assert, if we are not using the argument string then the\nstring should be nullptr.  Also removed a cryptic 'gdb_????' comment,\nwhich isn't really helpful.\n\nThere should be no user visible changes after this commit.",
+    "tree": {
+      "sha": "bb000902e8d72aafb1a74b493c09f66352116d13",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/bb000902e8d72aafb1a74b493c09f66352116d13"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/3be0fed62e0dfb36d674944fe85eaebbf70b9029",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3be0fed62e0dfb36d674944fe85eaebbf70b9029",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/3be0fed62e0dfb36d674944fe85eaebbf70b9029",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3be0fed62e0dfb36d674944fe85eaebbf70b9029/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "f76d800be844dd2aa4aa8f189a3ace16c5e931bc",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f76d800be844dd2aa4aa8f189a3ace16c5e931bc",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/f76d800be844dd2aa4aa8f189a3ace16c5e931bc"
+    }
+  ],
+  "stats": {
+    "total": 22,
+    "additions": 13,
+    "deletions": 9
+  },
+  "files": [
+    {
+      "sha": "269c01d517613c92b99e7fa0c4c9235ccdf2408b",
+      "filename": "gdb/mi/mi-main.c",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 9,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3be0fed62e0dfb36d674944fe85eaebbf70b9029/gdb/mi/mi-main.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3be0fed62e0dfb36d674944fe85eaebbf70b9029/gdb/mi/mi-main.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/mi/mi-main.c?ref=3be0fed62e0dfb36d674944fe85eaebbf70b9029",
+      "patch": "@@ -90,7 +90,7 @@ int mi_proceeded;\n \n static void mi_cmd_execute (struct mi_parse *parse);\n \n-static void mi_execute_cli_command (const char *cmd, int args_p,\n+static void mi_execute_cli_command (const char *cmd, bool args_p,\n \t\t\t\t    const char *args);\n static void mi_execute_async_cli_command (const char *cli_command,\n \t\t\t\t\t  char **argv, int argc);\n@@ -408,7 +408,7 @@ run_one_inferior (inferior *inf, bool start_p)\n {\n   const char *run_cmd = start_p ? \"start\" : \"run\";\n   struct target_ops *run_target = find_run_target ();\n-  int async_p = mi_async && target_can_async_p (run_target);\n+  bool async_p = mi_async && target_can_async_p (run_target);\n \n   if (inf->pid != 0)\n     {\n@@ -473,7 +473,7 @@ mi_cmd_exec_run (const char *command, char **argv, int argc)\n     {\n       const char *run_cmd = start_p ? \"start\" : \"run\";\n       struct target_ops *run_target = find_run_target ();\n-      int async_p = mi_async && target_can_async_p (run_target);\n+      bool async_p = mi_async && target_can_async_p (run_target);\n \n       mi_execute_cli_command (run_cmd, async_p,\n \t\t\t      async_p ? \"&\" : NULL);\n@@ -2088,8 +2088,9 @@ mi_cmd_execute (struct mi_parse *parse)\n       /* FIXME: DELETE THIS. */\n       /* The operation is still implemented by a cli command.  */\n       /* Must be a synchronous one.  */\n-      mi_execute_cli_command (parse->cmd->cli.cmd, parse->cmd->cli.args_p,\n-\t\t\t      parse->args);\n+      bool args_p = parse->cmd->cli.args_p != 0;\n+      const char *args = args_p ? parse->args : nullptr;\n+      mi_execute_cli_command (parse->cmd->cli.cmd, args_p, args);\n     }\n   else\n     {\n@@ -2109,18 +2110,21 @@ mi_cmd_execute (struct mi_parse *parse)\n    Use only for synchronous commands.  */\n \n void\n-mi_execute_cli_command (const char *cmd, int args_p, const char *args)\n+mi_execute_cli_command (const char *cmd, bool args_p, const char *args)\n {\n-  if (cmd != 0)\n+  if (cmd != nullptr)\n     {\n-      std::string run = cmd;\n+      std::string run (cmd);\n \n       if (args_p)\n \trun = run + \" \" + args;\n+      else\n+\tgdb_assert (args == nullptr);\n+\n       if (mi_debug_p)\n-\t/* FIXME: gdb_???? */\n \tfprintf_unfiltered (gdb_stdout, \"cli=%s run=%s\\n\",\n \t\t\t    cmd, run.c_str ());\n+\n       execute_command (run.c_str (), 0 /* from_tty */ );\n     }\n }"
+    }
+  ]
+}

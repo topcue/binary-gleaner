@@ -1,0 +1,158 @@
+{
+  "sha": "733d0a679536628eb1be4b4b8aa6384de24ff1f1",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NzMzZDBhNjc5NTM2NjI4ZWIxYmU0YjRiOGFhNjM4NGRlMjRmZjFmMQ==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-01-11T01:38:28Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-01-24T00:10:33Z"
+    },
+    "message": "gdb/tui: asm window handles invalid memory and scrolls better\n\nThis started as a patch to enable the asm window to handle attempts to\ndisassemble invalid memory, but it ended up expanding into a\nsignificant rewrite of how the asm window handles scrolling.  These\ntwo things ended up being tied together as it was impossible to\ncorrectly test scrolling into invalid memory when the asm window would\nrandomly behave weirdly while scrolling.\n\nThings that should work nicely now; scrolling to the bottom or top of\nthe listing with PageUp, PageDown, Up Arrow, Down Arrow and we should\nbe able to scroll past small areas of memory that don't have symbols\nassociated with them.  It should also be possible to scroll to the\nstart of a section even if there's no symbol at the start of the\nsection.\n\nAdding tests for this scrolling was a little bit of a problem.  First\nI would have liked to add tests for PageUp / PageDown, but the tuiterm\nlibrary we use doesn't support these commands right now due to only\nemulating a basic ascii terminal.  Changing this to emulate a more\ncomplex terminal would require adding support for more escape sequence\ncontrol codes, so I've not tried to tackle that in this patch.\n\nNext, I would have liked to test scrolling to the start or end of the\nassembler listing and then trying to scroll even more, however, this\nis a problem because in a well behaving GDB a scroll at the start/end\nhas no effect.  What we need to do is:\n\n  - Move to start of assembler listing,\n  - Send scroll up command,\n  - Wait for all curses output,\n  - Ensure the assembler listing is unchanged, we're still at the\n    start of the listing.\n\nThe problem is that there is no curses output, so how long do we wait\nat step 3?  The same problem exists for scrolling to the bottom of the\nassembler listing.  However, when scrolling down you can at least see\nthe end coming, so I added a test for this case, however, this feels\nlike an area of code that is massively under tested.\n\ngdb/ChangeLog:\n\n\tPR tui/9765\n\t* minsyms.c (lookup_minimal_symbol_by_pc_section): Update header\n\tcomment, add extra parameter, and update to store previous symbol\n\twhen appropriate.\n\t* minsyms.h (lookup_minimal_symbol_by_pc_section): Update comment,\n\tadd extra parameter.\n\t* tui/tui-disasm.c (tui_disassemble): Update header comment,\n\tremove unneeded parameter, add try/catch around gdb_print_insn,\n\trewrite to add items to asm_lines vector.\n\t(tui_find_backward_disassembly_start_address): New function.\n\t(tui_find_disassembly_address): Updated throughout.\n\t(tui_disasm_window::set_contents): Update for changes to\n\ttui_disassemble.\n\t(tui_disasm_window::do_scroll_vertical): No need to adjust the\n\tnumber of lines to scroll.\n\ngdb/testsuite/ChangeLog:\n\n\tPR tui/9765\n\t* gdb.tui/tui-layout-asm.exp: Add scrolling test for asm window.\n\nChange-Id: I323987c8fd316962c937e73c17d952ccd3cfa66c",
+    "tree": {
+      "sha": "9a8f6e77b400a79b40433763852d33b78e77b423",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/9a8f6e77b400a79b40433763852d33b78e77b423"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/733d0a679536628eb1be4b4b8aa6384de24ff1f1",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/733d0a679536628eb1be4b4b8aa6384de24ff1f1",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/733d0a679536628eb1be4b4b8aa6384de24ff1f1",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/733d0a679536628eb1be4b4b8aa6384de24ff1f1/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "2f267673f0fdee9287e6d404ecd4f2d29da0d2f2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2f267673f0fdee9287e6d404ecd4f2d29da0d2f2",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/2f267673f0fdee9287e6d404ecd4f2d29da0d2f2"
+    }
+  ],
+  "stats": {
+    "total": 366,
+    "additions": 288,
+    "deletions": 78
+  },
+  "files": [
+    {
+      "sha": "bc2a3ba739d6209b43f8c7d6cac0fdb75da6b75c",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 0,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d0a679536628eb1be4b4b8aa6384de24ff1f1/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d0a679536628eb1be4b4b8aa6384de24ff1f1/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=733d0a679536628eb1be4b4b8aa6384de24ff1f1",
+      "patch": "@@ -1,3 +1,21 @@\n+2020-01-24  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\tPR tui/9765\n+\t* minsyms.c (lookup_minimal_symbol_by_pc_section): Update header\n+\tcomment, add extra parameter, and update to store previous symbol\n+\twhen appropriate.\n+\t* minsyms.h (lookup_minimal_symbol_by_pc_section): Update comment,\n+\tadd extra parameter.\n+\t* tui/tui-disasm.c (tui_disassemble): Update header comment,\n+\tremove unneeded parameter, add try/catch around gdb_print_insn,\n+\trewrite to add items to asm_lines vector.\n+\t(tui_find_backward_disassembly_start_address): New function.\n+\t(tui_find_disassembly_address): Updated throughout.\n+\t(tui_disasm_window::set_contents): Update for changes to\n+\ttui_disassemble.\n+\t(tui_disasm_window::do_scroll_vertical): No need to adjust the\n+\tnumber of lines to scroll.\n+\n 2020-01-23  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* objfiles.h (ALL_OBJFILE_OSECTIONS): Move up."
+    },
+    {
+      "sha": "e238355dc1175f433146e983be289d80dcf22648",
+      "filename": "gdb/minsyms.c",
+      "status": "modified",
+      "additions": 28,
+      "deletions": 13,
+      "changes": 41,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d0a679536628eb1be4b4b8aa6384de24ff1f1/gdb/minsyms.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d0a679536628eb1be4b4b8aa6384de24ff1f1/gdb/minsyms.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/minsyms.c?ref=733d0a679536628eb1be4b4b8aa6384de24ff1f1",
+      "patch": "@@ -666,24 +666,18 @@ msym_prefer_to_msym_type (lookup_msym_prefer prefer)\n   gdb_assert_not_reached (\"unhandled lookup_msym_prefer\");\n }\n \n-/* Search through the minimal symbol table for each objfile and find\n-   the symbol whose address is the largest address that is still less\n-   than or equal to PC, and matches SECTION (which is not NULL).\n-   Returns a pointer to the minimal symbol if such a symbol is found,\n-   or NULL if PC is not in a suitable range.\n+/* See minsyms.h.\n+\n    Note that we need to look through ALL the minimal symbol tables\n    before deciding on the symbol that comes closest to the specified PC.\n    This is because objfiles can overlap, for example objfile A has .text\n    at 0x100 and .data at 0x40000 and objfile B has .text at 0x234 and\n-   .data at 0x40048.\n-\n-   If WANT_TRAMPOLINE is set, prefer mst_solib_trampoline symbols when\n-   there are text and trampoline symbols at the same address.\n-   Otherwise prefer mst_text symbols.  */\n+   .data at 0x40048.  */\n \n bound_minimal_symbol\n lookup_minimal_symbol_by_pc_section (CORE_ADDR pc_in, struct obj_section *section,\n-\t\t\t\t     lookup_msym_prefer prefer)\n+\t\t\t\t     lookup_msym_prefer prefer,\n+\t\t\t\t     bound_minimal_symbol *previous)\n {\n   int lo;\n   int hi;\n@@ -693,6 +687,12 @@ lookup_minimal_symbol_by_pc_section (CORE_ADDR pc_in, struct obj_section *sectio\n   struct objfile *best_objfile = NULL;\n   struct bound_minimal_symbol result;\n \n+  if (previous != nullptr)\n+    {\n+      previous->minsym = nullptr;\n+      previous->objfile = nullptr;\n+    }\n+\n   if (section == NULL)\n     {\n       section = find_pc_section (pc_in);\n@@ -886,8 +886,23 @@ lookup_minimal_symbol_by_pc_section (CORE_ADDR pc_in, struct obj_section *sectio\n \t\t  if (best_zero_sized != -1)\n \t\t    hi = best_zero_sized;\n \t\t  else\n-\t\t    /* Go on to the next object file.  */\n-\t\t    continue;\n+\t\t    {\n+\t\t      /* If needed record this symbol as the closest\n+\t\t\t previous symbol.  */\n+\t\t      if (previous != nullptr)\n+\t\t\t{\n+\t\t\t  if (previous->minsym == nullptr\n+\t\t\t      || (MSYMBOL_VALUE_RAW_ADDRESS (&msymbol[hi])\n+\t\t\t\t  > MSYMBOL_VALUE_RAW_ADDRESS\n+\t\t\t\t\t(previous->minsym)))\n+\t\t\t    {\n+\t\t\t      previous->minsym = &msymbol[hi];\n+\t\t\t      previous->objfile = objfile;\n+\t\t\t    }\n+\t\t\t}\n+\t\t      /* Go on to the next object file.  */\n+\t\t      continue;\n+\t\t    }\n \t\t}\n \n \t      /* The minimal symbol indexed by hi now is the best one in this"
+    },
+    {
+      "sha": "11c46ebb8c63040c2257a7d2403231f91f4b2bfa",
+      "filename": "gdb/minsyms.h",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 5,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d0a679536628eb1be4b4b8aa6384de24ff1f1/gdb/minsyms.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d0a679536628eb1be4b4b8aa6384de24ff1f1/gdb/minsyms.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/minsyms.h?ref=733d0a679536628eb1be4b4b8aa6384de24ff1f1",
+      "patch": "@@ -240,7 +240,9 @@ enum class lookup_msym_prefer\n \n /* Search through the minimal symbol table for each objfile and find\n    the symbol whose address is the largest address that is still less\n-   than or equal to PC, and which matches SECTION.\n+   than or equal to PC_IN, and which matches SECTION.  A matching symbol\n+   must either be zero sized and have address PC_IN, or PC_IN must fall\n+   within the range of addresses covered by the matching symbol.\n \n    If SECTION is NULL, this uses the result of find_pc_section\n    instead.\n@@ -249,12 +251,17 @@ enum class lookup_msym_prefer\n    found, or NULL if PC is not in a suitable range.\n \n    See definition of lookup_msym_prefer for description of PREFER.  By\n-   default mst_text symbols are preferred.  */\n+   default mst_text symbols are preferred.\n+\n+   If the PREVIOUS pointer is non-NULL, and no matching symbol is found,\n+   then the contents will be set to reference the closest symbol before\n+   PC_IN.  */\n \n struct bound_minimal_symbol lookup_minimal_symbol_by_pc_section\n-  (CORE_ADDR,\n-   struct obj_section *,\n-   lookup_msym_prefer prefer = lookup_msym_prefer::TEXT);\n+  (CORE_ADDR pc_in,\n+   struct obj_section *section,\n+   lookup_msym_prefer prefer = lookup_msym_prefer::TEXT,\n+   bound_minimal_symbol *previous = nullptr);\n \n /* Backward compatibility: search through the minimal symbol table \n    for a matching PC (no section given)."
+    },
+    {
+      "sha": "9d7d748a3f33089e7efe2855d94ac7a0630d6923",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d0a679536628eb1be4b4b8aa6384de24ff1f1/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d0a679536628eb1be4b4b8aa6384de24ff1f1/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=733d0a679536628eb1be4b4b8aa6384de24ff1f1",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-01-24  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\tPR tui/9765\n+\t* gdb.tui/tui-layout-asm.exp: Add scrolling test for asm window.\n+\n 2020-01-19  Tom Tromey  <tom@tromey.com>\n \n \t* gdb.tui/main.exp: Add check for plain \"file\"."
+    },
+    {
+      "sha": "40f46eaeec13f55ebb2351b6b0c5c1400604d17d",
+      "filename": "gdb/testsuite/gdb.tui/tui-layout-asm.exp",
+      "status": "modified",
+      "additions": 42,
+      "deletions": 0,
+      "changes": 42,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d0a679536628eb1be4b4b8aa6384de24ff1f1/gdb/testsuite/gdb.tui/tui-layout-asm.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d0a679536628eb1be4b4b8aa6384de24ff1f1/gdb/testsuite/gdb.tui/tui-layout-asm.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.tui/tui-layout-asm.exp?ref=733d0a679536628eb1be4b4b8aa6384de24ff1f1",
+      "patch": "@@ -32,3 +32,45 @@ if {![Term::prepare_for_tui]} {\n # This puts us into TUI mode, and should display the ASM window.\n Term::command \"layout asm\"\n Term::check_box_contents \"check asm box contents\" 0 0 80 15 \"<main>\"\n+\n+# Scroll the ASM window down using the down arrow key.  In an ideal\n+# world we'd like to use PageDown here, but currently our terminal\n+# library doesn't support such advanced things.\n+set testname \"scroll to end of assembler\"\n+set down_count 0\n+while (1) {\n+    # Grab the second line, this is about to become the first line.\n+    set line [Term::get_line 2]\n+\n+    # Except, if the second line is blank then we are at the end of\n+    # the available asm output.  Pressing down again _shouldn't_\n+    # change the output, however, if GDB is working, and we press down\n+    # then the screen won't change, so the call to Term::wait_for\n+    # below will just timeout.  So for now we avoid testing the edge\n+    # case.\n+    if {[regexp -- \"^\\\\| +\\\\|$\" $line]} {\n+\t# Second line is blank, we're at the end of the assembler.\n+\tpass $testname\n+\tbreak\n+    }\n+\n+    # Send the down key to GDB.\n+    send_gdb \"\\033\\[B\"\n+    incr down_count\n+    if {[Term::wait_for [string_to_regexp $line]] \\\n+\t    && [Term::get_line 1] == $line} {\n+\t# We scrolled successfully.\n+    } else {\n+\tfail \"$testname (scroll failed)\"\n+\tTerm::dump_screen\n+\tbreak\n+    }\n+\n+    if { $down_count > 250 } {\n+\t# Maybe we should accept this as a pass in case a target\n+\t# really does have loads of assembler to scroll through.\n+\tfail \"$testname (too much assembler)\"\n+\tTerm::dump_screen\n+\tbreak\n+    }\n+}"
+    },
+    {
+      "sha": "726b7c27d607e5b827faed82ed2c302e527545ab",
+      "filename": "gdb/tui/tui-disasm.c",
+      "status": "modified",
+      "additions": 183,
+      "deletions": 60,
+      "changes": 243,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d0a679536628eb1be4b4b8aa6384de24ff1f1/gdb/tui/tui-disasm.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d0a679536628eb1be4b4b8aa6384de24ff1f1/gdb/tui/tui-disasm.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/tui/tui-disasm.c?ref=733d0a679536628eb1be4b4b8aa6384de24ff1f1",
+      "patch": "@@ -81,49 +81,104 @@ len_without_escapes (const std::string &str)\n   return len;\n }\n \n-/* Function to set the disassembly window's content.\n-   Disassemble count lines starting at pc.\n-   Return address of the count'th instruction after pc.  */\n+/* Function to disassemble up to COUNT instructions starting from address\n+   PC into the ASM_LINES vector (which will be emptied of any previous\n+   contents).  Return the address of the COUNT'th instruction after pc.\n+   When ADDR_SIZE is non-null then place the maximum size of an address and\n+   label into the value pointed to by ADDR_SIZE, and set the addr_size\n+   field on each item in ASM_LINES, otherwise the addr_size fields within\n+   ASM_LINES are undefined.\n+\n+   It is worth noting that ASM_LINES might not have COUNT entries when this\n+   function returns.  If the disassembly is truncated for some other\n+   reason, for example, we hit invalid memory, then ASM_LINES can have\n+   fewer entries than requested.  */\n static CORE_ADDR\n tui_disassemble (struct gdbarch *gdbarch,\n \t\t std::vector<tui_asm_line> &asm_lines,\n-\t\t CORE_ADDR pc, int pos, int count,\n+\t\t CORE_ADDR pc, int count,\n \t\t size_t *addr_size = nullptr)\n {\n   bool term_out = source_styling && gdb_stdout->can_emit_style_escape ();\n   string_file gdb_dis_out (term_out);\n \n+  /* Must start with an empty list.  */\n+  asm_lines.clear ();\n+\n   /* Now construct each line.  */\n   for (int i = 0; i < count; ++i)\n     {\n-      print_address (gdbarch, pc, &gdb_dis_out);\n-      asm_lines[pos + i].addr = pc;\n-      asm_lines[pos + i].addr_string = std::move (gdb_dis_out.string ());\n+      tui_asm_line tal;\n+      CORE_ADDR orig_pc = pc;\n \n+      try\n+\t{\n+\t  pc = pc + gdb_print_insn (gdbarch, pc, &gdb_dis_out, NULL);\n+\t}\n+      catch (const gdb_exception_error &except)\n+\t{\n+\t  /* If PC points to an invalid address then we'll catch a\n+\t     MEMORY_ERROR here, this should stop the disassembly, but\n+\t     otherwise is fine.  */\n+\t  if (except.error != MEMORY_ERROR)\n+\t    throw;\n+\t  return pc;\n+\t}\n+\n+      /* Capture the disassembled instruction.  */\n+      tal.insn = std::move (gdb_dis_out.string ());\n+      gdb_dis_out.clear ();\n+\n+      /* And capture the address the instruction is at.  */\n+      tal.addr = orig_pc;\n+      print_address (gdbarch, orig_pc, &gdb_dis_out);\n+      tal.addr_string = std::move (gdb_dis_out.string ());\n       gdb_dis_out.clear ();\n \n       if (addr_size != nullptr)\n \t{\n \t  size_t new_size;\n \n \t  if (term_out)\n-\t    new_size = len_without_escapes (asm_lines[pos + i].addr_string);\n+\t    new_size = len_without_escapes (tal.addr_string);\n \t  else\n-\t    new_size = asm_lines[pos + i].addr_string.size ();\n+\t    new_size = tal.addr_string.size ();\n \t  *addr_size = std::max (*addr_size, new_size);\n-\t  asm_lines[pos + i].addr_size = new_size;\n+\t  tal.addr_size = new_size;\n \t}\n \n-      pc = pc + gdb_print_insn (gdbarch, pc, &gdb_dis_out, NULL);\n-\n-      asm_lines[pos + i].insn = std::move (gdb_dis_out.string ());\n-\n-      /* Reset the buffer to empty.  */\n-      gdb_dis_out.clear ();\n+      asm_lines.push_back (std::move (tal));\n     }\n   return pc;\n }\n \n+/* Look backward from ADDR for an address from which we can start\n+   disassembling, this needs to be something we can be reasonably\n+   confident will fall on an instruction boundary.  We use msymbol\n+   addresses, or the start of a section.  */\n+\n+static CORE_ADDR\n+tui_find_backward_disassembly_start_address (CORE_ADDR addr)\n+{\n+  struct bound_minimal_symbol msym, msym_prev;\n+\n+  msym = lookup_minimal_symbol_by_pc_section (addr - 1, nullptr,\n+\t\t\t\t\t      lookup_msym_prefer::TEXT,\n+\t\t\t\t\t      &msym_prev);\n+  if (msym.minsym != nullptr)\n+    return BMSYMBOL_VALUE_ADDRESS (msym);\n+  else if (msym_prev.minsym != nullptr)\n+    return BMSYMBOL_VALUE_ADDRESS (msym_prev);\n+\n+  /* Find the section that ADDR is in, and look for the start of the\n+     section.  */\n+  struct obj_section *section = find_pc_section (addr);\n+  if (section != NULL)\n+    return obj_section_addr (section);\n+\n+  return addr;\n+}\n+\n /* Find the disassembly address that corresponds to FROM lines above\n    or below the PC.  Variable sized instructions are taken into\n    account by the algorithm.  */\n@@ -134,65 +189,125 @@ tui_find_disassembly_address (struct gdbarch *gdbarch, CORE_ADDR pc, int from)\n   int max_lines;\n \n   max_lines = (from > 0) ? from : - from;\n-  if (max_lines <= 1)\n+  if (max_lines == 0)\n     return pc;\n \n-  std::vector<tui_asm_line> asm_lines (max_lines);\n+  std::vector<tui_asm_line> asm_lines;\n \n   new_low = pc;\n   if (from > 0)\n     {\n-      tui_disassemble (gdbarch, asm_lines, pc, 0, max_lines);\n-      new_low = asm_lines[max_lines - 1].addr;\n+      /* Always disassemble 1 extra instruction here, then if the last\n+\t instruction fails to disassemble we will take the address of the\n+\t previous instruction that did disassemble as the result.  */\n+      tui_disassemble (gdbarch, asm_lines, pc, max_lines + 1);\n+      new_low = asm_lines.back ().addr;\n     }\n   else\n     {\n+      /* In order to disassemble backwards we need to find a suitable\n+\t address to start disassembling from and then work forward until we\n+\t re-find the address we're currently at.  We can then figure out\n+\t which address will be at the top of the TUI window after our\n+\t backward scroll.  During our backward disassemble we need to be\n+\t able to distinguish between the case where the last address we\n+\t _can_ disassemble is ADDR, and the case where the disassembly\n+\t just happens to stop at ADDR, for this reason we increase\n+\t MAX_LINES by one.  */\n+      max_lines++;\n+\n+      /* When we disassemble a series of instructions this will hold the\n+\t address of the last instruction disassembled.  */\n       CORE_ADDR last_addr;\n-      int pos;\n-      struct bound_minimal_symbol msymbol;\n-\n-      /* Find backward an address which is a symbol and for which\n-         disassembling from that address will fill completely the\n-         window.  */\n-      pos = max_lines - 1;\n-      do {\n-         new_low -= 1 * max_lines;\n-         msymbol = lookup_minimal_symbol_by_pc_section (new_low, 0);\n-\n-         if (msymbol.minsym)\n-            new_low = BMSYMBOL_VALUE_ADDRESS (msymbol);\n-         else\n-            new_low += 1 * max_lines;\n-\n-         tui_disassemble (gdbarch, asm_lines, new_low, 0, max_lines);\n-         last_addr = asm_lines[pos].addr;\n-      } while (last_addr > pc && msymbol.minsym);\n+\n+      /* And this will hold the address of the next instruction that would\n+\t have been disassembled.  */\n+      CORE_ADDR next_addr;\n+\n+      /* As we search backward if we find an address that looks like a\n+\t promising starting point then we record it in this structure.  If\n+\t the next address we try is not a suitable starting point then we\n+\t will fall back to the address held here.  */\n+      gdb::optional<CORE_ADDR> possible_new_low;\n+\n+      /* The previous value of NEW_LOW so we know if the new value is\n+\t different or not.  */\n+      CORE_ADDR prev_low;\n+\n+      do\n+\t{\n+\t  /* Find an address from which we can start disassembling.  */\n+\t  prev_low = new_low;\n+\t  new_low = tui_find_backward_disassembly_start_address (new_low);\n+\n+\t  /* Disassemble forward.  */\n+\t  next_addr = tui_disassemble (gdbarch, asm_lines, new_low, max_lines);\n+\t  last_addr = asm_lines.back ().addr;\n+\n+\t  /* If disassembling from the current value of NEW_LOW reached PC\n+\t     (or went past it) then this would do as a starting point if we\n+\t     can't find anything better, so remember it.  */\n+\t  if (last_addr >= pc && new_low != prev_low\n+\t      && asm_lines.size () >= max_lines)\n+\t    possible_new_low.emplace (new_low);\n+\n+\t  /* Continue searching until we find a value of NEW_LOW from which\n+\t     disassembling MAX_LINES instructions doesn't reach PC.  We\n+\t     know this means we can find the required number of previous\n+\t     instructions then.  */\n+\t}\n+      while ((last_addr > pc\n+\t      || (last_addr == pc && asm_lines.size () < max_lines))\n+\t     && new_low != prev_low);\n+\n+      /* If we failed to disassemble the required number of lines then the\n+\t following walk forward is not going to work, it assumes that\n+\t ASM_LINES contains exactly MAX_LINES entries.  Instead we should\n+\t consider falling back to a previous possible start address in\n+\t POSSIBLE_NEW_LOW.  */\n+      if (asm_lines.size () < max_lines)\n+\t{\n+\t  if (!possible_new_low.has_value ())\n+\t    return pc;\n+\n+\t  /* Take the best possible match we have.  */\n+\t  new_low = *possible_new_low;\n+\t  next_addr = tui_disassemble (gdbarch, asm_lines, new_low, max_lines);\n+\t  last_addr = asm_lines.back ().addr;\n+\t  gdb_assert (asm_lines.size () >= max_lines);\n+\t}\n \n       /* Scan forward disassembling one instruction at a time until\n          the last visible instruction of the window matches the pc.\n          We keep the disassembled instructions in the 'lines' window\n          and shift it downward (increasing its addresses).  */\n+      int pos = max_lines - 1;\n       if (last_addr < pc)\n         do\n           {\n-            CORE_ADDR next_addr;\n-\n             pos++;\n             if (pos >= max_lines)\n               pos = 0;\n \n-            next_addr = tui_disassemble (gdbarch, asm_lines,\n-\t\t\t\t\t last_addr, pos, 1);\n-\n+\t    CORE_ADDR old_next_addr = next_addr;\n+\t    std::vector<tui_asm_line> single_asm_line;\n+\t    next_addr = tui_disassemble (gdbarch, single_asm_line,\n+\t\t\t\t\t next_addr, 1);\n             /* If there are some problems while disassembling exit.  */\n-            if (next_addr <= last_addr)\n-              break;\n-            last_addr = next_addr;\n-          } while (last_addr <= pc);\n+\t    if (next_addr <= old_next_addr)\n+\t      return pc;\n+\t    gdb_assert (single_asm_line.size () == 1);\n+\t    asm_lines[pos] = single_asm_line[0];\n+\t  } while (next_addr <= pc);\n       pos++;\n       if (pos >= max_lines)\n          pos = 0;\n       new_low = asm_lines[pos].addr;\n+\n+      /* When scrolling backward the addresses should move backward, or at\n+\t the very least stay the same if we are at the first address that\n+\t can be disassembled.  */\n+      gdb_assert (new_low <= pc);\n     }\n   return new_low;\n }\n@@ -224,9 +339,9 @@ tui_disasm_window::set_contents (struct gdbarch *arch,\n   line_width = width - TUI_EXECINFO_SIZE - 2;\n \n   /* Get temporary table that will hold all strings (addr & insn).  */\n-  std::vector<tui_asm_line> asm_lines (max_lines);\n+  std::vector<tui_asm_line> asm_lines;\n   size_t addr_size = 0;\n-  tui_disassemble (gdbarch, asm_lines, pc, 0, max_lines, &addr_size);\n+  tui_disassemble (gdbarch, asm_lines, pc, max_lines, &addr_size);\n \n   /* Align instructions to the same column.  */\n   insn_pos = (1 + (addr_size / tab_len)) * tab_len;\n@@ -237,17 +352,29 @@ tui_disasm_window::set_contents (struct gdbarch *arch,\n     {\n       tui_source_element *src = &content[i];\n \n-      std::string line\n-\t= (asm_lines[i].addr_string\n-\t   + n_spaces (insn_pos - asm_lines[i].addr_size)\n-\t   + asm_lines[i].insn);\n+      std::string line;\n+      CORE_ADDR addr;\n+\n+      if (i < asm_lines.size ())\n+\t{\n+\t  line\n+\t    = (asm_lines[i].addr_string\n+\t       + n_spaces (insn_pos - asm_lines[i].addr_size)\n+\t       + asm_lines[i].insn);\n+\t  addr = asm_lines[i].addr;\n+\t}\n+      else\n+\t{\n+\t  line = \"\";\n+\t  addr = 0;\n+\t}\n \n       const char *ptr = line.c_str ();\n       src->line = tui_copy_source_line (&ptr, -1, offset, line_width, 0);\n \n       src->line_or_addr.loa = LOA_ADDRESS;\n-      src->line_or_addr.u.addr = asm_lines[i].addr;\n-      src->is_exec_point = asm_lines[i].addr == cur_pc;\n+      src->line_or_addr.u.addr = addr;\n+      src->is_exec_point = (addr == cur_pc && line.size () > 0);\n     }\n   return true;\n }\n@@ -326,10 +453,6 @@ tui_disasm_window::do_scroll_vertical (int num_to_scroll)\n       CORE_ADDR pc;\n \n       pc = start_line_or_addr.u.addr;\n-      if (num_to_scroll >= 0)\n-\tnum_to_scroll++;\n-      else\n-\t--num_to_scroll;\n \n       symtab_and_line sal {};\n       sal.pspace = current_program_space;"
+    }
+  ]
+}

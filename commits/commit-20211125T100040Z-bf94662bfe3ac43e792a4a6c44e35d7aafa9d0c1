@@ -1,0 +1,60 @@
+{
+  "sha": "bf94662bfe3ac43e792a4a6c44e35d7aafa9d0c1",
+  "node_id": "C_kwDOANOeidoAKGJmOTQ2NjJiZmUzYWM0M2U3OTJhNGE2YzQ0ZTM1ZDdhYWZhOWQwYzE",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-11-17T09:35:46Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-11-25T10:00:40Z"
+    },
+    "message": "gdb: add asserts in target.c for target_async_permitted\n\nThe target_async_permitted flag allows a user to override whether a\ntarget can act in async mode or not.  In previous commits I have moved\nthe checking of this flag out of the various ::can_async_p methods and\ninto the common target.c code.\n\nIn this commit I will add some additional assertions into\ntarget_is_async_p and target_async.  The rules these assertions are\nchecking are:\n\n  1. A target that returns false for target_can_async_p should never\n  become \"async enabled\", and so ::is_async_p should always return\n  false.  This is being checked in target_is_async_p.\n\n  2. GDB should never try to enable async mode for a target that\n  returns false for target_can_async_p, this is checked in\n  target_async.\n\nThere are a few places where we call the ::is_async_p method directly,\nin these cases we will obviously not pass through the assert in\ntarget_is_async_p, however, there are also plenty of places where we\ndo call target_is_async_p so if GDB starts to misbehave we should\ncatch it quickly enough.\n\nThere should be no user visible changes after this commit.",
+    "tree": {
+      "sha": "9f5a85c1bee6848ec5cd1ba810763e9013f9bbdb",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/9f5a85c1bee6848ec5cd1ba810763e9013f9bbdb"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/bf94662bfe3ac43e792a4a6c44e35d7aafa9d0c1",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bf94662bfe3ac43e792a4a6c44e35d7aafa9d0c1",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/bf94662bfe3ac43e792a4a6c44e35d7aafa9d0c1",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bf94662bfe3ac43e792a4a6c44e35d7aafa9d0c1/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "fce6cd341b48a2589cb4520c7718c80cb0b27c80",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/fce6cd341b48a2589cb4520c7718c80cb0b27c80",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/fce6cd341b48a2589cb4520c7718c80cb0b27c80"
+    }
+  ],
+  "stats": {
+    "total": 7,
+    "additions": 6,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "06a21c46a1966255f0b64b3035f75454c369fb02",
+      "filename": "gdb/target.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 1,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bf94662bfe3ac43e792a4a6c44e35d7aafa9d0c1/gdb/target.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bf94662bfe3ac43e792a4a6c44e35d7aafa9d0c1/gdb/target.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/target.c?ref=bf94662bfe3ac43e792a4a6c44e35d7aafa9d0c1",
+      "patch": "@@ -409,7 +409,9 @@ target_can_async_p (struct target_ops *target)\n bool\n target_is_async_p ()\n {\n-  return current_inferior ()->top_target ()->is_async_p ();\n+  bool result = current_inferior ()->top_target ()->is_async_p ();\n+  gdb_assert (target_async_permitted || !result);\n+  return result;\n }\n \n exec_direction_kind\n@@ -4338,6 +4340,9 @@ maintenance_print_target_stack (const char *cmd, int from_tty)\n void\n target_async (int enable)\n {\n+  /* If we are trying to enable async mode then it must be the case that\n+     async mode is possible for this target.  */\n+  gdb_assert (!enable || target_can_async_p ());\n   infrun_async (enable);\n   current_inferior ()->top_target ()->async (enable);\n }"
+    }
+  ]
+}

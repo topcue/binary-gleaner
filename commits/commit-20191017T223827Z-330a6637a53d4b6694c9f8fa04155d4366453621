@@ -1,0 +1,132 @@
+{
+  "sha": "330a6637a53d4b6694c9f8fa04155d4366453621",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MzMwYTY2MzdhNTNkNGI2Njk0YzlmOGZhMDQxNTVkNDM2NjQ1MzYyMQ==",
+  "commit": {
+    "author": {
+      "name": "Jim Wilson",
+      "email": "jimw@sifive.com",
+      "date": "2019-10-17T22:38:27Z"
+    },
+    "committer": {
+      "name": "Jim Wilson",
+      "email": "jimw@sifive.com",
+      "date": "2019-10-17T22:38:27Z"
+    },
+    "message": "RISC-V: Report unresolved relocation error via linker's callback function.\n\nTwo patches from Nelson Chu.\n\nIt is better to use the linker's callback functions to handle the link time\nerror when relocating.  The unresolved relocation error can be regarded as\nan unsupported relocation.  To make user easier to understand different errors,\nwe need to extend the current error message format of the callback function\nsince the format is fixed.\n\n\tbfd/\n\t* elfnn-riscv.c (riscv_elf_relocate_section): Use asprintf to extend\n\tthe error message if needed, and then store the result into the\n\t`msg_buf`.  Finally, remember to free the unused `msg_buf`.  All error\n\tmessage for the dangerous relocation should be set before we call the\n\tcallback function.  If we miss the error message since linker runs out\n\tof memory, we should set the default error message for the error.\n\n\tld/\n\t* testsuite/ld-riscv-elf/lib-nopic-01a.s: Create the shared library\n\tlib-nopic-01a.so, it will be linked with lib-nopic-01b.s.\n\t* testsuite/ld-riscv-elf/lib-nopic-01b.s: Add new test for the\n\tunresolved relocation.  Link the non-pic code into a shared library\n\tmay cause the error.\n\t* testsuite/ld-riscv-elf/lib-nopic-01b.d: Likewise.\n\t* testsuite/ld-riscv-elf/ld-riscv-elf.exp: Run the new test only when\n\tthe shared library is supported.\n\nR_RISCV_CALL, R_RISCV_JAL and R_RISCV_RVC_JUMP are pc-relative relocation.\nFor now, we do not allow the object with these relocation links into a shared\nlibrary since the referenced symbols may be loaded to the places that too far\nfrom the pc.  We can improve the error message for these unsupported relocation\nto notice user that they should recompile their code with `fPIC`.\n\n\tbfd/\n\t* elfnn-riscv.c (riscv_elf_relocate_section): Report the error message\n\tthat user should recompile their code with `fPIC` when linking non-pic\n\tcode into shared library.\n\n\tld/\n\t* testsuite/ld-riscv-elf/lib-nopic-01b.d: Update the error message.\n\nChange-Id: Ib3347a0a6fa1c2b20a9647c314d5bec2c322ff04",
+    "tree": {
+      "sha": "160e5582b61fedb210bda098844ebc0a45b0c2ec",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/160e5582b61fedb210bda098844ebc0a45b0c2ec"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/330a6637a53d4b6694c9f8fa04155d4366453621",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/330a6637a53d4b6694c9f8fa04155d4366453621",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/330a6637a53d4b6694c9f8fa04155d4366453621",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/330a6637a53d4b6694c9f8fa04155d4366453621/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "c5adaa1921c34d2b9711ec7cecd3cb4a253620db",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c5adaa1921c34d2b9711ec7cecd3cb4a253620db",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/c5adaa1921c34d2b9711ec7cecd3cb4a253620db"
+    }
+  ],
+  "stats": {
+    "total": 119,
+    "additions": 102,
+    "deletions": 17
+  },
+  "files": [
+    {
+      "sha": "b29b2ee98d1f923427692fcc6437dcce9ac0b7d0",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/330a6637a53d4b6694c9f8fa04155d4366453621/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/330a6637a53d4b6694c9f8fa04155d4366453621/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=330a6637a53d4b6694c9f8fa04155d4366453621",
+      "patch": "@@ -1,3 +1,16 @@\n+2019-10-17  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* elfnn-riscv.c (riscv_elf_relocate_section): Report the error message\n+\tthat user should recompile their code with `fPIC` when linking non-pic\n+\tcode into shared library.\n+\n+\t* elfnn-riscv.c (riscv_elf_relocate_section): Use asprintf to extend\n+\tthe error message if needed, and then store the result into the\n+\t`msg_buf`.  Finally, remember to free the unused `msg_buf`.  All error\n+\tmessage for the dangerous relocation should be set before we call the\n+\tcallback function.  If we miss the error message since linker runs out\n+\tof memory, we should set the default error message for the error.\n+\n 2019-10-16  Alan Modra  <amodra@gmail.com>\n \n \tPR 13616"
+    },
+    {
+      "sha": "6be209e23989c62f85dcaaef11ae6ab05fba7b67",
+      "filename": "bfd/elfnn-riscv.c",
+      "status": "modified",
+      "additions": 46,
+      "deletions": 17,
+      "changes": 63,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/330a6637a53d4b6694c9f8fa04155d4366453621/bfd/elfnn-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/330a6637a53d4b6694c9f8fa04155d4366453621/bfd/elfnn-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfnn-riscv.c?ref=330a6637a53d4b6694c9f8fa04155d4366453621",
+      "patch": "@@ -1787,6 +1787,7 @@ riscv_elf_relocate_section (bfd *output_bfd,\n       int r_type = ELFNN_R_TYPE (rel->r_info), tls_type;\n       reloc_howto_type *howto = riscv_elf_rtype_to_howto (input_bfd, r_type);\n       const char *msg = NULL;\n+      char *msg_buf = NULL;\n       bfd_boolean resolved_to_zero;\n \n       if (howto == NULL\n@@ -2088,6 +2089,7 @@ riscv_elf_relocate_section (bfd *output_bfd,\n \t       || (h != NULL && h->type == STT_SECTION))\n \t      && rel->r_addend)\n \t    {\n+\t      msg = _(\"%pcrel_lo section symbol with an addend\");\n \t      r = bfd_reloc_dangerous;\n \t      break;\n \t    }\n@@ -2302,24 +2304,42 @@ riscv_elf_relocate_section (bfd *output_bfd,\n \t  && _bfd_elf_section_offset (output_bfd, info, input_section,\n \t\t\t\t      rel->r_offset) != (bfd_vma) -1)\n \t{\n-\t  (*_bfd_error_handler)\n-\t    (_(\"%pB(%pA+%#\" PRIx64 \"): \"\n-\t       \"unresolvable %s relocation against symbol `%s'\"),\n-\t     input_bfd,\n-\t     input_section,\n-\t     (uint64_t) rel->r_offset,\n-\t     howto->name,\n-\t     h->root.root.string);\n-\n-\t  bfd_set_error (bfd_error_bad_value);\n-\t  ret = FALSE;\n-\t  goto out;\n+\t  switch (r_type)\n+\t    {\n+\t    case R_RISCV_CALL:\n+\t    case R_RISCV_JAL:\n+\t    case R_RISCV_RVC_JUMP:\n+\t      if (asprintf (&msg_buf,\n+\t\t\t    _(\"%%X%%P: relocation %s against `%s' can \"\n+\t\t\t      \"not be used when making a shared object; \"\n+\t\t\t      \"recompile with -fPIC\\n\"),\n+\t\t\t    howto->name,\n+\t\t\t    h->root.root.string) == -1)\n+\t\tmsg_buf = NULL;\n+\t      break;\n+\n+\t    default:\n+\t      if (asprintf (&msg_buf,\n+\t\t\t    _(\"%%X%%P: unresolvable %s relocation against \"\n+\t\t\t      \"symbol `%s'\\n\"),\n+\t\t\t    howto->name,\n+\t\t\t    h->root.root.string) == -1)\n+\t\tmsg_buf = NULL;\n+\t      break;\n+\t    }\n+\n+\t  msg = msg_buf;\n+\t  r = bfd_reloc_notsupported;\n \t}\n \n       if (r == bfd_reloc_ok)\n \tr = perform_relocation (howto, rel, relocation, input_section,\n \t\t\t\tinput_bfd, contents);\n \n+      /* We should have already detected the error and set message before.\n+\t If the error message isn't set since the linker runs out of memory\n+\t or we don't set it before, then we should set the default message\n+\t with the \"internal error\" string here.  */\n       switch (r)\n \t{\n \tcase bfd_reloc_ok:\n@@ -2338,27 +2358,36 @@ riscv_elf_relocate_section (bfd *output_bfd,\n \t  break;\n \n \tcase bfd_reloc_outofrange:\n-\t  msg = _(\"%X%P: internal error: out of range error\\n\");\n+\t  if (msg == NULL)\n+\t    msg = _(\"%X%P: internal error: out of range error\\n\");\n \t  break;\n \n \tcase bfd_reloc_notsupported:\n-\t  msg = _(\"%X%P: internal error: unsupported relocation error\\n\");\n+\t  if (msg == NULL)\n+\t    msg = _(\"%X%P: internal error: unsupported relocation error\\n\");\n \t  break;\n \n \tcase bfd_reloc_dangerous:\n+\t  /* The error message should already be set.  */\n+\t  if (msg == NULL)\n+\t    msg = _(\"dangerous relocation error\");\n \t  info->callbacks->reloc_dangerous\n-\t    (info, \"%pcrel_lo section symbol with an addend\", input_bfd,\n-\t     input_section, rel->r_offset);\n+\t    (info, msg, input_bfd, input_section, rel->r_offset);\n \t  break;\n \n \tdefault:\n \t  msg = _(\"%X%P: internal error: unknown error\\n\");\n \t  break;\n \t}\n \n-      if (msg)\n+      /* Do not report error message for the dangerous relocation again.  */\n+      if (msg && r != bfd_reloc_dangerous)\n \tinfo->callbacks->einfo (msg);\n \n+      /* Free the unused `msg_buf` if needed.  */\n+      if (msg_buf)\n+\tfree (msg_buf);\n+\n       /* We already reported the error via a callback, so don't try to report\n \t it again by returning false.  That leads to spurious errors.  */\n       ret = TRUE;"
+    },
+    {
+      "sha": "8fc2ceee9d0d6aafe3d423ad8be96b13b8640597",
+      "filename": "ld/ChangeLog",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/330a6637a53d4b6694c9f8fa04155d4366453621/ld/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/330a6637a53d4b6694c9f8fa04155d4366453621/ld/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/ChangeLog?ref=330a6637a53d4b6694c9f8fa04155d4366453621",
+      "patch": "@@ -1,3 +1,16 @@\n+2019-10-17  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* testsuite/ld-riscv-elf/lib-nopic-01b.d: Update the error message.\n+\n+\t* testsuite/ld-riscv-elf/lib-nopic-01a.s: Create the shared library\n+\tlib-nopic-01a.so, it will be linked with lib-nopic-01b.s.\n+\t* testsuite/ld-riscv-elf/lib-nopic-01b.s: Add new test for the\n+\tunresolved relocation.  Link the non-pic code into a shared library\n+\tmay cause the error.\n+\t* testsuite/ld-riscv-elf/lib-nopic-01b.d: Likewise.\n+\t* testsuite/ld-riscv-elf/ld-riscv-elf.exp: Run the new test only when\n+\tthe shared library is supported.\n+\n 2019-10-16  Alan Modra  <amodra@gmail.com>\n \n \tPR 13616"
+    },
+    {
+      "sha": "0a7ac5945e856f2f7bd65c70e94566f982772d5e",
+      "filename": "ld/testsuite/ld-riscv-elf/ld-riscv-elf.exp",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/330a6637a53d4b6694c9f8fa04155d4366453621/ld/testsuite/ld-riscv-elf/ld-riscv-elf.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/330a6637a53d4b6694c9f8fa04155d4366453621/ld/testsuite/ld-riscv-elf/ld-riscv-elf.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/ld-riscv-elf.exp?ref=330a6637a53d4b6694c9f8fa04155d4366453621",
+      "patch": "@@ -71,4 +71,11 @@ if [istarget \"riscv*-*-*\"] {\n \t\t\t\t    [list \"readelf --syms gp-test.sd\"] \\\n \t\t\t\t    \"gp-test-${abi}\"]]\n     }\n+\n+    run_ld_link_tests {\n+\t{ \"Link non-pic code into a shared library (setup)\"\n+\t    \"-shared\" \"\" \"\" {lib-nopic-01a.s}\n+\t    {} \"lib-nopic-01a.so\" }\n+    }\n+    run_dump_test \"lib-nopic-01b\"\n }"
+    },
+    {
+      "sha": "c95cda05d2427e070bae2c2c4ebf04ee13d696d6",
+      "filename": "ld/testsuite/ld-riscv-elf/lib-nopic-01a.s",
+      "status": "added",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/330a6637a53d4b6694c9f8fa04155d4366453621/ld/testsuite/ld-riscv-elf/lib-nopic-01a.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/330a6637a53d4b6694c9f8fa04155d4366453621/ld/testsuite/ld-riscv-elf/lib-nopic-01a.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/lib-nopic-01a.s?ref=330a6637a53d4b6694c9f8fa04155d4366453621",
+      "patch": "@@ -0,0 +1,9 @@\n+        .option nopic\n+\t.text\n+\t.align  1\n+\t.globl  func1\n+\t.type   func1, @function\n+func1:\n+\tcall    func2\n+\tjr      ra\n+\t.size   func1, .-func1"
+    },
+    {
+      "sha": "0d758a40d60134e997a7481c5f5b09d2b3c4c306",
+      "filename": "ld/testsuite/ld-riscv-elf/lib-nopic-01b.d",
+      "status": "added",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/330a6637a53d4b6694c9f8fa04155d4366453621/ld/testsuite/ld-riscv-elf/lib-nopic-01b.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/330a6637a53d4b6694c9f8fa04155d4366453621/ld/testsuite/ld-riscv-elf/lib-nopic-01b.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/lib-nopic-01b.d?ref=330a6637a53d4b6694c9f8fa04155d4366453621",
+      "patch": "@@ -0,0 +1,5 @@\n+#name: link non-pic code into a shared library\n+#source: lib-nopic-01b.s\n+#as:\n+#ld: -shared tmpdir/lib-nopic-01a.so\n+#error: .*relocation R_RISCV_CALL against `func1' can not be used when making a shared object; recompile with -fPIC"
+    },
+    {
+      "sha": "97fe1374e4fa9e287f7ac5243af1ce58b1202e5a",
+      "filename": "ld/testsuite/ld-riscv-elf/lib-nopic-01b.s",
+      "status": "added",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/330a6637a53d4b6694c9f8fa04155d4366453621/ld/testsuite/ld-riscv-elf/lib-nopic-01b.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/330a6637a53d4b6694c9f8fa04155d4366453621/ld/testsuite/ld-riscv-elf/lib-nopic-01b.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/lib-nopic-01b.s?ref=330a6637a53d4b6694c9f8fa04155d4366453621",
+      "patch": "@@ -0,0 +1,9 @@\n+        .option nopic\n+\t.text\n+\t.align  1\n+\t.globl  func2\n+\t.type   func2, @function\n+func2:\n+\tcall    func1\n+\tjr      ra\n+\t.size   func2, .-func2"
+    }
+  ]
+}

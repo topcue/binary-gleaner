@@ -1,0 +1,146 @@
+{
+  "sha": "0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MGRjZTQyODA1MWZkMmNmMDdmOWQzOGU5ZWZlMmRiYjVkOGY3ZmJlZg==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-02-26T13:52:00Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-02-26T13:52:00Z"
+    },
+    "message": "[gdb] Don't set initial language if set manually\n\nInitially, gdb sets the language to auto/c:\n...\n$ gdb -q\n(gdb) show language\nThe current source language is \"auto; currently c\".\n...\n\nAnd after loading a c++ executable, that changes to auto/c++:\n...\n(gdb) file a.out\nReading symbols from a.out...\n(gdb) show language\nThe current source language is \"auto; currently c++\".\n...\n\nNow consider setting the language manually to c:\n...\n$ gdb -q\n(gdb) show language\nThe current source language is \"auto; currently c\".\n(gdb) set language c\n(gdb) show language\nThe current source language is \"c\".\n...\nThe resulting language is manual/c.\n\nSurprisingly, a subsequent load of the c++ executable:\n...\n(gdb) file a.out\nReading symbols from a.out...\n(gdb) show language\nThe current source language is \"c++\".\n...\ngets us language manual/c++.\n\nLoading the file should get us either:\n- auto/c++, or\n- manual/c.\nThat is, either the manual setting should be reset by loading, or the manual\nsetting should persist.\n\nFix this in the manual/c fashion. [ Though we could make some gdb setting to\nchoose one or the other. ]\n\nBuild and reg-tested on x86_64-linux.\n\n[ Note: In PR23710 comment 1 a cc1 binary is attached for which gdb is slow when\nloading and settting a breakpoint on do_rpo_vn:\n...\n$ time.sh gdb cc1 -batch -ex \"b do_rpo_vn\"\nBreakpoint 1 at 0xd40e30: do_rpo_vn. (2 locations)\nmaxmem: 1463496\nreal: 8.88\nuser: 8.59\nsystem: 0.35\n...\n\nThis fix enables a speedup by manually setting the language before\nloading, reducing executing time with ~17%, due to not having to load the full\nsymtab containing main:\n...\n$ time.sh gdb -iex \"set language c++\" cc1 -batch -ex \"b do_rpo_vn\"\nBreakpoint 1 at 0xd40e30: do_rpo_vn. (2 locations)\nmaxmem: 1067308\nreal: 7.36\nuser: 7.14\nsystem: 0.28\n... ]\n\ngdb/ChangeLog:\n\n2020-02-26  Tom de Vries  <tdevries@suse.de>\n\n\tPR gdb/25603\n\t* symfile.c (set_initial_language): Exit-early if\n\tlanguage_mode == language_mode_manual.\n\ngdb/testsuite/ChangeLog:\n\n2020-02-26  Tom de Vries  <tdevries@suse.de>\n\n\tPR gdb/25603\n\t* gdb.base/persistent-lang.cc: New test.\n\t* gdb.base/persistent-lang.exp: New file.",
+    "tree": {
+      "sha": "36091490d5a3eb2e0c81d0217d90caf995eb4e98",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/36091490d5a3eb2e0c81d0217d90caf995eb4e98"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "3312f67c0957196e41db149343d04ee7b30cdc65",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3312f67c0957196e41db149343d04ee7b30cdc65",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/3312f67c0957196e41db149343d04ee7b30cdc65"
+    }
+  ],
+  "stats": {
+    "total": 75,
+    "additions": 75,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "fb4cc033a9030bfaa1416b84727e7ad025eb6d6c",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-02-26  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR gdb/25603\n+\t* symfile.c (set_initial_language): Exit-early if\n+\tlanguage_mode == language_mode_manual.\n+\n 2020-02-25  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* dwarf2/loc.h (dwarf2_read_addr_index): Move..."
+    },
+    {
+      "sha": "f1edf2dca5dd128ee1f70c30c1801c2d9b981088",
+      "filename": "gdb/symfile.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef/gdb/symfile.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef/gdb/symfile.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/symfile.c?ref=0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef",
+      "patch": "@@ -1681,6 +1681,8 @@ symbol_file_command (const char *args, int from_tty)\n void\n set_initial_language (void)\n {\n+  if (language_mode == language_mode_manual)\n+    return;\n   enum language lang = main_language ();\n \n   if (lang == language_unknown)"
+    },
+    {
+      "sha": "a352c74f0f86417a8a8f36172336b505619112ac",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-02-26  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR gdb/25603\n+\t* gdb.base/persistent-lang.cc: New test.\n+\t* gdb.base/persistent-lang.exp: New file.\n+\n 2020-02-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.fortran/derived-type-striding.exp: Add a new test."
+    },
+    {
+      "sha": "f4825c8a7c1186e3fc77e381a89369df031109f1",
+      "filename": "gdb/testsuite/gdb.base/persistent-lang.cc",
+      "status": "added",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef/gdb/testsuite/gdb.base/persistent-lang.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef/gdb/testsuite/gdb.base/persistent-lang.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/persistent-lang.cc?ref=0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef",
+      "patch": "@@ -0,0 +1,22 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+int\n+main ()\n+{\n+  return 0;\n+}"
+    },
+    {
+      "sha": "bcc4ef74698a72290239eb39f38ee4b1f9dcacfd",
+      "filename": "gdb/testsuite/gdb.base/persistent-lang.exp",
+      "status": "added",
+      "additions": 39,
+      "deletions": 0,
+      "changes": 39,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef/gdb/testsuite/gdb.base/persistent-lang.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef/gdb/testsuite/gdb.base/persistent-lang.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/persistent-lang.exp?ref=0dce428051fd2cf07f9d38e9efe2dbb5d8f7fbef",
+      "patch": "@@ -0,0 +1,39 @@\n+# Copyright 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+standard_testfile .cc\n+\n+if {[build_executable \"failed to prepare\" $testfile $srcfile debug]} {\n+    return -1\n+}\n+\n+clean_restart\n+\n+set auto_c \\\n+    \"The current source language is \\\"auto; currently c\\\"\\.\"\n+set manual_c \\\n+    \"The current source language is \\\"c\\\"\\.\"\n+\n+gdb_test \"show language\" $auto_c \\\n+    \"initial language is auto/c\"\n+\n+gdb_test_no_output \"set language c\"\n+gdb_test \"show language\" $manual_c \\\n+    \"language updated to manual/c after set\"\n+\n+set binfile [standard_output_file ${testfile}]\n+gdb_load ${binfile}\n+gdb_test \"show language\" $manual_c \\\n+    \"language still manual/c after load\""
+    }
+  ]
+}

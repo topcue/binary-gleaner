@@ -1,0 +1,84 @@
+{
+  "sha": "b20e7614da3d64ffe05617d5ac89819bff6bedf8",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YjIwZTc2MTRkYTNkNjRmZmUwNTYxN2Q1YWM4OTgxOWJmZjZiZWRmOA==",
+  "commit": {
+    "author": {
+      "name": "Hans-Peter Nilsson",
+      "email": "hp@bitrange.com",
+      "date": "2020-06-29T03:32:02Z"
+    },
+    "committer": {
+      "name": "Hans-Peter Nilsson",
+      "email": "hp@bitrange.com",
+      "date": "2020-06-29T03:32:02Z"
+    },
+    "message": "gas: Fix mmix fixups and TC_FX_SIZE_SLACK, PR25331\n\nFinally; sorry for the delay.  There were a few false starts, where I\nmisinterpreted the error-messages and the comment that Alan added:\nit's not the fix size that's too large (and the frag too small), it's\nstating the wrong size of what will be \"fixed up\" - that of the actual\ntarget value, not the size of the field that needs to be adjusted.\nComments added for clarity.\n\nTest-suite committed separately.\n\ngas:\n\tPR gas/25331\n\t* config/tc-mmix.c (md_assemble) <fixup for\n\tBFD_RELOC_MMIX_BASE_PLUS_OFFSET>: This fixup affects 1 byte, not 8.\n\tAlso, set its fx_no_overflow.\n\t(md_convert_frag) <case ENCODE_RELAX (STATE_PUSHJSTUB, STATE_ZERO)>:\n\tSimilarly this fixup affects 4 bytes, not 8 and needs its\n\tfx_no_overflow set.\n\t* config/tc-mmix.h (TC_FX_SIZE_SLACK): Don't define.",
+    "tree": {
+      "sha": "f0f74b65211466d77e3aa908750489ad921c9ede",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f0f74b65211466d77e3aa908750489ad921c9ede"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/b20e7614da3d64ffe05617d5ac89819bff6bedf8",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b20e7614da3d64ffe05617d5ac89819bff6bedf8",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/b20e7614da3d64ffe05617d5ac89819bff6bedf8",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b20e7614da3d64ffe05617d5ac89819bff6bedf8/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "9f27c36482d98a00d63fe76f7d740d5de4873ead",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9f27c36482d98a00d63fe76f7d740d5de4873ead",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/9f27c36482d98a00d63fe76f7d740d5de4873ead"
+    }
+  ],
+  "stats": {
+    "total": 33,
+    "additions": 27,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "16e133a8e6fa1da8f49410dd0e4aeb7a7a6ffb96",
+      "filename": "gas/ChangeLog",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b20e7614da3d64ffe05617d5ac89819bff6bedf8/gas/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b20e7614da3d64ffe05617d5ac89819bff6bedf8/gas/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/ChangeLog?ref=b20e7614da3d64ffe05617d5ac89819bff6bedf8",
+      "patch": "@@ -1,3 +1,14 @@\n+2020-06-29  Hans-Peter Nilsson  <hp@bitrange.com>\n+\n+\tPR gas/25331\n+\t* config/tc-mmix.c (md_assemble) <fixup for\n+\tBFD_RELOC_MMIX_BASE_PLUS_OFFSET>: This fixup affects 1 byte, not 8.\n+\tAlso, set its fx_no_overflow.\n+\t(md_convert_frag) <case ENCODE_RELAX (STATE_PUSHJSTUB, STATE_ZERO)>: \n+\tSimilarly this fixup affects 4 bytes, not 8 and needs its\n+\tfx_no_overflow set.\n+\t* config/tc-mmix.h (TC_FX_SIZE_SLACK): Don't define.\n+\n 2020-06-29  Alan Modra  <amodra@gmail.com>\n \n \t* config/tc-s12z.c: Use C style comments."
+    },
+    {
+      "sha": "f97953fe2a9beb919e862c42cd747969c8abc7ad",
+      "filename": "gas/config/tc-mmix.c",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 3,
+      "changes": 19,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b20e7614da3d64ffe05617d5ac89819bff6bedf8/gas/config/tc-mmix.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b20e7614da3d64ffe05617d5ac89819bff6bedf8/gas/config/tc-mmix.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-mmix.c?ref=b20e7614da3d64ffe05617d5ac89819bff6bedf8",
+      "patch": "@@ -1332,6 +1332,7 @@ md_assemble (char *str)\n       if (n_operands == 2)\n \t{\n \t  symbolS *sym;\n+\t  fixS *tmpfixP;\n \n \t  /* The last operand is immediate whenever we see just two\n \t     operands.  */\n@@ -1380,8 +1381,13 @@ md_assemble (char *str)\n \t  /* Now we know it can be a \"base address plus offset\".  Add\n \t     proper fixup types so we can handle this later, when we've\n \t     parsed everything.  */\n-\t  fix_new (opc_fragP, opcodep - opc_fragP->fr_literal + 2,\n-\t\t   8, sym, 0, 0, BFD_RELOC_MMIX_BASE_PLUS_OFFSET);\n+\t  tmpfixP\n+\t    = fix_new (opc_fragP, opcodep - opc_fragP->fr_literal + 2,\n+\t\t       1, sym, 0, 0, BFD_RELOC_MMIX_BASE_PLUS_OFFSET);\n+\t  /* This is a non-trivial fixup: the ->fx_offset will not\n+\t     reflect the stored value, so the generic overflow test\n+\t     doesn't apply. */\n+\t  tmpfixP->fx_no_overflow = 1;\n \t  break;\n \t}\n \n@@ -2332,11 +2338,18 @@ md_convert_frag (bfd *abfd ATTRIBUTE_UNUSED, segT sec ATTRIBUTE_UNUSED,\n     case ENCODE_RELAX (STATE_PUSHJSTUB, STATE_ZERO):\n       /* Setting the unknown bits to 0 seems the most appropriate.  */\n       mmix_set_geta_branch_offset (opcodep, 0);\n-      tmpfixP = fix_new (opc_fragP, opcodep - opc_fragP->fr_literal, 8,\n+      tmpfixP = fix_new (opc_fragP, opcodep - opc_fragP->fr_literal, 4,\n \t\t\t fragP->fr_symbol, fragP->fr_offset, 1,\n \t\t\t BFD_RELOC_MMIX_PUSHJ_STUBBABLE);\n       COPY_FR_WHERE_TO_FX (fragP, tmpfixP);\n       var_part_size = 0;\n+\n+      /* This is a non-trivial fixup; we'll be calling a generated\n+\t stub, whose address fits into the fixup.  The actual target,\n+\t as reflected by the fixup value, is further away than fits\n+\t into the fixup, so the generic overflow test doesn't\n+\t apply. */\n+      tmpfixP->fx_no_overflow = 1;\n       break;\n \n     case ENCODE_RELAX (STATE_GETA, STATE_ZERO):"
+    },
+    {
+      "sha": "f7a54c1de26385cb4c918331835c7b4ac7cddf47",
+      "filename": "gas/config/tc-mmix.h",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b20e7614da3d64ffe05617d5ac89819bff6bedf8/gas/config/tc-mmix.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b20e7614da3d64ffe05617d5ac89819bff6bedf8/gas/config/tc-mmix.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-mmix.h?ref=b20e7614da3d64ffe05617d5ac89819bff6bedf8",
+      "patch": "@@ -226,8 +226,5 @@ extern void mmix_md_do_align (int, char *, int, int);\n    explicitly say one byte.  */\n #define DWARF2_LINE_MIN_INSN_LENGTH 1\n \n-/* This target is buggy, and sets fix size too large.  */\n-#define TC_FX_SIZE_SLACK(FIX) 6\n-\n /* MMIX has global register symbols.  */\n #define TC_GLOBAL_REGISTER_SYMBOL_OK"
+    }
+  ]
+}

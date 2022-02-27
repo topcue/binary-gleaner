@@ -1,0 +1,158 @@
+{
+  "sha": "ca89bdf8b2b013484f252d9688cb01a3def2fa2e",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6Y2E4OWJkZjhiMmIwMTM0ODRmMjUyZDk2ODhjYjAxYTNkZWYyZmEyZQ==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-05-26T14:50:05Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-07-27T08:20:39Z"
+    },
+    "message": "gdb: remove VALUE_FRAME_ID and fix another frame debug issue\n\nThis commit was originally part of this patch series:\n\n  (v1): https://sourceware.org/pipermail/gdb-patches/2021-May/179357.html\n  (v2): https://sourceware.org/pipermail/gdb-patches/2021-June/180208.html\n  (v3): https://sourceware.org/pipermail/gdb-patches/2021-July/181028.html\n\nHowever, that series is being held up in review, so I wanted to break\nout some of the non-related fixes in order to get these merged.\n\nThis commit addresses two semi-related issues, both of which are\nproblems exposed by using 'set debug frame on'.\n\nThe first issue is in frame.c in get_prev_frame_always_1, and was\nintroduced by this commit:\n\n  commit a05a883fbaba69d0f80806e46a9457727fcbe74c\n  Date:   Tue Jun 29 12:03:50 2021 -0400\n\n      gdb: introduce frame_debug_printf\n\nThis commit replaced fprint_frame with frame_info::to_string.\nHowever, the former could handle taking a nullptr while the later, a\nmember function, obviously requires a non-nullptr in order to make the\nfunction call.  In one place we are not-guaranteed to have a\nnon-nullptr, and so, there is the possibility of triggering undefined\nbehaviour.\n\nThe second issue addressed in this commit has existed for a while in\nGDB, and would cause this assertion:\n\n  gdb/frame.c:622: internal-error: frame_id get_frame_id(frame_info*): Assertion `fi->this_id.p != frame_id_status::COMPUTING' failed.\n\nWe attempt to get the frame_id for a frame while we are computing the\nframe_id for that same frame.\n\nWhat happens is that when GDB stops we create a frame_info object for\nthe sentinel frame (frame #-1) and then we attempt to unwind this\nframe to create a frame_info object for frame #0.\n\nIn the test case used here to expose the issue we have created a\nPython frame unwinder.  In the Python unwinder we attemt to read the\nprogram counter register.\n\nReading this register will initially create a lazy register value.\nThe frame-id stored in the lazy register value will be for the\nsentinel frame (lazy register values hold the frame-id for the frame\nfrom which the register will be unwound).\n\nHowever, the Python unwinder does actually want to examine the value\nof the program counter, and so the lazy register value is resolved\ninto a non-lazy value.  This sends GDB into value_fetch_lazy_register\nin value.c.\n\nNow, inside this function, if 'set debug frame on' is in effect, then\nwe want to print something like:\n\n  frame=%d, regnum=%d(%s), ....\n\nWhere 'frame=%d' will be the relative frame level of the frame for\nwhich the register is being fetched, so, in this case we would expect\nto see 'frame=0', i.e. we are reading a register as it would be in\nframe #0.  But, remember, the lazy register value actually holds the\nframe-id for frame #-1 (the sentinel frame).\n\nSo, to get the frame_info for frame #0 we used to call:\n\n  frame = frame_find_by_id (VALUE_FRAME_ID (val));\n\nWhere VALUE_FRAME_ID is:\n\n  #define VALUE_FRAME_ID(val) (get_prev_frame_id_by_id (VALUE_NEXT_FRAME_ID (val)))\n\nThat is, we start with the frame-id for the next frame as obtained by\nVALUE_NEXT_FRAME_ID, then call get_prev_frame_id_by_id to get the\nframe-id of the previous frame.\n\nThe get_prev_frame_id_by_id function finds the frame_info for the\ngiven frame-id (in this case frame #-1), calls get_prev_frame to get\nthe previous frame, and then calls get_frame_id.\n\nThe problem here is that calling get_frame_id requires that we know\nthe frame unwinder, so then have to try each frame unwinder in turn,\nwhich would include the Python unwinder.... which is where we started,\nand thus we have a loop!\n\nTo prevent this loop GDB has an assertion in place, which is what\nactually triggers.\n\nSolving the assertion failure is pretty easy, if we consider the code\nin value_fetch_lazy_register and get_prev_frame_id_by_id then what we\ndo is:\n\n  1. Start with a frame_id taken from a value,\n  2. Lookup the corresponding frame,\n  3. Find the previous frame,\n  4. Get the frame_id for that frame, and\n  5. Lookup the corresponding frame\n  6. Print the frame's level\n\nNotice that steps 3 and 5 give us the exact same result, step 4 is\njust wasted effort.  We could shorten this process such that we drop\nsteps 4 and 5, thus:\n\n  1. Start with a frame_id taken from a value,\n  2. Lookup the corresponding frame,\n  3. Find the previous frame,\n  6. Print the frame's level\n\nThis will give the exact same frame as a result, and this is what I\nhave done in this patch by removing the use of VALUE_FRAME_ID from\nvalue_fetch_lazy_register.\n\nOut of curiosity I looked to see how widely VALUE_FRAME_ID was used,\nand saw it was only used in one other place in valops.c:value_assign,\nwhere, once again, we take the result of VALUE_FRAME_ID and pass it to\nframe_find_by_id, thus introducing a redundant frame_id lookup.\n\nI don't think the value_assign case risks triggering the assertion\nthough, as we are unlikely to call value_assign while computing the\nframe_id for a frame, however, we could make value_assign slightly\nmore efficient, with no real additional complexity, by removing the\nuse of VALUE_FRAME_ID.\n\nSo, in this commit, I completely remove VALUE_FRAME_ID, and replace it\nwith a use of VALUE_NEXT_FRAME_ID, followed by a direct call to\nget_prev_frame_always, this should make no difference in either case,\nand resolves the assertion issue from value.c.\n\nAs I said, this patch was originally part of another series, the\noriginal test relied on the fixes in that original series.  However, I\nwas able to create an alternative test for this issue by enabling\nframe debug within an existing test script.\n\nThis commit probably fixes bug PR gdb/27938, though the bug doesn't\nhave a reproducer attached so it is not possible to know for sure.\n\nBug: https://sourceware.org/bugzilla/show_bug.cgi?id=27938",
+    "tree": {
+      "sha": "f6f86a1582717ca59abc511add38b1b96e09612a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f6f86a1582717ca59abc511add38b1b96e09612a"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ca89bdf8b2b013484f252d9688cb01a3def2fa2e",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ca89bdf8b2b013484f252d9688cb01a3def2fa2e",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ca89bdf8b2b013484f252d9688cb01a3def2fa2e",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ca89bdf8b2b013484f252d9688cb01a3def2fa2e/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "8d56b9fcf3fa7f813e5d90c1f7add08029b6db79",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8d56b9fcf3fa7f813e5d90c1f7add08029b6db79",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/8d56b9fcf3fa7f813e5d90c1f7add08029b6db79"
+    }
+  ],
+  "stats": {
+    "total": 76,
+    "additions": 37,
+    "deletions": 39
+  },
+  "files": [
+    {
+      "sha": "2332418f347d38816c6656dc2739b5997b8c3304",
+      "filename": "gdb/frame.c",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 18,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ca89bdf8b2b013484f252d9688cb01a3def2fa2e/gdb/frame.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ca89bdf8b2b013484f252d9688cb01a3def2fa2e/gdb/frame.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/frame.c?ref=ca89bdf8b2b013484f252d9688cb01a3def2fa2e",
+      "patch": "@@ -2121,8 +2121,13 @@ get_prev_frame_always_1 (struct frame_info *this_frame)\n   /* Only try to do the unwind once.  */\n   if (this_frame->prev_p)\n     {\n-      frame_debug_printf (\"  -> %s // cached\",\n-\t\t\t  this_frame->prev->to_string ().c_str ());\n+      if (this_frame->prev != nullptr)\n+\tframe_debug_printf (\"  -> %s // cached\",\n+\t\t\t    this_frame->prev->to_string ().c_str ());\n+      else\n+\tframe_debug_printf\n+\t  (\"  -> nullptr // %s // cached\",\n+\t   frame_stop_reason_symbol_string (this_frame->stop_reason));\n       return this_frame->prev;\n     }\n \n@@ -2515,22 +2520,6 @@ get_prev_frame (struct frame_info *this_frame)\n   return get_prev_frame_always (this_frame);\n }\n \n-struct frame_id\n-get_prev_frame_id_by_id (struct frame_id id)\n-{\n-  struct frame_id prev_id;\n-  struct frame_info *frame;\n-\n-  frame = frame_find_by_id (id);\n-\n-  if (frame != NULL)\n-    prev_id = get_frame_id (get_prev_frame (frame));\n-  else\n-    prev_id = null_frame_id;\n-\n-  return prev_id;\n-}\n-\n CORE_ADDR\n get_frame_pc (struct frame_info *frame)\n {"
+    },
+    {
+      "sha": "2548846c1ed8f815f82cdefe881da81f076ff4ba",
+      "filename": "gdb/frame.h",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 4,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ca89bdf8b2b013484f252d9688cb01a3def2fa2e/gdb/frame.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ca89bdf8b2b013484f252d9688cb01a3def2fa2e/gdb/frame.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/frame.h?ref=ca89bdf8b2b013484f252d9688cb01a3def2fa2e",
+      "patch": "@@ -394,10 +394,6 @@ extern struct frame_info *get_prev_frame_always (struct frame_info *);\n    is not found.  */\n extern struct frame_info *frame_find_by_id (struct frame_id id);\n \n-/* Given a frame's ID, find the previous frame's ID.  Returns null_frame_id\n-   if the frame is not found.  */\n-extern struct frame_id get_prev_frame_id_by_id (struct frame_id id);\n-\n /* Base attributes of a frame: */\n \n /* The frame's `resume' address.  Where the program will resume in"
+    },
+    {
+      "sha": "1c0826201bbf10df9d13ce4eec125030e1eb5e3d",
+      "filename": "gdb/testsuite/gdb.base/premature-dummy-frame-removal.exp",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 0,
+      "changes": 19,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ca89bdf8b2b013484f252d9688cb01a3def2fa2e/gdb/testsuite/gdb.base/premature-dummy-frame-removal.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ca89bdf8b2b013484f252d9688cb01a3def2fa2e/gdb/testsuite/gdb.base/premature-dummy-frame-removal.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/premature-dummy-frame-removal.exp?ref=ca89bdf8b2b013484f252d9688cb01a3def2fa2e",
+      "patch": "@@ -51,3 +51,22 @@ set pyfile [gdb_remote_download host ${srcdir}/${subdir}/${testfile}.py]\n gdb_test_no_output \"source ${pyfile}\" \"load python file\"\n \n gdb_test \"p some_func ()\" \" = 0\"\n+\n+# When frame debugging is turned on, this test has (previously)\n+# revealed some crashes due to the Python frame unwinder trying to\n+# read registers.\n+#\n+# Enable frame debug and rerun the test.  We don't bother checking the\n+# output of calling 'p some_func ()' as the output will be full of\n+# debug, to format of which isn't fixed.  All we care about is that\n+# GDB is still running afterwards.\n+#\n+# All of the debug output makes this really slow when testing with the\n+# special read1 version of expect, hence the timeout factor.\n+with_read1_timeout_factor 10 {\n+    gdb_test_no_output \"set debug frame on\"\n+    gdb_test \"p some_func ()\" \".*\" \\\n+\t\"repeat p some_func () with frame debug on\"\n+    gdb_test_no_output \"set debug frame off\"\n+}\n+gdb_test \"p 1 + 2 + 3\" \" = 6\""
+    },
+    {
+      "sha": "50874a5f55d00f9b2eddf70ad2fbd1bff95282a4",
+      "filename": "gdb/valops.c",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 8,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ca89bdf8b2b013484f252d9688cb01a3def2fa2e/gdb/valops.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ca89bdf8b2b013484f252d9688cb01a3def2fa2e/gdb/valops.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/valops.c?ref=ca89bdf8b2b013484f252d9688cb01a3def2fa2e",
+      "patch": "@@ -1197,14 +1197,15 @@ value_assign (struct value *toval, struct value *fromval)\n \tstruct gdbarch *gdbarch;\n \tint value_reg;\n \n-\t/* Figure out which frame this is in currently.\n-\t\n-\t   We use VALUE_FRAME_ID for obtaining the value's frame id instead of\n-\t   VALUE_NEXT_FRAME_ID due to requiring a frame which may be passed to\n-\t   put_frame_register_bytes() below.  That function will (eventually)\n-\t   perform the necessary unwind operation by first obtaining the next\n-\t   frame.  */\n-\tframe = frame_find_by_id (VALUE_FRAME_ID (toval));\n+\t/* Figure out which frame this register value is in.  The value\n+\t   holds the frame_id for the next frame, that is the frame this\n+\t   register value was unwound from.\n+\n+\t   Below we will call put_frame_register_bytes which requires that\n+\t   we pass it the actual frame in which the register value is\n+\t   valid, i.e. not the next frame.  */\n+\tframe = frame_find_by_id (VALUE_NEXT_FRAME_ID (toval));\n+\tframe = get_prev_frame_always (frame);\n \n \tvalue_reg = VALUE_REGNUM (toval);\n "
+    },
+    {
+      "sha": "91db66fa3bec81b63ef54ff1cba74c11e1c628d8",
+      "filename": "gdb/value.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 3,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ca89bdf8b2b013484f252d9688cb01a3def2fa2e/gdb/value.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ca89bdf8b2b013484f252d9688cb01a3def2fa2e/gdb/value.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/value.c?ref=ca89bdf8b2b013484f252d9688cb01a3def2fa2e",
+      "patch": "@@ -3950,9 +3950,8 @@ value_fetch_lazy_register (struct value *val)\n     {\n       struct gdbarch *gdbarch;\n       struct frame_info *frame;\n-      /* VALUE_FRAME_ID is used here, instead of VALUE_NEXT_FRAME_ID,\n-\t so that the frame level will be shown correctly.  */\n-      frame = frame_find_by_id (VALUE_FRAME_ID (val));\n+      frame = frame_find_by_id (VALUE_NEXT_FRAME_ID (val));\n+      frame = get_prev_frame_always (frame);\n       regnum = VALUE_REGNUM (val);\n       gdbarch = get_frame_arch (frame);\n "
+    },
+    {
+      "sha": "e1c6aabfa294fc1556936ca2e92c1434ea46cc78",
+      "filename": "gdb/value.h",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 6,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ca89bdf8b2b013484f252d9688cb01a3def2fa2e/gdb/value.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ca89bdf8b2b013484f252d9688cb01a3def2fa2e/gdb/value.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/value.h?ref=ca89bdf8b2b013484f252d9688cb01a3def2fa2e",
+      "patch": "@@ -458,12 +458,6 @@ extern struct internalvar **deprecated_value_internalvar_hack (struct value *);\n extern struct frame_id *deprecated_value_next_frame_id_hack (struct value *);\n #define VALUE_NEXT_FRAME_ID(val) (*deprecated_value_next_frame_id_hack (val))\n \n-/* Frame ID of frame to which a register value is relative.  This is\n-   similar to VALUE_NEXT_FRAME_ID, above, but may not be assigned to. \n-   Note that VALUE_FRAME_ID effectively undoes the \"next\" operation\n-   that was performed during the assignment to VALUE_NEXT_FRAME_ID.  */\n-#define VALUE_FRAME_ID(val) (get_prev_frame_id_by_id (VALUE_NEXT_FRAME_ID (val)))\n-\n /* Register number if the value is from a register.  */\n extern int *deprecated_value_regnum_hack (struct value *);\n #define VALUE_REGNUM(val) (*deprecated_value_regnum_hack (val))"
+    }
+  ]
+}

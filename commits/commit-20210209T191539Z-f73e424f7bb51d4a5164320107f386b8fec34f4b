@@ -1,0 +1,134 @@
+{
+  "sha": "f73e424f7bb51d4a5164320107f386b8fec34f4b",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZjczZTQyNGY3YmI1MWQ0YTUxNjQzMjAxMDdmMzg2YjhmZWMzNGY0Yg==",
+  "commit": {
+    "author": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2021-02-09T19:15:39Z"
+    },
+    "committer": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2021-02-09T19:15:39Z"
+    },
+    "message": "Avoid crash from coerce_unspec_val_to_type\n\nWith a certain Ada program, ada-lang.c:coerce_unspec_val_to_type can\ncause a crash.  This function may copy a value, and in the particular\ncase in the crash, the new value's type is smaller than the original\ntype.  This causes coerce_unspec_val_to_type to create a lazy value --\nbut the original value is also not_lval, so later, when the value is\nun-lazied, gdb asserts.\n\nAs with the previous patch, we believe there is a compiler bug here,\nbut it is difficult to reproduce, so we're not completely certain.\n\nIn the particular case we saw, the original value has record type, and\nthe record holds some variable-length arrays.  This leads to the\ntype's length being 0.  At the same time, the value is optimized out.\n\nThis patch changes coerce_unspec_val_to_type to handle an\noptimized-out value correctly.\n\nIt also slightly restructures this code to avoid a crash should a\nnot_lval value wind up here.  This is a purely defensive change.\n\nThis change also made it clear that value_contents_copy_raw can now be\nmade static, so that is also done.\n\ngdb/ChangeLog\n2021-02-09  Tom Tromey  <tromey@adacore.com>\n\n\t* ada-lang.c (coerce_unspec_val_to_type): Avoid making lazy\n\tnot_lval value.\n\t* value.c (value_contents_copy_raw): Now static.\n\t* value.h (value_contents_copy_raw): Don't declare.",
+    "tree": {
+      "sha": "5736b4a9d9e67326ad32eeafd4780a11f9704422",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/5736b4a9d9e67326ad32eeafd4780a11f9704422"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/f73e424f7bb51d4a5164320107f386b8fec34f4b",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f73e424f7bb51d4a5164320107f386b8fec34f4b",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/f73e424f7bb51d4a5164320107f386b8fec34f4b",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f73e424f7bb51d4a5164320107f386b8fec34f4b/comments",
+  "author": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "a4f0544b1ba516db0ab9715e4cccc78bc098ebc9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a4f0544b1ba516db0ab9715e4cccc78bc098ebc9",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/a4f0544b1ba516db0ab9715e4cccc78bc098ebc9"
+    }
+  ],
+  "stats": {
+    "total": 22,
+    "additions": 15,
+    "deletions": 7
+  },
+  "files": [
+    {
+      "sha": "5c66f99e8178ab7b87ae17f04d72b7cfc0a8e7e6",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f73e424f7bb51d4a5164320107f386b8fec34f4b/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f73e424f7bb51d4a5164320107f386b8fec34f4b/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=f73e424f7bb51d4a5164320107f386b8fec34f4b",
+      "patch": "@@ -1,3 +1,10 @@\n+2021-02-09  Tom Tromey  <tromey@adacore.com>\n+\n+\t* ada-lang.c (coerce_unspec_val_to_type): Avoid making lazy\n+\tnot_lval value.\n+\t* value.c (value_contents_copy_raw): Now static.\n+\t* value.h (value_contents_copy_raw): Don't declare.\n+\n 2021-02-09  Tom Tromey  <tromey@adacore.com>\n \n \t* gdbtypes.c (resolve_dynamic_struct): Handle structure with no"
+    },
+    {
+      "sha": "416a45be58e59b565ac3214421b490d49ef54179",
+      "filename": "gdb/ada-lang.c",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 3,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f73e424f7bb51d4a5164320107f386b8fec34f4b/gdb/ada-lang.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f73e424f7bb51d4a5164320107f386b8fec34f4b/gdb/ada-lang.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ada-lang.c?ref=f73e424f7bb51d4a5164320107f386b8fec34f4b",
+      "patch": "@@ -601,13 +601,17 @@ coerce_unspec_val_to_type (struct value *val, struct type *type)\n \t trying to allocate some memory for it.  */\n       ada_ensure_varsize_limit (type);\n \n-      if (value_lazy (val)\n-\t  || TYPE_LENGTH (type) > TYPE_LENGTH (value_type (val)))\n+      if (value_optimized_out (val))\n+\tresult = allocate_optimized_out_value (type);\n+      else if (value_lazy (val)\n+\t       /* Be careful not to make a lazy not_lval value.  */\n+\t       || (VALUE_LVAL (val) != not_lval\n+\t\t   && TYPE_LENGTH (type) > TYPE_LENGTH (value_type (val))))\n \tresult = allocate_value_lazy (type);\n       else\n \t{\n \t  result = allocate_value (type);\n-\t  value_contents_copy_raw (result, 0, val, 0, TYPE_LENGTH (type));\n+\t  value_contents_copy (result, 0, val, 0, TYPE_LENGTH (type));\n \t}\n       set_value_component_location (result, val);\n       set_value_bitsize (result, value_bitsize (val));"
+    },
+    {
+      "sha": "bddf9a47923a0c1e845f94668c959a11569d8464",
+      "filename": "gdb/value.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f73e424f7bb51d4a5164320107f386b8fec34f4b/gdb/value.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f73e424f7bb51d4a5164320107f386b8fec34f4b/gdb/value.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/value.c?ref=f73e424f7bb51d4a5164320107f386b8fec34f4b",
+      "patch": "@@ -1304,7 +1304,7 @@ value_ranges_copy_adjusted (struct value *dst, int dst_bit_offset,\n    It is assumed the contents of DST in the [DST_OFFSET,\n    DST_OFFSET+LENGTH) range are wholly available.  */\n \n-void\n+static void\n value_contents_copy_raw (struct value *dst, LONGEST dst_offset,\n \t\t\t struct value *src, LONGEST src_offset, LONGEST length)\n {"
+    },
+    {
+      "sha": "60a831c38c4e6a8ac3504299c4604d75dc0a2a25",
+      "filename": "gdb/value.h",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f73e424f7bb51d4a5164320107f386b8fec34f4b/gdb/value.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f73e424f7bb51d4a5164320107f386b8fec34f4b/gdb/value.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/value.h?ref=f73e424f7bb51d4a5164320107f386b8fec34f4b",
+      "patch": "@@ -739,9 +739,6 @@ extern struct value *allocate_value_lazy (struct type *type);\n extern void value_contents_copy (struct value *dst, LONGEST dst_offset,\n \t\t\t\t struct value *src, LONGEST src_offset,\n \t\t\t\t LONGEST length);\n-extern void value_contents_copy_raw (struct value *dst, LONGEST dst_offset,\n-\t\t\t\t     struct value *src, LONGEST src_offset,\n-\t\t\t\t     LONGEST length);\n \n extern struct value *allocate_repeat_value (struct type *type, int count);\n "
+    }
+  ]
+}

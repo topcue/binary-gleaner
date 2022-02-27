@@ -1,0 +1,122 @@
+{
+  "sha": "e2b9ea4bbbf16962da55062b3aef6f5238a50f3d",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZTJiOWVhNGJiYmYxNjk2MmRhNTUwNjJiM2FlZjZmNTIzOGE1MGYzZA==",
+  "commit": {
+    "author": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2021-06-10T01:07:45Z"
+    },
+    "committer": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2021-06-11T21:52:38Z"
+    },
+    "message": "libthread_db initialization changes related to upcoming glibc-2.34\n\nThis commit makes some adjustments to accomodate the upcoming\nglibc-2.34 release.  Beginning with glibc-2.34, functionality formerly\ncontained in libpthread has been moved to libc.  For the time being,\nlibpthread.so still exists in the file system, but it won't show up in\nldd output and therefore won't be able to trigger initialization of\nlibthread_db related code.  E.g...\n\nFedora 34 / glibc-2.33.9000:\n\n[kev@f34-2 gdb]$ ldd testsuite/outputs/gdb.threads/tls/tls\n\tlinux-vdso.so.1 (0x00007ffcf94fa000)\n\tlibstdc++.so.6 => /lib64/libstdc++.so.6 (0x00007ff0ba9af000)\n\tlibm.so.6 => /lib64/libm.so.6 (0x00007ff0ba8d4000)\n\tlibgcc_s.so.1 => /lib64/libgcc_s.so.1 (0x00007ff0ba8b9000)\n\tlibc.so.6 => /lib64/libc.so.6 (0x00007ff0ba6c6000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007ff0babf0000)\n\nFedora 34 / glibc-2.33:\n\n[kev@f34-1 gdb]$ ldd testsuite/outputs/gdb.threads/tls/tls\n\tlinux-vdso.so.1 (0x00007fff32dc0000)\n\tlibpthread.so.0 => /lib64/libpthread.so.0 (0x00007f815f6de000)\n\tlibstdc++.so.6 => /lib64/libstdc++.so.6 (0x00007f815f4bf000)\n\tlibm.so.6 => /lib64/libm.so.6 (0x00007f815f37b000)\n\tlibgcc_s.so.1 => /lib64/libgcc_s.so.1 (0x00007f815f360000)\n\tlibc.so.6 => /lib64/libc.so.6 (0x00007f815f191000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007f815f721000)\n\nNote that libpthread is missing from the ldd output for the\nglibc-2.33.9000 machine.\n\nThis means that (unless we happen to think of some entirely different\nmechanism), we'll now need to potentially match \"libc\" in addition to\n\"libpthread\" as libraries which might be thread libraries.  This\naccounts for the change made in solib.c.  Note that the new code\nattempts to match \"/libc.\" via strstr().  That trailing dot (\".\")\navoids inadvertently matching libraries such as libcrypt (and\nall the other many libraries which begin with \"libc\").\n\nTo avoid attempts to load libthread_db when encountering older\nversions of libc, we now attempt to find \"pthread_create\" (which is a\nsymbol that we'd expect to be in any pthread library) in the\nassociated objfile.  This accounts for the changes in\nlinux-thread-db.c.\n\nI think that other small adjustments will need to be made elsewhere\ntoo.  I've been working through regressions on my glibc-2.33.9000\nmachine; I've fixed some fairly \"obvious\" changes in the testsuite\n(which are in other commits).  For the rest, it's not yet clear to me\nwhether the handful of remaining failures represent a problem in glibc\nor gdb.  I'm still investigating, however, I'll note that these are\nproblems that I only see on my glibc-2.33.9000 machine.\n\ngdb/ChangeLog:\n\n\t* solib.c (libpthread_name_p): Match \"libc\" in addition\n\tto \"libpthread\".\n\t* linux-thread-db.c (libpthread_objfile_p): New function.\n\t(libpthread_name_p): Adjust preexisting callers to use\n\tlibpthread_objfile_p().",
+    "tree": {
+      "sha": "ac68089fc89d98ce2de5984e65bec1f61b7515a5",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/ac68089fc89d98ce2de5984e65bec1f61b7515a5"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/e2b9ea4bbbf16962da55062b3aef6f5238a50f3d",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e2b9ea4bbbf16962da55062b3aef6f5238a50f3d",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/e2b9ea4bbbf16962da55062b3aef6f5238a50f3d",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e2b9ea4bbbf16962da55062b3aef6f5238a50f3d/comments",
+  "author": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "873793ae09b5dcba8c8da7345ee283f296558b8e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/873793ae09b5dcba8c8da7345ee283f296558b8e",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/873793ae09b5dcba8c8da7345ee283f296558b8e"
+    }
+  ],
+  "stats": {
+    "total": 41,
+    "additions": 36,
+    "deletions": 5
+  },
+  "files": [
+    {
+      "sha": "e5aac22ae3e449b199673ee59b96cf13591eaf0e",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e2b9ea4bbbf16962da55062b3aef6f5238a50f3d/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e2b9ea4bbbf16962da55062b3aef6f5238a50f3d/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=e2b9ea4bbbf16962da55062b3aef6f5238a50f3d",
+      "patch": "@@ -1,3 +1,11 @@\n+2021-06-11  Kevin Buettner  <kevinb@redhat.com>\n+\n+\t* solib.c (libpthread_name_p): Match \"libc\" in addition\n+\tto \"libpthread\".\n+\t* linux-thread-db.c (libpthread_objfile_p): New function.\n+\t(libpthread_name_p): Adjust preexisting callers to use\n+\tlibpthread_objfile_p().\n+\n 2021-06-11  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* dwarf2/loc.h (struct call_site_stuff): Remove."
+    },
+    {
+      "sha": "5b4e5a8654f9f18a9b4bc35484c735798b1405b6",
+      "filename": "gdb/linux-thread-db.c",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 3,
+      "changes": 24,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e2b9ea4bbbf16962da55062b3aef6f5238a50f3d/gdb/linux-thread-db.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e2b9ea4bbbf16962da55062b3aef6f5238a50f3d/gdb/linux-thread-db.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/linux-thread-db.c?ref=e2b9ea4bbbf16962da55062b3aef6f5238a50f3d",
+      "patch": "@@ -799,6 +799,24 @@ check_thread_db (struct thread_db_info *info, bool log_progress)\n   return test_passed;\n }\n \n+/* Predicate which tests whether objfile OBJ refers to the library\n+   containing pthread related symbols.  Historically, this library has\n+   been named in such a way that looking for \"libpthread\" in the name\n+   was sufficient to identify it.  As of glibc-2.34, the C library\n+   (libc) contains the thread library symbols.  Therefore we check\n+   that the name matches a possible thread library, but we also check\n+   that it contains at least one of the symbols (pthread_create) that\n+   we'd expect to find in the thread library.  */\n+\n+static bool\n+libpthread_objfile_p (objfile *obj)\n+{\n+  return (libpthread_name_p (objfile_name (obj))\n+          && lookup_minimal_symbol (\"pthread_create\",\n+\t                            NULL,\n+\t\t\t\t    obj).minsym != NULL);\n+}\n+\n /* Attempt to initialize dlopen()ed libthread_db, described by INFO.\n    Return true on success.\n    Failure could happen if libthread_db does not have symbols we expect,\n@@ -1072,7 +1090,7 @@ try_thread_db_load_from_pdir (const char *subdir)\n     return false;\n \n   for (objfile *obj : current_program_space->objfiles ())\n-    if (libpthread_name_p (objfile_name (obj)))\n+    if (libpthread_objfile_p (obj))\n       {\n \tif (try_thread_db_load_from_pdir_1 (obj, subdir))\n \t  return true;\n@@ -1181,7 +1199,7 @@ static bool\n has_libpthread (void)\n {\n   for (objfile *obj : current_program_space->objfiles ())\n-    if (libpthread_name_p (objfile_name (obj)))\n+    if (libpthread_objfile_p (obj))\n       return true;\n \n   return false;\n@@ -1286,7 +1304,7 @@ thread_db_new_objfile (struct objfile *objfile)\n \t of the list of shared libraries to load, and in an app of several\n \t thousand shared libraries, this can otherwise be painful.  */\n       && ((objfile->flags & OBJF_MAINLINE) != 0\n-\t  || libpthread_name_p (objfile_name (objfile))))\n+\t  || libpthread_objfile_p (objfile)))\n     check_for_thread_db ();\n }\n "
+    },
+    {
+      "sha": "317f7eb485e25cdb41bfa6306ec7d3c476418129",
+      "filename": "gdb/solib.c",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 2,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e2b9ea4bbbf16962da55062b3aef6f5238a50f3d/gdb/solib.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e2b9ea4bbbf16962da55062b3aef6f5238a50f3d/gdb/solib.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/solib.c?ref=e2b9ea4bbbf16962da55062b3aef6f5238a50f3d",
+      "patch": "@@ -900,12 +900,17 @@ Do you need \\\"set solib-search-path\\\" or \\\"set sysroot\\\"?\"),\n \n    Uses a fairly simplistic heuristic approach where we check\n    the file name against \"/libpthread\".  This can lead to false\n-   positives, but this should be good enough in practice.  */\n+   positives, but this should be good enough in practice.\n+\n+   As of glibc-2.34, functions formerly residing in libpthread have\n+   been moved to libc, so \"/libc.\" needs to be checked too.  (Matching\n+   the \".\" will avoid matching libraries such as libcrypt.) */\n \n bool\n libpthread_name_p (const char *name)\n {\n-  return (strstr (name, \"/libpthread\") != NULL);\n+  return (strstr (name, \"/libpthread\") != NULL\n+          || strstr (name, \"/libc.\") != NULL );\n }\n \n /* Return non-zero if SO is the libpthread shared library.  */"
+    }
+  ]
+}

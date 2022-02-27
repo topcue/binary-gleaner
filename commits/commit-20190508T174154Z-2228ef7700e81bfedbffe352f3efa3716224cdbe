@@ -1,0 +1,163 @@
+{
+  "sha": "2228ef7700e81bfedbffe352f3efa3716224cdbe",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MjIyOGVmNzcwMGU4MWJmZWRiZmZlMzUyZjNlZmEzNzE2MjI0Y2RiZQ==",
+  "commit": {
+    "author": {
+      "name": "Xavier Roirand",
+      "email": "roirand@adacore.com",
+      "date": "2019-05-08T16:55:44Z"
+    },
+    "committer": {
+      "name": "Joel Brobecker",
+      "email": "brobecker@adacore.com",
+      "date": "2019-05-08T17:41:54Z"
+    },
+    "message": "When debugging a mixed Ada/C program using this scenario:\n\n- set print frame-arguements all\n- an Ada function named pck.call_me calls a C function named break_me\n- you put a breakpoint in break_me and the program reaches this\n  breakpoint.\n\nNow display the backtrace:\n\n  (gdb) bt\n  #0  break_me () at [...]\n  #1  0x000000000040243e in pck.call_me (\n      s={P_ARRAY = 0x7fffffffe21c, P_BOUNDS = 0x41e6e8}) at [...]\n\nwhereas we should expect:\n\n  (gdb) bt\n  #0  break_me () at [...]\n  #1  0x000000000040243e in pck.call_me (s=\"test\") at [...]\n\nThe problem is that GDB prints the S parameter in the pck.call_me Ada\nfunction using the current language, so the C one, because the program\nis stopped in a C function, whereas it should use the pck.call_me frame\none. This behavior is ok when user manually changes the language but it's\nnot the right one when language is auto.\n\nThis patch fixes this problem so now when using auto language, all Ada\nframe arguments are printed using Ada like syntax when the frame is part\nof Ada code, even if the program is stopped in a frame using a different\nlanguage.\n\nIf the user explicitly sets a language (using \"set language ...\") then\nno change here, all the Ada frame arguments are printed using this\nlanguage.\n\ngdb/ChangeLog:\n\n    * ada-valprint.c (ada_val_print_gnat_array): Remove language\n    parameter and use Ada language definition instead.\n    (ada_val_print_ptr): Remove unused language parameter.\n    (ada_val_print_num): Remove language parameter and use Ada language\n    definition instead.\n    (ada_val_print_enum, ada_val_print_flt): Remove unused language\n    parameter.\n    (ada_val_print_struct_union, ada_val_print_ref): Remove language\n    parameter and use Ada language definition instead.\n    (ada_val_print_1): Update all ada_val_print_xxx calls.\n    Remove language parameter.\n    (ada_val_print): Update ada_val_print_1 call.\n\ngdb/testsuite/ChangeLog:\n\n    * gdb.ada/frame_arg_lang.exp: New testcase.\n    * gdb.ada/frame_arg_lang/bla.adb: New file.\n    * gdb.ada/frame_arg_lang/pck.ads: New file.\n    * gdb.ada/frame_arg_lang/pck.adb: New file.\n    * gdb.ada/frame_arg_lang/foo.c: New file.\n\nTested on x86_64-linux, no regressions.",
+    "tree": {
+      "sha": "265633a11f7db56707a5542468c17b6ea16fa117",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/265633a11f7db56707a5542468c17b6ea16fa117"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/2228ef7700e81bfedbffe352f3efa3716224cdbe",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2228ef7700e81bfedbffe352f3efa3716224cdbe",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/2228ef7700e81bfedbffe352f3efa3716224cdbe",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2228ef7700e81bfedbffe352f3efa3716224cdbe/comments",
+  "author": null,
+  "committer": {
+    "login": "brobecke",
+    "id": 11981700,
+    "node_id": "MDQ6VXNlcjExOTgxNzAw",
+    "avatar_url": "https://avatars.githubusercontent.com/u/11981700?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/brobecke",
+    "html_url": "https://github.com/brobecke",
+    "followers_url": "https://api.github.com/users/brobecke/followers",
+    "following_url": "https://api.github.com/users/brobecke/following{/other_user}",
+    "gists_url": "https://api.github.com/users/brobecke/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/brobecke/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/brobecke/subscriptions",
+    "organizations_url": "https://api.github.com/users/brobecke/orgs",
+    "repos_url": "https://api.github.com/users/brobecke/repos",
+    "events_url": "https://api.github.com/users/brobecke/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/brobecke/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "60fcc1c3d0d8f1e271b19210b1707b4aa589f273",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/60fcc1c3d0d8f1e271b19210b1707b4aa589f273",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/60fcc1c3d0d8f1e271b19210b1707b4aa589f273"
+    }
+  ],
+  "stats": {
+    "total": 238,
+    "additions": 207,
+    "deletions": 31
+  },
+  "files": [
+    {
+      "sha": "81f72a91e28366bfccb65d88c4eb13f7e1be93a5",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2228ef7700e81bfedbffe352f3efa3716224cdbe/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2228ef7700e81bfedbffe352f3efa3716224cdbe/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=2228ef7700e81bfedbffe352f3efa3716224cdbe",
+      "patch": "@@ -1,3 +1,18 @@\n+2019-05-08  Joel Brobecker  <brobecker@adacore.com>\n+\n+\t* ada-valprint.c (ada_val_print_gnat_array): Remove language\n+\tparameter and use Ada language definition instead.\n+\t(ada_val_print_ptr): Remove unused language parameter.\n+\t(ada_val_print_num): Remove language parameter and use Ada language\n+\tdefinition instead.\n+\t(ada_val_print_enum, ada_val_print_flt): Remove unused language\n+\tparameter.\n+\t(ada_val_print_struct_union, ada_val_print_ref): Remove language\n+\tparameter and use Ada language definition instead.\n+\t(ada_val_print_1): Update all ada_val_print_xxx calls.\n+\tRemove language parameter.\n+\t(ada_val_print): Update ada_val_print_1 call.\n+\n 2019-05-08  Tom Tromey  <tromey@adacore.com>\n \n \t* remote.c (remote_hw_watchpoint_limit)"
+    },
+    {
+      "sha": "0654049d77b9b60a454194ed5d2a55b026ccead4",
+      "filename": "gdb/ada-valprint.c",
+      "status": "modified",
+      "additions": 25,
+      "deletions": 31,
+      "changes": 56,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2228ef7700e81bfedbffe352f3efa3716224cdbe/gdb/ada-valprint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2228ef7700e81bfedbffe352f3efa3716224cdbe/gdb/ada-valprint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ada-valprint.c?ref=2228ef7700e81bfedbffe352f3efa3716224cdbe",
+      "patch": "@@ -765,8 +765,7 @@ ada_val_print_gnat_array (struct type *type, const gdb_byte *valaddr,\n \t\t\t  int offset, CORE_ADDR address,\n \t\t\t  struct ui_file *stream, int recurse,\n \t\t\t  struct value *original_value,\n-\t\t\t  const struct value_print_options *options,\n-\t\t\t  const struct language_defn *language)\n+\t\t\t  const struct value_print_options *options)\n {\n   struct value *mark = value_mark ();\n   struct value *val;\n@@ -788,7 +787,8 @@ ada_val_print_gnat_array (struct type *type, const gdb_byte *valaddr,\n   else\n     val_print (value_type (val),\n \t       value_embedded_offset (val), value_address (val),\n-\t       stream, recurse, val, options, language);\n+\t       stream, recurse, val, options,\n+\t       language_def (language_ada));\n   value_free_to_mark (mark);\n }\n \n@@ -800,8 +800,7 @@ ada_val_print_ptr (struct type *type, const gdb_byte *valaddr,\n \t\t   int offset, int offset_aligned, CORE_ADDR address,\n \t\t   struct ui_file *stream, int recurse,\n \t\t   struct value *original_value,\n-\t\t   const struct value_print_options *options,\n-\t\t   const struct language_defn *language)\n+\t\t   const struct value_print_options *options)\n {\n   val_print (type, offset, address, stream, recurse,\n \t     original_value, options, language_def (language_c));\n@@ -827,8 +826,7 @@ ada_val_print_num (struct type *type, const gdb_byte *valaddr,\n \t\t   int offset, int offset_aligned, CORE_ADDR address,\n \t\t   struct ui_file *stream, int recurse,\n \t\t   struct value *original_value,\n-\t\t   const struct value_print_options *options,\n-\t\t   const struct language_defn *language)\n+\t\t   const struct value_print_options *options)\n {\n   if (ada_is_fixed_point_type (type))\n     {\n@@ -859,12 +857,13 @@ ada_val_print_num (struct type *type, const gdb_byte *valaddr,\n \n \t  val_print (target_type,\n \t\t     value_embedded_offset (v), 0, stream,\n-\t\t     recurse + 1, v, options, language);\n+\t\t     recurse + 1, v, options,\n+\t\t     language_def (language_ada));\n \t}\n       else\n \tval_print (TYPE_TARGET_TYPE (type), offset,\n \t\t   address, stream, recurse, original_value,\n-\t\t   options, language);\n+\t\t   options, language_def (language_ada));\n       return;\n     }\n   else\n@@ -923,8 +922,7 @@ ada_val_print_enum (struct type *type, const gdb_byte *valaddr,\n \t\t    int offset, int offset_aligned, CORE_ADDR address,\n \t\t    struct ui_file *stream, int recurse,\n \t\t    struct value *original_value,\n-\t\t    const struct value_print_options *options,\n-\t\t    const struct language_defn *language)\n+\t\t    const struct value_print_options *options)\n {\n   int i;\n   unsigned int len;\n@@ -967,8 +965,7 @@ ada_val_print_flt (struct type *type, const gdb_byte *valaddr,\n \t\t   int offset, int offset_aligned, CORE_ADDR address,\n \t\t   struct ui_file *stream, int recurse,\n \t\t   struct value *original_value,\n-\t\t   const struct value_print_options *options,\n-\t\t   const struct language_defn *language)\n+\t\t   const struct value_print_options *options)\n {\n   if (options->format)\n     {\n@@ -988,8 +985,7 @@ ada_val_print_struct_union\n   (struct type *type, const gdb_byte *valaddr, int offset,\n    int offset_aligned, CORE_ADDR address, struct ui_file *stream,\n    int recurse, struct value *original_value,\n-   const struct value_print_options *options,\n-   const struct language_defn *language)\n+   const struct value_print_options *options)\n {\n   if (ada_is_bogus_array_descriptor (type))\n     {\n@@ -1001,7 +997,8 @@ ada_val_print_struct_union\n \n   if (print_field_values (type, valaddr, offset_aligned,\n \t\t\t  stream, recurse, original_value, options,\n-\t\t\t  0, type, offset_aligned, language) != 0\n+\t\t\t  0, type, offset_aligned,\n+\t\t\t  language_def (language_ada)) != 0\n       && options->prettyformat)\n     {\n       fprintf_filtered (stream, \"\\n\");\n@@ -1052,8 +1049,7 @@ ada_val_print_ref (struct type *type, const gdb_byte *valaddr,\n \t\t   int offset, int offset_aligned, CORE_ADDR address,\n \t\t   struct ui_file *stream, int recurse,\n \t\t   struct value *original_value,\n-\t\t   const struct value_print_options *options,\n-\t\t   const struct language_defn *language)\n+\t\t   const struct value_print_options *options)\n {\n   /* For references, the debugger is expected to print the value as\n      an address if DEREF_REF is null.  But printing an address in place\n@@ -1077,7 +1073,7 @@ ada_val_print_ref (struct type *type, const gdb_byte *valaddr,\n \tderef_val = ada_tag_value_at_base_address (deref_val);\n \n       common_val_print (deref_val, stream, recurse + 1, options,\n-\t\t\tlanguage);\n+\t\t\tlanguage_def (language_ada));\n       return;\n     }\n \n@@ -1106,7 +1102,7 @@ ada_val_print_ref (struct type *type, const gdb_byte *valaddr,\n   val_print (value_type (deref_val),\n \t     value_embedded_offset (deref_val),\n \t     value_address (deref_val), stream, recurse + 1,\n-\t     deref_val, options, language);\n+\t     deref_val, options, language_def (language_ada));\n }\n \n /* See the comment on ada_val_print.  This function differs in that it\n@@ -1117,8 +1113,7 @@ ada_val_print_1 (struct type *type,\n \t\t int offset, CORE_ADDR address,\n \t\t struct ui_file *stream, int recurse,\n \t\t struct value *original_value,\n-\t\t const struct value_print_options *options,\n-\t\t const struct language_defn *language)\n+\t\t const struct value_print_options *options)\n {\n   int offset_aligned;\n   const gdb_byte *valaddr = value_contents_for_printing (original_value);\n@@ -1131,7 +1126,7 @@ ada_val_print_1 (struct type *type,\n     {\n       ada_val_print_gnat_array (type, valaddr, offset, address,\n \t\t\t\tstream, recurse, original_value,\n-\t\t\t\toptions, language);\n+\t\t\t\toptions);\n       return;\n     }\n \n@@ -1150,33 +1145,33 @@ ada_val_print_1 (struct type *type,\n     case TYPE_CODE_PTR:\n       ada_val_print_ptr (type, valaddr, offset, offset_aligned,\n \t\t\t address, stream, recurse, original_value,\n-\t\t\t options, language);\n+\t\t\t options);\n       break;\n \n     case TYPE_CODE_INT:\n     case TYPE_CODE_RANGE:\n       ada_val_print_num (type, valaddr, offset, offset_aligned,\n \t\t\t address, stream, recurse, original_value,\n-\t\t\t options, language);\n+\t\t\t options);\n       break;\n \n     case TYPE_CODE_ENUM:\n       ada_val_print_enum (type, valaddr, offset, offset_aligned,\n \t\t\t  address, stream, recurse, original_value,\n-\t\t\t  options, language);\n+\t\t\t  options);\n       break;\n \n     case TYPE_CODE_FLT:\n       ada_val_print_flt (type, valaddr, offset, offset_aligned,\n \t\t\t address, stream, recurse, original_value,\n-\t\t\t options, language);\n+\t\t\t options);\n       break;\n \n     case TYPE_CODE_UNION:\n     case TYPE_CODE_STRUCT:\n       ada_val_print_struct_union (type, valaddr, offset, offset_aligned,\n \t\t\t\t  address, stream, recurse,\n-\t\t\t\t  original_value, options, language);\n+\t\t\t\t  original_value, options);\n       break;\n \n     case TYPE_CODE_ARRAY:\n@@ -1188,7 +1183,7 @@ ada_val_print_1 (struct type *type,\n     case TYPE_CODE_REF:\n       ada_val_print_ref (type, valaddr, offset, offset_aligned,\n \t\t\t address, stream, recurse, original_value,\n-\t\t\t options, language);\n+\t\t\t options);\n       break;\n     }\n }\n@@ -1206,8 +1201,7 @@ ada_val_print (struct type *type,\n   try\n     {\n       ada_val_print_1 (type, embedded_offset, address,\n-\t\t       stream, recurse, val, options,\n-\t\t       current_language);\n+\t\t       stream, recurse, val, options);\n     }\n   catch (const gdb_exception_error &except)\n     {"
+    },
+    {
+      "sha": "a556eb36c7a6a2f5a96a775001384a8853d305b0",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2228ef7700e81bfedbffe352f3efa3716224cdbe/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2228ef7700e81bfedbffe352f3efa3716224cdbe/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=2228ef7700e81bfedbffe352f3efa3716224cdbe",
+      "patch": "@@ -1,3 +1,11 @@\n+2019-05-08  Joel Brobecker  <brobecker@adacore.com>\n+\n+\t* gdb.ada/frame_arg_lang.exp: New testcase.\n+\t* gdb.ada/frame_arg_lang/bla.adb: New file.\n+\t* gdb.ada/frame_arg_lang/pck.ads: New file.\n+\t* gdb.ada/frame_arg_lang/pck.adb: New file.\n+\t* gdb.ada/frame_arg_lang/foo.c: New file.\n+\n 2019-05-08  Tom Tromey  <tromey@adacore.com>\n \n \t* gdb.python/py-value.exp (test_value_in_inferior): Add Ada test."
+    },
+    {
+      "sha": "e24ca7d4a2b1e1c3e839b154941424227c747dd0",
+      "filename": "gdb/testsuite/gdb.ada/frame_arg_lang.exp",
+      "status": "added",
+      "additions": 73,
+      "deletions": 0,
+      "changes": 73,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2228ef7700e81bfedbffe352f3efa3716224cdbe/gdb/testsuite/gdb.ada/frame_arg_lang.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2228ef7700e81bfedbffe352f3efa3716224cdbe/gdb/testsuite/gdb.ada/frame_arg_lang.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.ada/frame_arg_lang.exp?ref=2228ef7700e81bfedbffe352f3efa3716224cdbe",
+      "patch": "@@ -0,0 +1,73 @@\n+# Copyright 2018-2019 Free Software Foundation, Inc.\n+#\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+load_lib \"ada.exp\"\n+\n+standard_ada_testfile bla\n+set cfile \"foo\"\n+set csrcfile ${srcdir}/${subdir}/${testdir}/${cfile}.c\n+set cobject [standard_output_file ${cfile}.o]\n+\n+gdb_compile \"${csrcfile}\" \"${cobject}\" object [list debug]\n+if {[gdb_compile_ada \"${srcfile}\" \"${binfile}\" executable [list debug additional_flags=-largs additional_flags=${cobject} additional_flags=-margs]] != \"\" } {\n+  return -1\n+}\n+\n+clean_restart ${testfile}\n+\n+set bp_location [gdb_get_line_number \"STOP\" ${testdir}/foo.c]\n+runto \"foo.c:$bp_location\"\n+\n+gdb_test_no_output \"set print frame-arguments all\"\n+\n+# Here is the scenario:\n+#  - Once stopped in a C function, with language_mode set to auto, print\n+#    backtrace, we should see the Ada frame arguments printed using Ada\n+#    syntax.\n+#  - Set language to C, then check that printing backtrace shows the Ada\n+#    frame arguments using C syntax.\n+#  - Set language back to auto, check language mode value, then print\n+#    backtrace, we should see Ada frame arguments printed using Ada C\n+#    syntax.\n+\n+gdb_test \"show lang\" \\\n+         \"The current source language is \\\"auto; currently c\\\".\" \\\n+         \"show language when set to 'auto; c'\"\n+\n+gdb_test \"bt\" \\\n+         \"#1  $hex in pck\\\\.call_me \\\\(s=\\\"test\\\"\\\\).*\" \\\n+         \"backtrace with auto: c\"\n+\n+gdb_test_no_output \"set language c\" \\\n+                   \"Set current source language to \\\"manual; currently c\\\".\"\n+\n+gdb_test \"show lang\" \\\n+         \"The current source language is \\\"c\\\".\" \\\n+         \"show language when set to 'c'\"\n+\n+gdb_test \"bt\" \\\n+         \"#1  $hex in pck\\\\.call_me \\\\(s={P_ARRAY = $hex, P_BOUNDS = $hex}\\\\).*\" \\\n+         \"backtrace with language forced to 'c'\"\n+\n+gdb_test_no_output \"set language auto\" \\\n+                   \"Set current source language to \\\"auto; currently c\\\".\"\n+\n+gdb_test \"show lang\" \\\n+         \"The current source language is \\\"auto; currently c\\\".\" \\\n+         \"show language when set back to 'auto; c'\"\n+\n+gdb_test \"bt\" \\\n+         \"#1  $hex in pck\\\\.call_me \\\\(s=\\\"test\\\"\\\\).*\" \\\n+         \"backtrace with language back to 'auto; c'\""
+    },
+    {
+      "sha": "5e058554943b11b6acc0254d93a1e8634993884b",
+      "filename": "gdb/testsuite/gdb.ada/frame_arg_lang/bla.adb",
+      "status": "added",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2228ef7700e81bfedbffe352f3efa3716224cdbe/gdb/testsuite/gdb.ada/frame_arg_lang/bla.adb",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2228ef7700e81bfedbffe352f3efa3716224cdbe/gdb/testsuite/gdb.ada/frame_arg_lang/bla.adb",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.ada/frame_arg_lang/bla.adb?ref=2228ef7700e81bfedbffe352f3efa3716224cdbe",
+      "patch": "@@ -0,0 +1,22 @@\n+--  Copyright 2018-2019 Free Software Foundation, Inc.\n+--\n+--  This program is free software; you can redistribute it and/or modify\n+--  it under the terms of the GNU General Public License as published by\n+--  the Free Software Foundation; either version 3 of the License, or\n+--  (at your option) any later version.\n+--\n+--  This program is distributed in the hope that it will be useful,\n+--  but WITHOUT ANY WARRANTY; without even the implied warranty of\n+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+--  GNU General Public License for more details.\n+--\n+--  You should have received a copy of the GNU General Public License\n+--  along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+with Pck; use Pck;\n+\n+procedure Bla is\n+   S : String := \"test\";\n+begin\n+   Call_Me (S);\n+end Bla;"
+    },
+    {
+      "sha": "e01503146589d105ea0311fa763e9a44b8372744",
+      "filename": "gdb/testsuite/gdb.ada/frame_arg_lang/foo.c",
+      "status": "added",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2228ef7700e81bfedbffe352f3efa3716224cdbe/gdb/testsuite/gdb.ada/frame_arg_lang/foo.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2228ef7700e81bfedbffe352f3efa3716224cdbe/gdb/testsuite/gdb.ada/frame_arg_lang/foo.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.ada/frame_arg_lang/foo.c?ref=2228ef7700e81bfedbffe352f3efa3716224cdbe",
+      "patch": "@@ -0,0 +1,22 @@\n+/* Copyright 2018-2019 Free Software Foundation, Inc.\n+\n+   This file is part of GDB.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+int\n+break_me (void)\n+{\n+  return 0; /* STOP */\n+}"
+    },
+    {
+      "sha": "65a3169f6c3dde28dd8cfbe8eededa6729ac665d",
+      "filename": "gdb/testsuite/gdb.ada/frame_arg_lang/pck.adb",
+      "status": "added",
+      "additions": 24,
+      "deletions": 0,
+      "changes": 24,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2228ef7700e81bfedbffe352f3efa3716224cdbe/gdb/testsuite/gdb.ada/frame_arg_lang/pck.adb",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2228ef7700e81bfedbffe352f3efa3716224cdbe/gdb/testsuite/gdb.ada/frame_arg_lang/pck.adb",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.ada/frame_arg_lang/pck.adb?ref=2228ef7700e81bfedbffe352f3efa3716224cdbe",
+      "patch": "@@ -0,0 +1,24 @@\n+--  Copyright 2018-2019 Free Software Foundation, Inc.\n+--\n+--  This program is free software; you can redistribute it and/or modify\n+--  it under the terms of the GNU General Public License as published by\n+--  the Free Software Foundation; either version 3 of the License, or\n+--  (at your option) any later version.\n+--\n+--  This program is distributed in the hope that it will be useful,\n+--  but WITHOUT ANY WARRANTY; without even the implied warranty of\n+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+--  GNU General Public License for more details.\n+--\n+--  You should have received a copy of the GNU General Public License\n+--  along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+package body Pck is\n+   procedure C_Break_Me;\n+   pragma Import (C, C_Break_Me, \"break_me\");\n+\n+   procedure Call_Me (S: in out String) is\n+   begin\n+      C_Break_Me;\n+   end Call_Me;\n+end Pck;"
+    },
+    {
+      "sha": "faff9595e240e19cc1b62781e6dca4df068f0748",
+      "filename": "gdb/testsuite/gdb.ada/frame_arg_lang/pck.ads",
+      "status": "added",
+      "additions": 18,
+      "deletions": 0,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2228ef7700e81bfedbffe352f3efa3716224cdbe/gdb/testsuite/gdb.ada/frame_arg_lang/pck.ads",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2228ef7700e81bfedbffe352f3efa3716224cdbe/gdb/testsuite/gdb.ada/frame_arg_lang/pck.ads",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.ada/frame_arg_lang/pck.ads?ref=2228ef7700e81bfedbffe352f3efa3716224cdbe",
+      "patch": "@@ -0,0 +1,18 @@\n+--  Copyright 2018-2019 Free Software Foundation, Inc.\n+--\n+--  This program is free software; you can redistribute it and/or modify\n+--  it under the terms of the GNU General Public License as published by\n+--  the Free Software Foundation; either version 3 of the License, or\n+--  (at your option) any later version.\n+--\n+--  This program is distributed in the hope that it will be useful,\n+--  but WITHOUT ANY WARRANTY; without even the implied warranty of\n+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+--  GNU General Public License for more details.\n+--\n+--  You should have received a copy of the GNU General Public License\n+--  along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+package Pck is\n+   procedure Call_Me (S: in out String);\n+end Pck;"
+    }
+  ]
+}

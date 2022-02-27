@@ -1,0 +1,182 @@
+{
+  "sha": "3ee6bb113afd87a408dd8551768d801d04556ffd",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6M2VlNmJiMTEzYWZkODdhNDA4ZGQ4NTUxNzY4ZDgwMWQwNDU1NmZmZA==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-05-11T13:03:54Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-05-11T13:03:54Z"
+    },
+    "message": "[gdb/symtab] Fix incomplete CU list assert in .debug_names\n\nConsider the following two-file test-case:\n...\n$ cat main.c\nextern int foo (void);\n\nint\nmain (void)\n{\n  int sum, a, b;\n  sum = a + b + foo ();\n  return sum;\n}\n$ cat foo.c\nint\nfoo (void)\n{\n  return 3;\n}\n...\n\nCompiled like this:\n...\n$ clang-10 -gdwarf-5 -gpubnames -c main.c\n$ clang-10 -gdwarf-5 -c foo.c\n$ clang-10 -gdwarf-5 -gpubnames main.o foo.o\n...\n\nWhen loading this exec into gdb, we run into this assert:\n...\n$ gdb a.out\nReading symbols from a.out...\n\nwarning: Section .debug_aranges in a.out entry at offset 0 \\\n  debug_info_offset 0 does not exists, ignoring .debug_aranges.\nsrc/gdb/dwarf2/read.c:6949: \\\n  internal-error: cutu_reader::cutu_reader(dwarf2_per_cu_data*, \\\n  \t\t                           abbrev_table*, int, bool): \\\n  Assertion `this_cu->length == cu->header.get_length ()' failed.\n...\n\nThe problem is that the determined length of the CU:\n...\n(gdb) p /x this_cu->length\n$4 = 0x26a\n...\ndoes not match the actual length:\n...\n(gdb) p /x cu->header.get_length ()\n$5 = 0x59\n...\n\nThe length of the CU is determined in create_cus_from_debug_names_list, and\nset based on this list in the .debug_names section:\n...\n  Compilation Unit offsets [\n    CU[0]: 0x000000c7\n  ]\n...\nand it is assumed that this is a complete list, so the size of the CU is\ncalculated using the end of the .debug_section at 0x331, making it 0x331 -\n0xc7 == 0x26a.\n\nHowever, the CU list is not complete:\n...\n$ llvm-dwarfdump -debug-info a.out \\\n  | grep \"Compile Unit\" \\\n  | sed 's/Compile Unit.*//'\n0x00000000:\n0x0000002e:\n0x000000a5:\n0x000000c7:\n0x00000120:\n0x00000157:\n0x0000030f:\n...\nIn particular, because the CU for foo.c is there at 0x120 (the rest of the CUs\nis due to openSUSE having debug info for various linked in objects).\n\nFix the assert by not assuming to know the length of CUs in\ncreate_cus_from_debug_names_list (if the .debug_names is not produced by GDB),\nand setting it to 0, and setting it later to the actual length.\n\nNote that this does not fix the .debug_aranges warning, that's PR25969.\n\nBuild and tested on x86_64-linux, with native and debug-names.\n\ngdb/ChangeLog:\n\n2020-05-11  Tom de Vries  <tdevries@suse.de>\n\n\tPR symtab/25941\n\t* dwarf2/read.c (create_cus_from_debug_names_list): Initialize CUs\n\twith length 0, if not gdb-produced.\n\t(cutu_reader::cutu_reader): Set CU length to actual length if 0.\n\ngdb/testsuite/ChangeLog:\n\n2020-05-11  Tom de Vries  <tdevries@suse.de>\n\n\tPR symtab/25941\n\t* gdb.dwarf2/clang-debug-names.exp.in: New include exp file, factored\n\tout of ...\n\t* gdb.dwarf2/clang-debug-names.exp: ... here.\n\t* gdb.dwarf2/clang-debug-names-2.exp: New file.  Include\n\tclang-debug-names.exp.in.\n\t* gdb.dwarf2/clang-debug-names-2-foo.c: New test.\n\t* gdb.dwarf2/clang-debug-names-2.c: New test.",
+    "tree": {
+      "sha": "1ac50c4cd4a53134da0db04d0e45ed1f21160695",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/1ac50c4cd4a53134da0db04d0e45ed1f21160695"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/3ee6bb113afd87a408dd8551768d801d04556ffd",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3ee6bb113afd87a408dd8551768d801d04556ffd",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/3ee6bb113afd87a408dd8551768d801d04556ffd",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3ee6bb113afd87a408dd8551768d801d04556ffd/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "3b646889b0f71fda1e46bde8206d4d6aba7f5387",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3b646889b0f71fda1e46bde8206d4d6aba7f5387",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/3b646889b0f71fda1e46bde8206d4d6aba7f5387"
+    }
+  ],
+  "stats": {
+    "total": 368,
+    "additions": 260,
+    "deletions": 108
+  },
+  "files": [
+    {
+      "sha": "3b04b6c8d9158dc3ef2385543227d3d9a35d31b0",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ee6bb113afd87a408dd8551768d801d04556ffd/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ee6bb113afd87a408dd8551768d801d04556ffd/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=3ee6bb113afd87a408dd8551768d801d04556ffd",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-05-11  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR symtab/25941\n+\t* dwarf2/read.c (create_cus_from_debug_names_list): Initialize CUs\n+\twith length 0, if not gdb-produced.\n+\t(cutu_reader::cutu_reader): Set CU length to actual length if 0.\n+\n 2020-05-09  Tom de Vries  <tdevries@suse.de>\n \n \tPR gdb/25955"
+    },
+    {
+      "sha": "27bf40a898dcad845edf22382d96ac6b34bb9f36",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 24,
+      "deletions": 1,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ee6bb113afd87a408dd8551768d801d04556ffd/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ee6bb113afd87a408dd8551768d801d04556ffd/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=3ee6bb113afd87a408dd8551768d801d04556ffd",
+      "patch": "@@ -5022,6 +5022,26 @@ create_cus_from_debug_names_list (struct dwarf2_per_objfile *dwarf2_per_objfile,\n \t\t\t\t  dwarf2_section_info &section,\n \t\t\t\t  bool is_dwz)\n {\n+  if (!map.augmentation_is_gdb)\n+    {\n+    for (uint32_t i = 0; i < map.cu_count; ++i)\n+      {\n+\tsect_offset sect_off\n+\t  = (sect_offset) (extract_unsigned_integer\n+\t\t\t   (map.cu_table_reordered + i * map.offset_size,\n+\t\t\t    map.offset_size,\n+\t\t\t    map.dwarf5_byte_order));\n+\t/* We don't know the length of the CU, because the CU list in a\n+\t   .debug_names index can be incomplete, so we can't use the start of\n+\t   the next CU as end of this CU.  We create the CUs here with length 0,\n+\t   and in cutu_reader::cutu_reader we'll fill in the actual length.  */\n+\tdwarf2_per_cu_data *per_cu\n+\t  = create_cu_from_index_list (dwarf2_per_objfile, &section, is_dwz,\n+\t\t\t\t       sect_off, 0);\n+\tdwarf2_per_objfile->all_comp_units.push_back (per_cu);\n+      }\n+    }\n+\n   sect_offset sect_off_prev;\n   for (uint32_t i = 0; i <= map.cu_count; ++i)\n     {\n@@ -6946,7 +6966,10 @@ cutu_reader::cutu_reader (struct dwarf2_per_cu_data *this_cu,\n \t\t\t\t\t\t    rcuh_kind::COMPILE);\n \n \t  gdb_assert (this_cu->sect_off == cu->header.sect_off);\n-\t  gdb_assert (this_cu->length == cu->header.get_length ());\n+\t  if (this_cu->length == 0)\n+\t    this_cu->length = cu->header.get_length ();\n+\t  else\n+\t    gdb_assert (this_cu->length == cu->header.get_length ());\n \t  this_cu->dwarf_version = cu->header.version;\n \t}\n     }"
+    },
+    {
+      "sha": "319d3eb976c94796d1ec415a32f078e28014bb15",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ee6bb113afd87a408dd8551768d801d04556ffd/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ee6bb113afd87a408dd8551768d801d04556ffd/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=3ee6bb113afd87a408dd8551768d801d04556ffd",
+      "patch": "@@ -1,3 +1,14 @@\n+2020-05-11  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR symtab/25941\n+\t* gdb.dwarf2/clang-debug-names.exp.in: New include exp file, factored\n+\tout of ...\n+\t* gdb.dwarf2/clang-debug-names.exp: ... here.\n+\t* gdb.dwarf2/clang-debug-names-2.exp: New file.  Include\n+\tclang-debug-names.exp.in.\n+\t* gdb.dwarf2/clang-debug-names-2-foo.c: New test.\n+\t* gdb.dwarf2/clang-debug-names-2.c: New test.\n+\n 2020-05-10  Alok Kumar Sharma  <alokkumar.sharma@amd.com>\n \n \t* lib/fortran.exp (fortran_main): New Proc, handle flang MAIN_,"
+    },
+    {
+      "sha": "cabdc7a6b52ea4770191e9a27122768b0c705195",
+      "filename": "gdb/testsuite/gdb.dwarf2/clang-debug-names-2-foo.c",
+      "status": "added",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ee6bb113afd87a408dd8551768d801d04556ffd/gdb/testsuite/gdb.dwarf2/clang-debug-names-2-foo.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ee6bb113afd87a408dd8551768d801d04556ffd/gdb/testsuite/gdb.dwarf2/clang-debug-names-2-foo.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/clang-debug-names-2-foo.c?ref=3ee6bb113afd87a408dd8551768d801d04556ffd",
+      "patch": "@@ -0,0 +1,22 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+int\n+foo (void)\n+{\n+  return 3;\n+}"
+    },
+    {
+      "sha": "e9c52e48e9b3c4a1f6b40b7c4c12eb834966f8f4",
+      "filename": "gdb/testsuite/gdb.dwarf2/clang-debug-names-2.c",
+      "status": "added",
+      "additions": 27,
+      "deletions": 0,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ee6bb113afd87a408dd8551768d801d04556ffd/gdb/testsuite/gdb.dwarf2/clang-debug-names-2.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ee6bb113afd87a408dd8551768d801d04556ffd/gdb/testsuite/gdb.dwarf2/clang-debug-names-2.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/clang-debug-names-2.c?ref=3ee6bb113afd87a408dd8551768d801d04556ffd",
+      "patch": "@@ -0,0 +1,27 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+extern int foo (void);\n+\n+int\n+main (void)\n+{\n+  asm (\"main_label: .globl main_label\");\n+  int sum, a, b;\n+  sum = a + b + foo ();\n+  return sum;\n+}"
+    },
+    {
+      "sha": "185dddfc73396fb0abdbf74f4e8d19f291a1598f",
+      "filename": "gdb/testsuite/gdb.dwarf2/clang-debug-names-2.exp",
+      "status": "added",
+      "additions": 45,
+      "deletions": 0,
+      "changes": 45,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ee6bb113afd87a408dd8551768d801d04556ffd/gdb/testsuite/gdb.dwarf2/clang-debug-names-2.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ee6bb113afd87a408dd8551768d801d04556ffd/gdb/testsuite/gdb.dwarf2/clang-debug-names-2.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/clang-debug-names-2.exp?ref=3ee6bb113afd87a408dd8551768d801d04556ffd",
+      "patch": "@@ -0,0 +1,45 @@\n+# Copyright 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+load_lib dwarf.exp\n+\n+# This test can only be run on targets which support DWARF-2 and use gas.\n+if {![dwarf2_support]} {\n+    return 0\n+}\n+\n+standard_testfile clang-debug-names-2.c clang-debug-names-debug-2.S \\\n+    clang-debug-names-2-foo.c\n+\n+lassign \\\n+    [function_range main \\\n+\t \"${srcdir}/${subdir}/${srcfile} ${srcdir}/${subdir}/${srcfile3}\"] \\\n+    main_start main_length\n+\n+set asm_file [standard_output_file $srcfile2]\n+source $srcdir/$subdir/clang-debug-names.exp.in\n+\n+if { [build_executable_from_specs \"failed to prepare\" ${testfile} \"\" \\\n+\t  $srcfile \"nodebug\" $asm_file \"nodebug\" $srcfile3 \"debug\"] } {\n+    return -1\n+}\n+clean_restart $binfile\n+\n+set cmd \"ptype main\"\n+set pass_re \\\n+    [multi_line \\\n+\t $cmd \\\n+\t \"type = int \\\\(\\\\)\"]\n+gdb_test $cmd $pass_re"
+    },
+    {
+      "sha": "b5af898838fba6659ecaa6db8a6dea0b3f10cc13",
+      "filename": "gdb/testsuite/gdb.dwarf2/clang-debug-names.exp",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 107,
+      "changes": 110,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ee6bb113afd87a408dd8551768d801d04556ffd/gdb/testsuite/gdb.dwarf2/clang-debug-names.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ee6bb113afd87a408dd8551768d801d04556ffd/gdb/testsuite/gdb.dwarf2/clang-debug-names.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/clang-debug-names.exp?ref=3ee6bb113afd87a408dd8551768d801d04556ffd",
+      "patch": "@@ -22,115 +22,11 @@ if {![dwarf2_support]} {\n \n standard_testfile clang-debug-names.c clang-debug-names-debug.S\n \n-# Set up the DWARF for the test.\n-\n-set main_str_label [Dwarf::_compute_label info_string3]\n-set int_str_label [Dwarf::_compute_label info_string4]\n-set main_die_label [Dwarf::_compute_label main_die_label]\n-set int_die_label [Dwarf::_compute_label int_die_label]\n-\n-set debug_str \\\n-    [list \\\n-         \"$main_str_label:\" \\\n-         \"  .asciz \\\"main\\\"\" \\\n-         \"$int_str_label:\" \\\n-         \"  .asciz \\\"int\\\"\"]\n-\n-set debug_names \\\n-    [list \\\n-         \"  .4byte  .Ldebug_names_end - .Ldebug_names_start\" \\\n-         \".Ldebug_names_start:\" \\\n-         \"  .short 5                      # Header: version\" \\\n-         \"  .short 0                      # Header: padding\" \\\n-         \"  .long 1                       # Header: compilation unit count\" \\\n-         \"  .long 0                       # Header: local type unit count\" \\\n-         \"  .long 0                       # Header: foreign type unit count\" \\\n-         \"  .long 2                       # Header: bucket count\" \\\n-         \"  .long 2                       # Header: name count\" \\\n-         \"  .long .Lnames_abbrev_end0-.Lnames_abbrev_start0 \" \\\n-         \"                                # Header: abbreviation table size\" \\\n-         \"  .long 8                       # Header: augmentation string size\" \\\n-         \"  .ascii \\\"LLVM0700\\\"    # Header: augmentation string\" \\\n-         \"  .long .Lcu1_begin             # Compilation unit 0\" \\\n-         \"  .long 1                       # Bucket 0\" \\\n-         \"  .long 0                       # Bucket 1\" \\\n-         \"  .long 193495088               # Hash in Bucket 0\" \\\n-         \"  .long 2090499946              # Hash in Bucket 0\" \\\n-         \"  .long $int_str_label          # String in Bucket 0: int\" \\\n-         \"  .long $main_str_label         # String in Bucket 0: main\" \\\n-         \"  .long .Lnames1-.Lnames_entries0 # Offset in Bucket 0\" \\\n-         \"  .long .Lnames0-.Lnames_entries0 # Offset in Bucket 0\" \\\n-         \".Lnames_abbrev_start0:\" \\\n-         \"  .byte 46                      # Abbrev code\" \\\n-         \"  .byte 46                      # DW_TAG_subprogram\" \\\n-         \"  .byte 3                       # DW_IDX_die_offset\" \\\n-         \"  .byte 19                      # DW_FORM_ref4\" \\\n-         \"  .byte 0                       # End of abbrev\" \\\n-         \"  .byte 0                       # End of abbrev\" \\\n-         \"  .byte 36                      # Abbrev code\" \\\n-         \"  .byte 36                      # DW_TAG_base_type\" \\\n-         \"  .byte 3                       # DW_IDX_die_offset\" \\\n-         \"  .byte 19                      # DW_FORM_ref4\" \\\n-         \"  .byte 0                       # End of abbrev\" \\\n-         \"  .byte 0                       # End of abbrev\" \\\n-         \"  .byte 0                       # End of abbrev list\" \\\n-         \".Lnames_abbrev_end0:\" \\\n-         \".Lnames_entries0:\" \\\n-         \".Lnames1:\" \\\n-         \"  .byte 36                      # Abbreviation code\" \\\n-         \"  .long $int_die_label - .Lcu1_begin # DW_IDX_die_offset\" \\\n-         \"  .long 0                       # End of list: int\" \\\n-         \".Lnames0:\" \\\n-         \"  .byte 46                      # Abbreviation code\" \\\n-         \"  .long $main_die_label - .Lcu1_begin # DW_IDX_die_offset\" \\\n-         \"  .long 0                       # End of list: main\" \\\n-         \"  .p2align 2\" \\\n-         \".Ldebug_names_end:\"]\n+lassign [function_range main ${srcdir}/${subdir}/${srcfile}] \\\n+    main_start main_length\n \n set asm_file [standard_output_file $srcfile2]\n-Dwarf::assemble $asm_file {\n-    global srcdir subdir srcfile\n-\n-    lassign [function_range main ${srcdir}/${subdir}/${srcfile}] \\\n-\tmain_start main_length\n-\n-    cu {} {\n-\tDW_TAG_compile_unit {\n-                {DW_AT_language @DW_LANG_C}\n-                {DW_AT_name     clang-debug-names.c}\n-                {DW_AT_comp_dir /tmp}\n-\n-        } {\n-\t    global int_die_label\n-\t    global main_die_label\n-\n-\t    define_label $int_die_label\n-\t    base_type {\n-\t\t{name \"int\"}\n-\t\t{encoding @DW_ATE_signed}\n-\t\t{byte_size 4 DW_FORM_sdata}\n-\t    }\n-\n-\t    define_label $main_die_label\n-\t    subprogram {\n-\t\t{name main}\n-\t\t{type :$int_die_label}\n-\t\t{low_pc $main_start addr}\n-\t\t{high_pc \"$main_start + $main_length\" addr}\n-\t    }\n-\t}\n-    }\n-\n-    _defer_output .debug_str {\n-\tglobal debug_str\n-\t_emit [join $debug_str \"\\n\"]\n-    }\n-\n-    _defer_output .debug_names {\n-\tglobal debug_names\n-\t_emit [join $debug_names \"\\n\"]\n-    }\n-}\n+source $srcdir/$subdir/clang-debug-names.exp.in\n \n if { [prepare_for_testing \"failed to prepare\" ${testfile} \\\n \t  [list $srcfile $asm_file] {nodebug}] } {"
+    },
+    {
+      "sha": "39e0e1e7bc19ebf43081b6bb5e38275301bda016",
+      "filename": "gdb/testsuite/gdb.dwarf2/clang-debug-names.exp.in",
+      "status": "added",
+      "additions": 121,
+      "deletions": 0,
+      "changes": 121,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3ee6bb113afd87a408dd8551768d801d04556ffd/gdb/testsuite/gdb.dwarf2/clang-debug-names.exp.in",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3ee6bb113afd87a408dd8551768d801d04556ffd/gdb/testsuite/gdb.dwarf2/clang-debug-names.exp.in",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/clang-debug-names.exp.in?ref=3ee6bb113afd87a408dd8551768d801d04556ffd",
+      "patch": "@@ -0,0 +1,121 @@\n+# Copyright 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Set up the DWARF for the test.\n+\n+set main_str_label [Dwarf::_compute_label info_string3]\n+set int_str_label [Dwarf::_compute_label info_string4]\n+set main_die_label [Dwarf::_compute_label main_die_label]\n+set int_die_label [Dwarf::_compute_label int_die_label]\n+\n+set debug_str \\\n+    [list \\\n+         \"$main_str_label:\" \\\n+         \"  .asciz \\\"main\\\"\" \\\n+         \"$int_str_label:\" \\\n+         \"  .asciz \\\"int\\\"\"]\n+\n+set debug_names \\\n+    [list \\\n+         \"  .4byte  .Ldebug_names_end - .Ldebug_names_start\" \\\n+         \".Ldebug_names_start:\" \\\n+         \"  .short 5                      # Header: version\" \\\n+         \"  .short 0                      # Header: padding\" \\\n+         \"  .long 1                       # Header: compilation unit count\" \\\n+         \"  .long 0                       # Header: local type unit count\" \\\n+         \"  .long 0                       # Header: foreign type unit count\" \\\n+         \"  .long 2                       # Header: bucket count\" \\\n+         \"  .long 2                       # Header: name count\" \\\n+         \"  .long .Lnames_abbrev_end0-.Lnames_abbrev_start0 \" \\\n+         \"                                # Header: abbreviation table size\" \\\n+         \"  .long 8                       # Header: augmentation string size\" \\\n+         \"  .ascii \\\"LLVM0700\\\"    # Header: augmentation string\" \\\n+         \"  .long .Lcu1_begin             # Compilation unit 0\" \\\n+         \"  .long 1                       # Bucket 0\" \\\n+         \"  .long 0                       # Bucket 1\" \\\n+         \"  .long 193495088               # Hash in Bucket 0\" \\\n+         \"  .long 2090499946              # Hash in Bucket 0\" \\\n+         \"  .long $int_str_label          # String in Bucket 0: int\" \\\n+         \"  .long $main_str_label         # String in Bucket 0: main\" \\\n+         \"  .long .Lnames1-.Lnames_entries0 # Offset in Bucket 0\" \\\n+         \"  .long .Lnames0-.Lnames_entries0 # Offset in Bucket 0\" \\\n+         \".Lnames_abbrev_start0:\" \\\n+         \"  .byte 46                      # Abbrev code\" \\\n+         \"  .byte 46                      # DW_TAG_subprogram\" \\\n+         \"  .byte 3                       # DW_IDX_die_offset\" \\\n+         \"  .byte 19                      # DW_FORM_ref4\" \\\n+         \"  .byte 0                       # End of abbrev\" \\\n+         \"  .byte 0                       # End of abbrev\" \\\n+         \"  .byte 36                      # Abbrev code\" \\\n+         \"  .byte 36                      # DW_TAG_base_type\" \\\n+         \"  .byte 3                       # DW_IDX_die_offset\" \\\n+         \"  .byte 19                      # DW_FORM_ref4\" \\\n+         \"  .byte 0                       # End of abbrev\" \\\n+         \"  .byte 0                       # End of abbrev\" \\\n+         \"  .byte 0                       # End of abbrev list\" \\\n+         \".Lnames_abbrev_end0:\" \\\n+         \".Lnames_entries0:\" \\\n+         \".Lnames1:\" \\\n+         \"  .byte 36                      # Abbreviation code\" \\\n+         \"  .long $int_die_label - .Lcu1_begin # DW_IDX_die_offset\" \\\n+         \"  .long 0                       # End of list: int\" \\\n+         \".Lnames0:\" \\\n+         \"  .byte 46                      # Abbreviation code\" \\\n+         \"  .long $main_die_label - .Lcu1_begin # DW_IDX_die_offset\" \\\n+         \"  .long 0                       # End of list: main\" \\\n+         \"  .p2align 2\" \\\n+         \".Ldebug_names_end:\"]\n+\n+Dwarf::assemble $asm_file {\n+    global srcdir subdir srcfile\n+    global main_start main_length\n+\n+    cu {} {\n+\tDW_TAG_compile_unit {\n+                {DW_AT_language @DW_LANG_C}\n+                {DW_AT_name     clang-debug-names.c}\n+                {DW_AT_comp_dir /tmp}\n+\n+        } {\n+\t    global int_die_label\n+\t    global main_die_label\n+\n+\t    define_label $int_die_label\n+\t    base_type {\n+\t\t{name \"int\"}\n+\t\t{encoding @DW_ATE_signed}\n+\t\t{byte_size 4 DW_FORM_sdata}\n+\t    }\n+\n+\t    define_label $main_die_label\n+\t    subprogram {\n+\t\t{name main}\n+\t\t{type :$int_die_label}\n+\t\t{low_pc $main_start addr}\n+\t\t{high_pc \"$main_start + $main_length\" addr}\n+\t    }\n+\t}\n+    }\n+\n+    _defer_output .debug_str {\n+\tglobal debug_str\n+\t_emit [join $debug_str \"\\n\"]\n+    }\n+\n+    _defer_output .debug_names {\n+\tglobal debug_names\n+\t_emit [join $debug_names \"\\n\"]\n+    }\n+}"
+    }
+  ]
+}

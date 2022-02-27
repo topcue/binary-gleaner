@@ -1,0 +1,108 @@
+{
+  "sha": "3f00c730acee9d452ba81a3083f2c02d13c9f312",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6M2YwMGM3MzBhY2VlOWQ0NTJiYTgxYTMwODNmMmMwMmQxM2M5ZjMxMg==",
+  "commit": {
+    "author": {
+      "name": "Gary Benson",
+      "email": "gbenson@redhat.com",
+      "date": "2020-07-13T13:47:44Z"
+    },
+    "committer": {
+      "name": "Gary Benson",
+      "email": "gbenson@redhat.com",
+      "date": "2020-07-13T13:47:44Z"
+    },
+    "message": "Skip VLA structure field tests when compiling with clang\n\nClang fails to compile gdb.base/vla-datatypes.c with the following\nerror: fields must have a constant size: 'variable length array in\nstructure' extension will never be supported.  This commit factors\nthe affected tests out into a new testcase, vla-struct-fields.{exp,c},\nwhich is skipped when the testcase is compiled using clang,\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.base/vla-datatypes.c (vla_factory): Factor out sections\n\tdefining and using VLA structure fields into...\n\t* gdb.base/vla-struct-fields.c: New file.\n\t* gdb.base/vla-datatypes.exp: Factor out VLA structure field\n\ttests into...\n\t* gdb.base/vla-struct-fields.exp: New file.",
+    "tree": {
+      "sha": "b4989447d3d0663ca8ca0066f3f738fb60034ccf",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/b4989447d3d0663ca8ca0066f3f738fb60034ccf"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/3f00c730acee9d452ba81a3083f2c02d13c9f312",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3f00c730acee9d452ba81a3083f2c02d13c9f312",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/3f00c730acee9d452ba81a3083f2c02d13c9f312",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3f00c730acee9d452ba81a3083f2c02d13c9f312/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "7a34d0ea4ddd5ff205637fbad5faf2e977921720",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7a34d0ea4ddd5ff205637fbad5faf2e977921720",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/7a34d0ea4ddd5ff205637fbad5faf2e977921720"
+    }
+  ],
+  "stats": {
+    "total": 257,
+    "additions": 180,
+    "deletions": 77
+  },
+  "files": [
+    {
+      "sha": "1798f92705b102dba192fd41d08af618b137d466",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f00c730acee9d452ba81a3083f2c02d13c9f312/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f00c730acee9d452ba81a3083f2c02d13c9f312/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=3f00c730acee9d452ba81a3083f2c02d13c9f312",
+      "patch": "@@ -1,3 +1,12 @@\n+2020-07-13  Gary Benson <gbenson@redhat.com>\n+\n+\t* gdb.base/vla-datatypes.c (vla_factory): Factor out sections\n+\tdefining and using VLA structure fields into...\n+\t* gdb.base/vla-struct-fields.c: New file.\n+\t* gdb.base/vla-datatypes.exp: Factor out VLA structure field\n+\ttests into...\n+\t* gdb.base/vla-struct-fields.exp: New file.\n+\n 2020-07-13  Tom de Vries  <tdevries@suse.de>\n \n \t* lib/gdb.exp (have_fuse_ld_gold): New caching proc."
+    },
+    {
+      "sha": "d8b835aa9021d3c9357b2a14e436a78abe5e0897",
+      "filename": "gdb/testsuite/gdb.base/vla-datatypes.c",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 53,
+      "changes": 53,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f00c730acee9d452ba81a3083f2c02d13c9f312/gdb/testsuite/gdb.base/vla-datatypes.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f00c730acee9d452ba81a3083f2c02d13c9f312/gdb/testsuite/gdb.base/vla-datatypes.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/vla-datatypes.c?ref=3f00c730acee9d452ba81a3083f2c02d13c9f312",
+      "patch": "@@ -46,49 +46,6 @@ vla_factory (int n)\n   BAR             bar_vla[n];\n   int i;\n \n-  struct vla_struct\n-  {\n-    int something;\n-    int vla_field[n];\n-  };\n-  /* Define a typedef for a VLA structure.  */\n-  typedef struct vla_struct vla_struct_typedef;\n-  vla_struct_typedef vla_struct_object;\n-\n-  struct inner_vla_struct\n-  {\n-    int something;\n-    int vla_field[n];\n-    int after;\n-  } inner_vla_struct_object;\n-\n-  /* Define a structure which uses a typedef for the VLA field\n-     to make sure that GDB creates the proper type for this field,\n-     preventing a possible assertion failure (see gdb/21356).  */\n-  struct vla_struct_typedef_struct_member\n-  {\n-    int something;\n-    vla_struct_typedef vla_object;\n-  } vla_struct_typedef_struct_member_object;\n-\n-  union vla_union\n-  {\n-    int vla_field[n];\n-  } vla_union_object;\n-\n-  /* Like vla_struct_typedef_struct_member but a union type.  */\n-  union vla_struct_typedef_union_member\n-  {\n-    int something;\n-    vla_struct_typedef vla_object;\n-  } vla_struct_typedef_union_member_object;\n-\n-  vla_struct_object.something = n;\n-  inner_vla_struct_object.something = n;\n-  inner_vla_struct_object.after = n;\n-  vla_struct_typedef_struct_member_object.something = n * 2;\n-  vla_struct_typedef_struct_member_object.vla_object.something = n * 3;\n-  vla_struct_typedef_union_member_object.vla_object.something = n + 1;\n   for (i = 0; i < n; i++)\n     {\n       int_vla[i] = i*2;\n@@ -104,13 +61,6 @@ vla_factory (int n)\n       foo_vla[i].a = i*2;\n       bar_vla[i].x = i*2;\n       bar_vla[i].y.a = i*2;\n-      vla_struct_object.vla_field[i] = i*2;\n-      vla_union_object.vla_field[i] = i*2;\n-      inner_vla_struct_object.vla_field[i] = i*2;\n-      vla_struct_typedef_struct_member_object.vla_object.vla_field[i]\n-\t= i * 3;\n-      vla_struct_typedef_union_member_object.vla_object.vla_field[i]\n-\t= i * 3 - 1;\n     }\n \n   size_t int_size        = sizeof(int_vla);     /* vlas_filled */\n@@ -124,9 +74,6 @@ vla_factory (int n)\n   size_t uchar_size      = sizeof(unsigned_char_vla);\n   size_t foo_size        = sizeof(foo_vla);\n   size_t bar_size        = sizeof(bar_vla);\n-  size_t vla_struct_object_size = sizeof(vla_struct_object);\n-  size_t vla_union_object_size = sizeof(vla_union_object);\n-  size_t inner_vla_struct_object_size = sizeof(inner_vla_struct_object);\n \n   return;                                 /* break_end_of_vla_factory */\n }"
+    },
+    {
+      "sha": "201f05193ca7a9a39dd084b8b599e5e15dec4961",
+      "filename": "gdb/testsuite/gdb.base/vla-datatypes.exp",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 24,
+      "changes": 24,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f00c730acee9d452ba81a3083f2c02d13c9f312/gdb/testsuite/gdb.base/vla-datatypes.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f00c730acee9d452ba81a3083f2c02d13c9f312/gdb/testsuite/gdb.base/vla-datatypes.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/vla-datatypes.exp?ref=3f00c730acee9d452ba81a3083f2c02d13c9f312",
+      "patch": "@@ -41,14 +41,6 @@ gdb_test \"print foo_vla\" \\\n          \"\\\\\\{\\\\\\{a = 0\\\\\\}, \\\\\\{a = 2\\\\\\}, \\\\\\{a = 4\\\\\\}, \\\\\\{a = 6\\\\\\}, \\\\\\{a = 8\\\\\\}\\\\\\}\"\n gdb_test \"print bar_vla\" \\\n          \"\\\\\\{\\\\\\{x = 0, y = \\\\\\{a = 0\\\\\\}\\\\\\}, \\\\\\{x = 2, y = \\\\\\{a = 2\\\\\\}\\\\\\}, \\\\\\{x = 4, y = \\\\\\{a = 4\\\\\\}\\\\\\}, \\\\\\{x = 6, y = \\\\\\{a = 6\\\\\\}\\\\\\}, \\\\\\{x = 8, y = \\\\\\{a = 8\\\\\\}\\\\\\}\\\\\\}\"\n-gdb_test \"print vla_struct_object\" \\\n-    \"\\\\\\{something = 5, vla_field = \\\\\\{0, 2, 4, 6, 8\\\\\\}\\\\\\}\"\n-gdb_test \"print vla_union_object\" \\\n-    \"\\\\\\{vla_field = \\\\\\{0, 2, 4, 6, 8\\\\\\}\\\\\\}\"\n-gdb_test \"print vla_struct_typedef_struct_member_object\" \\\n-    \"\\\\\\{something = 10, vla_object = \\\\\\{something = 15, vla_field = \\\\\\{0, 3, 6, 9, 12\\\\\\}\\\\\\}\\\\\\}\"\n-gdb_test \"print vla_struct_typedef_union_member_object\" \\\n-    \"\\\\\\{something = 6, vla_object = \\\\\\{something = 6, vla_field = \\\\\\{-1, 2, 5, 8, 11\\\\\\}\\\\\\}\\\\\\}\"\n \n # Check whatis of VLA's.\n gdb_test \"whatis int_vla\" \"type = int \\\\\\[5\\\\\\]\"\n@@ -65,8 +57,6 @@ gdb_test \"whatis unsigned_short_vla\" \\\n gdb_test \"whatis unsigned_char_vla\" \"type = unsigned char \\\\\\[5\\\\\\]\"\n gdb_test \"whatis foo_vla\" \"type = struct foo \\\\\\[5\\\\\\]\"\n gdb_test \"whatis bar_vla\" \"type = BAR \\\\\\[5\\\\\\]\"\n-gdb_test \"whatis vla_struct_object\" \"type = vla_struct_typedef\"\n-gdb_test \"whatis vla_union_object\" \"type = union vla_union\"\n \n # Check ptype of VLA's.\n gdb_test \"ptype int_vla\" \"type = int \\\\\\[5\\\\\\]\"\n@@ -82,10 +72,6 @@ gdb_test \"ptype unsigned_char_vla\" \"type = unsigned char \\\\\\[5\\\\\\]\"\n gdb_test \"ptype foo_vla\" \"type = struct foo {\\r\\n\\\\s+int a;\\r\\n} \\\\\\[5\\\\\\]\"\n gdb_test \"ptype bar_vla\" \\\n          \"type = struct bar {\\r\\n\\\\s+int x;\\r\\n\\\\s+struct foo y;\\r\\n} \\\\\\[5\\\\\\]\"\n-gdb_test \"ptype vla_struct_object\" \\\n-    \"type = struct vla_struct {\\r\\n\\\\s+int something;\\r\\n\\\\s+int vla_field\\\\\\[5\\\\\\];\\r\\n}\"\n-gdb_test \"ptype vla_union_object\" \\\n-    \"type = union vla_union {\\r\\n\\\\s+int vla_field\\\\\\[5\\\\\\];\\r\\n}\"\n \n # Check the size of the VLA's.\n gdb_breakpoint [gdb_get_line_number \"break_end_of_vla_factory\"]\n@@ -109,10 +95,6 @@ gdb_test \"print uchar_size == sizeof(unsigned_char_vla)\" \" = 1\" \\\n          \"size of unsigned_char_vla\"\n gdb_test \"print foo_size == sizeof(foo_vla)\" \" = 1\" \"size of foo_vla\"\n gdb_test \"print bar_size == sizeof(bar_vla)\" \" = 1\" \"size of bar_vla\"\n-gdb_test \"print vla_struct_object_size == sizeof(vla_struct_object)\" \\\n-    \" = 1\" \"size of vla_struct_object\"\n-gdb_test \"print vla_union_object_size == sizeof(vla_union_object)\" \\\n-    \" = 1\" \"size of vla_union_object\"\n \n # Check side effects for sizeof argument.\n set sizeof_int [get_sizeof \"int\" 4]\n@@ -130,9 +112,3 @@ gdb_test \"print int_vla\\[0\\]\" \" = 42\" \\\n gdb_test \"whatis ++int_vla\\[0\\]\" \"type = int\"\n gdb_test \"print int_vla\\[0\\]\" \" = 42\" \\\n          \"print int_vla\\[0\\] - whatis no side effects\"\n-\n-# Fails due to incorrect debugging information generated by GCC.\n-setup_xfail \"*-*-*\"\n-gdb_test \\\n-    \"print inner_vla_struct_object_size == sizeof(inner_vla_struct_object)\" \\\n-    \" = 1\" \"size of inner_vla_struct_object\""
+    },
+    {
+      "sha": "ef236a7d681f81435e23af5d1d2787cfafe2f21b",
+      "filename": "gdb/testsuite/gdb.base/vla-struct-fields.c",
+      "status": "added",
+      "additions": 104,
+      "deletions": 0,
+      "changes": 104,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f00c730acee9d452ba81a3083f2c02d13c9f312/gdb/testsuite/gdb.base/vla-struct-fields.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f00c730acee9d452ba81a3083f2c02d13c9f312/gdb/testsuite/gdb.base/vla-struct-fields.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/vla-struct-fields.c?ref=3f00c730acee9d452ba81a3083f2c02d13c9f312",
+      "patch": "@@ -0,0 +1,104 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2014-2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#include <stddef.h>\n+#define SIZE 5\n+\n+struct foo\n+{\n+  int a;\n+};\n+\n+typedef struct bar\n+{\n+  int x;\n+  struct foo y;\n+} BAR;\n+\n+void\n+vla_factory (int n)\n+{\n+  struct vla_struct\n+  {\n+    int something;\n+    int vla_field[n];\n+  };\n+  /* Define a typedef for a VLA structure.  */\n+  typedef struct vla_struct vla_struct_typedef;\n+  vla_struct_typedef vla_struct_object;\n+\n+  struct inner_vla_struct\n+  {\n+    int something;\n+    int vla_field[n];\n+    int after;\n+  } inner_vla_struct_object;\n+\n+  /* Define a structure which uses a typedef for the VLA field\n+     to make sure that GDB creates the proper type for this field,\n+     preventing a possible assertion failure (see gdb/21356).  */\n+  struct vla_struct_typedef_struct_member\n+  {\n+    int something;\n+    vla_struct_typedef vla_object;\n+  } vla_struct_typedef_struct_member_object;\n+\n+  union vla_union\n+  {\n+    int vla_field[n];\n+  } vla_union_object;\n+\n+  /* Like vla_struct_typedef_struct_member but a union type.  */\n+  union vla_struct_typedef_union_member\n+  {\n+    int something;\n+    vla_struct_typedef vla_object;\n+  } vla_struct_typedef_union_member_object;\n+  int i;\n+\n+  vla_struct_object.something = n;\n+  inner_vla_struct_object.something = n;\n+  inner_vla_struct_object.after = n;\n+  vla_struct_typedef_struct_member_object.something = n * 2;\n+  vla_struct_typedef_struct_member_object.vla_object.something = n * 3;\n+  vla_struct_typedef_union_member_object.vla_object.something = n + 1;\n+\n+  for (i = 0; i < n; i++)\n+    {\n+      vla_struct_object.vla_field[i] = i*2;\n+      vla_union_object.vla_field[i] = i*2;\n+      inner_vla_struct_object.vla_field[i] = i*2;\n+      vla_struct_typedef_struct_member_object.vla_object.vla_field[i]\n+\t= i * 3;\n+      vla_struct_typedef_union_member_object.vla_object.vla_field[i]\n+\t= i * 3 - 1;\n+    }\n+\n+  size_t vla_struct_object_size\n+    = sizeof(vla_struct_object);          /* vlas_filled */\n+  size_t vla_union_object_size = sizeof(vla_union_object);\n+  size_t inner_vla_struct_object_size = sizeof(inner_vla_struct_object);\n+\n+  return;                                 /* break_end_of_vla_factory */\n+}\n+\n+int\n+main (void)\n+{\n+  vla_factory(SIZE);\n+  return 0;\n+}"
+    },
+    {
+      "sha": "56d1dc5675c00b28e59b909b98ea5ad66ebf78d9",
+      "filename": "gdb/testsuite/gdb.base/vla-struct-fields.exp",
+      "status": "added",
+      "additions": 67,
+      "deletions": 0,
+      "changes": 67,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f00c730acee9d452ba81a3083f2c02d13c9f312/gdb/testsuite/gdb.base/vla-struct-fields.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f00c730acee9d452ba81a3083f2c02d13c9f312/gdb/testsuite/gdb.base/vla-struct-fields.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/vla-struct-fields.exp?ref=3f00c730acee9d452ba81a3083f2c02d13c9f312",
+      "patch": "@@ -0,0 +1,67 @@\n+# Copyright 2014-2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+standard_testfile\n+\n+# Clang says it will never support variable length arrays in structures.\n+if {[test_compiler_info clang*]} {\n+    unsupported \"compiler does not support variable length arrays in structure\"\n+    return\n+}\n+\n+if { [prepare_for_testing \"failed to prepare\" ${testfile} ${srcfile}] } {\n+    return -1\n+}\n+\n+if ![runto_main] {\n+    return -1\n+}\n+\n+gdb_breakpoint [gdb_get_line_number \"vlas_filled\"]\n+gdb_continue_to_breakpoint \"vlas_filled\"\n+\n+# Check the values of VLA's.\n+gdb_test \"print vla_struct_object\" \\\n+    \"\\\\\\{something = 5, vla_field = \\\\\\{0, 2, 4, 6, 8\\\\\\}\\\\\\}\"\n+gdb_test \"print vla_union_object\" \\\n+    \"\\\\\\{vla_field = \\\\\\{0, 2, 4, 6, 8\\\\\\}\\\\\\}\"\n+gdb_test \"print vla_struct_typedef_struct_member_object\" \\\n+    \"\\\\\\{something = 10, vla_object = \\\\\\{something = 15, vla_field = \\\\\\{0, 3, 6, 9, 12\\\\\\}\\\\\\}\\\\\\}\"\n+gdb_test \"print vla_struct_typedef_union_member_object\" \\\n+    \"\\\\\\{something = 6, vla_object = \\\\\\{something = 6, vla_field = \\\\\\{-1, 2, 5, 8, 11\\\\\\}\\\\\\}\\\\\\}\"\n+\n+# Check whatis of VLA's.\n+gdb_test \"whatis vla_struct_object\" \"type = vla_struct_typedef\"\n+gdb_test \"whatis vla_union_object\" \"type = union vla_union\"\n+\n+# Check ptype of VLA's.\n+gdb_test \"ptype vla_struct_object\" \\\n+    \"type = struct vla_struct {\\r\\n\\\\s+int something;\\r\\n\\\\s+int vla_field\\\\\\[5\\\\\\];\\r\\n}\"\n+gdb_test \"ptype vla_union_object\" \\\n+    \"type = union vla_union {\\r\\n\\\\s+int vla_field\\\\\\[5\\\\\\];\\r\\n}\"\n+\n+# Check the size of the VLA's.\n+gdb_breakpoint [gdb_get_line_number \"break_end_of_vla_factory\"]\n+gdb_continue_to_breakpoint \"break_end_of_vla_factory\"\n+gdb_test \"print vla_struct_object_size == sizeof(vla_struct_object)\" \\\n+    \" = 1\" \"size of vla_struct_object\"\n+gdb_test \"print vla_union_object_size == sizeof(vla_union_object)\" \\\n+    \" = 1\" \"size of vla_union_object\"\n+\n+# Fails due to incorrect debugging information generated by GCC.\n+setup_xfail \"*-*-*\"\n+gdb_test \\\n+    \"print inner_vla_struct_object_size == sizeof(inner_vla_struct_object)\" \\\n+    \" = 1\" \"size of inner_vla_struct_object\""
+    }
+  ]
+}

@@ -1,0 +1,242 @@
+{
+  "sha": "abe4ca69a114a2aae1ba442a2535977de4add33b",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YWJlNGNhNjlhMTE0YTJhYWUxYmE0NDJhMjUzNTk3N2RlNGFkZDMzYg==",
+  "commit": {
+    "author": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2021-01-05T13:25:56Z"
+    },
+    "committer": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2021-01-05T14:53:40Z"
+    },
+    "message": "libctf: fix lookups of pointers by name in parent dicts\n\nWhen you look up a type by name using ctf_lookup_by_name, in most cases\nlibctf can just strip off any qualifiers and look for the name, but for\npointer types this doesn't work, since the caller will want the pointer\ntype itself.  But pointer types are nameless, and while they cite the\ntypes they point to, looking up a type by name requires a link going the\n*other way*, from the type pointed to to the pointer type that points to\nit.\n\nlibctf has always built this up at open time: ctf_ptrtab is an array of\ntype indexes pointing from the index of every type to the index of the\ntype that points to it.  But because it is built up at open time (and\nbecause it uses type indexes and not type IDs) it is restricted to\nworking within a single dict and ignoring parent/child\nrelationships. This is normally invisible, unless you manage to get a\ndict with a type in the parent but the only pointer to it in a child.\nThe ctf_ptrtab will not track this relationship, so lookups of this\npointer type by name will fail.  Since which type is in the parent and\nwhich in the child is largely opaque to the user (which goes where is up\nto the deduplicator, and it can and does reshuffle things to save\nspace), this leads to a very bad user experience, with an\nobviously-visible pointer type which ctf_lookup_by_name claims doesn't\nexist.\n\nThe fix is to have another array, ctf_pptrtab, which is populated in\nchild dicts: like the parent's ctf_ptrtab, it has one element per type\nin the parent, but is all zeroes except for those types which are\npointed to by types in the child: so it maps parent dict indices to\nchild dict indices.  The array is grown, and new child types scanned,\nwhenever a lookup happens and new types have been added to the child\nsince the last time a lookup happened that might need the pptrtab.\n(So for non-writable dicts, this only happens once, since new types\ncannot be added to non-writable dicts at all.)\n\nSince this introduces new complexity (involving updating only part of\nthe ctf_pptrtab) which is only seen when a writable dict is in use, we\nintroduce a new libctf-writable testsuite that contains lookup tests\nwith no corresponding CTF-containing .c files (which can thus be run\neven on platforms with no .ctf-section support in the linker yet), and\nadd a test to check that creation of pointers in children to types in\nparents and a following lookup by name works as expected.  The non-\nwritable case is tested in a new libctf-regression testsuite which is\nused to track now-fixed outright bugs in libctf.\n\nlibctf/ChangeLog\n2021-01-05  Nick Alcock  <nick.alcock@oracle.com>\n\n\t* ctf-impl.h (ctf_dict_t) <ctf_pptrtab>: New.\n\t<ctf_pptrtab_len>: New.\n\t<ctf_pptrtab_typemax>: New.\n\t* ctf-create.c (ctf_serialize): Update accordingly.\n\t(ctf_add_reftype): Note that we don't need to update pptrtab here,\n\tdespite updating ptrtab.\n\t* ctf-open.c (ctf_dict_close): Destroy the pptrtab.\n\t(ctf_import): Likewise.\n\t(ctf_import_unref): Likewise.\n\t* ctf-lookup.c (grow_pptrtab): New.\n\t(refresh_pptrtab): New, update a pptrtab.\n\t(ctf_lookup_by_name): Turn into a wrapper around (and rename to)...\n\t(ctf_lookup_by_name_internal): ... this: construct the pptrtab, and\n\tuse it in addition to the parent's ptrtab when parent dicts are\n\tsearched.\n\t* testsuite/libctf-regression/regression.exp: New testsuite for\n\tregression tests.\n\t* testsuite/libctf-regression/pptrtab*: New test.\n\t* testsuite/libctf-writable/writable.exp: New testsuite for tests of\n\twritable CTF dicts.\n\t* testsuite/libctf-writable/pptrtab*: New test.",
+    "tree": {
+      "sha": "f9a8c154a8e36029d60a29d5dda16de8b48b349e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f9a8c154a8e36029d60a29d5dda16de8b48b349e"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/abe4ca69a114a2aae1ba442a2535977de4add33b",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/abe4ca69a114a2aae1ba442a2535977de4add33b",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/abe4ca69a114a2aae1ba442a2535977de4add33b",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/abe4ca69a114a2aae1ba442a2535977de4add33b/comments",
+  "author": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "8769046e5a9bb4b0d2a37e501def26941a8c710a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8769046e5a9bb4b0d2a37e501def26941a8c710a",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/8769046e5a9bb4b0d2a37e501def26941a8c710a"
+    }
+  ],
+  "stats": {
+    "total": 500,
+    "additions": 467,
+    "deletions": 33
+  },
+  "files": [
+    {
+      "sha": "4c62cf1f2fa7504c945664be4d1434dbd77fc53b",
+      "filename": "libctf/ChangeLog",
+      "status": "modified",
+      "additions": 24,
+      "deletions": 0,
+      "changes": 24,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ChangeLog?ref=abe4ca69a114a2aae1ba442a2535977de4add33b",
+      "patch": "@@ -1,3 +1,27 @@\n+2021-01-05  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-impl.h (ctf_dict_t) <ctf_pptrtab>: New.\n+\t<ctf_pptrtab_len>: New.\n+\t<ctf_pptrtab_typemax>: New.\n+\t* ctf-create.c (ctf_serialize): Update accordingly.\n+\t(ctf_add_reftype): Note that we don't need to update pptrtab here,\n+\tdespite updating ptrtab.\n+\t* ctf-open.c (ctf_dict_close): Destroy the pptrtab.\n+\t(ctf_import): Likewise.\n+\t(ctf_import_unref): Likewise.\n+\t* ctf-lookup.c (grow_pptrtab): New.\n+\t(refresh_pptrtab): New, update a pptrtab.\n+\t(ctf_lookup_by_name): Turn into a wrapper around (and rename to)...\n+\t(ctf_lookup_by_name_internal): ... this: construct the pptrtab, and\n+\tuse it in addition to the parent's ptrtab when parent dicts are\n+\tsearched.\n+\t* testsuite/libctf-regression/regression.exp: New testsuite for\n+\tregression tests.\n+\t* testsuite/libctf-regression/pptrtab*: New test.\n+\t* testsuite/libctf-writable/writable.exp: New testsuite for tests of\n+\twritable CTF dicts.\n+\t* testsuite/libctf-writable/pptrtab*: New test.\n+\n 2021-01-05  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctf-archive.c (ctf_archive_iter): Remove outdated comment."
+    },
+    {
+      "sha": "651d39d23c8e553d842bacf83907974b0916e8b3",
+      "filename": "libctf/ctf-create.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 1,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/ctf-create.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/ctf-create.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-create.c?ref=abe4ca69a114a2aae1ba442a2535977de4add33b",
+      "patch": "@@ -1142,9 +1142,11 @@ ctf_serialize (ctf_dict_t *fp)\n   nfp->ctf_funchash = fp->ctf_funchash;\n   nfp->ctf_dynsyms = fp->ctf_dynsyms;\n   nfp->ctf_ptrtab = fp->ctf_ptrtab;\n+  nfp->ctf_pptrtab = fp->ctf_pptrtab;\n   nfp->ctf_dynsymidx = fp->ctf_dynsymidx;\n   nfp->ctf_dynsymmax = fp->ctf_dynsymmax;\n   nfp->ctf_ptrtab_len = fp->ctf_ptrtab_len;\n+  nfp->ctf_pptrtab_len = fp->ctf_pptrtab_len;\n   nfp->ctf_link_inputs = fp->ctf_link_inputs;\n   nfp->ctf_link_outputs = fp->ctf_link_outputs;\n   nfp->ctf_errs_warnings = fp->ctf_errs_warnings;\n@@ -1154,6 +1156,7 @@ ctf_serialize (ctf_dict_t *fp)\n   nfp->ctf_objtidx_sxlate = fp->ctf_objtidx_sxlate;\n   nfp->ctf_str_prov_offset = fp->ctf_str_prov_offset;\n   nfp->ctf_syn_ext_strtab = fp->ctf_syn_ext_strtab;\n+  nfp->ctf_pptrtab_typemax = fp->ctf_pptrtab_typemax;\n   nfp->ctf_in_flight_dynsyms = fp->ctf_in_flight_dynsyms;\n   nfp->ctf_link_in_cu_mapping = fp->ctf_link_in_cu_mapping;\n   nfp->ctf_link_out_cu_mapping = fp->ctf_link_out_cu_mapping;\n@@ -1186,6 +1189,7 @@ ctf_serialize (ctf_dict_t *fp)\n   memset (&fp->ctf_errs_warnings, 0, sizeof (ctf_list_t));\n   fp->ctf_add_processing = NULL;\n   fp->ctf_ptrtab = NULL;\n+  fp->ctf_pptrtab = NULL;\n   fp->ctf_funcidx_names = NULL;\n   fp->ctf_objtidx_names = NULL;\n   fp->ctf_funcidx_sxlate = NULL;\n@@ -1582,7 +1586,8 @@ ctf_add_reftype (ctf_dict_t *fp, uint32_t flag, ctf_id_t ref, uint32_t kind)\n      type and (if an anonymous typedef node is being pointed at) the type that\n      points at too.  Note that ctf_typemax is at this point one higher than we\n      want to check against, because it's just been incremented for the addition\n-     of this type.  */\n+     of this type.  The pptrtab is lazily-updated as needed, so is not touched\n+     here.  */\n \n   uint32_t type_idx = LCTF_TYPE_TO_INDEX (fp, type);\n   uint32_t ref_idx = LCTF_TYPE_TO_INDEX (fp, ref);"
+    },
+    {
+      "sha": "d9972e688e9bbe2ec757b7cb302fdca1114aea8d",
+      "filename": "libctf/ctf-impl.h",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/ctf-impl.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/ctf-impl.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-impl.h?ref=abe4ca69a114a2aae1ba442a2535977de4add33b",
+      "patch": "@@ -406,6 +406,9 @@ struct ctf_dict\n   uint32_t *ctf_txlate;\t\t  /* Translation table for type IDs.  */\n   uint32_t *ctf_ptrtab;\t\t  /* Translation table for pointer-to lookups.  */\n   size_t ctf_ptrtab_len;\t  /* Num types storable in ptrtab currently.  */\n+  uint32_t *ctf_pptrtab;\t  /* Parent types pointed to by child dicts.  */\n+  size_t ctf_pptrtab_len;\t  /* Num types storable in pptrtab currently.  */\n+  uint32_t ctf_pptrtab_typemax;\t  /* Max child type when pptrtab last updated.  */\n   uint32_t *ctf_funcidx_names;\t  /* Name of each function symbol in symtypetab\n \t\t\t\t     (if indexed).  */\n   uint32_t *ctf_objtidx_names;\t  /* Likewise, for object symbols.  */"
+    },
+    {
+      "sha": "c7f7e2978221c6929227111a550a8c11370e57dc",
+      "filename": "libctf/ctf-lookup.c",
+      "status": "modified",
+      "additions": 164,
+      "deletions": 31,
+      "changes": 195,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/ctf-lookup.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/ctf-lookup.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-lookup.c?ref=abe4ca69a114a2aae1ba442a2535977de4add33b",
+      "patch": "@@ -22,6 +22,88 @@\n #include <string.h>\n #include <assert.h>\n \n+/* Grow the pptrtab so that it is at least NEW_LEN long.  */\n+static int\n+grow_pptrtab (ctf_dict_t *fp, size_t new_len)\n+{\n+  uint32_t *new_pptrtab;\n+\n+  if ((new_pptrtab = realloc (fp->ctf_pptrtab, sizeof (uint32_t)\n+\t\t\t      * new_len)) == NULL)\n+    return (ctf_set_errno (fp, ENOMEM));\n+\n+  fp->ctf_pptrtab = new_pptrtab;\n+\n+  memset (fp->ctf_pptrtab + fp->ctf_pptrtab_len, 0,\n+\t  sizeof (uint32_t) * (new_len - fp->ctf_pptrtab_len));\n+\n+  fp->ctf_pptrtab_len = new_len;\n+  return 0;\n+}\n+\n+/* Update entries in the pptrtab that relate to types newly added in the\n+   child.  */\n+static int\n+refresh_pptrtab (ctf_dict_t *fp, ctf_dict_t *pfp)\n+{\n+  uint32_t i;\n+  for (i = fp->ctf_pptrtab_typemax; i <= fp->ctf_typemax; i++)\n+    {\n+      ctf_id_t type = LCTF_INDEX_TO_TYPE (fp, i, 1);\n+      ctf_id_t reffed_type;\n+      int updated;\n+\n+      if (ctf_type_kind (fp, type) != CTF_K_POINTER)\n+\tcontinue;\n+\n+      reffed_type = ctf_type_reference (fp, type);\n+\n+      if (LCTF_TYPE_ISPARENT (fp, reffed_type))\n+\t{\n+\t  uint32_t idx = LCTF_TYPE_TO_INDEX (fp, reffed_type);\n+\n+\t  /* Guard against references to invalid types.  No need to consider\n+\t     the CTF dict corrupt in this case: this pointer just can't be a\n+\t     pointer to any type we know about.  */\n+\t  if (idx <= pfp->ctf_typemax)\n+\t    {\n+\t      if (idx >= fp->ctf_pptrtab_len\n+\t\t  && grow_pptrtab (fp, pfp->ctf_ptrtab_len) < 0)\n+\t\treturn -1;\t\t\t/* errno is set for us.  */\n+\n+\t      fp->ctf_pptrtab[idx] = i;\n+\t      updated = 1;\n+\t    }\n+\t}\n+      if (!updated)\n+\tcontinue;\n+\n+      /* If we updated the ptrtab entry for this type's referent, and it's an\n+\t anonymous typedef node, we also want to chase down its referent and\n+\t change that as well.  */\n+\n+      if ((ctf_type_kind (fp, reffed_type) == CTF_K_TYPEDEF)\n+\t  && strcmp (ctf_type_name_raw (fp, reffed_type), \"\") == 0)\n+\t{\n+\t  uint32_t idx;\n+\t  idx = LCTF_TYPE_TO_INDEX (pfp, ctf_type_reference (fp, reffed_type));\n+\n+\t  if (idx <= pfp->ctf_typemax)\n+\t    {\n+\t      if (idx >= fp->ctf_pptrtab_len\n+\t\t  && grow_pptrtab (fp, pfp->ctf_ptrtab_len) < 0)\n+\t\treturn -1;\t\t\t/* errno is set for us.  */\n+\n+\t      fp->ctf_pptrtab[idx] = i;\n+\t    }\n+\t}\n+    }\n+\n+  fp->ctf_pptrtab_typemax = fp->ctf_typemax;\n+\n+  return 0;\n+}\n+\n /* Compare the given input string and length against a table of known C storage\n    qualifier keywords.  We just ignore these in ctf_lookup_by_name, below.  To\n    do this quickly, we use a pre-computed Perfect Hash Function similar to the\n@@ -69,8 +151,9 @@ isqualifier (const char *s, size_t len)\n    finds the things that we actually care about: structs, unions, enums,\n    integers, floats, typedefs, and pointers to any of these named types.  */\n \n-ctf_id_t\n-ctf_lookup_by_name (ctf_dict_t *fp, const char *name)\n+static ctf_id_t\n+ctf_lookup_by_name_internal (ctf_dict_t *fp, ctf_dict_t *child,\n+\t\t\t     const char *name)\n {\n   static const char delimiters[] = \" \\t\\n\\r\\v\\f*\";\n \n@@ -95,30 +178,66 @@ ctf_lookup_by_name (ctf_dict_t *fp, const char *name)\n \n       if (*p == '*')\n \t{\n-\t  /* Find a pointer to type by looking in fp->ctf_ptrtab.\n-\t     If we can't find a pointer to the given type, see if\n-\t     we can compute a pointer to the type resulting from\n-\t     resolving the type down to its base type and use\n-\t     that instead.  This helps with cases where the CTF\n-\t     data includes \"struct foo *\" but not \"foo_t *\" and\n-\t     the user tries to access \"foo_t *\" in the debugger.\n+\t  /* Find a pointer to type by looking in child->ctf_pptrtab (if child\n+\t     is set) and fp->ctf_ptrtab.  If we can't find a pointer to the\n+\t     given type, see if we can compute a pointer to the type resulting\n+\t     from resolving the type down to its base type and use that instead.\n+\t     This helps with cases where the CTF data includes \"struct foo *\"\n+\t     but not \"foo_t *\" and the user tries to access \"foo_t *\" in the\n+\t     debugger.  */\n+\n+\t  uint32_t idx = LCTF_TYPE_TO_INDEX (fp, type);\n+\t  int in_child = 0;\n+\n+\t  ntype = type;\n+\t  if (child && idx <= child->ctf_pptrtab_len)\n+\t    {\n+\t      ntype = child->ctf_pptrtab[idx];\n+\t      if (ntype)\n+\t\tin_child = 1;\n+\t    }\n \n-\t     TODO need to handle parent dicts too.  */\n+\t  if (ntype == 0)\n+\t    ntype = fp->ctf_ptrtab[idx];\n \n-\t  ntype = fp->ctf_ptrtab[LCTF_TYPE_TO_INDEX (fp, type)];\n+\t  /* Try resolving to its base type and check again.  */\n \t  if (ntype == 0)\n \t    {\n-\t      ntype = ctf_type_resolve_unsliced (fp, type);\n-\t      if (ntype == CTF_ERR\n-\t\t  || (ntype =\n-\t\t      fp->ctf_ptrtab[LCTF_TYPE_TO_INDEX (fp, ntype)]) == 0)\n+\t      if (child)\n+\t\tntype = ctf_type_resolve_unsliced (child, type);\n+\t      else\n+\t\tntype = ctf_type_resolve_unsliced (fp, type);\n+\n+\t      if (ntype == CTF_ERR)\n+\t\tgoto notype;\n+\n+\t      idx = LCTF_TYPE_TO_INDEX (fp, ntype);\n+\n+\t      ntype = 0;\n+\t      if (child && idx <= child->ctf_pptrtab_len)\n \t\t{\n-\t\t  (void) ctf_set_errno (fp, ECTF_NOTYPE);\n-\t\t  goto err;\n+\t\t  ntype = child->ctf_pptrtab[idx];\n+\t\t  if (ntype)\n+\t\t    in_child = 1;\n \t\t}\n+\n+\t      if (ntype == 0)\n+\t\tntype = fp->ctf_ptrtab[idx];\n+\t      if (ntype == CTF_ERR)\n+\t\tgoto notype;\n \t    }\n \n-\t  type = LCTF_INDEX_TO_TYPE (fp, ntype, (fp->ctf_flags & LCTF_CHILD));\n+\t  type = LCTF_INDEX_TO_TYPE (fp, ntype, (fp->ctf_flags & LCTF_CHILD)\n+\t\t\t\t     || in_child);\n+\n+\t  /* We are looking up a type in the parent, but the pointed-to type is\n+\t     in the child.  Switch to looking in the child: if we need to go\n+\t     back into the parent, we can recurse again.  */\n+\t  if (in_child)\n+\t    {\n+\t      fp = child;\n+\t      child = NULL;\n+\t    }\n \n \t  q = p + 1;\n \t  continue;\n@@ -157,42 +276,56 @@ ctf_lookup_by_name (ctf_dict_t *fp, const char *name)\n \t\t  fp->ctf_tmp_typeslice = xstrndup (p, (size_t) (q - p));\n \t\t  if (fp->ctf_tmp_typeslice == NULL)\n \t\t    {\n-\t\t      (void) ctf_set_errno (fp, ENOMEM);\n+\t\t      ctf_set_errno (fp, ENOMEM);\n \t\t      return CTF_ERR;\n \t\t    }\n \t\t}\n \n \t      if ((type = ctf_lookup_by_rawhash (fp, lp->ctl_hash,\n \t\t\t\t\t\t fp->ctf_tmp_typeslice)) == 0)\n-\t\t{\n-\t\t  (void) ctf_set_errno (fp, ECTF_NOTYPE);\n-\t\t  goto err;\n-\t\t}\n+\t\tgoto notype;\n \n \t      break;\n \t    }\n \t}\n \n       if (lp->ctl_prefix == NULL)\n-\t{\n-\t  (void) ctf_set_errno (fp, ECTF_NOTYPE);\n-\t  goto err;\n-\t}\n+\tgoto notype;\n     }\n \n   if (*p != '\\0' || type == 0)\n     return (ctf_set_errno (fp, ECTF_SYNTAX));\n \n   return type;\n \n-err:\n-  if (fp->ctf_parent != NULL\n-      && (ptype = ctf_lookup_by_name (fp->ctf_parent, name)) != CTF_ERR)\n-    return ptype;\n+ notype:\n+  ctf_set_errno (fp, ECTF_NOTYPE);\n+  if (fp->ctf_parent != NULL)\n+    {\n+      /* Need to look up in the parent, from the child's perspective.\n+\t Make sure the pptrtab is up to date.  */\n+\n+      if (fp->ctf_pptrtab_typemax < fp->ctf_typemax)\n+\t{\n+\t  if (refresh_pptrtab (fp, fp->ctf_parent) < 0)\n+\t    return -1;\t\t\t/* errno is set for us.  */\n+\t}\n+\n+      if ((ptype = ctf_lookup_by_name_internal (fp->ctf_parent, fp,\n+\t\t\t\t\t\tname)) != CTF_ERR)\n+\treturn ptype;\n+      return (ctf_set_errno (fp, ctf_errno (fp->ctf_parent)));\n+    }\n \n   return CTF_ERR;\n }\n \n+ctf_id_t\n+ctf_lookup_by_name (ctf_dict_t *fp, const char *name)\n+{\n+  return ctf_lookup_by_name_internal (fp, NULL, name);\n+}\n+\n /* Return the pointer to the internal CTF type data corresponding to the\n    given type ID.  If the ID is invalid, the function returns NULL.\n    This function is not exported outside of the library.  */"
+    },
+    {
+      "sha": "a92668fd35f06eae5bcd4eb1037e542d49c18c32",
+      "filename": "libctf/ctf-open.c",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 1,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/ctf-open.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/ctf-open.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-open.c?ref=abe4ca69a114a2aae1ba442a2535977de4add33b",
+      "patch": "@@ -1806,6 +1806,7 @@ ctf_dict_close (ctf_dict_t *fp)\n   free (fp->ctf_sxlate);\n   free (fp->ctf_txlate);\n   free (fp->ctf_ptrtab);\n+  free (fp->ctf_pptrtab);\n \n   free (fp->ctf_header);\n   free (fp);\n@@ -1931,7 +1932,8 @@ ctf_cuname_set (ctf_dict_t *fp, const char *name)\n \n /* Import the types from the specified parent dict by storing a pointer to it in\n    ctf_parent and incrementing its reference count.  Only one parent is allowed:\n-   if a parent already exists, it is replaced by the new parent.  */\n+   if a parent already exists, it is replaced by the new parent.  The pptrtab\n+   is wiped, and will be refreshed by the next ctf_lookup_by_name call.  */\n int\n ctf_import (ctf_dict_t *fp, ctf_dict_t *pfp)\n {\n@@ -1945,6 +1947,11 @@ ctf_import (ctf_dict_t *fp, ctf_dict_t *pfp)\n     ctf_dict_close (fp->ctf_parent);\n   fp->ctf_parent = NULL;\n \n+  free (fp->ctf_pptrtab);\n+  fp->ctf_pptrtab = NULL;\n+  fp->ctf_pptrtab_len = 0;\n+  fp->ctf_pptrtab_typemax = 0;\n+\n   if (pfp != NULL)\n     {\n       int err;\n@@ -1979,6 +1986,10 @@ ctf_import_unref (ctf_dict_t *fp, ctf_dict_t *pfp)\n     ctf_dict_close (fp->ctf_parent);\n   fp->ctf_parent = NULL;\n \n+  free (fp->ctf_pptrtab);\n+  fp->ctf_pptrtab = NULL;\n+  fp->ctf_pptrtab_len = 0;\n+  fp->ctf_pptrtab_typemax = 0;\n   if (pfp != NULL)\n     {\n       int err;"
+    },
+    {
+      "sha": "e9f656a0bc8f1a51e80ad5b490d43885c82177fb",
+      "filename": "libctf/testsuite/libctf-regression/pptrtab-a.c",
+      "status": "added",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/testsuite/libctf-regression/pptrtab-a.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/testsuite/libctf-regression/pptrtab-a.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-regression/pptrtab-a.c?ref=abe4ca69a114a2aae1ba442a2535977de4add33b",
+      "patch": "@@ -0,0 +1,3 @@\n+typedef long a_t;\n+\n+a_t *a;"
+    },
+    {
+      "sha": "6142f194c190da12f7b328e57febd3a04f84d433",
+      "filename": "libctf/testsuite/libctf-regression/pptrtab-b.c",
+      "status": "added",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/testsuite/libctf-regression/pptrtab-b.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/testsuite/libctf-regression/pptrtab-b.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-regression/pptrtab-b.c?ref=abe4ca69a114a2aae1ba442a2535977de4add33b",
+      "patch": "@@ -0,0 +1,4 @@\n+typedef long a_t;\n+\n+a_t b;\n+"
+    },
+    {
+      "sha": "5d3c2f2ee93d9404669ce75154ee1483cc5eb04d",
+      "filename": "libctf/testsuite/libctf-regression/pptrtab.c",
+      "status": "added",
+      "additions": 54,
+      "deletions": 0,
+      "changes": 54,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/testsuite/libctf-regression/pptrtab.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/testsuite/libctf-regression/pptrtab.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-regression/pptrtab.c?ref=abe4ca69a114a2aae1ba442a2535977de4add33b",
+      "patch": "@@ -0,0 +1,54 @@\n+#include <ctf-api.h>\n+#include <stdio.h>\n+#include <stdlib.h>\n+\n+int\n+main (int argc, char *argv[])\n+{\n+  ctf_dict_t *fp;\n+  ctf_archive_t *ctf;\n+  ctf_next_t *i = NULL;\n+  ctf_id_t type;\n+  const char *arcname;\n+  char *type_name;\n+  int err;\n+\n+  if (argc != 2)\n+    {\n+      fprintf (stderr, \"Syntax: %s PROGRAM\\n\", argv[0]);\n+      exit(1);\n+    }\n+\n+  if ((ctf = ctf_open (argv[1], NULL, &err)) == NULL)\n+    goto open_err;\n+\n+  /* Make sure we can look up a_t * by name in all non-parent dicts, even though\n+     the a_t * and the type it points to are in distinct dicts.  */\n+\n+  while ((fp = ctf_archive_next (ctf, &i, &arcname, 1, &err)) != NULL)\n+    {\n+      if ((type = ctf_lookup_by_name (fp, \"a_t *\")) == CTF_ERR)\n+\tgoto err;\n+\n+      if (ctf_type_reference (fp, type) == CTF_ERR)\n+\tgoto err;\n+\n+      printf (\"%s: a_t * points to a type of kind %i\\n\", arcname,\n+\t      ctf_type_kind (fp, ctf_type_reference (fp, type)));\n+\n+      ctf_dict_close (fp);\n+    }\n+  if (err != ECTF_NEXT_END)\n+    goto open_err;\n+\n+  ctf_close (ctf);\n+\n+  return 0;\n+\n+ open_err:\n+  fprintf (stderr, \"%s: cannot open: %s\\n\", argv[0], ctf_errmsg (err));\n+  return 1;\n+ err:\n+  fprintf (stderr, \"Lookup failed in %s: %s\\n\", arcname, ctf_errmsg (ctf_errno (fp)));\n+  return 1;\n+}"
+    },
+    {
+      "sha": "43aae7de7586aa25a21671fcddcbab83d800ba3a",
+      "filename": "libctf/testsuite/libctf-regression/pptrtab.lk",
+      "status": "added",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/testsuite/libctf-regression/pptrtab.lk",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/testsuite/libctf-regression/pptrtab.lk",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-regression/pptrtab.lk?ref=abe4ca69a114a2aae1ba442a2535977de4add33b",
+      "patch": "@@ -0,0 +1,4 @@\n+# source: pptrtab-a.c\n+# source: pptrtab-b.c\n+# link_flags: -Wl,--ctf-share-types=share-duplicated\n+.*/pptrtab-[ab]\\.c: .* points to a type of kind 10"
+    },
+    {
+      "sha": "51ad257c94fa75cf1a89bca637ad61d509330653",
+      "filename": "libctf/testsuite/libctf-regression/regression.exp",
+      "status": "added",
+      "additions": 43,
+      "deletions": 0,
+      "changes": 43,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/testsuite/libctf-regression/regression.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/testsuite/libctf-regression/regression.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-regression/regression.exp?ref=abe4ca69a114a2aae1ba442a2535977de4add33b",
+      "patch": "@@ -0,0 +1,43 @@\n+# Copyright (C) 2021 Free Software Foundation, Inc.\n+#\n+# This file is part of the GNU Binutils.\n+#\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program; if not, write to the Free Software\n+# Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,\n+# MA 02110-1301, USA.\n+#\n+\n+if ![is_elf_format] {\n+    unsupported \"CTF needs bfd changes to be emitted on non-ELF\"\n+    return 0\n+}\n+\n+if {[info exists env(LC_ALL)]} {\n+    set old_lc_all $env(LC_ALL)\n+}\n+set env(LC_ALL) \"C\"\n+\n+set ctf_test_list [lsort [glob -nocomplain $srcdir/$subdir/*.lk]]\n+\n+foreach ctf_test $ctf_test_list {\n+    verbose [file rootname $ctf_test]\n+    verbose running lookup test on $ctf_test\n+    run_lookup_test [file rootname $ctf_test]\n+}\n+\n+if {[info exists old_lc_all]} {\n+    set env(LC_ALL) $old_lc_all\n+} else {\n+    unset env(LC_ALL)\n+}"
+    },
+    {
+      "sha": "68c356352d7c626c59cb2eef06e95f1f80e51b21",
+      "filename": "libctf/testsuite/libctf-writable/pptrtab.c",
+      "status": "added",
+      "additions": 109,
+      "deletions": 0,
+      "changes": 109,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/testsuite/libctf-writable/pptrtab.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/testsuite/libctf-writable/pptrtab.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-writable/pptrtab.c?ref=abe4ca69a114a2aae1ba442a2535977de4add33b",
+      "patch": "@@ -0,0 +1,109 @@\n+#include <ctf-api.h>\n+#include <stdio.h>\n+#include <stdlib.h>\n+\n+int\n+main (int argc, char *argv[])\n+{\n+  ctf_dict_t *pfp;\n+  ctf_dict_t *cfp;\n+  ctf_id_t base, base2, ptr, ptr2, type, last_type;\n+  ctf_encoding_t encoding = { CTF_INT_SIGNED, 0, sizeof (int) };\n+  ctf_encoding_t encoding2 = { CTF_INT_SIGNED, 0, sizeof (long) };\n+  char *type_name;\n+  int err;\n+\n+  if ((pfp = ctf_create (&err)) == NULL)\n+    goto create_err;\n+\n+  if ((cfp = ctf_create (&err)) == NULL)\n+    goto create_err;\n+\n+  if (ctf_import (cfp, pfp) < 0)\n+    goto create_child;\n+\n+  /* First, try an int in the parent with a pointer in the child.  Also make\n+     another pair of types we will chain to later: these end up before the\n+     pptrtab lazy-update watermark.  */\n+\n+  if ((base = ctf_add_integer (pfp, CTF_ADD_ROOT, \"int\", &encoding)) == CTF_ERR)\n+    goto create_parent;\n+\n+  if ((base2 = ctf_add_integer (pfp, CTF_ADD_ROOT, \"long int\", &encoding2)) == CTF_ERR)\n+    goto create_parent;\n+\n+  if ((ptr = ctf_add_pointer (cfp, CTF_ADD_ROOT, base)) == CTF_ERR)\n+    goto create_child;\n+\n+  if ((type = ctf_lookup_by_name (cfp, \"int *\") ) == CTF_ERR)\n+    goto err;\n+\n+  type_name = ctf_type_aname (cfp, type);\n+  printf (\"First lookup: %s in the child points to a type of kind %i\\n\",\n+\t  type_name, ctf_type_kind (cfp, ctf_type_reference (cfp, type)));\n+  free (type_name);\n+\n+  if (ctf_type_reference (cfp, type) != base)\n+    printf (\"First lookup ref diff: %lx versus %lx\\n\", base,\n+\t    ctf_type_reference (cfp, type));\n+  last_type = type;\n+\n+  /* Add another pointer to the same type in the parent and try a lookup.  */\n+\n+  if ((ptr = ctf_add_pointer (pfp, CTF_ADD_ROOT, base2)) == CTF_ERR)\n+    goto create_parent;\n+\n+  if ((type = ctf_lookup_by_name (cfp, \"long int *\") ) == CTF_ERR)\n+    goto err;\n+\n+  type_name = ctf_type_aname (cfp, type);\n+  printf (\"Second lookup: %s in the child points to a type of kind %i\\n\",\n+\t  type_name, ctf_type_kind (cfp, ctf_type_reference (cfp, type)));\n+  free (type_name);\n+\n+  if (ctf_type_reference (cfp, type) != base2)\n+    printf (\"Second lookup ref diff: %lx versus %lx\\n\", base2,\n+\t    ctf_type_reference (cfp, type));\n+  if (last_type == type)\n+    printf (\"Second lookup should not return the same type as the first: %lx\\n\", type);\n+\n+  last_type = type;\n+\n+  /* Add another pointer to the same type in the child and try a lookup.  */\n+\n+  if ((ptr = ctf_add_pointer (cfp, CTF_ADD_ROOT, base2)) == CTF_ERR)\n+    goto create_child;\n+\n+  if ((type = ctf_lookup_by_name (cfp, \"long int *\") ) == CTF_ERR)\n+    goto err;\n+\n+  type_name = ctf_type_aname (cfp, type);\n+  printf (\"Third lookup: %s in the child points to a type of kind %i\\n\",\n+\t  type_name, ctf_type_kind (cfp, ctf_type_reference (cfp, type)));\n+  free (type_name);\n+\n+  if (ctf_type_reference (cfp, type) != base2)\n+    printf (\"Third lookup ref diff: %lx versus %lx\\n\", base2,\n+\t    ctf_type_reference (cfp, type));\n+\n+  if (last_type == type)\n+    printf (\"Third lookup should not return the same type as the second: %lx\\n\", type);\n+\n+  ctf_file_close (cfp);\n+  ctf_file_close (pfp);\n+\n+  return 0;\n+\n+ create_err:\n+  fprintf (stderr, \"Creation failed: %s\\n\", ctf_errmsg (err));\n+  return 1;\n+ create_parent:\n+  fprintf (stderr, \"Cannot create type: %s\\n\", ctf_errmsg (ctf_errno (pfp)));\n+  return 1;\n+ create_child:\n+  fprintf (stderr, \"Cannot create type: %s\\n\", ctf_errmsg (ctf_errno (cfp)));\n+  return 1;\n+ err:\n+  fprintf (stderr, \"Lookup failed: %s\\n\", ctf_errmsg (ctf_errno (cfp)));\n+  return 1;\n+}"
+    },
+    {
+      "sha": "56cd8c219183bbdd82b449a382357f4e2e40f7d4",
+      "filename": "libctf/testsuite/libctf-writable/pptrtab.lk",
+      "status": "added",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/testsuite/libctf-writable/pptrtab.lk",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/testsuite/libctf-writable/pptrtab.lk",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-writable/pptrtab.lk?ref=abe4ca69a114a2aae1ba442a2535977de4add33b",
+      "patch": "@@ -0,0 +1,3 @@\n+First lookup: int \\* in the child points to a type of kind 1\n+Second lookup: long int \\* in the child points to a type of kind 1\n+Third lookup: long int \\* in the child points to a type of kind 1"
+    },
+    {
+      "sha": "270262fec486fbcd2883826893e2ab092deef49c",
+      "filename": "libctf/testsuite/libctf-writable/writable.exp",
+      "status": "added",
+      "additions": 38,
+      "deletions": 0,
+      "changes": 38,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/testsuite/libctf-writable/writable.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/abe4ca69a114a2aae1ba442a2535977de4add33b/libctf/testsuite/libctf-writable/writable.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-writable/writable.exp?ref=abe4ca69a114a2aae1ba442a2535977de4add33b",
+      "patch": "@@ -0,0 +1,38 @@\n+# Copyright (C) 2021 Free Software Foundation, Inc.\n+#\n+# This file is part of the GNU Binutils.\n+#\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program; if not, write to the Free Software\n+# Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,\n+# MA 02110-1301, USA.\n+#\n+\n+if {[info exists env(LC_ALL)]} {\n+    set old_lc_all $env(LC_ALL)\n+}\n+set env(LC_ALL) \"C\"\n+\n+set ctf_test_list [lsort [glob -nocomplain $srcdir/$subdir/*.lk]]\n+\n+foreach ctf_test $ctf_test_list {\n+    verbose [file rootname $ctf_test]\n+    verbose running lookup test on $ctf_test\n+    run_lookup_test [file rootname $ctf_test]\n+}\n+\n+if {[info exists old_lc_all]} {\n+    set env(LC_ALL) $old_lc_all\n+} else {\n+    unset env(LC_ALL)\n+}"
+    }
+  ]
+}

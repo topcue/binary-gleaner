@@ -1,0 +1,72 @@
+{
+  "sha": "25e1eca8faf1c29d28e57b37d6b5e3810b7b870b",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MjVlMWVjYThmYWYxYzI5ZDI4ZTU3YjM3ZDZiNWUzODEwYjdiODcwYg==",
+  "commit": {
+    "author": {
+      "name": "Sandra Loosemore",
+      "email": "sandra@codesourcery.com",
+      "date": "2020-05-27T06:23:03Z"
+    },
+    "committer": {
+      "name": "Sandra Loosemore",
+      "email": "sandra@codesourcery.com",
+      "date": "2020-05-27T06:23:03Z"
+    },
+    "message": "Fix extraction of signed constants in nios2 disassembler (again).\n\nIn commit 6031ac352c05c5c9f44e24fa1c5a8222a7a7d02d I added some casts\nto explicitly do conversions from unsigned to signed as 32-bit\nquantities to address some bugs with different sizes of long and\nbfd_signed_vma.  Those casts were removed in the rewrite of the\nsign-extension logic in commit 1d61b032265e69317f42e8019e072506f11890c5,\nreintroducing the same bugs.  This patch restores the casts.\n\n2020-05-26  Sandra Loosemore  <sandra@codesourcery.com>\n\n\topcodes/\n\t* nios2-dis.c (nios2_print_insn_arg): Add explicit casts to\n\textractions of signed fields.",
+    "tree": {
+      "sha": "2b62c4691aa18c397bd6f9887bde1b23a231f729",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/2b62c4691aa18c397bd6f9887bde1b23a231f729"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/25e1eca8faf1c29d28e57b37d6b5e3810b7b870b",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/25e1eca8faf1c29d28e57b37d6b5e3810b7b870b",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/25e1eca8faf1c29d28e57b37d6b5e3810b7b870b",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/25e1eca8faf1c29d28e57b37d6b5e3810b7b870b/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "dbac035ca042260654395b2f292f515c746b3016",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/dbac035ca042260654395b2f292f515c746b3016",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/dbac035ca042260654395b2f292f515c746b3016"
+    }
+  ],
+  "stats": {
+    "total": 33,
+    "additions": 25,
+    "deletions": 8
+  },
+  "files": [
+    {
+      "sha": "52cbe8e7ae5df195b51253212f46a0afee004e79",
+      "filename": "opcodes/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/25e1eca8faf1c29d28e57b37d6b5e3810b7b870b/opcodes/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/25e1eca8faf1c29d28e57b37d6b5e3810b7b870b/opcodes/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/ChangeLog?ref=25e1eca8faf1c29d28e57b37d6b5e3810b7b870b",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-05-26  Sandra Loosemore  <sandra@codesourcery.com>\n+\n+\tFix extraction of signed constants in nios2 disassembler (again).\n+\n+\t* nios2-dis.c (nios2_print_insn_arg): Add explicit casts to\n+\textractions of signed fields.\n+\n 2020-05-26  Stefan Schulze Frielinghaus  <stefansf@linux.ibm.com>\n \n \t* s390-opc.txt: Relocate vector load/store instructions with"
+    },
+    {
+      "sha": "e1eeaccadd55f7119f8baa9c2ba66f2da428eb9e",
+      "filename": "opcodes/nios2-dis.c",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 8,
+      "changes": 26,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/25e1eca8faf1c29d28e57b37d6b5e3810b7b870b/opcodes/nios2-dis.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/25e1eca8faf1c29d28e57b37d6b5e3810b7b870b/opcodes/nios2-dis.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/nios2-dis.c?ref=25e1eca8faf1c29d28e57b37d6b5e3810b7b870b",
+      "patch": "@@ -554,10 +554,12 @@ nios2_print_insn_arg (const char *argptr,\n       switch (op->format)\n \t{\n \tcase iw_i_type:\n-\t  s = ((GET_IW_I_IMM16 (opcode) & 0xffff) ^ 0x8000) - 0x8000;\n+\t  s = ((int32_t) ((GET_IW_I_IMM16 (opcode) & 0xffff) ^ 0x8000)\n+\t       - 0x8000);\n \t  break;\n \tcase iw_F2I16_type:\n-\t  s = ((GET_IW_F2I16_IMM16 (opcode) & 0xffff) ^ 0x8000) - 0x8000;\n+\t  s = ((int32_t) ((GET_IW_F2I16_IMM16 (opcode) & 0xffff) ^ 0x8000)\n+\t       - 0x8000);\n \t  break;\n \tdefault:\n \t  bad_opcode (op);\n@@ -570,10 +572,12 @@ nios2_print_insn_arg (const char *argptr,\n       switch (op->format)\n \t{\n \tcase iw_F2X4I12_type:\n-\t  s = ((GET_IW_F2X4I12_IMM12 (opcode) & 0xfff) ^ 0x800) - 0x800;\n+\t  s = ((int32_t) ((GET_IW_F2X4I12_IMM12 (opcode) & 0xfff) ^ 0x800)\n+\t       - 0x800);\n \t  break;\n \tcase iw_F1X4I12_type:\n-\t  s = ((GET_IW_F1X4I12_IMM12 (opcode) & 0xfff) ^ 0x800) - 0x800;\n+\t  s = ((int32_t) ((GET_IW_F1X4I12_IMM12 (opcode) & 0xfff) ^ 0x800)\n+\t       - 0x800);\n \t  break;\n \tdefault:\n \t  bad_opcode (op);\n@@ -673,10 +677,12 @@ nios2_print_insn_arg (const char *argptr,\n       switch (op->format)\n \t{\n \tcase iw_i_type:\n-\t  o = ((GET_IW_I_IMM16 (opcode) & 0xffff) ^ 0x8000) - 0x8000;\n+\t  o = ((int32_t) ((GET_IW_I_IMM16 (opcode) & 0xffff) ^ 0x8000)\n+\t       - 0x8000);\n \t  break;\n \tcase iw_F2I16_type:\n-\t  o = ((GET_IW_F2I16_IMM16 (opcode) & 0xffff) ^ 0x8000) - 0x8000;\n+\t  o = ((int32_t) ((GET_IW_F2I16_IMM16 (opcode) & 0xffff) ^ 0x8000)\n+\t       - 0x8000);\n \t  break;\n \tdefault:\n \t  bad_opcode (op);\n@@ -690,7 +696,9 @@ nios2_print_insn_arg (const char *argptr,\n       switch (op->format)\n \t{\n \tcase iw_I10_type:\n-\t  o = (((GET_IW_I10_IMM10 (opcode) & 0x3ff) ^ 0x400) - 0x400) << 1;\n+\t  o = (((int32_t) ((GET_IW_I10_IMM10 (opcode) & 0x3ff) ^ 0x400)\n+\t\t- 0x400)\n+\t       << 1);\n \t  break;\n \tdefault:\n \t  bad_opcode (op);\n@@ -704,7 +712,9 @@ nios2_print_insn_arg (const char *argptr,\n       switch (op->format)\n \t{\n \tcase iw_T1I7_type:\n-\t  o = (((GET_IW_T1I7_IMM7 (opcode) & 0x7f) ^ 0x40) - 0x40) << 1;\n+\t  o = (((int32_t) ((GET_IW_T1I7_IMM7 (opcode) & 0x7f) ^ 0x40)\n+\t\t- 0x40)\n+\t       << 1);\n \t  break;\n \tdefault:\n \t  bad_opcode (op);"
+    }
+  ]
+}

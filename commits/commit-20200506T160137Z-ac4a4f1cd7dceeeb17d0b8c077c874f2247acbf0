@@ -1,0 +1,158 @@
+{
+  "sha": "ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YWM0YTRmMWNkN2RjZWVlYjE3ZDBiOGMwNzdjODc0ZjIyNDdhY2JmMA==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2020-05-06T16:01:37Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2020-05-06T16:01:37Z"
+    },
+    "message": "gdb: handle endbr64 instruction in amd64_analyze_prologue\n\nv2:\n  - test: build full executable instead of object\n  - test: add and use supports_fcf_protection\n  - test: use gdb_test_multiple's -wrap option\n  - test: don't execute gdb_assert if failed to get breakpoint address\n\nSome GCCs now enable -fcf-protection by default.  This is the case, for\nexample, with GCC 9.3.0 on Ubuntu 20.04.  Enabling it causes the\n`endbr64` instruction to be inserted at the beginning of all functions\nand that breaks GDB's prologue analysis.\n\nI noticed this because it gives many failures in gdb.base/break.exp.\nBut let's take this dummy program and put a breakpoint on main:\n\n    int main(void)\n    {\n        return 0;\n    }\n\nWithout -fcf-protection, the breakpoint is correctly put after the prologue:\n\n    $ gcc test.c -g3 -O0 -fcf-protection=none\n    $ ./gdb -q -nx --data-directory=data-directory a.out\n    Reading symbols from a.out...\n    (gdb) disassemble main\n    Dump of assembler code for function main:\n       0x0000000000001129 <+0>:     push   %rbp\n       0x000000000000112a <+1>:     mov    %rsp,%rbp\n       0x000000000000112d <+4>:     mov    $0x0,%eax\n       0x0000000000001132 <+9>:     pop    %rbp\n       0x0000000000001133 <+10>:    retq\n    End of assembler dump.\n    (gdb) b main\n    Breakpoint 1 at 0x112d: file test.c, line 3.\n\nWith -fcf-protection, the breakpoint is incorrectly put on the first\nbyte of the function:\n\n    $ gcc test.c -g3 -O0 -fcf-protection=full\n    $ ./gdb -q -nx --data-directory=data-directory a.out\n    Reading symbols from a.out...\n    (gdb) disassemble main\n    Dump of assembler code for function main:\n       0x0000000000001129 <+0>:     endbr64\n       0x000000000000112d <+4>:     push   %rbp\n       0x000000000000112e <+5>:     mov    %rsp,%rbp\n       0x0000000000001131 <+8>:     mov    $0x0,%eax\n       0x0000000000001136 <+13>:    pop    %rbp\n       0x0000000000001137 <+14>:    retq\n    End of assembler dump.\n    (gdb) b main\n    Breakpoint 1 at 0x1129: file test.c, line 2.\n\nStepping in amd64_skip_prologue, we can see that the prologue analysis,\nfor GCC-compiled programs, is done in amd64_analyze_prologue by decoding\nthe instructions and looking for typical patterns.  This patch changes\nthe analysis to check for a prologue starting with the `endbr64`\ninstruction, and skip it if it's there.\n\ngdb/ChangeLog:\n\n\t* amd64-tdep.c (amd64_analyze_prologue): Check for `endbr64`\n\tinstruction, skip it if it's there.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.arch/amd64-prologue-skip-cf-protection.exp: New file.\n\t* gdb.arch/amd64-prologue-skip-cf-protection.c: New file.",
+    "tree": {
+      "sha": "0aa3683d1c66821080e879431df322ecdbd0b793",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/0aa3683d1c66821080e879431df322ecdbd0b793"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "bfeaed386d6bf2372ce869fa13f022aafb8869b4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bfeaed386d6bf2372ce869fa13f022aafb8869b4",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/bfeaed386d6bf2372ce869fa13f022aafb8869b4"
+    }
+  ],
+  "stats": {
+    "total": 126,
+    "additions": 126,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "27cdbc84f538ca8ed478eaef0e8a128712f12909",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-05-06  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\t* amd64-tdep.c (amd64_analyze_prologue): Check for `endbr64`\n+\tinstruction, skip it if it's there.\n+\n 2020-05-05  Simon Marchi  <simon.marchi@efficios.com>\n \n \t* gdbtypes.h (struct main_type) <flag_incomplete>: Remove."
+    },
+    {
+      "sha": "c846447a8e0b2ff3a556bb7b139a643b8580c5a7",
+      "filename": "gdb/amd64-tdep.c",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 0,
+      "changes": 19,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0/gdb/amd64-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0/gdb/amd64-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/amd64-tdep.c?ref=ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0",
+      "patch": "@@ -2362,6 +2362,9 @@ amd64_x32_analyze_stack_align (CORE_ADDR pc, CORE_ADDR current_pc,\n       pushq %rbp        0x55\n       movl %esp, %ebp   0x89 0xe5 (or 0x8b 0xec)\n \n+   The `endbr64` instruction can be found before these sequences, and will be\n+   skipped if found.\n+\n    Any function that doesn't start with one of these sequences will be\n    assumed to have no prologue and thus no valid frame pointer in\n    %rbp.  */\n@@ -2372,6 +2375,8 @@ amd64_analyze_prologue (struct gdbarch *gdbarch,\n \t\t\tstruct amd64_frame_cache *cache)\n {\n   enum bfd_endian byte_order = gdbarch_byte_order (gdbarch);\n+  /* The `endbr64` instruction.  */\n+  static const gdb_byte endbr64[4] = { 0xf3, 0x0f, 0x1e, 0xfa };\n   /* There are two variations of movq %rsp, %rbp.  */\n   static const gdb_byte mov_rsp_rbp_1[3] = { 0x48, 0x89, 0xe5 };\n   static const gdb_byte mov_rsp_rbp_2[3] = { 0x48, 0x8b, 0xec };\n@@ -2392,6 +2397,20 @@ amd64_analyze_prologue (struct gdbarch *gdbarch,\n \n   op = read_code_unsigned_integer (pc, 1, byte_order);\n \n+  /* Check for the `endbr64` instruction, skip it if found.  */\n+  if (op == endbr64[0])\n+    {\n+      read_code (pc + 1, buf, 3);\n+\n+      if (memcmp (buf, &endbr64[1], 3) == 0)\n+\tpc += 4;\n+\n+      op = read_code_unsigned_integer (pc, 1, byte_order);\n+    }\n+\n+  if (current_pc <= pc)\n+    return current_pc;\n+\n   if (op == 0x55)\t\t/* pushq %rbp */\n     {\n       /* Take into account that we've executed the `pushq %rbp' that"
+    },
+    {
+      "sha": "a2e0d87e89d5b435116b1c46d86fd8e9f08fc1a7",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-05-06  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\t* gdb.arch/amd64-prologue-skip-cf-protection.exp: New file.\n+\t* gdb.arch/amd64-prologue-skip-cf-protection.c: New file.\n+\n 2020-05-06  Tom de Vries  <tdevries@suse.de>\n \n \t* gdb.reverse/consecutive-precsave.exp: Handle if instruction after"
+    },
+    {
+      "sha": "a6505857e17627761edaddd38a043e5653e4caa6",
+      "filename": "gdb/testsuite/gdb.arch/amd64-prologue-skip-cf-protection.c",
+      "status": "added",
+      "additions": 21,
+      "deletions": 0,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0/gdb/testsuite/gdb.arch/amd64-prologue-skip-cf-protection.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0/gdb/testsuite/gdb.arch/amd64-prologue-skip-cf-protection.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/amd64-prologue-skip-cf-protection.c?ref=ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0",
+      "patch": "@@ -0,0 +1,21 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+int main (void)\n+{\n+  return 0;\n+}"
+    },
+    {
+      "sha": "3c51fd30352565b0080d30198dc231cf610c371f",
+      "filename": "gdb/testsuite/gdb.arch/amd64-prologue-skip-cf-protection.exp",
+      "status": "added",
+      "additions": 65,
+      "deletions": 0,
+      "changes": 65,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0/gdb/testsuite/gdb.arch/amd64-prologue-skip-cf-protection.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0/gdb/testsuite/gdb.arch/amd64-prologue-skip-cf-protection.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/amd64-prologue-skip-cf-protection.exp?ref=ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0",
+      "patch": "@@ -0,0 +1,65 @@\n+# Copyright 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test skipping a prologue that was generated with gcc's -fcf-protection=full\n+# (control flow protection) option.\n+#\n+# This option places an `endbr64` instruction at the start of all functions,\n+# which can interfere with prologue analysis.\n+\n+standard_testfile .c\n+set binfile ${binfile}\n+\n+if { ![istarget x86_64-*-* ] || ![is_lp64_target] } {\n+    verbose \"Skipping ${testfile}.\"\n+    return\n+}\n+\n+if { ![supports_fcf_protection] } {\n+    untested \"-fcf-protection not supported\"\n+    return\n+}\n+\n+set opts {debug additional_flags=-fcf-protection=full}\n+\n+if { [gdb_compile \"${srcdir}/${subdir}/${srcfile}\" \"${binfile}\" executable $opts] != \"\" } {\n+    untested \"failed to compile\"\n+    return\n+}\n+\n+clean_restart ${binfile}\n+\n+# Get start address of function main.\n+set main_addr [get_integer_valueof &main -1]\n+gdb_assert {$main_addr != -1}\n+\n+set bp_addr -1\n+\n+# Put breakpoint on main, get the address where the breakpoint was installed.\n+gdb_test_multiple \"break main\" \"break on main, get address\" {\n+    -re -wrap \"Breakpoint $decimal at ($hex).*\" {\n+\tset bp_addr $expect_out(1,string)\n+\n+\t# Convert to decimal.\n+\tset bp_addr [expr $bp_addr]\n+\n+\tpass $gdb_test_name\n+    }\n+}\n+\n+if { $bp_addr != -1 } {\n+    # Make sure some prologue was skipped.\n+    gdb_assert {$bp_addr > $main_addr}\n+}"
+    },
+    {
+      "sha": "3c6f0d76d67d6d16ab3689edb076fa02cf2cc99d",
+      "filename": "gdb/testsuite/lib/gdb.exp",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0/gdb/testsuite/lib/gdb.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0/gdb/testsuite/lib/gdb.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/gdb.exp?ref=ac4a4f1cd7dceeeb17d0b8c077c874f2247acbf0",
+      "patch": "@@ -7019,6 +7019,17 @@ gdb_caching_proc supports_mpx_check_pointer_bounds {\n     } executable $flags]\n }\n \n+# Return 1 if compiler supports -fcf-protection=.  Otherwise,\n+# return 0.\n+\n+gdb_caching_proc supports_fcf_protection {\n+    return [gdb_can_simple_compile supports_fcf_protection {\n+\tint main () {\n+\t    return 0;\n+\t}\n+  } executable \"additional_flags=-fcf-protection=full\"]\n+}\n+\n # Return 1 if symbols were read in using -readnow.  Otherwise, return 0.\n \n proc readnow { } {"
+    }
+  ]
+}

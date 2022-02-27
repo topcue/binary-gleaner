@@ -1,0 +1,290 @@
+{
+  "sha": "35a01a045442f6860abba7246f215adefc9dfa5b",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MzVhMDFhMDQ1NDQyZjY4NjBhYmJhNzI0NmYyMTVhZGVmYzlkZmE1Yg==",
+  "commit": {
+    "author": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2021-01-16T16:49:29Z"
+    },
+    "committer": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2021-02-04T16:01:53Z"
+    },
+    "message": "libctf, ld: fix symtypetab and var section population under ld -r\n\nThe variable section in a CTF dict is meant to contain the types of\nvariables that do not appear in the symbol table (mostly file-scope\nstatic declarations).  We implement this by having the compiler emit\nall potential data symbols into both sections, then delete those\nsymbols from the variable section that correspond to data symbols the\nlinker has reported.\n\nUnfortunately, the check for this in ctf_serialize is wrong: rather than\nchecking the set of linker-reported symbols, we check the set of names\nin the data object symtypetab section: if the linker has reported no\nsymbols at all (usually if ld -r has been run, or if a non-linker\nprogram that does not use symbol tables is calling ctf_link) this will\ninclude every single symbol, emptying the variable section completely.\n\nWorse, when ld -r is in use, we want to force writeout of every\nsymtypetab entry on the inputs, in an indexed section, whether or not\nthe linker has reported them, since this isn't a final link yet and the\nsymbol table is not finalized (and may grow more symbols than the linker\nhas yet reported).  But the check for this is flawed too: we were\nrelying on ctf_link_shuffle_syms not having been called if no symbols\nexist, but that function is *always* called by ld even when ld -r is in\nuse: ctf_link_add_linker_symbol is the one that's not called when there\nare no symbols.\n\nWe clearly need to rethink this.  Using the emptiness of the set of\nreported symbols as a test for ld -r is just ugly: the linker already\nknows if ld -r is underway and can just tell us.  So add a new linker\nflag CTF_LINK_NO_FILTER_REPORTED_SYMS that is set to stop the linker\nfiltering the symbols in the symtypetab sections using the set that the\nlinker has reported: use the presence or absence of this flag to\ndetermine whether to emit unindexed symtabs: we only remove entries from\nthe variable section when filtering symbols, and we only remove them if\nthey are in the reported symbol set, fixing the case where no symbols\nare reported by the linker at all.\n\n(The negative sense of the new CTF_LINK flag is intentional: the common\ncase, both for ld and for simple tools that want to do a ctf_link with\nno ELF symbol table in sight, is probably to filter out symbols that no\nlinker has reported: i.e., for the simple tools, all of them.)\n\nThere's another wrinkle, though.  It is quite possible for a non-linker\nto add symbols to a dict via ctf_add_*_sym and then write it out via the\nctf_write APIs: perhaps it's preparing a dict for a later linker\ninvocation.  Right now this would not lead to anything terribly\nmeaningful happening: ctf_serialize just assumes it was called via\nctf_link if symbols are present.  So add an (internal-to-libctf) flag\nthat indicates that a writeout is happening via ctf_link_write, and set\nit there (propagating it to child dicts as needed).  ctf_serialize can\nthen spot when it is not being called by a linker, and arrange to always\nwrite out an indexed, sorted symtypetab for fastest possible future\nsymbol lookup by name in that case.  (The writeouts done by ld -r are\nunsorted, because the only thing likely to use those symtabs is the\nlinker, which doesn't benefit from symtypetab sorting.)\n\nTests added for all three linking cases (ld -r, ld -shared, ld), with a\nbit of testsuite framework enhancement to stop it unconditionally\nlinking the CTF to be checked by the lookup program with -shared, so\ntests can now examine CTF linked with -r or indeed with no flags at all,\nthough the output filename is still foo.so even in this case.\n\nAnother test added for the non-linker case that endeavours to determine\nwhether the symtypetab is sorted by examining the order of entries\nreturned from ctf_symbol_next: nobody outside libctf should rely on\nthis ordering, but this test is not outside libctf :)\n\ninclude/ChangeLog\n2021-01-26  Nick Alcock  <nick.alcock@oracle.com>\n\n\t* ctf-api.h (CTF_LINK_NO_FILTER_REPORTED_SYMS): New.\n\nld/ChangeLog\n2021-01-26  Nick Alcock  <nick.alcock@oracle.com>\n\n\t* ldlang.c (lang_merge_ctf): Set CTF_LINK_NO_FILTER_REPORTED_SYMS\n\twhen appropriate.\n\nlibctf/ChangeLog\n2021-01-27  Nick Alcock  <nick.alcock@oracle.com>\n\n\t* ctf-impl.c (_libctf_nonnull_): Add parameters.\n\t(LCTF_LINKING): New flag.\n\t(ctf_dict_t) <ctf_link_flags>: Mention it.\n\t* ctf-link.c (ctf_link): Keep LCTF_LINKING set across call.\n\t(ctf_write): Likewise, including in child dictionaries.\n\t(ctf_link_shuffle_syms): Make sure ctf_dynsyms is NULL if there\n\tare no reported symbols.\n\t* ctf-create.c (symtypetab_delete_nonstatic_vars): Make sure\n\tthe variable has been reported as a symbol by the linker.\n\t(symtypetab_skippable): Mention relationship between SYMFP and the\n\tflags.\n\t(symtypetab_density): Adjust nonnullity.  Exit early if no symbols\n\twere reported and force-indexing is off (i.e., we are doing a\n\tfinal link).\n\t(ctf_serialize): Handle the !LCTF_LINKING case by writing out an\n\tindexed, sorted symtypetab (and allow SYMFP to be NULL in this\n\tcase).  Turn sorting off if this is a non-final link.  Only delete\n\tnonstatic vars if we are filtering symbols and the linker has\n\treported some.\n\t* testsuite/libctf-regression/nonstatic-var-section-ld-r*:\n\tNew test of variable and symtypetab section population when\n\tld -r is used.\n\t* testsuite/libctf-regression/nonstatic-var-section-ld-executable.lk:\n\tLikewise, when ld of an executable is used.\n\t* testsuite/libctf-regression/nonstatic-var-section-ld.lk:\n\tLikewise, when ld -shared alone is used.\n\t* testsuite/libctf-regression/nonstatic-var-section-ld*.c:\n\tLookup programs for the above.\n\t* testsuite/libctf-writable/symtypetab-nonlinker-writeout.*: New\n\ttest, testing survival of symbols across ctf_write paths.\n\t* testsuite/lib/ctf-lib.exp (run_lookup_test): New option,\n\tnonshared, suppressing linking of the SOURCE with -shared.",
+    "tree": {
+      "sha": "cb878c9733152a0a4d82e27daa655d1ebd6c89f9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/cb878c9733152a0a4d82e27daa655d1ebd6c89f9"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/35a01a045442f6860abba7246f215adefc9dfa5b",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/35a01a045442f6860abba7246f215adefc9dfa5b",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/35a01a045442f6860abba7246f215adefc9dfa5b",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/35a01a045442f6860abba7246f215adefc9dfa5b/comments",
+  "author": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "1a2f1b54a520b28891910846c8671e1c4bcaf348",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1a2f1b54a520b28891910846c8671e1c4bcaf348",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/1a2f1b54a520b28891910846c8671e1c4bcaf348"
+    }
+  ],
+  "stats": {
+    "total": 669,
+    "additions": 612,
+    "deletions": 57
+  },
+  "files": [
+    {
+      "sha": "163b5062660f9d1541d9504ae31db6a03cce5465",
+      "filename": "include/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/35a01a045442f6860abba7246f215adefc9dfa5b/include/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/35a01a045442f6860abba7246f215adefc9dfa5b/include/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ChangeLog?ref=35a01a045442f6860abba7246f215adefc9dfa5b",
+      "patch": "@@ -1,3 +1,7 @@\n+2021-01-26  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-api.h (CTF_LINK_NO_FILTER_REPORTED_SYMS): New.\n+\n 2021-02-04  Nelson Chu  <nelson.chu@sifive.com>\n \n \t* opcode/riscv-opc.h: Removed macros for zb* extensions."
+    },
+    {
+      "sha": "954778a950114deb0630ffea528c6d16506ab01b",
+      "filename": "include/ctf-api.h",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/35a01a045442f6860abba7246f215adefc9dfa5b/include/ctf-api.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/35a01a045442f6860abba7246f215adefc9dfa5b/include/ctf-api.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ctf-api.h?ref=35a01a045442f6860abba7246f215adefc9dfa5b",
+      "patch": "@@ -104,6 +104,15 @@ typedef struct ctf_link_sym\n /* Omit the content of the variables section.  */\n #define CTF_LINK_OMIT_VARIABLES_SECTION 0x8\n \n+/* If *unset*, filter out entries corresponding to linker-reported symbols\n+   from the variable section, and filter out all entries with no linker-reported\n+   symbols from the data object and function info sections: if set, do no\n+   filtering and leave all entries in place.  (This is a negative-sense flag\n+   because it is rare to want symbols the linker has not reported as present to\n+   stick around in the symtypetab sections nonetheless: relocatable links are\n+   the only likely case.)  */\n+#define CTF_LINK_NO_FILTER_REPORTED_SYMS 0x10\n+\n /* Symbolic names for CTF sections.  */\n \n typedef enum ctf_sect_names"
+    },
+    {
+      "sha": "40b6e076edcae755177300615cc082da748746ce",
+      "filename": "ld/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/35a01a045442f6860abba7246f215adefc9dfa5b/ld/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/35a01a045442f6860abba7246f215adefc9dfa5b/ld/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/ChangeLog?ref=35a01a045442f6860abba7246f215adefc9dfa5b",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-01-26  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ldlang.c (lang_merge_ctf): Set CTF_LINK_NO_FILTER_REPORTED_SYMS\n+\twhen appropriate.\n+\n 2021-02-04  H.J. Lu  <hongjiu.lu@intel.com>\n \n \tPR ld/19609"
+    },
+    {
+      "sha": "5ffc8444c77fa3dd0965ded3941a18bf0446b927",
+      "filename": "ld/ldlang.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/35a01a045442f6860abba7246f215adefc9dfa5b/ld/ldlang.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/35a01a045442f6860abba7246f215adefc9dfa5b/ld/ldlang.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/ldlang.c?ref=35a01a045442f6860abba7246f215adefc9dfa5b",
+      "patch": "@@ -3811,6 +3811,8 @@ lang_merge_ctf (void)\n     flags = CTF_LINK_SHARE_DUPLICATED;\n   if (!config.ctf_variables)\n     flags |= CTF_LINK_OMIT_VARIABLES_SECTION;\n+  if (bfd_link_relocatable (&link_info))\n+    flags |= CTF_LINK_NO_FILTER_REPORTED_SYMS;\n \n   if (ctf_link (ctf_output, flags) < 0)\n     {"
+    },
+    {
+      "sha": "eaecb174be2b29441396974382f5430b39fb44d1",
+      "filename": "libctf/ChangeLog",
+      "status": "modified",
+      "additions": 35,
+      "deletions": 0,
+      "changes": 35,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ChangeLog?ref=35a01a045442f6860abba7246f215adefc9dfa5b",
+      "patch": "@@ -1,3 +1,38 @@\n+2021-01-27  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-impl.c (_libctf_nonnull_): Add parameters.\n+\t(LCTF_LINKING): New flag.\n+\t(ctf_dict_t) <ctf_link_flags>: Mention it.\n+\t* ctf-link.c (ctf_link): Keep LCTF_LINKING set across call.\n+\t(ctf_write): Likewise, including in child dictionaries.\n+\t(ctf_link_shuffle_syms): Make sure ctf_dynsyms is NULL if there\n+\tare no reported symbols.\n+\t* ctf-create.c (symtypetab_delete_nonstatic_vars): Make sure\n+\tthe variable has been reported as a symbol by the linker.\n+\t(symtypetab_skippable): Mention relationship between SYMFP and the\n+\tflags.\n+\t(symtypetab_density): Adjust nonnullity.  Exit early if no symbols\n+\twere reported and force-indexing is off (i.e., we are doing a\n+\tfinal link).\n+\t(ctf_serialize): Handle the !LCTF_LINKING case by writing out an\n+\tindexed, sorted symtypetab (and allow SYMFP to be NULL in this\n+\tcase).  Turn sorting off if this is a non-final link.  Only delete\n+\tnonstatic vars if we are filtering symbols and the linker has\n+\treported some.\n+\t* testsuite/libctf-regression/nonstatic-var-section-ld-r*:\n+\tNew test of variable and symtypetab section population when\n+\tld -r is used.\n+\t* testsuite/libctf-regression/nonstatic-var-section-ld-executable.lk:\n+\tLikewise, when ld of an executable is used.\n+\t* testsuite/libctf-regression/nonstatic-var-section-ld.lk:\n+\tLikewise, when ld -shared alone is used.\n+\t* testsuite/libctf-regression/nonstatic-var-section-ld*.c:\n+\tLookup programs for the above.\n+\t* testsuite/libctf-writable/symtypetab-nonlinker-writeout.*: New\n+\ttest, testing survival of symbols across ctf_write paths.\n+\t* testsuite/lib/ctf-lib.exp (run_lookup_test): New option,\n+\tnonshared, suppressing linking of the SOURCE with -shared.\n+\n 2021-01-19  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctf-create.c (membadd): Transform \"\"-named members into"
+    },
+    {
+      "sha": "c5f79d167adf326affbed464780d36b749ca6d0a",
+      "filename": "libctf/ctf-create.c",
+      "status": "modified",
+      "additions": 99,
+      "deletions": 52,
+      "changes": 151,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/ctf-create.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/ctf-create.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-create.c?ref=35a01a045442f6860abba7246f215adefc9dfa5b",
+      "patch": "@@ -172,7 +172,7 @@ ctf_create (int *errp)\n    you can safely delete variables without messing up ctf_rollback.  */\n \n static int\n-symtypetab_delete_nonstatic_vars (ctf_dict_t *fp)\n+symtypetab_delete_nonstatic_vars (ctf_dict_t *fp, ctf_dict_t *symfp)\n {\n   ctf_dvdef_t *dvd, *nvd;\n   ctf_id_t type;\n@@ -183,6 +183,7 @@ symtypetab_delete_nonstatic_vars (ctf_dict_t *fp)\n \n       if (((type = (ctf_id_t) (uintptr_t)\n \t    ctf_dynhash_lookup (fp->ctf_objthash, dvd->dvd_name)) > 0)\n+\t  && ctf_dynhash_lookup (symfp->ctf_dynsyms, dvd->dvd_name) != NULL\n \t  && type == dvd->dvd_type)\n \tctf_dvd_delete (fp, dvd);\n     }\n@@ -217,12 +218,14 @@ ctf_symtab_skippable (ctf_link_sym_t *sym)\n /* Get the number of symbols in a symbol hash, the count of symbols, the maximum\n    seen, the eventual size, without any padding elements, of the func/data and\n    (if generated) index sections, and the size of accumulated padding elements.\n-   The linker-reported set of symbols is found in SYMFP.\n+   The linker-reported set of symbols is found in SYMFP: it may be NULL if\n+   symbol filtering is not desired, in which case CTF_SYMTYPETAB_FORCE_INDEXED\n+   will always be set in the flags.\n \n    Also figure out if any symbols need to be moved to the variable section, and\n    add them (if not already present).  */\n \n-_libctf_nonnull_\n+_libctf_nonnull_ ((1,3,4,5,6,7,8))\n static int\n symtypetab_density (ctf_dict_t *fp, ctf_dict_t *symfp, ctf_dynhash_t *symhash,\n \t\t    size_t *count, size_t *max, size_t *unpadsize,\n@@ -248,7 +251,12 @@ symtypetab_density (ctf_dict_t *fp, ctf_dict_t *symfp, ctf_dynhash_t *symhash,\n \t of, removing them from linker_known as we go.  Once this is done, the\n \t only symbols remaining in linker_known are symbols we don't know the\n \t types of: we must emit pads for those symbols that are below the\n-\t maximum symbol we will emit (any beyond that are simply skipped).  */\n+\t maximum symbol we will emit (any beyond that are simply skipped).\n+\n+\t If there are none, this symtypetab will be empty: just report that.  */\n+\n+      if (!symfp->ctf_dynsyms)\n+\treturn 0;\n \n       if ((linker_known = ctf_dynhash_create (ctf_hash_string, ctf_hash_eq_string,\n \t\t\t\t\t      NULL, NULL)) == NULL)\n@@ -676,27 +684,48 @@ ctf_serialize (ctf_dict_t *fp)\n   ctf_dvdef_t *dvd;\n   ctf_varent_t *dvarents;\n   ctf_strs_writable_t strtab;\n-  ctf_dict_t *symfp = fp;\n \n   unsigned char *t;\n   unsigned long i;\n-  int symflags = 0;\n   size_t buf_size, type_size, objt_size, func_size;\n   size_t objt_unpadsize, func_unpadsize, objt_padsize, func_padsize;\n   size_t funcidx_size, objtidx_size;\n   size_t nvars, nfuncs, nobjts, maxobjt, maxfunc;\n-  size_t ndynsyms = 0;\n+  size_t nsymtypes = 0;\n   const char **sym_name_order = NULL;\n   unsigned char *buf = NULL, *newbuf;\n   int err;\n \n+  /* Symtab filtering. If filter_syms is true, symfp is set: otherwise,\n+     CTF_SYMTYPETAB_FORCE_INDEXED is set in symflags.  */\n+  int filter_syms = 0;\n+  int sort_syms = 1;\n+  int symflags = 0;\n+  ctf_dict_t *symfp = NULL;\n+\n   if (!(fp->ctf_flags & LCTF_RDWR))\n     return (ctf_set_errno (fp, ECTF_RDONLY));\n \n   /* Update required?  */\n   if (!(fp->ctf_flags & LCTF_DIRTY))\n     return 0;\n \n+  /* If doing a writeout as part of linking, and the link flags request it,\n+     filter out reported symbols from the variable section, and filter out all\n+     other symbols from the symtypetab sections.  (If we are not linking, the\n+     symbols are sorted; if we are linking, don't bother sorting if we are not\n+     filtering out reported symbols: this is almost certaily an ld -r and only\n+     the linker is likely to consume these symtypetabs again.  The linker\n+     doesn't care what order the symtypetab entries is in, since it only\n+     iterates over symbols and does not use the ctf_lookup_by_symbol* API.)  */\n+\n+  if (fp->ctf_flags & LCTF_LINKING)\n+    {\n+      filter_syms = !(fp->ctf_link_flags & CTF_LINK_NO_FILTER_REPORTED_SYMS);\n+      if (!filter_syms)\n+\tsort_syms = 0;\n+    }\n+\n   /* Fill in an initial CTF header.  We will leave the label, object,\n      and function sections empty and only output a header, type section,\n      and string table.  The type section begins at a 4-byte aligned\n@@ -754,22 +783,28 @@ ctf_serialize (ctf_dict_t *fp)\n \t}\n     }\n \n-  /* Symbol table stuff is done only if the linker has told this dict about\n-     potential symbols (usually the case for parent dicts only).  The linker\n-     will report symbols to the parent dict in a parent/child link, as usual\n-     with all linker-related matters.  */\n+  /* Find the dict to which the linker has reported symbols, if any.  */\n \n-  if (!fp->ctf_dynsyms && fp->ctf_parent && fp->ctf_parent->ctf_dynsyms)\n-    symfp = fp->ctf_parent;\n+  if (filter_syms)\n+    {\n+      if (!fp->ctf_dynsyms && fp->ctf_parent && fp->ctf_parent->ctf_dynsyms)\n+\tsymfp = fp->ctf_parent;\n+      else\n+\tsymfp = fp;\n+    }\n \n-  /* No linker-reported symbols at all: ctf_link_shuffle_syms was never called.\n-     This must be an unsorted, indexed dict.  Otherwise, this is a sorted\n-     dict, and the header flags indicate as much.  */\n-  if (!symfp->ctf_dynsyms)\n+  /* If not filtering, keep all potential symbols in an unsorted, indexed\n+     dict.  */\n+  if (!filter_syms)\n     symflags = CTF_SYMTYPETAB_FORCE_INDEXED;\n   else\n     hdr.cth_flags |= CTF_F_IDXSORTED;\n \n+  if (!ctf_assert (fp, (filter_syms && symfp)\n+\t\t   || (!filter_syms && !symfp\n+\t\t       && ((symflags & CTF_SYMTYPETAB_FORCE_INDEXED) != 0))))\n+    return -1;\n+\n   /* Work out the sizes of the object and function sections, and work out the\n      number of pad (unassigned) symbols in each, and the overall size of the\n      sections.  */\n@@ -792,15 +827,15 @@ ctf_serialize (ctf_dict_t *fp)\n \t       \"%i bytes of pads, index size %i\\n\", (int) nfuncs, (int) maxfunc,\n \t       (int) func_unpadsize, (int) func_padsize, (int) funcidx_size);\n \n-  /* If the linker has reported any symbols at all, those symbols that the\n-     linker has not reported are now removed from the ctf_objthash and\n-     ctf_funchash.  Delete entries from the variable section that duplicate\n-     newly-added data symbols.  There's no need to migrate new ones in, because\n-     linker invocations (even ld -r) can only introduce new symbols, not remove\n-     symbols that already exist, and the compiler always emits both a variable\n-     and a data symbol simultaneously.  */\n+  /* If we are filtering symbols out, those symbols that the linker has not\n+     reported have now been removed from the ctf_objthash and ctf_funchash.\n+     Delete entries from the variable section that duplicate newly-added data\n+     symbols.  There's no need to migrate new ones in, because the compiler\n+     always emits both a variable and a data symbol simultaneously, and\n+     filtering only happens at final link time.  */\n \n-  if (symtypetab_delete_nonstatic_vars (fp) < 0)\n+  if (filter_syms && symfp->ctf_dynsyms &&\n+      symtypetab_delete_nonstatic_vars (fp, symfp) < 0)\n     return -1;\n \n   /* It is worth indexing each section if it would save space to do so, due to\n@@ -865,11 +900,7 @@ ctf_serialize (ctf_dict_t *fp)\n   if (fp->ctf_cuname != NULL)\n     ctf_str_add_ref (fp, fp->ctf_cuname, &hdrp->cth_cuname);\n \n-  /* Sort the linker's symbols into name order if need be: if\n-     ctf_link_shuffle_syms has not been called at all, just use all the symbols\n-     that were added to this dict, and don't bother sorting them since this is\n-     probably an ld -r and will likely just be consumed by ld again, with no\n-     ctf_lookup_by_symbol()s ever done on it.  */\n+  /* Sort the linker's symbols into name order if need be.  */\n \n   if ((objtidx_size != 0) || (funcidx_size != 0))\n     {\n@@ -878,36 +909,52 @@ ctf_serialize (ctf_dict_t *fp)\n       const char **walk;\n       int err;\n \n-      if (symfp->ctf_dynsyms)\n-\tndynsyms = ctf_dynhash_elements (symfp->ctf_dynsyms);\n+      if (filter_syms)\n+\t{\n+\t  if (symfp->ctf_dynsyms)\n+\t    nsymtypes = ctf_dynhash_elements (symfp->ctf_dynsyms);\n+\t  else\n+\t    nsymtypes = 0;\n+\t}\n       else\n-\tndynsyms = ctf_dynhash_elements (symfp->ctf_objthash)\n-\t  + ctf_dynhash_elements (symfp->ctf_funchash);\n+\tnsymtypes = ctf_dynhash_elements (fp->ctf_objthash)\n+\t  + ctf_dynhash_elements (fp->ctf_funchash);\n \n-      if ((sym_name_order = calloc (ndynsyms, sizeof (const char *))) == NULL)\n+      if ((sym_name_order = calloc (nsymtypes, sizeof (const char *))) == NULL)\n \tgoto oom;\n \n       walk = sym_name_order;\n \n-      if (symfp->ctf_dynsyms)\n+      if (filter_syms)\n \t{\n-\t  while ((err = ctf_dynhash_next_sorted (symfp->ctf_dynsyms, &i, &symname,\n-\t\t\t\t\t\t NULL, ctf_dynhash_sort_by_name,\n-\t\t\t\t\t\t NULL)) == 0)\n-\t    *walk++ = (const char *) symname;\n-\t  if (err != ECTF_NEXT_END)\n-\t    goto symerr;\n+\t  if (symfp->ctf_dynsyms)\n+\t    {\n+\t      while ((err = ctf_dynhash_next_sorted (symfp->ctf_dynsyms, &i,\n+\t\t\t\t\t\t     &symname, NULL,\n+\t\t\t\t\t\t     ctf_dynhash_sort_by_name,\n+\t\t\t\t\t\t     NULL)) == 0)\n+\t\t*walk++ = (const char *) symname;\n+\t      if (err != ECTF_NEXT_END)\n+\t\tgoto symerr;\n+\t    }\n \t}\n       else\n \t{\n-\t  while ((err = ctf_dynhash_next (symfp->ctf_objthash, &i, &symname,\n-\t\t\t\t\t  NULL)) == 0)\n+\t  ctf_hash_sort_f sort_fun = NULL;\n+\n+\t  /* Since we partition the set of symbols back into objt and func,\n+\t     we can sort the two independently without harm.  */\n+\t  if (sort_syms)\n+\t    sort_fun = ctf_dynhash_sort_by_name;\n+\n+\t  while ((err = ctf_dynhash_next_sorted (fp->ctf_objthash, &i, &symname,\n+\t\t\t\t\t\t NULL, sort_fun, NULL)) == 0)\n \t    *walk++ = (const char *) symname;\n \t  if (err != ECTF_NEXT_END)\n \t    goto symerr;\n \n-\t  while ((err = ctf_dynhash_next (symfp->ctf_funchash, &i, &symname,\n-\t\t\t\t\t  NULL)) == 0)\n+\t  while ((err = ctf_dynhash_next_sorted (fp->ctf_funchash, &i, &symname,\n+\t\t\t\t\t\t NULL, sort_fun, NULL)) == 0)\n \t    *walk++ = (const char *) symname;\n \t  if (err != ECTF_NEXT_END)\n \t    goto symerr;\n@@ -918,7 +965,7 @@ ctf_serialize (ctf_dict_t *fp)\n      Emission is done in symtab order if there is no index, and in index\n      (name) order otherwise.  */\n \n-  if ((objtidx_size == 0) && symfp->ctf_dynsymidx)\n+  if ((objtidx_size == 0) && symfp && symfp->ctf_dynsymidx)\n     {\n       ctf_dprintf (\"Emitting unindexed objt symtypetab\\n\");\n       if (emit_symtypetab (fp, symfp, (uint32_t *) t, symfp->ctf_dynsymidx,\n@@ -930,13 +977,13 @@ ctf_serialize (ctf_dict_t *fp)\n     {\n       ctf_dprintf (\"Emitting indexed objt symtypetab\\n\");\n       if (emit_symtypetab (fp, symfp, (uint32_t *) t, NULL, sym_name_order,\n-\t\t\t   ndynsyms, maxobjt, objt_size, symflags) < 0)\n+\t\t\t   nsymtypes, maxobjt, objt_size, symflags) < 0)\n \tgoto err;\t\t\t\t/* errno is set for us.  */\n     }\n \n   t += objt_size;\n \n-  if ((funcidx_size == 0) && symfp->ctf_dynsymidx)\n+  if ((funcidx_size == 0) && symfp && symfp->ctf_dynsymidx)\n     {\n       ctf_dprintf (\"Emitting unindexed func symtypetab\\n\");\n       if (emit_symtypetab (fp, symfp, (uint32_t *) t, symfp->ctf_dynsymidx,\n@@ -949,7 +996,7 @@ ctf_serialize (ctf_dict_t *fp)\n     {\n       ctf_dprintf (\"Emitting indexed func symtypetab\\n\");\n       if (emit_symtypetab (fp, symfp, (uint32_t *) t, NULL, sym_name_order,\n-\t\t\t   ndynsyms, maxfunc, func_size,\n+\t\t\t   nsymtypes, maxfunc, func_size,\n \t\t\t   symflags | CTF_SYMTYPETAB_EMIT_FUNCTION) < 0)\n \tgoto err;\t\t\t\t/* errno is set for us.  */\n     }\n@@ -958,14 +1005,14 @@ ctf_serialize (ctf_dict_t *fp)\n \n   if (objtidx_size > 0)\n     if (emit_symtypetab_index (fp, symfp, (uint32_t *) t, sym_name_order,\n-\t\t\t       ndynsyms, objtidx_size, symflags) < 0)\n+\t\t\t       nsymtypes, objtidx_size, symflags) < 0)\n       goto err;\n \n   t += objtidx_size;\n \n   if (funcidx_size > 0)\n     if (emit_symtypetab_index (fp, symfp, (uint32_t *) t, sym_name_order,\n-\t\t\t       ndynsyms, funcidx_size,\n+\t\t\t       nsymtypes, funcidx_size,\n \t\t\t       symflags | CTF_SYMTYPETAB_EMIT_FUNCTION) < 0)\n       goto err;\n "
+    },
+    {
+      "sha": "0a508ebd1741af033511bb982641d80075bda321",
+      "filename": "libctf/ctf-impl.h",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 3,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/ctf-impl.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/ctf-impl.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-impl.h?ref=35a01a045442f6860abba7246f215adefc9dfa5b",
+      "patch": "@@ -70,15 +70,15 @@ extern \"C\"\n #define _libctf_unlikely_(x) __builtin_expect ((x), 0)\n #define _libctf_unused_ __attribute__ ((__unused__))\n #define _libctf_malloc_ __attribute__((__malloc__))\n-#define _libctf_nonnull_ __attribute__((__nonnull__))\n+#define _libctf_nonnull_(params) __attribute__((__nonnull__ params))\n \n #else\n \n #define _libctf_printflike_(string_index,first_to_check)\n #define _libctf_unlikely_(x) (x)\n #define _libctf_unused_\n #define _libctf_malloc_\n-#define _libctf_nonnull_\n+#define _libctf_nonnull_(params)\n #define __extension__\n \n #endif\n@@ -469,7 +469,8 @@ struct ctf_dict\n      individual value members are shared with ctf_link_in_cu_mapping.  */\n   ctf_dynhash_t *ctf_link_out_cu_mapping;\n \n-  /* CTF linker flags.  */\n+  /* CTF linker flags.  Set on the parent output dict (the one passed to\n+     ctf_link).  Only respected when LCTF_LINKING set in ctf_flags.  */\n   int ctf_link_flags;\n \n   /* Allow the caller to change the name of link archive members.  */\n@@ -595,6 +596,7 @@ struct ctf_next\n #define LCTF_CHILD\t0x0001\t/* CTF dict is a child.  */\n #define LCTF_RDWR\t0x0002\t/* CTF dict is writable.  */\n #define LCTF_DIRTY\t0x0004\t/* CTF dict has been modified.  */\n+#define LCTF_LINKING\t0x0008  /* CTF link is underway: respect ctf_link_flags.  */\n \n extern ctf_names_t *ctf_name_table (ctf_dict_t *, int);\n extern const ctf_type_t *ctf_lookup_by_id (ctf_dict_t **, ctf_id_t);"
+    },
+    {
+      "sha": "7c342166b5c39a49c49650b26ae8cc788417cd83",
+      "filename": "libctf/ctf-link.c",
+      "status": "modified",
+      "additions": 33,
+      "deletions": 1,
+      "changes": 34,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/ctf-link.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/ctf-link.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-link.c?ref=35a01a045442f6860abba7246f215adefc9dfa5b",
+      "patch": "@@ -1682,6 +1682,7 @@ ctf_link (ctf_dict_t *fp, int flags)\n      links in succession with CTF_LINK_EMPTY_CU_MAPPINGS set in some calls and\n      not set in others will do anything especially sensible.  */\n \n+  fp->ctf_flags |= LCTF_LINKING;\n   if (fp->ctf_link_out_cu_mapping && (flags & CTF_LINK_EMPTY_CU_MAPPINGS))\n     {\n       void *v;\n@@ -1692,12 +1693,14 @@ ctf_link (ctf_dict_t *fp, int flags)\n \t  const char *to = (const char *) v;\n \t  if (ctf_create_per_cu (fp, to, to) == NULL)\n \t    {\n+\t      fp->ctf_flags &= ~LCTF_LINKING;\n \t      ctf_next_destroy (i);\n \t      return -1;\t\t\t/* Errno is set for us.  */\n \t    }\n \t}\n       if (err != ECTF_NEXT_END)\n \t{\n+\t  fp->ctf_flags &= ~LCTF_LINKING;\n \t  ctf_err_warn (fp, 1, err, _(\"iteration error creating empty CUs\"));\n \t  ctf_set_errno (fp, err);\n \t  return -1;\n@@ -1715,6 +1718,7 @@ ctf_link (ctf_dict_t *fp, int flags)\n     ctf_dynhash_empty (fp->ctf_link_type_mapping);\n   ctf_dynhash_iter (fp->ctf_link_outputs, empty_link_type_mapping, NULL);\n \n+  fp->ctf_flags &= ~LCTF_LINKING;\n   if ((ctf_errno (fp) != 0) && (ctf_errno (fp) != ECTF_NOCTFDATA))\n     return -1;\n   return 0;\n@@ -1888,6 +1892,17 @@ ctf_link_shuffle_syms (ctf_dict_t *fp)\n       goto err;\n     }\n \n+  /* If no symbols are reported, unwind what we have done and return.  This\n+     makes it a bit easier for the serializer to tell that no symbols have been\n+     reported and that it should look elsewhere for reported symbols.  */\n+  if (!ctf_dynhash_elements (fp->ctf_dynsyms))\n+    {\n+      ctf_dprintf (\"No symbols: not a final link.\\n\");\n+      free (fp->ctf_dynsyms);\n+      fp->ctf_dynsyms = NULL;\n+      return 0;\n+    }\n+\n   /* Construct a mapping from shndx to the symbol info.  */\n   free (fp->ctf_dynsymidx);\n   if ((fp->ctf_dynsymidx = calloc (fp->ctf_dynsymmax + 1,\n@@ -2043,13 +2058,15 @@ ctf_link_write (ctf_dict_t *fp, size_t *size, size_t threshold)\n   char *transformed_name = NULL;\n   ctf_dict_t **files;\n   FILE *f = NULL;\n+  size_t i;\n   int err;\n   long fsize;\n   const char *errloc;\n   unsigned char *buf = NULL;\n \n   memset (&arg, 0, sizeof (ctf_name_list_accum_cb_arg_t));\n   arg.fp = fp;\n+  fp->ctf_flags |= LCTF_LINKING;\n \n   ctf_link_warn_outdated_inputs (fp);\n \n@@ -2065,7 +2082,11 @@ ctf_link_write (ctf_dict_t *fp, size_t *size, size_t threshold)\n \n   /* No extra outputs? Just write a simple ctf_dict_t.  */\n   if (arg.i == 0)\n-    return ctf_write_mem (fp, size, threshold);\n+    {\n+      unsigned char *ret = ctf_write_mem (fp, size, threshold);\n+      fp->ctf_flags &= ~LCTF_LINKING;\n+      return ret;\n+    }\n \n   /* Writing an archive.  Stick ourselves (the shared repository, parent of all\n      other archives) on the front of it with the default name.  */\n@@ -2093,6 +2114,13 @@ ctf_link_write (ctf_dict_t *fp, size_t *size, size_t threshold)\n \t}\n     }\n \n+  /* Propagate the link flags to all the dicts in this link.  */\n+  for (i = 0; i < arg.i; i++)\n+    {\n+      arg.files[i]->ctf_link_flags = fp->ctf_link_flags;\n+      arg.files[i]->ctf_flags |= LCTF_LINKING;\n+    }\n+\n   if ((files = realloc (arg.files,\n \t\t\tsizeof (struct ctf_dict *) * (arg.i + 1))) == NULL)\n     {\n@@ -2165,6 +2193,10 @@ ctf_link_write (ctf_dict_t *fp, size_t *size, size_t threshold)\n \n  err_no:\n   ctf_set_errno (fp, errno);\n+\n+  /* Turn off the is-linking flag on all the dicts in this link.  */\n+  for (i = 0; i < arg.i; i++)\n+    arg.files[i]->ctf_flags &= ~LCTF_LINKING;\n  err:\n   free (buf);\n   if (f)"
+    },
+    {
+      "sha": "c2959ee0759063185b6d7bc4abb4ddefa3dc6234",
+      "filename": "libctf/testsuite/lib/ctf-lib.exp",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 1,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/testsuite/lib/ctf-lib.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/testsuite/lib/ctf-lib.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/lib/ctf-lib.exp?ref=35a01a045442f6860abba7246f215adefc9dfa5b",
+      "patch": "@@ -233,6 +233,9 @@ proc compile_one_cc { src output additional_flags } {\n #   source: SOURCE\n #\tAssemble the file SOURCE.c and pass it to the LOOKUP program.\n #\n+#   nonshared:\n+#       If set, do not link with -shared.\n+#\n #   link:\n #\tIf set, link the SOURCE together even if only one file is specified.\n #\n@@ -270,8 +273,10 @@ proc run_lookup_test { name } {\n \treturn\n     }\n     set run_ld 0\n+    set shared \"-shared\"\n     set opts(link) {}\n     set opts(link_flags) {}\n+    set opts(nonshared) {}\n     set opts(lookup) {}\n     set opts(name) {}\n     set opts(source) {}\n@@ -308,6 +313,10 @@ proc run_lookup_test { name } {\n \tset run_ld 1\n     }\n \n+    if { [llength $opts(nonshared)] != 0 } {\n+\tset shared \"\"\n+    }\n+\n     set testname $opts(name)\n     if { $opts(name) == \"\" } {\n \tset testname \"$subdir/$name\"\n@@ -330,7 +339,7 @@ proc run_lookup_test { name } {\n \tset lookup_flags \"\"\n \tif { $run_ld } {\n \t    set lookup_output \"tmpdir/out.so\"\n-\t    set lookup_flags \"-gt -fPIC -shared $opts(link_flags)\"\n+\t    set lookup_flags \"-gt -fPIC $shared $opts(link_flags)\"\n \t} else {\n \t    set lookup_output \"tmpdir/out.o\"\n \t    set lookup_flags \"-gt -fPIC -c\""
+    },
+    {
+      "sha": "370a90caed2112816f74629849a54ed932e5416b",
+      "filename": "libctf/testsuite/libctf-regression/nonstatic-var-section-ld-executable.lk",
+      "status": "added",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/testsuite/libctf-regression/nonstatic-var-section-ld-executable.lk",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/testsuite/libctf-regression/nonstatic-var-section-ld-executable.lk",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-regression/nonstatic-var-section-ld-executable.lk?ref=35a01a045442f6860abba7246f215adefc9dfa5b",
+      "patch": "@@ -0,0 +1,9 @@\n+# lookup: nonstatic-var-section-ld.c\n+# source: nonstatic-var-section-ld-r-ctf.c\n+# nonshared: on\n+# link: on\n+# link_flags: -Wl,--ctf-variables\n+foo is of type [0-9a-f]*\n+bar is of type [0-9a-f]*\n+foo missing from the data object section\n+bar missing from the data object section"
+    },
+    {
+      "sha": "4712b1c1be4e8ac129eb63d87e06ecfae18b6ad5",
+      "filename": "libctf/testsuite/libctf-regression/nonstatic-var-section-ld-r-ctf.c",
+      "status": "added",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/testsuite/libctf-regression/nonstatic-var-section-ld-r-ctf.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/testsuite/libctf-regression/nonstatic-var-section-ld-r-ctf.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-regression/nonstatic-var-section-ld-r-ctf.c?ref=35a01a045442f6860abba7246f215adefc9dfa5b",
+      "patch": "@@ -0,0 +1,9 @@\n+static int foo __attribute__((__used__));\n+int bar;\n+\n+/* This is sometimes linked as a main program, sometimes via ld -r, and\n+   sometimes via ld -shared.  */\n+int main (void)\n+{\n+  return 0;\n+}"
+    },
+    {
+      "sha": "2fa761a1d03d5cc3f781563fded434f88ebcdef8",
+      "filename": "libctf/testsuite/libctf-regression/nonstatic-var-section-ld-r.c",
+      "status": "added",
+      "additions": 73,
+      "deletions": 0,
+      "changes": 73,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/testsuite/libctf-regression/nonstatic-var-section-ld-r.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/testsuite/libctf-regression/nonstatic-var-section-ld-r.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-regression/nonstatic-var-section-ld-r.c?ref=35a01a045442f6860abba7246f215adefc9dfa5b",
+      "patch": "@@ -0,0 +1,73 @@\n+#include <ctf-api.h>\n+#include <stdio.h>\n+#include <stdlib.h>\n+#include <string.h>\n+\n+int\n+main (int argc, char *argv[])\n+{\n+  ctf_dict_t *fp;\n+  ctf_archive_t *ctf;\n+  ctf_id_t foo_type, bar_type, sym_type;\n+  int found_foo = 0, found_bar = 0;\n+  ctf_next_t *i = NULL;\n+  const char *name;\n+  int err;\n+\n+  if (argc != 2)\n+    {\n+      fprintf (stderr, \"Syntax: %s PROGRAM\\n\", argv[0]);\n+      exit(1);\n+    }\n+\n+  if ((ctf = ctf_open (argv[1], NULL, &err)) == NULL)\n+    goto open_err;\n+\n+  if ((fp = ctf_dict_open (ctf, NULL, &err)) == NULL)\n+    goto open_err;\n+\n+  /* Make sure we can look up both 'foo' and 'bar' as variables, even though one\n+     of them is nonstatic: in a full link this should be erased, but this is an\n+     ld -r link.  */\n+\n+  if ((foo_type = ctf_lookup_variable (fp, \"foo\")) == CTF_ERR)\n+    printf (\"Cannot look up foo\\n\", ctf_errmsg (ctf_errno (fp)));\n+  else\n+    printf (\"foo is of type %lx\\n\", foo_type);\n+\n+  if ((bar_type = ctf_lookup_variable (fp, \"bar\")) == CTF_ERR)\n+    printf (\"Cannot look up bar\\n\", ctf_errmsg (ctf_errno (fp)));\n+  else\n+    printf (\"bar is of type %lx\\n\", bar_type);\n+\n+  /* Traverse the entire data object section and make sure it contains entries\n+     for both foo and bar.  (This is pure laziness: the section is small and\n+     ctf_lookup_by_symbol_name does not yet exist.)  */\n+  while ((sym_type = ctf_symbol_next (fp, &i, &name, 0)) != CTF_ERR)\n+    {\n+      if (!name)\n+\tcontinue;\n+\n+      if (strcmp (name, \"foo\") == 0)\n+\tfound_foo = 1;\n+      if (strcmp (name, \"bar\") == 0)\n+\tfound_bar = 1;\n+    }\n+  if (ctf_errno (fp) != ECTF_NEXT_END)\n+    fprintf (stderr, \"Unexpected error iterating over symbols: %s\\n\",\n+\t     ctf_errmsg (ctf_errno (fp)));\n+\n+  if (!found_foo)\n+    printf (\"foo missing from the data object section\\n\");\n+  if (!found_bar)\n+    printf (\"bar missing from the data object section\\n\");\n+\n+  ctf_dict_close (fp);\n+  ctf_close (ctf);\n+\n+  return 0;\n+\n+ open_err:\n+  fprintf (stderr, \"%s: cannot open: %s\\n\", argv[0], ctf_errmsg (err));\n+  return 1;\n+}"
+    },
+    {
+      "sha": "68c777fef66c7bf6889b23cc7457519a25081535",
+      "filename": "libctf/testsuite/libctf-regression/nonstatic-var-section-ld-r.lk",
+      "status": "added",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/testsuite/libctf-regression/nonstatic-var-section-ld-r.lk",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/testsuite/libctf-regression/nonstatic-var-section-ld-r.lk",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-regression/nonstatic-var-section-ld-r.lk?ref=35a01a045442f6860abba7246f215adefc9dfa5b",
+      "patch": "@@ -0,0 +1,7 @@\n+# source: nonstatic-var-section-ld-r-ctf.c\n+# nonshared: on\n+# link: on\n+# link_flags: -Wl,--ctf-variables -r\n+foo is of type [0-9a-f]*\n+bar is of type [0-9a-f]*\n+foo missing from the data object section"
+    },
+    {
+      "sha": "4e3a74842b293bb22784b9f72f0cd920b19e8d7f",
+      "filename": "libctf/testsuite/libctf-regression/nonstatic-var-section-ld.c",
+      "status": "added",
+      "additions": 76,
+      "deletions": 0,
+      "changes": 76,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/testsuite/libctf-regression/nonstatic-var-section-ld.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/testsuite/libctf-regression/nonstatic-var-section-ld.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-regression/nonstatic-var-section-ld.c?ref=35a01a045442f6860abba7246f215adefc9dfa5b",
+      "patch": "@@ -0,0 +1,76 @@\n+#include <ctf-api.h>\n+#include <stdio.h>\n+#include <stdlib.h>\n+#include <string.h>\n+\n+int\n+main (int argc, char *argv[])\n+{\n+  ctf_dict_t *fp;\n+  ctf_archive_t *ctf;\n+  ctf_id_t foo_type, bar_type, sym_type;\n+  int found_foo = 0, found_bar = 0;\n+  ctf_next_t *i = NULL;\n+  const char *name;\n+  int err;\n+\n+  if (argc != 2)\n+    {\n+      fprintf (stderr, \"Syntax: %s PROGRAM\\n\", argv[0]);\n+      exit(1);\n+    }\n+\n+  if ((ctf = ctf_open (argv[1], NULL, &err)) == NULL)\n+    goto open_err;\n+\n+  if ((fp = ctf_dict_open (ctf, NULL, &err)) == NULL)\n+    goto open_err;\n+\n+  /* Make sure we can look up only 'foo' as a variable: bar, being nonstatic,\n+     should have been erased.  */\n+\n+  if ((foo_type = ctf_lookup_variable (fp, \"foo\")) == CTF_ERR)\n+    printf (\"Cannot look up foo\\n\", ctf_errmsg (ctf_errno (fp)));\n+  else\n+    printf (\"foo is of type %lx\\n\", foo_type);\n+\n+  if ((bar_type = ctf_lookup_variable (fp, \"bar\")) == CTF_ERR)\n+    printf (\"Cannot look up bar\\n\", ctf_errmsg (ctf_errno (fp)));\n+  else\n+    printf (\"bar is of type %lx\\n\", bar_type);\n+\n+  /* Traverse the entire data object section and make sure it contains an entry\n+     for bar alone.  (This is pure laziness: the section is small and\n+     ctf_lookup_by_symbol_name does not yet exist.)  */\n+  while ((sym_type = ctf_symbol_next (fp, &i, &name, 0)) != CTF_ERR)\n+    {\n+      if (!name)\n+\tcontinue;\n+\n+      if (strcmp (name, \"foo\") == 0)\n+\t{\n+\t  found_foo = 1;\n+\t  printf (\"Found foo in data object section with type %lx, \"\n+\t\t  \"but it is static\\n\", sym_type);\n+\t}\n+      if (strcmp (name, \"bar\") == 0)\n+\tfound_bar = 1;\n+    }\n+  if (ctf_errno (fp) != ECTF_NEXT_END)\n+    fprintf (stderr, \"Unexpected error iterating over symbols: %s\\n\",\n+\t     ctf_errmsg (ctf_errno (fp)));\n+\n+  if (!found_foo)\n+    printf (\"foo missing from the data object section\\n\");\n+  if (!found_bar)\n+    printf (\"bar missing from the data object section\\n\");\n+\n+  ctf_dict_close (fp);\n+  ctf_close (ctf);\n+\n+  return 0;\n+\n+ open_err:\n+  fprintf (stderr, \"%s: cannot open: %s\\n\", argv[0], ctf_errmsg (err));\n+  return 1;\n+}"
+    },
+    {
+      "sha": "edb397a333a3ff2ab3390fa5f5db5048cabb681d",
+      "filename": "libctf/testsuite/libctf-regression/nonstatic-var-section-ld.lk",
+      "status": "added",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/testsuite/libctf-regression/nonstatic-var-section-ld.lk",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/testsuite/libctf-regression/nonstatic-var-section-ld.lk",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-regression/nonstatic-var-section-ld.lk?ref=35a01a045442f6860abba7246f215adefc9dfa5b",
+      "patch": "@@ -0,0 +1,6 @@\n+# source: nonstatic-var-section-ld-r-ctf.c\n+# link: on\n+# link_flags: -Wl,--ctf-variables\n+foo is of type [0-9a-f]*\n+Cannot look up bar\n+foo missing from the data object section"
+    },
+    {
+      "sha": "d339963d264e5824cee2d0daf54ea14abd881184",
+      "filename": "libctf/testsuite/libctf-writable/symtypetab-nonlinker-writeout.c",
+      "status": "added",
+      "additions": 218,
+      "deletions": 0,
+      "changes": 218,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/testsuite/libctf-writable/symtypetab-nonlinker-writeout.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/testsuite/libctf-writable/symtypetab-nonlinker-writeout.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-writable/symtypetab-nonlinker-writeout.c?ref=35a01a045442f6860abba7246f215adefc9dfa5b",
+      "patch": "@@ -0,0 +1,218 @@\n+/* Make sure that writing out a dict with a symtypetab without going via\n+   ctf_link_write (as a compiler might do to generate input destined for a\n+   linker) always writes out a complete indexed, sorted symtypetab, ignoring the\n+   set of symbols reported (if any).  Also a test of dynamic dict sym\n+   iteration.  */\n+\n+#include <ctf-api.h>\n+#include <stdio.h>\n+#include <stdlib.h>\n+#include <string.h>\n+\n+static int\n+report_sym (ctf_dict_t *fp, ctf_link_sym_t *sym, const char *name,\n+\t    uint32_t idx, uint32_t st_type)\n+{\n+  sym->st_name = name;\n+  sym->st_symidx = idx;\n+  sym->st_type = st_type;\n+  return ctf_link_add_linker_symbol (fp, sym);\n+}\n+\n+static void\n+try_maybe_reporting (int report)\n+{\n+  ctf_dict_t *fp;\n+  ctf_id_t func, func2, func3, base, base2, base3;\n+  ctf_encoding_t e = { CTF_INT_SIGNED, 0, sizeof (long) };\n+  ctf_id_t dummy;\n+  ctf_funcinfo_t fi;\n+  ctf_next_t *i = NULL;\n+  ctf_id_t symtype;\n+  const char *symname;\n+  unsigned char *buf;\n+  size_t bufsiz;\n+  int err;\n+\n+  if ((fp = ctf_create (&err)) == NULL)\n+    goto create_err;\n+\n+  /* Add a couple of sets of types to hang symbols off.  We use multiple\n+     identical types so we can distinguish between distinct func / data symbols\n+     later on.  */\n+\n+  if (((base = ctf_add_integer (fp, CTF_ADD_ROOT, \"long int\", &e)) == CTF_ERR) ||\n+      ((base2 = ctf_add_integer (fp, CTF_ADD_ROOT, \"long int\", &e)) == CTF_ERR) ||\n+      ((base3 = ctf_add_integer (fp, CTF_ADD_ROOT, \"long int\", &e)) == CTF_ERR))\n+      goto create_types_err;\n+\n+  fi.ctc_return = base;\n+  fi.ctc_argc = 0;\n+  fi.ctc_flags = 0;\n+  if (((func = ctf_add_function (fp, CTF_ADD_ROOT, &fi, &dummy)) == CTF_ERR) ||\n+      ((func2 = ctf_add_function (fp, CTF_ADD_ROOT, &fi, &dummy)) == CTF_ERR) ||\n+      ((func3 = ctf_add_function (fp, CTF_ADD_ROOT, &fi, &dummy)) == CTF_ERR))\n+    goto create_types_err;\n+\n+  /* Add some function and data symbols.  We intentionally add the symbols in\n+     near-inverse order by symbol name, so that we can tell whether the\n+     (necessarily indexed) section was sorted (since the sort is always in\n+     lexicographical sort ordef by name).  */\n+  if ((ctf_add_objt_sym (fp, \"data_c\", base) < 0) ||\n+      (ctf_add_objt_sym (fp, \"data_a\", base2) < 0) ||\n+      (ctf_add_objt_sym (fp, \"data_b\", base3) < 0))\n+    goto create_syms_err;\n+\n+  if ((ctf_add_func_sym (fp, \"func_c\", func) < 0) ||\n+      (ctf_add_func_sym (fp, \"func_a\", func2) < 0) ||\n+      (ctf_add_func_sym (fp, \"func_b\", func3) < 0))\n+    goto create_syms_err;\n+\n+  /* Make sure we can iterate over them in a dynamic dict and that they have the\n+     right types.  We don't care about their order at this stage, which makes\n+     the validation here a bit more verbose than it is below.  */\n+\n+  while ((symtype = ctf_symbol_next (fp, &i, &symname, 0)) != CTF_ERR)\n+    {\n+      if (symtype == base && strcmp (symname, \"data_c\") == 0)\n+\tcontinue;\n+      if (symtype == base2 && strcmp (symname, \"data_a\") == 0)\n+\tcontinue;\n+      if (symtype == base3 && strcmp (symname, \"data_b\") == 0)\n+\tcontinue;\n+      goto iter_compar_err;\n+    }\n+  if (ctf_errno (fp) != ECTF_NEXT_END)\n+    goto iter_err;\n+\n+  while ((symtype = ctf_symbol_next (fp, &i, &symname, 1)) != CTF_ERR)\n+    {\n+      if (symtype == func && strcmp (symname, \"func_c\") == 0)\n+\tcontinue;\n+      if (symtype == func2 && strcmp (symname, \"func_a\") == 0)\n+\tcontinue;\n+      if (symtype == func3 && strcmp (symname, \"func_b\") == 0)\n+\tcontinue;\n+      goto iter_compar_err;\n+    }\n+  if (ctf_errno (fp) != ECTF_NEXT_END)\n+    goto iter_err;\n+\n+  /* Possibly report some but not all of the symbols, as if we are a linker (no\n+     real program would do this without using the ctf_link APIs, but it's not\n+     *prohibited*, just useless, and if they do we don't want things to\n+     break.  In particular we want all the symbols written out, reported or no,\n+     ignoring the reported symbol set entirely.)  */\n+  if (report)\n+    {\n+      ctf_link_sym_t sym;\n+      sym.st_nameidx_set = 0;\n+      sym.st_nameidx = 0;\n+      sym.st_shndx = 404; /* Arbitrary, not SHN_UNDEF or SHN_EXTABS.  */\n+      sym.st_value = 404; /* Arbitrary, nonzero.  */\n+\n+      /* STT_OBJECT: 1.  Don't rely on the #define being visible: this may be a\n+\t non-ELF platform!  */\n+      if (report_sym (fp, &sym, \"data_c\", 2, 1) < 0 ||\n+\t  report_sym (fp, &sym, \"data_a\", 3, 1) < 0)\n+\tgoto report_err;\n+\n+      /* STT_FUNC: 2.  */\n+      if (report_sym (fp, &sym, \"func_c\", 4, 2) < 0 ||\n+\t  report_sym (fp, &sym, \"func_a\", 5, 2) < 0)\n+\tgoto report_err;\n+    }\n+\n+  /* Write out, to memory.  */\n+\n+  if ((buf = ctf_write_mem (fp, &bufsiz, 4096)) == NULL)\n+    goto write_err;\n+  ctf_file_close (fp);\n+\n+  /* Read back in.  */\n+  if ((fp = ctf_simple_open ((const char *) buf, bufsiz, NULL, 0, 0, NULL,\n+\t\t\t     0, &err)) == NULL)\n+    goto open_err;\n+\n+  /* Verify symbol order against the order we expect if this dict is sorted and\n+     indexed.  */\n+\n+  struct ctf_symtype_expected\n+  {\n+    const char *name;\n+    ctf_id_t id;\n+  } *expected;\n+  struct ctf_symtype_expected expected_obj[] = { { \"data_a\", base2 },\n+\t\t\t\t\t\t { \"data_b\", base3 },\n+\t\t\t\t\t\t { \"data_c\", base }, NULL };\n+  struct ctf_symtype_expected expected_func[] = { { \"func_a\", func2 },\n+\t\t\t\t\t\t  { \"func_b\", func3 },\n+\t\t\t\t\t\t  { \"func_c\", func }, NULL };\n+  expected = expected_obj;\n+\n+  while ((symtype = ctf_symbol_next (fp, &i, &symname, 0)) != CTF_ERR)\n+    {\n+      if (expected == NULL)\n+\tgoto expected_overshoot_err;\n+      if (symtype != expected->id || strcmp (symname, expected->name) != 0)\n+\tgoto expected_compar_err;\n+      printf (\"Seen: %s\\n\", symname);\n+      expected++;\n+    }\n+\n+  expected = expected_func;\n+  while ((symtype = ctf_symbol_next (fp, &i, &symname, 1)) != CTF_ERR)\n+    {\n+      if (expected == NULL)\n+\tgoto expected_overshoot_err;\n+      if (symtype != expected->id || strcmp (symname, expected->name) != 0)\n+\tgoto expected_compar_err;\n+      printf (\"Seen: %s\\n\", symname);\n+      expected++;\n+    }\n+\n+  ctf_file_close (fp);\n+\n+  return;\n+\n+ create_err:\n+  fprintf (stderr, \"Creation failed: %s\\n\", ctf_errmsg (err));\n+  exit (1);\n+ open_err:\n+  fprintf (stderr, \"Reopen failed: %s\\n\", ctf_errmsg (err));\n+  exit (1);\n+ create_types_err:\n+  fprintf (stderr, \"Cannot create types: %s\\n\", ctf_errmsg (ctf_errno (fp)));\n+  exit (1);\n+ create_syms_err:\n+  fprintf (stderr, \"Cannot create syms: %s\\n\", ctf_errmsg (ctf_errno (fp)));\n+  exit (1);\n+ iter_compar_err:\n+  fprintf (stderr, \"Dynamic iteration comparison failure: %s \"\n+\t   \"(reported type: %lx)\\n\", symname, symtype);\n+  exit (1);\n+ iter_err:\n+  fprintf (stderr, \"Cannot iterate: %s\\n\", ctf_errmsg (ctf_errno (fp)));\n+  exit (1);\n+ report_err:\n+  fprintf (stderr, \"Cannot report symbol: %s\\n\", ctf_errmsg (ctf_errno (fp)));\n+  exit (1);\n+ write_err:\n+  fprintf (stderr, \"Cannot write out: %s\\n\", ctf_errmsg (ctf_errno (fp)));\n+  exit (1);\n+ expected_overshoot_err:\n+  fprintf (stderr, \"Too many symbols in post-writeout comparison\\n\");\n+  exit (1);\n+ expected_compar_err:\n+  fprintf (stderr, \"Non-dynamic iteration comparison failure: %s \"\n+\t   \"(type %lx): expected %s (type %lx)\\n\", symname, symtype,\n+\t   expected->name, expected->id);\n+  exit (1);\n+}\n+\n+int\n+main (int argc, char *argv[])\n+{\n+  try_maybe_reporting (0);\n+  try_maybe_reporting (1);\n+}"
+    },
+    {
+      "sha": "3f9d90009ec46f3bffa9d1d5d605239e2d674025",
+      "filename": "libctf/testsuite/libctf-writable/symtypetab-nonlinker-writeout.lk",
+      "status": "added",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/testsuite/libctf-writable/symtypetab-nonlinker-writeout.lk",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/35a01a045442f6860abba7246f215adefc9dfa5b/libctf/testsuite/libctf-writable/symtypetab-nonlinker-writeout.lk",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-writable/symtypetab-nonlinker-writeout.lk?ref=35a01a045442f6860abba7246f215adefc9dfa5b",
+      "patch": "@@ -0,0 +1,12 @@\n+Seen: data_a\n+Seen: data_b\n+Seen: data_c\n+Seen: func_a\n+Seen: func_b\n+Seen: func_c\n+Seen: data_a\n+Seen: data_b\n+Seen: data_c\n+Seen: func_a\n+Seen: func_b\n+Seen: func_c"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "sha": "5af5392a3d1525fb825747b203a6159ddcba0aa4",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NWFmNTM5MmEzZDE1MjVmYjgyNTc0N2IyMDNhNjE1OWRkY2JhMGFhNA==",
+  "commit": {
+    "author": {
+      "name": "Sergio Durigan Junior",
+      "email": "sergiodj@redhat.com",
+      "date": "2019-06-27T17:14:26Z"
+    },
+    "committer": {
+      "name": "Sergio Durigan Junior",
+      "email": "sergiodj@redhat.com",
+      "date": "2019-06-28T20:28:07Z"
+    },
+    "message": "Fix crash when using PYTHONMALLOC=debug (PR python/24742)\n\nThis bug was originally reported against Fedora GDB:\n\n  https://bugzilla.redhat.com/show_bug.cgi?id=1723564\n\nThe problem is that GDB will crash in the following scenario:\n\n- PYTHONMALLOC=debug or PYTHONDEVMODE=1 is set.\n\n- The Python debuginfo is installed.\n\n- GDB is used to debug Python.\n\nThe crash looks like this:\n\n  $ PYTHONMALLOC=debug gdb -args python3 -c pass\n  GNU gdb (GDB) Fedora 8.3-3.fc30\n  Reading symbols from python3...\n  Reading symbols from /usr/lib/debug/usr/bin/python3.7m-3.7.3-3.fc30.x86_64.debug...\n  (gdb) run\n  Starting program: /usr/bin/python3 -c pass\n  Missing separate debuginfos, use: dnf debuginfo-install glibc-2.29-9.fc30.x86_64\n  Debug memory block at address p=0x5603977bf330: API ''\n      8098648152243306496 bytes originally requested\n      The 7 pad bytes at p-7 are not all FORBIDDENBYTE (0xfb):\n\t  at p-7: 0x03 *** OUCH\n\t  at p-6: 0x00 *** OUCH\n\t  at p-5: 0x00 *** OUCH\n\t  at p-4: 0x00 *** OUCH\n\t  at p-3: 0x00 *** OUCH\n\t  at p-2: 0x00 *** OUCH\n\t  at p-1: 0x00 *** OUCH\n      Because memory is corrupted at the start, the count of bytes requested\n\t may be bogus, and checking the trailing pad bytes may segfault.\n      The 8 pad bytes at tail=0x706483999ad1f330 are Segmentation fault (core dumped)\n\nIt's hard to determine what happens, but after doing some\ninvestigation and talking to Victor Stinner I found that GDB should\nnot use the Python memory allocation functions before the Python\ninterpreter is initialized (which makes sense).  However, we do just\nthat on python/python.c:do_start_initialization:\n\n  ...\n  progsize = strlen (progname.get ());\n  progname_copy = (wchar_t *) PyMem_Malloc ((progsize + 1) * sizeof (wchar_t));\n  ...\n  /* Note that Py_SetProgramName expects the string it is passed to\n     remain alive for the duration of the program's execution, so\n     it is not freed after this call.  */\n  Py_SetProgramName (progname_copy);\n  ...\n  Py_Initialize ();\n  PyEval_InitThreads ();\n\nUpon reading the Python 3 C API documentation, I\nfound (https://docs.python.org/3.5/c-api/memory.html):\n\n  To avoid memory corruption, extension writers should never try to\n  operate on Python objects with the functions exported by the C\n  library: malloc(), calloc(), realloc() and free(). This will result in\n  mixed calls between the C allocator and the Python memory manager with\n  fatal consequences, because they implement different algorithms and\n  operate on different heaps. However, one may safely allocate and\n  release memory blocks with the C library allocator for individual\n  purposes[...]\n\nAnd Py_SetProgramName seems like a very simple call that doesn't need\na Python-allocated memory to work on.  So I'm proposing this patch,\nwhich simply replaces PyMem_Malloc by xmalloc.\n\nTesting this is more complicated.  First, the crash is completely\nnon-deterministic; I was able to reproduce it 10 times in a row, and\nthen I wasn't able to reproduce it anymore.  I found that if you\ncompletely remove your build directory and rebuild GDB from scratch,\nyou can reproduce it again confidently.  And with my patch, I\nconfirmed that the bug doesn't manifest even in this situation.\n\nNo regressions found.\n\nOK to apply?\n\ngdb/ChangeLog:\n2019-06-28  Sergio Durigan Junior  <sergiodj@redhat.com>\n\n\tPR python/24742\n\thttps://bugzilla.redhat.com/show_bug.cgi?id=1723564\n\t* python/python.c (do_start_initialization): Use 'xmalloc'\n\tinstead of 'PyMem_Malloc'.",
+    "tree": {
+      "sha": "cd41627b0fe663e432dd112f928e90246b44afa1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/cd41627b0fe663e432dd112f928e90246b44afa1"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/5af5392a3d1525fb825747b203a6159ddcba0aa4",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5af5392a3d1525fb825747b203a6159ddcba0aa4",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/5af5392a3d1525fb825747b203a6159ddcba0aa4",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5af5392a3d1525fb825747b203a6159ddcba0aa4/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "10d06d821919474afaf59fa24cb10450d2349131",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/10d06d821919474afaf59fa24cb10450d2349131",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/10d06d821919474afaf59fa24cb10450d2349131"
+    }
+  ],
+  "stats": {
+    "total": 9,
+    "additions": 8,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "a55c12a666ac66ba9a860088902f2625665a0e62",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5af5392a3d1525fb825747b203a6159ddcba0aa4/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5af5392a3d1525fb825747b203a6159ddcba0aa4/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=5af5392a3d1525fb825747b203a6159ddcba0aa4",
+      "patch": "@@ -1,3 +1,10 @@\n+2019-06-28  Sergio Durigan Junior  <sergiodj@redhat.com>\n+\n+\tPR python/24742\n+\thttps://bugzilla.redhat.com/show_bug.cgi?id=1723564\n+\t* python/python.c (do_start_initialization): Use 'xmalloc'\n+\tinstead of 'PyMem_Malloc'.\n+\n 2019-06-28  Tom Tromey  <tromey@adacore.com>\n \n \t* dwarf2read.c (partial_die_info::read): Prefer the linkage name"
+    },
+    {
+      "sha": "2f5e94d86c7da34c12f8c1e6b44c7a8d27c97c23",
+      "filename": "gdb/python/python.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5af5392a3d1525fb825747b203a6159ddcba0aa4/gdb/python/python.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5af5392a3d1525fb825747b203a6159ddcba0aa4/gdb/python/python.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/python.c?ref=5af5392a3d1525fb825747b203a6159ddcba0aa4",
+      "patch": "@@ -1602,7 +1602,7 @@ do_start_initialization ()\n   std::string oldloc = setlocale (LC_ALL, NULL);\n   setlocale (LC_ALL, \"\");\n   progsize = strlen (progname.get ());\n-  progname_copy = (wchar_t *) PyMem_Malloc ((progsize + 1) * sizeof (wchar_t));\n+  progname_copy = (wchar_t *) xmalloc ((progsize + 1) * sizeof (wchar_t));\n   if (!progname_copy)\n     {\n       fprintf (stderr, \"out of memory\\n\");"
+    }
+  ]
+}

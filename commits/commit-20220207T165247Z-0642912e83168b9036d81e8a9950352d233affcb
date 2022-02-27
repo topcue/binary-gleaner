@@ -1,0 +1,96 @@
+{
+  "sha": "0642912e83168b9036d81e8a9950352d233affcb",
+  "node_id": "C_kwDOANOeidoAKDA2NDI5MTJlODMxNjhiOTAzNmQ4MWU4YTk5NTAzNTJkMjMzYWZmY2I",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-01-24T15:29:49Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-02-07T16:52:47Z"
+    },
+    "message": "gdb/python: allow Value.format_string to return styled output\n\nAdd a new argument to the gdb.Value.format_string method, 'styling'.\nThis argument is False by default.\n\nWhen this argument is True, then the returned string can contain output\nstyling escape sequences.\n\nWhen this argument is False, then the returned string will not contain\nany styling escape sequences.\n\nIf the returned string is going to be printed to the user, then it is\noften nice to retain the GDB styling.\n\nFor the testing, we need to adjust the TERM environment variable, as\nwe do for all the styling tests.  I'm now running all of the C tests\nin gdb.python/py-format-string.exp in an environment where styling\ncould be generated, but only my new test should actually produce\nstyled output, hopefully this will catch the case where a bug might\ncause format_string to always produce styled output.",
+    "tree": {
+      "sha": "dedd33995145b8d2ba8e2d863ad3231a68d22907",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/dedd33995145b8d2ba8e2d863ad3231a68d22907"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/0642912e83168b9036d81e8a9950352d233affcb",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0642912e83168b9036d81e8a9950352d233affcb",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/0642912e83168b9036d81e8a9950352d233affcb",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0642912e83168b9036d81e8a9950352d233affcb/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "573269a87c89ae866db556428fe9ea63d6c4db5f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/573269a87c89ae866db556428fe9ea63d6c4db5f",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/573269a87c89ae866db556428fe9ea63d6c4db5f"
+    }
+  ],
+  "stats": {
+    "total": 44,
+    "additions": 39,
+    "deletions": 5
+  },
+  "files": [
+    {
+      "sha": "b4a515120db4950b5692d429c5294d9a23091f95",
+      "filename": "gdb/NEWS",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0642912e83168b9036d81e8a9950352d233affcb/gdb/NEWS",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0642912e83168b9036d81e8a9950352d233affcb/gdb/NEWS",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/NEWS?ref=0642912e83168b9036d81e8a9950352d233affcb",
+      "patch": "@@ -168,6 +168,13 @@ info win\n      manager that temporarily sets the gdb parameter NAME to VALUE,\n      then resets it when the context is exited.\n \n+  ** The gdb.Value.format_string method now takes a 'styling'\n+     argument, which is a boolean.  When true, the returned string can\n+     include escape sequences to apply styling.  The styling will only\n+     be present if styling is otherwise turned on in GDB (see 'help\n+     set styling').  When false, which is the default if the argument\n+     is not given, then no styling is applied to the returned string.\n+\n * New features in the GDB remote stub, GDBserver\n \n   ** GDBserver is now supported on OpenRISC GNU/Linux."
+    },
+    {
+      "sha": "c1a3f5f2a7eca65e9cec61594d14735bd6c757bb",
+      "filename": "gdb/doc/python.texi",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0642912e83168b9036d81e8a9950352d233affcb/gdb/doc/python.texi",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0642912e83168b9036d81e8a9950352d233affcb/gdb/doc/python.texi",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/python.texi?ref=0642912e83168b9036d81e8a9950352d233affcb",
+      "patch": "@@ -1079,6 +1079,16 @@ A string containing a single character representing the format to use for\n the returned string.  For instance, @code{'x'} is equivalent to using the\n @value{GDBN} command @code{print} with the @code{/x} option and formats\n the value as a hexadecimal number.\n+\n+@item styling\n+@code{True} if @value{GDBN} should apply styling to the returned\n+string.  When styling is applied, the returned string might contain\n+ANSI terminal escape sequences.  Escape sequences will only be\n+included if styling is turned on, see @ref{Output Styling}.\n+Additionally, @value{GDBN} only styles some value contents, so not\n+every output string will contain escape sequences.\n+\n+When @code{False}, which is the default, no output styling is applied.\n @end table\n @end defun\n "
+    },
+    {
+      "sha": "b546344da955054f750151ab3e3e364dd1ea9aae",
+      "filename": "gdb/python/py-value.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 2,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0642912e83168b9036d81e8a9950352d233affcb/gdb/python/py-value.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0642912e83168b9036d81e8a9950352d233affcb/gdb/python/py-value.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/py-value.c?ref=0642912e83168b9036d81e8a9950352d233affcb",
+      "patch": "@@ -639,6 +639,7 @@ valpy_format_string (PyObject *self, PyObject *args, PyObject *kw)\n       \"symbols\",\t\t/* See set print symbol on|off.  */\n       \"unions\",\t\t\t/* See set print union on|off.  */\n       \"address\",\t\t/* See set print address on|off.  */\n+      \"styling\",\t\t/* Should we apply styling.  */\n       /* C++ options.  */\n       \"deref_refs\",\t\t/* No corresponding setting.  */\n       \"actual_objects\",\t\t/* See set print object on|off.  */\n@@ -683,13 +684,14 @@ valpy_format_string (PyObject *self, PyObject *args, PyObject *kw)\n   PyObject *symbols_obj = NULL;\n   PyObject *unions_obj = NULL;\n   PyObject *address_obj = NULL;\n+  PyObject *styling_obj = Py_False;\n   PyObject *deref_refs_obj = NULL;\n   PyObject *actual_objects_obj = NULL;\n   PyObject *static_members_obj = NULL;\n   char *format = NULL;\n   if (!gdb_PyArg_ParseTupleAndKeywords (args,\n \t\t\t\t\tkw,\n-\t\t\t\t\t\"|O!O!O!O!O!O!O!O!O!O!IIIs\",\n+\t\t\t\t\t\"|O!O!O!O!O!O!O!O!O!O!O!IIIs\",\n \t\t\t\t\tkeywords,\n \t\t\t\t\t&PyBool_Type, &raw_obj,\n \t\t\t\t\t&PyBool_Type, &pretty_arrays_obj,\n@@ -698,6 +700,7 @@ valpy_format_string (PyObject *self, PyObject *args, PyObject *kw)\n \t\t\t\t\t&PyBool_Type, &symbols_obj,\n \t\t\t\t\t&PyBool_Type, &unions_obj,\n \t\t\t\t\t&PyBool_Type, &address_obj,\n+\t\t\t\t\t&PyBool_Type, &styling_obj,\n \t\t\t\t\t&PyBool_Type, &deref_refs_obj,\n \t\t\t\t\t&PyBool_Type, &actual_objects_obj,\n \t\t\t\t\t&PyBool_Type, &static_members_obj,\n@@ -752,7 +755,7 @@ valpy_format_string (PyObject *self, PyObject *args, PyObject *kw)\n \t}\n     }\n \n-  string_file stb;\n+  string_file stb (PyObject_IsTrue (styling_obj));\n \n   try\n     {"
+    },
+    {
+      "sha": "ac1353ea2e3b69cf75a69577b35f7258d25c55e4",
+      "filename": "gdb/testsuite/gdb.python/py-format-string.exp",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 3,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0642912e83168b9036d81e8a9950352d233affcb/gdb/testsuite/gdb.python/py-format-string.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0642912e83168b9036d81e8a9950352d233affcb/gdb/testsuite/gdb.python/py-format-string.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.python/py-format-string.exp?ref=0642912e83168b9036d81e8a9950352d233affcb",
+      "patch": "@@ -991,6 +991,13 @@ proc_with_prefix test_invalid_args {} {\n     \"ValueError: a single character is required.*\"\n }\n \n+# Check the styling argument to format_string.  This function needs to\n+# be called with TERM set such that styling can be applied.\n+proc test_styling {} {\n+    gdb_test \"python print(gdb.parse_and_eval(\\\"a_point_t\\\").format_string(styling=True, raw=True))\" \\\n+\t\"{[style x variable] = 42, [style y variable] = 12}\"\n+}\n+\n # Run all the tests in common for both C and C++.\n proc_with_prefix test_all_common {} {\n   # No options.\n@@ -1023,9 +1030,16 @@ with_test_prefix \"format_string\" {\n   # Perform C Tests.\n   if { [build_inferior \"${binfile}\" \"c\"] == 0 } {\n     with_test_prefix \"lang_c\" {\n-      set current_lang \"c\"\n-      prepare_gdb \"${binfile}\"\n-      test_all_common\n+      save_vars { env(TERM) } {\n+\t# We run all of these tests in an environment where styling\n+\t# could work, but we only expect the final call to\n+\t# test_styling to actually produce any styled output.\n+\tsetenv TERM ansi\n+\tset current_lang \"c\"\n+\tprepare_gdb \"${binfile}\"\n+\ttest_all_common\n+\ttest_styling\n+      }\n     }\n   }\n "
+    }
+  ]
+}

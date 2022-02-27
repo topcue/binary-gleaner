@@ -1,0 +1,110 @@
+{
+  "sha": "803d0592abc57fe0f9c93ca33e9af6a6f698f23f",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ODAzZDA1OTJhYmM1N2ZlMGY5YzkzY2EzM2U5YWY2YTZmNjk4ZjIzZg==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-07-21T13:27:18Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-07-21T13:27:18Z"
+    },
+    "message": "[gdb/testsuite] Fix step-reverse.c with gcc-10\n\nThe file gdb.reverse/step-reverse.c is used in test-cases:\n- gdb.reverse/step-reverse.exp\n- gdb.reverse/next-reverse-bkpt-over-sr.exp\n- gdb.reverse/step-precsave.exp\n\nWith gcc-7, there are only PASSes (apart from one KFAIL), but with gcc-10, we\nhave the following FAILs:\n...\nFAIL: gdb.reverse/step-reverse.exp: reverse stepi from a function call \\\n  (start statement)\nFAIL: gdb.reverse/step-reverse.exp: simple reverse stepi\nFAIL: gdb.reverse/step-reverse.exp: reverse step out of called fn\nFAIL: gdb.reverse/step-reverse.exp: reverse next over call\nFAIL: gdb.reverse/step-reverse.exp: reverse step test 1\nFAIL: gdb.reverse/step-reverse.exp: reverse next test 1\nFAIL: gdb.reverse/step-reverse.exp: reverse step test 2\nFAIL: gdb.reverse/step-reverse.exp: reverse next test 2\nFAIL: gdb.reverse/step-precsave.exp: reverse stepi from a function call \\\n  (start statement)\nFAIL: gdb.reverse/step-precsave.exp: simple reverse stepi\nFAIL: gdb.reverse/step-precsave.exp: reverse step out of called fn\nFAIL: gdb.reverse/step-precsave.exp: reverse next over call\nFAIL: gdb.reverse/step-precsave.exp: reverse step test 1\nFAIL: gdb.reverse/step-precsave.exp: reverse next test 1\nFAIL: gdb.reverse/step-precsave.exp: reverse step test 2\nFAIL: gdb.reverse/step-precsave.exp: reverse next test 2\n...\n\nLooking at the first step-precsave.exp FAIL, we have:\n...\n(gdb) stepi^M\n26        myglob++; return 0;   /* ARRIVED IN CALLEE */^M\n(gdb) PASS: gdb.reverse/step-precsave.exp: reverse stepi thru function return\nstepi^M\n0x000000000040055f      26        myglob++; return 0;   /* ARRIVED IN CALLEE */^M\n(gdb) FAIL: gdb.reverse/step-precsave.exp: reverse stepi from a function call \\\n  (start statement)\n...\n\nThere's a difference in line info for callee:\n...\n    25  int callee() {          /* ENTER CALLEE */\n    26    myglob++; return 0;   /* ARRIVED IN CALLEE */\n    27  }                       /* RETURN FROM CALLEE */\n...\nbetween gcc-7:\n...\nLine number    Starting address    View    Stmt\n         25            0x400557               x\n         26            0x40055b               x\n         27            0x40056f               x\n...\nand gcc-10:\n...\n         25            0x400552               x\n         26            0x400556               x\n         26            0x400565               x\n         27            0x40056a               x\n...\n\nThe two \"recommend breakpoint location\" entries at line 26 are for the two\nstatements (\"myglob++\" and \"return 0\"), but the test-case expects to hit line\n26 only once.\n\nFix this by rewriting the two statements into a single statement:\n...\n-  myglob++; return 0;  /* ARRIVED IN CALLEE */\n+  return myglob++;     /* ARRIVED IN CALLEE */\n...\n\nTested on x86_64-linux.\n\ngdb/testsuite/ChangeLog:\n\n2020-07-21  Tom de Vries  <tdevries@suse.de>\n\n\t* gdb.reverse/step-reverse.c (callee): Merge statements.",
+    "tree": {
+      "sha": "d134d689b022eba4912b544f21323201a79690f1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/d134d689b022eba4912b544f21323201a79690f1"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/803d0592abc57fe0f9c93ca33e9af6a6f698f23f",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/803d0592abc57fe0f9c93ca33e9af6a6f698f23f",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/803d0592abc57fe0f9c93ca33e9af6a6f698f23f",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/803d0592abc57fe0f9c93ca33e9af6a6f698f23f/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "1de14d77bbd1237ec03779b8a2e757f52978bbd9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1de14d77bbd1237ec03779b8a2e757f52978bbd9",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/1de14d77bbd1237ec03779b8a2e757f52978bbd9"
+    }
+  ],
+  "stats": {
+    "total": 6,
+    "additions": 5,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "b67ad73851845c577202ae971975c91502317887",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/803d0592abc57fe0f9c93ca33e9af6a6f698f23f/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/803d0592abc57fe0f9c93ca33e9af6a6f698f23f/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=803d0592abc57fe0f9c93ca33e9af6a6f698f23f",
+      "patch": "@@ -1,3 +1,7 @@\n+2020-07-21  Tom de Vries  <tdevries@suse.de>\n+\n+\t* gdb.reverse/step-reverse.c (callee): Merge statements.\n+\n 2020-07-21  Tom de Vries  <tdevries@suse.de>\n \n \t* gdb.fortran/info-modules.exp (info module variables): Allow missing"
+    },
+    {
+      "sha": "4b8fa8251b89e3dedb20f2dac48ec4968b0f12c9",
+      "filename": "gdb/testsuite/gdb.reverse/step-reverse.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/803d0592abc57fe0f9c93ca33e9af6a6f698f23f/gdb/testsuite/gdb.reverse/step-reverse.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/803d0592abc57fe0f9c93ca33e9af6a6f698f23f/gdb/testsuite/gdb.reverse/step-reverse.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.reverse/step-reverse.c?ref=803d0592abc57fe0f9c93ca33e9af6a6f698f23f",
+      "patch": "@@ -23,7 +23,7 @@\n int myglob = 0;\n \n int callee() {\t\t/* ENTER CALLEE */\n-  myglob++; return 0;\t/* ARRIVED IN CALLEE */\n+  return myglob++;\t/* ARRIVED IN CALLEE */\n }\t\t\t/* RETURN FROM CALLEE */\n \n /* A structure which, we hope, will need to be passed using memcpy.  */"
+    }
+  ]
+}

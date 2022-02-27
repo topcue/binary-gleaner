@@ -1,0 +1,110 @@
+{
+  "sha": "cbbbc402e059ee345cb781d3ceb757ae1cc679ee",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6Y2JiYmM0MDJlMDU5ZWUzNDVjYjc4MWQzY2ViNzU3YWUxY2M2NzllZQ==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2019-10-16T15:11:28Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2019-10-16T15:12:23Z"
+    },
+    "message": "libctf: mark swap.h inline functions as static\n\nWhen building binutils with mingw-w64, I get the following errors:\n\n    make[4]: Entering directory '/home/simark/build/binutils-gdb-mingw/binutils'\n    /bin/sh ./libtool  --tag=CC   --mode=link ccache x86_64-w64-mingw32-gcc -W -Wall -Wstrict-prototypes -Wmissing-prototypes -Wshadow -Wstack-usage=262144 -Wno-format -Werror -I/home/simark/src/binutils-gdb/binutils/../zlib -g3 -O0 -D__USE_MINGW_ACCESS  -Wl,--stack,12582912 -o objdump.exe objdump.o dwarf.o prdbg.o rddbg.o debug.o stabs.o rdcoff.o bucomm.o version.o filemode.o elfcomm.o  ../opcodes/libopcodes.la ../libctf/libctf.la ../bfd/libbfd.la ../libiberty/libiberty.a -lintl\n    libtool: link: ccache x86_64-w64-mingw32-gcc -W -Wall -Wstrict-prototypes -Wmissing-prototypes -Wshadow -Wstack-usage=262144 -Wno-format -Werror -I/home/simark/src/binutils-gdb/binutils/../zlib -g3 -O0 -D__USE_MINGW_ACCESS -Wl,--stack -Wl,12582912 -o .libs/objdump.exe objdump.o dwarf.o prdbg.o rddbg.o debug.o stabs.o rdcoff.o bucomm.o version.o filemode.o elfcomm.o  ../opcodes/.libs/libopcodes.a ../libctf/.libs/libctf.a -L/home/simark/build/binutils-gdb-mingw/zlib ../bfd/.libs/libbfd.a -lz ../libiberty/libiberty.a -lintl\n    /usr/lib/gcc/x86_64-w64-mingw32/9.2.0/../../../../x86_64-w64-mingw32/bin/ld: ../libctf/.libs/libctf.a(ctf-open.o): in function `flip_header':\n    /home/simark/src/binutils-gdb/libctf/ctf-open.c:964: undefined reference to `bswap_16'\n    /usr/lib/gcc/x86_64-w64-mingw32/9.2.0/../../../../x86_64-w64-mingw32/bin/ld: /home/simark/src/binutils-gdb/libctf/ctf-open.c:967: undefined reference to `bswap_32'\n    /usr/lib/gcc/x86_64-w64-mingw32/9.2.0/../../../../x86_64-w64-mingw32/bin/ld: /home/simark/src/binutils-gdb/libctf/ctf-open.c:968: undefined reference to `bswap_32'\n    /usr/lib/gcc/x86_64-w64-mingw32/9.2.0/../../../../x86_64-w64-mingw32/bin/ld: /home/simark/src/binutils-gdb/libctf/ctf-open.c:969: undefined reference to `bswap_32'\n    /usr/lib/gcc/x86_64-w64-mingw32/9.2.0/../../../../x86_64-w64-mingw32/bin/ld: /home/simark/src/binutils-gdb/libctf/ctf-open.c:970: undefined reference to `bswap_32'\n    /usr/lib/gcc/x86_64-w64-mingw32/9.2.0/../../../../x86_64-w64-mingw32/bin/ld: /home/simark/src/binutils-gdb/libctf/ctf-open.c:971: undefined reference to `bswap_32'\n    /usr/lib/gcc/x86_64-w64-mingw32/9.2.0/../../../../x86_64-w64-mingw32/bin/ld: ../libctf/.libs/libctf.a(ctf-open.o):/home/simark/src/binutils-gdb/libctf/ctf-open.c:972: more undefined references to `bswap_32' follow\n    /usr/lib/gcc/x86_64-w64-mingw32/9.2.0/../../../../x86_64-w64-mingw32/bin/ld: ../libctf/.libs/libctf.a(ctf-open.o): in function `flip_types':\n    /home/simark/src/binutils-gdb/libctf/ctf-open.c:1112: undefined reference to `bswap_16'\n    /usr/lib/gcc/x86_64-w64-mingw32/9.2.0/../../../../x86_64-w64-mingw32/bin/ld: /home/simark/src/binutils-gdb/libctf/ctf-open.c:1113: undefined reference to `bswap_16'\n    /usr/lib/gcc/x86_64-w64-mingw32/9.2.0/../../../../x86_64-w64-mingw32/bin/ld: /home/simark/src/binutils-gdb/libctf/ctf-open.c:1132: undefined reference to `bswap_32'\n    /usr/lib/gcc/x86_64-w64-mingw32/9.2.0/../../../../x86_64-w64-mingw32/bin/ld: /home/simark/src/binutils-gdb/libctf/ctf-open.c:1133: undefined reference to `bswap_32'\n    /usr/lib/gcc/x86_64-w64-mingw32/9.2.0/../../../../x86_64-w64-mingw32/bin/ld: /home/simark/src/binutils-gdb/libctf/ctf-open.c:1134: undefined reference to `bswap_32'\n    /usr/lib/gcc/x86_64-w64-mingw32/9.2.0/../../../../x86_64-w64-mingw32/bin/ld: /home/simark/src/binutils-gdb/libctf/ctf-open.c:1135: undefined reference to `bswap_32'\n    /usr/lib/gcc/x86_64-w64-mingw32/9.2.0/../../../../x86_64-w64-mingw32/bin/ld: /home/simark/src/binutils-gdb/libctf/ctf-open.c:1144: undefined reference to `bswap_32'\n    /usr/lib/gcc/x86_64-w64-mingw32/9.2.0/../../../../x86_64-w64-mingw32/bin/ld: ../libctf/.libs/libctf.a(ctf-open.o):/home/simark/src/binutils-gdb/libctf/ctf-open.c:1145: more undefined references to `bswap_32' follow\n    /usr/lib/gcc/x86_64-w64-mingw32/9.2.0/../../../../x86_64-w64-mingw32/bin/ld: ../libctf/.libs/libctf.a(ctf-open.o): in function `ctf_bufopen_internal':\n    /home/simark/src/binutils-gdb/libctf/ctf-open.c:1342: undefined reference to `bswap_16'\n    /usr/lib/gcc/x86_64-w64-mingw32/9.2.0/../../../../x86_64-w64-mingw32/bin/ld: ../libctf/.libs/libctf.a(ctf-open-bfd.o): in function `ctf_fdopen':\n    /home/simark/src/binutils-gdb/libctf/ctf-open-bfd.c:268: undefined reference to `bswap_16'\n\nApparently [1], if we have a function with `inline` but not `static`,\nthere should be a compilation unit defining the symbol too.\nAlternatively, making those functions `static` fixes that.\n\n[1] https://stackoverflow.com/questions/16245521/c99-inline-function-in-c-file/16254679#16254679\n\nlibctf/ChangeLog:\n\n\t* swap.h (bswap_16, bswap_32, bswap_64): Make static.\n\nChange-Id: I8fd12aedf6c90f9b7418af948e5e0bae0c32eead",
+    "tree": {
+      "sha": "7ee1bd79039a7d537712ad1567421a794d564fb8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/7ee1bd79039a7d537712ad1567421a794d564fb8"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/cbbbc402e059ee345cb781d3ceb757ae1cc679ee",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cbbbc402e059ee345cb781d3ceb757ae1cc679ee",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/cbbbc402e059ee345cb781d3ceb757ae1cc679ee",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cbbbc402e059ee345cb781d3ceb757ae1cc679ee/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "d10eccaa723e31689cdeadaea6bebabe2f63de34",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d10eccaa723e31689cdeadaea6bebabe2f63de34",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/d10eccaa723e31689cdeadaea6bebabe2f63de34"
+    }
+  ],
+  "stats": {
+    "total": 10,
+    "additions": 7,
+    "deletions": 3
+  },
+  "files": [
+    {
+      "sha": "ea34bae8560d0f76098f53314611d65056d338a0",
+      "filename": "libctf/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cbbbc402e059ee345cb781d3ceb757ae1cc679ee/libctf/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cbbbc402e059ee345cb781d3ceb757ae1cc679ee/libctf/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ChangeLog?ref=cbbbc402e059ee345cb781d3ceb757ae1cc679ee",
+      "patch": "@@ -1,3 +1,7 @@\n+2019-10-16  Simon Marchi  <simon.marchi@polymtl.ca>\n+\n+\t* swap.h (bswap_16, bswap_32, bswap_64): Make static.\n+\n 2019-09-30  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctf-open.c (ctf_bufopen_internal): Fix tabdamage."
+    },
+    {
+      "sha": "ac62ac78d147124a5db2d64b22aa95dc85f1a465",
+      "filename": "libctf/swap.h",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cbbbc402e059ee345cb781d3ceb757ae1cc679ee/libctf/swap.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cbbbc402e059ee345cb781d3ceb757ae1cc679ee/libctf/swap.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/swap.h?ref=cbbbc402e059ee345cb781d3ceb757ae1cc679ee",
+      "patch": "@@ -28,13 +28,13 @@\n #else\n \n /* Provide our own versions of the byteswap functions.  */\n-inline uint16_t\n+static inline uint16_t\n bswap_16 (uint16_t v)\n {\n   return ((v >> 8) & 0xff) | ((v & 0xff) << 8);\n }\n \n-inline uint32_t\n+static inline uint32_t\n bswap_32 (uint32_t v)\n {\n   return (  ((v & 0xff000000) >> 24)\n@@ -49,7 +49,7 @@ bswap_identity_64 (uint64_t v)\n   return v;\n }\n \n-inline uint64_t\n+static inline uint64_t\n bswap_64 (uint64_t v)\n {\n   return (  ((v & 0xff00000000000000ULL) >> 56)"
+    }
+  ]
+}

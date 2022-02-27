@@ -1,0 +1,278 @@
+{
+  "sha": "9be259865c640210969765f8d2803b36a9df3487",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OWJlMjU5ODY1YzY0MDIxMDk2OTc2NWY4ZDI4MDNiMzZhOWRmMzQ4Nw==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-06-18T16:00:38Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-07-06T19:02:05Z"
+    },
+    "message": "gdb: introduce iterator_range, remove next_adapter\n\nI was always a bit confused by next_adapter, because it kind of mixes\nthe element type and the iterator type.  In reality, it is not much more\nthan a class that wraps two iterators (begin and end).  However, it\nassumes that:\n\n - you can construct the begin iterator by passing a pointer to the\n   first element of the iterable\n - you can default-construct iterator to make the end iterator\n\nI think that by generalizing it a little bit, we can re-use it at more\nplaces.\n\nRename it to \"iterator_range\".  I think it describes a bit better: it's\na range made by wrapping a begin and end iterator.  Move it to its own\nfile, since it's not related to next_iterator anymore.\n\niterator_range has two constructors.  The variadic one, where arguments\nare forwarded to construct the underlying begin iterator.  The end\niterator is constructed through default construction.  This is a\ngeneralization of what we have today.\n\nThere is another constructor which receives already constructed begin\nand end iterators, useful if the end iterator can't be obtained by\ndefault-construction.  Or, if you wanted to make a range that does not\nend at the end of the container, you could pass any iterator as the\n\"end\".\n\nThis generalization allows removing some \"range\" classes, like\nall_inferiors_range.  These classes existed only to pass some arguments\nwhen constructing the begin iterator.  With iterator_range, those same\narguments are passed to the iterator_range constructed and then\nforwarded to the constructed begin iterator.\n\nThere is a small functional difference in how iterator_range works\ncompared to next_adapter.  next_adapter stored the pointer it received\nas argument and constructeur an iterator in the `begin` method.\niterator_range constructs the begin iterator and stores it as a member.\nIts `begin` method returns a copy of that iterator.\n\nWith just iterator_range, uses of next_adapter<foo> would be replaced\nwith:\n\n  using foo_iterator = next_iterator<foo>;\n  using foo_range = iterator_range<foo_iterator>;\n\nHowever, I added a `next_range` wrapper as a direct replacement for\nnext_adapter<foo>.  IMO, next_range is a slightly better name than\nnext_adapter.\n\nThe rest of the changes are applications of this new class.\n\ngdbsupport/ChangeLog:\n\n\t* next-iterator.h (class next_adapter): Remove.\n\t* iterator-range.h: New.\n\ngdb/ChangeLog:\n\n\t* breakpoint.h (bp_locations_range): Remove.\n\t(bp_location_range): New.\n\t(struct breakpoint) <locations>: Adjust type.\n\t(breakpoint_range): Use iterator_range.\n\t(tracepoint_range): Use iterator_range.\n\t* breakpoint.c (breakpoint::locations): Adjust return type.\n\t* gdb_bfd.h (gdb_bfd_section_range): Use iterator_range.\n\t* gdbthread.h (all_threads_safe): Pass argument to\n\tall_threads_safe_range.\n\t* inferior-iter.h (all_inferiors_range): Use iterator_range.\n\t(all_inferiors_safe_range): Use iterator_range.\n\t(all_non_exited_inferiors_range): Use iterator_range.\n\t* inferior.h (all_inferiors, all_non_exited_inferiors): Pass\n\tinferior_list as argument.\n\t* objfiles.h (struct objfile) <compunits_range>: Remove.\n\t<compunits>: Return compunit_symtab_range.\n\t* progspace.h (unwrapping_objfile_iterator)\n\t<unwrapping_objfile_iterator>: Take parameter by value.\n\t(unwrapping_objfile_range): Use iterator_range.\n\t(struct program_space) <objfiles_range>: Define with \"using\".\n\t<objfiles>: Adjust.\n\t<objfiles_safe_range>: Define with \"using\".\n\t<objfiles_safe>: Adjust.\n\t<solibs>: Return so_list_range, define here.\n\t* progspace.c (program_space::solibs): Remove.\n\t* psymtab.h (class psymtab_storage) <partial_symtab_iterator>:\n\tNew.\n\t<partial_symtab_range>: Use iterator_range.\n\t* solist.h (so_list_range): New.\n\t* symtab.h (compunit_symtab_range):\n\tNew.\n\t(symtab_range): New.\n\t(compunit_filetabs): Change to a function.\n\t* thread-iter.h (inf_threads_range,\n\tinf_non_exited_threads_range, safe_inf_threads_range,\n\tall_threads_safe_range): Use iterator_range.\n\t* top.h (ui_range): New.\n\t(all_uis): Use ui_range.\n\nChange-Id: Ib7a9d2a3547f45f01aa1c6b24536ba159db9b854",
+    "tree": {
+      "sha": "e4a3af645d136ec3816ed0e98e354cb63f66848c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/e4a3af645d136ec3816ed0e98e354cb63f66848c"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/9be259865c640210969765f8d2803b36a9df3487",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9be259865c640210969765f8d2803b36a9df3487",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/9be259865c640210969765f8d2803b36a9df3487",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9be259865c640210969765f8d2803b36a9df3487/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "a100a94530eb85991fa736ea5037cf8b83190ae6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a100a94530eb85991fa736ea5037cf8b83190ae6",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/a100a94530eb85991fa736ea5037cf8b83190ae6"
+    }
+  ],
+  "stats": {
+    "total": 296,
+    "additions": 124,
+    "deletions": 172
+  },
+  "files": [
+    {
+      "sha": "5cc37430e368fcff8e590117a5b412afecacf63c",
+      "filename": "gdb/breakpoint.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9be259865c640210969765f8d2803b36a9df3487/gdb/breakpoint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9be259865c640210969765f8d2803b36a9df3487/gdb/breakpoint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/breakpoint.c?ref=9be259865c640210969765f8d2803b36a9df3487",
+      "patch": "@@ -12283,9 +12283,9 @@ breakpoint::~breakpoint ()\n \n /* See breakpoint.h.  */\n \n-bp_locations_range breakpoint::locations ()\n+bp_location_range breakpoint::locations ()\n {\n-  return bp_locations_range (this->loc);\n+  return bp_location_range (this->loc);\n }\n \n static struct bp_location *"
+    },
+    {
+      "sha": "fe68730f1651eda337224c599990f9c6f4cd2e3e",
+      "filename": "gdb/breakpoint.h",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 4,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9be259865c640210969765f8d2803b36a9df3487/gdb/breakpoint.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9be259865c640210969765f8d2803b36a9df3487/gdb/breakpoint.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/breakpoint.h?ref=9be259865c640210969765f8d2803b36a9df3487",
+      "patch": "@@ -30,6 +30,8 @@\n #include \"gdbsupport/array-view.h\"\n #include \"gdbsupport/filtered-iterator.h\"\n #include \"gdbsupport/function-view.h\"\n+#include \"gdbsupport/next-iterator.h\"\n+#include \"gdbsupport/iterator-range.h\"\n #include \"gdbsupport/refcounted-object.h\"\n #include \"gdbsupport/safe-iterator.h\"\n #include \"cli/cli-script.h\"\n@@ -706,7 +708,7 @@ extern bool target_exact_watchpoints;\n \n /* bp_location linked list range.  */\n \n-using bp_locations_range = next_adapter<bp_location>;\n+using bp_location_range = next_range<bp_location>;\n \n /* Note that the ->silent field is not currently used by any commands\n    (though the code is in there if it was to be, and set_raw_breakpoint\n@@ -721,7 +723,7 @@ struct breakpoint\n   virtual ~breakpoint ();\n \n   /* Return a range of this breakpoint's locations.  */\n-  bp_locations_range locations ();\n+  bp_location_range locations ();\n \n   /* Methods associated with this breakpoint.  */\n   const breakpoint_ops *ops = NULL;\n@@ -1715,7 +1717,7 @@ using breakpoint_iterator = next_iterator<breakpoint>;\n \n /* Breakpoint linked list range.  */\n \n-using breakpoint_range = next_adapter<breakpoint, breakpoint_iterator>;\n+using breakpoint_range = iterator_range<breakpoint_iterator>;\n \n /* Return a range to iterate over all breakpoints.  */\n \n@@ -1746,7 +1748,7 @@ using tracepoint_iterator\n \n /* Breakpoint linked list range, filtering to only keep tracepoints.  */\n \n-using tracepoint_range = next_adapter<breakpoint, tracepoint_iterator>;\n+using tracepoint_range = iterator_range<tracepoint_iterator>;\n \n /* Return a range to iterate over all tracepoints.  */\n "
+    },
+    {
+      "sha": "156c2760f11cebe35d697f8cbd9bac1fe2e7881c",
+      "filename": "gdb/gdb_bfd.h",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9be259865c640210969765f8d2803b36a9df3487/gdb/gdb_bfd.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9be259865c640210969765f8d2803b36a9df3487/gdb/gdb_bfd.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdb_bfd.h?ref=9be259865c640210969765f8d2803b36a9df3487",
+      "patch": "@@ -23,6 +23,7 @@\n #include \"registry.h\"\n #include \"gdbsupport/byte-vector.h\"\n #include \"gdbsupport/gdb_ref_ptr.h\"\n+#include \"gdbsupport/iterator-range.h\"\n #include \"gdbsupport/next-iterator.h\"\n \n DECLARE_REGISTRY (bfd);\n@@ -208,8 +209,7 @@ gdb_bfd_ref_ptr gdb_bfd_open_from_target_memory (CORE_ADDR addr, ULONGEST size,\n        ... use SECT ...\n  */\n \n-using gdb_bfd_section_iterator = next_iterator<asection>;\n-using gdb_bfd_section_range = next_adapter<asection, gdb_bfd_section_iterator>;\n+using gdb_bfd_section_range = next_range<asection>;\n \n static inline gdb_bfd_section_range\n gdb_bfd_sections (bfd *abfd)"
+    },
+    {
+      "sha": "cb3dcc3c471421c860773e2670ebeedc27f7e4c0",
+      "filename": "gdb/gdbthread.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9be259865c640210969765f8d2803b36a9df3487/gdb/gdbthread.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9be259865c640210969765f8d2803b36a9df3487/gdb/gdbthread.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbthread.h?ref=9be259865c640210969765f8d2803b36a9df3487",
+      "patch": "@@ -563,7 +563,7 @@ all_non_exited_threads (process_stratum_target *proc_target = nullptr,\n inline all_threads_safe_range\n all_threads_safe ()\n {\n-  return {};\n+  return all_threads_safe_range (all_threads_iterator::begin_t {});\n }\n \n extern int thread_count (process_stratum_target *proc_target);"
+    },
+    {
+      "sha": "f999150a7b552a48d3f9e6b466a4429139fa3c23",
+      "filename": "gdb/inferior-iter.h",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 60,
+      "changes": 69,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9be259865c640210969765f8d2803b36a9df3487/gdb/inferior-iter.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9be259865c640210969765f8d2803b36a9df3487/gdb/inferior-iter.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/inferior-iter.h?ref=9be259865c640210969765f8d2803b36a9df3487",
+      "patch": "@@ -90,6 +90,11 @@ class all_inferiors_iterator\n   inferior *m_inf;\n };\n \n+/* A range adapter that makes it possible to iterate over all\n+   inferiors with range-for.  */\n+\n+using all_inferiors_range = iterator_range<all_inferiors_iterator>;\n+\n /* Filter for filtered_iterator.  Filters out exited inferiors.  */\n \n struct exited_inferior_filter\n@@ -106,21 +111,10 @@ using all_non_exited_inferiors_iterator\n   = filtered_iterator<all_inferiors_iterator, exited_inferior_filter>;\n \n /* A range adapter that makes it possible to iterate over all\n-   inferiors with range-for.  */\n-struct all_inferiors_range\n-{\n-  all_inferiors_range (process_stratum_target *proc_target = nullptr)\n-    : m_filter_target (proc_target)\n-  {}\n+   non-exited inferiors with range-for.  */\n \n-  all_inferiors_iterator begin () const\n-  { return all_inferiors_iterator (m_filter_target, inferior_list); }\n-  all_inferiors_iterator end () const\n-  { return all_inferiors_iterator (); }\n-\n-private:\n-  process_stratum_target *m_filter_target;\n-};\n+using all_non_exited_inferiors_range\n+  = iterator_range<all_non_exited_inferiors_iterator>;\n \n /* Iterate over all inferiors, safely.  */\n \n@@ -131,51 +125,6 @@ using all_inferiors_safe_iterator\n    inferiors with range-for \"safely\".  I.e., it is safe to delete the\n    currently-iterated inferior.  */\n \n-struct all_inferiors_safe_range\n-{\n-  explicit all_inferiors_safe_range (process_stratum_target *filter_target)\n-    : m_filter_target (filter_target)\n-  {}\n-\n-  all_inferiors_safe_range ()\n-    : m_filter_target (nullptr)\n-  {}\n-\n-  all_inferiors_safe_iterator begin () const\n-  {\n-    return (all_inferiors_safe_iterator\n-\t    (all_inferiors_iterator (m_filter_target, inferior_list)));\n-  }\n-\n-  all_inferiors_safe_iterator end () const\n-  { return all_inferiors_safe_iterator (); }\n-\n-private:\n-  /* The filter.  */\n-  process_stratum_target *m_filter_target;\n-};\n-\n-/* A range adapter that makes it possible to iterate over all\n-   non-exited inferiors with range-for.  */\n-\n-struct all_non_exited_inferiors_range\n-{\n-  explicit all_non_exited_inferiors_range (process_stratum_target *filter_target)\n-    : m_filter_target (filter_target)\n-  {}\n-\n-  all_non_exited_inferiors_range ()\n-    : m_filter_target (nullptr)\n-  {}\n-\n-  all_non_exited_inferiors_iterator begin () const\n-  { return all_non_exited_inferiors_iterator (m_filter_target, inferior_list); }\n-  all_non_exited_inferiors_iterator end () const\n-  { return all_non_exited_inferiors_iterator (); }\n-\n-private:\n-  /* The filter.  */\n-  process_stratum_target *m_filter_target;\n-};\n+using all_inferiors_safe_range = iterator_range<all_inferiors_safe_iterator>;\n \n #endif /* !defined (INFERIOR_ITER_H) */"
+    },
+    {
+      "sha": "c63990aabe0e0d002c3518075cb80d5b9fd5c4c1",
+      "filename": "gdb/inferior.h",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9be259865c640210969765f8d2803b36a9df3487/gdb/inferior.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9be259865c640210969765f8d2803b36a9df3487/gdb/inferior.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/inferior.h?ref=9be259865c640210969765f8d2803b36a9df3487",
+      "patch": "@@ -681,7 +681,7 @@ all_inferiors_safe ()\n inline all_inferiors_range\n all_inferiors (process_stratum_target *proc_target = nullptr)\n {\n-  return all_inferiors_range (proc_target);\n+  return all_inferiors_range (proc_target, inferior_list);\n }\n \n /* Return a range that can be used to walk over all inferiors with PID\n@@ -690,7 +690,7 @@ all_inferiors (process_stratum_target *proc_target = nullptr)\n inline all_non_exited_inferiors_range\n all_non_exited_inferiors (process_stratum_target *proc_target = nullptr)\n {\n-  return all_non_exited_inferiors_range (proc_target);\n+  return all_non_exited_inferiors_range (proc_target, inferior_list);\n }\n \n /* Prune away automatically added inferiors that aren't required"
+    },
+    {
+      "sha": "55be1bfdda4b9d5916f7cac98eec49d6252866dd",
+      "filename": "gdb/objfiles.h",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 4,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9be259865c640210969765f8d2803b36a9df3487/gdb/objfiles.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9be259865c640210969765f8d2803b36a9df3487/gdb/objfiles.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/objfiles.h?ref=9be259865c640210969765f8d2803b36a9df3487",
+      "patch": "@@ -445,14 +445,12 @@ struct objfile\n \n   DISABLE_COPY_AND_ASSIGN (objfile);\n \n-  typedef next_adapter<struct compunit_symtab> compunits_range;\n-\n   /* A range adapter that makes it possible to iterate over all\n      compunits in one objfile.  */\n \n-  compunits_range compunits ()\n+  compunit_symtab_range compunits ()\n   {\n-    return compunits_range (compunit_symtabs);\n+    return compunit_symtab_range (compunit_symtabs);\n   }\n \n   /* A range adapter that makes it possible to iterate over all"
+    },
+    {
+      "sha": "e3cc6929a2369fc78f7b7ac722899efe14dee8c6",
+      "filename": "gdb/progspace.c",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 8,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9be259865c640210969765f8d2803b36a9df3487/gdb/progspace.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9be259865c640210969765f8d2803b36a9df3487/gdb/progspace.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/progspace.c?ref=9be259865c640210969765f8d2803b36a9df3487",
+      "patch": "@@ -215,14 +215,6 @@ program_space::remove_objfile (struct objfile *objfile)\n \n /* See progspace.h.  */\n \n-next_adapter<struct so_list>\n-program_space::solibs () const\n-{\n-  return next_adapter<struct so_list> (this->so_list);\n-}\n-\n-/* See progspace.h.  */\n-\n void\n program_space::exec_close ()\n {"
+    },
+    {
+      "sha": "fb348ca7539a45db0c49503a19ebacfe5d6681be",
+      "filename": "gdb/progspace.h",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 30,
+      "changes": 45,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9be259865c640210969765f8d2803b36a9df3487/gdb/progspace.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9be259865c640210969765f8d2803b36a9df3487/gdb/progspace.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/progspace.h?ref=9be259865c640210969765f8d2803b36a9df3487",
+      "patch": "@@ -25,6 +25,7 @@\n #include \"gdb_bfd.h\"\n #include \"gdbsupport/gdb_vecs.h\"\n #include \"registry.h\"\n+#include \"solist.h\"\n #include \"gdbsupport/next-iterator.h\"\n #include \"gdbsupport/safe-iterator.h\"\n #include <list>\n@@ -59,8 +60,8 @@ class unwrapping_objfile_iterator\n   typedef typename objfile_list::iterator::iterator_category iterator_category;\n   typedef typename objfile_list::iterator::difference_type difference_type;\n \n-  unwrapping_objfile_iterator (const objfile_list::iterator &iter)\n-    : m_iter (iter)\n+  unwrapping_objfile_iterator (objfile_list::iterator iter)\n+    : m_iter (std::move (iter))\n   {\n   }\n \n@@ -89,29 +90,7 @@ class unwrapping_objfile_iterator\n \n /* A range that returns unwrapping_objfile_iterators.  */\n \n-struct unwrapping_objfile_range\n-{\n-  typedef unwrapping_objfile_iterator iterator;\n-\n-  unwrapping_objfile_range (objfile_list &ol)\n-    : m_list (ol)\n-  {\n-  }\n-\n-  iterator begin () const\n-  {\n-    return iterator (m_list.begin ());\n-  }\n-\n-  iterator end () const\n-  {\n-    return iterator (m_list.end ());\n-  }\n-\n-private:\n-\n-  objfile_list &m_list;\n-};\n+using unwrapping_objfile_range = iterator_range<unwrapping_objfile_iterator>;\n \n /* A program space represents a symbolic view of an address space.\n    Roughly speaking, it holds all the data associated with a\n@@ -222,18 +201,20 @@ struct program_space\n      a program space.  */\n   ~program_space ();\n \n-  typedef unwrapping_objfile_range objfiles_range;\n+  using objfiles_range = unwrapping_objfile_range;\n \n   /* Return an iterable object that can be used to iterate over all\n      objfiles.  The basic use is in a foreach, like:\n \n      for (objfile *objf : pspace->objfiles ()) { ... }  */\n   objfiles_range objfiles ()\n   {\n-    return unwrapping_objfile_range (objfiles_list);\n+    return objfiles_range\n+      (unwrapping_objfile_iterator (objfiles_list.begin ()),\n+       unwrapping_objfile_iterator (objfiles_list.end ()));\n   }\n \n-  typedef basic_safe_range<objfiles_range> objfiles_safe_range;\n+  using objfiles_safe_range = basic_safe_range<objfiles_range>;\n \n   /* An iterable object that can be used to iterate over all objfiles.\n      The basic use is in a foreach, like:\n@@ -244,7 +225,10 @@ struct program_space\n      deleted during iteration.  */\n   objfiles_safe_range objfiles_safe ()\n   {\n-    return objfiles_safe_range (objfiles_list);\n+    return objfiles_safe_range\n+      (objfiles_range\n+\t (unwrapping_objfile_iterator (objfiles_list.begin ()),\n+\t  unwrapping_objfile_iterator (objfiles_list.end ())));\n   }\n \n   /* Add OBJFILE to the list of objfiles, putting it just before\n@@ -270,7 +254,8 @@ struct program_space\n      program space.  Use it like:\n \n      for (so_list *so : pspace->solibs ()) { ... }  */\n-  next_adapter<struct so_list> solibs () const;\n+  so_list_range solibs () const\n+  { return so_list_range (this->so_list); }\n \n   /* Close and clear exec_bfd.  If we end up with no target sections\n      to read memory from, this unpushes the exec_ops target.  */"
+    },
+    {
+      "sha": "7cd3e95b179b6683233351f9d99e488638746a7b",
+      "filename": "gdb/psymtab.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9be259865c640210969765f8d2803b36a9df3487/gdb/psymtab.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9be259865c640210969765f8d2803b36a9df3487/gdb/psymtab.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/psymtab.h?ref=9be259865c640210969765f8d2803b36a9df3487",
+      "patch": "@@ -104,7 +104,7 @@ class psymtab_storage\n \n   void install_psymtab (partial_symtab *pst);\n \n-  typedef next_adapter<struct partial_symtab> partial_symtab_range;\n+  using partial_symtab_range = next_range<partial_symtab>;\n \n   /* A range adapter that makes it possible to iterate over all\n      psymtabs in one objfile.  */"
+    },
+    {
+      "sha": "6033751dd695f8b8c0c0c66811a1cd50508110d7",
+      "filename": "gdb/solist.h",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9be259865c640210969765f8d2803b36a9df3487/gdb/solist.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9be259865c640210969765f8d2803b36a9df3487/gdb/solist.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/solist.h?ref=9be259865c640210969765f8d2803b36a9df3487",
+      "patch": "@@ -163,6 +163,8 @@ struct target_so_ops\n   void (*handle_event) (void);\n };\n \n+using so_list_range = next_range<so_list>;\n+\n /* Free the memory associated with a (so_list *).  */\n void free_so (struct so_list *so);\n "
+    },
+    {
+      "sha": "fd8dd62a40691b0d90b308d885200a30b72e1a48",
+      "filename": "gdb/symtab.h",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 6,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9be259865c640210969765f8d2803b36a9df3487/gdb/symtab.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9be259865c640210969765f8d2803b36a9df3487/gdb/symtab.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/symtab.h?ref=9be259865c640210969765f8d2803b36a9df3487",
+      "patch": "@@ -33,6 +33,7 @@\n #include \"gdbsupport/gdb_optional.h\"\n #include \"gdbsupport/gdb_string_view.h\"\n #include \"gdbsupport/next-iterator.h\"\n+#include \"gdbsupport/iterator-range.h\"\n #include \"completer.h\"\n #include \"gdb-demangle.h\"\n \n@@ -1521,6 +1522,8 @@ struct compunit_symtab\n   struct compunit_symtab *user;\n };\n \n+using compunit_symtab_range = next_range<compunit_symtab>;\n+\n #define COMPUNIT_OBJFILE(cust) ((cust)->objfile)\n #define COMPUNIT_FILETABS(cust) ((cust)->filetabs)\n #define COMPUNIT_DEBUGFORMAT(cust) ((cust)->debugformat)\n@@ -1536,13 +1539,13 @@ struct compunit_symtab\n /* A range adapter to allowing iterating over all the file tables\n    within a compunit.  */\n \n-struct compunit_filetabs : public next_adapter<struct symtab>\n+using symtab_range = next_range<symtab>;\n+\n+static inline symtab_range\n+compunit_filetabs (compunit_symtab *cu)\n {\n-  compunit_filetabs (struct compunit_symtab *cu)\n-    : next_adapter<struct symtab> (cu->filetabs)\n-  {\n-  }\n-};\n+  return symtab_range (cu->filetabs);\n+}\n \n /* Return the primary symtab of CUST.  */\n "
+    },
+    {
+      "sha": "098af0f3241b0a1ad446714bf6cd2012b41e5746",
+      "filename": "gdb/thread-iter.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 23,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9be259865c640210969765f8d2803b36a9df3487/gdb/thread-iter.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9be259865c640210969765f8d2803b36a9df3487/gdb/thread-iter.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/thread-iter.h?ref=9be259865c640210969765f8d2803b36a9df3487",
+      "patch": "@@ -170,43 +170,24 @@ using safe_inf_threads_iterator\n /* A range adapter that makes it possible to iterate over all threads\n    of an inferior with range-for.  */\n \n-using inf_threads_range\n-  = next_adapter<thread_info, inf_threads_iterator>;\n+using inf_threads_range = iterator_range<inf_threads_iterator>;\n \n /* A range adapter that makes it possible to iterate over all\n    non-exited threads of an inferior with range-for.  */\n \n using inf_non_exited_threads_range\n-  = next_adapter<thread_info, inf_non_exited_threads_iterator>;\n+  = iterator_range<inf_non_exited_threads_iterator>;\n \n /* A range adapter that makes it possible to iterate over all threads\n    of an inferior with range-for, safely.  */\n \n-using safe_inf_threads_range\n-  = next_adapter<thread_info, safe_inf_threads_iterator>;\n-\n-/* A range adapter that makes it possible to iterate over all threads\n-   of all inferiors with range-for.  */\n-\n-struct all_threads_range\n-{\n-  all_threads_iterator begin () const\n-  { return all_threads_iterator (all_threads_iterator::begin_t {}); }\n-  all_threads_iterator end () const\n-  { return all_threads_iterator (); }\n-};\n+using safe_inf_threads_range = iterator_range<safe_inf_threads_iterator>;\n \n /* A range adapter that makes it possible to iterate over all threads\n    with range-for \"safely\".  I.e., it is safe to delete the\n    currently-iterated thread.  */\n \n-struct all_threads_safe_range\n-{\n-  all_threads_safe_iterator begin () const\n-  { return all_threads_safe_iterator (all_threads_iterator::begin_t {}); }\n-  all_threads_safe_iterator end () const\n-  { return all_threads_safe_iterator (); }\n-};\n+using all_threads_safe_range = iterator_range<all_threads_safe_iterator>;\n \n /* A range adapter that makes it possible to iterate over all threads\n    that match a PTID filter with range-for.  */"
+    },
+    {
+      "sha": "ef88ca024e4ee9bd1ed1b605c314351a46fb4911",
+      "filename": "gdb/top.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9be259865c640210969765f8d2803b36a9df3487/gdb/top.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9be259865c640210969765f8d2803b36a9df3487/gdb/top.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/top.h?ref=9be259865c640210969765f8d2803b36a9df3487",
+      "patch": "@@ -204,11 +204,13 @@ class switch_thru_all_uis\n #define SWITCH_THRU_ALL_UIS()\t\t\\\n   for (switch_thru_all_uis stau_state; !stau_state.done (); stau_state.next ())\n \n+using ui_range = next_range<ui>;\n+\n /* An adapter that can be used to traverse over all UIs.  */\n static inline\n-next_adapter<ui> all_uis ()\n+ui_range all_uis ()\n {\n-  return next_adapter<ui> (ui_list);\n+  return ui_range (ui_list);\n }\n \n /* Register the UI's input file descriptor in the event loop.  */"
+    },
+    {
+      "sha": "2a718e6c83a1d1de6211b73f3b7c8cf7d13bbc47",
+      "filename": "gdbsupport/iterator-range.h",
+      "status": "added",
+      "additions": 60,
+      "deletions": 0,
+      "changes": 60,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9be259865c640210969765f8d2803b36a9df3487/gdbsupport/iterator-range.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9be259865c640210969765f8d2803b36a9df3487/gdbsupport/iterator-range.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/iterator-range.h?ref=9be259865c640210969765f8d2803b36a9df3487",
+      "patch": "@@ -0,0 +1,60 @@\n+/* A range adapter that wraps begin / end iterators.\n+   Copyright (C) 2021 Free Software Foundation, Inc.\n+\n+   This file is part of GDB.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#ifndef GDBSUPPORT_ITERATOR_RANGE_H\n+#define GDBSUPPORT_ITERATOR_RANGE_H\n+\n+/* A wrapper that allows using ranged for-loops on a range described by two\n+   iterators.  */\n+\n+template <typename IteratorType>\n+struct iterator_range\n+{\n+  using iterator = IteratorType;\n+\n+  /* Create an iterator_range using BEGIN as the begin iterator.\n+\n+     Assume that the end iterator can be default-constructed.  */\n+  template <typename... Args>\n+  iterator_range (Args &&...args)\n+    : m_begin (std::forward<Args> (args)...)\n+  {}\n+\n+  /* Create an iterator range using explicit BEGIN and END iterators.  */\n+  template <typename... Args>\n+  iterator_range (IteratorType begin, IteratorType end)\n+    : m_begin (std::move (begin)), m_end (std::move (end))\n+  {}\n+\n+  /* Need these as the variadic constructor would be a better match\n+     otherwise.  */\n+  iterator_range (iterator_range &) = default;\n+  iterator_range (const iterator_range &) = default;\n+  iterator_range (iterator_range &&) = default;\n+\n+  IteratorType begin () const\n+  { return m_begin; }\n+\n+  IteratorType end () const\n+  { return m_end; }\n+\n+private:\n+  IteratorType m_begin, m_end;\n+};\n+\n+#endif /* GDBSUPPORT_ITERATOR_RANGE_H */"
+    },
+    {
+      "sha": "72b241ea2b713a47049d0baa1b3328e48e7844bc",
+      "filename": "gdbsupport/next-iterator.h",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 27,
+      "changes": 32,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9be259865c640210969765f8d2803b36a9df3487/gdbsupport/next-iterator.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9be259865c640210969765f8d2803b36a9df3487/gdbsupport/next-iterator.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/next-iterator.h?ref=9be259865c640210969765f8d2803b36a9df3487",
+      "patch": "@@ -19,6 +19,8 @@\n #ifndef COMMON_NEXT_ITERATOR_H\n #define COMMON_NEXT_ITERATOR_H\n \n+#include \"gdbsupport/iterator-range.h\"\n+\n /* An iterator that uses the 'next' field of a type to iterate.  This\n    can be used with various GDB types that are stored as linked\n    lists.  */\n@@ -70,33 +72,9 @@ struct next_iterator\n   T *m_item;\n };\n \n-/* A range adapter that allows iterating over a linked list.  */\n-\n-template<typename T, typename Iterator = next_iterator<T>>\n-class next_adapter\n-{\n-public:\n-\n-  explicit next_adapter (T *item)\n-    : m_item (item)\n-  {\n-  }\n-\n-  using iterator = Iterator;\n-\n-  iterator begin () const\n-  {\n-    return iterator (m_item);\n-  }\n-\n-  iterator end () const\n-  {\n-    return iterator ();\n-  }\n+/* A convenience wrapper to make a range type around a next_iterator.  */\n \n-private:\n-\n-  T *m_item;\n-};\n+template <typename T>\n+using next_range = iterator_range<next_iterator<T>>;\n \n #endif /* COMMON_NEXT_ITERATOR_H */"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "sha": "299953ca95cc5ac47e52236e2eeb44afc5369134",
+  "node_id": "C_kwDOANOeidoAKDI5OTk1M2NhOTVjYzVhYzQ3ZTUyMjM2ZTJlZWI0NGFmYzUzNjkxMzQ",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-11-26T13:15:28Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-01-26T23:12:52Z"
+    },
+    "message": "gdb/python: handle non utf-8 characters when source highlighting\n\nThis commit adds support for source files that contain non utf-8\ncharacters when performing source styling using the Python pygments\npackage.  This does not change the behaviour of GDB when the GNU\nSource Highlight library is used.\n\nFor the following problem description, assume that either GDB is built\nwithout GNU Source Highlight support, of that this has been disabled\nusing 'maintenance set gnu-source-highlight enabled off'.\n\nThe initial problem reported was that a source file containing non\nutf-8 characters would cause GDB to print a Python exception, and then\ndisplay the source without styling, e.g.:\n\n  Python Exception <class 'UnicodeDecodeError'>: 'utf-8' codec can't decode byte 0xc0 in position 142: invalid start byte\n  /* Source code here, without styling...  */\n\nFurther, as the user steps through different source files, each time\nthe problematic source file was evicted from the source cache, and\nthen later reloaded, the exception would be printed again.\n\nFinally, this problem is only present when using Python 3, this issue\nis not present for Python 2.\n\nWhat makes this especially frustrating is that GDB can clearly print\nthe source file contents, they're right there...  If we disable\nstyling completely, or make use of the GNU Source Highlight library,\nthen everything is fine.  So why is there an error when we try to\napply styling using Python?\n\nThe problem is the use of PyString_FromString (which is an alias for\nPyUnicode_FromString in Python 3), this function converts a C string\ninto a either a Unicode object (Py3) or a str object (Py2).  For\nPython 2 there is no unicode encoding performed during this function\ncall, but for Python 3 the input is assumed to be a uft-8 encoding\nstring for the purpose of the conversion.  And here of course, is the\nproblem, if the source file contains non utf-8 characters, then it\nshould not be treated as utf-8, but that's what we do, and that's why\nwe get an error.\n\nMy first thought when looking at this was to spot when the\nPyString_FromString call failed with a UnicodeDecodeError and silently\nignore the error.  This would mean that GDB would print the source\nwithout styling, but would also avoid the annoying exception message.\n\nHowever, I also make use of `pygmentize`, a command line wrapper\naround the Python pygments module, which I use to apply syntax\nhighlighting in the output of `less`.  And this command line wrapper\nis quite happy to syntax highlight my source file that contains non\nutf-8 characters, so it feels like the problem should be solvable.\n\nIt turns out that inside the pygments module there is already support\nfor guessing the encoding of the incoming file content, if the\nincoming content is not already a Unicode string.  This is what\nhappens for Python 2 where the incoming content is of `str` type.\n\nWe could try and make GDB smarter when it comes to converting C\nstrings into Python Unicode objects; this would probably require us to\njust try a couple of different encoding schemes rather than just\ngiving up after utf-8.\n\nHowever, I figure, why bother?  The pygments module already does this\nfor us, and the colorize API is not part of the documented external\nAPI of GDB.  So, why not just change the colorize API, instead of the\ncontent being a Unicode string (for Python 3), lets just make the\ncontent be a bytes object.  The pygments module can then take\nresponsibility for guessing the encoding.\n\nSo, currently, the colorize API receives a unicode object, and returns\na unicode object.  I propose that the colorize API receive a bytes\nobject, and return a bytes object.",
+    "tree": {
+      "sha": "4511b249e9697ce2ea360b565f99afdbbfbe1a6e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/4511b249e9697ce2ea360b565f99afdbbfbe1a6e"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/299953ca95cc5ac47e52236e2eeb44afc5369134",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/299953ca95cc5ac47e52236e2eeb44afc5369134",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/299953ca95cc5ac47e52236e2eeb44afc5369134",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/299953ca95cc5ac47e52236e2eeb44afc5369134/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "27d326da434d60056eae0d14c1f0175d0e121c2a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/27d326da434d60056eae0d14c1f0175d0e121c2a",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/27d326da434d60056eae0d14c1f0175d0e121c2a"
+    }
+  ],
+  "stats": {
+    "total": 130,
+    "additions": 114,
+    "deletions": 16
+  },
+  "files": [
+    {
+      "sha": "9734a0d943787c38f612049574eb30f204a0a85e",
+      "filename": "gdb/python/lib/gdb/__init__.py",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/299953ca95cc5ac47e52236e2eeb44afc5369134/gdb/python/lib/gdb/__init__.py",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/299953ca95cc5ac47e52236e2eeb44afc5369134/gdb/python/lib/gdb/__init__.py",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/lib/gdb/__init__.py?ref=299953ca95cc5ac47e52236e2eeb44afc5369134",
+      "patch": "@@ -234,7 +234,7 @@ def find_pc_line(pc):\n \n def set_parameter(name, value):\n     \"\"\"Set the GDB parameter NAME to VALUE.\"\"\"\n-    execute('set ' + name + ' ' + str(value), to_string=True)\n+    execute(\"set \" + name + \" \" + str(value), to_string=True)\n \n \n @contextmanager\n@@ -258,7 +258,9 @@ def colorize(filename, contents):\n         try:\n             lexer = lexers.get_lexer_for_filename(filename, stripnl=False)\n             formatter = formatters.TerminalFormatter()\n-            return highlight(contents, lexer, formatter)\n+            return highlight(contents, lexer, formatter).encode(\n+                host_charset(), \"backslashreplace\"\n+            )\n         except:\n             return None\n "
+    },
+    {
+      "sha": "2e659ee6e146e7b38a3cd775c2424e794a88c5f7",
+      "filename": "gdb/python/python.c",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 14,
+      "changes": 31,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/299953ca95cc5ac47e52236e2eeb44afc5369134/gdb/python/python.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/299953ca95cc5ac47e52236e2eeb44afc5369134/gdb/python/python.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/python.c?ref=299953ca95cc5ac47e52236e2eeb44afc5369134",
+      "patch": "@@ -1172,13 +1172,24 @@ gdbpy_colorize (const std::string &filename, const std::string &contents)\n       gdbpy_print_stack ();\n       return {};\n     }\n-  gdbpy_ref<> contents_arg (PyString_FromString (contents.c_str ()));\n+\n+  /* The pygments library, which is what we currently use for applying\n+     styling, is happy to take input as a bytes object, and to figure out\n+     the encoding for itself.  This removes the need for us to figure out\n+     (guess?) at how the content is encoded, which is probably a good\n+     thing.  */\n+  gdbpy_ref<> contents_arg (PyBytes_FromStringAndSize (contents.c_str (),\n+\t\t\t\t\t\t       contents.size ()));\n   if (contents_arg == nullptr)\n     {\n       gdbpy_print_stack ();\n       return {};\n     }\n \n+  /* Calling gdb.colorize passing in the filename (a string), and the file\n+     contents (a bytes object).  This function should return either a bytes\n+     object, the same contents with styling applied, or None to indicate\n+     that no styling should be performed.  */\n   gdbpy_ref<> result (PyObject_CallFunctionObjArgs (hook.get (),\n \t\t\t\t\t\t    fname_arg.get (),\n \t\t\t\t\t\t    contents_arg.get (),\n@@ -1189,25 +1200,17 @@ gdbpy_colorize (const std::string &filename, const std::string &contents)\n       return {};\n     }\n \n-  if (!gdbpy_is_string (result.get ()))\n+  if (result == Py_None)\n     return {};\n-\n-  gdbpy_ref<> unic = python_string_to_unicode (result.get ());\n-  if (unic == nullptr)\n-    {\n-      gdbpy_print_stack ();\n-      return {};\n-    }\n-  gdbpy_ref<> host_str (PyUnicode_AsEncodedString (unic.get (),\n-\t\t\t\t\t\t   host_charset (),\n-\t\t\t\t\t\t   nullptr));\n-  if (host_str == nullptr)\n+  else if (!PyBytes_Check (result.get ()))\n     {\n+      PyErr_SetString (PyExc_TypeError,\n+\t\t       _(\"Return value from gdb.colorize should be a bytes object or None.\"));\n       gdbpy_print_stack ();\n       return {};\n     }\n \n-  return std::string (PyBytes_AsString (host_str.get ()));\n+  return std::string (PyBytes_AsString (result.get ()));\n }\n \n \f"
+    },
+    {
+      "sha": "e27f46053f50b3eb80b7133b3aa6b06aa52ed062",
+      "filename": "gdb/testsuite/gdb.python/py-source-styling.c",
+      "status": "added",
+      "additions": 29,
+      "deletions": 0,
+      "changes": 29,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/299953ca95cc5ac47e52236e2eeb44afc5369134/gdb/testsuite/gdb.python/py-source-styling.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/299953ca95cc5ac47e52236e2eeb44afc5369134/gdb/testsuite/gdb.python/py-source-styling.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.python/py-source-styling.c?ref=299953ca95cc5ac47e52236e2eeb44afc5369134",
+      "patch": "@@ -0,0 +1,29 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2022 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+int\n+main ()\n+{\n+  int some_variable = 1234;\n+\n+  /* The following line contains a character that is non-utf-8.  This is a\n+     critical part of the test as Python 3 can't convert this into a string\n+     using its default mechanism.  */\n+  char c[] = \"\ufffd\";\t\t/* List this line.  */\n+\n+  return 0;\n+}"
+    },
+    {
+      "sha": "68bbc9f9758f5e5d3b267c3edee3f9376c7d2424",
+      "filename": "gdb/testsuite/gdb.python/py-source-styling.exp",
+      "status": "added",
+      "additions": 64,
+      "deletions": 0,
+      "changes": 64,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/299953ca95cc5ac47e52236e2eeb44afc5369134/gdb/testsuite/gdb.python/py-source-styling.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/299953ca95cc5ac47e52236e2eeb44afc5369134/gdb/testsuite/gdb.python/py-source-styling.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.python/py-source-styling.exp?ref=299953ca95cc5ac47e52236e2eeb44afc5369134",
+      "patch": "@@ -0,0 +1,64 @@\n+# Copyright (C) 2022 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# This file is part of the GDB testsuite.  It checks for memory leaks\n+# associated with allocating and deallocation gdb.Inferior objects.\n+\n+load_lib gdb-python.exp\n+\n+standard_testfile\n+\n+save_vars { env(TERM) } {\n+    # We need an ANSI-capable terminal to get the output, additionally\n+    # we need to set LC_ALL so GDB knows the terminal is UTF-8\n+    # capable, otherwise we'll get a UnicodeEncodeError trying to\n+    # encode the output.\n+    setenv TERM ansi\n+\n+    if { [prepare_for_testing \"failed to prepare\" ${testfile} ${srcfile}] } {\n+\treturn -1\n+    }\n+\n+    if { [skip_python_tests] } { continue }\n+\n+    if { ![gdb_py_module_available \"pygments\"] } {\n+\tunsupported \"pygments module not available\"\n+\treturn -1\n+    }\n+\n+    if ![runto_main] {\n+\treturn\n+    }\n+\n+    gdb_test_no_output \"maint set gnu-source-highlight enabled off\"\n+\n+    gdb_test \"maint flush source-cache\" \"Source cache flushed\\\\.\"\n+\n+    set seen_style_escape false\n+    set line_number [gdb_get_line_number \"List this line.\"]\n+    gdb_test_multiple \"list ${line_number}\" \"\" {\n+\t-re \"Python Exception.*\" {\n+\t    fail $gdb_test_name\n+\t}\n+\t-re \"\\033\" {\n+\t    set seen_style_escape true\n+\t    exp_continue\n+\t}\n+\t-re \"$gdb_prompt $\" {\n+\t    gdb_assert { $seen_style_escape }\n+\t    pass $gdb_test_name\n+\t}\n+    }\n+}"
+    }
+  ]
+}

@@ -1,0 +1,194 @@
+{
+  "sha": "1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MWZiMWNlMDJmYzBlMzExYzFkZWRlM2YyYjk5MmM5ZmMzMTEyNGQ2ZA==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-05-18T13:18:22Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-06-25T19:54:29Z"
+    },
+    "message": "gdb/mi: add new --group-by-objfile flag for -file-list-exec-source-files\n\nThis commit adds a new option '--group-by-objfile' to the MI command\n-file-list-exec-source-files.  With this option the output format is\nchanged; instead of a single list of source files the results are now\na list of objfiles.  For each objfile all of the source files\nassociated with that objfile are listed.\n\nHere is an example of the new output format taken from the\ndocumentation (the newlines are added just for readability):\n\n  -file-list-exec-source-files --group-by-objfile\n  ^done,files=[{filename=\"/tmp/info-sources/test.x\",\n                debug-info=\"fully-read\",\n                sources=[{file=\"test.c\",\n                          fullname=\"/tmp/info-sources/test.c\",\n                          debug-fully-read=\"true\"},\n                         {file=\"/usr/include/stdc-predef.h\",\n                          fullname=\"/usr/include/stdc-predef.h\",\n                          debug-fully-read=\"true\"},\n                         {file=\"header.h\",\n                          fullname=\"/tmp/info-sources/header.h\",\n                          debug-fully-read=\"true\"}]},\n               {filename=\"/lib64/ld-linux-x86-64.so.2\",\n                debug-info=\"none\",\n                sources=[]},\n               {filename=\"system-supplied DSO at 0x7ffff7fcf000\",\n                debug-info=\"none\",\n                sources=[]},\n               {filename=\"/tmp/info-sources/libhelper.so\",\n                debug-info=\"fully-read\",\n                sources=[{file=\"helper.c\",\n                          fullname=\"/tmp/info-sources/helper.c\",\n                          debug-fully-read=\"true\"},\n                         {file=\"/usr/include/stdc-predef.h\",\n                          fullname=\"/usr/include/stdc-predef.h\",\n                          debug-fully-read=\"true\"},\n                         {file=\"header.h\",\n                          fullname=\"/tmp/info-sources/header.h\",\n                          debug-fully-read=\"true\"}]},\n               {filename=\"/lib64/libc.so.6\",\n                debug-info=\"none\",\n                sources=[]}]\n\nIn the above output the 'debug-info' field associated with each\nobjfile will have one of the values 'none', 'partially-read', or\n'fully-read'.  For example, /lib64/libc.so.6 has the value 'none',\nthis indicates that this object file has no debug information\nassociated with it, unsurprisingly then, the sources list of this\nobject file is empty.\n\nAn object file that was compiled with debug, for example\n/tmp/info-sources/libhelper.so, has the value 'fully-read' above\nindicating that this object file does have debug information, and the\ninformation is fully read into GDB.  At different times this field\nmight have the value 'partially-read' indicating that that the object\nfile has debug information, but it has not been fully read into GDB\nyet.\n\nSource files can appear at most once for any single objfile, but can\nappear multiple times in total, if the same source file is part of\nmultiple objfiles, for example /tmp/info-sources/header.h in the above\noutput.\n\nThe new output format is hidden behind a command option to ensure that\nthe default output is unchanged, this ensures backward compatibility.\n\nThe behaviour of the CLI \"info sources\" command is unchanged after\nthis commit.\n\ngdb/ChangeLog:\n\n\t* NEWS: Mention additions to -file-list-exec-source-files.\n\t* mi/mi-cmd-file.c (mi_cmd_file_list_exec_source_files): Add\n\t--group-by-objfile option.\n\t* symtab.c (isrc_flag_option_def): Rename to...\n\t(isrc_match_flag_option_def): ...this.\n\t(info_sources_option_defs): Rename to...\n\t(info_sources_match_option_defs): ...this, and update to rename of\n\tisrc_flag_option_def.\n\t(struct filename_grouping_opts): New struct.\n\t(isrc_grouping_flag_option_def): New type.\n\t(info_sources_grouping_option_defs): New static global.\n\t(make_info_sources_options_def_group): Update to return two option\n\tgroups.\n\t(info_sources_command_completer): Update for changes to\n\tmake_info_sources_options_def_group.\n\t(info_sources_worker): Add extra parameter, use this to display\n\talternative output format.\n\t(info_sources_command): Pass extra parameter to\n\tinfo_sources_worker.\n\t(_initialize_symtab): Update for changes to\n\tmake_info_sources_options_def_group.\n\t* symtab.h (info_sources_worker): Add extra parameter.\n\ngdb/doc/ChangeLog:\n\n\t* gdb.texinfo (GDB/MI File Commands): Document --group-by-objfile\n\textension for -file-list-exec-source-files.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.mi/mi-info-sources.exp: Add additional tests.",
+    "tree": {
+      "sha": "209422c5076aafb3134528d5aa8db889b56ea0bf",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/209422c5076aafb3134528d5aa8db889b56ea0bf"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "0e350a054bbeb4d00f2c430c4815c82d5ffb47a7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0e350a054bbeb4d00f2c430c4815c82d5ffb47a7",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/0e350a054bbeb4d00f2c430c4815c82d5ffb47a7"
+    }
+  ],
+  "stats": {
+    "total": 205,
+    "additions": 192,
+    "deletions": 13
+  },
+  "files": [
+    {
+      "sha": "637fd096a9306c02f383b49c3a450fd8ba964349",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 25,
+      "deletions": 0,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d",
+      "patch": "@@ -1,3 +1,28 @@\n+2021-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* NEWS: Mention additions to -file-list-exec-source-files.\n+\t* mi/mi-cmd-file.c (mi_cmd_file_list_exec_source_files): Add\n+\t--group-by-objfile option.\n+\t* symtab.c (isrc_flag_option_def): Rename to...\n+\t(isrc_match_flag_option_def): ...this.\n+\t(info_sources_option_defs): Rename to...\n+\t(info_sources_match_option_defs): ...this, and update to rename of\n+\tisrc_flag_option_def.\n+\t(struct filename_grouping_opts): New struct.\n+\t(isrc_grouping_flag_option_def): New type.\n+\t(info_sources_grouping_option_defs): New static global.\n+\t(make_info_sources_options_def_group): Update to return two option\n+\tgroups.\n+\t(info_sources_command_completer): Update for changes to\n+\tmake_info_sources_options_def_group.\n+\t(info_sources_worker): Add extra parameter, use this to display\n+\talternative output format.\n+\t(info_sources_command): Pass extra parameter to\n+\tinfo_sources_worker.\n+\t(_initialize_symtab): Update for changes to\n+\tmake_info_sources_options_def_group.\n+\t* symtab.h (info_sources_worker): Add extra parameter.\n+\n 2021-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* NEWS: Mention additions to -file-list-exec-source-files."
+    },
+    {
+      "sha": "f37ad425d3ae7ca6a4f59b51a32b27d00aa40210",
+      "filename": "gdb/NEWS",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 1,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d/gdb/NEWS",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d/gdb/NEWS",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/NEWS?ref=1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d",
+      "patch": "@@ -49,7 +49,9 @@\n     all locations of the selected breakpoint.  This is equivalent to\n     the '-force' flag of the CLI's \"cond\" command.\n \n- ** '-file-list-exec-source-files [--basename | --dirname] [--] [REGEXP]'\n+ ** '-file-list-exec-source-files [--group-by-objfile]\n+ \t                          [--basename | --dirname]\n+                                  [--] [REGEXP]'\n \n     The existing -file-list-exec-source-files command now takes an\n     optional REGEXP which is used to filter the source files that are\n@@ -60,6 +62,11 @@\n     REGEXP is only matched against the specified part of the full\n     source filename.\n \n+    When the optional --group-by-objfile flag is used the output\n+    format is changed, the results are now a list of object files\n+    (executable and libraries) with the source files that are\n+    associated with each object file.\n+\n     The results from -file-list-exec-source-files now include a\n     'debug-fully-read' field which takes the value 'true' or 'false'.\n     A 'true' value indicates the source file is from a compilation"
+    },
+    {
+      "sha": "20ea7f7d12d9e4a560d96bdfb5b833a27e05fbd7",
+      "filename": "gdb/doc/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d/gdb/doc/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d/gdb/doc/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/ChangeLog?ref=1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.texinfo (GDB/MI File Commands): Document --group-by-objfile\n+\textension for -file-list-exec-source-files.\n+\n 2021-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.texinfo (GDB/MI File Commands): Document extensions to"
+    },
+    {
+      "sha": "19b6a5f2120258da4731d001438f22a6a9afdbb2",
+      "filename": "gdb/doc/gdb.texinfo",
+      "status": "modified",
+      "additions": 59,
+      "deletions": 1,
+      "changes": 60,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d/gdb/doc/gdb.texinfo",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d/gdb/doc/gdb.texinfo",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/gdb.texinfo?ref=1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d",
+      "patch": "@@ -35629,7 +35629,8 @@ The @value{GDBN} equivalent is @samp{info source}\n @subsubheading Synopsis\n \n @smallexample\n- -file-list-exec-source-files @r{[} @var{--dirname} @r{|} @var{--basename} @r{]}\n+ -file-list-exec-source-files @r{[} @var{--group-by-objfile} @r{]}\n+                              @r{[} @var{--dirname} @r{|} @var{--basename} @r{]}\n                               @r{[} -- @r{]}\n                               @r{[} @var{regexp} @r{]}\n @end smallexample\n@@ -35667,6 +35668,31 @@ is provided, then @var{regexp} is matched against the basename of each\n source file.  Only one of @code{--dirname} or @code{--basename} may be\n given, and if either is given then @var{regexp} is required.\n \n+If @code{--group-by-objfile} is used then the format of the results is\n+changed.  The results will now be a list of tuples, with each tuple\n+representing an object file (executable or shared library) loaded into\n+@value{GDBN}.  The fields of these tuples are; @var{filename},\n+@var{debug-info}, and @var{sources}.  The @var{filename} is the\n+absolute name of the object file, @var{debug-info} is a string with\n+one of the following values:\n+\n+@table @code\n+@item none\n+This object file has no debug information.\n+@item partially-read\n+This object file has debug information, but it is not fully read in\n+yet.  When it is read in later, GDB might become aware of additional\n+source files.\n+@item fully-read\n+This object file has debug information, and this information is fully\n+read into GDB.  The list of source files is complete.\n+@end table\n+\n+The @var{sources} is a list or tuples, with each tuple describing a\n+single source file with the same fields as described previously.  The\n+@var{sources} list can be empty for object files that have no debug\n+information.\n+\n @subsubheading @value{GDBN} Command\n \n The @value{GDBN} equivalent is @samp{info sources}.\n@@ -35702,6 +35728,38 @@ The @value{GDBN} equivalent is @samp{info sources}.\n               fullname=\"/tmp/info-sources/helper.c\",\n               debug-fully-read=\"true\"@}]\n (@value{GDBP})\n+-file-list-exec-source-files --group-by-objfile\n+^done,files=[@{filename=\"/tmp/info-sources/test.x\",\n+              debug-info=\"fully-read\",\n+              sources=[@{file=\"test.c\",\n+                        fullname=\"/tmp/info-sources/test.c\",\n+                        debug-fully-read=\"true\"@},\n+                       @{file=\"/usr/include/stdc-predef.h\",\n+                        fullname=\"/usr/include/stdc-predef.h\",\n+                        debug-fully-read=\"true\"@},\n+                       @{file=\"header.h\",\n+                        fullname=\"/tmp/info-sources/header.h\",\n+                        debug-fully-read=\"true\"@}]@},\n+             @{filename=\"/lib64/ld-linux-x86-64.so.2\",\n+              debug-info=\"none\",\n+              sources=[]@},\n+             @{filename=\"system-supplied DSO at 0x7ffff7fcf000\",\n+              debug-info=\"none\",\n+              sources=[]@},\n+             @{filename=\"/tmp/info-sources/libhelper.so\",\n+              debug-info=\"fully-read\",\n+              sources=[@{file=\"helper.c\",\n+                        fullname=\"/tmp/info-sources/helper.c\",\n+                        debug-fully-read=\"true\"@},\n+                       @{file=\"/usr/include/stdc-predef.h\",\n+                        fullname=\"/usr/include/stdc-predef.h\",\n+                        debug-fully-read=\"true\"@},\n+                       @{file=\"header.h\",\n+                        fullname=\"/tmp/info-sources/header.h\",\n+                        debug-fully-read=\"true\"@}]@},\n+             @{filename=\"/lib64/libc.so.6\",\n+              debug-info=\"none\",\n+              sources=[]@}]\n @end smallexample\n \n @subheading The @code{-file-list-shared-libraries} Command"
+    },
+    {
+      "sha": "0970d369cc5a20f9f21c3410432294b5f1da5c96",
+      "filename": "gdb/mi/mi-cmd-file.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 2,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d/gdb/mi/mi-cmd-file.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d/gdb/mi/mi-cmd-file.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/mi/mi-cmd-file.c?ref=1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d",
+      "patch": "@@ -69,11 +69,13 @@ mi_cmd_file_list_exec_source_files (const char *command, char **argv, int argc)\n {\n   enum opt\n     {\n+      GROUP_BY_OBJFILE_OPT,\n       MATCH_BASENAME_OPT,\n       MATCH_DIRNAME_OPT\n     };\n   static const struct mi_opt opts[] =\n   {\n+    {\"-group-by-objfile\", GROUP_BY_OBJFILE_OPT, 0},\n     {\"-basename\", MATCH_BASENAME_OPT, 0},\n     {\"-dirname\", MATCH_DIRNAME_OPT, 0},\n     { 0, 0, 0 }\n@@ -83,6 +85,7 @@ mi_cmd_file_list_exec_source_files (const char *command, char **argv, int argc)\n   int oind = 0;\n   char *oarg;\n \n+  bool group_by_objfile = false;\n   bool match_on_basename = false;\n   bool match_on_dirname = false;\n \n@@ -94,6 +97,9 @@ mi_cmd_file_list_exec_source_files (const char *command, char **argv, int argc)\n \tbreak;\n       switch ((enum opt) opt)\n \t{\n+\tcase GROUP_BY_OBJFILE_OPT:\n+\t  group_by_objfile = true;\n+\t  break;\n \tcase MATCH_BASENAME_OPT:\n \t  match_on_basename = true;\n \t  break;\n@@ -104,7 +110,7 @@ mi_cmd_file_list_exec_source_files (const char *command, char **argv, int argc)\n     }\n \n   if ((argc - oind > 1) || (match_on_basename && match_on_dirname))\n-    error (_(\"-file-list-exec-source-files: Usage: [--basename | --dirname] [--] REGEXP\"));\n+    error (_(\"-file-list-exec-source-files: Usage: [--group-by-objfile] [--basename | --dirname] [--] REGEXP\"));\n \n   const char *regexp = nullptr;\n   if (argc - oind == 1)\n@@ -119,7 +125,7 @@ mi_cmd_file_list_exec_source_files (const char *command, char **argv, int argc)\n     match_type = info_sources_filter::match_on::FULLNAME;\n \n   info_sources_filter filter (match_type, regexp);\n-  info_sources_worker (current_uiout, filter);\n+  info_sources_worker (current_uiout, group_by_objfile, filter);\n }\n \n /* See mi-cmds.h.  */"
+    },
+    {
+      "sha": "cd6da0631417b28b28f7cd0ff2a7fd20c85e0d78",
+      "filename": "gdb/symtab.c",
+      "status": "modified",
+      "additions": 45,
+      "deletions": 9,
+      "changes": 54,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d/gdb/symtab.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d/gdb/symtab.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/symtab.c?ref=1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d",
+      "patch": "@@ -4459,6 +4459,7 @@ info_sources_command_completer (cmd_list_element *ignore,\n \n void\n info_sources_worker (struct ui_out *uiout,\n+\t\t     bool group_by_objfile,\n \t\t     const info_sources_filter &filter)\n {\n   output_source_filename_data data (uiout, filter);\n@@ -4467,11 +4468,35 @@ info_sources_worker (struct ui_out *uiout,\n   gdb::optional<ui_out_emit_tuple> output_tuple;\n   gdb::optional<ui_out_emit_list> sources_list;\n \n-  if (!uiout->is_mi_like_p ())\n-    data.print_header (_(\"Source files for which symbols have been read in:\\n\"));\n+  gdb_assert (!group_by_objfile || uiout->is_mi_like_p ());\n+\n+  if (!group_by_objfile)\n+    {\n+      if (!uiout->is_mi_like_p ())\n+\tdata.print_header (_(\"Source files for which symbols have been read in:\\n\"));\n+    }\n \n   for (objfile *objfile : current_program_space->objfiles ())\n     {\n+      if (group_by_objfile)\n+\t{\n+\t  output_tuple.emplace (uiout, nullptr);\n+\t  uiout->field_string (\"filename\", objfile_name (objfile));\n+\t  bool debug_fully_readin = !objfile->has_unexpanded_symtabs ();\n+\t  const char *debug_info_state;\n+\t  if (objfile_has_symbols (objfile))\n+\t    {\n+\t      if (debug_fully_readin)\n+\t\tdebug_info_state = \"fully-read\";\n+\t      else\n+\t\tdebug_info_state = \"partially-read\";\n+\t    }\n+\t  else\n+\t    debug_info_state = \"none\";\n+\t  current_uiout->field_string (\"debug-info\", debug_info_state);\n+\t  sources_list.emplace (uiout, \"sources\");\n+\t}\n+\n       for (compunit_symtab *cu : objfile->compunits ())\n \t{\n \t  for (symtab *s : compunit_filetabs (cu))\n@@ -4481,14 +4506,25 @@ info_sources_worker (struct ui_out *uiout,\n \t      data.output (file, fullname, true);\n \t    }\n \t}\n+\n+      if (group_by_objfile)\n+\t{\n+\t  objfile->map_symbol_filenames (data, true /* need_fullname */);\n+\t  data.reset_output ();\n+\t  sources_list.reset ();\n+\t  output_tuple.reset ();\n+\t}\n     }\n \n-  uiout->text (\"\\n\\n\");\n-  if (!uiout->is_mi_like_p ())\n-    data.print_header (_(\"Source files for which symbols will be read in on demand:\\n\"));\n-  data.reset_output ();\n-  map_symbol_filenames (data, true /*need_fullname*/);\n-  uiout->text (\"\\n\");\n+  if (!group_by_objfile)\n+    {\n+      uiout->text (\"\\n\\n\");\n+      if (!uiout->is_mi_like_p ())\n+\tdata.print_header (_(\"Source files for which symbols will be read in on demand:\\n\"));\n+      data.reset_output ();\n+      map_symbol_filenames (data, true /*need_fullname*/);\n+      uiout->text (\"\\n\");\n+    }\n }\n \n /* Implement the 'info sources' command.  */\n@@ -4523,7 +4559,7 @@ info_sources_command (const char *args, int from_tty)\n     match_type = info_sources_filter::match_on::FULLNAME;\n \n   info_sources_filter filter (match_type, regex);\n-  info_sources_worker (current_uiout, filter);\n+  info_sources_worker (current_uiout, false, filter);\n }\n \n /* Compare FILE against all the entries of FILENAMES.  If BASENAMES is"
+    },
+    {
+      "sha": "968b4476993adb7f743fc6a82c1576214452e87b",
+      "filename": "gdb/symtab.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d/gdb/symtab.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d/gdb/symtab.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/symtab.h?ref=1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d",
+      "patch": "@@ -2446,6 +2446,7 @@ struct info_sources_filter\n    Output is written to UIOUT in CLI or MI style as appropriate.  */\n \n extern void info_sources_worker (struct ui_out *uiout,\n+\t\t\t\t bool group_by_objfile,\n \t\t\t\t const info_sources_filter &filter);\n \n #endif /* !defined(SYMTAB_H) */"
+    },
+    {
+      "sha": "8a8c7f22ea38bca6022a3711a24e12d067a2771c",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d",
+      "patch": "@@ -1,3 +1,7 @@\n+2021-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.mi/mi-info-sources.exp: Add additional tests.\n+\n 2021-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.dwarf2/dw2-filename.exp: Update expected results."
+    },
+    {
+      "sha": "c4d6b910ef82781db4aac4c4055c549c9f44ced0",
+      "filename": "gdb/testsuite/gdb.mi/mi-info-sources.exp",
+      "status": "modified",
+      "additions": 37,
+      "deletions": 0,
+      "changes": 37,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d/gdb/testsuite/gdb.mi/mi-info-sources.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d/gdb/testsuite/gdb.mi/mi-info-sources.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.mi/mi-info-sources.exp?ref=1fb1ce02fc0e311c1dede3f2b992c9fc31124d6d",
+      "patch": "@@ -137,6 +137,43 @@ proc check_info_sources { debug_fully_read } {\n \t\t\t[mi_field \"debug-fully-read\" \"${debug_fully_read}\"]]]\n \tmi_gdb_test \"-file-list-exec-source-files --basename -- base\" \".*\\\\^done,${p}\" \\\n \t    \"-file-list-exec-source-files --basename -- base\"\n+\n+\t# Figure out the value for the 'debug-info' field.\n+\tif {${debug_fully_read} == \"true\"} {\n+\t    set debug_info \"fully-read\"\n+\t} else {\n+\t    set debug_info \"partially-read\"\n+\t}\n+\n+\tset p [mi_list \"files\" \\\n+\t\t   [mi_tuple \"\" \\\n+\t\t\t[mi_field \"filename\" \"\\[^\\\"\\]+/mi-info-sources\"] \\\n+\t\t\t[mi_field \"debug-info\" \"${debug_info}\"] \\\n+\t\t\t[mi_list \"sources\" \\\n+\t\t\t     \".*\" \\\n+\t\t\t     [mi_tuple \"\" \\\n+\t\t\t\t  [mi_field \"file\" \"\\[^\\\"\\]+/mi-info-sources\\\\.c\"] \\\n+\t\t\t\t  [mi_field \"fullname\" \"\\[^\\\"\\]+/mi-info-sources\\\\.c\"] \\\n+\t\t\t\t  [mi_field \"debug-fully-read\" \"true\"]] \\\n+\t\t\t     \".*\"]]]\n+\tmi_gdb_test \"-file-list-exec-source-files --group-by-objfile\" \\\n+\t    \".*\\\\^done,${p}\" \\\n+\t    \"-file-list-exec-source-files --group-by-objfile, look for mi-info-sources.c\"\n+\n+\tset p [mi_list \"files\" \\\n+\t\t   [mi_tuple \"\" \\\n+\t\t\t[mi_field \"filename\" \"\\[^\\\"\\]+/mi-info-sources\"] \\\n+\t\t\t[mi_field \"debug-info\" \"${debug_info}\"] \\\n+\t\t\t[mi_list \"sources\" \\\n+\t\t\t     \".*\" \\\n+\t\t\t     [mi_tuple \"\" \\\n+\t\t\t\t  [mi_field \"file\" \"\\[^\\\"\\]+/mi-info-sources-base\\\\.c\"] \\\n+\t\t\t\t  [mi_field \"fullname\" \"\\[^\\\"\\]+/mi-info-sources-base\\\\.c\"] \\\n+\t\t\t\t  [mi_field \"debug-fully-read\" \"${debug_fully_read}\"]] \\\n+\t\t\t     \".*\"]]]\n+\tmi_gdb_test \"-file-list-exec-source-files --group-by-objfile\" \\\n+\t    \".*\\\\^done,${p}\" \\\n+\t    \"-file-list-exec-source-files --group-by-objfile, look for mi-info-sources-base.c\"\n     }\n }\n "
+    }
+  ]
+}

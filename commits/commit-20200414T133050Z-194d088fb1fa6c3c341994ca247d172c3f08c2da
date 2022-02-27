@@ -1,0 +1,146 @@
+{
+  "sha": "194d088fb1fa6c3c341994ca247d172c3f08c2da",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MTk0ZDA4OGZiMWZhNmMzYzM0MTk5NGNhMjQ3ZDE3MmMzZjA4YzJkYQ==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-04-14T13:30:50Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-04-14T13:30:50Z"
+    },
+    "message": "[gdb] Fix missing symtab includes\n\n[ The test-case requires commit c1a66c0629 \"[gdb] Expand symbolless symtabs\nusing maint expand-symtabs\". ]\n\nConsider the debug info for the test-case included in this patch.  It consists\nof a PU:\n...\n <0><d2>: Abbrev Number: 2 (DW_TAG_partial_unit)\n <1><d3>: Abbrev Number: 0\n...\nimported by a CU:\n...\n <0><df>: Abbrev Number: 2 (DW_TAG_compile_unit)\n    <e0>   DW_AT_language    : 2        (non-ANSI C)\n    <e1>   DW_AT_stmt_list   : 0xe9\n <1><e5>: Abbrev Number: 3 (DW_TAG_imported_unit)\n    <e6>   DW_AT_import      : <0xd2>   [Abbrev Number: 2]\n <1><ea>: Abbrev Number: 0\n...\nand the CU has a dw2-symtab-includes.h file in the .debug_line file name\ntable:\n...\n The Directory Table (offset 0x101):\n  1     /data/gdb_versions/devel/src/gdb/testsuite/gdb.dwarf2\n\n The File Name Table (offset 0x138):\n  Entry Dir     Time    Size    Name\n  1     1       0       0       dw2-symtab-includes.h\n...\n\nAfter expanding all symtabs, we can see the CU listed in the user field of the\nPU, and vice-versa the PU listed in the includes of the CU:\n...\n$ gdb.sh -batch \\\n  -iex \"set language c\" \\\n  outputs/gdb.dwarf2/dw2-symtab-includes/dw2-symtab-includes \\\n  -ex \"maint expand-symtabs\" \\\n  -ex \"maint info symtabs\"\n  ...\n  { ((struct compunit_symtab *) 0x394dd60)\n    debugformat DWARF 2\n    producer (null)\n    dirname (null)\n    blockvector ((struct blockvector *) 0x394dea0)\n    user ((struct compunit_symtab *) 0x394dba0)\n  }\n  { ((struct compunit_symtab *) 0x394dba0)\n    debugformat DWARF 2\n    producer (null)\n    dirname (null)\n    blockvector ((struct blockvector *) 0x394dd10)\n    user ((struct compunit_symtab *) (null))\n    ( includes\n      ((struct compunit_symtab *) 0x394dd60)\n    )\n  }\n...\n\nBut if we instead only expand the symtab for the dw2-symtab-includes.h file,\nthe includes and user links are gone:\n...\n$ gdb -batch \\\n  -iex \"set language c\" \\\n  outputs/gdb.dwarf2/dw2-symtab-includes/dw2-symtab-includes \\\n  -ex \"maint expand-symtabs dw2-symtab-includes.h\" \\\n  -ex \"maint info symtabs\"\n  ...\n  { ((struct compunit_symtab *) 0x2728210)\n    debugformat DWARF 2\n    producer (null)\n    dirname (null)\n    blockvector ((struct blockvector *) 0x2728350)\n    user ((struct compunit_symtab *) (null))\n  }\n  { ((struct compunit_symtab *) 0x2728050)\n    debugformat DWARF 2\n    producer (null)\n    dirname (null)\n    blockvector ((struct blockvector *) 0x27281c0)\n    user ((struct compunit_symtab *) (null))\n  }\n...\n\nThe includes are calculated by process_cu_includes in gdb/dwarf2/read.c.\n\nIn the case of expanding all symtabs:\n- the CU partial symtab is expanded using psymtab_to_symtab\n- psymtab_to_symtab calls dwarf2_psymtab::read_symtab\n- dwarf2_psymtab::read_symtab calls dwarf2_psymtab::expand_psymtab\n- dwarf2_psymtab::read_symtab calls process_cu_includes, and we have the\n  includes\n\nIn the case of expanding the symtab for dw2-symtab-includes.h:\n- the dw2-symtab-includes.h partial symtab is expanded using psymtab_to_symtab\n- psymtab_to_symtab calls dwarf2_include_psymtab::read_symtab\n- dwarf2_include_psymtab::read_symtab calls\n  dwarf2_include_psymtab::expand_psymtab\n- dwarf2_include_psymtab::expand_psymtab calls\n  partial_symtab::expand_dependencies\n- partial_symtab::expand_dependencies calls dwarf2_psymtab::expand_psymtab\n  for the CU partial symtab\n- the CU partial symtab is expanded using dwarf2_psymtab::expand_psymtab\n- process_cu_includes is never called\n\nFix this by making sure in dwarf2_include_psymtab::read_symtab that\nread_symtab is called for the CU partial symtab.\n\nTested on x86_64-linux, with native, and target board cc-with-dwz and\ncc-with-dwz-m.\n\nIn addition, tested test-case with target boards cc-with-gdb-index.exp,\ncc-with-debug-names.exp and readnow.exp.\n\ngdb/ChangeLog:\n\n2020-04-14  Simon Marchi  <simon.marchi@polymtl.ca>\n\t    Tom de Vries  <tdevries@suse.de>\n\n\tPR symtab/25718\n\t* psympriv.h (struct partial_symtab::read_symtab)\n\t(struct partial_symtab::expand_psymtab)\n\t(struct partial_symtab::read_dependencies): Update comments.\n\t* dwarf2/read.c (struct dwarf2_include_psymtab::read_symtab): Call\n\tread_symtab for includer.\n\t(struct dwarf2_include_psymtab::expand_psymtab): Assert false.\n\t(struct dwarf2_include_psymtab::readin_p): Call readin_p () for includer.\n\t(struct dwarf2_include_psymtab::m_readin): Remove.\n\t(struct dwarf2_include_psymtab::includer): New member function.\n\t(dwarf2_psymtab::expand_psymtab): Assert !readin.\n\ngdb/testsuite/ChangeLog:\n\n2020-04-14  Tom de Vries  <tdevries@suse.de>\n\n\tPR symtab/25718\n\t* gdb.dwarf2/dw2-symtab-includes.exp: New file.",
+    "tree": {
+      "sha": "3a7dd08a02a4367db51ebab39ad55be0eb9214ec",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/3a7dd08a02a4367db51ebab39ad55be0eb9214ec"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/194d088fb1fa6c3c341994ca247d172c3f08c2da",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/194d088fb1fa6c3c341994ca247d172c3f08c2da",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/194d088fb1fa6c3c341994ca247d172c3f08c2da",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/194d088fb1fa6c3c341994ca247d172c3f08c2da/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "c1a66c0629d3b62075a73793f1a7e7393e23e7e2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c1a66c0629d3b62075a73793f1a7e7393e23e7e2",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/c1a66c0629d3b62075a73793f1a7e7393e23e7e2"
+    }
+  ],
+  "stats": {
+    "total": 159,
+    "additions": 141,
+    "deletions": 18
+  },
+  "files": [
+    {
+      "sha": "b0543725c2ff47803ab58a44ecab0691cc3d101c",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/194d088fb1fa6c3c341994ca247d172c3f08c2da/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/194d088fb1fa6c3c341994ca247d172c3f08c2da/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=194d088fb1fa6c3c341994ca247d172c3f08c2da",
+      "patch": "@@ -1,3 +1,18 @@\n+2020-04-14  Simon Marchi  <simon.marchi@polymtl.ca>\n+\t    Tom de Vries  <tdevries@suse.de>\n+\n+\tPR symtab/25718\n+\t* psympriv.h (struct partial_symtab::read_symtab)\n+\t(struct partial_symtab::expand_psymtab)\n+\t(struct partial_symtab::read_dependencies): Update comments.\n+\t* dwarf2/read.c (struct dwarf2_include_psymtab::read_symtab): Call\n+\tread_symtab for includer.\n+\t(struct dwarf2_include_psymtab::expand_psymtab): Assert false.\n+\t(struct dwarf2_include_psymtab::readin_p): Call readin_p () for includer.\n+\t(struct dwarf2_include_psymtab::m_readin): Remove.\n+\t(struct dwarf2_include_psymtab::includer): New member function.\n+\t(dwarf2_psymtab::expand_psymtab): Assert !readin.\n+\n 2020-04-14  Tom de Vries  <tdevries@suse.de>\n \n \tPR symtab/25720"
+    },
+    {
+      "sha": "4910c9b6fc7ca0952133baa9e37b628b52aba0eb",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 25,
+      "deletions": 12,
+      "changes": 37,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/194d088fb1fa6c3c341994ca247d172c3f08c2da/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/194d088fb1fa6c3c341994ca247d172c3f08c2da/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=194d088fb1fa6c3c341994ca247d172c3f08c2da",
+      "patch": "@@ -5917,22 +5917,31 @@ struct dwarf2_include_psymtab : public partial_symtab\n \n   void read_symtab (struct objfile *objfile) override\n   {\n-    expand_psymtab (objfile);\n+    /* It's an include file, no symbols to read for it.\n+       Everything is in the includer symtab.  */\n+\n+    /* The expansion of a dwarf2_include_psymtab is just a trigger for\n+       expansion of the includer psymtab.  We use the dependencies[0] field to\n+       model the includer.  But if we go the regular route of calling\n+       expand_psymtab here, and having expand_psymtab call expand_dependencies\n+       to expand the includer, we'll only use expand_psymtab on the includer\n+       (making it a non-toplevel psymtab), while if we expand the includer via\n+       another path, we'll use read_symtab (making it a toplevel psymtab).\n+       So, don't pretend a dwarf2_include_psymtab is an actual toplevel\n+       psymtab, and trigger read_symtab on the includer here directly.  */\n+    includer ()->read_symtab (objfile);\n   }\n \n   void expand_psymtab (struct objfile *objfile) override\n   {\n-    if (m_readin)\n-      return;\n-    /* It's an include file, no symbols to read for it.\n-       Everything is in the parent symtab.  */\n-    expand_dependencies (objfile);\n-    m_readin = true;\n+    /* This is not called by read_symtab, and should not be called by any\n+       expand_dependencies.  */\n+    gdb_assert (false);\n   }\n \n   bool readin_p () const override\n   {\n-    return m_readin;\n+    return includer ()->readin_p ();\n   }\n \n   struct compunit_symtab *get_compunit_symtab () const override\n@@ -5941,8 +5950,13 @@ struct dwarf2_include_psymtab : public partial_symtab\n   }\n \n private:\n-\n-  bool m_readin = false;\n+  partial_symtab *includer () const\n+  {\n+    /* An include psymtab has exactly one dependency: the psymtab that\n+       includes it.  */\n+    gdb_assert (this->number_of_dependencies == 1);\n+    return this->dependencies[0];\n+  }\n };\n \n /* Allocate a new partial symtab for file named NAME and mark this new\n@@ -8858,8 +8872,7 @@ process_queue (struct dwarf2_per_objfile *dwarf2_per_objfile)\n void\n dwarf2_psymtab::expand_psymtab (struct objfile *objfile)\n {\n-  if (readin)\n-    return;\n+  gdb_assert (!readin);\n \n   expand_dependencies (objfile);\n "
+    },
+    {
+      "sha": "fdcee99e330989dd0b11edb1b61559dd2b712329",
+      "filename": "gdb/psympriv.h",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 6,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/194d088fb1fa6c3c341994ca247d172c3f08c2da/gdb/psympriv.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/194d088fb1fa6c3c341994ca247d172c3f08c2da/gdb/psympriv.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/psympriv.h?ref=194d088fb1fa6c3c341994ca247d172c3f08c2da",
+      "patch": "@@ -124,16 +124,26 @@ struct partial_symtab\n   {\n   }\n \n-  /* Read the full symbol table corresponding to this partial symbol\n-     table.  */\n+  /* Psymtab expansion is done in two steps:\n+     - a call to read_symtab\n+     - while that call is in progress, calls to expand_psymtab can be made,\n+       both for this psymtab, and its dependencies.\n+     This makes a distinction between a toplevel psymtab (for which both\n+     read_symtab and expand_psymtab will be called) and a non-toplevel\n+     psymtab (for which only expand_psymtab will be called). The\n+     distinction can be used f.i. to do things before and after all\n+     dependencies of a top-level psymtab have been expanded.\n+\n+     Read the full symbol table corresponding to this partial symbol\n+     table.  Typically calls expand_psymtab.  */\n   virtual void read_symtab (struct objfile *) = 0;\n \n-  /* Psymtab expansion is done in two steps.  The first step is a call\n-     to read_symtab; but while that is in progress, calls to\n-     expand_psymtab can be made.  */\n+  /* Expand the full symbol table for this partial symbol table.  Typically\n+     calls expand_dependencies.  */\n   virtual void expand_psymtab (struct objfile *) = 0;\n \n-  /* Ensure that all the dependencies are read in.  */\n+  /* Ensure that all the dependencies are read in.  Calls\n+     expand_psymtab for each non-shared dependency.  */\n   void expand_dependencies (struct objfile *);\n \n   /* Return true if the symtab corresponding to this psymtab has been"
+    },
+    {
+      "sha": "7259e05d477d56601a7d4d235b375e9890266d40",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/194d088fb1fa6c3c341994ca247d172c3f08c2da/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/194d088fb1fa6c3c341994ca247d172c3f08c2da/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=194d088fb1fa6c3c341994ca247d172c3f08c2da",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-04-14  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR symtab/25718\n+\t* gdb.dwarf2/dw2-symtab-includes.exp: New file.\n+\n 2020-04-14  Tom de Vries  <tdevries@suse.de>\n \n \tPR symtab/25720"
+    },
+    {
+      "sha": "1eaaf4af4fac50c85ebdf24f479c8ae47914cb54",
+      "filename": "gdb/testsuite/gdb.dwarf2/dw2-symtab-includes.exp",
+      "status": "added",
+      "additions": 80,
+      "deletions": 0,
+      "changes": 80,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/194d088fb1fa6c3c341994ca247d172c3f08c2da/gdb/testsuite/gdb.dwarf2/dw2-symtab-includes.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/194d088fb1fa6c3c341994ca247d172c3f08c2da/gdb/testsuite/gdb.dwarf2/dw2-symtab-includes.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/dw2-symtab-includes.exp?ref=194d088fb1fa6c3c341994ca247d172c3f08c2da",
+      "patch": "@@ -0,0 +1,80 @@\n+# Copyright 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Check that symtab user and includes are present after symtab expansion\n+# triggered by an include file.\n+\n+load_lib dwarf.exp\n+\n+# This test can only be run on targets which support DWARF-2 and use gas.\n+if {![dwarf2_support]} {\n+    return 0\n+}\n+\n+standard_testfile main.c .S\n+\n+# Create the DWARF.\n+set asm_file [standard_output_file $srcfile2]\n+Dwarf::assemble $asm_file {\n+    declare_labels partial_label lines_label\n+    global srcdir subdir srcfile\n+\n+    extern main\n+\n+    cu {} {\n+\tpartial_label: partial_unit {} {\n+\t}\n+    }\n+\n+    cu {} {\n+\tcompile_unit {\n+\t    {language @DW_LANG_C}\n+\t    {stmt_list ${lines_label} DW_FORM_sec_offset}\n+\t} {\n+\t    imported_unit {\n+\t\t{import $partial_label ref_addr}\n+\t    }\n+\t}\n+    }\n+\n+    lines {version 2} lines_label {\n+\tinclude_dir \"${srcdir}/${subdir}\"\n+\tfile_name \"dw2-symtab-includes.h\" 1\n+\tprogram {\n+\t    {DW_LNS_advance_line 1}\n+\t}\n+    }\n+}\n+\n+if { [prepare_for_testing \"failed to prepare\" $testfile \\\n+\t  \"${asm_file} ${srcfile}\" {}] } {\n+    return -1\n+}\n+\n+# Check that no symtabs are expanded.\n+set test \"no symtabs expanded\"\n+if { [readnow] } {\n+    unsupported $test\n+    return -1\n+}\n+gdb_test_no_output \"maint info symtabs\" $test\n+\n+# Expand dw2-symtab-includes.h symtab\n+gdb_test \"maint expand-symtab dw2-symtab-includes.h\"\n+\n+# Check that there are includes.\n+gdb_test \"maint info symtabs\" \\\n+    \"\\r\\n    \\\\( includes\\r\\n.*\" \\\n+    \"check symtab includes\""
+    }
+  ]
+}

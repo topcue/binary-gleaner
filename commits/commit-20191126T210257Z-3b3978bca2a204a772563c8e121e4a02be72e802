@@ -1,0 +1,134 @@
+{
+  "sha": "3b3978bca2a204a772563c8e121e4a02be72e802",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6M2IzOTc4YmNhMmEyMDRhNzcyNTYzYzhlMTIxZTRhMDJiZTcyZTgwMg==",
+  "commit": {
+    "author": {
+      "name": "Tom Tromey",
+      "email": "tom@tromey.com",
+      "date": "2019-03-04T22:12:04Z"
+    },
+    "committer": {
+      "name": "Tom Tromey",
+      "email": "tom@tromey.com",
+      "date": "2019-11-26T21:02:57Z"
+    },
+    "message": "Introduce thread-safe way to handle SIGSEGV\n\nThe gdb demangler installs a SIGSEGV handler in order to protect gdb\nfrom demangler bugs.  However, this is not thread-safe, as signal\nhandlers are global to the process.\n\nThis patch changes gdb to always install a global SIGSEGV handler, and\nthen lets threads indicate their interest in handling the signal by\nsetting a thread-local variable.\n\nThis patch then arranges for the demangler code to use this; being\nsure to arrange for calls to warning and the like to be done on the\nmain thread.\n\nOne thing I wondered while writing this patch is if there are any\nsystems that do not have \"sigaction\".  If gdb could assume this, it\nwould simplify this code.\n\ngdb/ChangeLog\n2019-11-26  Tom Tromey  <tom@tromey.com>\n\n\t* event-top.h (thread_local_segv_handler): Declare.\n\t* event-top.c (thread_local_segv_handler): New global.\n\t(install_handle_sigsegv, handle_sigsegv): New functions.\n\t(async_init_signals): Install SIGSEGV handler.\n\t* cp-support.c (gdb_demangle_jmp_buf): Change type.  Now\n\tthread-local.\n\t(report_failed_demangle): New function.\n\t(gdb_demangle): Make core_dump_allowed atomic.  Remove signal\n\thandler-setting code, instead use segv_handler.  Run warning code\n\ton main thread.\n\nChange-Id: Ic832bbb033b64744e4b44f14b41db7e4168ce427",
+    "tree": {
+      "sha": "70076c2fc0433920de0b7a71ae12b34311a5fdfa",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/70076c2fc0433920de0b7a71ae12b34311a5fdfa"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/3b3978bca2a204a772563c8e121e4a02be72e802",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3b3978bca2a204a772563c8e121e4a02be72e802",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/3b3978bca2a204a772563c8e121e4a02be72e802",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3b3978bca2a204a772563c8e121e4a02be72e802/comments",
+  "author": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "9411c49ecc09df989ecddb05e1756e0a9da0d1c8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9411c49ecc09df989ecddb05e1756e0a9da0d1c8",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/9411c49ecc09df989ecddb05e1756e0a9da0d1c8"
+    }
+  ],
+  "stats": {
+    "total": 204,
+    "additions": 131,
+    "deletions": 73
+  },
+  "files": [
+    {
+      "sha": "48e7ca1ca09eae4e24576483586c07196cc7b6c8",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3b3978bca2a204a772563c8e121e4a02be72e802/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3b3978bca2a204a772563c8e121e4a02be72e802/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=3b3978bca2a204a772563c8e121e4a02be72e802",
+      "patch": "@@ -1,3 +1,16 @@\n+2019-11-26  Tom Tromey  <tom@tromey.com>\n+\n+\t* event-top.h (thread_local_segv_handler): Declare.\n+\t* event-top.c (thread_local_segv_handler): New global.\n+\t(install_handle_sigsegv, handle_sigsegv): New functions.\n+\t(async_init_signals): Install SIGSEGV handler.\n+\t* cp-support.c (gdb_demangle_jmp_buf): Change type.  Now\n+\tthread-local.\n+\t(report_failed_demangle): New function.\n+\t(gdb_demangle): Make core_dump_allowed atomic.  Remove signal\n+\thandler-setting code, instead use segv_handler.  Run warning code\n+\ton main thread.\n+\n 2019-11-26  Tom Tromey  <tom@tromey.com>\n \n \t* run-on-main-thread.c: New file."
+    },
+    {
+      "sha": "4de2a98e87ac548693451890ce53cb0356cecd53",
+      "filename": "gdb/cp-support.c",
+      "status": "modified",
+      "additions": 71,
+      "deletions": 73,
+      "changes": 144,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3b3978bca2a204a772563c8e121e4a02be72e802/gdb/cp-support.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3b3978bca2a204a772563c8e121e4a02be72e802/gdb/cp-support.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cp-support.c?ref=3b3978bca2a204a772563c8e121e4a02be72e802",
+      "patch": "@@ -38,6 +38,9 @@\n #include \"safe-ctype.h\"\n #include \"gdbsupport/selftest.h\"\n #include \"gdbsupport/gdb-sigmask.h\"\n+#include <atomic>\n+#include \"event-top.h\"\n+#include \"run-on-main-thread.h\"\n \n #define d_left(dc) (dc)->u.s_binary.left\n #define d_right(dc) (dc)->u.s_binary.right\n@@ -1476,11 +1479,11 @@ static bool catch_demangler_crashes = true;\n \n /* Stack context and environment for demangler crash recovery.  */\n \n-static SIGJMP_BUF gdb_demangle_jmp_buf;\n+static thread_local SIGJMP_BUF *gdb_demangle_jmp_buf;\n \n-/* If nonzero, attempt to dump core from the signal handler.  */\n+/* If true, attempt to dump core from the signal handler.  */\n \n-static int gdb_demangle_attempt_core_dump = 1;\n+static std::atomic<bool> gdb_demangle_attempt_core_dump;\n \n /* Signal handler for gdb_demangle.  */\n \n@@ -1492,10 +1495,46 @@ gdb_demangle_signal_handler (int signo)\n       if (fork () == 0)\n \tdump_core ();\n \n-      gdb_demangle_attempt_core_dump = 0;\n+      gdb_demangle_attempt_core_dump = false;\n     }\n \n-  SIGLONGJMP (gdb_demangle_jmp_buf, signo);\n+  SIGLONGJMP (*gdb_demangle_jmp_buf, signo);\n+}\n+\n+/* A helper for gdb_demangle that reports a demangling failure.  */\n+\n+static void\n+report_failed_demangle (const char *name, bool core_dump_allowed,\n+\t\t\tint crash_signal)\n+{\n+  static bool error_reported = false;\n+\n+  if (!error_reported)\n+    {\n+      std::string short_msg\n+\t= string_printf (_(\"unable to demangle '%s' \"\n+\t\t\t   \"(demangler failed with signal %d)\"),\n+\t\t\t name, crash_signal);\n+\n+      std::string long_msg\n+\t= string_printf (\"%s:%d: %s: %s\", __FILE__, __LINE__,\n+\t\t\t \"demangler-warning\", short_msg.c_str ());\n+\n+      target_terminal::scoped_restore_terminal_state term_state;\n+      target_terminal::ours_for_output ();\n+\n+      begin_line ();\n+      if (core_dump_allowed)\n+\tfprintf_unfiltered (gdb_stderr,\n+\t\t\t    _(\"%s\\nAttempting to dump core.\\n\"),\n+\t\t\t    long_msg.c_str ());\n+      else\n+\twarn_cant_dump_core (long_msg.c_str ());\n+\n+      demangler_warning (__FILE__, __LINE__, \"%s\", short_msg.c_str ());\n+\n+      error_reported = true;\n+    }\n }\n \n #endif\n@@ -1509,45 +1548,27 @@ gdb_demangle (const char *name, int options)\n   int crash_signal = 0;\n \n #ifdef HAVE_WORKING_FORK\n-#if defined (HAVE_SIGACTION) && defined (SA_RESTART)\n-  struct sigaction sa, old_sa;\n-#else\n-  sighandler_t ofunc;\n-#endif\n-  static int core_dump_allowed = -1;\n-\n-  if (core_dump_allowed == -1)\n-    {\n-      core_dump_allowed = can_dump_core (LIMIT_CUR);\n-\n-      if (!core_dump_allowed)\n-\tgdb_demangle_attempt_core_dump = 0;\n-    }\n-\n+  scoped_restore restore_segv\n+    = make_scoped_restore (&thread_local_segv_handler,\n+\t\t\t   catch_demangler_crashes\n+\t\t\t   ? gdb_demangle_signal_handler\n+\t\t\t   : nullptr);\n+\n+  bool core_dump_allowed = gdb_demangle_attempt_core_dump;\n+  SIGJMP_BUF jmp_buf;\n+  scoped_restore restore_jmp_buf\n+    = make_scoped_restore (&gdb_demangle_jmp_buf, &jmp_buf);\n   if (catch_demangler_crashes)\n     {\n-#if defined (HAVE_SIGACTION) && defined (SA_RESTART)\n-      sa.sa_handler = gdb_demangle_signal_handler;\n-      sigemptyset (&sa.sa_mask);\n-#ifdef HAVE_SIGALTSTACK\n-      sa.sa_flags = SA_ONSTACK;\n-#else\n-      sa.sa_flags = 0;\n-#endif\n-      sigaction (SIGSEGV, &sa, &old_sa);\n-#else\n-      ofunc = signal (SIGSEGV, gdb_demangle_signal_handler);\n-#endif\n-\n       /* The signal handler may keep the signal blocked when we longjmp out\n          of it.  If we have sigprocmask, we can use it to unblock the signal\n \t afterwards and we can avoid the performance overhead of saving the\n \t signal mask just in case the signal gets triggered.  Otherwise, just\n \t tell sigsetjmp to save the mask.  */\n #ifdef HAVE_SIGPROCMASK\n-      crash_signal = SIGSETJMP (gdb_demangle_jmp_buf, 0);\n+      crash_signal = SIGSETJMP (*gdb_demangle_jmp_buf, 0);\n #else\n-      crash_signal = SIGSETJMP (gdb_demangle_jmp_buf, 1);\n+      crash_signal = SIGSETJMP (*gdb_demangle_jmp_buf, 1);\n #endif\n     }\n #endif\n@@ -1558,16 +1579,8 @@ gdb_demangle (const char *name, int options)\n #ifdef HAVE_WORKING_FORK\n   if (catch_demangler_crashes)\n     {\n-#if defined (HAVE_SIGACTION) && defined (SA_RESTART)\n-      sigaction (SIGSEGV, &old_sa, NULL);\n-#else\n-      signal (SIGSEGV, ofunc);\n-#endif\n-\n       if (crash_signal != 0)\n-\t{\n-\t  static int error_reported = 0;\n-\n+        {\n #ifdef HAVE_SIGPROCMASK\n \t  /* If we got the signal, SIGSEGV may still be blocked; restore it.  */\n \t  sigset_t segv_sig_set;\n@@ -1576,35 +1589,18 @@ gdb_demangle (const char *name, int options)\n \t  gdb_sigmask (SIG_UNBLOCK, &segv_sig_set, NULL);\n #endif\n \n-\t  if (!error_reported)\n-\t    {\n-\t      std::string short_msg\n-\t\t= string_printf (_(\"unable to demangle '%s' \"\n-\t\t\t\t   \"(demangler failed with signal %d)\"),\n-\t\t\t\t name, crash_signal);\n-\n-\t      std::string long_msg\n-\t\t= string_printf (\"%s:%d: %s: %s\", __FILE__, __LINE__,\n-\t\t\t\t \"demangler-warning\", short_msg.c_str ());\n-\n-\t      target_terminal::scoped_restore_terminal_state term_state;\n-\t      target_terminal::ours_for_output ();\n-\n-\t      begin_line ();\n-\t      if (core_dump_allowed)\n-\t\tfprintf_unfiltered (gdb_stderr,\n-\t\t\t\t    _(\"%s\\nAttempting to dump core.\\n\"),\n-\t\t\t\t    long_msg.c_str ());\n-\t      else\n-\t\twarn_cant_dump_core (long_msg.c_str ());\n-\n-\t      demangler_warning (__FILE__, __LINE__, \"%s\", short_msg.c_str ());\n-\n-\t      error_reported = 1;\n-\t    }\n-\n-\t  result = NULL;\n-\t}\n+\t  /* If there was a failure, we can't report it here, because\n+\t     we might be in a background thread.  Instead, arrange for\n+\t     the reporting to happen on the main thread.  */\n+          std::string copy = name;\n+          run_on_main_thread ([=] ()\n+            {\n+              report_failed_demangle (copy.c_str (), core_dump_allowed,\n+                                      crash_signal);\n+            });\n+\n+          result = NULL;\n+        }\n     }\n #endif\n \n@@ -2211,4 +2207,6 @@ display the offending symbol.\"),\n   selftests::register_test (\"cp_remove_params\",\n \t\t\t    selftests::test_cp_remove_params);\n #endif\n+\n+  gdb_demangle_attempt_core_dump = can_dump_core (LIMIT_CUR);\n }"
+    },
+    {
+      "sha": "9ec599e8c4944eba691b0a7716bb102249a16de5",
+      "filename": "gdb/event-top.c",
+      "status": "modified",
+      "additions": 41,
+      "deletions": 0,
+      "changes": 41,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3b3978bca2a204a772563c8e121e4a02be72e802/gdb/event-top.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3b3978bca2a204a772563c8e121e4a02be72e802/gdb/event-top.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/event-top.c?ref=3b3978bca2a204a772563c8e121e4a02be72e802",
+      "patch": "@@ -848,6 +848,45 @@ gdb_readline_no_editing_callback (gdb_client_data client_data)\n }\n \f\n \n+/* See event-top.h.  */\n+\n+thread_local void (*thread_local_segv_handler) (int);\n+\n+static void handle_sigsegv (int sig);\n+\n+/* Install the SIGSEGV handler.  */\n+static void\n+install_handle_sigsegv ()\n+{\n+#if defined (HAVE_SIGACTION)\n+  struct sigaction sa;\n+  sa.sa_handler = handle_sigsegv;\n+  sigemptyset (&sa.sa_mask);\n+#ifdef HAVE_SIGALTSTACK\n+  sa.sa_flags = SA_ONSTACK;\n+#else\n+  sa.sa_flags = 0;\n+#endif\n+  sigaction (SIGSEGV, &sa, nullptr);\n+#else\n+  signal (SIGSEGV, handle_sigsegv);\n+#endif\n+}\n+\n+/* Handler for SIGSEGV.  */\n+\n+static void\n+handle_sigsegv (int sig)\n+{\n+  install_handle_sigsegv ();\n+\n+  if (thread_local_segv_handler == nullptr)\n+    abort ();\n+  thread_local_segv_handler (sig);\n+}\n+\n+\f\n+\n /* The serial event associated with the QUIT flag.  set_quit_flag sets\n    this, and check_quit_flag clears it.  Used by interruptible_select\n    to be able to do interruptible I/O with no race with the SIGINT\n@@ -915,6 +954,8 @@ async_init_signals (void)\n   sigtstp_token =\n     create_async_signal_handler (async_sigtstp_handler, NULL);\n #endif\n+\n+  install_handle_sigsegv ();\n }\n \n /* See defs.h.  */"
+    },
+    {
+      "sha": "e844125cbbf2f1204227ecb6f02ca0e9675606e7",
+      "filename": "gdb/event-top.h",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3b3978bca2a204a772563c8e121e4a02be72e802/gdb/event-top.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3b3978bca2a204a772563c8e121e4a02be72e802/gdb/event-top.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/event-top.h?ref=3b3978bca2a204a772563c8e121e4a02be72e802",
+      "patch": "@@ -70,4 +70,10 @@ extern void gdb_rl_callback_handler_install (const char *prompt);\n    currently installed.  */\n extern void gdb_rl_callback_handler_reinstall (void);\n \n+/* The SIGSEGV handler for this thread, or NULL if there is none.  GDB\n+   always installs a global SIGSEGV handler, and then lets threads\n+   indicate their interest in handling the signal by setting this\n+   thread-local variable.  */\n+extern thread_local void (*thread_local_segv_handler) (int);\n+\n #endif"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "sha": "555a578963dd5ec3731842df12c010bf6a3e9ccf",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NTU1YTU3ODk2M2RkNWVjMzczMTg0MmRmMTJjMDEwYmY2YTNlOWNjZg==",
+  "commit": {
+    "author": {
+      "name": "Hans-Peter Nilsson",
+      "email": "hp@bitrange.com",
+      "date": "2020-07-16T22:55:13Z"
+    },
+    "committer": {
+      "name": "Hans-Peter Nilsson",
+      "email": "hp@bitrange.com",
+      "date": "2020-07-16T22:56:17Z"
+    },
+    "message": "mmix ld: move .init (and _init) first.\n\nThis both makes the section layout more similar to that of the general\ndefault for ELF and fixes (makes true) an assumption that code and\nrodata is located between _init and __etext, in\nlibgcc/config/mmix/crti.S.  Sadly, that's not actually true for ELF\n(generally and for elf64mmix), where exception-tables and .rodata is\nafter _etext; I'm pondering what to do about that.\n\nThe original mmix simulator behavior is that memory magically appears\non access, initialized with 0, which is not preferable when chasing\nbugs by throwing code the size of the gcc test-suite to the simulator.\nThe code in crti.S compatibly enables simulator machinery to identify\nundefined memory and instead stopping the simulator with an error\n(going to interactive mode for interactive runs).  See\nhttp://gcc.gnu.org/legacy-ml/gcc-patches/2012-10/msg01871.html for\nmore, including the mmix-sim.ch \"patch file\".\n\nThis fixes only one error in the gcc testsuite,\ngcc.c-torture/execute/pr20621-1.c with LTO, where for some reason\ngcc/lto chooses to move (writable) data that is only used to read 0 to\n.rodata.  An access (sufficiently far inside a block) in an\nunregistered place is flagged as an invalid access.\n\nThe bpo-9m test that I had to adjust, actually exposes a wart: mmo\ndoes not have the notion of symbol types (or sections) and the\ntest-case now has leading zeros at \"Main\" eventually leading to it\nbeing misdiagnosed as being outside .text and .data, thus here mapped\nto BFD as an absolute symbol.  The test is not intended to check the\nmmo symbol-type machinery, so I'm just tweaking it to be\nsymbol-type-neutral for \"Main\".\n\nSince you have to jump through hoops to see the problem, I don't think\nthis commit is worth putting on the 2.35-branch.\n\nld:\n\t* scripttempt/mmo.sc: Move .init first in .text output section.\n\t* testsuite/ld-mmix/bpo-9m.d: Adjust accordingly.",
+    "tree": {
+      "sha": "9f9fc75f80ed5cd13c54e9d2a2a7073227389b1d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/9f9fc75f80ed5cd13c54e9d2a2a7073227389b1d"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/555a578963dd5ec3731842df12c010bf6a3e9ccf",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/555a578963dd5ec3731842df12c010bf6a3e9ccf",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/555a578963dd5ec3731842df12c010bf6a3e9ccf",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/555a578963dd5ec3731842df12c010bf6a3e9ccf/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "5597c9402d49a623e3fabecd7dfc0d2f9e0ff983",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5597c9402d49a623e3fabecd7dfc0d2f9e0ff983",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/5597c9402d49a623e3fabecd7dfc0d2f9e0ff983"
+    }
+  ],
+  "stats": {
+    "total": 29,
+    "additions": 17,
+    "deletions": 12
+  },
+  "files": [
+    {
+      "sha": "32b4616dfad43e763c8226d066c62949289580a1",
+      "filename": "ld/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/555a578963dd5ec3731842df12c010bf6a3e9ccf/ld/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/555a578963dd5ec3731842df12c010bf6a3e9ccf/ld/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/ChangeLog?ref=555a578963dd5ec3731842df12c010bf6a3e9ccf",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-07-17  Hans-Peter Nilsson  <hp@bitrange.com>\n+\n+\t* scripttempt/mmo.sc: Move .init first in .text output section.\n+\t* testsuite/ld-mmix/bpo-9m.d: Adjust accordingly.\n+\n 2020-07-15  Jan Beulich  <jbeulich@suse.com>\n \n \t* testsuite/ld-i386/ibt-plt-1.d, testsuite/ld-i386/ibt-plt-2a.d,"
+    },
+    {
+      "sha": "354a76964e7d35e073bfdd7cfa9635ff646fe81a",
+      "filename": "ld/scripttempl/mmo.sc",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/555a578963dd5ec3731842df12c010bf6a3e9ccf/ld/scripttempl/mmo.sc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/555a578963dd5ec3731842df12c010bf6a3e9ccf/ld/scripttempl/mmo.sc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/scripttempl/mmo.sc?ref=555a578963dd5ec3731842df12c010bf6a3e9ccf",
+      "patch": "@@ -24,19 +24,19 @@ SECTIONS\n {\n   .text ${RELOCATING+ ${TEXT_START_ADDR}}:\n   {\n+    /* FIXME: Move .init, .fini, .ctors and .dtors to their own sections.  */\n+    ${RELOCATING+ PROVIDE (_init_start = .);}\n+    ${RELOCATING+ PROVIDE (_init = .);}\n+    ${RELOCATING+ KEEP (*(SORT_NONE(.init)))}\n+    ${RELOCATING+ PROVIDE (_init_end = .);}\n+\n     *(.text)\n     ${RELOCATING+*(.text.*)}\n     ${RELOCATING+*(.gnu.linkonce.t*)}\n     ${RELOCATING+*(.rodata)}\n     ${RELOCATING+*(.rodata.*)}\n     ${RELOCATING+*(.gnu.linkonce.r*)}\n \n-    /* FIXME: Move .init, .fini, .ctors and .dtors to their own sections.  */\n-    ${RELOCATING+ PROVIDE (_init_start = .);}\n-    ${RELOCATING+ PROVIDE (_init = .);}\n-    ${RELOCATING+ KEEP (*(SORT_NONE(.init)))}\n-    ${RELOCATING+ PROVIDE (_init_end = .);}\n-\n     ${RELOCATING+ PROVIDE (_fini_start = .);}\n     ${RELOCATING+ PROVIDE (_fini = .);}\n     ${RELOCATING+ KEEP (*(SORT_NONE(.fini)))}"
+    },
+    {
+      "sha": "eb53f6b57029982f9c3d051adcf6d64b990d0f1e",
+      "filename": "ld/testsuite/ld-mmix/bpo-9m.d",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/555a578963dd5ec3731842df12c010bf6a3e9ccf/ld/testsuite/ld-mmix/bpo-9m.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/555a578963dd5ec3731842df12c010bf6a3e9ccf/ld/testsuite/ld-mmix/bpo-9m.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-mmix/bpo-9m.d?ref=555a578963dd5ec3731842df12c010bf6a3e9ccf",
+      "patch": "@@ -11,12 +11,12 @@\n .*:     file format mmo\n \n SYMBOL TABLE:\n-0+ g       \\.text Main\n-0+4 g       \\.text x\n-0+ g       \\.text x2\n+0+ g .* Main\n+0+14 g       \\.text x\n+0+10 g       \\.text x2\n \n Contents of section \\.text:\n- 0000 232dfe00 232dfd00 00000000 0000002d  .*\n- 0010 00000000 0000002a                    .*\n+ 0004 0000003d 00000000 0000003a 232dfe00  .*\n+ 0014 232dfd00                             .*\n Contents of section \\.MMIX\\.reg_contents:\n- 07e8 00000000 0000106c 00000000 0000a410  .*\n+ 07e8 00000000 0000107c 00000000 0000a420  .*"
+    }
+  ]
+}

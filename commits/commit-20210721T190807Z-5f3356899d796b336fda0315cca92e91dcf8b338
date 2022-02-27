@@ -1,0 +1,122 @@
+{
+  "sha": "5f3356899d796b336fda0315cca92e91dcf8b338",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NWYzMzU2ODk5ZDc5NmIzMzZmZGEwMzE1Y2NhOTJlOTFkY2Y4YjMzOA==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-07-21T19:08:07Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-07-21T19:08:07Z"
+    },
+    "message": "[gdb/testsuite] Fix gdb.cp/step-and-next-inline.exp with gcc-11\n\nWhen running test-case gdb.cp/step-and-next-inline.exp with gcc-11, I run\ninto:\n...\nKPASS: gdb.cp/step-and-next-inline.exp: no_header: next step 1 \\\n  (PRMS symtab/25507)\nFAIL: gdb.cp/step-and-next-inline.exp: no_header: next step 2\nKPASS: gdb.cp/step-and-next-inline.exp: no_header: next step 3 \\\n  (PRMS symtab/25507)\n...\n\n[ Note that I get the same result with gcc-11 and target board\nunix/gdb:debug_flags=-gdwarf-4, so this is not a dwarf 4 vs 5 issue. ]\n\nWith gcc-10, I have this trace:\n...\n64        get_alias_set (&xx);\nget_alias_set (t=0x601038 <xx>) at step-and-next-inline.cc:51\n51        if (t != NULL\n40        if (t->x != i)\n52            && TREE_TYPE (t).z != 1\n43        return x;\n53            && TREE_TYPE (t).z != 2\n43        return x;\n54            && TREE_TYPE (t).z != 3)\n43        return x;\nmain () at step-and-next-inline.cc:65\n65        return 0;\n...\nand with gcc-11, I have instead:\n...\n64        get_alias_set (&xx);\nget_alias_set (t=0x601038 <xx>) at step-and-next-inline.cc:51\n51        if (t != NULL\n52            && TREE_TYPE (t).z != 1\n43        return x;\n53            && TREE_TYPE (t).z != 2\n43        return x;\n54            && TREE_TYPE (t).z != 3)\n43        return x;\nmain () at step-and-next-inline.cc:65\n65        return 0;\n...\nand with clang-10, I have instead:\n...\n64        get_alias_set (&xx);\nget_alias_set (t=0x601034 <xx>) at step-and-next-inline.cc:51\n51        if (t != NULL\n52            && TREE_TYPE (t).z != 1\n53            && TREE_TYPE (t).z != 2\n54            && TREE_TYPE (t).z != 3)\n51        if (t != NULL\n57      }\nmain () at step-and-next-inline.cc:65\n65        return 0;\n...\n\nThe test-case tries to verify that we don't step into inlined function\ntree_check (lines 40-43) (so, with the clang trace we get that right).\n\nThe test-case then tries to kfail the problems when using gcc, but this is\ndone in such a way that the testing still gets out of sync after a failure.\nThat is: the \"next step 2\" check that is supposed to match\n\"TREE_TYPE (t).z != 2\" is actually matching \"TREE_TYPE (t).z != 1\":\n...\n(gdb) next^M\n52            && TREE_TYPE (t).z != 1^M\n(gdb) PASS: gdb.cp/step-and-next-inline.exp: no_header: next step 2\n...\n\nFix this by issuing extra nexts to arrive at the required lines.\n\nTested on x86_64-linux, with gcc-8, gcc-9, gcc-10, gcc-11, clang-8, clang-10\nand clang-12.\n\ngdb/testsuite/ChangeLog:\n\n2021-07-20  Tom de Vries  <tdevries@suse.de>\n\n\t* gdb.cp/step-and-next-inline.cc (tree_check, get_alias_set, main):\n\tTag closing brace with comment.\n\t* gdb.cp/step-and-next-inline.h: Update to keep identical with\n\tstep-and-next-inline.cc.\n\t* gdb.cp/step-and-next-inline.exp: Issue extra next when required.",
+    "tree": {
+      "sha": "b474273de7b3a0164c4ad161218d89c98b088038",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/b474273de7b3a0164c4ad161218d89c98b088038"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/5f3356899d796b336fda0315cca92e91dcf8b338",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5f3356899d796b336fda0315cca92e91dcf8b338",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/5f3356899d796b336fda0315cca92e91dcf8b338",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5f3356899d796b336fda0315cca92e91dcf8b338/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "e8c36d1fc2c7ce89e17f95bf4aa98f492a04a16c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e8c36d1fc2c7ce89e17f95bf4aa98f492a04a16c",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/e8c36d1fc2c7ce89e17f95bf4aa98f492a04a16c"
+    }
+  ],
+  "stats": {
+    "total": 97,
+    "additions": 84,
+    "deletions": 13
+  },
+  "files": [
+    {
+      "sha": "26b29d0177798eeda3c8485a88767b42a45651a3",
+      "filename": "gdb/testsuite/gdb.cp/step-and-next-inline.cc",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5f3356899d796b336fda0315cca92e91dcf8b338/gdb/testsuite/gdb.cp/step-and-next-inline.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5f3356899d796b336fda0315cca92e91dcf8b338/gdb/testsuite/gdb.cp/step-and-next-inline.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.cp/step-and-next-inline.cc?ref=5f3356899d796b336fda0315cca92e91dcf8b338",
+      "patch": "@@ -41,7 +41,7 @@ tree_check (tree *t, int i)\n     abort();\n   tree *x = t;\n   return x;\n-}\n+} // tree-check\n \n #endif\t/* USE_NEXT_INLINE_H */\n \n@@ -54,7 +54,7 @@ get_alias_set (tree *t)\n       && TREE_TYPE (t).z != 3)\n     return 0;\n   return 1;\n-}\n+} // get_alias_set\n \n tree xx;\n \n@@ -63,4 +63,4 @@ main()\n {\n   get_alias_set (&xx);\n   return 0;\n-}\n+} // main"
+    },
+    {
+      "sha": "13d801bb539cb47e1f48423e599fd3d2d93a2d2d",
+      "filename": "gdb/testsuite/gdb.cp/step-and-next-inline.exp",
+      "status": "modified",
+      "additions": 80,
+      "deletions": 9,
+      "changes": 89,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5f3356899d796b336fda0315cca92e91dcf8b338/gdb/testsuite/gdb.cp/step-and-next-inline.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5f3356899d796b336fda0315cca92e91dcf8b338/gdb/testsuite/gdb.cp/step-and-next-inline.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.cp/step-and-next-inline.exp?ref=5f3356899d796b336fda0315cca92e91dcf8b338",
+      "patch": "@@ -67,29 +67,100 @@ proc do_test { use_header } {\n     gdb_test \"step\" \".*\" \"step into get_alias_set\"\n     gdb_test \"bt\" \"\\\\s*\\\\#0\\\\s+get_alias_set\\[^\\r\\]*${srcfile}:.*\" \\\n \t\"not in inline 1\"\n+\n     # It's possible that this first failure (when not using a header\n     # file) is GCC's fault, though the remaining failures would best\n     # be fixed by adding location views support (though it could be\n     # that some easier heuristic could be figured out).  Still, it is\n     # not certain that the first failure wouldn't also be fixed by\n     # having location view support, so for now it is tagged as such.\n-    if {[test_compiler_info gcc*] && !$use_header} {\n-\tsetup_kfail \"*-*-*\" symtab/25507\n+    set have_kfail [expr [test_compiler_info gcc*] && !$use_header]\n+\n+    set ok 1\n+    gdb_test_multiple \"next\" \"next step 1\" {\n+\t-re -wrap \"if \\\\(t->x != i\\\\)\" {\n+\t    set ok 0\n+\t    send_gdb \"next\\n\"\n+\t    exp_continue\n+\t}\n+\t-re -wrap \".*TREE_TYPE.* != 1\" {\n+\t    if { $ok } {\n+\t\tpass $gdb_test_name\n+\t    } else {\n+\t\tif { $have_kfail } {\n+\t\t    setup_kfail \"*-*-*\" symtab/25507\n+\t\t}\n+\t\tfail $gdb_test_name\n+\t    }\n+\t}\n     }\n-    gdb_test \"next\" \".*TREE_TYPE.*\" \"next step 1\"\n     gdb_test \"bt\" \"\\\\s*\\\\#0\\\\s+get_alias_set\\[^\\r\\]*${srcfile}:.*\" \\\n \t\"not in inline 2\"\n-    gdb_test \"next\" \".*TREE_TYPE.*\" \"next step 2\"\n+\n+    set ok 1\n+    gdb_test_multiple \"next\" \"next step 2\" {\n+\t-re -wrap \"return x;\" {\n+\t    set ok 0\n+\t    send_gdb \"next\\n\"\n+\t    exp_continue\n+\t}\n+\t-re -wrap \".*TREE_TYPE.* != 2\" {\n+\t    if { $ok } {\n+\t\tpass $gdb_test_name\n+\t    } else {\n+\t\tif { $have_kfail } {\n+\t\t    setup_kfail \"*-*-*\" symtab/25507\n+\t\t}\n+\t\tfail $gdb_test_name\n+\t    }\n+\t}\n+    }\n     gdb_test \"bt\" \"\\\\s*\\\\#0\\\\s+get_alias_set\\[^\\r\\]*${srcfile}:.*\" \\\n \t\"not in inline 3\"\n-    if {[test_compiler_info gcc*] && !$use_header} {\n-\tsetup_kfail \"*-*-*\" symtab/25507\n+\n+    set ok 1\n+    gdb_test_multiple \"next\" \"next step 3\" {\n+\t-re -wrap \"return x;\" {\n+\t    set ok 0\n+\t    send_gdb \"next\\n\"\n+\t    exp_continue\n+\t}\n+\t-re -wrap \".*TREE_TYPE.* != 3\\\\)\" {\n+\t    if { $ok } {\n+\t\tpass $gdb_test_name\n+\t    } else {\n+\t\tif { $have_kfail } {\n+\t\t    setup_kfail \"*-*-*\" symtab/25507\n+\t\t}\n+\t\tfail $gdb_test_name\n+\t    }\n+\t}\n     }\n-    gdb_test \"next\" \".*TREE_TYPE.*\" \"next step 3\"\n     gdb_test \"bt\" \"\\\\s*\\\\#0\\\\s+get_alias_set\\[^\\r\\]*${srcfile}:.*\" \\\n \t\"not in inline 4\"\n-    if {!$use_header} { setup_kfail \"*-*-*\" symtab/25507 }\n-    gdb_test \"next\" \"return 0.*\" \"next step 4\"\n+\n+    set ok 1\n+    gdb_test_multiple \"next\" \"next step 4\" {\n+\t-re -wrap \"(if \\\\(t != NULL|\\} // get_alias_set)\" {\n+\t    send_gdb \"next\\n\"\n+\t    exp_continue\n+\t}\n+\t-re -wrap \"return x;\" {\n+\t    set ok 0\n+\t    send_gdb \"next\\n\"\n+\t    exp_continue\n+\t}\n+\t-re -wrap \"return 0.*\" {\n+\t    if { $ok } {\n+\t\tpass $gdb_test_name\n+\t    } else {\n+\t\tif { $have_kfail } {\n+\t\t    setup_kfail \"*-*-*\" symtab/25507\n+\t\t}\n+\t\tfail $gdb_test_name\n+\t    }\n+\t}\n+    }\n     gdb_test \"bt\" \\\n \t\"\\\\s*\\\\#0\\\\s+(main|get_alias_set)\\[^\\r\\]*${srcfile}:.*\" \\\n \t\"not in inline 5\""
+    },
+    {
+      "sha": "bf45d8a388c41d3cae83a32f2d2de2f213ab754c",
+      "filename": "gdb/testsuite/gdb.cp/step-and-next-inline.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5f3356899d796b336fda0315cca92e91dcf8b338/gdb/testsuite/gdb.cp/step-and-next-inline.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5f3356899d796b336fda0315cca92e91dcf8b338/gdb/testsuite/gdb.cp/step-and-next-inline.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.cp/step-and-next-inline.h?ref=5f3356899d796b336fda0315cca92e91dcf8b338",
+      "patch": "@@ -35,4 +35,4 @@ tree_check (tree *t, int i)\n     abort();\n   tree *x = t;\n   return x;\n-}\n+} // tree_check"
+    }
+  ]
+}

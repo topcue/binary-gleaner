@@ -1,0 +1,110 @@
+{
+  "sha": "4ebe487749c5a3bac19ccaf36fc734a0d29a990e",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NGViZTQ4Nzc0OWM1YTNiYWMxOWNjYWYzNmZjNzM0YTBkMjlhOTkwZQ==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2020-02-28T15:07:46Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2020-02-28T15:07:46Z"
+    },
+    "message": "Pass correct die_reader_specs in cutu_reader::init_tu_and_read_dwo_dies\n\nRunning anything with the fission.exp board fails since commit\nc0ab21c22bb (\"Replace init_cutu_and_read_dies with a class\").\nGDB crashes while reading the DWARF info.  cu is NULL in\nread_signatured_type:\n\n    Thread 1 \"gdb\" received signal SIGSEGV, Segmentation fault.\n    0x000055555780663e in read_signatured_type\n    sig_type=0x6210000c3600) at /home/simark/src/binutils-gdb/gdb/dwarf2/read.c:22782\n    22782         gdb_assert (cu->die_hash == NULL);\n    (top-gdb) bt\n    #0  0x000055555780663e in read_signatured_type (sig_type=0x6210000c3600) at /home/simark/src/binutils-gdb/gdb/dwarf2/read.c:22782\n    #1  0x00005555578062dd in load_full_type_unit (per_cu=0x6210000c3600) at /home/simark/src/binutils-gdb/gdb/dwarf2/read.c:22758\n    #2  0x00005555577c5fb7 in queue_and_load_dwo_tu (slot=0x60600007fc00, info=0x6210000c34e0) at /home/simark/src/binutils-gdb/gdb/dwarf2/read.c:12674\n    #3  0x0000555559934232 in htab_traverse_noresize (htab=0x60b000063670, callback=0x5555577c5e61 <queue_and_load_dwo_tu(void**, void*)>, info=0x6210000c34e0)\n        at /home/simark/src/binutils-gdb/libiberty/hashtab.c:775\n    #4  0x00005555577c6252 in queue_and_load_all_dwo_tus (per_cu=0x6210000c34e0) at /home/simark/src/binutils-gdb/gdb/dwarf2/read.c:12701\n    #5  0x000055555777ebd8 in dw2_do_instantiate_symtab (per_cu=0x6210000c34e0, skip_partial=false) at /home/simark/src/binutils-gdb/gdb/dwarf2/read.c:2371\n    #6  0x000055555777eea2 in dw2_instantiate_symtab (per_cu=0x6210000c34e0, skip_partial=false) at /home/simark/src/binutils-gdb/gdb/dwarf2/read.c:2395\n    #7  0x0000555557786ab6 in dw2_lookup_symbol (objfile=0x614000007240, block_index=GLOBAL_BLOCK, name=0x602000025310 \"main\", domain=VAR_DOMAIN)\n        at /home/simark/src/binutils-gdb/gdb/dwarf2/read.c:3539\n\nAfter creating the reader object, the reader.cu field should not be\nNULL.  By checking the commit previous to the faulty one mentioned\nabove, I noticed that the cu field is normally set by\ninit_cu_die_reader, called from read_cutu_die_from_dwo, itself called\nfrom cutu_reader::init_tu_and_read_dwo_dies, itself called from\ncutu_reader's constructor.\n\nHowever, cutu_reader::init_tu_and_read_dwo_dies calls\nread_cutu_die_from_dwo, passing a pointer to a local `die_reader_specs`\nvariable.  So it's the `cu` field of that object that gets set.\ncutu_reader itself is a `die_reader_specs` (it inherits from it), and\nthe intention was most likely to pass `this` to read_cutu_die_from_dwo.\nThis way, the fields of the cutu_reader object, which\nread_signatured_type will use, are set.\n\nWith this, I am able to use:\n\n  make check RUNTESTFLAGS='--target_board=fission'\n\nand it looks much better.  There are still some failures to be\ninvestigated, but that's the usual state of the testsuite.\n\ngdb/ChangeLog:\n\n\t* dwarf2/read.c (cutu_reader::init_tu_and_read_dwo_dies): Remove\n\treader variable, pass `this` to read_cutu_die_from_dwo.",
+    "tree": {
+      "sha": "d77eba763b97d58e8e4e01b5caacdad85a2457e2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/d77eba763b97d58e8e4e01b5caacdad85a2457e2"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/4ebe487749c5a3bac19ccaf36fc734a0d29a990e",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4ebe487749c5a3bac19ccaf36fc734a0d29a990e",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/4ebe487749c5a3bac19ccaf36fc734a0d29a990e",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4ebe487749c5a3bac19ccaf36fc734a0d29a990e/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "13c3a74afb50b240dbacfd60f91414eae50279ad",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/13c3a74afb50b240dbacfd60f91414eae50279ad",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/13c3a74afb50b240dbacfd60f91414eae50279ad"
+    }
+  ],
+  "stats": {
+    "total": 8,
+    "additions": 6,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "fce2a03a5d3fd67a5db174ce2e48cad6432dc340",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4ebe487749c5a3bac19ccaf36fc734a0d29a990e/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4ebe487749c5a3bac19ccaf36fc734a0d29a990e/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=4ebe487749c5a3bac19ccaf36fc734a0d29a990e",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-02-28  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\t* dwarf2/read.c (cutu_reader::init_tu_and_read_dwo_dies): Remove\n+\treader variable, pass `this` to read_cutu_die_from_dwo.\n+\n 2020-02-27  Aaron Merey  <amerey@redhat.com>\n \n \t* source.c (open_source_file): Check for nullptr when computing"
+    },
+    {
+      "sha": "07cee58c1f013e4e196abd6143652d986597cdf6",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4ebe487749c5a3bac19ccaf36fc734a0d29a990e/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4ebe487749c5a3bac19ccaf36fc734a0d29a990e/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=4ebe487749c5a3bac19ccaf36fc734a0d29a990e",
+      "patch": "@@ -6774,7 +6774,6 @@ cutu_reader::init_tu_and_read_dwo_dies (struct dwarf2_per_cu_data *this_cu,\n \t\t\t\t\tint use_existing_cu)\n {\n   struct signatured_type *sig_type;\n-  struct die_reader_specs reader;\n \n   /* Verify we can do the following downcast, and that we have the\n      data we need.  */\n@@ -6802,7 +6801,7 @@ cutu_reader::init_tu_and_read_dwo_dies (struct dwarf2_per_cu_data *this_cu,\n   if (read_cutu_die_from_dwo (this_cu, sig_type->dwo_unit,\n \t\t\t      NULL /* stub_comp_unit_die */,\n \t\t\t      sig_type->dwo_unit->dwo_file->comp_dir,\n-\t\t\t      &reader, &info_ptr,\n+\t\t\t      this, &info_ptr,\n \t\t\t      &comp_unit_die,\n \t\t\t      &m_dwo_abbrev_table) == 0)\n     {"
+    }
+  ]
+}

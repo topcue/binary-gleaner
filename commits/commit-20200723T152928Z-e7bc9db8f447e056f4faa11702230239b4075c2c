@@ -1,0 +1,158 @@
+{
+  "sha": "e7bc9db8f447e056f4faa11702230239b4075c2c",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZTdiYzlkYjhmNDQ3ZTA1NmY0ZmFhMTE3MDIyMzAyMzliNDA3NWMyYw==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-07-23T15:29:28Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-07-23T15:29:28Z"
+    },
+    "message": "Don't touch frame_info objects if frame cache was reinitialized\n\nThis fixes yet another bug exposed by ASAN + multi-target.exp\n\nRunning an Asan-enabled GDB against gdb.multi/multi-target.exp exposed\nyet another latent GDB bug.  See here for the full log:\n\n  https://sourceware.org/pipermail/gdb-patches/2020-July/170761.html\n\nAs Simon described, the problem is:\n\n - We create a new frame_info object in restore_selected_frame (by\n   calling find_relative_frame)\n\n - The frame is allocated on the frame_cache_obstack\n\n - In frame_unwind_try_unwinder, we try to find an unwinder for that\n   frame\n\n - While trying unwinders, memory read fails because the remote target\n   closes, because of \"monitor exit\"\n\n - That calls reinit_frame_cache (as shown above), which resets\n   frame_cache_obstack\n\n - When handling the exception in frame_unwind_try_unwinder, we try to\n   set some things on the frame_info object (like *this_cache, which\n   in fact tries to write into frame_info::prologue_cache), but the\n   frame_info object is no more, it went away with the obstack.\n\nFix this by maintaining a frame cache generation counter.  Then in\nexception handling code paths, don't touch frame objects if the\ngeneration is not the same as it was on entry.\n\nThis commit generalizes the gdb.server/server-kill.exp testcase and\nreuses it to test the scenario in question.  The new tests fail\nwithout the GDB fix.\n\ngdb/ChangeLog:\n\n\t* frame-unwind.c (frame_unwind_try_unwinder): On exception, don't\n\ttouch THIS_CACHE/THIS_FRAME if the frame cache was cleared\n\tmeanwhile.\n\t* frame.c (frame_cache_generation, get_frame_cache_generation):\n\tNew.\n\t(reinit_frame_cache): Increment FRAME_CACHE_GENERATION.\n\t(get_prev_frame_if_no_cycle): On exception, don't touch\n\tPREV_FRAME/THIS_FRAME if the frame cache was cleared meanwhile.\n\t* frame.h (get_frame_cache_generation): Declare.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.server/server-kill.exp (prepare): New, factored out from the\n\ttop level.\n\t(kill_server): New.\n\t(test_tstatus, test_unwind_nosyms, test_unwind_syms): New.\n\t(top level) : Call test_tstatus, test_unwind_nosyms, test_unwind_syms.",
+    "tree": {
+      "sha": "0ee125f1e067bcff441fb6f289ff20fcd02cb24d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/0ee125f1e067bcff441fb6f289ff20fcd02cb24d"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/e7bc9db8f447e056f4faa11702230239b4075c2c",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e7bc9db8f447e056f4faa11702230239b4075c2c",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/e7bc9db8f447e056f4faa11702230239b4075c2c",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e7bc9db8f447e056f4faa11702230239b4075c2c/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "90fcc46681979a7759d16e738a98c9e666e6e88f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/90fcc46681979a7759d16e738a98c9e666e6e88f",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/90fcc46681979a7759d16e738a98c9e666e6e88f"
+    }
+  ],
+  "stats": {
+    "total": 173,
+    "additions": 144,
+    "deletions": 29
+  },
+  "files": [
+    {
+      "sha": "c39ea07648f5741926fd161ca47ec40853efbbad",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e7bc9db8f447e056f4faa11702230239b4075c2c/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e7bc9db8f447e056f4faa11702230239b4075c2c/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=e7bc9db8f447e056f4faa11702230239b4075c2c",
+      "patch": "@@ -1,3 +1,15 @@\n+2020-07-23  Pedro Alves  <pedro@palves.net>\n+\n+\t* frame-unwind.c (frame_unwind_try_unwinder): On exception, don't\n+\ttouch THIS_CACHE/THIS_FRAME if the frame cache was cleared\n+\tmeanwhile.\n+\t* frame.c (frame_cache_generation, get_frame_cache_generation):\n+\tNew.\n+\t(reinit_frame_cache): Increment FRAME_CACHE_GENERATION.\n+\t(get_prev_frame_if_no_cycle): On exception, don't touch\n+\tPREV_FRAME/THIS_FRAME if the frame cache was cleared meanwhile.\n+\t* frame.h (get_frame_cache_generation): Declare.\n+\n 2020-07-23  Tom de Vries  <tdevries@suse.de>\n \n \tPR tui/26282"
+    },
+    {
+      "sha": "064f6ebebdaaa79da2ffe132403bddd6e5077321",
+      "filename": "gdb/frame-unwind.c",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 3,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e7bc9db8f447e056f4faa11702230239b4075c2c/gdb/frame-unwind.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e7bc9db8f447e056f4faa11702230239b4075c2c/gdb/frame-unwind.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/frame-unwind.c?ref=e7bc9db8f447e056f4faa11702230239b4075c2c",
+      "patch": "@@ -121,6 +121,8 @@ frame_unwind_try_unwinder (struct frame_info *this_frame, void **this_cache,\n {\n   int res = 0;\n \n+  unsigned int entry_generation = get_frame_cache_generation ();\n+\n   frame_prepare_for_sniffer (this_frame, unwinder);\n \n   try\n@@ -130,9 +132,14 @@ frame_unwind_try_unwinder (struct frame_info *this_frame, void **this_cache,\n   catch (const gdb_exception &ex)\n     {\n       /* Catch all exceptions, caused by either interrupt or error.\n-\t Reset *THIS_CACHE.  */\n-      *this_cache = NULL;\n-      frame_cleanup_after_sniffer (this_frame);\n+\t Reset *THIS_CACHE, unless something reinitialized the frame\n+\t cache meanwhile, in which case THIS_FRAME/THIS_CACHE are now\n+\t dangling.  */\n+      if (get_frame_cache_generation () == entry_generation)\n+\t{\n+\t  *this_cache = NULL;\n+\t  frame_cleanup_after_sniffer (this_frame);\n+\t}\n \n       if (ex.error == NOT_AVAILABLE_ERROR)\n \t{"
+    },
+    {
+      "sha": "a3599e8af6968a85a6054a3a8907980a2e863c52",
+      "filename": "gdb/frame.c",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 2,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e7bc9db8f447e056f4faa11702230239b4075c2c/gdb/frame.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e7bc9db8f447e056f4faa11702230239b4075c2c/gdb/frame.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/frame.c?ref=e7bc9db8f447e056f4faa11702230239b4075c2c",
+      "patch": "@@ -53,6 +53,17 @@\n \n static struct frame_info *sentinel_frame;\n \n+/* Number of calls to reinit_frame_cache.  */\n+static unsigned int frame_cache_generation = 0;\n+\n+/* See frame.h.  */\n+\n+unsigned int\n+get_frame_cache_generation ()\n+{\n+  return frame_cache_generation;\n+}\n+\n /* The values behind the global \"set backtrace ...\" settings.  */\n set_backtrace_options user_set_backtrace_options;\n \n@@ -1843,6 +1854,8 @@ reinit_frame_cache (void)\n {\n   struct frame_info *fi;\n \n+  ++frame_cache_generation;\n+\n   /* Tear down all frame caches.  */\n   for (fi = sentinel_frame; fi != NULL; fi = fi->prev)\n     {\n@@ -1922,6 +1935,8 @@ get_prev_frame_if_no_cycle (struct frame_info *this_frame)\n   if (prev_frame->level == 0)\n     return prev_frame;\n \n+  unsigned int entry_generation = get_frame_cache_generation ();\n+\n   try\n     {\n       compute_frame_id (prev_frame);\n@@ -1944,8 +1959,11 @@ get_prev_frame_if_no_cycle (struct frame_info *this_frame)\n     }\n   catch (const gdb_exception &ex)\n     {\n-      prev_frame->next = NULL;\n-      this_frame->prev = NULL;\n+      if (get_frame_cache_generation () == entry_generation)\n+\t{\n+\t  prev_frame->next = NULL;\n+\t  this_frame->prev = NULL;\n+\t}\n \n       throw;\n     }"
+    },
+    {
+      "sha": "8d029cc065d87ef4a75f6125578b39d8fc7d780d",
+      "filename": "gdb/frame.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e7bc9db8f447e056f4faa11702230239b4075c2c/gdb/frame.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e7bc9db8f447e056f4faa11702230239b4075c2c/gdb/frame.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/frame.h?ref=e7bc9db8f447e056f4faa11702230239b4075c2c",
+      "patch": "@@ -949,6 +949,10 @@ extern const gdb::option::option_def set_backtrace_option_defs[2];\n /* The values behind the global \"set backtrace ...\" settings.  */\n extern set_backtrace_options user_set_backtrace_options;\n \n+/* Get the number of calls to reinit_frame_cache.  */\n+\n+unsigned int get_frame_cache_generation ();\n+\n /* Mark that the PC value is masked for the previous frame.  */\n \n extern void set_frame_previous_pc_masked (struct frame_info *frame);"
+    },
+    {
+      "sha": "9ccc794554878de256a5afb09298d379d76a7b5a",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e7bc9db8f447e056f4faa11702230239b4075c2c/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e7bc9db8f447e056f4faa11702230239b4075c2c/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=e7bc9db8f447e056f4faa11702230239b4075c2c",
+      "patch": "@@ -1,3 +1,11 @@\n+2020-07-23  Pedro Alves  <pedro@palves.net>\n+\n+\t* gdb.server/server-kill.exp (prepare): New, factored out from the\n+\ttop level.\n+\t(kill_server): New.\n+\t(test_tstatus, test_unwind_nosyms, test_unwind_syms): New.\n+\t(top level) : Call test_tstatus, test_unwind_nosyms, test_unwind_syms.\n+\n 2020-07-23  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.dwarf2/dw2-disasm-over-non-stmt.exp: New file."
+    },
+    {
+      "sha": "37b42460730e81e820b2233cbbf051c8015508af",
+      "filename": "gdb/testsuite/gdb.server/server-kill.exp",
+      "status": "modified",
+      "additions": 90,
+      "deletions": 24,
+      "changes": 114,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e7bc9db8f447e056f4faa11702230239b4075c2c/gdb/testsuite/gdb.server/server-kill.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e7bc9db8f447e056f4faa11702230239b4075c2c/gdb/testsuite/gdb.server/server-kill.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.server/server-kill.exp?ref=e7bc9db8f447e056f4faa11702230239b4075c2c",
+      "patch": "@@ -15,6 +15,9 @@\n # You should have received a copy of the GNU General Public License\n # along with this program.  If not, see <http://www.gnu.org/licenses/>.\n \n+# Check that GDB handles GDBserver disconnecting abruptly, in several\n+# scenarios.\n+\n load_lib gdbserver-support.exp\n \n standard_testfile\n@@ -23,40 +26,103 @@ if {[skip_gdbserver_tests]} {\n     return 0\n }\n \n-if { [prepare_for_testing \"failed to prepare\" ${testfile}] } {\n+if { [build_executable \"failed to prepare\" ${testfile}] } {\n     return -1\n }\n \n-# Make sure we're disconnected, in case we're testing with an\n-# extended-remote board, therefore already connected.\n-gdb_test \"disconnect\" \".*\"\n+# Spawn GDBserver, run to main, extract GDBserver's PID and save it in\n+# the SERVER_PID global.\n+\n+proc prepare {} {\n+    global binfile gdb_prompt srcfile decimal\n+    global server_pid\n+\n+    clean_restart $binfile\n+\n+    # Make sure we're disconnected, in case we're testing with an\n+    # extended-remote board, therefore already connected.\n+    gdb_test \"disconnect\" \".*\"\n \n-gdbserver_run \"\"\n+    gdbserver_run \"\"\n \n-# Continue past server_pid assignment.\n-gdb_breakpoint ${srcfile}:[gdb_get_line_number \"i = 0;\"]\n-gdb_continue_to_breakpoint \"after server_pid assignment\"\n+    # Continue past server_pid assignment.\n+    gdb_breakpoint ${srcfile}:[gdb_get_line_number \"i = 0;\"]\n+    gdb_continue_to_breakpoint \"after server_pid assignment\"\n \n-# Get the pid of GDBServer.\n-set test \"p server_pid\"\n-gdb_test_multiple $test $test {\n-    -re \" = ($decimal)\\r\\n$gdb_prompt $\" {\n-\tset server_pid $expect_out(1,string)\n-\tpass $test\n+    # Get the pid of GDBServer.\n+    set test \"p server_pid\"\n+    set server_pid 0\n+    gdb_test_multiple $test $test {\n+\t-re \" = ($decimal)\\r\\n$gdb_prompt $\" {\n+\t    set server_pid $expect_out(1,string)\n+\t    pass $test\n+\t}\n     }\n+\n+    if {$server_pid == 0} {\n+\treturn 0\n+    }\n+\n+    return 1\n }\n \n-if ![info exists server_pid] {\n-    return -1\n+# Kill GDBserver using the PID saved by prepare.\n+\n+proc kill_server {} {\n+    global server_pid\n+\n+    remote_exec target \"kill -9 $server_pid\"\n+}\n+\n+# Test issuing \"tstatus\" right after the connection is dropped.\n+\n+proc_with_prefix test_tstatus {} {\n+    if ![prepare] {\n+\treturn\n+    }\n+\n+    kill_server\n+\n+    # Enable trace status packet which is disabled after the\n+    # connection if the remote target doesn't support tracepoint at\n+    # all.  Otherwise, no RSP packet is sent out.\n+    gdb_test_no_output \"set remote trace-status-packet on\"\n+\n+    # Force GDB to talk with GDBserver, so that we can get the\n+    # \"connection closed\" error.\n+    gdb_test \"tstatus\" {Remote connection closed|Remote communication error\\.  Target disconnected\\.: Connection reset by peer\\.}\n+}\n+\n+# Test unwinding with no debug/unwind info, right after the connection\n+# is dropped.\n+\n+proc_with_prefix test_unwind_nosyms {} {\n+    if ![prepare] {\n+\treturn\n+    }\n+\n+    # Remove symbols, so that we try to unwind with one of the\n+    # heuristic unwinders, and read memory from within its sniffer.\n+    gdb_unload\n+\n+    kill_server\n+\n+    gdb_test \"bt\" \"(Target disconnected|Remote connection closed|Remote communication error).*\"\n }\n \n-remote_exec target \"kill -9 $server_pid\"\n+# Test unwinding with debug/unwind info, right after the connection is\n+# dropped.\n \n-# Enable trace status packet which is disabled after the connection\n-# if the remote target doesn't support tracepoint at all.  Otherwise,\n-# no RSP packet is sent out.\n-gdb_test_no_output \"set remote trace-status-packet on\"\n+proc_with_prefix test_unwind_syms {} {\n+    if ![prepare] {\n+\treturn\n+    }\n+\n+    kill_server\n+\n+    gdb_test \"bt\" \"(Target disconnected|Remote connection closed|Remote communication error).*\"\n+}\n \n-# Force GDB to talk with GDBserver, so that we can get the\n-# \"connection closed\" error.\n-gdb_test \"tstatus\" {Remote connection closed|Remote communication error\\.  Target disconnected\\.: Connection reset by peer\\.}\n+test_tstatus\n+test_unwind_nosyms\n+test_unwind_syms"
+    }
+  ]
+}

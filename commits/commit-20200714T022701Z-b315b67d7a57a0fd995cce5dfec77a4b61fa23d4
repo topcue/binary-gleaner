@@ -1,0 +1,146 @@
+{
+  "sha": "b315b67d7a57a0fd995cce5dfec77a4b61fa23d4",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YjMxNWI2N2Q3YTU3YTBmZDk5NWNjZTVkZmVjNzdhNGI2MWZhMjNkNA==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2020-07-14T02:27:00Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2020-07-14T02:27:01Z"
+    },
+    "message": "gdbserver: fix memory leak when handling qsupported packet\n\nWhen building gdbserver with AddressSanitizer, I get this annoying\nlittle leak when gdbserver exits:\n\n==307817==ERROR: LeakSanitizer: detected memory leaks\n\n    Direct leak of 14 byte(s) in 1 object(s) allocated from:\n        #0 0x7f7fd4256459 in __interceptor_malloc /build/gcc/src/gcc/libsanitizer/asan/asan_malloc_linux.cpp:145\n        #1 0x563bef981b80 in xmalloc /home/simark/src/binutils-gdb/gdbserver/../gdb/alloc.c:60\n        #2 0x563befb53301 in xstrdup /home/simark/src/binutils-gdb/libiberty/xstrdup.c:34\n        #3 0x563bef9d742b in handle_query /home/simark/src/binutils-gdb/gdbserver/server.cc:2286\n        #4 0x563bef9ed0b7 in process_serial_event /home/simark/src/binutils-gdb/gdbserver/server.cc:4061\n        #5 0x563bef9f1d9e in handle_serial_event(int, void*) /home/simark/src/binutils-gdb/gdbserver/server.cc:4402\n        #6 0x563befb0ec65 in handle_file_event /home/simark/src/binutils-gdb/gdbsupport/event-loop.cc:548\n        #7 0x563befb0f49f in gdb_wait_for_event /home/simark/src/binutils-gdb/gdbsupport/event-loop.cc:673\n        #8 0x563befb0d4a1 in gdb_do_one_event() /home/simark/src/binutils-gdb/gdbsupport/event-loop.cc:215\n        #9 0x563bef9e721a in start_event_loop /home/simark/src/binutils-gdb/gdbserver/server.cc:3484\n        #10 0x563bef9eb90a in captured_main /home/simark/src/binutils-gdb/gdbserver/server.cc:3875\n        #11 0x563bef9ec2c7 in main /home/simark/src/binutils-gdb/gdbserver/server.cc:3961\n        #12 0x7f7fd3330001 in __libc_start_main (/usr/lib/libc.so.6+0x27001)\n\n    SUMMARY: AddressSanitizer: 14 byte(s) leaked in 1 allocation(s).\n\nThis is due to the handling of unknown qsupported features in\nhandle_query.  The `qsupported` vector is built, containing all the\nfeature names received from GDB.  As we iterate on them, when we\nencounter unknown ones, we move them at the beginning of the vector, in\npreparation of passing this vector of unknown features down to the\ntarget (which may know about them).\n\nWhen moving these unknown features to other slots in the vector, we\noverwrite other pointers without freeing them, which therefore leak.\n\nAn easy fix would be to add a `free` when doing the move.  However, I\nthink this is a good opportunity to sprinkle a bit of automatic memory\nmanagement in this code.\n\nSo, use a vector of std::string which owns all the entries.  And use a\nseparate vector (that doesn't own the entries) for the unknown ones,\nwhich is then passed to target_process_qsupported.\n\nGiven that the `c_str` method of std::string returns a `const char *`,\nit follows that process_stratum_target::process_qsupported must accept a\n`const char **` instead of a `char **`.  And while at it, change the\npointer + size paramters to use an array_view instead.\n\ngdbserver/ChangeLog:\n\n\t* server.cc (handle_query): Use std::vector of\n\tstd::string for `qsupported` vector.  Use separate\n\tvector for unknowns.\n\t* target.h (class process_stratum_target) <process_qsupported>:\n\tChange parameters to array_view of const char *.\n\t(target_process_qsupported): Remove `count` parameter.\n\t* target.cc (process_stratum_target::process_qsupported): Change\n\tparameters to array_view of const char *.\n\t* linux-x86-low.cc (class x86_target) <process_qsupported>:\n\tLikewise.\n\nChange-Id: I97f133825faa6d7abbf83a58504eb0ba77462812",
+    "tree": {
+      "sha": "9ef0b17812f0fdaa38e25cb683b206fe1db25cfe",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/9ef0b17812f0fdaa38e25cb683b206fe1db25cfe"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/b315b67d7a57a0fd995cce5dfec77a4b61fa23d4",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b315b67d7a57a0fd995cce5dfec77a4b61fa23d4",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/b315b67d7a57a0fd995cce5dfec77a4b61fa23d4",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b315b67d7a57a0fd995cce5dfec77a4b61fa23d4/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "0a3a820f6ce861efa8c2a7aa5d0db11c6a7c3285",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0a3a820f6ce861efa8c2a7aa5d0db11c6a7c3285",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/0a3a820f6ce861efa8c2a7aa5d0db11c6a7c3285"
+    }
+  ],
+  "stats": {
+    "total": 83,
+    "additions": 42,
+    "deletions": 41
+  },
+  "files": [
+    {
+      "sha": "1ee716f52d7eda530b860e503c6623e3799812fc",
+      "filename": "gdbserver/ChangeLog",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b315b67d7a57a0fd995cce5dfec77a4b61fa23d4/gdbserver/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b315b67d7a57a0fd995cce5dfec77a4b61fa23d4/gdbserver/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/ChangeLog?ref=b315b67d7a57a0fd995cce5dfec77a4b61fa23d4",
+      "patch": "@@ -1,3 +1,16 @@\n+2020-07-13  Simon Marchi  <simon.marchi@polymtl.ca>\n+\n+\t* server.cc (handle_query): Use std::vector of\n+\tstd::string for `qsupported` vector.  Use separate\n+\tvector for unknowns.\n+\t* target.h (class process_stratum_target) <process_qsupported>:\n+\tChange parameters to array_view of const char *.\n+\t(target_process_qsupported): Remove `count` parameter.\n+\t* target.cc (process_stratum_target::process_qsupported): Change\n+\tparameters to array_view of const char *.\n+\t* linux-x86-low.cc (class x86_target) <process_qsupported>:\n+\tLikewise.\n+\n 2020-06-29  Tom de Vries  <tdevries@suse.de>\n \n \t* ax.h: Include gdbsupport/debug_agent.h."
+    },
+    {
+      "sha": "37d3626e1f73671f8852ecf4cef1f933823377d0",
+      "filename": "gdbserver/linux-x86-low.cc",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 7,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b315b67d7a57a0fd995cce5dfec77a4b61fa23d4/gdbserver/linux-x86-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b315b67d7a57a0fd995cce5dfec77a4b61fa23d4/gdbserver/linux-x86-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-x86-low.cc?ref=b315b67d7a57a0fd995cce5dfec77a4b61fa23d4",
+      "patch": "@@ -106,7 +106,7 @@ class x86_target : public linux_process_target\n \n   bool supports_z_point_type (char z_type) override;\n \n-  void process_qsupported (char **features, int count) override;\n+  void process_qsupported (gdb::array_view<const char * const> features) override;\n \n   bool supports_tracepoints () override;\n \n@@ -1003,18 +1003,15 @@ x86_target::update_xmltarget ()\n    PTRACE_GETREGSET.  */\n \n void\n-x86_target::process_qsupported (char **features, int count)\n+x86_target::process_qsupported (gdb::array_view<const char * const> features)\n {\n-  int i;\n-\n   /* Return if gdb doesn't support XML.  If gdb sends \"xmlRegisters=\"\n      with \"i386\" in qSupported query, it supports x86 XML target\n      descriptions.  */\n   use_xml = 0;\n-  for (i = 0; i < count; i++)\n-    {\n-      const char *feature = features[i];\n \n+  for (const char *feature : features)\n+    {\n       if (startswith (feature, \"xmlRegisters=\"))\n \t{\n \t  char *copy = xstrdup (feature + 13);\n@@ -1034,6 +1031,7 @@ x86_target::process_qsupported (char **features, int count)\n \t  free (copy);\n \t}\n     }\n+\n   update_xmltarget ();\n }\n "
+    },
+    {
+      "sha": "ab5363eb03286347c3453ece6f0165be3599c034",
+      "filename": "gdbserver/server.cc",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 29,
+      "changes": 45,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b315b67d7a57a0fd995cce5dfec77a4b61fa23d4/gdbserver/server.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b315b67d7a57a0fd995cce5dfec77a4b61fa23d4/gdbserver/server.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/server.cc?ref=b315b67d7a57a0fd995cce5dfec77a4b61fa23d4",
+      "patch": "@@ -2269,76 +2269,69 @@ handle_query (char *own_buf, int packet_len, int *new_packet_len_p)\n \t ';'.  */\n       if (*p == ':')\n \t{\n-\t  char **qsupported = NULL;\n-\t  int count = 0;\n-\t  int unknown = 0;\n-\t  int i;\n+\t  std::vector<std::string> qsupported;\n+\t  std::vector<const char *> unknowns;\n \n \t  /* Two passes, to avoid nested strtok calls in\n \t     target_process_qsupported.  */\n \t  char *saveptr;\n \t  for (p = strtok_r (p + 1, \";\", &saveptr);\n \t       p != NULL;\n \t       p = strtok_r (NULL, \";\", &saveptr))\n-\t    {\n-\t      count++;\n-\t      qsupported = XRESIZEVEC (char *, qsupported, count);\n-\t      qsupported[count - 1] = xstrdup (p);\n-\t    }\n+\t    qsupported.emplace_back (p);\n \n-\t  for (i = 0; i < count; i++)\n+\t  for (const std::string &feature : qsupported)\n \t    {\n-\t      p = qsupported[i];\n-\t      if (strcmp (p, \"multiprocess+\") == 0)\n+\t      if (feature == \"multiprocess+\")\n \t\t{\n \t\t  /* GDB supports and wants multi-process support if\n \t\t     possible.  */\n \t\t  if (target_supports_multi_process ())\n \t\t    cs.multi_process = 1;\n \t\t}\n-\t      else if (strcmp (p, \"qRelocInsn+\") == 0)\n+\t      else if (feature == \"qRelocInsn+\")\n \t\t{\n \t\t  /* GDB supports relocate instruction requests.  */\n \t\t  gdb_supports_qRelocInsn = 1;\n \t\t}\n-\t      else if (strcmp (p, \"swbreak+\") == 0)\n+\t      else if (feature == \"swbreak+\")\n \t\t{\n \t\t  /* GDB wants us to report whether a trap is caused\n \t\t     by a software breakpoint and for us to handle PC\n \t\t     adjustment if necessary on this target.  */\n \t\t  if (target_supports_stopped_by_sw_breakpoint ())\n \t\t    cs.swbreak_feature = 1;\n \t\t}\n-\t      else if (strcmp (p, \"hwbreak+\") == 0)\n+\t      else if (feature == \"hwbreak+\")\n \t\t{\n \t\t  /* GDB wants us to report whether a trap is caused\n \t\t     by a hardware breakpoint.  */\n \t\t  if (target_supports_stopped_by_hw_breakpoint ())\n \t\t    cs.hwbreak_feature = 1;\n \t\t}\n-\t      else if (strcmp (p, \"fork-events+\") == 0)\n+\t      else if (feature == \"fork-events+\")\n \t\t{\n \t\t  /* GDB supports and wants fork events if possible.  */\n \t\t  if (target_supports_fork_events ())\n \t\t    cs.report_fork_events = 1;\n \t\t}\n-\t      else if (strcmp (p, \"vfork-events+\") == 0)\n+\t      else if (feature == \"vfork-events+\")\n \t\t{\n \t\t  /* GDB supports and wants vfork events if possible.  */\n \t\t  if (target_supports_vfork_events ())\n \t\t    cs.report_vfork_events = 1;\n \t\t}\n-\t      else if (strcmp (p, \"exec-events+\") == 0)\n+\t      else if (feature == \"exec-events+\")\n \t\t{\n \t\t  /* GDB supports and wants exec events if possible.  */\n \t\t  if (target_supports_exec_events ())\n \t\t    cs.report_exec_events = 1;\n \t\t}\n-\t      else if (strcmp (p, \"vContSupported+\") == 0)\n+\t      else if (feature == \"vContSupported+\")\n \t\tcs.vCont_supported = 1;\n-\t      else if (strcmp (p, \"QThreadEvents+\") == 0)\n+\t      else if (feature == \"QThreadEvents+\")\n \t\t;\n-\t      else if (strcmp (p, \"no-resumed+\") == 0)\n+\t      else if (feature == \"no-resumed+\")\n \t\t{\n \t\t  /* GDB supports and wants TARGET_WAITKIND_NO_RESUMED\n \t\t     events.  */\n@@ -2347,19 +2340,13 @@ handle_query (char *own_buf, int packet_len, int *new_packet_len_p)\n \t      else\n \t\t{\n \t\t  /* Move the unknown features all together.  */\n-\t\t  qsupported[i] = NULL;\n-\t\t  qsupported[unknown] = p;\n-\t\t  unknown++;\n+\t\t  unknowns.push_back (feature.c_str ());\n \t\t}\n \t    }\n \n \t  /* Give the target backend a chance to process the unknown\n \t     features.  */\n-\t  target_process_qsupported (qsupported, unknown);\n-\n-\t  for (i = 0; i < count; i++)\n-\t    free (qsupported[i]);\n-\t  free (qsupported);\n+\t  target_process_qsupported (unknowns);\n \t}\n \n       sprintf (own_buf,"
+    },
+    {
+      "sha": "87f62a0b5559dd3a12090c40c5846affa4f72e37",
+      "filename": "gdbserver/target.cc",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b315b67d7a57a0fd995cce5dfec77a4b61fa23d4/gdbserver/target.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b315b67d7a57a0fd995cce5dfec77a4b61fa23d4/gdbserver/target.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/target.cc?ref=b315b67d7a57a0fd995cce5dfec77a4b61fa23d4",
+      "patch": "@@ -599,7 +599,8 @@ process_stratum_target::read_loadmap (const char *annex,\n }\n \n void\n-process_stratum_target::process_qsupported (char **features, int count)\n+process_stratum_target::process_qsupported\n+  (gdb::array_view<const char * const> features)\n {\n   /* Nop.  */\n }"
+    },
+    {
+      "sha": "13f069f7729f4c635ba5d562888336cbb91d1643",
+      "filename": "gdbserver/target.h",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 4,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b315b67d7a57a0fd995cce5dfec77a4b61fa23d4/gdbserver/target.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b315b67d7a57a0fd995cce5dfec77a4b61fa23d4/gdbserver/target.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/target.h?ref=b315b67d7a57a0fd995cce5dfec77a4b61fa23d4",
+      "patch": "@@ -27,6 +27,7 @@\n #include \"target/wait.h\"\n #include \"target/waitstatus.h\"\n #include \"mem-break.h\"\n+#include \"gdbsupport/array-view.h\"\n #include \"gdbsupport/btrace-common.h\"\n #include <vector>\n \n@@ -315,8 +316,9 @@ class process_stratum_target\n \t\t\t    unsigned char *myaddr, unsigned int len);\n \n   /* Target specific qSupported support.  FEATURES is an array of\n-     features with COUNT elements.  */\n-  virtual void process_qsupported (char **features, int count);\n+     features unsupported by the core of GDBserver.  */\n+  virtual void process_qsupported\n+    (gdb::array_view<const char * const> features);\n \n   /* Return true if the target supports tracepoints, false otherwise.  */\n   virtual bool supports_tracepoints ();\n@@ -547,8 +549,8 @@ int kill_inferior (process_info *proc);\n #define target_async(enable) \\\n   the_target->async (enable)\n \n-#define target_process_qsupported(features, count)\t\\\n-  the_target->process_qsupported (features, count)\n+#define target_process_qsupported(features) \\\n+  the_target->process_qsupported (features)\n \n #define target_supports_catch_syscall()              \t\\\n   the_target->supports_catch_syscall ()"
+    }
+  ]
+}

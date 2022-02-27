@@ -1,0 +1,122 @@
+{
+  "sha": "be64fd0776f78d8285e6c27125c0558386865e2f",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YmU2NGZkMDc3NmY3OGQ4Mjg1ZTZjMjcxMjVjMDU1ODM4Njg2NWUyZg==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-06-16T12:14:04Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-06-25T17:07:31Z"
+    },
+    "message": "gdb: Extend target description processing of unknown registers\n\nThis commit adds a new step to the processing of a target description\ndone in tdesc_use_registers, this new step is about how unknown\nregisters are processed.\n\nCurrently an architecture looks through the target description and\ncalls tdesc_numbered_register for each register is was expecting (or\nhoping) to find.  This builds up a map from GDB's register numbers to\nthe tdesc_reg object.  Later the architecture calls\ntdesc_use_registers.\n\nIn tdesc_use_registers we build a hash with keys being all the\ntdesc_reg object pointers, from this hash we remove all of the\ntdesc_reg objects that were assigned register numbers using\ntdesc_numbered_register.\n\nFinally we walk through all of the tdesc_reg objects, and if it was\nnot already assigned a number we assign that register the next\navailable number.\n\nThe problem with this is that the architecture has no visibility of\nwhich unknown registers exist, and which tdesc_feature the register\ncame from, in some cases this might be important.\n\nFor example, on RISC-V GDB overrides the use of\ntdesc_register_reggroup_p, with riscv_register_reggroup_p to modify\nsome of the register group choices.  In this function GDB wants to\ntreat all registers from a particular feature in a certain way.  This\nis fine for registers that GDB knows might be in that feature, but for\nunknown registers the RISC-V parts of GDB have no easy way to figure\nout which unknown registers exist, and what numbers they were\nassigned.\n\nWe could figure this information out by probing the register\nstructures after calling tdesc_use_registers, but this would be\nhorrible, much better to have tdesc_use_registers tell the\narchitecture about unknown registers.\n\nThis is what this commit does.  A new phase of tdesc_use_registers,\njust before the unknown registers are assigned a number, we loop over\neach tdesc_reg object, if it has not been assigned a number then we\nfigure out what number would be assigned and then call back into the\narchitecture passing the tdesc_feature, register name, and the\nproposed register number.\n\nThe architecture is free to return the proposed register number, or it\ncan return a different number (which has a result identical to having\ncalled tdesc_numbered_register).  Alternatively the architecture can\nreturn -1 to indicate the register should be numbered later.\n\nAfter calling the callback for every tdesc_reg object any registers\nstill don't have a number assigned (because the architecture returned\n-1), then a new register number is assigned, which might be different\nfrom the proposed number that was suggested earlier.\n\nThis commit adds the general target-description parts of this\nmechanism.  No targets are currently using this code.  The RISC-V\ntarget will make use of this in the next commit.\n\nThere should be no user visible changes after this commit.\n\ngdb/ChangeLog:\n\n\t* target-descriptions.c (tdesc_use_registers): Add new parameter a\n\tcallback, use the callback (when not null) to help number unknown\n\tregisters.\n\t* target-descriptions.h (tdesc_unknown_register_ftype): New typedef.\n\t(tdesc_use_registers): Add extra parameter to declaration.",
+    "tree": {
+      "sha": "a3d6c0bf34c481c793041cae46158a3ad6c1e676",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/a3d6c0bf34c481c793041cae46158a3ad6c1e676"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/be64fd0776f78d8285e6c27125c0558386865e2f",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/be64fd0776f78d8285e6c27125c0558386865e2f",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/be64fd0776f78d8285e6c27125c0558386865e2f",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/be64fd0776f78d8285e6c27125c0558386865e2f/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "3b9fce9660539584e869ea2d77610434e6baa2a2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3b9fce9660539584e869ea2d77610434e6baa2a2",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/3b9fce9660539584e869ea2d77610434e6baa2a2"
+    }
+  ],
+  "stats": {
+    "total": 66,
+    "additions": 64,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "771382b179275a71c32da8911bbee4792004cc0b",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/be64fd0776f78d8285e6c27125c0558386865e2f/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/be64fd0776f78d8285e6c27125c0558386865e2f/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=be64fd0776f78d8285e6c27125c0558386865e2f",
+      "patch": "@@ -1,3 +1,11 @@\n+2020-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* target-descriptions.c (tdesc_use_registers): Add new parameter a\n+\tcallback, use the callback (when not null) to help number unknown\n+\tregisters.\n+\t* target-descriptions.h (tdesc_unknown_register_ftype): New typedef.\n+\t(tdesc_use_registers): Add extra parameter to declaration.\n+\n 2020-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* riscv-tdep.c (value_of_riscv_user_reg): Moved to here from later"
+    },
+    {
+      "sha": "2f4b17727b8d11cd7a4a0ea208391fb74b486d82",
+      "filename": "gdb/target-descriptions.c",
+      "status": "modified",
+      "additions": 30,
+      "deletions": 1,
+      "changes": 31,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/be64fd0776f78d8285e6c27125c0558386865e2f/gdb/target-descriptions.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/be64fd0776f78d8285e6c27125c0558386865e2f/gdb/target-descriptions.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/target-descriptions.c?ref=be64fd0776f78d8285e6c27125c0558386865e2f",
+      "patch": "@@ -1097,7 +1097,8 @@ set_tdesc_pseudo_register_reggroup_p\n void\n tdesc_use_registers (struct gdbarch *gdbarch,\n \t\t     const struct target_desc *target_desc,\n-\t\t     struct tdesc_arch_data *early_data)\n+\t\t     struct tdesc_arch_data *early_data,\n+\t\t     tdesc_unknown_register_ftype unk_reg_cb)\n {\n   int num_regs = gdbarch_num_regs (gdbarch);\n   struct tdesc_arch_data *data;\n@@ -1146,6 +1147,34 @@ tdesc_use_registers (struct gdbarch *gdbarch,\n   while (data->arch_regs.size () < num_regs)\n     data->arch_regs.emplace_back (nullptr, nullptr);\n \n+  /* First we give the target a chance to number previously unknown\n+     registers.  This allows targets to record the numbers assigned based\n+     on which feature the register was from.  */\n+  if (unk_reg_cb != NULL)\n+    {\n+      for (const tdesc_feature_up &feature : target_desc->features)\n+\tfor (const tdesc_reg_up &reg : feature->registers)\n+\t  if (htab_find (reg_hash, reg.get ()) != NULL)\n+\t    {\n+\t      int regno = unk_reg_cb (gdbarch, feature.get (),\n+\t\t\t\t      reg->name.c_str (), num_regs);\n+\t      gdb_assert (regno == -1 || regno >= num_regs);\n+\t      if (regno != -1)\n+\t\t{\n+\t\t  while (regno >= data->arch_regs.size ())\n+\t\t    data->arch_regs.emplace_back (nullptr, nullptr);\n+\t\t  data->arch_regs[regno] = tdesc_arch_reg (reg.get (), NULL);\n+\t\t  num_regs = regno + 1;\n+\t\t  htab_remove_elt (reg_hash, reg.get ());\n+\t\t}\n+\t    }\n+    }\n+\n+  /* Ensure the array was sized correctly above.  */\n+  gdb_assert (data->arch_regs.size () == num_regs);\n+\n+  /* Now in a final pass we assign register numbers to any remaining\n+     unnumbered registers.  */\n   for (const tdesc_feature_up &feature : target_desc->features)\n     for (const tdesc_reg_up &reg : feature->registers)\n       if (htab_find (reg_hash, reg.get ()) != NULL)"
+    },
+    {
+      "sha": "6d842bf07ed307fe7e89db2ab771f074e7cbf8e6",
+      "filename": "gdb/target-descriptions.h",
+      "status": "modified",
+      "additions": 26,
+      "deletions": 1,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/be64fd0776f78d8285e6c27125c0558386865e2f/gdb/target-descriptions.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/be64fd0776f78d8285e6c27125c0558386865e2f/gdb/target-descriptions.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/target-descriptions.h?ref=be64fd0776f78d8285e6c27125c0558386865e2f",
+      "patch": "@@ -80,6 +80,30 @@ void set_tdesc_pseudo_register_reggroup_p\n   (struct gdbarch *gdbarch,\n    gdbarch_register_reggroup_p_ftype *pseudo_reggroup_p);\n \n+/* Pointer to a function that should be called for each unknown register in\n+   a target description, used by TDESC_USE_REGISTERS.\n+\n+   GDBARCH is the architecture the target description is for, FEATURE is\n+   the feature the unknown register is in, and REG_NAME is the name of the\n+   register from the target description.  The POSSIBLE_REGNUM is a proposed\n+   (GDB internal) number for this register.\n+\n+   The callback function can return, (-1) to indicate that the register\n+   should not be assigned POSSIBLE_REGNUM now (though it might be later),\n+   GDB will number the register automatically later on.  Return\n+   POSSIBLE_REGNUM (or greater) to have this register assigned that number.\n+   Returning a value less that POSSIBLE_REGNUM is also acceptable, but take\n+   care not to clash with a register number that has already been\n+   assigned.\n+\n+   The callback will always be called on the registers in the order they\n+   appear in the target description.  This means all unknown registers\n+   within a single feature will be called one after another.  */\n+\n+typedef int (*tdesc_unknown_register_ftype)\n+\t(struct gdbarch *gdbarch, tdesc_feature *feature,\n+\t const char *reg_name, int possible_regnum);\n+\n /* Update GDBARCH to use the TARGET_DESC for registers.  TARGET_DESC\n    may be GDBARCH's target description or (if GDBARCH does not have\n    one which describes registers) another target description\n@@ -95,7 +119,8 @@ void set_tdesc_pseudo_register_reggroup_p\n \n void tdesc_use_registers (struct gdbarch *gdbarch,\n \t\t\t  const struct target_desc *target_desc,\n-\t\t\t  struct tdesc_arch_data *early_data);\n+\t\t\t  struct tdesc_arch_data *early_data,\n+\t\t\t  tdesc_unknown_register_ftype unk_reg_cb = NULL);\n \n /* Allocate initial data for validation of a target description during\n    gdbarch initialization.  */"
+    }
+  ]
+}

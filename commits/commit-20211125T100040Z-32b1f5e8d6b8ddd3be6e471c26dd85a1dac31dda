@@ -1,0 +1,60 @@
+{
+  "sha": "32b1f5e8d6b8ddd3be6e471c26dd85a1dac31dda",
+  "node_id": "C_kwDOANOeidoAKDMyYjFmNWU4ZDZiOGRkZDNiZTZlNDcxYzI2ZGQ4NWExZGFjMzFkZGE",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-11-22T12:30:36Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-11-25T10:00:40Z"
+    },
+    "message": "gdb: add assert in remote_target::wait relating to async being off\n\nWhile working on another patch I ended up in a situation where I had\nasync mode disabled (with 'maint set target-async off'), but the async\nevent token got marked anyway.\n\nIn this situation GDB was continually calling into\nremote_target::wait, however, the async token would never become\nunmarked as the unmarking is guarded by target_is_async_p.\n\nWe could just unconditionally unmark the token, but that would feel\nlike just ignoring a bug, so, instead, lets assert that if\n!target_is_async_p, then the async token should not be marked.\n\nThis assertion would have caught my earlier mistake.\n\nThere should be no user visible changes with this commit.",
+    "tree": {
+      "sha": "d3d10088abdd7e89c7d1c360386d35406ae4d043",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/d3d10088abdd7e89c7d1c360386d35406ae4d043"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/32b1f5e8d6b8ddd3be6e471c26dd85a1dac31dda",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/32b1f5e8d6b8ddd3be6e471c26dd85a1dac31dda",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/32b1f5e8d6b8ddd3be6e471c26dd85a1dac31dda",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/32b1f5e8d6b8ddd3be6e471c26dd85a1dac31dda/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "7054fa5bcaea3ce1a2f10a8ca550db96564035db",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7054fa5bcaea3ce1a2f10a8ca550db96564035db",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/7054fa5bcaea3ce1a2f10a8ca550db96564035db"
+    }
+  ],
+  "stats": {
+    "total": 6,
+    "additions": 5,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "da8ed81ba7840a5840501ce4e41e3ab51f124664",
+      "filename": "gdb/remote.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 1,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/32b1f5e8d6b8ddd3be6e471c26dd85a1dac31dda/gdb/remote.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/32b1f5e8d6b8ddd3be6e471c26dd85a1dac31dda/gdb/remote.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/remote.c?ref=32b1f5e8d6b8ddd3be6e471c26dd85a1dac31dda",
+      "patch": "@@ -8309,9 +8309,13 @@ remote_target::wait (ptid_t ptid, struct target_waitstatus *status,\n   remote_state *rs = get_remote_state ();\n \n   /* Start by clearing the flag that asks for our wait method to be called,\n-     we'll mark it again at the end if needed.  */\n+     we'll mark it again at the end if needed.  If the target is not in\n+     async mode then the async token should not be marked.  */\n   if (target_is_async_p ())\n     clear_async_event_handler (rs->remote_async_inferior_event_token);\n+  else\n+    gdb_assert (!async_event_handler_marked\n+\t\t(rs->remote_async_inferior_event_token));\n \n   ptid_t event_ptid;\n "
+    }
+  ]
+}

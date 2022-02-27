@@ -1,0 +1,72 @@
+{
+  "sha": "ee98c0daf93476e323134492cf604e71b05ca883",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZWU5OGMwZGFmOTM0NzZlMzIzMTM0NDkyY2Y2MDRlNzFiMDVjYTg4Mw==",
+  "commit": {
+    "author": {
+      "name": "Maciej W. Rozycki",
+      "email": "macro@wdc.com",
+      "date": "2020-02-03T12:07:02Z"
+    },
+    "committer": {
+      "name": "Maciej W. Rozycki",
+      "email": "macro@wdc.com",
+      "date": "2020-02-03T12:07:02Z"
+    },
+    "message": "RISC-V/Linux/native: Determine FLEN dynamically\n\nFix RISC-V native Linux support to handle a 64-bit FPU (FLEN == 64) with\nboth RV32 and RV64 systems, which is a part of the current Linux ABI for\nhard-float systems, rather than assuming that (FLEN == XLEN) in target\ndescription determination and that (FLEN == 64) in register access.\n\nWe can do better however and not rely on any particular value of FLEN\nand probe for it dynamically, by observing that the PTRACE_GETREGSET\nptrace(2) call will only accept an exact regset size, and that will\nreflect FLEN.  Therefore iterate over the call in target description\ndetermination with a geometrically increasing regset size until a match\nis marked by a successful ptrace(2) call completion or we run beyond the\nmaximum size we can support.\n\nUpdate register accessors accordingly, using FLEN determined to size the\nbuffer used for NT_PRSTATUS requests and then to exchange data with the\nregcache.\n\nAlso handle a glibc bug where ELF_NFPREG is defined in terms of NFPREG,\nhowever NFPREG is nowhere defined.\n\n\tgdb/\n\t* riscv-linux-nat.c [!NFPREG] (NFPREG): New macro.\n\t(supply_fpregset_regnum, fill_fpregset): Handle regset buffer\n\toffsets according to FLEN determined.\n\t(riscv_linux_nat_target::read_description): Determine FLEN\n\tdynamically.\n\t(riscv_linux_nat_target::fetch_registers): Size regset buffer\n\taccording to FLEN determined.\n\t(riscv_linux_nat_target::store_registers): Likewise.",
+    "tree": {
+      "sha": "35eaf43d8c9642e3e260cb2142f1b842bf3189c9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/35eaf43d8c9642e3e260cb2142f1b842bf3189c9"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ee98c0daf93476e323134492cf604e71b05ca883",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ee98c0daf93476e323134492cf604e71b05ca883",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ee98c0daf93476e323134492cf604e71b05ca883",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ee98c0daf93476e323134492cf604e71b05ca883/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "b0029748ca991c64cf9f0851217b7762e4877854",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b0029748ca991c64cf9f0851217b7762e4877854",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b0029748ca991c64cf9f0851217b7762e4877854"
+    }
+  ],
+  "stats": {
+    "total": 123,
+    "additions": 97,
+    "deletions": 26
+  },
+  "files": [
+    {
+      "sha": "5ac2596cca99f9468fd690c859c00f7830cb7de4",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ee98c0daf93476e323134492cf604e71b05ca883/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ee98c0daf93476e323134492cf604e71b05ca883/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=ee98c0daf93476e323134492cf604e71b05ca883",
+      "patch": "@@ -1,3 +1,14 @@\n+2020-02-03  Maciej W. Rozycki  <macro@wdc.com>\n+\n+\t* riscv-linux-nat.c [!NFPREG] (NFPREG): New macro.\n+\t(supply_fpregset_regnum, fill_fpregset): Handle regset buffer\n+\toffsets according to FLEN determined.\n+\t(riscv_linux_nat_target::read_description): Determine FLEN\n+\tdynamically.\n+\t(riscv_linux_nat_target::fetch_registers): Size regset buffer\n+\taccording to FLEN determined.\n+\t(riscv_linux_nat_target::store_registers): Likewise.\n+\n 2020-02-01  Shahab Vahedi  <shahab@synopsys.com>\n \n \t* target-descriptions.c (tdesc_register_in_reggroup_p): Return 0"
+    },
+    {
+      "sha": "043bbd44b6825e0291f8d5c610fcd0fc8d0e5a8a",
+      "filename": "gdb/riscv-linux-nat.c",
+      "status": "modified",
+      "additions": 86,
+      "deletions": 26,
+      "changes": 112,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ee98c0daf93476e323134492cf604e71b05ca883/gdb/riscv-linux-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ee98c0daf93476e323134492cf604e71b05ca883/gdb/riscv-linux-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/riscv-linux-nat.c?ref=ee98c0daf93476e323134492cf604e71b05ca883",
+      "patch": "@@ -28,6 +28,11 @@\n \n #include <sys/ptrace.h>\n \n+/* Work around glibc header breakage causing ELF_NFPREG not to be usable.  */\n+#ifndef NFPREG\n+# define NFPREG 33\n+#endif\n+\n /* RISC-V Linux native additions to the default linux support.  */\n \n class riscv_linux_nat_target final : public linux_nat_target\n@@ -88,21 +93,35 @@ static void\n supply_fpregset_regnum (struct regcache *regcache, const prfpregset_t *fpregs,\n \t\t\tint regnum)\n {\n+  int flen = register_size (regcache->arch (), RISCV_FIRST_FP_REGNUM);\n+  union\n+    {\n+      const prfpregset_t *fpregs;\n+      const gdb_byte *buf;\n+    }\n+  fpbuf = { .fpregs = fpregs };\n   int i;\n \n   if (regnum == -1)\n     {\n       /* We only support the FP registers and FCSR here.  */\n-      for (i = RISCV_FIRST_FP_REGNUM; i <= RISCV_LAST_FP_REGNUM; i++)\n-\tregcache->raw_supply (i, &fpregs->__d.__f[i - RISCV_FIRST_FP_REGNUM]);\n+      for (i = RISCV_FIRST_FP_REGNUM;\n+\t   i <= RISCV_LAST_FP_REGNUM;\n+\t   i++, fpbuf.buf += flen)\n+\tregcache->raw_supply (i, fpbuf.buf);\n \n-      regcache->raw_supply (RISCV_CSR_FCSR_REGNUM, &fpregs->__d.__fcsr);\n+      regcache->raw_supply (RISCV_CSR_FCSR_REGNUM, fpbuf.buf);\n     }\n   else if (regnum >= RISCV_FIRST_FP_REGNUM && regnum <= RISCV_LAST_FP_REGNUM)\n-    regcache->raw_supply (regnum,\n-\t\t\t  &fpregs->__d.__f[regnum - RISCV_FIRST_FP_REGNUM]);\n+    {\n+      fpbuf.buf += flen * (regnum - RISCV_FIRST_FP_REGNUM);\n+      regcache->raw_supply (regnum, fpbuf.buf);\n+    }\n   else if (regnum == RISCV_CSR_FCSR_REGNUM)\n-    regcache->raw_supply (RISCV_CSR_FCSR_REGNUM, &fpregs->__d.__fcsr);\n+    {\n+      fpbuf.buf += flen * (RISCV_LAST_FP_REGNUM - RISCV_FIRST_FP_REGNUM + 1);\n+      regcache->raw_supply (RISCV_CSR_FCSR_REGNUM, fpbuf.buf);\n+    }\n }\n \n /* Copy all floating point registers from regset FPREGS into REGCACHE.  */\n@@ -145,19 +164,35 @@ void\n fill_fpregset (const struct regcache *regcache, prfpregset_t *fpregs,\n \t       int regnum)\n {\n+  int flen = register_size (regcache->arch (), RISCV_FIRST_FP_REGNUM);\n+  union\n+    {\n+      prfpregset_t *fpregs;\n+      gdb_byte *buf;\n+    }\n+  fpbuf = { .fpregs = fpregs };\n+  int i;\n+\n   if (regnum == -1)\n     {\n       /* We only support the FP registers and FCSR here.  */\n-      for (int i = RISCV_FIRST_FP_REGNUM; i <= RISCV_LAST_FP_REGNUM; i++)\n-\tregcache->raw_collect (i, &fpregs->__d.__f[i - RISCV_FIRST_FP_REGNUM]);\n+      for (i = RISCV_FIRST_FP_REGNUM;\n+\t   i <= RISCV_LAST_FP_REGNUM;\n+\t   i++, fpbuf.buf += flen)\n+\tregcache->raw_collect (i, fpbuf.buf);\n \n-      regcache->raw_collect (RISCV_CSR_FCSR_REGNUM, &fpregs->__d.__fcsr);\n+      regcache->raw_collect (RISCV_CSR_FCSR_REGNUM, fpbuf.buf);\n     }\n   else if (regnum >= RISCV_FIRST_FP_REGNUM && regnum <= RISCV_LAST_FP_REGNUM)\n-    regcache->raw_collect (regnum,\n-\t\t\t   &fpregs->__d.__f[regnum - RISCV_FIRST_FP_REGNUM]);\n+    {\n+      fpbuf.buf += flen * (regnum - RISCV_FIRST_FP_REGNUM);\n+      regcache->raw_collect (regnum, fpbuf.buf);\n+    }\n   else if (regnum == RISCV_CSR_FCSR_REGNUM)\n-    regcache->raw_collect (RISCV_CSR_FCSR_REGNUM, &fpregs->__d.__fcsr);\n+    {\n+      fpbuf.buf += flen * (RISCV_LAST_FP_REGNUM - RISCV_FIRST_FP_REGNUM + 1);\n+      regcache->raw_collect (RISCV_CSR_FCSR_REGNUM, fpbuf.buf);\n+    }\n }\n \n /* Return a target description for the current target.  */\n@@ -166,28 +201,49 @@ const struct target_desc *\n riscv_linux_nat_target::read_description ()\n {\n   struct riscv_gdbarch_features features;\n-  struct iovec iov;\n   elf_fpregset_t regs;\n+  int flen;\n   int tid;\n \n   /* Figuring out xlen is easy.  */\n   features.xlen = sizeof (elf_greg_t);\n \n   tid = inferior_ptid.lwp ();\n \n-  iov.iov_base = &regs;\n-  iov.iov_len = sizeof (regs);\n+  /* Start with no f-registers.  */\n+  features.flen = 0;\n \n-  /* Can we fetch the f-registers?  */\n-  if (ptrace (PTRACE_GETREGSET, tid, NT_FPREGSET,\n-\t      (PTRACE_TYPE_ARG3) &iov) == -1)\n-    features.flen = 0;\t\t/* No f-registers.  */\n-  else\n+  /* How much worth of f-registers can we fetch if any?  */\n+  for (flen = sizeof (regs.__f.__f[0]); ; flen *= 2)\n     {\n-      /* TODO: We need a way to figure out the actual length of the\n-\t f-registers.  We could have 64-bit x-registers, with 32-bit\n-\t f-registers.  For now, just assumed xlen and flen match.  */\n-      features.flen = features.xlen;\n+      size_t regset_size;\n+      struct iovec iov;\n+\n+      /* Regsets have a uniform slot size, so we count FSCR like\n+\t an FP data register.  */\n+      regset_size = ELF_NFPREG * flen;\n+      if (regset_size > sizeof (regs))\n+\tbreak;\n+\n+      iov.iov_base = &regs;\n+      iov.iov_len = regset_size;\n+      if (ptrace (PTRACE_GETREGSET, tid, NT_FPREGSET,\n+\t\t  (PTRACE_TYPE_ARG3) &iov) == -1)\n+\t{\n+\t  switch (errno)\n+\t    {\n+\t    case EINVAL:\n+\t      continue;\n+\t    case EIO:\n+\t      break;\n+\t    default:\n+\t      perror_with_name (_(\"Couldn't get registers\"));\n+\t      break;\n+\t    }\n+\t}\n+      else\n+\tfeatures.flen = flen;\n+      break;\n     }\n \n   return riscv_create_target_description (features);\n@@ -228,7 +284,9 @@ riscv_linux_nat_target::fetch_registers (struct regcache *regcache, int regnum)\n       elf_fpregset_t regs;\n \n       iov.iov_base = &regs;\n-      iov.iov_len = sizeof (regs);\n+      iov.iov_len = ELF_NFPREG * register_size (regcache->arch (),\n+\t\t\t\t\t\tRISCV_FIRST_FP_REGNUM);\n+      gdb_assert (iov.iov_len <= sizeof (regs));\n \n       if (ptrace (PTRACE_GETREGSET, tid, NT_FPREGSET,\n \t\t  (PTRACE_TYPE_ARG3) &iov) == -1)\n@@ -289,7 +347,9 @@ riscv_linux_nat_target::store_registers (struct regcache *regcache, int regnum)\n       elf_fpregset_t regs;\n \n       iov.iov_base = &regs;\n-      iov.iov_len = sizeof (regs);\n+      iov.iov_len = ELF_NFPREG * register_size (regcache->arch (),\n+\t\t\t\t\t\tRISCV_FIRST_FP_REGNUM);\n+      gdb_assert (iov.iov_len <= sizeof (regs));\n \n       if (ptrace (PTRACE_GETREGSET, tid, NT_FPREGSET,\n \t\t  (PTRACE_TYPE_ARG3) &iov) == -1)"
+    }
+  ]
+}

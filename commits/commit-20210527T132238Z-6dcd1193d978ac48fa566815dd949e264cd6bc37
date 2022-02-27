@@ -1,0 +1,146 @@
+{
+  "sha": "6dcd1193d978ac48fa566815dd949e264cd6bc37",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NmRjZDExOTNkOTc4YWM0OGZhNTY2ODE1ZGQ5NDllMjY0Y2Q2YmMzNw==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-05-27T13:22:38Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-05-27T13:22:38Z"
+    },
+    "message": "[gdb/symtab] Fix Dwarf Error: cannot find DIE\n\nWhen loading the debug info package\nlibLLVM.so.10-10.0.1-lp152.30.4.x86_64.debug from openSUSE Leap 15.2, we\nrun into a dwarf error:\n...\n$ gdb -q -batch libLLVM.so.10-10.0.1-lp152.30.4.x86_64.debug\nDwarf Error: Cannot not find DIE at 0x18a936e7 \\\n  [from module libLLVM.so.10-10.0.1-lp152.30.4.x86_64.debug]\n...\nThe DIE @ 0x18a936e7 does in fact exist, and is part of a CU @ 0x18a23e52.\nNo error message is printed when using -readnow.\n\nWhat happens is the following:\n- a dwarf2_per_cu_data P is created for the CU.\n- a dwarf2_cu A is created for the same CU.\n- another dwarf2_cu B is created for the same CU.\n- the dwarf2_cu B is set in per_objfile->m_dwarf2_cus, such that\n  per_objfile->get_cu (P) returns B.\n- P->load_all_dies is set to 1.\n- all dies are read into the A->partial_dies htab\n- dwarf2_cu A is destroyed.\n- we try to find the partial_die for the DIE @ 0x18a936e7 in B->partial_dies.\n  We can't find it, but do not try to load all dies, because P->load_all_dies\n  is already set to 1.\n- an error message is generated.\n\nThe question is why we're creating dwarf2_cu A and B for the same CU.\n\nThe dwarf2_cu A is created here:\n...\n (gdb) bt\n #0  dwarf2_cu::dwarf2_cu (this=0x79a9660, per_cu=0x23c0b30,\n     per_objfile=0x1ad01b0) at dwarf2/cu.c:38\n #1  0x0000000000675799 in cutu_reader::cutu_reader (this=0x7fffffffd040,\n     this_cu=0x23c0b30, per_objfile=0x1ad01b0, abbrev_table=0x0,\n     existing_cu=0x0, skip_partial=false) at dwarf2/read.c:6487\n #2  0x0000000000676eb3 in process_psymtab_comp_unit (this_cu=0x23c0b30,\n      per_objfile=0x1ad01b0, want_partial_unit=false,\n      pretend_language=language_minimal) at dwarf2/read.c:7028\n...\n\nAnd the dwarf2_cu B is created here:\n...\n (gdb) bt\n #0  dwarf2_cu::dwarf2_cu (this=0x885e8c0, per_cu=0x23c0b30,\n     per_objfile=0x1ad01b0) at dwarf2/cu.c:38\n #1  0x0000000000675799 in cutu_reader::cutu_reader (this=0x7fffffffcc50,\n     this_cu=0x23c0b30, per_objfile=0x1ad01b0, abbrev_table=0x0,\n     existing_cu=0x0, skip_partial=false) at dwarf2/read.c:6487\n #2  0x0000000000678118 in load_partial_comp_unit (this_cu=0x23c0b30,\n     per_objfile=0x1ad01b0, existing_cu=0x0) at dwarf2/read.c:7436\n #3  0x000000000069721d in find_partial_die (sect_off=(unknown: 0x18a55054),\n     offset_in_dwz=0, cu=0x0) at dwarf2/read.c:19391\n #4  0x000000000069755b in partial_die_info::fixup (this=0x9096900,\n     cu=0xa6a85f0) at dwarf2/read.c:19512\n #5  0x0000000000697586 in partial_die_info::fixup (this=0x8629bb0,\n     cu=0xa6a85f0) at dwarf2/read.c:19516\n #6  0x00000000006787b1 in scan_partial_symbols (first_die=0x8629b40,\n     lowpc=0x7fffffffcf58, highpc=0x7fffffffcf50, set_addrmap=0, cu=0x79a9660)\n     at dwarf2/read.c:7563\n #7  0x0000000000678878 in scan_partial_symbols (first_die=0x796ebf0,\n     lowpc=0x7fffffffcf58, highpc=0x7fffffffcf50, set_addrmap=0, cu=0x79a9660)\n     at dwarf2/read.c:7580\n #8  0x0000000000676b82 in process_psymtab_comp_unit_reader\n     (reader=0x7fffffffd040, info_ptr=0x7fffc1b3f29b, comp_unit_die=0x6ea90f0,\n     pretend_language=language_minimal) at dwarf2/read.c:6954\n #9  0x0000000000676ffd in process_psymtab_comp_unit (this_cu=0x23c0b30,\n     per_objfile=0x1ad01b0, want_partial_unit=false,\n     pretend_language=language_minimal) at dwarf2/read.c:7057\n...\n\nSo in frame #9, a cutu_reader is created with dwarf2_cu A.  Then a fixup takes\nus to the following CU @ 0x18aa33d6, in frame #5.  And a similar fixup in\nframe #4 takes us back to CU @ 0x18a23e52.  At that point, there's no\ninformation available that we're already trying to read that CU, and we end up\ncreating another cutu_reader with dwarf2_cu B.\n\nIt seems that there are two related problems:\n- creating two dwarf2_cu's is not optimal\n- the unoptimal case is not handled correctly\n\nThis patch addresses the last problem, by moving the load_all_dies flag from\ndwarf2_per_cu_data to dwarf2_cu, such that it is paired with the partial_dies\nfield, which ensures that the two can be kept in sync.\n\nTested on x86_64-linux.\n\ngdb/ChangeLog:\n\n2021-05-27  Tom de Vries  <tdevries@suse.de>\n\n\tPR symtab/27898\n\t* dwarf2/cu.c (dwarf2_cu::dwarf2_cu): Add load_all_dies init.\n\t* dwarf2/cu.h (dwarf2_cu): Add load_all_dies field.\n\t* dwarf2/read.c (load_partial_dies, find_partial_die): Update.\n\t* dwarf2/read.h (dwarf2_per_cu_data::dwarf2_per_cu_data): Remove\n\tload_all_dies init.\n\t(dwarf2_per_cu_data): Remove load_all_dies field.",
+    "tree": {
+      "sha": "4cf4f084e08317536732da76ab17f12c7e4bbd5c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/4cf4f084e08317536732da76ab17f12c7e4bbd5c"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/6dcd1193d978ac48fa566815dd949e264cd6bc37",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6dcd1193d978ac48fa566815dd949e264cd6bc37",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/6dcd1193d978ac48fa566815dd949e264cd6bc37",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6dcd1193d978ac48fa566815dd949e264cd6bc37/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "3a706c17ee29eeab71cb7b7823cad322a66df256",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3a706c17ee29eeab71cb7b7823cad322a66df256",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/3a706c17ee29eeab71cb7b7823cad322a66df256"
+    }
+  ],
+  "stats": {
+    "total": 32,
+    "additions": 21,
+    "deletions": 11
+  },
+  "files": [
+    {
+      "sha": "3154a8d0ed19c080da0eaace83c483b6c3173210",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6dcd1193d978ac48fa566815dd949e264cd6bc37/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6dcd1193d978ac48fa566815dd949e264cd6bc37/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=6dcd1193d978ac48fa566815dd949e264cd6bc37",
+      "patch": "@@ -1,3 +1,13 @@\n+2021-05-27  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR symtab/27898\n+\t* dwarf2/cu.c (dwarf2_cu::dwarf2_cu): Add load_all_dies init.\n+\t* dwarf2/cu.h (dwarf2_cu): Add load_all_dies field.\n+\t* dwarf2/read.c (load_partial_dies, find_partial_die): Update.\n+\t* dwarf2/read.h (dwarf2_per_cu_data::dwarf2_per_cu_data): Remove\n+\tload_all_dies init.\n+\t(dwarf2_per_cu_data): Remove load_all_dies field.\n+\n 2021-05-26  Simon Marchi  <simon.marchi@efficios.com>\n \n \t* regcache.c (reg_buffer::reg_buffer): Default-initialize"
+    },
+    {
+      "sha": "1031ed3aa00d0894a332c6cbe1d9b994c077bd29",
+      "filename": "gdb/dwarf2/cu.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6dcd1193d978ac48fa566815dd949e264cd6bc37/gdb/dwarf2/cu.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6dcd1193d978ac48fa566815dd949e264cd6bc37/gdb/dwarf2/cu.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/cu.c?ref=6dcd1193d978ac48fa566815dd949e264cd6bc37",
+      "patch": "@@ -35,7 +35,8 @@ dwarf2_cu::dwarf2_cu (dwarf2_per_cu_data *per_cu,\n     producer_is_icc (false),\n     producer_is_icc_lt_14 (false),\n     producer_is_codewarrior (false),\n-    processing_has_namespace_info (false)\n+    processing_has_namespace_info (false),\n+    load_all_dies (false)\n {\n }\n "
+    },
+    {
+      "sha": "b4a5b08d5a611bc63e55195a154a59d663b8f72c",
+      "filename": "gdb/dwarf2/cu.h",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6dcd1193d978ac48fa566815dd949e264cd6bc37/gdb/dwarf2/cu.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6dcd1193d978ac48fa566815dd949e264cd6bc37/gdb/dwarf2/cu.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/cu.h?ref=6dcd1193d978ac48fa566815dd949e264cd6bc37",
+      "patch": "@@ -264,6 +264,12 @@ struct dwarf2_cu\n \n   bool processing_has_namespace_info : 1;\n \n+  /* This flag will be set when reading partial DIEs if we need to load\n+     absolutely all DIEs for this compilation unit, instead of just the ones\n+     we think are interesting.  It gets set if we look for a DIE in the\n+     hash table and don't find it.  */\n+  bool load_all_dies : 1;\n+\n   struct partial_die_info *find_partial_die (sect_offset sect_off);\n \n   /* If this CU was inherited by another CU (via specification,"
+    },
+    {
+      "sha": "3f496347cce22ae3160585235d8ae27928b31a0b",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6dcd1193d978ac48fa566815dd949e264cd6bc37/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6dcd1193d978ac48fa566815dd949e264cd6bc37/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=6dcd1193d978ac48fa566815dd949e264cd6bc37",
+      "patch": "@@ -18817,7 +18817,7 @@ load_partial_dies (const struct die_reader_specs *reader,\n   last_die = NULL;\n \n   gdb_assert (cu->per_cu != NULL);\n-  if (cu->per_cu->load_all_dies)\n+  if (cu->load_all_dies)\n     load_all = 1;\n \n   cu->partial_dies\n@@ -19385,9 +19385,9 @@ find_partial_die (sect_offset sect_off, int offset_in_dwz, struct dwarf2_cu *cu)\n   /* If we didn't find it, and not all dies have been loaded,\n      load them all and try again.  */\n \n-  if (pd == NULL && cu->per_cu->load_all_dies == 0)\n+  if (pd == NULL && cu->load_all_dies == 0)\n     {\n-      cu->per_cu->load_all_dies = 1;\n+      cu->load_all_dies = 1;\n \n       /* This is nasty.  When we reread the DIEs, somewhere up the call chain\n \t THIS_CU->cu may already be in use.  So we can't just free it and"
+    },
+    {
+      "sha": "0bb3da5a34ab4b719305668411efeb2e0ef9a53f",
+      "filename": "gdb/dwarf2/read.h",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 7,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6dcd1193d978ac48fa566815dd949e264cd6bc37/gdb/dwarf2/read.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6dcd1193d978ac48fa566815dd949e264cd6bc37/gdb/dwarf2/read.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.h?ref=6dcd1193d978ac48fa566815dd949e264cd6bc37",
+      "patch": "@@ -421,7 +421,6 @@ struct dwarf2_per_cu_data\n {\n   dwarf2_per_cu_data ()\n     : queued (false),\n-      load_all_dies (false),\n       is_debug_types (false),\n       is_dwz (false),\n       reading_dwo_directly (false),\n@@ -447,12 +446,6 @@ struct dwarf2_per_cu_data\n      any of the current compilation units are processed.  */\n   unsigned int queued : 1;\n \n-  /* This flag will be set when reading partial DIEs if we need to load\n-     absolutely all DIEs for this compilation unit, instead of just the ones\n-     we think are interesting.  It gets set if we look for a DIE in the\n-     hash table and don't find it.  */\n-  unsigned int load_all_dies : 1;\n-\n   /* Non-zero if this CU is from .debug_types.\n      Struct dwarf2_per_cu_data is contained in struct signatured_type iff\n      this is non-zero.  */"
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "sha": "e6582e1b3c194b01a2461f5c5326fcf358303607",
+  "node_id": "C_kwDOANOeidoAKGU2NTgyZTFiM2MxOTRiMDFhMjQ2MWY1YzUzMjZmY2YzNTgzMDM2MDc",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-10-15T14:16:20Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-12-13T14:15:13Z"
+    },
+    "message": "gdb: improve reuse of value contents when fetching array elements\n\nWhile working on a Python script, which was interacting with a remote\ntarget, I noticed some weird slowness in GDB.  In my program I had a\nstructure something like this:\n\n  struct foo_t\n  {\n    int array[5];\n  };\n\n  struct foo_t global_foo;\n\nThen in the Python script I was fetching a complete copy of global\nfoo, like:\n\n  val = gdb.parse_and_eval('global_foo')\n  val.fetch_lazy()\n\nThen I would work with items in foo_t.array, like:\n\n  print(val['array'][1])\n\nI called the fetch_lazy method specifically because I knew I was going\nto end up accessing almost all of the contents of val, and so I wanted\nGDB to do a single remote protocol call to fetch all the contents in\none go, rather than trying to do lazy fetches for a couple of bytes at\na time.\n\nWhat I observed was that, after the fetch_lazy call, GDB does,\ncorrectly, fetch the entire contents of global_foo, including all of\nthe contents of array, however, when I access val.array[1], GDB still\ngoes and fetches the value of this element from the remote target.\n\nWhat's going on is that in valarith.c, in value_subscript, for C like\nlanguages, we always end up treating the array value as a pointer, and\nthen doing value_ptradd, and value_ind, the second of these calls\nalways returns a lazy value.\n\nMy guess is that this approach allows us to handle indexing off the\nend of an array, when working with zero element arrays, or when\nindexing a raw pointer as an array.  And, I agree, that in these\ncases, where, even when the original value is non-lazy, we still will\nnot have the content of the array loaded, we should be using the\nvalue_ind approach.\n\nHowever, for cases where we do have the array contents loaded, and we\ndo know the bounds of the array, I think we should be using\nvalue_subscripted_rvalue, which is what we use for non C like\nlanguages.\n\nOne problem I did run into, exposed by gdb.base/charset.exp, was that\nvalue_subscripted_rvalue stripped typedefs from the element type of\nthe array, which means the value returned will not have the same type\nas an element of the array, but would be the raw, non-typedefed,\ntype.  In charset.exp we got back an 'int' instead of a\n'wchar_t' (which is a typedef of 'int'), and this impacts how we print\nthe value.  Removing typedefs from the resulting value just seems\nwrong, so I got rid of that, and I don't see any test regressions.\n\nWith this change in place, my original Python script is now doing no\nadditional memory accesses, and its performance increases about 10x!",
+    "tree": {
+      "sha": "1bd9621701653ce68d924c3ff4b9235dc07e32bd",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/1bd9621701653ce68d924c3ff4b9235dc07e32bd"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/e6582e1b3c194b01a2461f5c5326fcf358303607",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e6582e1b3c194b01a2461f5c5326fcf358303607",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/e6582e1b3c194b01a2461f5c5326fcf358303607",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e6582e1b3c194b01a2461f5c5326fcf358303607/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": null,
+  "parents": [
+    {
+      "sha": "7eb1526a8096133aae3164aea6388d186608ae74",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7eb1526a8096133aae3164aea6388d186608ae74",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/7eb1526a8096133aae3164aea6388d186608ae74"
+    }
+  ],
+  "stats": {
+    "total": 127,
+    "additions": 118,
+    "deletions": 9
+  },
+  "files": [
+    {
+      "sha": "4140b67d262877b032e0c3111bc6a637f37de3ec",
+      "filename": "gdb/testsuite/gdb.base/non-lazy-array-index.c",
+      "status": "added",
+      "additions": 31,
+      "deletions": 0,
+      "changes": 31,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e6582e1b3c194b01a2461f5c5326fcf358303607/gdb/testsuite/gdb.base/non-lazy-array-index.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e6582e1b3c194b01a2461f5c5326fcf358303607/gdb/testsuite/gdb.base/non-lazy-array-index.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/non-lazy-array-index.c?ref=e6582e1b3c194b01a2461f5c5326fcf358303607",
+      "patch": "@@ -0,0 +1,31 @@\n+/* Copyright 2021 Free Software Foundation, Inc.\n+\n+   This file is part of GDB.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+struct foo_t\n+{\n+  float f;\n+\n+  int array[5];\n+};\n+\n+struct foo_t global_foo = { 1.0f, { 1, 2, 3, 4, 5 } };\n+\n+int\n+main ()\n+{\n+  return 0;\n+}"
+    },
+    {
+      "sha": "c837f9a48b2d11490a140ba539c92a3f84eeebba",
+      "filename": "gdb/testsuite/gdb.base/non-lazy-array-index.exp",
+      "status": "added",
+      "additions": 78,
+      "deletions": 0,
+      "changes": 78,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e6582e1b3c194b01a2461f5c5326fcf358303607/gdb/testsuite/gdb.base/non-lazy-array-index.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e6582e1b3c194b01a2461f5c5326fcf358303607/gdb/testsuite/gdb.base/non-lazy-array-index.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/non-lazy-array-index.exp?ref=e6582e1b3c194b01a2461f5c5326fcf358303607",
+      "patch": "@@ -0,0 +1,78 @@\n+# Copyright 2021 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Check that GDB does not do excess accesses to the inferior memory\n+# when fetching elements from an array in the C language.\n+\n+standard_testfile\n+\n+if {[prepare_for_testing \"failed to prepare\" $testfile $srcfile]} {\n+    return -1\n+}\n+\n+if ![runto_main] then {\n+    return -1\n+}\n+\n+# Load 'global_foo' into a history variable.\n+gdb_test \"p global_foo\" \"\\\\{f = 1, array = \\\\{1, 2, 3, 4, 5\\\\}\\\\}\"\n+\n+gdb_test_no_output \"set debug target 1\"\n+\n+# Now print an array element from within 'global_foo', but accessed\n+# via the history element.  The history element should be non-lazy,\n+# and so there should be no reason for GDB to fetch the array element\n+# from the inferior memory, we should be able to grab the contents\n+# directory from the history value.\n+#\n+# To check this we 'set debug target 1' (above), and then look for any\n+# xfer_partial calls; there shouldn't be any.\n+set saw_memory_access false\n+gdb_test_multiple \"p \\$.array\\[1\\]\" \"\" {\n+    -re \"^p \\\\\\$\\\\.array\\\\\\[1\\\\\\]\\r\\n\" {\n+\texp_continue\n+    }\n+    -re \"^->\\[^\\r\\n\\]+xfer_partial\\[^\\r\\n\\]+\\r\\n\" {\n+\tset saw_memory_access true\n+\texp_continue\n+    }\n+    -re \"^->\\[^\\r\\n\\]+\\r\\n\" {\n+\texp_continue\n+    }\n+    -re \"^<-\\[^\\r\\n\\]+\\r\\n\" {\n+\texp_continue\n+    }\n+    -re \"^\\[^\\$\\]\\[^\\r\\n\\]+\\r\\n\" {\n+\texp_continue\n+    }\n+    -re \"^\\\\\\$${decimal} = 2\\r\\n$gdb_prompt \" {\n+\tgdb_assert { ! $saw_memory_access }\n+    }\n+}\n+\n+gdb_test \"set debug target 0\" \".*\"\n+\n+if { ! [skip_python_tests] } {\n+    gdb_test_no_output \"python val = gdb.parse_and_eval('global_foo')\"\n+    gdb_test \"python print('val = %s' % val)\" \"val = \\\\{f = 1, array = \\\\{1, 2, 3, 4, 5\\\\}\\\\}\"\n+    gdb_test \"python print('val.is_lazy = %s' % val.is_lazy)\" \"val\\\\.is_lazy = False\"\n+\n+    # Grab an element from the array within VAL.  The element should\n+    # immediately be non-lazy as the value contents can be copied\n+    # directly from VAL.\n+    gdb_test_no_output \"python elem = val\\['array'\\]\\[1\\]\"\n+    gdb_test \"python print('elem.is_lazy = %s' % elem.is_lazy)\" \"elem\\\\.is_lazy = False\"\n+    gdb_test \"python print('elem = %s' % elem)\" \"elem = 2\"\n+}"
+    },
+    {
+      "sha": "a0d0c6025227cb3568be13577880478516f8def4",
+      "filename": "gdb/valarith.c",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 9,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e6582e1b3c194b01a2461f5c5326fcf358303607/gdb/valarith.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e6582e1b3c194b01a2461f5c5326fcf358303607/gdb/valarith.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/valarith.c?ref=e6582e1b3c194b01a2461f5c5326fcf358303607",
+      "patch": "@@ -162,17 +162,17 @@ value_subscript (struct value *array, LONGEST index)\n       if (VALUE_LVAL (array) != lval_memory)\n \treturn value_subscripted_rvalue (array, index, *lowerbound);\n \n-      if (!c_style)\n-\t{\n-\t  gdb::optional<LONGEST> upperbound\n-\t    = get_discrete_high_bound (range_type);\n+      gdb::optional<LONGEST> upperbound\n+\t= get_discrete_high_bound (range_type);\n \n-\t  if (!upperbound.has_value ())\n-\t    upperbound = 0;\n+      if (!upperbound.has_value ())\n+\tupperbound = -1;\n \n-\t  if (index >= *lowerbound && index <= *upperbound)\n-\t    return value_subscripted_rvalue (array, index, *lowerbound);\n+      if (index >= *lowerbound && index <= *upperbound)\n+\treturn value_subscripted_rvalue (array, index, *lowerbound);\n \n+      if (!c_style)\n+\t{\n \t  /* Emit warning unless we have an array of unknown size.\n \t     An array of unknown size has lowerbound 0 and upperbound -1.  */\n \t  if (*upperbound > -1)\n@@ -200,7 +200,7 @@ value_subscripted_rvalue (struct value *array, LONGEST index,\n \t\t\t  LONGEST lowerbound)\n {\n   struct type *array_type = check_typedef (value_type (array));\n-  struct type *elt_type = check_typedef (TYPE_TARGET_TYPE (array_type));\n+  struct type *elt_type = TYPE_TARGET_TYPE (array_type);\n   LONGEST elt_size = type_length_units (elt_type);\n \n   /* Fetch the bit stride and convert it to a byte stride, assuming 8 bits"
+    }
+  ]
+}

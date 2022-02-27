@@ -1,0 +1,146 @@
+{
+  "sha": "4778a5f87d253399083565b4919816f541ebe414",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NDc3OGE1Zjg3ZDI1MzM5OTA4MzU2NWI0OTE5ODE2ZjU0MWViZTQxNA==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-04-21T13:45:57Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-04-21T13:45:57Z"
+    },
+    "message": "[gdb] Fix hang after ext sigkill\n\nConsider the test-case from this patch, compiled with pthread support:\n...\n$ gcc gdb/testsuite/gdb.threads/killed-outside.c -lpthread -g\n...\n\nAfter running to all_started, we can print pid:\n...\n$ gdb a.out -ex \"b all_started\" -ex run -ex \"delete 1\" -ex \"p pid\"\n...\nReading symbols from a.out...\nBreakpoint 1 at 0x40072b: file killed-outside.c, line 29.\nStarting program: /data/gdb_versions/devel/a.out\n[Thread debugging using libthread_db enabled]\nUsing host libthread_db library \"/lib64/libthread_db.so.1\".\n[New Thread 0x7ffff77fc700 (LWP 3155)]\n\nThread 1 \"a.out\" hit Breakpoint 1, all_started () at killed-outside.c:29\n29      }\n$1 = 3151\n(gdb)\n...\n\nIf we then kill the inferior using an external SIGKILL:\n...\n(gdb) shell kill -9 3151\n...\nand subsequently continue:\n...\n(gdb) c\nContinuing.\nCouldn't get registers: No such process.\nCouldn't get registers: No such process.\n(gdb) Couldn't get registers: No such process.\n(gdb) Couldn't get registers: No such process.\n(gdb) Couldn't get registers: No such process.\n<repeat>\n...\ngdb hangs repeating the same warning.  Typing control-C no longer helps,\nand we have to kill gdb.\n\nThis is a regression since commit 873657b9e8 \"Preserve selected thread in\nall-stop w/ background execution\".  The commit adds a\nscoped_restore_current_thread typed variable restore_thread to\nfetch_inferior_event, and the hang is caused by the constructor throwing an\nexception.\n\nFix this by catching the exception in the constructor.\n\nBuild and reg-tested on x86_64-linux.\n\ngdb/ChangeLog:\n\n2020-04-21  Tom de Vries  <tdevries@suse.de>\n\n\tPR gdb/25471\n\t* thread.c\n\t(scoped_restore_current_thread::scoped_restore_current_thread): Catch\n\texception in get_frame_id.\n\ngdb/testsuite/ChangeLog:\n\n2020-04-21  Tom de Vries  <tdevries@suse.de>\n\n\tPR gdb/25471\n\t* gdb.threads/killed-outside.c: New test.\n\t* gdb.threads/killed-outside.exp: New file.",
+    "tree": {
+      "sha": "0a3bc9701483fbff705eda598775dcc5c5f2ce51",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/0a3bc9701483fbff705eda598775dcc5c5f2ce51"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/4778a5f87d253399083565b4919816f541ebe414",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4778a5f87d253399083565b4919816f541ebe414",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/4778a5f87d253399083565b4919816f541ebe414",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4778a5f87d253399083565b4919816f541ebe414/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "946422b6a113063b9bbd72832ed13d4694134597",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/946422b6a113063b9bbd72832ed13d4694134597",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/946422b6a113063b9bbd72832ed13d4694134597"
+    }
+  ],
+  "stats": {
+    "total": 146,
+    "additions": 144,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "0e80cdb2d1671b6ef4b3d9fe43278be164ce5e1f",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4778a5f87d253399083565b4919816f541ebe414/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4778a5f87d253399083565b4919816f541ebe414/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=4778a5f87d253399083565b4919816f541ebe414",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-04-21  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR gdb/25471\n+\t* thread.c\n+\t(scoped_restore_current_thread::scoped_restore_current_thread): Catch\n+\texception in get_frame_id.\n+\n 2020-04-20  Tom Tromey  <tromey@adacore.com>\n \n \t* python/python.c (struct gdbpy_event): Mark move constructor as"
+    },
+    {
+      "sha": "f72256730f37b2f8cf40d98fbdbb1a4bb3013cbd",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4778a5f87d253399083565b4919816f541ebe414/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4778a5f87d253399083565b4919816f541ebe414/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=4778a5f87d253399083565b4919816f541ebe414",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-04-21  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR gdb/25471\n+\t* gdb.threads/killed-outside.c: New test.\n+\t* gdb.threads/killed-outside.exp: New file.\n+\n 2020-04-20  Gary Benson <gbenson@redhat.com>\n \n \t* gdb.base/nested-subp1.exp: Use support_nested_function_tests."
+    },
+    {
+      "sha": "ac4cf0b07aa73793ac8d3b871eae34ce316df692",
+      "filename": "gdb/testsuite/gdb.threads/killed-outside.c",
+      "status": "added",
+      "additions": 64,
+      "deletions": 0,
+      "changes": 64,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4778a5f87d253399083565b4919816f541ebe414/gdb/testsuite/gdb.threads/killed-outside.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4778a5f87d253399083565b4919816f541ebe414/gdb/testsuite/gdb.threads/killed-outside.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/killed-outside.c?ref=4778a5f87d253399083565b4919816f541ebe414",
+      "patch": "@@ -0,0 +1,64 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#include <pthread.h>\n+#include <unistd.h>\n+#include <stdlib.h>\n+\n+pid_t pid;\n+\n+static pthread_barrier_t threads_started_barrier;\n+\n+static void\n+all_started (void)\n+{\n+}\n+\n+static void *\n+fun (void *dummy)\n+{\n+  int i;\n+\n+  pthread_barrier_wait (&threads_started_barrier);\n+\n+  for (i = 0; i < 180; i++)\n+    sleep (1);\n+\n+  pthread_exit (NULL);\n+}\n+\n+int\n+main (void)\n+{\n+  int i;\n+  pthread_t thread;\n+\n+  pid = getpid ();\n+\n+  pthread_barrier_init (&threads_started_barrier, NULL, 2);\n+\n+  pthread_create (&thread, NULL, fun, NULL);\n+\n+  pthread_barrier_wait (&threads_started_barrier);\n+\n+  all_started ();\n+\n+  for (i = 0; i < 180; i++)\n+    sleep (1);\n+\n+  exit (EXIT_SUCCESS);\n+}"
+    },
+    {
+      "sha": "ff5a1157285b20a3b57c95f7db84773c3e6737dc",
+      "filename": "gdb/testsuite/gdb.threads/killed-outside.exp",
+      "status": "added",
+      "additions": 57,
+      "deletions": 0,
+      "changes": 57,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4778a5f87d253399083565b4919816f541ebe414/gdb/testsuite/gdb.threads/killed-outside.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4778a5f87d253399083565b4919816f541ebe414/gdb/testsuite/gdb.threads/killed-outside.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/killed-outside.exp?ref=4778a5f87d253399083565b4919816f541ebe414",
+      "patch": "@@ -0,0 +1,57 @@\n+# Copyright (C) 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# This test-case tests that continuing an inferior that has been killed\n+# using an external sigkill does not make gdb misbehave.\n+\n+standard_testfile\n+\n+if {[prepare_for_testing \"failed to prepare\" $testfile $srcfile \\\n+\t {pthreads debug}] == -1} {\n+    return -1\n+}\n+\n+if { ![runto \"all_started\"] } {\n+    return -1\n+}\n+delete_breakpoints\n+\n+set testpid [get_valueof \"\" \"pid\" -1 \"get pid of inferior\"]\n+if { $testpid == -1 } {\n+    return -1\n+}\n+remote_exec target \"kill -9 ${testpid}\"\n+\n+# Give it some time to die.\n+sleep 2\n+\n+set no_such_process_msg \"Couldn't get registers: No such process\\.\"\n+set killed_msg \"Program terminated with signal SIGKILL, Killed\\.\"\n+set no_longer_exists_msg \"The program no longer exists\\.\"\n+set not_being_run_msg \"The program is not being run\\.\"\n+\n+gdb_test_multiple \"continue\" \"prompt after first continue\" {\n+    -re \"Continuing\\.\\r\\n$no_such_process_msg\\r\\n$no_such_process_msg\\r\\n$gdb_prompt \" {\n+\tpass $gdb_test_name\n+\t# Two times $no_such_process_msg.  The bug condition was triggered, go\n+\t# check for it.\n+\tgdb_test_multiple \"\" \"messages\" {\n+\t    -re \".*$killed_msg.*$no_longer_exists_msg\\r\\n\" {\n+\t\tpass $gdb_test_name\n+\t\tgdb_test \"continue\" $not_being_run_msg \"second continue\"\n+\t    }\n+\t}\n+    }\n+}"
+    },
+    {
+      "sha": "03805bd25659d6f672596cef91178f70c278a293",
+      "filename": "gdb/thread.c",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 2,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4778a5f87d253399083565b4919816f541ebe414/gdb/thread.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4778a5f87d253399083565b4919816f541ebe414/gdb/thread.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/thread.c?ref=4778a5f87d253399083565b4919816f541ebe414",
+      "patch": "@@ -1488,8 +1488,16 @@ scoped_restore_current_thread::scoped_restore_current_thread ()\n       else\n \tframe = NULL;\n \n-      m_selected_frame_id = get_frame_id (frame);\n-      m_selected_frame_level = frame_relative_level (frame);\n+      try\n+\t{\n+\t  m_selected_frame_id = get_frame_id (frame);\n+\t  m_selected_frame_level = frame_relative_level (frame);\n+\t}\n+      catch (const gdb_exception_error &ex)\n+\t{\n+\t  m_selected_frame_id = null_frame_id;\n+\t  m_selected_frame_level = -1;\n+\t}\n \n       tp->incref ();\n       m_thread = tp;"
+    }
+  ]
+}

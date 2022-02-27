@@ -1,0 +1,146 @@
+{
+  "sha": "fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd",
+  "node_id": "C_kwDOANOeidoAKGZhOWNlMmMxNDNjZTdlZTZiYzRmMjJhMDU3N2ZlNWMwODU4YmVkZGQ",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-10-09T16:53:12Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-10-09T16:53:12Z"
+    },
+    "message": "[gdb/testsuite] Add check-readmore\n\nConsider the gdb output:\n...\n27        return SYSCALL_CANCEL (nanosleep, requested_time, remaining);^M\n(gdb) ^M\nThread 2 \"run-attach-whil\" stopped.^M\n...\n\nWhen trying to match the gdb prompt using gdb_test which uses '$gdb_prompt $',\nit may pass or fail.\n\nThis sort of thing needs to be fixed (see commit b0e2f96b56b), but there's\ncurrently no way to reliably find this type of FAILs.\n\nWe have check-read1, but that one actually make the test pass reliably.\n\nWe need something like the opposite of check-read1: something that makes\nexpect read a bit slower, or more exhaustively.\n\nAdd a new test target check-readmore that implements this.\n\nThere are two methods of implementing this in read1.c:\n- the first method waits a bit before doing a read\n- the second method does a read and then decides whether to\n  return or to wait a bit and do another read, and so on.\n\nThe second method is potentially faster, has less risc of timeout and could\npotentially detect more problems.  The first method has a simpler\nimplementation.\n\nThe second method is enabled by default.  The default waiting period is 10\nmiliseconds.\n\nThe first method can be enabled using:\n...\n$ export READMORE_METHOD=1\n...\nand the waiting period can be specified in miliseconds using:\n...\n$ export READMORE_SLEEP=9\n...\n\nAlso a log file can be specified using:\n...\n$ export READMORE_LOG=$(pwd -P)/LOG\n...\n\nTested on x86_64-linux.\n\nTesting with check-readmore showed these regressions:\n...\nFAIL: gdb.base/bp-cmds-continue-ctrl-c.exp: run: stop with control-c (continue)\nFAIL: gdb.base/bp-cmds-continue-ctrl-c.exp: attach: stop with control-c (continue)\n...\n\nI have not been able to find a problem in the test-case, and I think it's the\nnature of both the test-case and readmore that makes it run longer.  Make\nthese pass by increasing the alarm timeout from 60 to 120 seconds.\n\nBug: https://sourceware.org/bugzilla/show_bug.cgi?id=27957",
+    "tree": {
+      "sha": "9fbe732c77013df72d0fdc67a47490a7a828d500",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/9fbe732c77013df72d0fdc67a47490a7a828d500"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "f9edf608302736ec68bc80d6b6bc7d0f54171554",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f9edf608302736ec68bc80d6b6bc7d0f54171554",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/f9edf608302736ec68bc80d6b6bc7d0f54171554"
+    }
+  ],
+  "stats": {
+    "total": 187,
+    "additions": 166,
+    "deletions": 21
+  },
+  "files": [
+    {
+      "sha": "4201f65e68dd3559ff4818263bb9ff3accfff04c",
+      "filename": "gdb/Makefile.in",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd/gdb/Makefile.in",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd/gdb/Makefile.in",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/Makefile.in?ref=fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd",
+      "patch": "@@ -1681,12 +1681,12 @@ check-perf: force\n \t  $(MAKE) $(TARGET_FLAGS_TO_PASS) check-perf; \\\n \telse true; fi\n \n-check-read1: force\n+check-read1 check-readmore: force\n \t@if [ -f testsuite/Makefile ]; then \\\n \t  rootme=`pwd`; export rootme; \\\n \t  rootsrc=`cd $(srcdir); pwd`; export rootsrc; \\\n \t  cd testsuite; \\\n-\t  $(MAKE) $(TARGET_FLAGS_TO_PASS) check-read1; \\\n+\t  $(MAKE) $(TARGET_FLAGS_TO_PASS) $@; \\\n \telse true; fi\n \n check-parallel: force"
+    },
+    {
+      "sha": "6b4c7588cfa76e066c0f59da24514cc393a5c0e7",
+      "filename": "gdb/testsuite/Makefile.in",
+      "status": "modified",
+      "additions": 30,
+      "deletions": 13,
+      "changes": 43,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd/gdb/testsuite/Makefile.in",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd/gdb/testsuite/Makefile.in",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/Makefile.in?ref=fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd",
+      "patch": "@@ -39,6 +39,8 @@ CC=@CC@\n \n EXPECT = `if [ \"$${READ1}\" != \"\" ] ; then \\\n             echo $${rootme}/expect-read1; \\\n+          elif [ \"$${READMORE}\" != \"\" ] ; then \\\n+            echo $${rootme}/expect-readmore; \\\n           elif [ -f $${rootme}/../../expect/expect ] ; then \\\n             echo $${rootme}/../../expect/expect ; \\\n           else \\\n@@ -161,6 +163,9 @@ check: all $(abs_builddir)/site.exp\n check-read1: read1.so expect-read1\n \t$(MAKE) READ1=\"1\" check\n \n+check-readmore: readmore.so expect-readmore\n+\t$(MAKE) READMORE=\"1\" check\n+\n # Check whether we need to print the timestamp for each line of\n # status.\n TIMESTAMP = $(if $(TS),| $(srcdir)/print-ts.py $(if $(TS_FORMAT),$(TS_FORMAT),),)\n@@ -344,7 +349,7 @@ clean mostlyclean:\n \t-rm -f *.dwo *.dwp\n \t-rm -rf outputs temp cache\n \t-rm -rf gdb.perf/workers gdb.perf/outputs gdb.perf/temp gdb.perf/cache\n-\t-rm -f read1.so expect-read1\n+\t-rm -f read1.so expect-read1 readmore.so expect-readmore\n \n distclean maintainer-clean realclean: clean\n \t-rm -f *~ core\n@@ -367,28 +372,40 @@ TAGS: force\n \t\t-\n \n # Build the expect wrapper script that preloads the read1.so library.\n-expect-read1:\n+expect-read1 expect-readmore:\n \t$(ECHO_GEN) \\\n-\trm -f expect-read1-tmp; \\\n-\ttouch expect-read1-tmp; \\\n-\techo \"# THIS FILE IS GENERATED -*- buffer-read-only: t -*- \\n\" >>expect-read1-tmp; \\\n-\techo \"# vi:set ro: */\\n\\n\" >>expect-read1-tmp; \\\n-\techo \"# To regenerate this file, run:\\n\" >>expect-read1-tmp; \\\n-\techo \"#      make clean; make/\\n\" >>expect-read1-tmp; \\\n-\techo \"export LD_PRELOAD=`pwd`/read1.so\" >>expect-read1-tmp; \\\n-\techo 'exec expect \"$$@\"' >>expect-read1-tmp; \\\n-\tchmod +x expect-read1-tmp; \\\n-\tmv expect-read1-tmp expect-read1\n+\trm -f $@-tmp; \\\n+\ttouch $@-tmp; \\\n+\techo \"# THIS FILE IS GENERATED -*- buffer-read-only: t -*- \\n\" >>$@-tmp; \\\n+\techo \"# vi:set ro: */\\n\\n\" >>$@-tmp; \\\n+\techo \"# To regenerate this file, run:\\n\" >>$@-tmp; \\\n+\techo \"#      make clean; make/\\n\" >>$@-tmp; \\\n+\tif [ $@ = expect-read1 ]; then \\\n+\t  echo \"export LD_PRELOAD=`pwd`/read1.so\" >>$@-tmp; \\\n+\telse \\\n+\t  echo \"export LD_PRELOAD=`pwd`/readmore.so\" >>$@-tmp; \\\n+\tfi; \\\n+\techo 'exec expect \"$$@\"' >>$@-tmp; \\\n+\tchmod +x $@-tmp; \\\n+\tmv $@-tmp $@\n \n # Build the read1.so preload library.  This overrides the `read'\n # function, making it read one byte at a time.  Running the testsuite\n # with this catches racy tests.\n read1.so: lib/read1.c\n \t$(ECHO_CC) $(CC) -o $@ ${srcdir}/lib/read1.c -Wall -g -shared -fPIC $(CFLAGS)\n \n+# Build the readmore.so preload library.  This overrides the `read'\n+# function, making it try harder to read more at a time.  Running the\n+# testsuite with this catches racy tests.\n+readmore.so: lib/read1.c\n+\t$(ECHO_CC) $(CC) -o $@ ${srcdir}/lib/read1.c -Wall -g -shared -fPIC \\\n+\t  $(CFLAGS) -DREADMORE\n+\n # Build the read1 machinery.\n-.PHONY: read1\n+.PHONY: read1 readmore\n read1: read1.so expect-read1\n+readmore: readmore.so expect-readmore\n \n # Disable implicit make rules.\n include $(srcdir)/../disable-implicit-rules.mk"
+    },
+    {
+      "sha": "7552774c78badc25f6b282feefe7c887e5ba5d49",
+      "filename": "gdb/testsuite/README",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd/gdb/testsuite/README",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd/gdb/testsuite/README",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/README?ref=fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd",
+      "patch": "@@ -361,7 +361,7 @@ fail, it can also have the effect of making otherwise failing tests pass.\n This happens f.i. if the test is trying to match a gdb prompt using an end of\n input marker \"${gdb_prompt} $\" and there is output after the gdb prompt.  This\n may either pass or fail in normal operation, but using check-read1 will ensure\n-that it passes.\n+that it passes.  Use check-readmore to detect this type of failure.\n \n Testsuite Configuration\n ***********************"
+    },
+    {
+      "sha": "fb76cfb39734f05925fcdaf7cc22bb6be7a370d9",
+      "filename": "gdb/testsuite/gdb.base/bp-cmds-continue-ctrl-c.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd/gdb/testsuite/gdb.base/bp-cmds-continue-ctrl-c.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd/gdb/testsuite/gdb.base/bp-cmds-continue-ctrl-c.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/bp-cmds-continue-ctrl-c.c?ref=fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd",
+      "patch": "@@ -26,7 +26,7 @@ foo (void)\n int\n main ()\n {\n-  alarm (60);\n+  alarm (120);\n \n   while (1)\n     foo ();"
+    },
+    {
+      "sha": "4e8aac6566f667913168f8f93bf0ec55b9db8728",
+      "filename": "gdb/testsuite/lib/read1.c",
+      "status": "modified",
+      "additions": 132,
+      "deletions": 4,
+      "changes": 136,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd/gdb/testsuite/lib/read1.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd/gdb/testsuite/lib/read1.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/read1.c?ref=fa9ce2c143ce7ee6bc4f22a0577fe5c0858beddd",
+      "patch": "@@ -21,14 +21,62 @@\n #include <unistd.h>\n #include <fcntl.h>\n #include <stdlib.h>\n+#include <string.h>\n+#include <errno.h>\n+#include <stdio.h>\n \n-/* Wrap 'read', forcing it to return only one byte at a time, if\n-   reading from the terminal.  */\n+/* Default READMORE method.  */\n+#define READMORE_METHOD_DEFAULT 2\n+\n+/* Default READMORE sleep time in miliseconds.  */\n+#define READMORE_SLEEP_DEFAULT 10\n+\n+/* Helper function.  Intialize *METHOD according to environment variable\n+   READMORE_METHOD, and *SLEEP according to environment variable\n+   READMORE_SLEEP.  */\n+\n+static void\n+init_readmore (int *method, unsigned int *sleep, FILE **log)\n+{\n+  char *env = getenv (\"READMORE_METHOD\");\n+  if (env == NULL)\n+    *method = READMORE_METHOD_DEFAULT;\n+  else if (strcmp (env, \"1\") == 0)\n+    *method = 1;\n+  else if (strcmp (env, \"2\") == 0)\n+    *method = 2;\n+  else\n+    /* Default.  */\n+    *method = READMORE_METHOD_DEFAULT;\n+\n+  env = getenv (\"READMORE_SLEEP\");\n+  if (env == NULL)\n+    *sleep = READMORE_SLEEP_DEFAULT;\n+  else\n+    *sleep = atoi (env);\n+\n+  env = getenv (\"READMORE_LOG\");\n+  if (env == NULL)\n+    *log = NULL;\n+  else\n+    *log = fopen (env, \"w\");\n+}\n+\n+/* Wrap 'read', and modify it's behaviour using READ1 or READMORE style.  */\n \n ssize_t\n read (int fd, void *buf, size_t count)\n {\n   static ssize_t (*read2) (int fd, void *buf, size_t count) = NULL;\n+  static FILE *log;\n+  int readmore;\n+#ifdef READMORE\n+  readmore = 1;\n+#else\n+  readmore = 0;\n+#endif\n+  static int readmore_method;\n+  static unsigned int readmore_sleep;\n   if (read2 == NULL)\n     {\n       /* Use setenv (v, \"\", 1) rather than unsetenv (v) to work around\n@@ -37,8 +85,88 @@ read (int fd, void *buf, size_t count)\n \t for existence from another interp\".  */\n       setenv (\"LD_PRELOAD\", \"\", 1);\n       read2 = dlsym (RTLD_NEXT, \"read\");\n+      if (readmore)\n+\tinit_readmore (&readmore_method, &readmore_sleep, &log);\n     }\n-  if (count > 1 && isatty (fd) >= 1)\n-    count = 1;\n+\n+  /* Only modify 'read' behaviour when reading from the terminal.  */\n+  if (isatty (fd) == 0)\n+    goto fallback;\n+\n+  if (!readmore)\n+    {\n+      /* READ1.  Force read to return only one byte at a time.  */\n+      return read2 (fd, buf, 1);\n+    }\n+\n+  if (readmore_method == 1)\n+    {\n+      /* READMORE, method 1.  Wait a little before doing a read.  */\n+      usleep (readmore_sleep * 1000);\n+      return read2 (fd, buf, count);\n+    }\n+\n+  if (readmore_method == 2)\n+    {\n+      /* READMORE, method 2.  After doing a read, either return or wait\n+\t a little and do another read, and so on.  */\n+      ssize_t res, total;\n+      int iteration;\n+      int max_iterations = -1;\n+\n+      total = 0;\n+      for (iteration = 1; ; iteration++)\n+\t{\n+\t  res = read2 (fd, (char *)buf + total, count - total);\n+\t  if (log != NULL)\n+\t    fprintf (log,\n+\t\t     \"READ (%d): fd: %d, COUNT: %zd, RES: %zd, ERRNO: %s\\n\",\n+\t\t     iteration, fd, count - total, res,\n+\t\t     res == -1 ? strerror (errno) : \"none\");\n+\t  if (res == -1)\n+\t    {\n+\t      if (iteration == 1)\n+\t\t{\n+\t\t  /* Error on first read, report.  */\n+\t\t  total = -1;\n+\t\t  break;\n+\t\t}\n+\n+\t      if (total > 0\n+\t\t  && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EIO))\n+\t\t{\n+\t\t  /* Ignore error, but don't try anymore reading.  */\n+\t\t  errno = 0;\n+\t\t  break;\n+\t\t}\n+\n+\t      /* Other error, report back.  */\n+\t      total = -1;\n+\t      break;\n+\t    }\n+\n+\t  total += res;\n+\t  if (total == count)\n+\t    /* Buf full, no need to do any more reading.  */\n+\t    break;\n+\n+\t  /* Handle end-of-file.  */\n+\t  if (res == 0)\n+\t    break;\n+\n+\t  if (iteration == max_iterations)\n+\t    break;\n+\n+\t  usleep (readmore_sleep * 1000);\n+\t}\n+\n+      if (log)\n+\tfprintf (log, \"READ returning: RES: %zd, ERRNO: %s\\n\",\n+\t\t total, total == -1 ? strerror (errno) : \"none\");\n+      return total;\n+    }\n+\n+ fallback:\n+  /* Fallback, regular read.  */\n   return read2 (fd, buf, count);\n }"
+    }
+  ]
+}

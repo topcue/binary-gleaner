@@ -1,0 +1,60 @@
+{
+  "sha": "2f6b20e2e06eab6c9adbcb678eff1c2114079dde",
+  "node_id": "C_kwDOANOeidoAKDJmNmIyMGUyZTA2ZWFiNmM5YWRiY2I2NzhlZmYxYzIxMTQwNzlkZGU",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-02-01T21:46:29Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-02-02T16:33:05Z"
+    },
+    "message": "gdb: fix formatting for help set/show extended-prompt\n\nThe formatting of the help text for 'help set extended-prompt' and\n'help show extended-prompt' is a little off.\n\nHere's the offending snippet:\n\n    Substitutions are applied to VALUE to compute the real prompt.\n\n    The currently defined substitutions are:\n      \\[\tBegins a sequence of non-printing characters.\n  \\\\\tA backslash.\n  \\]\tEnds a sequence of non-printing characters.\n  \\e\tThe ESC character.\n\nNotice that the line for '\\[' is indented more that the others.\n\nTurns out this is due to how we build this help text, something which\nis done in Python.  We extended a classes __doc__ string with some\ndynamically generated text.\n\nThe classes doc string looks like this:\n\n    \"\"\"Set the extended prompt.\n\n    Usage: set extended-prompt VALUE\n\n    Substitutions are applied to VALUE to compute the real prompt.\n\n    The currently defined substitutions are:\n    \"\"\"\n\nNotice the closing \"\"\" are in a line of their own, and include some\nwhite space just before.  It's this extra white space that's causing\nthe problem.\n\nFix the formatting issue by moving the \"\"\" to the end of the previous\nline.  I then add the extra newline in at the point where the doc\nstring is merged with the dynamically generated text.\n\nNow everything lines up correctly.",
+    "tree": {
+      "sha": "02b372e2cded9f10e5d4552869e701a82d3aa552",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/02b372e2cded9f10e5d4552869e701a82d3aa552"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/2f6b20e2e06eab6c9adbcb678eff1c2114079dde",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2f6b20e2e06eab6c9adbcb678eff1c2114079dde",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/2f6b20e2e06eab6c9adbcb678eff1c2114079dde",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2f6b20e2e06eab6c9adbcb678eff1c2114079dde/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "a591084285cc16a435258641691aa0a8f5bf42ee",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a591084285cc16a435258641691aa0a8f5bf42ee",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/a591084285cc16a435258641691aa0a8f5bf42ee"
+    }
+  ],
+  "stats": {
+    "total": 5,
+    "additions": 2,
+    "deletions": 3
+  },
+  "files": [
+    {
+      "sha": "8dfa8ed91efd1d37823ee4afbdc48a820fcd3498",
+      "filename": "gdb/python/lib/gdb/command/prompt.py",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 3,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2f6b20e2e06eab6c9adbcb678eff1c2114079dde/gdb/python/lib/gdb/command/prompt.py",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2f6b20e2e06eab6c9adbcb678eff1c2114079dde/gdb/python/lib/gdb/command/prompt.py",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/lib/gdb/command/prompt.py?ref=2f6b20e2e06eab6c9adbcb678eff1c2114079dde",
+      "patch": "@@ -28,12 +28,11 @@ class _ExtendedPrompt(gdb.Parameter):\n \n     Substitutions are applied to VALUE to compute the real prompt.\n \n-    The currently defined substitutions are:\n-    \"\"\"\n+    The currently defined substitutions are:\"\"\"\n \n     # Add the prompt library's dynamically generated help to the\n     # __doc__ string.\n-    __doc__ = __doc__ + gdb.prompt.prompt_help()\n+    __doc__ = __doc__ + \"\\n\" + gdb.prompt.prompt_help()\n \n     set_doc = \"Set the extended prompt.\"\n     show_doc = \"Show the extended prompt.\""
+    }
+  ]
+}

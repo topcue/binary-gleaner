@@ -1,0 +1,290 @@
+{
+  "sha": "252dcdf432c67f6baafb766ed068c64db1eb2bad",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MjUyZGNkZjQzMmM2N2Y2YmFhZmI3NjZlZDA2OGM2NGRiMWViMmJhZA==",
+  "commit": {
+    "author": {
+      "name": "Alan Modra",
+      "email": "amodra@gmail.com",
+      "date": "2020-08-24T07:02:57Z"
+    },
+    "committer": {
+      "name": "Alan Modra",
+      "email": "amodra@gmail.com",
+      "date": "2020-08-24T11:45:06Z"
+    },
+    "message": "PowerPC TPREL_HA/LO optimisation\n\nppc64 ld optimises sequences like the following\n\taddis 3,13,wot@tprel@ha\n\tlwz 3,wot@tprel@l(3)\nto\n\tnop\n\tlwz 3,wot@tprel(13)\nwhen \"wot\" is located near enough to the thread pointer.\nHowever, the ABI doesn't require that R_PPC64_TPREL16_HA always be on\nan addis rt,13,imm instruction, and while ld checked for that on the\nhigh-part instruction it didn't disable the optimisation on the\nlow-part instruction.  This patch fixes that problem, disabling the\ntprel optimisation globally if high-part instructions don't pass\nsanity checks.  The optimisation is also enabled for ppc32, where\nbefore ld.bfd had the code in the wrong place and ld.gold had it in a\nblock only enabled for ppc64.\n\nbfd/\n\t* elf32-ppc.c (ppc_elf_check_relocs): Set has_tls_reloc for\n\thigh part tprel16 relocs.\n\t(ppc_elf_tls_optimize): Sanity check high part tprel16 relocs.\n\tClear do_tls_opt on odd instructions.\n\t(ppc_elf_relocate_section): Move TPREL16_HA/LO optimisation later.\n\tDon't sanity check them here.\n\t* elf64-ppc.c (ppc64_elf_check_relocs): Set has_tls_reloc for\n\thigh part tprel16 relocs.\n\t(ppc64_elf_tls_optimize): Sanity check high part tprel16 relocs.\n\tClear do_tls_opt on odd instructions.\n\t(ppc64_elf_relocate_section): Don't sanity check TPREL16_HA.\nld/\n\t* testsuite/ld-powerpc/tls32.d: Update for TPREL_HA/LO optimisation.\n\t* testsuite/ld-powerpc/tlsexe32.d: Likewise.\n\t* testsuite/ld-powerpc/tlsldopt32.d: Likewise.\n\t* testsuite/ld-powerpc/tlsmark32.d: Likewise.\n\t* testsuite/ld-powerpc/tlsopt4_32.d: Likewise.\n\t* testsuite/ld-powerpc/tprel.s,\n\t* testsuite/ld-powerpc/tprel.d,\n\t* testsuite/ld-powerpc/tprel32.d: New tests.\n\t* testsuite/ld-powerpc/tprelbad.s,\n\t* testsuite/ld-powerpc/tprelbad.d: New test.\n\t* testsuite/ld-powerpc/powerpc.exp: Run them.\ngold/\n\t* powerpc.cc (Target_powerpc): Add tprel_opt_ and accessors.\n\t(Target_powerpc::Scan::local): Sanity check tprel high relocs.\n\t(Target_powerpc::Scan::global): Likewise.\n\t(Target_powerpc::Relocate::relocate): Control tprel optimisation\n\twith tprel_opt_ and enable for 32-bit.",
+    "tree": {
+      "sha": "f065483aba2070e20ef18b2c5cb711b82bb6041c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f065483aba2070e20ef18b2c5cb711b82bb6041c"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/252dcdf432c67f6baafb766ed068c64db1eb2bad",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/252dcdf432c67f6baafb766ed068c64db1eb2bad",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/252dcdf432c67f6baafb766ed068c64db1eb2bad",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/252dcdf432c67f6baafb766ed068c64db1eb2bad/comments",
+  "author": {
+    "login": "amodra",
+    "id": 6006325,
+    "node_id": "MDQ6VXNlcjYwMDYzMjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6006325?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/amodra",
+    "html_url": "https://github.com/amodra",
+    "followers_url": "https://api.github.com/users/amodra/followers",
+    "following_url": "https://api.github.com/users/amodra/following{/other_user}",
+    "gists_url": "https://api.github.com/users/amodra/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/amodra/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/amodra/subscriptions",
+    "organizations_url": "https://api.github.com/users/amodra/orgs",
+    "repos_url": "https://api.github.com/users/amodra/repos",
+    "events_url": "https://api.github.com/users/amodra/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/amodra/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "amodra",
+    "id": 6006325,
+    "node_id": "MDQ6VXNlcjYwMDYzMjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6006325?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/amodra",
+    "html_url": "https://github.com/amodra",
+    "followers_url": "https://api.github.com/users/amodra/followers",
+    "following_url": "https://api.github.com/users/amodra/following{/other_user}",
+    "gists_url": "https://api.github.com/users/amodra/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/amodra/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/amodra/subscriptions",
+    "organizations_url": "https://api.github.com/users/amodra/orgs",
+    "repos_url": "https://api.github.com/users/amodra/repos",
+    "events_url": "https://api.github.com/users/amodra/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/amodra/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "f16c3d4f137ae02fab0982782b2e1c2b2afc8583",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f16c3d4f137ae02fab0982782b2e1c2b2afc8583",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/f16c3d4f137ae02fab0982782b2e1c2b2afc8583"
+    }
+  ],
+  "stats": {
+    "total": 636,
+    "additions": 436,
+    "deletions": 200
+  },
+  "files": [
+    {
+      "sha": "08e9763afb3d28b0b685b832f3be9450598cbcb8",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/252dcdf432c67f6baafb766ed068c64db1eb2bad/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/252dcdf432c67f6baafb766ed068c64db1eb2bad/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=252dcdf432c67f6baafb766ed068c64db1eb2bad",
+      "patch": "@@ -1,3 +1,17 @@\n+2020-08-24  Alan Modra  <amodra@gmail.com>\n+\n+\t* elf32-ppc.c (ppc_elf_check_relocs): Set has_tls_reloc for\n+\thigh part tprel16 relocs.\n+\t(ppc_elf_tls_optimize): Sanity check high part tprel16 relocs.\n+\tClear do_tls_opt on odd instructions.\n+\t(ppc_elf_relocate_section): Move TPREL16_HA/LO optimisation later.\n+\tDon't sanity check them here.\n+\t* elf64-ppc.c (ppc64_elf_check_relocs): Set has_tls_reloc for\n+\thigh part tprel16 relocs.\n+\t(ppc64_elf_tls_optimize): Sanity check high part tprel16 relocs.\n+\tClear do_tls_opt on odd instructions.\n+\t(ppc64_elf_relocate_section): Don't sanity check TPREL16_HA.\n+\n 2020-08-23  John David Anglin  <danglin@gcc.gnu.org>\n \n \tPR binutils/26357"
+    },
+    {
+      "sha": "43c0e18896767aab4b55e051ed82b1a46b136c38",
+      "filename": "bfd/elf32-ppc.c",
+      "status": "modified",
+      "additions": 62,
+      "deletions": 36,
+      "changes": 98,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/252dcdf432c67f6baafb766ed068c64db1eb2bad/bfd/elf32-ppc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/252dcdf432c67f6baafb766ed068c64db1eb2bad/bfd/elf32-ppc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf32-ppc.c?ref=252dcdf432c67f6baafb766ed068c64db1eb2bad",
+      "patch": "@@ -3301,12 +3301,14 @@ ppc_elf_check_relocs (bfd *abfd,\n \t    return FALSE;\n \t  break;\n \n+\tcase R_PPC_TPREL16_HI:\n+\tcase R_PPC_TPREL16_HA:\n+\t  sec->has_tls_reloc = 1;\n+\t  /* Fall through.  */\n \t  /* We shouldn't really be seeing TPREL32.  */\n \tcase R_PPC_TPREL32:\n \tcase R_PPC_TPREL16:\n \tcase R_PPC_TPREL16_LO:\n-\tcase R_PPC_TPREL16_HI:\n-\tcase R_PPC_TPREL16_HA:\n \t  if (bfd_link_dll (info))\n \t    info->flags |= DF_STATIC_TLS;\n \t  goto dodyn;\n@@ -4416,6 +4418,8 @@ ppc_elf_tls_optimize (bfd *obfd ATTRIBUTE_UNUSED,\n   if (htab == NULL)\n     return FALSE;\n \n+  htab->do_tls_opt = 1;\n+\n   /* Make two passes through the relocs.  First time check that tls\n      relocs involved in setting up a tls_get_addr call are indeed\n      followed by such a call.  If they are not, don't do any tls\n@@ -4581,6 +4585,37 @@ ppc_elf_tls_optimize (bfd *obfd ATTRIBUTE_UNUSED,\n \t\t      tls_clear = 0;\n \t\t      break;\n \n+\t\t    case R_PPC_TPREL16_HA:\n+\t\t      if (pass == 0)\n+\t\t\t{\n+\t\t\t  unsigned char buf[4];\n+\t\t\t  unsigned int insn;\n+\t\t\t  bfd_vma off = rel->r_offset & ~3;\n+\t\t\t  if (!bfd_get_section_contents (ibfd, sec, buf,\n+\t\t\t\t\t\t\t off, 4))\n+\t\t\t    {\n+\t\t\t      if (elf_section_data (sec)->relocs != relstart)\n+\t\t\t\tfree (relstart);\n+\t\t\t      return FALSE;\n+\t\t\t    }\n+\t\t\t  insn = bfd_get_32 (ibfd, buf);\n+\t\t\t  /* addis rt,2,imm */\n+\t\t\t  if ((insn & ((0x3fu << 26) | 0x1f << 16))\n+\t\t\t      != ((15u << 26) | (2 << 16)))\n+\t\t\t    {\n+\t\t\t      /* xgettext:c-format */\n+\t\t\t      info->callbacks->minfo\n+\t\t\t\t(_(\"%H: warning: %s unexpected insn %#x.\\n\"),\n+\t\t\t\t ibfd, sec, off, \"R_PPC_TPREL16_HA\", insn);\n+\t\t\t      htab->do_tls_opt = 0;\n+\t\t\t    }\n+\t\t\t}\n+\t\t      continue;\n+\n+\t\t    case R_PPC_TPREL16_HI:\n+\t\t      htab->do_tls_opt = 0;\n+\t\t      continue;\n+\n \t\t    default:\n \t\t      continue;\n \t\t    }\n@@ -4675,7 +4710,6 @@ ppc_elf_tls_optimize (bfd *obfd ATTRIBUTE_UNUSED,\n \t\tfree (relstart);\n \t    }\n       }\n-  htab->do_tls_opt = 1;\n   return TRUE;\n }\n \f\n@@ -7552,39 +7586,6 @@ ppc_elf_relocate_section (bfd *output_bfd,\n       if (r_type < R_PPC_max)\n \thowto = ppc_elf_howto_table[r_type];\n \n-      switch (r_type)\n-\t{\n-\tdefault:\n-\t  break;\n-\n-\tcase R_PPC_TPREL16_HA:\n-\t  if (htab->do_tls_opt && relocation + addend + 0x8000 < 0x10000)\n-\t    {\n-\t      bfd_byte *p = contents + (rel->r_offset & ~3);\n-\t      unsigned int insn = bfd_get_32 (input_bfd, p);\n-\t      if ((insn & ((0x3fu << 26) | 0x1f << 16))\n-\t\t  != ((15u << 26) | (2 << 16)) /* addis rt,2,imm */)\n-\t\t/* xgettext:c-format */\n-\t\tinfo->callbacks->minfo\n-\t\t  (_(\"%H: warning: %s unexpected insn %#x.\\n\"),\n-\t\t   input_bfd, input_section, rel->r_offset, howto->name, insn);\n-\t      else\n-\t\tbfd_put_32 (input_bfd, NOP, p);\n-\t    }\n-\t  break;\n-\n-\tcase R_PPC_TPREL16_LO:\n-\t  if (htab->do_tls_opt && relocation + addend + 0x8000 < 0x10000)\n-\t    {\n-\t      bfd_byte *p = contents + (rel->r_offset & ~3);\n-\t      unsigned int insn = bfd_get_32 (input_bfd, p);\n-\t      insn &= ~(0x1f << 16);\n-\t      insn |= 2 << 16;\n-\t      bfd_put_32 (input_bfd, insn, p);\n-\t    }\n-\t  break;\n-\t}\n-\n       tls_type = 0;\n       switch (r_type)\n \t{\n@@ -8749,6 +8750,31 @@ ppc_elf_relocate_section (bfd *output_bfd,\n \t  goto copy_reloc;\n \t}\n \n+      switch (r_type)\n+\t{\n+\tdefault:\n+\t  break;\n+\n+\tcase R_PPC_TPREL16_HA:\n+\t  if (htab->do_tls_opt && relocation + addend + 0x8000 < 0x10000)\n+\t    {\n+\t      bfd_byte *p = contents + (rel->r_offset & ~3);\n+\t      bfd_put_32 (input_bfd, NOP, p);\n+\t    }\n+\t  break;\n+\n+\tcase R_PPC_TPREL16_LO:\n+\t  if (htab->do_tls_opt && relocation + addend + 0x8000 < 0x10000)\n+\t    {\n+\t      bfd_byte *p = contents + (rel->r_offset & ~3);\n+\t      unsigned int insn = bfd_get_32 (input_bfd, p);\n+\t      insn &= ~(0x1f << 16);\n+\t      insn |= 2 << 16;\n+\t      bfd_put_32 (input_bfd, insn, p);\n+\t    }\n+\t  break;\n+\t}\n+\n       switch (r_type)\n \t{\n \tdefault:"
+    },
+    {
+      "sha": "02f0f18fc70fd102b0084a9e64f527feb135b0de",
+      "filename": "bfd/elf64-ppc.c",
+      "status": "modified",
+      "additions": 46,
+      "deletions": 18,
+      "changes": 64,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/252dcdf432c67f6baafb766ed068c64db1eb2bad/bfd/elf64-ppc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/252dcdf432c67f6baafb766ed068c64db1eb2bad/bfd/elf64-ppc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf64-ppc.c?ref=252dcdf432c67f6baafb766ed068c64db1eb2bad",
+      "patch": "@@ -5073,19 +5073,21 @@ ppc64_elf_check_relocs (bfd *abfd, struct bfd_link_info *info,\n \t    ppc64_sec->u.toc.symndx[rel->r_offset / 8 + 1] = -2;\n \t  goto dodyn;\n \n-\tcase R_PPC64_TPREL16:\n-\tcase R_PPC64_TPREL16_LO:\n \tcase R_PPC64_TPREL16_HI:\n \tcase R_PPC64_TPREL16_HA:\n-\tcase R_PPC64_TPREL16_DS:\n-\tcase R_PPC64_TPREL16_LO_DS:\n \tcase R_PPC64_TPREL16_HIGH:\n \tcase R_PPC64_TPREL16_HIGHA:\n \tcase R_PPC64_TPREL16_HIGHER:\n \tcase R_PPC64_TPREL16_HIGHERA:\n \tcase R_PPC64_TPREL16_HIGHEST:\n \tcase R_PPC64_TPREL16_HIGHESTA:\n+\t  sec->has_tls_reloc = 1;\n+\t  /* Fall through.  */\n \tcase R_PPC64_TPREL34:\n+\tcase R_PPC64_TPREL16:\n+\tcase R_PPC64_TPREL16_DS:\n+\tcase R_PPC64_TPREL16_LO:\n+\tcase R_PPC64_TPREL16_LO_DS:\n \t  if (bfd_link_dll (info))\n \t    info->flags |= DF_STATIC_TLS;\n \t  goto dodyn;\n@@ -7936,6 +7938,8 @@ ppc64_elf_tls_optimize (struct bfd_link_info *info)\n   if (htab == NULL)\n     return FALSE;\n \n+  htab->do_tls_opt = 1;\n+\n   /* Make two passes over the relocs.  On the first pass, mark toc\n      entries involved with tls relocs, and check that tls relocs\n      involved in setting up a tls_get_addr call are indeed followed by\n@@ -8240,6 +8244,42 @@ ppc64_elf_tls_optimize (struct bfd_link_info *info)\n \t\t\t}\n \t\t      break;\n \n+\t\t    case R_PPC64_TPREL16_HA:\n+\t\t      if (pass == 0)\n+\t\t\t{\n+\t\t\t  unsigned char buf[4];\n+\t\t\t  unsigned int insn;\n+\t\t\t  bfd_vma off = rel->r_offset & ~3;\n+\t\t\t  if (!bfd_get_section_contents (ibfd, sec, buf,\n+\t\t\t\t\t\t\t off, 4))\n+\t\t\t    goto err_free_rel;\n+\t\t\t  insn = bfd_get_32 (ibfd, buf);\n+\t\t\t  /* addis rt,13,imm */\n+\t\t\t  if ((insn & ((0x3fu << 26) | 0x1f << 16))\n+\t\t\t      != ((15u << 26) | (13 << 16)))\n+\t\t\t    {\n+\t\t\t      /* xgettext:c-format */\n+\t\t\t      info->callbacks->minfo\n+\t\t\t\t(_(\"%H: warning: %s unexpected insn %#x.\\n\"),\n+\t\t\t\t ibfd, sec, off, \"R_PPC64_TPREL16_HA\", insn);\n+\t\t\t      htab->do_tls_opt = 0;\n+\t\t\t    }\n+\t\t\t}\n+\t\t      continue;\n+\n+\t\t    case R_PPC64_TPREL16_HI:\n+\t\t    case R_PPC64_TPREL16_HIGH:\n+\t\t    case R_PPC64_TPREL16_HIGHA:\n+\t\t    case R_PPC64_TPREL16_HIGHER:\n+\t\t    case R_PPC64_TPREL16_HIGHERA:\n+\t\t    case R_PPC64_TPREL16_HIGHEST:\n+\t\t    case R_PPC64_TPREL16_HIGHESTA:\n+\t\t      /* These can all be used in sequences along with\n+\t\t\t TPREL16_LO or TPREL16_LO_DS in ways we aren't\n+\t\t\t able to verify easily.  */\n+\t\t      htab->do_tls_opt = 0;\n+\t\t      continue;\n+\n \t\t    default:\n \t\t      continue;\n \t\t    }\n@@ -8406,7 +8446,6 @@ ppc64_elf_tls_optimize (struct bfd_link_info *info)\n       }\n \n   free (toc_ref);\n-  htab->do_tls_opt = 1;\n   return TRUE;\n }\n \n@@ -16913,19 +16952,8 @@ ppc64_elf_relocate_section (bfd *output_bfd,\n \t  if (htab->do_tls_opt && relocation + addend + 0x8000 < 0x10000)\n \t    {\n \t      bfd_byte *p = contents + (rel->r_offset & ~3);\n-\t      insn = bfd_get_32 (input_bfd, p);\n-\t      if ((insn & ((0x3fu << 26) | 0x1f << 16))\n-\t\t  != ((15u << 26) | (13 << 16)) /* addis rt,13,imm */)\n-\t\t/* xgettext:c-format */\n-\t\tinfo->callbacks->minfo\n-\t\t  (_(\"%H: warning: %s unexpected insn %#x.\\n\"),\n-\t\t   input_bfd, input_section, rel->r_offset,\n-\t\t   ppc64_elf_howto_table[r_type]->name, insn);\n-\t      else\n-\t\t{\n-\t\t  bfd_put_32 (input_bfd, NOP, p);\n-\t\t  goto copy_reloc;\n-\t\t}\n+\t      bfd_put_32 (input_bfd, NOP, p);\n+\t      goto copy_reloc;\n \t    }\n \t  break;\n "
+    },
+    {
+      "sha": "176b728606deedc26804439efccf8c1da2484905",
+      "filename": "gold/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/252dcdf432c67f6baafb766ed068c64db1eb2bad/gold/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/252dcdf432c67f6baafb766ed068c64db1eb2bad/gold/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gold/ChangeLog?ref=252dcdf432c67f6baafb766ed068c64db1eb2bad",
+      "patch": "@@ -1,3 +1,11 @@\n+2020-08-24  Alan Modra  <amodra@gmail.com>\n+\n+\t* powerpc.cc (Target_powerpc): Add tprel_opt_ and accessors.\n+\t(Target_powerpc::Scan::local): Sanity check tprel high relocs.\n+\t(Target_powerpc::Scan::global): Likewise.\n+\t(Target_powerpc::Relocate::relocate): Control tprel optimisation\n+\twith tprel_opt_ and enable for 32-bit.\n+\n 2020-08-12  Nick Clifton  <nickc@redhat.com>\n \n \t* po/sr.po: Updated Serbian translation."
+    },
+    {
+      "sha": "e35cbcf6c0b7935ab213e38f95e88bdace32883e",
+      "filename": "gold/powerpc.cc",
+      "status": "modified",
+      "additions": 173,
+      "deletions": 88,
+      "changes": 261,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/252dcdf432c67f6baafb766ed068c64db1eb2bad/gold/powerpc.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/252dcdf432c67f6baafb766ed068c64db1eb2bad/gold/powerpc.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gold/powerpc.cc?ref=252dcdf432c67f6baafb766ed068c64db1eb2bad",
+      "patch": "@@ -650,6 +650,7 @@ class Target_powerpc : public Sized_target<size, big_endian>\n       power10_stubs_(false), plt_thread_safe_(false), plt_localentry0_(false),\n       plt_localentry0_init_(false), has_localentry0_(false),\n       has_tls_get_addr_opt_(false),\n+      tprel_opt_(parameters->options().tls_optimize()),\n       relax_failed_(false), relax_fail_count_(0),\n       stub_group_size_(0), savres_section_(0),\n       tls_get_addr_(NULL), tls_get_addr_opt_(NULL),\n@@ -1145,6 +1146,14 @@ class Target_powerpc : public Sized_target<size, big_endian>\n     return false;\n   }\n \n+  bool\n+  tprel_opt() const\n+  { return this->tprel_opt_; }\n+\n+  void\n+  set_tprel_opt(bool val)\n+  { this->tprel_opt_ = val; }\n+\n   // Remember any symbols seen with non-zero localentry, even those\n   // not providing a definition\n   bool\n@@ -1702,6 +1711,7 @@ class Target_powerpc : public Sized_target<size, big_endian>\n   bool plt_localentry0_init_;\n   bool has_localentry0_;\n   bool has_tls_get_addr_opt_;\n+  bool tprel_opt_;\n \n   bool relax_failed_;\n   int relax_fail_count_;\n@@ -8365,10 +8375,6 @@ Target_powerpc<size, big_endian>::Scan::local(\n \n   switch (r_type)\n     {\n-    case elfcpp::R_POWERPC_TPREL16:\n-    case elfcpp::R_POWERPC_TPREL16_LO:\n-    case elfcpp::R_POWERPC_TPREL16_HI:\n-    case elfcpp::R_POWERPC_TPREL16_HA:\n     case elfcpp::R_PPC64_TPREL16_DS:\n     case elfcpp::R_PPC64_TPREL16_LO_DS:\n     case elfcpp::R_PPC64_TPREL16_HIGH:\n@@ -8378,12 +8384,55 @@ Target_powerpc<size, big_endian>::Scan::local(\n     case elfcpp::R_PPC64_TPREL16_HIGHEST:\n     case elfcpp::R_PPC64_TPREL16_HIGHESTA:\n     case elfcpp::R_PPC64_TPREL34:\n+      if (size != 64)\n+\tbreak;\n+      // Fall through.\n+    case elfcpp::R_POWERPC_TPREL16:\n+    case elfcpp::R_POWERPC_TPREL16_LO:\n+    case elfcpp::R_POWERPC_TPREL16_HI:\n+    case elfcpp::R_POWERPC_TPREL16_HA:\n       layout->set_has_static_tls();\n       break;\n     default:\n       break;\n     }\n \n+  switch (r_type)\n+    {\n+    case elfcpp::R_POWERPC_TPREL16_HA:\n+      if (target->tprel_opt())\n+\t{\n+\t  section_size_type slen;\n+\t  const unsigned char* view = NULL;\n+\t  view = ppc_object->section_contents(data_shndx, &slen, false);\n+\t  section_size_type off\n+\t    = convert_to_section_size_type(reloc.get_r_offset()) & -4;\n+\t  if (off < slen)\n+\t    {\n+\t      uint32_t insn = elfcpp::Swap<32, big_endian>::readval(view + off);\n+\t      if ((insn & ((0x3fu << 26) | 0x1f << 16))\n+\t\t  != ((15u << 26) | ((size == 32 ? 2 : 13) << 16)))\n+\t\ttarget->set_tprel_opt(false);\n+\t    }\n+\t}\n+      break;\n+\n+    case elfcpp::R_PPC64_TPREL16_HIGH:\n+    case elfcpp::R_PPC64_TPREL16_HIGHA:\n+    case elfcpp::R_PPC64_TPREL16_HIGHER:\n+    case elfcpp::R_PPC64_TPREL16_HIGHERA:\n+    case elfcpp::R_PPC64_TPREL16_HIGHEST:\n+    case elfcpp::R_PPC64_TPREL16_HIGHESTA:\n+      if (size != 64)\n+\tbreak;\n+      // Fall through.\n+    case elfcpp::R_POWERPC_TPREL16_HI:\n+      target->set_tprel_opt(false);\n+      break;\n+    default:\n+      break;\n+    }\n+\n   switch (r_type)\n     {\n     case elfcpp::R_PPC64_D34:\n@@ -9123,10 +9172,6 @@ Target_powerpc<size, big_endian>::Scan::global(\n \n   switch (r_type)\n     {\n-    case elfcpp::R_POWERPC_TPREL16:\n-    case elfcpp::R_POWERPC_TPREL16_LO:\n-    case elfcpp::R_POWERPC_TPREL16_HI:\n-    case elfcpp::R_POWERPC_TPREL16_HA:\n     case elfcpp::R_PPC64_TPREL16_DS:\n     case elfcpp::R_PPC64_TPREL16_LO_DS:\n     case elfcpp::R_PPC64_TPREL16_HIGH:\n@@ -9136,12 +9181,55 @@ Target_powerpc<size, big_endian>::Scan::global(\n     case elfcpp::R_PPC64_TPREL16_HIGHEST:\n     case elfcpp::R_PPC64_TPREL16_HIGHESTA:\n     case elfcpp::R_PPC64_TPREL34:\n+      if (size != 64)\n+\tbreak;\n+      // Fall through.\n+    case elfcpp::R_POWERPC_TPREL16:\n+    case elfcpp::R_POWERPC_TPREL16_LO:\n+    case elfcpp::R_POWERPC_TPREL16_HI:\n+    case elfcpp::R_POWERPC_TPREL16_HA:\n       layout->set_has_static_tls();\n       break;\n     default:\n       break;\n     }\n \n+  switch (r_type)\n+    {\n+    case elfcpp::R_POWERPC_TPREL16_HA:\n+      if (target->tprel_opt())\n+\t{\n+\t  section_size_type slen;\n+\t  const unsigned char* view = NULL;\n+\t  view = ppc_object->section_contents(data_shndx, &slen, false);\n+\t  section_size_type off\n+\t    = convert_to_section_size_type(reloc.get_r_offset()) & -4;\n+\t  if (off < slen)\n+\t    {\n+\t      uint32_t insn = elfcpp::Swap<32, big_endian>::readval(view + off);\n+\t      if ((insn & ((0x3fu << 26) | 0x1f << 16))\n+\t\t  != ((15u << 26) | ((size == 32 ? 2 : 13) << 16)))\n+\t\ttarget->set_tprel_opt(false);\n+\t    }\n+\t}\n+      break;\n+\n+    case elfcpp::R_PPC64_TPREL16_HIGH:\n+    case elfcpp::R_PPC64_TPREL16_HIGHA:\n+    case elfcpp::R_PPC64_TPREL16_HIGHER:\n+    case elfcpp::R_PPC64_TPREL16_HIGHERA:\n+    case elfcpp::R_PPC64_TPREL16_HIGHEST:\n+    case elfcpp::R_PPC64_TPREL16_HIGHESTA:\n+      if (size != 64)\n+\tbreak;\n+      // Fall through.\n+    case elfcpp::R_POWERPC_TPREL16_HI:\n+      target->set_tprel_opt(false);\n+      break;\n+    default:\n+      break;\n+    }\n+\n   switch (r_type)\n     {\n     case elfcpp::R_PPC64_D34:\n@@ -11124,10 +11212,9 @@ Target_powerpc<size, big_endian>::Relocate::relocate(\n       break;\n     }\n \n-  if (size == 64\n-      && (gsym\n-\t  ? relative_value_is_known(gsym)\n-\t  : relative_value_is_known(psymval)))\n+  if (gsym\n+      ? relative_value_is_known(gsym)\n+      : relative_value_is_known(psymval))\n     {\n       Insn* iview;\n       Insn* iview2;\n@@ -11152,7 +11239,7 @@ Target_powerpc<size, big_endian>::Relocate::relocate(\n \tcase elfcpp::R_POWERPC_GOT_DTPREL16_HA:\n \tcase elfcpp::R_POWERPC_GOT16_HA:\n \tcase elfcpp::R_PPC64_TOC16_HA:\n-\t  if (parameters->options().toc_optimize())\n+\t  if (size == 64 && parameters->options().toc_optimize())\n \t    {\n \t      iview = reinterpret_cast<Insn*>(view - d_offset);\n \t      insn = elfcpp::Swap<32, big_endian>::readval(iview);\n@@ -11184,7 +11271,7 @@ Target_powerpc<size, big_endian>::Relocate::relocate(\n \tcase elfcpp::R_PPC64_GOT16_LO_DS:\n \tcase elfcpp::R_PPC64_TOC16_LO:\n \tcase elfcpp::R_PPC64_TOC16_LO_DS:\n-\t  if (parameters->options().toc_optimize())\n+\t  if (size == 64 && parameters->options().toc_optimize())\n \t    {\n \t      iview = reinterpret_cast<Insn*>(view - d_offset);\n \t      insn = elfcpp::Swap<32, big_endian>::readval(iview);\n@@ -11223,7 +11310,7 @@ Target_powerpc<size, big_endian>::Relocate::relocate(\n \t  break;\n \n \tcase elfcpp::R_PPC64_GOT_PCREL34:\n-\t  if (parameters->options().toc_optimize())\n+\t  if (size == 64 && parameters->options().toc_optimize())\n \t    {\n \t      iview = reinterpret_cast<Insn*>(view);\n \t      pinsn = elfcpp::Swap<32, big_endian>::readval(iview);\n@@ -11249,63 +11336,57 @@ Target_powerpc<size, big_endian>::Relocate::relocate(\n \t  break;\n \n \tcase elfcpp::R_PPC64_PCREL34:\n-\t  {\n-\t    iview = reinterpret_cast<Insn*>(view);\n-\t    pinsn = elfcpp::Swap<32, big_endian>::readval(iview);\n-\t    pinsn <<= 32;\n-\t    pinsn |= elfcpp::Swap<32, big_endian>::readval(iview + 1);\n-\t    if ((pinsn & ((-1ULL << 50) | (63ULL << 26)))\n-\t\t!= ((1ULL << 58) | (2ULL << 56) | (1ULL << 52)\n-\t\t    | (14ULL << 26) /* paddi */))\n-\t      break;\n+\t  if (size == 64)\n+\t    {\n+\t      iview = reinterpret_cast<Insn*>(view);\n+\t      pinsn = elfcpp::Swap<32, big_endian>::readval(iview);\n+\t      pinsn <<= 32;\n+\t      pinsn |= elfcpp::Swap<32, big_endian>::readval(iview + 1);\n+\t      if ((pinsn & ((-1ULL << 50) | (63ULL << 26)))\n+\t\t  != ((1ULL << 58) | (2ULL << 56) | (1ULL << 52)\n+\t\t      | (14ULL << 26) /* paddi */))\n+\t\tbreak;\n \n-\t  pcrelopt:\n-\t    const int reloc_size = elfcpp::Elf_sizes<size>::rela_size;\n-\t    elfcpp::Shdr<size, big_endian> shdr(relinfo->reloc_shdr);\n-\t    size_t reloc_count = shdr.get_sh_size() / reloc_size;\n-\t    if (relnum >= reloc_count - 1)\n-\t      break;\n+\t    pcrelopt:\n+\t      const int reloc_size = elfcpp::Elf_sizes<size>::rela_size;\n+\t      elfcpp::Shdr<size, big_endian> shdr(relinfo->reloc_shdr);\n+\t      size_t reloc_count = shdr.get_sh_size() / reloc_size;\n+\t      if (relnum >= reloc_count - 1)\n+\t\tbreak;\n \n-\t    Reltype next_rela(preloc + reloc_size);\n-\t    if ((elfcpp::elf_r_type<size>(next_rela.get_r_info())\n-\t\t != elfcpp::R_PPC64_PCREL_OPT)\n-\t\t|| next_rela.get_r_offset() != rela.get_r_offset())\n-\t      break;\n+\t      Reltype next_rela(preloc + reloc_size);\n+\t      if ((elfcpp::elf_r_type<size>(next_rela.get_r_info())\n+\t\t   != elfcpp::R_PPC64_PCREL_OPT)\n+\t\t  || next_rela.get_r_offset() != rela.get_r_offset())\n+\t\tbreak;\n \n-\t    Address off = next_rela.get_r_addend();\n-\t    if (off == 0)\n-\t      off = 8; // zero means next insn.\n-\t    if (off + rela.get_r_offset() + 4 > view_size)\n-\t      break;\n+\t      Address off = next_rela.get_r_addend();\n+\t      if (off == 0)\n+\t\toff = 8; // zero means next insn.\n+\t      if (off + rela.get_r_offset() + 4 > view_size)\n+\t\tbreak;\n \n-\t    iview2 = reinterpret_cast<Insn*>(view + off);\n-\t    pinsn2 = elfcpp::Swap<32, big_endian>::readval(iview2);\n-\t    pinsn2 <<= 32;\n-\t    if ((pinsn2 & (63ULL << 58)) == 1ULL << 58)\n-\t      break;\n-\t    if (xlate_pcrel_opt(&pinsn, &pinsn2))\n-\t      {\n-\t\telfcpp::Swap<32, big_endian>::writeval(iview, pinsn >> 32);\n-\t\telfcpp::Swap<32, big_endian>::writeval(iview + 1,\n-\t\t\t\t\t\t       pinsn & 0xffffffff);\n-\t\telfcpp::Swap<32, big_endian>::writeval(iview2, pinsn2 >> 32);\n-\t      }\n-\t  }\n+\t      iview2 = reinterpret_cast<Insn*>(view + off);\n+\t      pinsn2 = elfcpp::Swap<32, big_endian>::readval(iview2);\n+\t      pinsn2 <<= 32;\n+\t      if ((pinsn2 & (63ULL << 58)) == 1ULL << 58)\n+\t\tbreak;\n+\t      if (xlate_pcrel_opt(&pinsn, &pinsn2))\n+\t\t{\n+\t\t  elfcpp::Swap<32, big_endian>::writeval(iview, pinsn >> 32);\n+\t\t  elfcpp::Swap<32, big_endian>::writeval(iview + 1,\n+\t\t\t\t\t\t\t pinsn & 0xffffffff);\n+\t\t  elfcpp::Swap<32, big_endian>::writeval(iview2, pinsn2 >> 32);\n+\t\t}\n+\t    }\n \t  break;\n \n \tcase elfcpp::R_POWERPC_TPREL16_HA:\n-\t  if (parameters->options().tls_optimize() && value + 0x8000 < 0x10000)\n+\t  if (target->tprel_opt() && value + 0x8000 < 0x10000)\n \t    {\n \t      Insn* iview = reinterpret_cast<Insn*>(view - d_offset);\n-\t      Insn insn = elfcpp::Swap<32, big_endian>::readval(iview);\n-\t      if ((insn & ((0x3f << 26) | 0x1f << 16))\n-\t\t  != ((15u << 26) | ((size == 32 ? 2 : 13) << 16)))\n-\t\t;\n-\t      else\n-\t\t{\n-\t\t  elfcpp::Swap<32, big_endian>::writeval(iview, nop);\n-\t\t  return true;\n-\t\t}\n+\t      elfcpp::Swap<32, big_endian>::writeval(iview, nop);\n+\t      return true;\n \t    }\n \t  break;\n \n@@ -11315,7 +11396,7 @@ Target_powerpc<size, big_endian>::Relocate::relocate(\n \t    break;\n \t  // Fall through.\n \tcase elfcpp::R_POWERPC_TPREL16_LO:\n-\t  if (parameters->options().tls_optimize() && value + 0x8000 < 0x10000)\n+\t  if (target->tprel_opt() && value + 0x8000 < 0x10000)\n \t    {\n \t      Insn* iview = reinterpret_cast<Insn*>(view - d_offset);\n \t      Insn insn = elfcpp::Swap<32, big_endian>::readval(iview);\n@@ -11326,29 +11407,12 @@ Target_powerpc<size, big_endian>::Relocate::relocate(\n \t  break;\n \n \tcase elfcpp::R_PPC64_ENTRY:\n-\t  value = (target->got_section()->output_section()->address()\n-\t\t   + object->toc_base_offset());\n-\t  if (value + 0x80008000 <= 0xffffffff\n-\t      && !parameters->options().output_is_position_independent())\n-\t    {\n-\t      Insn* iview = reinterpret_cast<Insn*>(view);\n-\t      Insn insn1 = elfcpp::Swap<32, big_endian>::readval(iview);\n-\t      Insn insn2 = elfcpp::Swap<32, big_endian>::readval(iview + 1);\n-\n-\t      if ((insn1 & ~0xfffc) == ld_2_12\n-\t\t  && insn2 == add_2_2_12)\n-\t\t{\n-\t\t  insn1 = lis_2 + ha(value);\n-\t\t  elfcpp::Swap<32, big_endian>::writeval(iview, insn1);\n-\t\t  insn2 = addi_2_2 + l(value);\n-\t\t  elfcpp::Swap<32, big_endian>::writeval(iview + 1, insn2);\n-\t\t  return true;\n-\t\t}\n-\t    }\n-\t  else\n+\t  if (size == 64)\n \t    {\n-\t      value -= address;\n-\t      if (value + 0x80008000 <= 0xffffffff)\n+\t      value = (target->got_section()->output_section()->address()\n+\t\t       + object->toc_base_offset());\n+\t      if (value + 0x80008000 <= 0xffffffff\n+\t\t  && !parameters->options().output_is_position_independent())\n \t\t{\n \t\t  Insn* iview = reinterpret_cast<Insn*>(view);\n \t\t  Insn insn1 = elfcpp::Swap<32, big_endian>::readval(iview);\n@@ -11357,13 +11421,33 @@ Target_powerpc<size, big_endian>::Relocate::relocate(\n \t\t  if ((insn1 & ~0xfffc) == ld_2_12\n \t\t      && insn2 == add_2_2_12)\n \t\t    {\n-\t\t      insn1 = addis_2_12 + ha(value);\n+\t\t      insn1 = lis_2 + ha(value);\n \t\t      elfcpp::Swap<32, big_endian>::writeval(iview, insn1);\n \t\t      insn2 = addi_2_2 + l(value);\n \t\t      elfcpp::Swap<32, big_endian>::writeval(iview + 1, insn2);\n \t\t      return true;\n \t\t    }\n \t\t}\n+\t      else\n+\t\t{\n+\t\t  value -= address;\n+\t\t  if (value + 0x80008000 <= 0xffffffff)\n+\t\t    {\n+\t\t      Insn* iview = reinterpret_cast<Insn*>(view);\n+\t\t      Insn insn1 = elfcpp::Swap<32, big_endian>::readval(iview);\n+\t\t      Insn insn2 = elfcpp::Swap<32, big_endian>::readval(iview + 1);\n+\n+\t\t      if ((insn1 & ~0xfffc) == ld_2_12\n+\t\t\t  && insn2 == add_2_2_12)\n+\t\t\t{\n+\t\t\t  insn1 = addis_2_12 + ha(value);\n+\t\t\t  elfcpp::Swap<32, big_endian>::writeval(iview, insn1);\n+\t\t\t  insn2 = addi_2_2 + l(value);\n+\t\t\t  elfcpp::Swap<32, big_endian>::writeval(iview + 1, insn2);\n+\t\t\t  return true;\n+\t\t\t}\n+\t\t    }\n+\t\t}\n \t    }\n \t  break;\n \n@@ -11375,7 +11459,8 @@ Target_powerpc<size, big_endian>::Relocate::relocate(\n \t  //\t\tlis 2,.TOC.@ha\n \t  //\t\taddi 2,2,.TOC.@l\n \t  // if .TOC. is in range.  */\n-\t  if (value + address - 4 + 0x80008000 <= 0xffffffff\n+\t  if (size == 64\n+\t      && value + address - 4 + 0x80008000 <= 0xffffffff\n \t      && relnum + 1 > 1\n \t      && preloc != NULL\n \t      && target->abiversion() >= 2"
+    },
+    {
+      "sha": "7a2c770b7dbfab2ee1fafde93edd085a1c3036f1",
+      "filename": "ld/ChangeLog",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/ChangeLog?ref=252dcdf432c67f6baafb766ed068c64db1eb2bad",
+      "patch": "@@ -1,3 +1,17 @@\n+2020-08-24  Alan Modra  <amodra@gmail.com>\n+\n+\t* testsuite/ld-powerpc/tls32.d: Update for TPREL_HA/LO optimisation.\n+\t* testsuite/ld-powerpc/tlsexe32.d: Likewise.\n+\t* testsuite/ld-powerpc/tlsldopt32.d: Likewise.\n+\t* testsuite/ld-powerpc/tlsmark32.d: Likewise.\n+\t* testsuite/ld-powerpc/tlsopt4_32.d: Likewise.\n+\t* testsuite/ld-powerpc/tprel.s,\n+\t* testsuite/ld-powerpc/tprel.d,\n+\t* testsuite/ld-powerpc/tprel32.d: New tests.\n+\t* testsuite/ld-powerpc/tprelbad.s,\n+\t* testsuite/ld-powerpc/tprelbad.d: New test.\n+\t* testsuite/ld-powerpc/powerpc.exp: Run them.\n+\n 2020-08-22  H.J. Lu  <hongjiu.lu@intel.com>\n \n \tPR ld/26382"
+    },
+    {
+      "sha": "7a49b1a80a3046eb6a9a12d7476c5564e920f1c5",
+      "filename": "ld/testsuite/ld-powerpc/powerpc.exp",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/powerpc.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/powerpc.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-powerpc/powerpc.exp?ref=252dcdf432c67f6baafb766ed068c64db1eb2bad",
+      "patch": "@@ -419,6 +419,7 @@ if [ supports_ppc64 ] then {\n     run_dump_test \"tlsld\"\n     run_dump_test \"tlsie\"\n     run_dump_test \"non-contiguous-powerpc64\"\n+    run_dump_test \"tprel\"\n }\n \n run_dump_test \"localgot\"\n@@ -459,3 +460,6 @@ run_dump_test \"ppc476-shared\"\n run_dump_test \"ppc476-shared2\"\n \n run_dump_test \"non-contiguous-powerpc\"\n+\n+run_dump_test \"tprel32\"\n+run_dump_test \"tprelbad\""
+    },
+    {
+      "sha": "e3e81f873ec510d67d7c9c237444d5b3a6ad2cb6",
+      "filename": "ld/testsuite/ld-powerpc/tls32.d",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 20,
+      "changes": 40,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tls32.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tls32.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-powerpc/tls32.d?ref=252dcdf432c67f6baafb766ed068c64db1eb2bad",
+      "patch": "@@ -14,34 +14,34 @@ Disassembly of section \\.text:\n .*:\t(7f c8 02 a6|a6 02 c8 7f) \tmflr    r30\n .*:\t(3f de 00 02|02 00 de 3f) \taddis   r30,r30,2\n .*:\t(3b de 80 a0|a0 80 de 3b) \taddi    r30,r30,-32608\n-.*:\t(3c 62 00 00|00 00 62 3c) \taddis   r3,r2,0\n-.*:\t(38 63 90 3c|3c 90 63 38) \taddi    r3,r3,-28612\n-.*:\t(3c 62 00 00|00 00 62 3c) \taddis   r3,r2,0\n-.*:\t(38 63 10 00|00 10 63 38) \taddi    r3,r3,4096\n-.*:\t(3c 62 00 00|00 00 62 3c) \taddis   r3,r2,0\n-.*:\t(38 63 90 20|20 90 63 38) \taddi    r3,r3,-28640\n-.*:\t(3c 62 00 00|00 00 62 3c) \taddis   r3,r2,0\n-.*:\t(38 63 10 00|00 10 63 38) \taddi    r3,r3,4096\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(38 62 90 3c|3c 90 62 38) \taddi    r3,r2,-28612\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(38 62 10 00|00 10 62 38) \taddi    r3,r2,4096\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(38 62 90 20|20 90 62 38) \taddi    r3,r2,-28640\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(38 62 10 00|00 10 62 38) \taddi    r3,r2,4096\n .*:\t(39 23 80 24|24 80 23 39) \taddi    r9,r3,-32732\n .*:\t(3d 23 00 00|00 00 23 3d) \taddis   r9,r3,0\n .*:\t(81 49 80 28|28 80 49 81) \tlwz     r10,-32728\\(r9\\)\n-.*:\t(3d 22 00 00|00 00 22 3d) \taddis   r9,r2,0\n-.*:\t(a1 49 90 30|30 90 49 a1) \tlhz     r10,-28624\\(r9\\)\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(a1 42 90 30|30 90 42 a1) \tlhz     r10,-28624\\(r2\\)\n .*:\t(89 42 90 34|34 90 42 89) \tlbz     r10,-28620\\(r2\\)\n-.*:\t(3d 22 00 00|00 00 22 3d) \taddis   r9,r2,0\n-.*:\t(99 49 90 38|38 90 49 99) \tstb     r10,-28616\\(r9\\)\n-.*:\t(3c 62 00 00|00 00 62 3c) \taddis   r3,r2,0\n-.*:\t(38 63 90 00|00 90 63 38) \taddi    r3,r3,-28672\n-.*:\t(3c 62 00 00|00 00 62 3c) \taddis   r3,r2,0\n-.*:\t(38 63 10 00|00 10 63 38) \taddi    r3,r3,4096\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(99 42 90 38|38 90 42 99) \tstb     r10,-28616\\(r2\\)\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(38 62 90 00|00 90 62 38) \taddi    r3,r2,-28672\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(38 62 10 00|00 10 62 38) \taddi    r3,r2,4096\n .*:\t(91 43 80 04|04 80 43 91) \tstw     r10,-32764\\(r3\\)\n .*:\t(3d 23 00 00|00 00 23 3d) \taddis   r9,r3,0\n .*:\t(91 49 80 08|08 80 49 91) \tstw     r10,-32760\\(r9\\)\n-.*:\t(3d 22 00 00|00 00 22 3d) \taddis   r9,r2,0\n-.*:\t(b1 49 90 30|30 90 49 b1) \tsth     r10,-28624\\(r9\\)\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(b1 42 90 30|30 90 42 b1) \tsth     r10,-28624\\(r2\\)\n .*:\t(a1 42 90 14|14 90 42 a1) \tlhz     r10,-28652\\(r2\\)\n-.*:\t(3d 22 00 00|00 00 22 3d) \taddis   r9,r2,0\n-.*:\t(a9 49 90 18|18 90 49 a9) \tlha     r10,-28648\\(r9\\)\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(a9 42 90 18|18 90 42 a9) \tlha     r10,-28648\\(r2\\)\n \n 0+1800120 <__tls_get_addr>:\n .*:\t(4e 80 00 20|20 00 80 4e) \tblr"
+    },
+    {
+      "sha": "d1a7c9c9bf0aee6c8864c2557f518b009f4fdfdb",
+      "filename": "ld/testsuite/ld-powerpc/tlsexe32.d",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 16,
+      "changes": 32,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tlsexe32.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tlsexe32.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-powerpc/tlsexe32.d?ref=252dcdf432c67f6baafb766ed068c64db1eb2bad",
+      "patch": "@@ -17,30 +17,30 @@ Disassembly of section \\.text:\n .*:\t(7c 63 12 14|14 12 63 7c) \tadd     r3,r3,r2\n .*:\t(38 7f ff f8|f8 ff 7f 38) \taddi    r3,r31,-8\n .*:\t(48 00 00 65|65 00 00 48) \tbl      .* <__tls_get_addr_opt@plt>\n-.*:\t(3c 62 00 00|00 00 62 3c) \taddis   r3,r2,0\n-.*:\t(38 63 90 1c|1c 90 63 38) \taddi    r3,r3,-28644\n-.*:\t(3c 62 00 00|00 00 62 3c) \taddis   r3,r2,0\n-.*:\t(38 63 10 00|00 10 63 38) \taddi    r3,r3,4096\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(38 62 90 1c|1c 90 62 38) \taddi    r3,r2,-28644\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(38 62 10 00|00 10 62 38) \taddi    r3,r2,4096\n .*:\t(39 23 80 20|20 80 23 39) \taddi    r9,r3,-32736\n .*:\t(3d 23 00 00|00 00 23 3d) \taddis   r9,r3,0\n .*:\t(81 49 80 24|24 80 49 81) \tlwz     r10,-32732\\(r9\\)\n-.*:\t(3d 22 00 00|00 00 22 3d) \taddis   r9,r2,0\n-.*:\t(a1 49 90 2c|2c 90 49 a1) \tlhz     r10,-28628\\(r9\\)\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(a1 42 90 2c|2c 90 42 a1) \tlhz     r10,-28628\\(r2\\)\n .*:\t(89 42 90 30|30 90 42 89) \tlbz     r10,-28624\\(r2\\)\n-.*:\t(3d 22 00 00|00 00 22 3d) \taddis   r9,r2,0\n-.*:\t(99 49 90 34|34 90 49 99) \tstb     r10,-28620\\(r9\\)\n-.*:\t(3c 62 00 00|00 00 62 3c) \taddis   r3,r2,0\n-.*:\t(38 63 90 00|00 90 63 38) \taddi    r3,r3,-28672\n-.*:\t(3c 62 00 00|00 00 62 3c) \taddis   r3,r2,0\n-.*:\t(38 63 10 00|00 10 63 38) \taddi    r3,r3,4096\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(99 42 90 34|34 90 42 99) \tstb     r10,-28620\\(r2\\)\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(38 62 90 00|00 90 62 38) \taddi    r3,r2,-28672\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(38 62 10 00|00 10 62 38) \taddi    r3,r2,4096\n .*:\t(91 43 80 04|04 80 43 91) \tstw     r10,-32764\\(r3\\)\n .*:\t(3d 23 00 00|00 00 23 3d) \taddis   r9,r3,0\n .*:\t(91 49 80 08|08 80 49 91) \tstw     r10,-32760\\(r9\\)\n-.*:\t(3d 22 00 00|00 00 22 3d) \taddis   r9,r2,0\n-.*:\t(b1 49 90 2c|2c 90 49 b1) \tsth     r10,-28628\\(r9\\)\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(b1 42 90 2c|2c 90 42 b1) \tsth     r10,-28628\\(r2\\)\n .*:\t(a1 42 90 14|14 90 42 a1) \tlhz     r10,-28652\\(r2\\)\n-.*:\t(3d 22 00 00|00 00 22 3d) \taddis   r9,r2,0\n-.*:\t(a9 49 90 18|18 90 49 a9) \tlha     r10,-28648\\(r9\\)\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(a9 42 90 18|18 90 42 a9) \tlha     r10,-28648\\(r2\\)\n \n .* <__tls_get_addr_opt@plt>:\n .*:\t(81 63 00 00|00 00 63 81) \tlwz     r11,0\\(r3\\)"
+    },
+    {
+      "sha": "228e7bc790a781b254abb22babc35922cf5208ff",
+      "filename": "ld/testsuite/ld-powerpc/tlsldopt32.d",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 8,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tlsldopt32.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tlsldopt32.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-powerpc/tlsldopt32.d?ref=252dcdf432c67f6baafb766ed068c64db1eb2bad",
+      "patch": "@@ -10,32 +10,32 @@ Disassembly of section \\.text:\n \n .*:\n .*\tnop\n-.*\taddis   r29,r2,0\n+.*\tnop\n .*\tmr      r3,r29\n-.*\taddi    r3,r3,4096\n+.*\taddi    r3,r2,4096\n .*\taddis   r3,r3,0\n .*\tlwz     r3,-32768\\(r3\\)\n .*\tnop\n .*\tnop\n-.*\taddis   r29,r2,0\n+.*\tnop\n .*\tmr      r3,r29\n-.*\taddi    r3,r3,4096\n+.*\taddi    r3,r2,4096\n .*\tlwz     r3,-32768\\(r3\\)\n .*\tnop\n .*\tnop\n .*\tnop\n .*\tnop\n .*\tnop\n-.*\taddis   r29,r2,0\n+.*\tnop\n .*\tmr      r3,r29\n-.*\taddi    r3,r3,-28672\n+.*\taddi    r3,r2,-28672\n .*\tlwz     r3,0\\(r3\\)\n .*\tnop\n .*\tnop\n .*\tnop\n-.*\taddis   r29,r2,0\n+.*\tnop\n .*\tmr      r3,r29\n-.*\taddi    r3,r3,-28672\n+.*\taddi    r3,r2,-28672\n .*\tlwz     r3,0\\(r3\\)\n .*\tnop\n .*\tnop"
+    },
+    {
+      "sha": "448eda90d8a78a92930cf168dc0276a7b0d6b1f2",
+      "filename": "ld/testsuite/ld-powerpc/tlsmark32.d",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tlsmark32.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tlsmark32.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-powerpc/tlsmark32.d?ref=252dcdf432c67f6baafb766ed068c64db1eb2bad",
+      "patch": "@@ -11,13 +11,13 @@ Disassembly of section \\.text:\n \n 0+1800094 <_start>:\n .*:\t(48 00 00 14|14 00 00 48) \tb       18000a8 <_start\\+0x14>\n-.*:\t(38 63 90 00|00 90 63 38) \taddi    r3,r3,-28672\n+.*:\t(38 62 90 00|00 90 62 38) \taddi    r3,r2,-28672\n .*:\t(80 83 00 00|00 00 83 80) \tlwz     r4,0\\(r3\\)\n-.*:\t(3c 62 00 00|00 00 62 3c) \taddis   r3,r2,0\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n .*:\t(48 00 00 0c|0c 00 00 48) \tb       18000b0 <_start\\+0x1c>\n-.*:\t(3c 62 00 00|00 00 62 3c) \taddis   r3,r2,0\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n .*:\t(4b ff ff ec|ec ff ff 4b) \tb       1800098 <_start\\+0x4>\n-.*:\t(38 63 10 00|00 10 63 38) \taddi    r3,r3,4096\n+.*:\t(38 62 10 00|00 10 62 38) \taddi    r3,r2,4096\n .*:\t(80 83 80 00|00 80 83 80) \tlwz     r4,-32768\\(r3\\)\n \n 0+18000b8 <__tls_get_addr>:"
+    },
+    {
+      "sha": "32314b0d01ebf09962e1018436319b93a5c543e4",
+      "filename": "ld/testsuite/ld-powerpc/tlsopt4_32.d",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 10,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tlsopt4_32.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tlsopt4_32.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-powerpc/tlsopt4_32.d?ref=252dcdf432c67f6baafb766ed068c64db1eb2bad",
+      "patch": "@@ -15,30 +15,30 @@ Disassembly of section \\.text:\n Disassembly of section \\.opt1:\n \n 0+1800098 <\\.opt1>:\n-.*:\t(3c 62 00 00|00 00 62 3c) \taddis   r3,r2,0\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n .*:\t(2c 04 00 00|00 00 04 2c) \tcmpwi   r4,0\n .*:\t(41 82 00 0c|0c 00 82 41) \tbeq     .*\n-.*:\t(38 63 90 10|10 90 63 38) \taddi    r3,r3,-28656\n+.*:\t(38 62 90 10|10 90 62 38) \taddi    r3,r2,-28656\n .*:\t(48 00 00 08|08 00 00 48) \tb       .*\n-.*:\t(38 63 90 10|10 90 63 38) \taddi    r3,r3,-28656\n+.*:\t(38 62 90 10|10 90 62 38) \taddi    r3,r2,-28656\n \n Disassembly of section \\.opt2:\n \n 0+18000b0 <\\.opt2>:\n-.*:\t(3c 62 00 00|00 00 62 3c) \taddis   r3,r2,0\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n .*:\t(2c 04 00 00|00 00 04 2c) \tcmpwi   r4,0\n .*:\t(41 82 00 08|08 00 82 41) \tbeq     .*\n-.*:\t(3c 62 00 00|00 00 62 3c) \taddis   r3,r2,0\n-.*:\t(38 63 90 10|10 90 63 38) \taddi    r3,r3,-28656\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(38 62 90 10|10 90 62 38) \taddi    r3,r2,-28656\n \n Disassembly of section \\.opt3:\n \n 0+18000c4 <\\.opt3>:\n-.*:\t(3c 62 00 00|00 00 62 3c) \taddis   r3,r2,0\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n .*:\t(48 00 00 0c|0c 00 00 48) \tb       .*\n-.*:\t(3c 62 00 00|00 00 62 3c) \taddis   r3,r2,0\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n .*:\t(48 00 00 0c|0c 00 00 48) \tb       .*\n-.*:\t(38 63 90 10|10 90 63 38) \taddi    r3,r3,-28656\n+.*:\t(38 62 90 10|10 90 62 38) \taddi    r3,r2,-28656\n .*:\t(48 00 00 08|08 00 00 48) \tb       .*\n-.*:\t(38 63 90 08|08 90 63 38) \taddi    r3,r3,-28664\n+.*:\t(38 62 90 08|08 90 62 38) \taddi    r3,r2,-28664\n #pass"
+    },
+    {
+      "sha": "f3135b0a9b0543f542c32199b275374eabae3cd9",
+      "filename": "ld/testsuite/ld-powerpc/tprel.d",
+      "status": "added",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tprel.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tprel.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-powerpc/tprel.d?ref=252dcdf432c67f6baafb766ed068c64db1eb2bad",
+      "patch": "@@ -0,0 +1,12 @@\n+#as: -a64 --defsym REG=13\n+#ld: -melf64ppc\n+#objdump: -d\n+\n+.*:     file format .*\n+\n+Disassembly of section \\.text:\n+\n+.* <_start>:\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(80 6d 90 00|00 90 6d 80) \tlwz     r3,-28672\\(r13\\)\n+.*:\t(4e 80 00 20|20 00 80 4e) \tblr"
+    },
+    {
+      "sha": "67a13e79f7cca4b4a67ff9f30c681f56f7c5fab4",
+      "filename": "ld/testsuite/ld-powerpc/tprel.s",
+      "status": "added",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tprel.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tprel.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-powerpc/tprel.s?ref=252dcdf432c67f6baafb766ed068c64db1eb2bad",
+      "patch": "@@ -0,0 +1,10 @@\n+\t.section \".tbss\",\"awT\",@nobits\n+\t.p2align 2\n+wot:\t.space 4\n+\n+\t.text\n+\t.global _start\n+_start:\n+\taddis 3,REG,wot@tprel@ha\n+\tlwz 3,wot@tprel@l(3)\n+\tblr"
+    },
+    {
+      "sha": "444db13294b8f8b6de5a00944d211648e711c23b",
+      "filename": "ld/testsuite/ld-powerpc/tprel32.d",
+      "status": "added",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tprel32.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tprel32.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-powerpc/tprel32.d?ref=252dcdf432c67f6baafb766ed068c64db1eb2bad",
+      "patch": "@@ -0,0 +1,13 @@\n+#source: tprel.s\n+#as: -a32 --defsym REG=2\n+#ld: -melf32ppc\n+#objdump: -d\n+\n+.*:     file format .*\n+\n+Disassembly of section \\.text:\n+\n+.* <_start>:\n+.*:\t(60 00 00 00|00 00 00 60) \tnop\n+.*:\t(80 62 90 00|00 90 62 80) \tlwz     r3,-28672\\(r2\\)\n+.*:\t(4e 80 00 20|20 00 80 4e) \tblr"
+    },
+    {
+      "sha": "c7fc60b7e959fa5cfa34a4971eec8b71be78f58e",
+      "filename": "ld/testsuite/ld-powerpc/tprelbad.d",
+      "status": "added",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tprelbad.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tprelbad.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-powerpc/tprelbad.d?ref=252dcdf432c67f6baafb766ed068c64db1eb2bad",
+      "patch": "@@ -0,0 +1,12 @@\n+#as: \n+#ld: \n+#objdump: -d\n+\n+.*:     file format .*\n+\n+Disassembly of section \\.text:\n+\n+.* <_start>:\n+.*:\t(3c 60 00 00|00 00 60 3c) \tlis     r3,0\n+.*:\t(38 63 90 00|00 90 63 38) \taddi    r3,r3,-28672\n+.*:\t(4e 80 00 20|20 00 80 4e) \tblr"
+    },
+    {
+      "sha": "1b9a1170eaf82874b9aa9246316fa8986d3a0d44",
+      "filename": "ld/testsuite/ld-powerpc/tprelbad.s",
+      "status": "added",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tprelbad.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/252dcdf432c67f6baafb766ed068c64db1eb2bad/ld/testsuite/ld-powerpc/tprelbad.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-powerpc/tprelbad.s?ref=252dcdf432c67f6baafb766ed068c64db1eb2bad",
+      "patch": "@@ -0,0 +1,10 @@\n+\t.section \".tbss\",\"awT\",@nobits\n+\t.p2align 2\n+wot:\t.space 4\n+\n+\t.text\n+\t.global _start\n+_start:\n+\tlis 3,wot@tprel@ha\n+\taddi 3,3,wot@tprel@l\n+\tblr"
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "sha": "9b715c68e84d93d6671fac661cad391970462ffb",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OWI3MTVjNjhlODRkOTNkNjY3MWZhYzY2MWNhZDM5MTk3MDQ2MmZmYg==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-01-20T15:13:16Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-06-01T08:56:22Z"
+    },
+    "message": "gdb/arm: add support for bare-metal core dumps\n\nThis commit adds support for bare metal core dumps on the ARM target,\nand is based off of this patch submitted to the mailing list:\n\n  https://sourceware.org/pipermail/gdb-patches/2020-October/172845.html\n\nCompared to the version linked above this version is updated to take\naccount of recent changes to the core dump infrastructure in GDB,\nthere is now more shared infrastructure for core dumping within GDB,\nand also some common bare metal core dumping infrastructure.  As a\nresult this patch is smaller than the original proposed patch.\n\nFurther, the original patch included some unrelated changes to the\nsimulator that have been removed from this version.\n\nI have written a ChangeLog entry as the original patch was missing\none.\n\nI have done absolutely no testing of this patch.  It is based on the\noriginal submitted patch, which I assume was tested, but after my\nmodifications things might have been broken, however, the original\npatch author has tested this version and reported it as being good:\n\n  https://sourceware.org/pipermail/gdb-patches/2021-May/178900.html\n\nThe core dump format is based around generating an ELF containing\nsections for the writable regions of memory that a user could be\nusing.  Which regions are dumped rely on GDB's existing common core\ndumping code, GDB will attempt to figure out the stack and heap as\nwell as copying out writable data sections as identified by the\noriginal ELF.\n\nRegister information is added to the core dump using notes, just as it\nis for Linux of FreeBSD core dumps.  The note types used consist of\nthe 2 basic types you would expect in a OS based core dump,\nNT_PRPSINFO, NT_PRSTATUS, along with the architecture specific\nNT_ARM_VFP note.\n\nThe data layouts for each note type are described below, in all cases,\nall padding fields should be set to zero.\n\nNote NT_PRPSINFO is optional.  Its data layout is:\n\n  struct prpsinfo_t\n  {\n    uint8_t padding[28];\n    char fname[16];\n    char psargs[80];\n  }\n\nField 'fname' - null terminated string consisting of the basename of\n    (up to the fist 15 characters of) the executable.  Any additional\n    space should be set to zero.  If there's no executable name then\n    this field can be set to all zero.\n\nField 'psargs' - a null terminated string up to 80 characters in\n    length.  Any additional space should be filled with zero.  This\n    field contains the full executable path and any arguments passed\n    to the executable.  If there's nothing sensible to write in this\n    field then fill it with zero.\n\nNote NT_PRSTATUS is required, its data layout is:\n\n  struct prstatus_t\n  {\n    uint8_t padding_1[12];\n    uint16_t sig;\n    uint8_t padding_2[10];\n    uint32_t thread_id;\n    uint8_t padding_3[44];\n    uint32_t gregs[18];\n  }\n\nField 'sig' - the signal that stopped this thread.  It's implementation\n    defined what this field actually means.  Within GDB this will be\n    the signal number that the remote target reports as the stop\n    reason for this thread.\n\nField 'thread_is' - the thread id for this thread.  It's implementation\n    defined what this field actually means.  Within GDB this will be\n    thread thread-id that is assigned to each remote thread.\n\nField 'gregs' - holds the general purpose registers $a1 through to $pc\n    at indices 0 to 15.  At index 16 the program status register.\n    Index 17 should be set to zero.\n\nNote NT_ARM_VFP is optional, its data layout is:\n\n  armvfp_t\n  {\n    uint64_t regs[32];\n    uint32_t fpscr;\n  }\n\nField 'regs' - holds the 32 d-registers 0 to 31 in order.\n\nField 'fpscr' - holds the fpscr register.\n\nThe rules for ordering the notes is the same as for Linux.  The\nNT_PRSTATUS note must come before any other notes about additional\nregister sets.  And for multi-threaded targets all registers for a\nsingle thread should be grouped together.  This is because only\nNT_PRSTATUS includes a thread-id, all additional register notes after\na NT_PRSTATUS are assumed to belong to the same thread until a\ndifferent NT_PRSTATUS is seen.\n\ngdb/ChangeLog:\n\n\tPR gdb/14383\n\t* Makefile.in (ALL_TARGET_OBS): Add arm-none-tdep.o.\n\t(ALLDEPFILES): Add arm-none-tdep.c\n\t* arm-none-tdep.c: New file.\n\t* configure.tgt (arm*-*-*): Add arm-none-tdep.o to cpu_obs.",
+    "tree": {
+      "sha": "34fac448ae1e730034ce7d51b693ceaeb7d070b4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/34fac448ae1e730034ce7d51b693ceaeb7d070b4"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/9b715c68e84d93d6671fac661cad391970462ffb",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9b715c68e84d93d6671fac661cad391970462ffb",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/9b715c68e84d93d6671fac661cad391970462ffb",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9b715c68e84d93d6671fac661cad391970462ffb/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "b4b3e2dee20dcde6eb47ebdc6231f5d8edf60ff5",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b4b3e2dee20dcde6eb47ebdc6231f5d8edf60ff5",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b4b3e2dee20dcde6eb47ebdc6231f5d8edf60ff5"
+    }
+  ],
+  "stats": {
+    "total": 227,
+    "additions": 226,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "a57a41c97efe5df576691e30bbac7c03693bed1e",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9b715c68e84d93d6671fac661cad391970462ffb/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9b715c68e84d93d6671fac661cad391970462ffb/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=9b715c68e84d93d6671fac661cad391970462ffb",
+      "patch": "@@ -1,3 +1,12 @@\n+2021-06-01  Fredrik Hederstierna  <fredrik@hederstierna.com>\n+\t    Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\tPR gdb/14383\n+\t* Makefile.in (ALL_TARGET_OBS): Add arm-none-tdep.o.\n+\t(ALLDEPFILES): Add arm-none-tdep.c\n+\t* arm-none-tdep.c: New file.\n+\t* configure.tgt (arm*-*-*): Add arm-none-tdep.o to cpu_obs.\n+\n 2021-06-01  Andrew Burgess  <andrew.burgess@embecosm.com>\n \t    Richard Bunt  <richard.bunt@arm.com>\n "
+    },
+    {
+      "sha": "9dc96eec86770ba16c7884f6879567656a400201",
+      "filename": "gdb/Makefile.in",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9b715c68e84d93d6671fac661cad391970462ffb/gdb/Makefile.in",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9b715c68e84d93d6671fac661cad391970462ffb/gdb/Makefile.in",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/Makefile.in?ref=9b715c68e84d93d6671fac661cad391970462ffb",
+      "patch": "@@ -729,6 +729,7 @@ ALL_TARGET_OBS = \\\n \tarm-fbsd-tdep.o \\\n \tarm-linux-tdep.o \\\n \tarm-netbsd-tdep.o \\\n+\tarm-none-tdep.o \\\n \tarm-obsd-tdep.o \\\n \tarm-pikeos-tdep.o \\\n \tarm-tdep.o \\\n@@ -2163,6 +2164,7 @@ ALLDEPFILES = \\\n \tarm-linux-tdep.c \\\n \tarm-netbsd-nat.c \\\n \tarm-netbsd-tdep.c \\\n+\tarm-none-tdep.c \\\n \tarm-obsd-tdep.c \\\n \tarm-tdep.c \\\n \tavr-tdep.c \\"
+    },
+    {
+      "sha": "2816c5954b36e2d8cb72b1bd8c7b0f75730d7a1b",
+      "filename": "gdb/arm-none-tdep.c",
+      "status": "added",
+      "additions": 213,
+      "deletions": 0,
+      "changes": 213,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9b715c68e84d93d6671fac661cad391970462ffb/gdb/arm-none-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9b715c68e84d93d6671fac661cad391970462ffb/gdb/arm-none-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/arm-none-tdep.c?ref=9b715c68e84d93d6671fac661cad391970462ffb",
+      "patch": "@@ -0,0 +1,213 @@\n+/* none on ARM target support.\n+\n+   Copyright (C) 2020-2021 Free Software Foundation, Inc.\n+\n+   This file is part of GDB.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#include \"defs.h\"\n+#include \"arm-tdep.h\"\n+#include \"arch-utils.h\"\n+#include \"regcache.h\"\n+#include \"elf-bfd.h\"\n+#include \"regset.h\"\n+#include \"user-regs.h\"\n+\n+#ifdef HAVE_ELF\n+#include \"elf-none-tdep.h\"\n+#endif\n+\n+/* Core file and register set support.  */\n+#define ARM_NONE_SIZEOF_GREGSET (18 * ARM_INT_REGISTER_SIZE)\n+\n+/* Support VFP register format.  */\n+#define ARM_NONE_SIZEOF_VFP (32 * 8 + 4)\n+\n+/* The index to access CPSR in user_regs as defined in GLIBC.  */\n+#define ARM_NONE_CPSR_GREGNUM 16\n+\n+/* Supply register REGNUM from buffer GREGS_BUF (length LEN bytes) into\n+   REGCACHE.  If REGNUM is -1 then supply all registers.  The set of\n+   registers that this function will supply is limited to the general\n+   purpose registers.\n+\n+   The layout of the registers here is based on the ARM GNU/Linux\n+   layout.  */\n+\n+static void\n+arm_none_supply_gregset (const struct regset *regset,\n+\t\t\t struct regcache *regcache,\n+\t\t\t int regnum, const void *gregs_buf, size_t len)\n+{\n+  struct gdbarch *gdbarch = regcache->arch ();\n+  enum bfd_endian byte_order = gdbarch_byte_order (gdbarch);\n+  const gdb_byte *gregs = (const gdb_byte *) gregs_buf;\n+\n+  for (int regno = ARM_A1_REGNUM; regno < ARM_PC_REGNUM; regno++)\n+    if (regnum == -1 || regnum == regno)\n+      regcache->raw_supply (regno, gregs + ARM_INT_REGISTER_SIZE * regno);\n+\n+  if (regnum == ARM_PS_REGNUM || regnum == -1)\n+    {\n+      if (arm_apcs_32)\n+\tregcache->raw_supply (ARM_PS_REGNUM,\n+\t\t\t      gregs + ARM_INT_REGISTER_SIZE\n+\t\t\t      * ARM_NONE_CPSR_GREGNUM);\n+      else\n+\tregcache->raw_supply (ARM_PS_REGNUM,\n+\t\t\t     gregs + ARM_INT_REGISTER_SIZE * ARM_PC_REGNUM);\n+    }\n+\n+  if (regnum == ARM_PC_REGNUM || regnum == -1)\n+    {\n+      gdb_byte pc_buf[ARM_INT_REGISTER_SIZE];\n+\n+      CORE_ADDR reg_pc\n+\t= extract_unsigned_integer (gregs + ARM_INT_REGISTER_SIZE\n+\t\t\t\t    * ARM_PC_REGNUM,\n+\t\t\t\t    ARM_INT_REGISTER_SIZE, byte_order);\n+      reg_pc = gdbarch_addr_bits_remove (gdbarch, reg_pc);\n+      store_unsigned_integer (pc_buf, ARM_INT_REGISTER_SIZE, byte_order,\n+\t\t\t      reg_pc);\n+      regcache->raw_supply (ARM_PC_REGNUM, pc_buf);\n+    }\n+}\n+\n+/* Collect register REGNUM from REGCACHE and place it into buffer GREGS_BUF\n+   (length LEN bytes).  If REGNUM is -1 then collect all registers.  The\n+   set of registers that this function will collect is limited to the\n+   general purpose registers.\n+\n+   The layout of the registers here is based on the ARM GNU/Linux\n+   layout.  */\n+\n+static void\n+arm_none_collect_gregset (const struct regset *regset,\n+\t\t\t  const struct regcache *regcache,\n+\t\t\t  int regnum, void *gregs_buf, size_t len)\n+{\n+  gdb_byte *gregs = (gdb_byte *) gregs_buf;\n+\n+  for (int regno = ARM_A1_REGNUM; regno < ARM_PC_REGNUM; regno++)\n+    if (regnum == -1 || regnum == regno)\n+      regcache->raw_collect (regno,\n+\t\t\t     gregs + ARM_INT_REGISTER_SIZE * regno);\n+\n+  if (regnum == ARM_PS_REGNUM || regnum == -1)\n+    {\n+      if (arm_apcs_32)\n+\tregcache->raw_collect (ARM_PS_REGNUM,\n+\t\t\t       gregs + ARM_INT_REGISTER_SIZE\n+\t\t\t       * ARM_NONE_CPSR_GREGNUM);\n+      else\n+\tregcache->raw_collect (ARM_PS_REGNUM,\n+\t\t\t       gregs + ARM_INT_REGISTER_SIZE * ARM_PC_REGNUM);\n+    }\n+\n+  if (regnum == ARM_PC_REGNUM || regnum == -1)\n+    regcache->raw_collect (ARM_PC_REGNUM,\n+\t\t\t   gregs + ARM_INT_REGISTER_SIZE * ARM_PC_REGNUM);\n+}\n+\n+/* Supply VFP registers from REGS_BUF into REGCACHE.  */\n+\n+static void\n+arm_none_supply_vfp (const struct regset *regset,\n+\t\t     struct regcache *regcache,\n+\t\t     int regnum, const void *regs_buf, size_t len)\n+{\n+  const gdb_byte *regs = (const gdb_byte *) regs_buf;\n+\n+  if (regnum == ARM_FPSCR_REGNUM || regnum == -1)\n+    regcache->raw_supply (ARM_FPSCR_REGNUM, regs + 32 * 8);\n+\n+  for (int regno = ARM_D0_REGNUM; regno <= ARM_D31_REGNUM; regno++)\n+    if (regnum == -1 || regnum == regno)\n+      regcache->raw_supply (regno, regs + (regno - ARM_D0_REGNUM) * 8);\n+}\n+\n+/* Collect VFP registers from REGCACHE into REGS_BUF.  */\n+\n+static void\n+arm_none_collect_vfp (const struct regset *regset,\n+\t\t      const struct regcache *regcache,\n+\t\t      int regnum, void *regs_buf, size_t len)\n+{\n+  gdb_byte *regs = (gdb_byte *) regs_buf;\n+\n+  if (regnum == ARM_FPSCR_REGNUM || regnum == -1)\n+    regcache->raw_collect (ARM_FPSCR_REGNUM, regs + 32 * 8);\n+\n+  for (int regno = ARM_D0_REGNUM; regno <= ARM_D31_REGNUM; regno++)\n+    if (regnum == -1 || regnum == regno)\n+      regcache->raw_collect (regno, regs + (regno - ARM_D0_REGNUM) * 8);\n+}\n+\n+/* The general purpose register set.  */\n+\n+static const struct regset arm_none_gregset =\n+  {\n+    nullptr, arm_none_supply_gregset, arm_none_collect_gregset\n+  };\n+\n+/* The VFP register set.  */\n+\n+static const struct regset arm_none_vfpregset =\n+  {\n+    nullptr, arm_none_supply_vfp, arm_none_collect_vfp\n+  };\n+\n+/* Iterate over core file register note sections.  */\n+\n+static void\n+arm_none_iterate_over_regset_sections (struct gdbarch *gdbarch,\n+\t\t\t\t       iterate_over_regset_sections_cb *cb,\n+\t\t\t\t       void *cb_data,\n+\t\t\t\t       const struct regcache *regcache)\n+{\n+  struct gdbarch_tdep *tdep = gdbarch_tdep (gdbarch);\n+\n+  cb (\".reg\", ARM_NONE_SIZEOF_GREGSET, ARM_NONE_SIZEOF_GREGSET,\n+      &arm_none_gregset, nullptr, cb_data);\n+\n+  if (tdep->vfp_register_count > 0)\n+    cb (\".reg-arm-vfp\", ARM_NONE_SIZEOF_VFP, ARM_NONE_SIZEOF_VFP,\n+\t&arm_none_vfpregset, \"VFP floating-point\", cb_data);\n+}\n+\n+/* Initialize ARM bare-metal ABI info.  */\n+\n+static void\n+arm_none_init_abi (struct gdbarch_info info, struct gdbarch *gdbarch)\n+{\n+#ifdef HAVE_ELF\n+  elf_none_init_abi (gdbarch);\n+#endif\n+\n+  /* Iterate over registers for reading and writing bare metal ARM core\n+     files.  */\n+  set_gdbarch_iterate_over_regset_sections\n+    (gdbarch, arm_none_iterate_over_regset_sections);\n+}\n+\n+/* Initialize ARM bare-metal target support.  */\n+\n+void _initialize_arm_none_tdep ();\n+void\n+_initialize_arm_none_tdep ()\n+{\n+  gdbarch_register_osabi (bfd_arch_arm, 0, GDB_OSABI_NONE,\n+\t\t\t  arm_none_init_abi);\n+}"
+    },
+    {
+      "sha": "a928c0227a044311abe06ac2849bd9c7d8dcaec1",
+      "filename": "gdb/configure.tgt",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9b715c68e84d93d6671fac661cad391970462ffb/gdb/configure.tgt",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9b715c68e84d93d6671fac661cad391970462ffb/gdb/configure.tgt",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/configure.tgt?ref=9b715c68e84d93d6671fac661cad391970462ffb",
+      "patch": "@@ -65,7 +65,8 @@ arc*-*-*)\n \n arm*-*-*)\n \tcpu_obs=\"aarch32-tdep.o arch/aarch32.o arch/arm.o \\\n-\t\t arch/arm-get-next-pcs.o arm-tdep.o\";;\n+\t\t arch/arm-get-next-pcs.o arm-tdep.o arm-none-tdep.o\"\n+\t;;\n \n hppa*-*-*)\n \t# Target: HP PA-RISC"
+    }
+  ]
+}

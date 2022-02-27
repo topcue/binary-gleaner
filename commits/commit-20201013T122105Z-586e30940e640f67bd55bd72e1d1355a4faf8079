@@ -1,0 +1,182 @@
+{
+  "sha": "586e30940e640f67bd55bd72e1d1355a4faf8079",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NTg2ZTMwOTQwZTY0MGY2N2JkNTViZDcyZTFkMTM1NWE0ZmFmODA3OQ==",
+  "commit": {
+    "author": {
+      "name": "H.J. Lu",
+      "email": "hjl.tools@gmail.com",
+      "date": "2020-10-13T12:20:49Z"
+    },
+    "committer": {
+      "name": "H.J. Lu",
+      "email": "hjl.tools@gmail.com",
+      "date": "2020-10-13T12:21:05Z"
+    },
+    "message": "gold: Update GNU_PROPERTY_X86_XXX macros\n\nThis patch updates GNU_PROPERTY_X86_XXX macros for gold:\n\n1. GNU_PROPERTY_X86_UINT32_AND_XXX: A 4-byte unsigned integer property.\nA bit is set if it is set in all relocatable inputs:\n\n #define GNU_PROPERTY_X86_UINT32_AND_LO      0xc0000002\n #define GNU_PROPERTY_X86_UINT32_AND_HI      0xc0007fff\n\n2. GNU_PROPERTY_X86_UINT32_OR_XXX: A 4-byte unsigned integer property.\nA bit is set if it is set in any relocatable inputs:\n\n #define GNU_PROPERTY_X86_UINT32_OR_LO    0xc0008000\n #define GNU_PROPERTY_X86_UINT32_OR_HI    0xc000ffff\n\n3. GNU_PROPERTY_X86_UINT32_OR_AND_XXX: A 4-byte unsigned integer property.\nA bit is set if it is set in any relocatable inputs and the property is\npresent in all relocatable inputs:\n\n #define GNU_PROPERTY_X86_UINT32_OR_AND_LO   0xc0010000\n #define GNU_PROPERTY_X86_UINT32_OR_AND_HI   0xc0017fff\n\n4. GNU_PROPERTY_X86_FEATURE_2_NEEDED, GNU_PROPERTY_X86_FEATURE_2_USED\nand GNU_PROPERTY_X86_FEATURE_2_XXX bits.\n\nGNU_PROPERTY_X86_FEATURE_1_AND is unchanged.  GNU_PROPERTY_X86_ISA_1_USED\nand GNU_PROPERTY_X86_ISA_1_NEEDED are updated to better support targeted\nprocessors since GNU_PROPERTY_X86_ISA_1_?86 aren't isn't very useful.\nA new set of GNU_PROPERTY_X86_ISA_1_XXX bits are defined.  The previous\nGNU_PROPERTY_X86_ISA_1_XXX macros are deprecated and renamed to\nGNU_PROPERTY_X86_COMPAT_ISA_1_XXX and GNU_PROPERTY_X86_COMPAT_2_ISA_1_XXX.\n\nelfcpp/\n\n\t* elfcpp.h (GNU_PROPERTY_X86_ISA_1_USED): Renamed to ...\n\t(GNU_PROPERTY_X86_COMPAT_ISA_1_USED): This.\n\t(GNU_PROPERTY_X86_ISA_1_NEEDED): Renamed to ...\n\t(GNU_PROPERTY_X86_COMPAT_ISA_1_NEEDED): This.\n\t(GNU_PROPERTY_X86_UINT32_AND_LO): New.\n\t(GNU_PROPERTY_X86_UINT32_AND_HI): Likewise.\n\t(GNU_PROPERTY_X86_UINT32_OR_LO): Likewise.\n\t(GNU_PROPERTY_X86_UINT32_OR_HI): Likewise.\n\t(GNU_PROPERTY_X86_UINT32_OR_AND_LO): Likewise.\n\t(GNU_PROPERTY_X86_UINT32_OR_AND_HI): Likewise.\n\t(GNU_PROPERTY_X86_COMPAT_2_ISA_1_NEEDED): New.\n\t(GNU_PROPERTY_X86_COMPAT_2_ISA_1_NEEDED): Likewise.\n\t(GNU_PROPERTY_X86_FEATURE_1_AND): Updated to\n\t(GNU_PROPERTY_X86_UINT32_AND_LO + 0).\n\t(GNU_PROPERTY_X86_ISA_1_NEEDED): New.  Defined to\n\tGNU_PROPERTY_X86_UINT32_OR_LO + 2.\n\t(GNU_PROPERTY_X86_FEATURE_2_NEEDED): New.  Defined to\n\t(GNU_PROPERTY_X86_UINT32_OR_LO + 1).\n\t(GNU_PROPERTY_X86_ISA_1_USED): New.  Defined to\n\tGNU_PROPERTY_X86_UINT32_OR_AND_LO + 2.\n\t(GNU_PROPERTY_X86_FEATURE_2_USED): New.  Defined to\n\t(GNU_PROPERTY_X86_UINT32_OR_AND_LO + 1).\n\ngold/\n\n\t* x86_64.cc (Target_x86_64::Target_x86_64): Initialize\n\tfeature_2_used_, feature_2_needed_ and object_feature_2_used_.\n\t(Target_x86_64::feature_2_used_): New data member.\n\t(Target_x86_64::feature_2_needed_): Likewise.\n\t(Target_x86_64::object_isa_1_used_): Likewise.\n\t(Target_x86_64::record_gnu_property): Support\n\tGNU_PROPERTY_X86_COMPAT_ISA_1_USED,\n\tGNU_PROPERTY_X86_COMPAT_ISA_1_NEEDED,\n\tGNU_PROPERTY_X86_COMPAT_2_ISA_1_USED,\n\tGNU_PROPERTY_X86_COMPAT_2_ISA_1_NEEDED,\n\tGNU_PROPERTY_X86_FEATURE_2_USED and\n\tGNU_PROPERTY_X86_FEATURE_2_NEEDED.\n\t(Target_x86_64::merge_gnu_properties): Merge FEATURE_2_USED bits.\n\tInitialize object_feature_2_used_.\n\t(Target_x86_64::do_finalize_gnu_properties): Support\n\tGNU_PROPERTY_X86_FEATURE_2_USED and\n\tGNU_PROPERTY_X86_FEATURE_2_NEEDED.\n\t* testsuite/gnu_property_a.S (GNU_PROPERTY_X86_ISA_1_USED): Set\n\tto 0xc0010002.\n\t(GNU_PROPERTY_X86_ISA_1_NEEDED): Set to 0xc0008002.\n\t* testsuite/gnu_property_b.S (GNU_PROPERTY_X86_ISA_1_USED): Set\n\tto 0xc0010002.\n\t(GNU_PROPERTY_X86_ISA_1_NEEDED): Set to 0xc0008002.\n\t* testsuite/gnu_property_c.S (GNU_PROPERTY_X86_ISA_1_USED): Set\n\tto 0xc0010002.\n\t(GNU_PROPERTY_X86_ISA_1_NEEDED): Set to 0xc0008002.\n\t* testsuite/gnu_property_test.sh: Updated.",
+    "tree": {
+      "sha": "278d223a2c3820c46af259ed69fbd381f9d331d6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/278d223a2c3820c46af259ed69fbd381f9d331d6"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/586e30940e640f67bd55bd72e1d1355a4faf8079",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/586e30940e640f67bd55bd72e1d1355a4faf8079",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/586e30940e640f67bd55bd72e1d1355a4faf8079",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/586e30940e640f67bd55bd72e1d1355a4faf8079/comments",
+  "author": {
+    "login": "hjl-tools",
+    "id": 1072356,
+    "node_id": "MDQ6VXNlcjEwNzIzNTY=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1072356?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/hjl-tools",
+    "html_url": "https://github.com/hjl-tools",
+    "followers_url": "https://api.github.com/users/hjl-tools/followers",
+    "following_url": "https://api.github.com/users/hjl-tools/following{/other_user}",
+    "gists_url": "https://api.github.com/users/hjl-tools/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/hjl-tools/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/hjl-tools/subscriptions",
+    "organizations_url": "https://api.github.com/users/hjl-tools/orgs",
+    "repos_url": "https://api.github.com/users/hjl-tools/repos",
+    "events_url": "https://api.github.com/users/hjl-tools/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/hjl-tools/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "hjl-tools",
+    "id": 1072356,
+    "node_id": "MDQ6VXNlcjEwNzIzNTY=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1072356?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/hjl-tools",
+    "html_url": "https://github.com/hjl-tools",
+    "followers_url": "https://api.github.com/users/hjl-tools/followers",
+    "following_url": "https://api.github.com/users/hjl-tools/following{/other_user}",
+    "gists_url": "https://api.github.com/users/hjl-tools/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/hjl-tools/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/hjl-tools/subscriptions",
+    "organizations_url": "https://api.github.com/users/hjl-tools/orgs",
+    "repos_url": "https://api.github.com/users/hjl-tools/repos",
+    "events_url": "https://api.github.com/users/hjl-tools/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/hjl-tools/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "6bf4a34047452f882c5cc66bd85812ee1bb5a41c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6bf4a34047452f882c5cc66bd85812ee1bb5a41c",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/6bf4a34047452f882c5cc66bd85812ee1bb5a41c"
+    }
+  ],
+  "stats": {
+    "total": 123,
+    "additions": 110,
+    "deletions": 13
+  },
+  "files": [
+    {
+      "sha": "c72a432e095e0d67780cf91a8efdece6617779c3",
+      "filename": "elfcpp/ChangeLog",
+      "status": "modified",
+      "additions": 25,
+      "deletions": 0,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/586e30940e640f67bd55bd72e1d1355a4faf8079/elfcpp/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/586e30940e640f67bd55bd72e1d1355a4faf8079/elfcpp/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/elfcpp/ChangeLog?ref=586e30940e640f67bd55bd72e1d1355a4faf8079",
+      "patch": "@@ -1,3 +1,28 @@\n+2020-10-13  H.J. Lu  <hongjiu.lu@intel.com>\n+\n+\t* elfcpp.h (GNU_PROPERTY_X86_ISA_1_USED): Renamed to ...\n+\t(GNU_PROPERTY_X86_COMPAT_ISA_1_USED): This.\n+\t(GNU_PROPERTY_X86_ISA_1_NEEDED): Renamed to ...\n+\t(GNU_PROPERTY_X86_COMPAT_ISA_1_NEEDED): This.\n+\t(GNU_PROPERTY_X86_UINT32_AND_LO): New.\n+\t(GNU_PROPERTY_X86_UINT32_AND_HI): Likewise.\n+\t(GNU_PROPERTY_X86_UINT32_OR_LO): Likewise.\n+\t(GNU_PROPERTY_X86_UINT32_OR_HI): Likewise.\n+\t(GNU_PROPERTY_X86_UINT32_OR_AND_LO): Likewise.\n+\t(GNU_PROPERTY_X86_UINT32_OR_AND_HI): Likewise.\n+\t(GNU_PROPERTY_X86_COMPAT_2_ISA_1_NEEDED): New.\n+\t(GNU_PROPERTY_X86_COMPAT_2_ISA_1_NEEDED): Likewise.\n+\t(GNU_PROPERTY_X86_FEATURE_1_AND): Updated to\n+\t(GNU_PROPERTY_X86_UINT32_AND_LO + 0).\n+\t(GNU_PROPERTY_X86_ISA_1_NEEDED): New.  Defined to\n+\tGNU_PROPERTY_X86_UINT32_OR_LO + 2.\n+\t(GNU_PROPERTY_X86_FEATURE_2_NEEDED): New.  Defined to\n+\t(GNU_PROPERTY_X86_UINT32_OR_LO + 1).\n+\t(GNU_PROPERTY_X86_ISA_1_USED): New.  Defined to\n+\tGNU_PROPERTY_X86_UINT32_OR_AND_LO + 2.\n+\t(GNU_PROPERTY_X86_FEATURE_2_USED): New.  Defined to\n+\t(GNU_PROPERTY_X86_UINT32_OR_AND_LO + 1).\n+\n 2020-09-25  Alan Modra  <amodra@gmail.com>\n \n \t* dwarf.h (DW_FIRST_UT, DW_UT, DW_END_UT): Define."
+    },
+    {
+      "sha": "4b6ff94a654201c819ce08293b09a52b827e1c34",
+      "filename": "elfcpp/elfcpp.h",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 3,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/586e30940e640f67bd55bd72e1d1355a4faf8079/elfcpp/elfcpp.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/586e30940e640f67bd55bd72e1d1355a4faf8079/elfcpp/elfcpp.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/elfcpp/elfcpp.h?ref=586e30940e640f67bd55bd72e1d1355a4faf8079",
+      "patch": "@@ -1013,9 +1013,21 @@ enum\n   GNU_PROPERTY_STACK_SIZE = 1,\n   GNU_PROPERTY_NO_COPY_ON_PROTECTED = 2,\n   GNU_PROPERTY_LOPROC = 0xc0000000,\n-  GNU_PROPERTY_X86_ISA_1_USED = 0xc0000000,\n-  GNU_PROPERTY_X86_ISA_1_NEEDED = 0xc0000001,\n-  GNU_PROPERTY_X86_FEATURE_1_AND = 0xc0000002,\n+  GNU_PROPERTY_X86_COMPAT_ISA_1_USED = 0xc0000000,\n+  GNU_PROPERTY_X86_COMPAT_ISA_1_NEEDED = 0xc0000001,\n+  GNU_PROPERTY_X86_UINT32_AND_LO = 0xc0000002,\n+  GNU_PROPERTY_X86_UINT32_AND_HI = 0xc0007fff,\n+  GNU_PROPERTY_X86_UINT32_OR_LO = 0xc0008000,\n+  GNU_PROPERTY_X86_UINT32_OR_HI = 0xc000ffff,\n+  GNU_PROPERTY_X86_UINT32_OR_AND_LO = 0xc0010000,\n+  GNU_PROPERTY_X86_UINT32_OR_AND_HI = 0xc0017fff,\n+  GNU_PROPERTY_X86_COMPAT_2_ISA_1_NEEDED = GNU_PROPERTY_X86_UINT32_OR_LO + 0,\n+  GNU_PROPERTY_X86_COMPAT_2_ISA_1_USED = GNU_PROPERTY_X86_UINT32_OR_AND_LO + 0,\n+  GNU_PROPERTY_X86_FEATURE_1_AND = GNU_PROPERTY_X86_UINT32_AND_LO + 0,\n+  GNU_PROPERTY_X86_ISA_1_NEEDED = GNU_PROPERTY_X86_UINT32_OR_LO + 2,\n+  GNU_PROPERTY_X86_FEATURE_2_NEEDED = GNU_PROPERTY_X86_UINT32_OR_LO + 1,\n+  GNU_PROPERTY_X86_ISA_1_USED = GNU_PROPERTY_X86_UINT32_OR_AND_LO + 2,\n+  GNU_PROPERTY_X86_FEATURE_2_USED = GNU_PROPERTY_X86_UINT32_OR_AND_LO + 1,\n   GNU_PROPERTY_HIPROC = 0xdfffffff,\n   GNU_PROPERTY_LOUSER = 0xe0000000,\n   GNU_PROPERTY_HIUSER = 0xffffffff"
+    },
+    {
+      "sha": "41fe6e033e95b5bc913ac57c5341e6178d82eda7",
+      "filename": "gold/ChangeLog",
+      "status": "modified",
+      "additions": 30,
+      "deletions": 0,
+      "changes": 30,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/586e30940e640f67bd55bd72e1d1355a4faf8079/gold/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/586e30940e640f67bd55bd72e1d1355a4faf8079/gold/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gold/ChangeLog?ref=586e30940e640f67bd55bd72e1d1355a4faf8079",
+      "patch": "@@ -1,3 +1,33 @@\n+2020-10-13  H.J. Lu  <hongjiu.lu@intel.com>\n+\n+\t* x86_64.cc (Target_x86_64::Target_x86_64): Initialize\n+\tfeature_2_used_, feature_2_needed_ and object_feature_2_used_.\n+\t(Target_x86_64::feature_2_used_): New data member.\n+\t(Target_x86_64::feature_2_needed_): Likewise.\n+\t(Target_x86_64::object_isa_1_used_): Likewise.\n+\t(Target_x86_64::record_gnu_property): Support\n+\tGNU_PROPERTY_X86_COMPAT_ISA_1_USED,\n+\tGNU_PROPERTY_X86_COMPAT_ISA_1_NEEDED,\n+\tGNU_PROPERTY_X86_COMPAT_2_ISA_1_USED,\n+\tGNU_PROPERTY_X86_COMPAT_2_ISA_1_NEEDED,\n+\tGNU_PROPERTY_X86_FEATURE_2_USED and\n+\tGNU_PROPERTY_X86_FEATURE_2_NEEDED.\n+\t(Target_x86_64::merge_gnu_properties): Merge FEATURE_2_USED bits.\n+\tInitialize object_feature_2_used_.\n+\t(Target_x86_64::do_finalize_gnu_properties): Support\n+\tGNU_PROPERTY_X86_FEATURE_2_USED and\n+\tGNU_PROPERTY_X86_FEATURE_2_NEEDED.\n+\t* testsuite/gnu_property_a.S (GNU_PROPERTY_X86_ISA_1_USED): Set\n+\tto 0xc0010002.\n+\t(GNU_PROPERTY_X86_ISA_1_NEEDED): Set to 0xc0008002.\n+\t* testsuite/gnu_property_b.S (GNU_PROPERTY_X86_ISA_1_USED): Set\n+\tto 0xc0010002.\n+\t(GNU_PROPERTY_X86_ISA_1_NEEDED): Set to 0xc0008002.\n+\t* testsuite/gnu_property_c.S (GNU_PROPERTY_X86_ISA_1_USED): Set\n+\tto 0xc0010002.\n+\t(GNU_PROPERTY_X86_ISA_1_NEEDED): Set to 0xc0008002.\n+\t* testsuite/gnu_property_test.sh: Updated.\n+\n 2020-10-13  H.J. Lu  <hongjiu.lu@intel.com>\n \n \tPR gold/22914"
+    },
+    {
+      "sha": "5fbbbc9c4bb95e1b7a0016d76fa5e4e22ee177ed",
+      "filename": "gold/testsuite/gnu_property_a.S",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/586e30940e640f67bd55bd72e1d1355a4faf8079/gold/testsuite/gnu_property_a.S",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/586e30940e640f67bd55bd72e1d1355a4faf8079/gold/testsuite/gnu_property_a.S",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gold/testsuite/gnu_property_a.S?ref=586e30940e640f67bd55bd72e1d1355a4faf8079",
+      "patch": "@@ -1,8 +1,8 @@\n #define NT_GNU_PROPERTY_TYPE_0 5\n \n #define GNU_PROPERTY_STACK_SIZE 1\n-#define GNU_PROPERTY_X86_ISA_1_USED 0xc0000000\n-#define GNU_PROPERTY_X86_ISA_1_NEEDED 0xc0000001\n+#define GNU_PROPERTY_X86_ISA_1_USED 0xc0010002\n+#define GNU_PROPERTY_X86_ISA_1_NEEDED 0xc0008002\n #define GNU_PROPERTY_X86_FEATURE_1_AND 0xc0000002\n \n #if __SIZEOF_PTRDIFF_T__  == 8"
+    },
+    {
+      "sha": "7028f73d7ab1f836fd16faa603f288e6bea92b7a",
+      "filename": "gold/testsuite/gnu_property_b.S",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/586e30940e640f67bd55bd72e1d1355a4faf8079/gold/testsuite/gnu_property_b.S",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/586e30940e640f67bd55bd72e1d1355a4faf8079/gold/testsuite/gnu_property_b.S",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gold/testsuite/gnu_property_b.S?ref=586e30940e640f67bd55bd72e1d1355a4faf8079",
+      "patch": "@@ -2,8 +2,8 @@\n \n #define GNU_PROPERTY_STACK_SIZE 1\n #define GNU_PROPERTY_NO_COPY_ON_PROTECTED 2\n-#define GNU_PROPERTY_X86_ISA_1_USED 0xc0000000\n-#define GNU_PROPERTY_X86_ISA_1_NEEDED 0xc0000001\n+#define GNU_PROPERTY_X86_ISA_1_USED 0xc0010002\n+#define GNU_PROPERTY_X86_ISA_1_NEEDED 0xc0008002\n #define GNU_PROPERTY_X86_FEATURE_1_AND 0xc0000002\n \n #if __SIZEOF_PTRDIFF_T__  == 8"
+    },
+    {
+      "sha": "c8cbd8bce28c51cd47cad08355a86a804b406be5",
+      "filename": "gold/testsuite/gnu_property_c.S",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/586e30940e640f67bd55bd72e1d1355a4faf8079/gold/testsuite/gnu_property_c.S",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/586e30940e640f67bd55bd72e1d1355a4faf8079/gold/testsuite/gnu_property_c.S",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gold/testsuite/gnu_property_c.S?ref=586e30940e640f67bd55bd72e1d1355a4faf8079",
+      "patch": "@@ -2,8 +2,8 @@\n \n #define GNU_PROPERTY_STACK_SIZE 1\n #define GNU_PROPERTY_NO_COPY_ON_PROTECTED 2\n-#define GNU_PROPERTY_X86_ISA_1_USED 0xc0000000\n-#define GNU_PROPERTY_X86_ISA_1_NEEDED 0xc0000001\n+#define GNU_PROPERTY_X86_ISA_1_USED 0xc0010002\n+#define GNU_PROPERTY_X86_ISA_1_NEEDED 0xc0008002\n #define GNU_PROPERTY_X86_FEATURE_1_AND 0xc0000002\n \n #if __SIZEOF_PTRDIFF_T__  == 8"
+    },
+    {
+      "sha": "a4096005b787bcd15d9eb28c65b980c2eabf32b8",
+      "filename": "gold/testsuite/gnu_property_test.sh",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/586e30940e640f67bd55bd72e1d1355a4faf8079/gold/testsuite/gnu_property_test.sh",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/586e30940e640f67bd55bd72e1d1355a4faf8079/gold/testsuite/gnu_property_test.sh",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gold/testsuite/gnu_property_test.sh?ref=586e30940e640f67bd55bd72e1d1355a4faf8079",
+      "patch": "@@ -77,8 +77,8 @@ check_count gnu_property_test.stdout \"^  NOTE\" 2\n \n check gnu_property_test.stdout \"stack size: 0x111100\"\n check gnu_property_test.stdout \"no copy on protected\"\n-check gnu_property_test.stdout \"x86 ISA used: i486, SSE2, SSE4_2, AVX512CD\"\n-check gnu_property_test.stdout \"x86 ISA needed: i486, SSE2, SSE4_2, AVX512CD\"\n+check gnu_property_test.stdout \"x86 ISA used: x86-64-v2, <unknown: 10>, <unknown: 100>, <unknown: 1000>\"\n+check gnu_property_test.stdout \"x86 ISA needed: x86-64-v2, <unknown: 10>, <unknown: 100>, <unknown: 1000>\"\n check gnu_property_test.stdout \"x86 feature: IBT\"\n \n exit 0"
+    },
+    {
+      "sha": "378bac16f78db660793e002f4c9f964658f7dc0c",
+      "filename": "gold/x86_64.cc",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 2,
+      "changes": 34,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/586e30940e640f67bd55bd72e1d1355a4faf8079/gold/x86_64.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/586e30940e640f67bd55bd72e1d1355a4faf8079/gold/x86_64.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gold/x86_64.cc?ref=586e30940e640f67bd55bd72e1d1355a4faf8079",
+      "patch": "@@ -706,8 +706,9 @@ class Target_x86_64 : public Sized_target<size, false>\n       rela_irelative_(NULL), copy_relocs_(elfcpp::R_X86_64_COPY),\n       got_mod_index_offset_(-1U), tlsdesc_reloc_info_(),\n       tls_base_symbol_defined_(false), isa_1_used_(0), isa_1_needed_(0),\n-      feature_1_(0), object_isa_1_used_(0), object_feature_1_(0),\n-      seen_first_object_(false)\n+      feature_1_(0), feature_2_used_(0), feature_2_needed_(0),\n+      object_isa_1_used_(0), object_feature_1_(0),\n+      object_feature_2_used_(0), seen_first_object_(false)\n   { }\n \n   // Hook for a new output section.\n@@ -1382,6 +1383,8 @@ class Target_x86_64 : public Sized_target<size, false>\n   uint32_t isa_1_used_;\n   uint32_t isa_1_needed_;\n   uint32_t feature_1_;\n+  uint32_t feature_2_used_;\n+  uint32_t feature_2_needed_;\n   // Target-specific properties from the current object.\n   // These bits get ORed into ISA_1_USED_ after all properties for the object\n   // have been processed. But if either is all zeroes (as when the property\n@@ -1391,6 +1394,7 @@ class Target_x86_64 : public Sized_target<size, false>\n   // These bits get ANDed into FEATURE_1_ after all properties for the object\n   // have been processed.\n   uint32_t object_feature_1_;\n+  uint32_t object_feature_2_used_;\n   // Whether we have seen our first object, for use in initializing FEATURE_1_.\n   bool seen_first_object_;\n };\n@@ -1594,9 +1598,15 @@ Target_x86_64<size>::record_gnu_property(\n \n   switch (pr_type)\n     {\n+    case elfcpp::GNU_PROPERTY_X86_COMPAT_ISA_1_USED:\n+    case elfcpp::GNU_PROPERTY_X86_COMPAT_ISA_1_NEEDED:\n+    case elfcpp::GNU_PROPERTY_X86_COMPAT_2_ISA_1_USED:\n+    case elfcpp::GNU_PROPERTY_X86_COMPAT_2_ISA_1_NEEDED:\n     case elfcpp::GNU_PROPERTY_X86_ISA_1_USED:\n     case elfcpp::GNU_PROPERTY_X86_ISA_1_NEEDED:\n     case elfcpp::GNU_PROPERTY_X86_FEATURE_1_AND:\n+    case elfcpp::GNU_PROPERTY_X86_FEATURE_2_USED:\n+    case elfcpp::GNU_PROPERTY_X86_FEATURE_2_NEEDED:\n       if (pr_datasz != 4)\n \t{\n \t  gold_warning(_(\"%s: corrupt .note.gnu.property section \"\n@@ -1625,6 +1635,12 @@ Target_x86_64<size>::record_gnu_property(\n       // If we see multiple feature props in one object, OR them together.\n       this->object_feature_1_ |= val;\n       break;\n+    case elfcpp::GNU_PROPERTY_X86_FEATURE_2_USED:\n+      this->object_feature_2_used_ |= val;\n+      break;\n+    case elfcpp::GNU_PROPERTY_X86_FEATURE_2_NEEDED:\n+      this->feature_2_needed_ |= val;\n+      break;\n     }\n }\n \n@@ -1642,15 +1658,23 @@ Target_x86_64<size>::merge_gnu_properties(const Object*)\n       else if (this->isa_1_used_ != 0)\n \tthis->isa_1_used_ |= this->object_isa_1_used_;\n       this->feature_1_ &= this->object_feature_1_;\n+      // If any object is missing the FEATURE_2_USED property, we must\n+      // omit it from the output file.\n+      if (this->object_feature_2_used_ == 0)\n+\tthis->feature_2_used_ = 0;\n+      else if (this->feature_2_used_ != 0)\n+\tthis->feature_2_used_ |= this->object_feature_2_used_;\n     }\n   else\n     {\n       this->isa_1_used_ = this->object_isa_1_used_;\n       this->feature_1_ = this->object_feature_1_;\n+      this->feature_2_used_ = this->object_feature_2_used_;\n       this->seen_first_object_ = true;\n     }\n   this->object_isa_1_used_ = 0;\n   this->object_feature_1_ = 0;\n+  this->object_feature_2_used_ = 0;\n }\n \n static inline void\n@@ -1676,6 +1700,12 @@ Target_x86_64<size>::do_finalize_gnu_properties(Layout* layout) const\n   if (this->feature_1_ != 0)\n     add_property(layout, elfcpp::GNU_PROPERTY_X86_FEATURE_1_AND,\n \t\t this->feature_1_);\n+  if (this->feature_2_used_ != 0)\n+    add_property(layout, elfcpp::GNU_PROPERTY_X86_FEATURE_2_USED,\n+\t\t this->feature_2_used_);\n+  if (this->feature_2_needed_ != 0)\n+    add_property(layout, elfcpp::GNU_PROPERTY_X86_FEATURE_2_NEEDED,\n+\t\t this->feature_2_needed_);\n }\n \n // Write the first three reserved words of the .got.plt section."
+    }
+  ]
+}

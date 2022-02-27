@@ -1,0 +1,230 @@
+{
+  "sha": "386de171cbffa86e804057030f3d64a404279f43",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6Mzg2ZGUxNzFjYmZmYTg2ZTgwNDA1NzAzMGYzZDY0YTQwNDI3OWY0Mw==",
+  "commit": {
+    "author": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2021-06-04T19:51:23Z"
+    },
+    "committer": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2021-06-04T19:51:23Z"
+    },
+    "message": "Add PROP_VARIABLE_NAME\n\nWith -fgnat-encodings=minimal, an internal version (these patches will\nbe upstreamed in the near future) of the Ada compiler can emit DWARF\nfor an array where the bound comes from a variable, like:\n\n <1><12a7>: Abbrev Number: 7 (DW_TAG_array_type)\n    <12a8>   DW_AT_name        : (indirect string, offset: 0x1ae9): pck__my_array\n[...]\n <2><12b4>: Abbrev Number: 8 (DW_TAG_subrange_type)\n    <12b5>   DW_AT_type        : <0x1294>\n    <12b9>   DW_AT_upper_bound : <0x1277>\n\nWith the upper bound DIE being:\n\n <1><1277>: Abbrev Number: 2 (DW_TAG_variable)\n    <1278>   DW_AT_name        : (indirect string, offset: 0x1a4d): pck__my_length___U\n    <127c>   DW_AT_type        : <0x128f>\n    <1280>   DW_AT_external    : 1\n    <1280>   DW_AT_artificial  : 1\n    <1280>   DW_AT_declaration : 1\n\nNote that the variable is just a declaration -- in this situation, the\nvariable comes from another compilation unit, and must be found when\ntrying to compute the array bound.\n\nThis patch adds a new PROP_VARIABLE_NAME kind, to enable this search.\n\nThis same scenario can occur with DW_OP_GNU_variable_value, so this\npatch adds support for that as well.\n\ngdb/ChangeLog\n2021-06-04  Tom Tromey  <tromey@adacore.com>\n\n\t* dwarf2/read.h (dwarf2_fetch_die_type_sect_off): Add 'var_name'\n\tparameter.\n\t* dwarf2/loc.c (dwarf2_evaluate_property) <case\n\tPROP_VARIABLE_NAME>: New case.\n\t(compute_var_value): New function.\n\t(sect_variable_value): Use compute_var_value.\n\t* dwarf2/read.c (attr_to_dynamic_prop): Handle DW_TAG_variable.\n\t(var_decl_name): New function.\n\t(dwarf2_fetch_die_type_sect_off): Add 'var_name' parameter.\n\t* gdbtypes.h (enum dynamic_prop_kind) <PROP_VARIABLE_NAME>: New\n\tconstant.\n\t(union dynamic_prop_data) <variable_name>: New member.\n\t(struct dynamic_prop) <variable_name, set_variable_name>: New\n\tmethods.\n\ngdb/testsuite/ChangeLog\n2021-06-04  Tom Tromey  <tromey@adacore.com>\n\n\t* gdb.ada/array_of_symbolic_length.exp: New file.\n\t* gdb.ada/array_of_symbolic_length/foo.adb: New file.\n\t* gdb.ada/array_of_symbolic_length/gl.adb: New file.\n\t* gdb.ada/array_of_symbolic_length/gl.ads: New file.\n\t* gdb.ada/array_of_symbolic_length/pck.adb: New file.\n\t* gdb.ada/array_of_symbolic_length/pck.ads: New file.",
+    "tree": {
+      "sha": "fb9c127f3c004533fa43110baa467b7405e323ce",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/fb9c127f3c004533fa43110baa467b7405e323ce"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/386de171cbffa86e804057030f3d64a404279f43",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/386de171cbffa86e804057030f3d64a404279f43",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/386de171cbffa86e804057030f3d64a404279f43",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/386de171cbffa86e804057030f3d64a404279f43/comments",
+  "author": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "4351271e9c98553900f6ae3cbcaaa75198909daa",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4351271e9c98553900f6ae3cbcaaa75198909daa",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/4351271e9c98553900f6ae3cbcaaa75198909daa"
+    }
+  ],
+  "stats": {
+    "total": 317,
+    "additions": 312,
+    "deletions": 5
+  },
+  "files": [
+    {
+      "sha": "8ebb552123f2a68a50f9c1098f4ed874ec4ec4e2",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 0,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/386de171cbffa86e804057030f3d64a404279f43/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/386de171cbffa86e804057030f3d64a404279f43/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=386de171cbffa86e804057030f3d64a404279f43",
+      "patch": "@@ -1,3 +1,20 @@\n+2021-06-04  Tom Tromey  <tromey@adacore.com>\n+\n+\t* dwarf2/read.h (dwarf2_fetch_die_type_sect_off): Add 'var_name'\n+\tparameter.\n+\t* dwarf2/loc.c (dwarf2_evaluate_property) <case\n+\tPROP_VARIABLE_NAME>: New case.\n+\t(compute_var_value): New function.\n+\t(sect_variable_value): Use compute_var_value.\n+\t* dwarf2/read.c (attr_to_dynamic_prop): Handle DW_TAG_variable.\n+\t(var_decl_name): New function.\n+\t(dwarf2_fetch_die_type_sect_off): Add 'var_name' parameter.\n+\t* gdbtypes.h (enum dynamic_prop_kind) <PROP_VARIABLE_NAME>: New\n+\tconstant.\n+\t(union dynamic_prop_data) <variable_name>: New member.\n+\t(struct dynamic_prop) <variable_name, set_variable_name>: New\n+\tmethods.\n+\n 2021-06-04  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* remote.c (remote_target)"
+    },
+    {
+      "sha": "b7e30e3cb4a8aab815d8b8a085707b9669ae0d52",
+      "filename": "gdb/dwarf2/loc.c",
+      "status": "modified",
+      "additions": 36,
+      "deletions": 1,
+      "changes": 37,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/386de171cbffa86e804057030f3d64a404279f43/gdb/dwarf2/loc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/386de171cbffa86e804057030f3d64a404279f43/gdb/dwarf2/loc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/loc.c?ref=386de171cbffa86e804057030f3d64a404279f43",
+      "patch": "@@ -620,6 +620,19 @@ per_cu_dwarf_call (struct dwarf_expr_context *ctx, cu_offset die_offset,\n   ctx->eval (block.data, block.size);\n }\n \n+/* A helper function to find the definition of NAME and compute its\n+   value.  Returns nullptr if the name is not found.  */\n+\n+static value *\n+compute_var_value (const char *name)\n+{\n+  struct block_symbol sym = lookup_symbol (name, nullptr, VAR_DOMAIN,\n+\t\t\t\t\t   nullptr);\n+  if (sym.symbol != nullptr)\n+    return value_of_variable (sym.symbol, sym.block);\n+  return nullptr;\n+}\n+\n /* Given context CTX, section offset SECT_OFF, and compilation unit\n    data PER_CU, execute the \"variable value\" operation on the DIE\n    found at SECT_OFF.  */\n@@ -629,18 +642,29 @@ sect_variable_value (struct dwarf_expr_context *ctx, sect_offset sect_off,\n \t\t     dwarf2_per_cu_data *per_cu,\n \t\t     dwarf2_per_objfile *per_objfile)\n {\n+  const char *var_name = nullptr;\n   struct type *die_type\n-    = dwarf2_fetch_die_type_sect_off (sect_off, per_cu, per_objfile);\n+    = dwarf2_fetch_die_type_sect_off (sect_off, per_cu, per_objfile,\n+\t\t\t\t      &var_name);\n \n   if (die_type == NULL)\n     error (_(\"Bad DW_OP_GNU_variable_value DIE.\"));\n \n   /* Note: Things still work when the following test is removed.  This\n      test and error is here to conform to the proposed specification.  */\n   if (die_type->code () != TYPE_CODE_INT\n+      && die_type->code () != TYPE_CODE_ENUM\n+      && die_type->code () != TYPE_CODE_RANGE\n       && die_type->code () != TYPE_CODE_PTR)\n     error (_(\"Type of DW_OP_GNU_variable_value DIE must be an integer or pointer.\"));\n \n+  if (var_name != nullptr)\n+    {\n+      value *result = compute_var_value (var_name);\n+      if (result != nullptr)\n+\treturn result;\n+    }\n+\n   struct type *type = lookup_pointer_type (die_type);\n   struct frame_info *frame = get_selected_frame (_(\"No frame selected.\"));\n   return indirect_synthetic_pointer (sect_off, 0, per_cu, per_objfile, frame,\n@@ -2691,6 +2715,17 @@ dwarf2_evaluate_property (const struct dynamic_prop *prop,\n \t*value = value_as_address (val);\n \treturn true;\n       }\n+\n+    case PROP_VARIABLE_NAME:\n+      {\n+\tstruct value *val = compute_var_value (prop->variable_name ());\n+\tif (val != nullptr)\n+\t  {\n+\t    *value = value_as_long (val);\n+\t    return true;\n+\t  }\n+      }\n+      break;\n     }\n \n   return false;"
+    },
+    {
+      "sha": "de79454a85fd8f294be4756c39e0b317db47e4f6",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 2,
+      "changes": 34,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/386de171cbffa86e804057030f3d64a404279f43/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/386de171cbffa86e804057030f3d64a404279f43/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=386de171cbffa86e804057030f3d64a404279f43",
+      "patch": "@@ -18172,6 +18172,25 @@ read_base_type (struct die_info *die, struct dwarf2_cu *cu)\n   return set_die_type (die, type, cu);\n }\n \n+/* A helper function that returns the name of DIE, if it refers to a\n+   variable declaration.  */\n+\n+static const char *\n+var_decl_name (struct die_info *die, struct dwarf2_cu *cu)\n+{\n+  if (die->tag != DW_TAG_variable)\n+    return nullptr;\n+\n+  attribute *attr = dwarf2_attr (die, DW_AT_declaration, cu);\n+  if (attr == nullptr || !attr->as_boolean ())\n+    return nullptr;\n+\n+  attr = dwarf2_attr (die, DW_AT_name, cu);\n+  if (attr == nullptr)\n+    return nullptr;\n+  return attr->as_string ();\n+}\n+\n /* Parse dwarf attribute if it's a block, reference or constant and put the\n    resulting value of the attribute into struct bound_prop.\n    Returns 1 if ATTR could be resolved into PROP, 0 otherwise.  */\n@@ -18226,7 +18245,15 @@ attr_to_dynamic_prop (const struct attribute *attr, struct die_info *die,\n \ttarget_attr = dwarf2_attr (target_die, DW_AT_data_member_location,\n \t\t\t\t   target_cu);\n       if (target_attr == NULL)\n-\treturn 0;\n+\t{\n+\t  const char *name = var_decl_name (target_die, target_cu);\n+\t  if (name != nullptr)\n+\t    {\n+\t      prop->set_variable_name (name);\n+\t      return 1;\n+\t    }\n+\t  return 0;\n+\t}\n \n       switch (target_attr->name)\n \t{\n@@ -23399,7 +23426,8 @@ dwarf2_fetch_constant_bytes (sect_offset sect_off,\n struct type *\n dwarf2_fetch_die_type_sect_off (sect_offset sect_off,\n \t\t\t\tdwarf2_per_cu_data *per_cu,\n-\t\t\t\tdwarf2_per_objfile *per_objfile)\n+\t\t\t\tdwarf2_per_objfile *per_objfile,\n+\t\t\t\tconst char **var_name)\n {\n   struct die_info *die;\n \n@@ -23414,6 +23442,8 @@ dwarf2_fetch_die_type_sect_off (sect_offset sect_off,\n   if (!die)\n     return NULL;\n \n+  if (var_name != nullptr)\n+    *var_name = var_decl_name (die, cu);\n   return die_type (die, cu);\n }\n "
+    },
+    {
+      "sha": "ae1608fa8222ddf902a54264417d09f3ecce45e8",
+      "filename": "gdb/dwarf2/read.h",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 2,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/386de171cbffa86e804057030f3d64a404279f43/gdb/dwarf2/read.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/386de171cbffa86e804057030f3d64a404279f43/gdb/dwarf2/read.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.h?ref=386de171cbffa86e804057030f3d64a404279f43",
+      "patch": "@@ -671,11 +671,14 @@ extern const gdb_byte *dwarf2_fetch_constant_bytes\n    LONGEST *len);\n \n /* Return the type of the die at SECT_OFF in PER_CU.  Return NULL if no\n-   valid type for this die is found.  */\n+   valid type for this die is found.  If VAR_NAME is non-null, and if\n+   the DIE in question is a variable declaration (definitions are\n+   excluded), then *VAR_NAME is set to the variable's name.  */\n \n struct type *dwarf2_fetch_die_type_sect_off\n   (sect_offset sect_off, dwarf2_per_cu_data *per_cu,\n-   dwarf2_per_objfile *per_objfile);\n+   dwarf2_per_objfile *per_objfile,\n+   const char **var_name = nullptr);\n \n /* When non-zero, dump line number entries as they are read in.  */\n extern unsigned int dwarf_line_debug;"
+    },
+    {
+      "sha": "0cc00e74a207ee6db56a6752e7f41fc2cc139d0c",
+      "filename": "gdb/gdbtypes.h",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/386de171cbffa86e804057030f3d64a404279f43/gdb/gdbtypes.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/386de171cbffa86e804057030f3d64a404279f43/gdb/gdbtypes.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbtypes.h?ref=386de171cbffa86e804057030f3d64a404279f43",
+      "patch": "@@ -388,6 +388,7 @@ enum dynamic_prop_kind\n   PROP_LOCLIST,    /* Location list.  */\n   PROP_VARIANT_PARTS, /* Variant parts.  */\n   PROP_TYPE,\t   /* Type.  */\n+  PROP_VARIABLE_NAME, /* Variable name.  */\n };\n \n union dynamic_prop_data\n@@ -414,6 +415,11 @@ union dynamic_prop_data\n      rewrite the property's kind and set this field.  */\n \n   struct type *original_type;\n+\n+  /* Name of a variable to look up; the variable holds the value of\n+     this property.  */\n+\n+  const char *variable_name;\n };\n \n /* * Used to store a dynamic property.  */\n@@ -496,6 +502,22 @@ struct dynamic_prop\n     m_data.original_type = original_type;\n   }\n \n+  /* Return the name of the variable that holds this property's value.\n+     Only valid for PROP_VARIABLE_NAME.  */\n+  const char *variable_name () const\n+  {\n+    gdb_assert (m_kind == PROP_VARIABLE_NAME);\n+    return m_data.variable_name;\n+  }\n+\n+  /* Set the name of the variable that holds this property's value,\n+     and set this property to be of kind PROP_VARIABLE_NAME.  */\n+  void set_variable_name (const char *name)\n+  {\n+    m_kind = PROP_VARIABLE_NAME;\n+    m_data.variable_name = name;\n+  }\n+\n   /* Determine which field of the union dynamic_prop.data is used.  */\n   enum dynamic_prop_kind m_kind;\n "
+    },
+    {
+      "sha": "4c07d3ae0babe2e0adee2971a123cfef0711f4ab",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/386de171cbffa86e804057030f3d64a404279f43/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/386de171cbffa86e804057030f3d64a404279f43/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=386de171cbffa86e804057030f3d64a404279f43",
+      "patch": "@@ -1,3 +1,12 @@\n+2021-06-04  Tom Tromey  <tromey@adacore.com>\n+\n+\t* gdb.ada/array_of_symbolic_length.exp: New file.\n+\t* gdb.ada/array_of_symbolic_length/foo.adb: New file.\n+\t* gdb.ada/array_of_symbolic_length/gl.adb: New file.\n+\t* gdb.ada/array_of_symbolic_length/gl.ads: New file.\n+\t* gdb.ada/array_of_symbolic_length/pck.adb: New file.\n+\t* gdb.ada/array_of_symbolic_length/pck.ads: New file.\n+\n 2021-06-03  Magne Hov  <mhov@undo.io>\n \n \tPR python/27841"
+    },
+    {
+      "sha": "aa53445512db069876f81468e9adfa376cc52e1d",
+      "filename": "gdb/testsuite/gdb.ada/array_of_symbolic_length.exp",
+      "status": "added",
+      "additions": 59,
+      "deletions": 0,
+      "changes": 59,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/386de171cbffa86e804057030f3d64a404279f43/gdb/testsuite/gdb.ada/array_of_symbolic_length.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/386de171cbffa86e804057030f3d64a404279f43/gdb/testsuite/gdb.ada/array_of_symbolic_length.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.ada/array_of_symbolic_length.exp?ref=386de171cbffa86e804057030f3d64a404279f43",
+      "patch": "@@ -0,0 +1,59 @@\n+# Copyright 2021 Free Software Foundation, Inc.\n+#\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+load_lib \"ada.exp\"\n+\n+if { [skip_ada_tests] } { return -1 }\n+\n+standard_ada_testfile foo\n+\n+foreach_with_prefix scenario {all minimal} {\n+    set flags [list debug additional_flags=-fgnat-encodings=$scenario]\n+\n+    if {[gdb_compile_ada \"${srcfile}\" \"${binfile}\" executable $flags] != \"\"} {\n+\treturn -1\n+    }\n+\n+    clean_restart ${testfile}\n+\n+    set bp_location [gdb_get_line_number \"BREAK\" ${testdir}/foo.adb]\n+    runto \"foo.adb:$bp_location\"\n+\n+    set test \"print my_value\"\n+    gdb_test_multiple \"$test\" $test {\n+\t-re \" = \\\\(23, 23, 23, 23, 23, 23, 23\\\\).*$gdb_prompt $\" {\n+\t    pass $test\n+\t}\n+\t-re \" = \\\\(\\\\).*$gdb_prompt $\" {\n+\t    if {$scenario == \"minimal\"} {\n+\t\tsetup_kfail \"minimal encodings\" *-*-*\n+\t    }\n+\t    fail $test\n+\t}\n+    }\n+\n+    set test \"print rt\"\n+    gdb_test_multiple \"$test\" $test {\n+\t-re \" = \\\\(a => \\\\(\\\\(a1 => \\\\(4, 4\\\\), a2 => \\\\(8, 8\\\\)\\\\), \\\\(a1 => \\\\(4, 4\\\\), a2 => \\\\(8, 8\\\\)\\\\)\\\\)\\\\).*$gdb_prompt $\" {\n+\t    pass $test\n+\t}\n+\t-re \" = \\\\(a => \\\\(\\\\)\\\\).*$gdb_prompt $\" {\n+\t    if {$scenario == \"minimal\"} {\n+\t\tsetup_kfail \"minimal encodings\" *-*-*\n+\t    }\n+\t    fail $test\n+\t}\n+    }\n+}"
+    },
+    {
+      "sha": "dc982ba42b96fd1bd3ea5729036d34931b001c43",
+      "filename": "gdb/testsuite/gdb.ada/array_of_symbolic_length/foo.adb",
+      "status": "added",
+      "additions": 25,
+      "deletions": 0,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/386de171cbffa86e804057030f3d64a404279f43/gdb/testsuite/gdb.ada/array_of_symbolic_length/foo.adb",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/386de171cbffa86e804057030f3d64a404279f43/gdb/testsuite/gdb.ada/array_of_symbolic_length/foo.adb",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.ada/array_of_symbolic_length/foo.adb?ref=386de171cbffa86e804057030f3d64a404279f43",
+      "patch": "@@ -0,0 +1,25 @@\n+--  Copyright 2021 Free Software Foundation, Inc.\n+--\n+--  This program is free software; you can redistribute it and/or modify\n+--  it under the terms of the GNU General Public License as published by\n+--  the Free Software Foundation; either version 3 of the License, or\n+--  (at your option) any later version.\n+--\n+--  This program is distributed in the hope that it will be useful,\n+--  but WITHOUT ANY WARRANTY; without even the implied warranty of\n+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+--  GNU General Public License for more details.\n+--\n+--  You should have received a copy of the GNU General Public License\n+--  along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+with Pck; use Pck;\n+with System;\n+\n+procedure Foo is\n+   My_Value : My_Array := (others => 23);\n+   Rt : Outer := (A => (others => (A1 => (others => 4),\n+                                   A2 => (others => 8))));\n+begin\n+   Do_Nothing (My_Value'Address); --  BREAK\n+end Foo;"
+    },
+    {
+      "sha": "aef7391d319186ad4a73e0df98b56c706fff2fb8",
+      "filename": "gdb/testsuite/gdb.ada/array_of_symbolic_length/gl.adb",
+      "status": "added",
+      "additions": 23,
+      "deletions": 0,
+      "changes": 23,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/386de171cbffa86e804057030f3d64a404279f43/gdb/testsuite/gdb.ada/array_of_symbolic_length/gl.adb",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/386de171cbffa86e804057030f3d64a404279f43/gdb/testsuite/gdb.ada/array_of_symbolic_length/gl.adb",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.ada/array_of_symbolic_length/gl.adb?ref=386de171cbffa86e804057030f3d64a404279f43",
+      "patch": "@@ -0,0 +1,23 @@\n+--  Copyright 2021 Free Software Foundation, Inc.\n+--\n+--  This program is free software; you can redistribute it and/or modify\n+--  it under the terms of the GNU General Public License as published by\n+--  the Free Software Foundation; either version 3 of the License, or\n+--  (at your option) any later version.\n+--\n+--  This program is distributed in the hope that it will be useful,\n+--  but WITHOUT ANY WARRANTY; without even the implied warranty of\n+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+--  GNU General Public License for more details.\n+--\n+--  You should have received a copy of the GNU General Public License\n+--  along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+package body Gl is\n+\n+   function Length return Natural is\n+   begin\n+      return 7;\n+   end Length;\n+\n+end Gl;"
+    },
+    {
+      "sha": "1257c2e201706f4cc4cc9b3b1d580fe4eb6f26f4",
+      "filename": "gdb/testsuite/gdb.ada/array_of_symbolic_length/gl.ads",
+      "status": "added",
+      "additions": 18,
+      "deletions": 0,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/386de171cbffa86e804057030f3d64a404279f43/gdb/testsuite/gdb.ada/array_of_symbolic_length/gl.ads",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/386de171cbffa86e804057030f3d64a404279f43/gdb/testsuite/gdb.ada/array_of_symbolic_length/gl.ads",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.ada/array_of_symbolic_length/gl.ads?ref=386de171cbffa86e804057030f3d64a404279f43",
+      "patch": "@@ -0,0 +1,18 @@\n+--  Copyright 2021 Free Software Foundation, Inc.\n+--\n+--  This program is free software; you can redistribute it and/or modify\n+--  it under the terms of the GNU General Public License as published by\n+--  the Free Software Foundation; either version 3 of the License, or\n+--  (at your option) any later version.\n+--\n+--  This program is distributed in the hope that it will be useful,\n+--  but WITHOUT ANY WARRANTY; without even the implied warranty of\n+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+--  GNU General Public License for more details.\n+--\n+--  You should have received a copy of the GNU General Public License\n+--  along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+package Gl is\n+   function Length return Natural;\n+end Gl;"
+    },
+    {
+      "sha": "001bac46a1829600ba1bd2a4ca40dff4d38d1ea5",
+      "filename": "gdb/testsuite/gdb.ada/array_of_symbolic_length/pck.adb",
+      "status": "added",
+      "additions": 23,
+      "deletions": 0,
+      "changes": 23,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/386de171cbffa86e804057030f3d64a404279f43/gdb/testsuite/gdb.ada/array_of_symbolic_length/pck.adb",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/386de171cbffa86e804057030f3d64a404279f43/gdb/testsuite/gdb.ada/array_of_symbolic_length/pck.adb",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.ada/array_of_symbolic_length/pck.adb?ref=386de171cbffa86e804057030f3d64a404279f43",
+      "patch": "@@ -0,0 +1,23 @@\n+--  Copyright 2021 Free Software Foundation, Inc.\n+--\n+--  This program is free software; you can redistribute it and/or modify\n+--  it under the terms of the GNU General Public License as published by\n+--  the Free Software Foundation; either version 3 of the License, or\n+--  (at your option) any later version.\n+--\n+--  This program is distributed in the hope that it will be useful,\n+--  but WITHOUT ANY WARRANTY; without even the implied warranty of\n+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+--  GNU General Public License for more details.\n+--\n+--  You should have received a copy of the GNU General Public License\n+--  along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+package body Pck is\n+\n+   procedure Do_Nothing (A : System.Address) is\n+   begin\n+      null;\n+   end Do_Nothing;\n+\n+end Pck;"
+    },
+    {
+      "sha": "938d2a237380ee733a4927704c453a1439dbbbd0",
+      "filename": "gdb/testsuite/gdb.ada/array_of_symbolic_length/pck.ads",
+      "status": "added",
+      "additions": 43,
+      "deletions": 0,
+      "changes": 43,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/386de171cbffa86e804057030f3d64a404279f43/gdb/testsuite/gdb.ada/array_of_symbolic_length/pck.ads",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/386de171cbffa86e804057030f3d64a404279f43/gdb/testsuite/gdb.ada/array_of_symbolic_length/pck.ads",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.ada/array_of_symbolic_length/pck.ads?ref=386de171cbffa86e804057030f3d64a404279f43",
+      "patch": "@@ -0,0 +1,43 @@\n+--  Copyright 2021 Free Software Foundation, Inc.\n+--\n+--  This program is free software; you can redistribute it and/or modify\n+--  it under the terms of the GNU General Public License as published by\n+--  the Free Software Foundation; either version 3 of the License, or\n+--  (at your option) any later version.\n+--\n+--  This program is distributed in the hope that it will be useful,\n+--  but WITHOUT ANY WARRANTY; without even the implied warranty of\n+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+--  GNU General Public License for more details.\n+--\n+--  You should have received a copy of the GNU General Public License\n+--  along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+with System;\n+with Gl; use Gl;\n+\n+package Pck is\n+\n+   subtype My_Length is Natural range 1 .. Length;\n+   type My_Array is array (My_Length) of Natural;\n+\n+   N_A : Integer := 2;\n+   N_T : Integer := 2;\n+\n+   type Arr is array (Positive range <>) of Integer;\n+\n+   type Inner is\n+      record\n+         A1 : Arr (1 .. N_A);\n+         A2 : Arr (1 .. N_A);\n+      end record;\n+   type Inner_Arr is array (Positive range <>) of Inner;\n+\n+   type Outer is\n+      record\n+         A : Inner_Arr (1 .. N_T);\n+      end record;\n+\n+   procedure Do_Nothing (A : System.Address);\n+\n+end Pck;"
+    }
+  ]
+}

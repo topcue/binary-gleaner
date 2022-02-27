@@ -1,0 +1,158 @@
+{
+  "sha": "9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OWQzNDIxYWZiYjlmM2NmYzhlNjczNjZiYTc1ZWExMmVkOGY3MzJhMw==",
+  "commit": {
+    "author": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2019-04-29T15:55:56Z"
+    },
+    "committer": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2019-05-08T16:15:51Z"
+    },
+    "message": "Change ptype/o to print bit offset\n\nConsider this short C example:\n\n    struct inner\n    {\n      unsigned x;\n      unsigned y : 3;\n      unsigned z : 3;\n    };\n\n    struct outer\n    {\n      unsigned char o : 3;\n      struct inner i __attribute__ ((packed));\n    };\n\nWhen I use \"ptype/o\" on this, I get:\n\n    (gdb) ptype/o struct outer\n    /* offset    |  size */  type = struct outer {\n    /*    0: 5   |     1 */    unsigned char o : 3;\n    /* XXX  5-bit hole  */\n    /*    1      |     8 */    struct inner {\n    /*    1      |     4 */        unsigned int x;\n    /*    5:29   |     4 */        unsigned int y : 3;\n    /*    5:26   |     4 */        unsigned int z : 3;\n    /* XXX  2-bit padding  */\n    /* XXX  3-byte padding */\n\n\t\t\t\t   /* total size (bytes):    8 */\n\t\t\t       } i;\n\n\t\t\t       /* total size (bytes):    9 */\n\t\t\t     }\n\nIn the location of \"o\" (\"0: 5\"), the \"5\" means \"there are 5 bits left\nrelative to the size of the underlying type.\n\nI find this very difficult to follow.  On irc, Sergio said that this\nchoice came because it is what pahole does.  However, I think it's not\nvery useful, and maybe is just an artifact of the way that\nDW_AT_bit_offset was defined in DWARF 3.\n\nThis patch changes ptype/o to print the offset of a bitfield in a more\nnatural way, that is, using the bit number according to the platform's\nbit numbering.\n\nWith this patch, the output is now:\n\n    (gdb) ptype/o struct outer\n    /* offset    |  size */  type = struct outer {\n    /*    0: 0   |     1 */    unsigned char o : 3;\n    /* XXX  5-bit hole  */\n    /*    1      |     8 */    struct inner {\n    /*    1      |     4 */        unsigned int x;\n    /*    5: 0   |     4 */        unsigned int y : 3;\n    /*    5: 3   |     4 */        unsigned int z : 3;\n    /* XXX  2-bit padding  */\n    /* XXX  3-byte padding */\n\n\t\t\t\t   /* total size (bytes):    8 */\n\t\t\t       } i;\n\n\t\t\t       /* total size (bytes):    9 */\n\t\t\t     }\n\nThis is better, IMO, because now the \"offset\" of a bitfield is\nconsistent with the offset of an ordinary member, referring to its\noffset from the start of the structure.\n\ngdb/ChangeLog\n2019-05-08  Tom Tromey  <tromey@adacore.com>\n\n\t* typeprint.c (print_offset_data::update): Print the bit offset,\n\tnot the number of bits remaining.\n\ngdb/doc/ChangeLog\n2019-05-08  Tom Tromey  <tromey@adacore.com>\n\n\t* gdb.texinfo (Symbols): Document change to ptype/o.\n\ngdb/testsuite/ChangeLog\n2019-05-08  Tom Tromey  <tromey@adacore.com>\n\n\t* gdb.base/ptype-offsets.exp: Update tests.",
+    "tree": {
+      "sha": "66eb6aba210e07f4f76b979c07687598d477dcea",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/66eb6aba210e07f4f76b979c07687598d477dcea"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3/comments",
+  "author": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "844333e24966817fe4d622494a75c8ae0acdb91f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/844333e24966817fe4d622494a75c8ae0acdb91f",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/844333e24966817fe4d622494a75c8ae0acdb91f"
+    }
+  ],
+  "stats": {
+    "total": 82,
+    "additions": 40,
+    "deletions": 42
+  },
+  "files": [
+    {
+      "sha": "93641a06de8a4e1df7a8ac4a9a0cede91cc2b479",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-05-08  Tom Tromey  <tromey@adacore.com>\n+\n+\t* typeprint.c (print_offset_data::update): Print the bit offset,\n+\tnot the number of bits remaining.\n+\n 2019-05-08  Tom Tromey  <tromey@adacore.com>\n \n \t* typeprint.c (print_offset_data::maybe_print_hole): Add extra"
+    },
+    {
+      "sha": "14c44620a67febe9992fc5db3183bd3aefe9ebcc",
+      "filename": "gdb/doc/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3/gdb/doc/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3/gdb/doc/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/ChangeLog?ref=9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3",
+      "patch": "@@ -1,3 +1,7 @@\n+2019-05-08  Tom Tromey  <tromey@adacore.com>\n+\n+\t* gdb.texinfo (Symbols): Document change to ptype/o.\n+\n 2019-05-03  Eli Zaretskii  <eliz@gnu.org>\n \n \t* gdb.texinfo (Separate Debug Files): Document how the"
+    },
+    {
+      "sha": "b7f3b271d1fab934beb72516ddca8be5f5ad1371",
+      "filename": "gdb/doc/gdb.texinfo",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 4,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3/gdb/doc/gdb.texinfo",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3/gdb/doc/gdb.texinfo",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/gdb.texinfo?ref=9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3",
+      "patch": "@@ -17861,15 +17861,16 @@ bitfields:\n /* XXX  3-bit hole   */\n /* XXX  4-byte hole  */\n /*    8      |     8 */    int64_t a5;\n-/*   16:27   |     4 */    int a6 : 5;\n-/*   16:56   |     8 */    int64_t a7 : 3;\n+/*   16: 0   |     4 */    int a6 : 5;\n+/*   16: 5   |     8 */    int64_t a7 : 3;\n+\"/* XXX  7-byte padding  */\n \n                            /* total size (bytes):   24 */\n                          @}\n @end smallexample\n \n-Note how the offset information is now extended to also include how\n-many bits are left to be used in each bitfield.\n+Note how the offset information is now extended to also include the\n+first bit of the bitfield.\n @end table\n \n @kindex ptype"
+    },
+    {
+      "sha": "6b51db80161ab8a4523e266ab2ffb52ecf9412b0",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3",
+      "patch": "@@ -1,3 +1,7 @@\n+2019-05-08  Tom Tromey  <tromey@adacore.com>\n+\n+\t* gdb.base/ptype-offsets.exp: Update tests.\n+\n 2019-05-08  Tom Tromey  <tromey@adacore.com>\n \n \t* gdb.base/ptype-offsets.exp: Use string_to_regexp.  Fix test"
+    },
+    {
+      "sha": "6116520bbd7bec1e9222c6d90b396469e67ac2b1",
+      "filename": "gdb/testsuite/gdb.base/ptype-offsets.exp",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 15,
+      "changes": 30,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3/gdb/testsuite/gdb.base/ptype-offsets.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3/gdb/testsuite/gdb.base/ptype-offsets.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/ptype-offsets.exp?ref=9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3",
+      "patch": "@@ -38,7 +38,7 @@ gdb_test \"ptype /o struct abc\" \\\n \"/* offset    |  size */  type = struct abc \\{\" \\\n \"                         public:\" \\\n \"/*    8      |     8 */    void *field1;\" \\\n-\"/*   16:31   |     4 */    unsigned int field2 : 1;\" \\\n+\"/*   16: 0   |     4 */    unsigned int field2 : 1;\" \\\n \"/* XXX  7-bit hole   */\" \\\n \"/* XXX  3-byte hole  */\" \\\n \"/*   20      |     4 */    int field3;\" \\\n@@ -63,7 +63,7 @@ gdb_test \"ptype /oTM struct abc\" \\\n \"/* offset    |  size */  type = struct abc \\{\" \\\n \"                         public:\" \\\n \"/*    8      |     8 */    void *field1;\" \\\n-\"/*   16:31   |     4 */    unsigned int field2 : 1;\" \\\n+\"/*   16: 0   |     4 */    unsigned int field2 : 1;\" \\\n \"/* XXX  7-bit hole   */\" \\\n \"/* XXX  3-byte hole  */\" \\\n \"/*   20      |     4 */    int field3;\" \\\n@@ -93,7 +93,7 @@ gdb_test \"ptype /TMo struct abc\" \\\n \"/* offset    |  size */  type = struct abc \\{\" \\\n \"                         public:\" \\\n \"/*    8      |     8 */    void *field1;\" \\\n-\"/*   16:31   |     4 */    unsigned int field2 : 1;\" \\\n+\"/*   16: 0   |     4 */    unsigned int field2 : 1;\" \\\n \"/* XXX  7-bit hole   */\" \\\n \"/* XXX  3-byte hole  */\" \\\n \"/*   20      |     4 */    int field3;\" \\\n@@ -264,15 +264,15 @@ gdb_test \"ptype /o struct poi\" \\\n gdb_test \"ptype /o struct tyu\" \\\n     [string_to_regexp [multi_line \\\n \"/* offset    |  size */  type = struct tyu \\{\" \\\n-\"/*    0:31   |     4 */    int a1 : 1;\" \\\n-\"/*    0:28   |     4 */    int a2 : 3;\" \\\n-\"/*    0: 5   |     4 */    int a3 : 23;\" \\\n+\"/*    0: 0   |     4 */    int a1 : 1;\" \\\n+\"/*    0: 1   |     4 */    int a2 : 3;\" \\\n+\"/*    0: 4   |     4 */    int a3 : 23;\" \\\n \"/*    3: 3   |     1 */    signed char a4 : 2;\" \\\n \"/* XXX  3-bit hole   */\" \\\n \"/* XXX  4-byte hole  */\" \\\n \"/*    8      |     8 */    int64_t a5;\" \\\n-\"/*   16:27   |     4 */    int a6 : 5;\" \\\n-\"/*   16:56   |     8 */    int64_t a7 : 3;\" \\\n+\"/*   16: 0   |     4 */    int a6 : 5;\" \\\n+\"/*   16: 5   |     8 */    int64_t a7 : 3;\" \\\n \"/* XXX  7-byte padding  */\" \\\n \"\" \\\n \"                           /* total size (bytes):   24 */\" \\\n@@ -293,8 +293,8 @@ gdb_test \"ptype /o struct asd\" \\\n \"\" \\\n \"                                   /* total size (bytes):    8 */\" \\\n \"                               \\} f3;\" \\\n-\"/*   24:27   |     4 */        int f4 : 5;\" \\\n-\"/*   24:26   |     4 */        unsigned int f5 : 1;\" \\\n+\"/*   24: 0   |     4 */        int f4 : 5;\" \\\n+\"/*   24: 5   |     4 */        unsigned int f5 : 1;\" \\\n \"/* XXX  2-bit hole   */\" \\\n \"/* XXX  1-byte hole  */\" \\\n \"/*   26      |     2 */        short f6;\" \\\n@@ -304,11 +304,11 @@ gdb_test \"ptype /o struct asd\" \\\n \"                           \\} f7;\" \\\n \"/*   32      |     8 */    unsigned long f8;\" \\\n \"/*   40      |     8 */    signed char *f9;\" \\\n-\"/*   48:28   |     4 */    int f10 : 4;\" \\\n-\"/*   48:27   |     4 */    unsigned int f11 : 1;\" \\\n-\"/*   48:26   |     4 */    unsigned int f12 : 1;\" \\\n-\"/*   48:25   |     4 */    unsigned int f13 : 1;\" \\\n-\"/*   48:24   |     4 */    unsigned int f14 : 1;\" \\\n+\"/*   48: 0   |     4 */    int f10 : 4;\" \\\n+\"/*   48: 4   |     4 */    unsigned int f11 : 1;\" \\\n+\"/*   48: 5   |     4 */    unsigned int f12 : 1;\" \\\n+\"/*   48: 6   |     4 */    unsigned int f13 : 1;\" \\\n+\"/*   48: 7   |     4 */    unsigned int f14 : 1;\" \\\n \"/* XXX  7-byte hole  */\" \\\n \"/*   56      |     8 */    void *f15;\" \\\n \"/*   64      |     8 */    void *f16;\" \\"
+    },
+    {
+      "sha": "7a44dbdb31386e9313f73cb4d0dfc35f0e5de3bb",
+      "filename": "gdb/typeprint.c",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 23,
+      "changes": 30,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3/gdb/typeprint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3/gdb/typeprint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/typeprint.c?ref=9d3421afbb9f3cfc8e67366ba75ea12ed8f732a3",
+      "patch": "@@ -131,32 +131,16 @@ print_offset_data::update (struct type *type, unsigned int field_idx,\n \n   maybe_print_hole (stream, bitpos, \"hole\");\n \n-  if (TYPE_FIELD_PACKED (type, field_idx))\n+  if (TYPE_FIELD_PACKED (type, field_idx)\n+      || offset_bitpos % TARGET_CHAR_BIT != 0)\n     {\n-      /* We're dealing with a bitfield.  Print how many bits are left\n-\t to be used.  */\n-      unsigned int bitsize = TYPE_FIELD_BITSIZE (type, field_idx);\n-      /* The bitpos relative to the beginning of our container\n-\t field.  */\n-      unsigned int relative_bitpos;\n-\n-      /* The following was copied from\n-\t value.c:value_primitive_field.  */\n-      if ((bitpos % fieldsize_bit) + bitsize <= fieldsize_bit)\n-\trelative_bitpos = bitpos % fieldsize_bit;\n-      else\n-\trelative_bitpos = bitpos % TARGET_CHAR_BIT;\n+      /* We're dealing with a bitfield.  Print the bit offset.  */\n+      fieldsize_bit = TYPE_FIELD_BITSIZE (type, field_idx);\n \n-      /* This is the exact offset (in bits) of this bitfield.  */\n-      unsigned int bit_offset\n-\t= (bitpos - relative_bitpos) + offset_bitpos;\n+      unsigned real_bitpos = bitpos + offset_bitpos;\n \n-      /* The position of the field, relative to the beginning of the\n-\t struct, and how many bits are left to be used in this\n-\t container.  */\n-      fprintf_filtered (stream, \"/* %4u:%2u\", bit_offset / TARGET_CHAR_BIT,\n-\t\t\tfieldsize_bit - (relative_bitpos + bitsize));\n-      fieldsize_bit = bitsize;\n+      fprintf_filtered (stream, \"/* %4u:%2u\", real_bitpos / TARGET_CHAR_BIT,\n+\t\t\treal_bitpos % TARGET_CHAR_BIT);\n     }\n   else\n     {"
+    }
+  ]
+}

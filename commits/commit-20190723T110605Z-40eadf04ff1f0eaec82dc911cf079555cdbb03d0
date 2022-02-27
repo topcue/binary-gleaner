@@ -1,0 +1,127 @@
+{
+  "sha": "40eadf04ff1f0eaec82dc911cf079555cdbb03d0",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NDBlYWRmMDRmZjFmMGVhZWM4MmRjOTExY2YwNzk1NTVjZGJiMDNkMA==",
+  "commit": {
+    "author": {
+      "name": "Srinath Parvathaneni",
+      "email": "srinath.parvathaneni@arm.com",
+      "date": "2019-07-23T10:21:11Z"
+    },
+    "committer": {
+      "name": "Alan Hayward",
+      "email": "alan.hayward@arm.com",
+      "date": "2019-07-23T11:06:05Z"
+    },
+    "message": "[gdb][Arm]: gdb cannot step across CMSE secure entry function code.\n\nGDB is not able to execute \"step\" command on function calls of Armv8-M cmse secure entry functions.\nEverytime GNU linker come across definition of any cmse secure entry function in object file(s),\nit creates two new instructions secure gateway (sg) and original branch destination (b.w),\nplace those two instructions in \".gnu.sgstubs\" section of executable.\nAny function calls to these cmse secure entry functions is re-directed through secure gateway (sg)\npresent in \".gnu.sgstubs\" section.\n\nExample:\nFollowing is a function call to cmse secure entry function \"foo\":\n        ...\n        bl xxxx <foo>   --->(a)\n        ...\n        <foo>\n        xxxx: push    {r7, lr}\n\nGNU linker on finding out \"foo\" is a cmse secure entry function, created sg and b.w instructions and\nplace them in \".gnu.sgstubs\" section (marked by c).\n\nThe \"bl\" instruction (marked by a) which is a call to cmse secure entry function is modified by GNU linker\n(as marked by b) and call flow is re-directly through secure gateway (sg) in \".gnu.sgstubs\" section.\n       ...\n       bl yyyy <foo>  ---> (b)\n       ...\n       section .gnu.sgstubs: ---> (c)\n       yyyy <foo>\n       yyyy: sg   // secure gateway\n\t     b.w xxxx <__acle_se_foo>  // original_branch_dest\n       ...\n       0000xxxx <__acle_se_foo>\n       xxxx: push    {r7, lr} ---> (d)\n\nOn invoking GDB, when the control is at \"b\" and we pass \"step\" command, the pc returns \"yyyy\"\n(sg address) which is a trampoline and which does not exist in source code. So GDB jumps\nto next line without jumping to \"__acle_se_foo\" (marked by d).\n\nThe above details are published on the Arm website [1], please refer to section 5.4 (Entry functions)\nand section 3.4.4 (C level development flow of secure code).\n\n[1] https://developer.arm.com/architectures/cpu-architecture/m-profile/docs/ecm0359818/latest/armv8-m-security-extensions-requirements-on-development-tools-engineering-specification\n\nThis patch fixes above problem by returning target pc \"xxxx\" to GDB on executing \"step\"\ncommand at \"b\", so that the control jumps to \"__acle_se_foo\" (marked by d).\n\ngdb/ChangeLog:\n\n\t* arm-tdep.c (arm_skip_cmse_entry): New function.\n\t(arm_is_sgstubs_section): New function.\n\t(arm_skip_stub): Add call to arm_skip_cmse_entry function.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.arch/arm-cmse-sgstubs.c: New test.\n\t* gdb.arch/arm-cmse-sgstubs.exp: New file.",
+    "tree": {
+      "sha": "518b1243e229bed00187f5c6ce3f1d3764932bf8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/518b1243e229bed00187f5c6ce3f1d3764932bf8"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/40eadf04ff1f0eaec82dc911cf079555cdbb03d0",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/40eadf04ff1f0eaec82dc911cf079555cdbb03d0",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/40eadf04ff1f0eaec82dc911cf079555cdbb03d0",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/40eadf04ff1f0eaec82dc911cf079555cdbb03d0/comments",
+  "author": null,
+  "committer": {
+    "login": "a74nh",
+    "id": 4146708,
+    "node_id": "MDQ6VXNlcjQxNDY3MDg=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4146708?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/a74nh",
+    "html_url": "https://github.com/a74nh",
+    "followers_url": "https://api.github.com/users/a74nh/followers",
+    "following_url": "https://api.github.com/users/a74nh/following{/other_user}",
+    "gists_url": "https://api.github.com/users/a74nh/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/a74nh/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/a74nh/subscriptions",
+    "organizations_url": "https://api.github.com/users/a74nh/orgs",
+    "repos_url": "https://api.github.com/users/a74nh/repos",
+    "events_url": "https://api.github.com/users/a74nh/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/a74nh/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "8c728a9d93e2342c57039fcdd6e4a502875b9e09",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8c728a9d93e2342c57039fcdd6e4a502875b9e09",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/8c728a9d93e2342c57039fcdd6e4a502875b9e09"
+    }
+  ],
+  "stats": {
+    "total": 167,
+    "additions": 167,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "9441e7eed28b79f0bf7c8829a8d917442c127fc3",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/40eadf04ff1f0eaec82dc911cf079555cdbb03d0/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/40eadf04ff1f0eaec82dc911cf079555cdbb03d0/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=40eadf04ff1f0eaec82dc911cf079555cdbb03d0",
+      "patch": "@@ -1,3 +1,9 @@\n+2019-07-23  Srinath Parvathaneni  <srinath.parvathaneni@arm.com>\n+\n+\t* arm-tdep.c (arm_skip_cmse_entry): New function.\n+\t(arm_is_sgstubs_section): New function.\n+\t(arm_skip_stub): Add call to arm_skip_cmse_entry function.\n+\n 2019-07-22  Tom Tromey  <tom@tromey.com>\n \n \t* tui/tui-win.c (tui_win_info::make_invisible_and_set_new_height):"
+    },
+    {
+      "sha": "5dcc44312201e95fdce0110f0f2ed7333e2a6368",
+      "filename": "gdb/arm-tdep.c",
+      "status": "modified",
+      "additions": 56,
+      "deletions": 0,
+      "changes": 56,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/40eadf04ff1f0eaec82dc911cf079555cdbb03d0/gdb/arm-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/40eadf04ff1f0eaec82dc911cf079555cdbb03d0/gdb/arm-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/arm-tdep.c?ref=40eadf04ff1f0eaec82dc911cf079555cdbb03d0",
+      "patch": "@@ -8187,6 +8187,56 @@ arm_get_longjmp_target (struct frame_info *frame, CORE_ADDR *pc)\n   *pc = extract_unsigned_integer (buf, ARM_INT_REGISTER_SIZE, byte_order);\n   return 1;\n }\n+/* A call to cmse secure entry function \"foo\" at \"a\" is modified by\n+     GNU ld as \"b\".\n+     a) bl xxxx <foo>\n+\n+     <foo>\n+     xxxx:\n+\n+     b) bl yyyy <__acle_se_foo>\n+\n+     section .gnu.sgstubs:\n+     <foo>\n+     yyyy: sg   // secure gateway\n+\t   b.w xxxx <__acle_se_foo>  // original_branch_dest\n+\n+     <__acle_se_foo>\n+     xxxx:\n+\n+  When the control at \"b\", the pc contains \"yyyy\" (sg address) which is a\n+  trampoline and does not exist in source code.  This function returns the\n+  target pc \"xxxx\".  For more details please refer to section 5.4\n+  (Entry functions) and section 3.4.4 (C level development flow of secure code)\n+  of \"armv8-m-security-extensions-requirements-on-development-tools-engineering-specification\"\n+  document on www.developer.arm.com.  */\n+\n+static CORE_ADDR\n+arm_skip_cmse_entry (CORE_ADDR pc, const char *name, struct objfile *objfile)\n+{\n+  int target_len = strlen (name) + strlen (\"__acle_se_\") + 1;\n+  char *target_name = (char *) alloca (target_len);\n+  xsnprintf (target_name, target_len, \"%s%s\", \"__acle_se_\", name);\n+\n+  struct bound_minimal_symbol minsym\n+   = lookup_minimal_symbol (target_name, NULL, objfile);\n+\n+  if (minsym.minsym != nullptr)\n+    return BMSYMBOL_VALUE_ADDRESS (minsym);\n+\n+  return 0;\n+}\n+\n+/* Return true when SEC points to \".gnu.sgstubs\" section.  */\n+\n+static bool\n+arm_is_sgstubs_section (struct obj_section *sec)\n+{\n+  return (sec != nullptr\n+\t  && sec->the_bfd_section != nullptr\n+\t  && sec->the_bfd_section->name != nullptr\n+\t  && streq (sec->the_bfd_section->name, \".gnu.sgstubs\"));\n+}\n \n /* Recognize GCC and GNU ld's trampolines.  If we are in a trampoline,\n    return the target PC.  Otherwise return 0.  */\n@@ -8266,6 +8316,12 @@ arm_skip_stub (struct frame_info *frame, CORE_ADDR pc)\n \treturn 0;\n     }\n \n+  struct obj_section *section = find_pc_section (pc);\n+\n+  /* Check whether SECTION points to the \".gnu.sgstubs\" section.  */\n+  if (arm_is_sgstubs_section (section))\n+    return arm_skip_cmse_entry (pc, name, section->objfile);\n+\n   return 0;\t\t\t/* not a stub */\n }\n "
+    },
+    {
+      "sha": "00096c0eed6ef2973c5bedae6f618ccb291e8fd1",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/40eadf04ff1f0eaec82dc911cf079555cdbb03d0/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/40eadf04ff1f0eaec82dc911cf079555cdbb03d0/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=40eadf04ff1f0eaec82dc911cf079555cdbb03d0",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-07-23  Srinath Parvathaneni  <srinath.parvathaneni@arm.com>\n+\n+\t* gdb.arch/arm-cmse-sgstubs.c: New test.\n+\t* gdb.arch/arm-cmse-sgstubs.exp: New file.\n+\n 2019-07-23  Tom de Vries  <tdevries@suse.de>\n \n \tPR testsuite/24711"
+    },
+    {
+      "sha": "3ac8e6e45767e29534db0fb0c9053f00dad19d90",
+      "filename": "gdb/testsuite/gdb.arch/arm-cmse-sgstubs.c",
+      "status": "added",
+      "additions": 50,
+      "deletions": 0,
+      "changes": 50,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/40eadf04ff1f0eaec82dc911cf079555cdbb03d0/gdb/testsuite/gdb.arch/arm-cmse-sgstubs.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/40eadf04ff1f0eaec82dc911cf079555cdbb03d0/gdb/testsuite/gdb.arch/arm-cmse-sgstubs.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/arm-cmse-sgstubs.c?ref=40eadf04ff1f0eaec82dc911cf079555cdbb03d0",
+      "patch": "@@ -0,0 +1,50 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2019 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#include <stdio.h>\n+extern void func ();\n+void\n+__acle_se_func ()\n+{\n+  printf (\"__acle_se_func\\n\");\n+}\n+\n+/* The following code is written using asm so that the instructions in function\n+ * \"func\" will be placed in .gnu.sgstubs section of the executable.  */\n+asm (\"\\t.section .gnu.sgstubs,\\\"ax\\\",%progbits\\n\"\n+     \"\\t.global func\\n\"\n+     \"\\t.type func, %function\\n\"\n+     \"func:\\n\"\n+     \"\\tnop @sg\\n\"\n+     \"\\tb __acle_se_func @b.w\");\n+\n+void\n+fun1 ()\n+{\n+  printf (\"In fun1\\n\");\n+}\n+\n+int\n+main (void)\n+{\n+  func ();\n+  fun1 ();\n+  __acle_se_func ();\n+  func ();\n+\n+  return 0;\n+}"
+    },
+    {
+      "sha": "42a265ca67697f67fa5e530d7fd64a7f6fd69929",
+      "filename": "gdb/testsuite/gdb.arch/arm-cmse-sgstubs.exp",
+      "status": "added",
+      "additions": 50,
+      "deletions": 0,
+      "changes": 50,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/40eadf04ff1f0eaec82dc911cf079555cdbb03d0/gdb/testsuite/gdb.arch/arm-cmse-sgstubs.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/40eadf04ff1f0eaec82dc911cf079555cdbb03d0/gdb/testsuite/gdb.arch/arm-cmse-sgstubs.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/arm-cmse-sgstubs.exp?ref=40eadf04ff1f0eaec82dc911cf079555cdbb03d0",
+      "patch": "@@ -0,0 +1,50 @@\n+# Copyright 2019 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# This file is part of the gdb testsuite.\n+\n+if { ![istarget \"arm*-*-*\"]} {\n+     return 1\n+}\n+\n+standard_testfile\n+if { [prepare_for_testing \"failed to prepare\" $testfile $srcfile ]} {\n+    return -1\n+}\n+\n+if ![runto_main] {\n+   untested \"could not run to main\"\n+   return -1\n+}\n+\n+gdb_test \"si\" \"0x.*\" \"branch to func from main\"\n+\n+gdb_test \"ni\" \"0x.*\" \"next instruction in func\"\n+\n+gdb_test \"ni\" \"__acle_se_func ().*\" \"branch to __acle_se_func from func\"\n+\n+gdb_test \"next\" \"23\t  .*\" \"next in __acle_se_func function\"\n+\n+gdb_test \"next\" \"__acle_se_func.*\" \"next in __acle_se_func function outputs __acle_se_func\"\n+\n+gdb_test \"next\" \"main ().*\" \"next in __acle_se_func function controls returns to main\"\n+\n+gdb_test \"next\" \"In fun1.*\" \"next in main outputs In fun1\"\n+\n+gdb_test \"next\" \"__acle_se_func.*\" \"next in main outputs __acle_se_func\"\n+\n+gdb_test \"step\" \"__acle_se_func ().*\" \"control jumps to __acle_se_func from main via func\"\n+\n+gdb_test \"next\" \"__acle_se_func.*\" \"next in __acle_se_func function via func\""
+    }
+  ]
+}

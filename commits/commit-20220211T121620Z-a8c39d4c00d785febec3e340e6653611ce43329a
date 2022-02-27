@@ -1,0 +1,60 @@
+{
+  "sha": "a8c39d4c00d785febec3e340e6653611ce43329a",
+  "node_id": "C_kwDOANOeidoAKGE4YzM5ZDRjMDBkNzg1ZmViZWMzZTM0MGU2NjUzNjExY2U0MzMyOWE",
+  "commit": {
+    "author": {
+      "name": "Tiezhu Yang",
+      "email": "yangtiezhu@loongson.cn",
+      "date": "2022-02-11T12:16:20Z"
+    },
+    "committer": {
+      "name": "Tiezhu Yang",
+      "email": "yangtiezhu@loongson.cn",
+      "date": "2022-02-11T12:16:20Z"
+    },
+    "message": "gdb: LoongArch: Add initial native Linux support\n\nThis commit adds initial native Linux support for LoongArch.\n\nSigned-off-by: Zhensong Liu <liuzhensong@loongson.cn>\nSigned-off-by: Qing zhang <zhangqing@loongson.cn>\nSigned-off-by: Youling Tang <tangyouling@loongson.cn>\nSigned-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>",
+    "tree": {
+      "sha": "325ae90a66e06675744c8335934e9b09af7d2d1c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/325ae90a66e06675744c8335934e9b09af7d2d1c"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/a8c39d4c00d785febec3e340e6653611ce43329a",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a8c39d4c00d785febec3e340e6653611ce43329a",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/a8c39d4c00d785febec3e340e6653611ce43329a",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a8c39d4c00d785febec3e340e6653611ce43329a/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "24e58d7c9b85782f8f57bdf4c53acbd19e1fb260",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/24e58d7c9b85782f8f57bdf4c53acbd19e1fb260",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/24e58d7c9b85782f8f57bdf4c53acbd19e1fb260"
+    }
+  ],
+  "stats": {
+    "total": 184,
+    "additions": 184,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "edc3d697d7bf063da7b40f45a655fc2e7801f3eb",
+      "filename": "gdb/loongarch-linux-nat.c",
+      "status": "added",
+      "additions": 184,
+      "deletions": 0,
+      "changes": 184,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a8c39d4c00d785febec3e340e6653611ce43329a/gdb/loongarch-linux-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a8c39d4c00d785febec3e340e6653611ce43329a/gdb/loongarch-linux-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/loongarch-linux-nat.c?ref=a8c39d4c00d785febec3e340e6653611ce43329a",
+      "patch": "@@ -0,0 +1,184 @@\n+/* Native-dependent code for GNU/Linux on LoongArch processors.\n+\n+   Copyright (C) 2022 Free Software Foundation, Inc.\n+   Contributed by Loongson Ltd.\n+\n+   This file is part of GDB.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#include \"defs.h\"\n+#include \"elf/common.h\"\n+#include \"gregset.h\"\n+#include \"inferior.h\"\n+#include \"linux-nat-trad.h\"\n+#include \"loongarch-tdep.h\"\n+#include \"nat/gdb_ptrace.h\"\n+#include \"target-descriptions.h\"\n+\n+#include <asm/ptrace.h>\n+\n+/* LoongArch Linux native additions to the default Linux support.  */\n+\n+class loongarch_linux_nat_target final : public linux_nat_trad_target\n+{\n+public:\n+  /* Add our register access methods.  */\n+  void fetch_registers (struct regcache *, int) override;\n+  void store_registers (struct regcache *, int) override;\n+\n+protected:\n+  /* Override linux_nat_trad_target methods.  */\n+  CORE_ADDR register_u_offset (struct gdbarch *gdbarch, int regno,\n+                               int store_p) override;\n+};\n+\n+/* Fill GDB's register array with the general-purpose, pc and badv\n+   register values from the current thread.  */\n+\n+static void\n+fetch_gregs_from_thread (struct regcache *regcache, int regno, pid_t tid)\n+{\n+  loongarch_gdbarch_tdep *tdep\n+    = (loongarch_gdbarch_tdep *) gdbarch_tdep (regcache->arch ());\n+  auto regs = tdep->regs;\n+  elf_gregset_t regset;\n+\n+  if (regno == -1 || (regs.r <= regno && regno < regs.r + 32)\n+      || regs.pc == regno || regs.badv == regno)\n+  {\n+    struct iovec iov;\n+\n+    iov.iov_base = &regset;\n+    iov.iov_len = sizeof (regset);\n+\n+    if (ptrace (PTRACE_GETREGSET, tid, NT_PRSTATUS, (long) &iov) < 0)\n+      perror_with_name (_(\"Couldn't get NT_PRSTATUS registers\"));\n+    else\n+      loongarch_gregset.supply_regset (nullptr, regcache, regno,\n+\t\t\t\t       &regset, sizeof (regset));\n+  }\n+}\n+\n+/* Store to the current thread the valid general-purpose, pc and badv\n+   register values in the GDB's register array.  */\n+\n+static void\n+store_gregs_to_thread (struct regcache *regcache, int regno, pid_t tid)\n+{\n+  loongarch_gdbarch_tdep *tdep\n+    = (loongarch_gdbarch_tdep *) gdbarch_tdep (regcache->arch ());\n+  auto regs = tdep->regs;\n+  elf_gregset_t regset;\n+\n+  if (regno == -1 || (regs.r <= regno && regno < regs.r + 32)\n+      || regs.pc == regno || regs.badv == regno)\n+  {\n+    struct iovec iov;\n+\n+    iov.iov_base = &regset;\n+    iov.iov_len = sizeof (regset);\n+\n+    if (ptrace (PTRACE_GETREGSET, tid, NT_PRSTATUS, (long) &iov) < 0)\n+      perror_with_name (_(\"Couldn't get NT_PRSTATUS registers\"));\n+    else\n+      {\n+\tloongarch_gregset.collect_regset (nullptr, regcache, regno,\n+\t\t\t\t\t  &regset, sizeof (regset));\n+\tif (ptrace (PTRACE_SETREGSET, tid, NT_PRSTATUS, (long) &iov) < 0)\n+\t  perror_with_name (_(\"Couldn't set NT_PRSTATUS registers\"));\n+      }\n+  }\n+}\n+\n+/* Implement the \"fetch_registers\" target_ops method.  */\n+\n+void\n+loongarch_linux_nat_target::fetch_registers (struct regcache *regcache,\n+\t\t\t\t\t     int regno)\n+{\n+  pid_t tid = get_ptrace_pid (regcache->ptid ());\n+\n+  fetch_gregs_from_thread(regcache, regno, tid);\n+}\n+\n+/* Implement the \"store_registers\" target_ops method.  */\n+\n+void\n+loongarch_linux_nat_target::store_registers (struct regcache *regcache,\n+\t\t\t\t\t     int regno)\n+{\n+  pid_t tid = get_ptrace_pid (regcache->ptid ());\n+\n+  store_gregs_to_thread (regcache, regno, tid);\n+}\n+\n+/* Return the address in the core dump or inferior of register REGNO.  */\n+\n+CORE_ADDR\n+loongarch_linux_nat_target::register_u_offset (struct gdbarch *gdbarch,\n+\t\t\t\t\t       int regno, int store_p)\n+{\n+  loongarch_gdbarch_tdep *tdep\n+    = (loongarch_gdbarch_tdep *) gdbarch_tdep (gdbarch);\n+  auto regs = tdep->regs;\n+\n+  /* According to <asm/ptrace.h> */\n+  if (0 <= regs.r && regs.r <= regno && regno < regs.r + GPR_NUM)\n+    return GPR_BASE + regno - regs.r;\n+  else if (regs.pc == regno)\n+    return PC;\n+  else\n+    return -1;\n+}\n+\n+static loongarch_linux_nat_target the_loongarch_linux_nat_target;\n+\n+/* Wrapper functions.  These are only used by libthread_db.  */\n+\n+void\n+supply_gregset (struct regcache *regcache, const gdb_gregset_t *gregset)\n+{\n+  loongarch_gregset.supply_regset (nullptr, regcache, -1, gregset,\n+\t\t\t\t   sizeof (gdb_gregset_t));\n+}\n+\n+void\n+fill_gregset (const struct regcache *regcache, gdb_gregset_t *gregset,\n+\t      int regno)\n+{\n+  loongarch_gregset.collect_regset (nullptr, regcache, regno, gregset,\n+\t\t\t\t    sizeof (gdb_gregset_t));\n+}\n+\n+void\n+supply_fpregset (struct regcache *regcache, const gdb_fpregset_t *fpregset)\n+{\n+}\n+\n+void\n+fill_fpregset (const struct regcache *regcache, gdb_fpregset_t *fpregset,\n+\t       int regno)\n+{\n+}\n+\n+/* Initialize LoongArch Linux native support.  */\n+\n+void _initialize_loongarch_linux_nat ();\n+void\n+_initialize_loongarch_linux_nat ()\n+{\n+  linux_target = &the_loongarch_linux_nat_target;\n+  add_inf_child_target (&the_loongarch_linux_nat_target);\n+}"
+    }
+  ]
+}

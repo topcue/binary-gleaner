@@ -1,0 +1,110 @@
+{
+  "sha": "3cae444768c36314cc4acf80714461cbe0aff4e4",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6M2NhZTQ0NDc2OGMzNjMxNGNjNGFjZjgwNzE0NDYxY2JlMGFmZjRlNA==",
+  "commit": {
+    "author": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2020-09-08T16:13:51Z"
+    },
+    "committer": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2020-09-08T16:13:51Z"
+    },
+    "message": "Avoid hash table corruption in gdb_bfd.c\n\ngdb caches BFDs that come from ordinary files.  This code turns out to\nhave a bug where the hash table can become corrupted, causing gdb to\ncrash.\n\nWhen gdb_bfd_open opens the BFD, it uses fstat to get the BFD's mtime.\nThis is used when inserting the entry into gdb_bfd_cache.  Then, the\nfunction creates the gdb_bfd_data object as a side effect of calling\nnew_reference.  This object is used when finding objects in the hash\ntable, and its constructor uses bfd_get_mtime.  So, if the file\nchanges between the time the BFD is put into the cache and the time\nthat this object is created, the hash table will be incorrect.  When\nthe BFD is later deleted, its entry in the hash table will not be\nfound, and at this point the hash table will point to invalid memory.\n\nThis patch fixes the bug by ensuring that the mtime, and other\nrelevant attributes comgin from stat, that are used for insertion are\nalso used when creating the gdb_bfd_data.\n\nThis obsoletes an earlier patch that had split this into two parts\n(surrounding a patch to use bfd_stat more consistently).  This version\nmerges the two patches, in the interest of correctness.\n\ngdb/ChangeLog\n2020-09-08  Tom Tromey  <tromey@adacore.com>\n\n\tPR win32/25302:\n\t* gdb_bfd.c (gdb_bfd_data): Add \"st\" parameter.\n\t(gdb_bfd_init_data): New function.\n\t(gdb_bfd_open, gdb_bfd_ref): Use gdb_bfd_init_data.",
+    "tree": {
+      "sha": "f6d3e3bc9d0d949e55585421b8206eb2afe7ddfa",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f6d3e3bc9d0d949e55585421b8206eb2afe7ddfa"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/3cae444768c36314cc4acf80714461cbe0aff4e4",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3cae444768c36314cc4acf80714461cbe0aff4e4",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/3cae444768c36314cc4acf80714461cbe0aff4e4",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3cae444768c36314cc4acf80714461cbe0aff4e4/comments",
+  "author": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "7d81bc937cd3949fc3bed8194646d3a4563f94b2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7d81bc937cd3949fc3bed8194646d3a4563f94b2",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/7d81bc937cd3949fc3bed8194646d3a4563f94b2"
+    }
+  ],
+  "stats": {
+    "total": 103,
+    "additions": 61,
+    "deletions": 42
+  },
+  "files": [
+    {
+      "sha": "01daa99869ba26cfb2a9d24e62d6739f03f703b4",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3cae444768c36314cc4acf80714461cbe0aff4e4/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3cae444768c36314cc4acf80714461cbe0aff4e4/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=3cae444768c36314cc4acf80714461cbe0aff4e4",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-09-08  Tom Tromey  <tromey@adacore.com>\n+\n+\tPR win32/25302:\n+\t* gdb_bfd.c (gdb_bfd_data): Add \"st\" parameter.\n+\t(gdb_bfd_init_data): New function.\n+\t(gdb_bfd_open, gdb_bfd_ref): Use gdb_bfd_init_data.\n+\n 2020-09-07  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n \n \t* infrun.c (fetch_inferior_event): Use"
+    },
+    {
+      "sha": "15bf9f79c2038933b84175e1ead398f178687779",
+      "filename": "gdb/gdb_bfd.c",
+      "status": "modified",
+      "additions": 54,
+      "deletions": 42,
+      "changes": 96,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3cae444768c36314cc4acf80714461cbe0aff4e4/gdb/gdb_bfd.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3cae444768c36314cc4acf80714461cbe0aff4e4/gdb/gdb_bfd.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdb_bfd.c?ref=3cae444768c36314cc4acf80714461cbe0aff4e4",
+      "patch": "@@ -59,26 +59,16 @@ static htab_t all_bfds;\n \n struct gdb_bfd_data\n {\n-  gdb_bfd_data (bfd *abfd)\n-    : mtime (bfd_get_mtime (abfd)),\n-      size (bfd_get_size (abfd)),\n+  /* Note that if ST is nullptr, then we simply fill in zeroes.  */\n+  gdb_bfd_data (bfd *abfd, struct stat *st)\n+    : mtime (st == nullptr ? 0 : st->st_mtime),\n+      size (st == nullptr ? 0 : st->st_size),\n+      inode (st == nullptr ? 0 : st->st_ino),\n+      device_id (st == nullptr ? 0 : st->st_dev),\n       relocation_computed (0),\n       needs_relocations (0),\n       crc_computed (0)\n   {\n-    struct stat buf;\n-\n-    if (bfd_stat (abfd, &buf) == 0)\n-      {\n-\tinode = buf.st_ino;\n-\tdevice_id = buf.st_dev;\n-      }\n-    else\n-      {\n-\t/* The stat failed.  */\n-\tinode = 0;\n-\tdevice_id = 0;\n-      }\n   }\n \n   ~gdb_bfd_data ()\n@@ -382,6 +372,30 @@ gdb_bfd_iovec_fileio_fstat (struct bfd *abfd, void *stream,\n   return result;\n }\n \n+/* A helper function to initialize the data that gdb attaches to each\n+   BFD.  */\n+\n+static void\n+gdb_bfd_init_data (struct bfd *abfd, struct stat *st)\n+{\n+  struct gdb_bfd_data *gdata;\n+  void **slot;\n+\n+  gdb_assert (bfd_usrdata (abfd) == nullptr);\n+\n+  /* Ask BFD to decompress sections in bfd_get_full_section_contents.  */\n+  abfd->flags |= BFD_DECOMPRESS;\n+\n+  gdata = new gdb_bfd_data (abfd, st);\n+  bfd_set_usrdata (abfd, gdata);\n+  bfd_alloc_data (abfd);\n+\n+  /* This is the first we've seen it, so add it to the hash table.  */\n+  slot = htab_find_slot (all_bfds, abfd, INSERT);\n+  gdb_assert (slot && !*slot);\n+  *slot = abfd;\n+}\n+\n /* See gdb_bfd.h.  */\n \n gdb_bfd_ref_ptr\n@@ -426,23 +440,23 @@ gdb_bfd_open (const char *name, const char *target, int fd,\n \t}\n     }\n \n-  search.filename = name;\n   if (fstat (fd, &st) < 0)\n     {\n-      /* Weird situation here.  */\n-      search.mtime = 0;\n-      search.size = 0;\n-      search.inode = 0;\n-      search.device_id = 0;\n-    }\n-  else\n-    {\n-      search.mtime = st.st_mtime;\n-      search.size = st.st_size;\n-      search.inode = st.st_ino;\n-      search.device_id = st.st_dev;\n+      /* Weird situation here -- don't cache if we can't stat.  */\n+      if (debug_bfd_cache)\n+\tfprintf_unfiltered (gdb_stdlog,\n+\t\t\t    \"Could not stat bfd %s for %s - not caching\\n\",\n+\t\t\t    host_address_to_string (abfd),\n+\t\t\t    bfd_get_filename (abfd));\n+      return gdb_bfd_ref_ptr::new_reference (abfd);\n     }\n \n+  search.filename = name;\n+  search.mtime = st.st_mtime;\n+  search.size = st.st_size;\n+  search.inode = st.st_ino;\n+  search.device_id = st.st_dev;\n+\n   /* Note that this must compute the same result as hash_bfd.  */\n   hash = htab_hash_string (name);\n   /* Note that we cannot use htab_find_slot_with_hash here, because\n@@ -477,7 +491,14 @@ gdb_bfd_open (const char *name, const char *target, int fd,\n       *slot = abfd;\n     }\n \n-  return gdb_bfd_ref_ptr::new_reference (abfd);\n+  /* It's important to pass the already-computed stat info here,\n+     rather than, say, calling gdb_bfd_ref_ptr::new_reference.  BFD by\n+     default will \"stat\" the file each time bfd_get_mtime is called --\n+     and since we already entered it into the hash table using this\n+     mtime, if the file changed at the wrong moment, the race would\n+     lead to a hash table corruption.  */\n+  gdb_bfd_init_data (abfd, &st);\n+  return gdb_bfd_ref_ptr (abfd);\n }\n \n /* A helper function that releases any section data attached to the\n@@ -530,7 +551,6 @@ void\n gdb_bfd_ref (struct bfd *abfd)\n {\n   struct gdb_bfd_data *gdata;\n-  void **slot;\n \n   if (abfd == NULL)\n     return;\n@@ -549,17 +569,9 @@ gdb_bfd_ref (struct bfd *abfd)\n       return;\n     }\n \n-  /* Ask BFD to decompress sections in bfd_get_full_section_contents.  */\n-  abfd->flags |= BFD_DECOMPRESS;\n-\n-  gdata = new gdb_bfd_data (abfd);\n-  bfd_set_usrdata (abfd, gdata);\n-  bfd_alloc_data (abfd);\n-\n-  /* This is the first we've seen it, so add it to the hash table.  */\n-  slot = htab_find_slot (all_bfds, abfd, INSERT);\n-  gdb_assert (slot && !*slot);\n-  *slot = abfd;\n+  /* Caching only happens via gdb_bfd_open, so passing nullptr here is\n+     fine.  */\n+  gdb_bfd_init_data (abfd, nullptr);\n }\n \n /* See gdb_bfd.h.  */"
+    }
+  ]
+}

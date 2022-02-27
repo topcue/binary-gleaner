@@ -1,0 +1,218 @@
+{
+  "sha": "27cdfa03b5be812683c18e64009a5da042190ae6",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MjdjZGZhMDNiNWJlODEyNjgzYzE4ZTY0MDA5YTVkYTA0MjE5MGFlNg==",
+  "commit": {
+    "author": {
+      "name": "Alan Modra",
+      "email": "amodra@gmail.com",
+      "date": "2019-05-04T06:33:47Z"
+    },
+    "committer": {
+      "name": "Alan Modra",
+      "email": "amodra@gmail.com",
+      "date": "2019-05-04T07:53:18Z"
+    },
+    "message": "m32c padding with nops\n\nm32c_md_end attempted to pad out a code section with nops, but this\nwas just plain wrong in many ways:\n- The padding didn't happen at all if the last section emitted wasn't\n  a code section.\n- The padding went to the wrong place if subsections were used, and\n  the last subseg used wasn't the highest numbered subseg.\n- Padding wasn't added to all code sections.\n- If the last section was empty, it was padded to 4 bytes.\n- The padding didn't go to a 4-byte alignment boundary, instead it\n  effectively made the last instruction 4 bytes in size.\n- The padding didn't take into account that code sections may have\n  contents other than machine instructions.\n\nSo, rip it out and handle nop padding properly, also fixing .align\n.balign/.p2align in the middle of code.\n\ngas/\n\t* config/tc-m32c.c (insn_size): Delete static var.\n\t(md_begin): Don't set it.\n\t(m32c_md_end): Delete.\n\t(md_assemble): Add insn_size auto var.\n\t* config/tc-m32c.h (md_end): Don't define.\n\t(m32c_md_end): Delete.\n\t(NOP_OPCODE, HANDLE_ALIGN, MAX_MEM_FOR_RS_ALIGN_CODE): Define.\n\t* testsuite/gas/all/align.d: Remove m32c from notarget list.\n\t* testsuite/gas/all/incbin.d: Likewise.\n\t* testsuite/gas/elf/dwarf2-11.d: Likewise.\n\t* testsuite/gas/macros/semi.d: Likewise.\n\t* testsuite/gas/all/gas.exp (do_comment): Similarly.\nld/\n\t* testsuite/ld-scripts/fill.d: Don't xfail m32c\n\t* testsuite/ld-scripts/fill16.d: Likewise.",
+    "tree": {
+      "sha": "f2c6abd546ec1b2c9a7f215914f569cd29a8c0c2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f2c6abd546ec1b2c9a7f215914f569cd29a8c0c2"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/27cdfa03b5be812683c18e64009a5da042190ae6",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/27cdfa03b5be812683c18e64009a5da042190ae6",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/27cdfa03b5be812683c18e64009a5da042190ae6",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/27cdfa03b5be812683c18e64009a5da042190ae6/comments",
+  "author": {
+    "login": "amodra",
+    "id": 6006325,
+    "node_id": "MDQ6VXNlcjYwMDYzMjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6006325?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/amodra",
+    "html_url": "https://github.com/amodra",
+    "followers_url": "https://api.github.com/users/amodra/followers",
+    "following_url": "https://api.github.com/users/amodra/following{/other_user}",
+    "gists_url": "https://api.github.com/users/amodra/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/amodra/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/amodra/subscriptions",
+    "organizations_url": "https://api.github.com/users/amodra/orgs",
+    "repos_url": "https://api.github.com/users/amodra/repos",
+    "events_url": "https://api.github.com/users/amodra/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/amodra/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "amodra",
+    "id": 6006325,
+    "node_id": "MDQ6VXNlcjYwMDYzMjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6006325?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/amodra",
+    "html_url": "https://github.com/amodra",
+    "followers_url": "https://api.github.com/users/amodra/followers",
+    "following_url": "https://api.github.com/users/amodra/following{/other_user}",
+    "gists_url": "https://api.github.com/users/amodra/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/amodra/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/amodra/subscriptions",
+    "organizations_url": "https://api.github.com/users/amodra/orgs",
+    "repos_url": "https://api.github.com/users/amodra/repos",
+    "events_url": "https://api.github.com/users/amodra/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/amodra/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "a288c270991de1578ad28ac312120f4167347234",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a288c270991de1578ad28ac312120f4167347234",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/a288c270991de1578ad28ac312120f4167347234"
+    }
+  ],
+  "stats": {
+    "total": 65,
+    "additions": 30,
+    "deletions": 35
+  },
+  "files": [
+    {
+      "sha": "8ba1cde35e805d1502125469b65280dd742b020e",
+      "filename": "gas/ChangeLog",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/27cdfa03b5be812683c18e64009a5da042190ae6/gas/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/27cdfa03b5be812683c18e64009a5da042190ae6/gas/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/ChangeLog?ref=27cdfa03b5be812683c18e64009a5da042190ae6",
+      "patch": "@@ -1,3 +1,18 @@\n+2019-05-04  Alan Modra  <amodra@gmail.com>\n+\n+\t* config/tc-m32c.c (insn_size): Delete static var.\n+\t(md_begin): Don't set it.\n+\t(m32c_md_end): Delete.\n+\t(md_assemble): Add insn_size auto var.\n+\t* config/tc-m32c.h (md_end): Don't define.\n+\t(m32c_md_end): Delete.\n+\t(NOP_OPCODE, HANDLE_ALIGN, MAX_MEM_FOR_RS_ALIGN_CODE): Define.\n+\t* testsuite/gas/all/align.d: Remove m32c from notarget list.\n+\t* testsuite/gas/all/incbin.d: Likewise.\n+\t* testsuite/gas/elf/dwarf2-11.d: Likewise.\n+\t* testsuite/gas/macros/semi.d: Likewise.\n+\t* testsuite/gas/all/gas.exp (do_comment): Similarly.\n+\n 2019-05-02  H.J. Lu  <hongjiu.lu@intel.com>\n \n \tPR gas/24485"
+    },
+    {
+      "sha": "07501df27a556494f0d5c10ed581e4ea3d487cbc",
+      "filename": "gas/config/tc-m32c.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 17,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/27cdfa03b5be812683c18e64009a5da042190ae6/gas/config/tc-m32c.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/27cdfa03b5be812683c18e64009a5da042190ae6/gas/config/tc-m32c.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-m32c.c?ref=27cdfa03b5be812683c18e64009a5da042190ae6",
+      "patch": "@@ -86,7 +86,6 @@ size_t md_longopts_size = sizeof (md_longopts);\n \n static unsigned long m32c_mach = bfd_mach_m16c;\n static int cpu_mach = (1 << MACH_M16C);\n-static int insn_size;\n static int m32c_relax = 0;\n \n /* Flags to set in the elf header */\n@@ -185,22 +184,6 @@ md_begin (void)\n \n   /* Set the machine type */\n   bfd_default_set_arch_mach (stdoutput, bfd_arch_m32c, m32c_mach);\n-\n-  insn_size = 0;\n-}\n-\n-void\n-m32c_md_end (void)\n-{\n-  int i, n_nops;\n-\n-  if (bfd_get_section_flags (stdoutput, now_seg) & SEC_CODE)\n-    {\n-      /* Pad with nops for objdump.  */\n-      n_nops = (32 - ((insn_size) % 32)) / 8;\n-      for (i = 1; i <= n_nops; i++)\n-\tmd_assemble ((char *) \"nop\");\n-    }\n }\n \n void\n@@ -335,6 +318,7 @@ md_assemble (char * str)\n   char *    errmsg;\n   finished_insnS results;\n   int rl_type;\n+  int insn_size;\n \n   if (m32c_mach == bfd_mach_m32c && m32c_indirect_operand (str))\n     return;"
+    },
+    {
+      "sha": "b55dd612190e90441ff1fb2be8cc6e24e3c4dcd7",
+      "filename": "gas/config/tc-m32c.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 3,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/27cdfa03b5be812683c18e64009a5da042190ae6/gas/config/tc-m32c.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/27cdfa03b5be812683c18e64009a5da042190ae6/gas/config/tc-m32c.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-m32c.h?ref=27cdfa03b5be812683c18e64009a5da042190ae6",
+      "patch": "@@ -29,9 +29,6 @@\n \n #define TARGET_BYTES_BIG_ENDIAN 0\n \n-#define md_end  m32c_md_end\n-extern void m32c_md_end (void);\n-\n #define md_start_line_hook m32c_start_line_hook\n extern void m32c_start_line_hook (void);\n \n@@ -85,3 +82,7 @@ extern long md_pcrel_from_section (struct fix *, segT);\n extern int m32c_is_colon_insn (char *, char *);\n \n #define H_TICK_HEX 1\n+\n+#define NOP_OPCODE (bfd_get_mach (stdoutput) == bfd_mach_m32c ? 0xde : 0x04)\n+#define HANDLE_ALIGN(fragP)\n+#define MAX_MEM_FOR_RS_ALIGN_CODE 1"
+    },
+    {
+      "sha": "c701f25bfcc998373f7b6b9cb579a7d12b72fc3e",
+      "filename": "gas/testsuite/gas/all/align.d",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/27cdfa03b5be812683c18e64009a5da042190ae6/gas/testsuite/gas/all/align.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/27cdfa03b5be812683c18e64009a5da042190ae6/gas/testsuite/gas/all/align.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/all/align.d?ref=27cdfa03b5be812683c18e64009a5da042190ae6",
+      "patch": "@@ -4,7 +4,7 @@\n # even if the user requested that they filled with zeros.\n # RISC-V handles alignment via relaxation and therefor won't have object files\n # with the expected alignment.\n-#notarget: m32c-* riscv*-* rx-*\n+#notarget: riscv*-* rx-*\n \n # Test the alignment pseudo-op.\n "
+    },
+    {
+      "sha": "abae8b15a6ee3fc0d694e51c4a3ff36bcf8a179e",
+      "filename": "gas/testsuite/gas/all/gas.exp",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 7,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/27cdfa03b5be812683c18e64009a5da042190ae6/gas/testsuite/gas/all/gas.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/27cdfa03b5be812683c18e64009a5da042190ae6/gas/testsuite/gas/all/gas.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/all/gas.exp?ref=27cdfa03b5be812683c18e64009a5da042190ae6",
+      "patch": "@@ -194,13 +194,7 @@ proc do_comment {} {\n     if [all_ones $x1 $x2 $x3] then { pass $testname } else { fail $testname }\n }\n \n-# m32c pads out sections, even empty ones.\n-case $target_triplet in {\n-    { m32c-*-* } { }\n-    default {\n-\tdo_comment\n-    }\n-}\n+do_comment\n \n # This test checks the output of the -ag switch. It must detect at least\n # the name of the input file, output file, and options passed."
+    },
+    {
+      "sha": "62f6ae78103574c40faec9f399d02790e7d71904",
+      "filename": "gas/testsuite/gas/all/incbin.d",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/27cdfa03b5be812683c18e64009a5da042190ae6/gas/testsuite/gas/all/incbin.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/27cdfa03b5be812683c18e64009a5da042190ae6/gas/testsuite/gas/all/incbin.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/all/incbin.d?ref=27cdfa03b5be812683c18e64009a5da042190ae6",
+      "patch": "@@ -1,7 +1,6 @@\n #as: -I$srcdir/$subdir\n #objdump: -s -j .text\n #name: incbin\n-#notarget: m32c-*\n \n # Test the incbin pseudo-op\n "
+    },
+    {
+      "sha": "cdaa4f10b6b99bdd434a8b23e0b1846fd7b5498d",
+      "filename": "gas/testsuite/gas/elf/dwarf2-11.d",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/27cdfa03b5be812683c18e64009a5da042190ae6/gas/testsuite/gas/elf/dwarf2-11.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/27cdfa03b5be812683c18e64009a5da042190ae6/gas/testsuite/gas/elf/dwarf2-11.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/elf/dwarf2-11.d?ref=27cdfa03b5be812683c18e64009a5da042190ae6",
+      "patch": "@@ -4,7 +4,7 @@\n # The am33 avr cr16 crx ft32 mn10 msp430 nds32 pru rl78 and xtensa targets do not evaluate the subtraction of symbols at assembly time.\n # The riscv targets do not support the subtraction of symbols.\n # The tile targets require 8-byte instructions, but the test only simulates 4-byte instructions.\n-#notarget: am3*-* avr-* cr16-* crx-* ft32*-* m32c-* mn10*-* msp430-* nds32*-* pru-* riscv*-* rl78-* tile*-* xtensa-*\n+#notarget: am3*-* avr-* cr16-* crx-* ft32*-* mn10*-* msp430-* nds32*-* pru-* riscv*-* rl78-* tile*-* xtensa-*\n \n Contents of the \\.debug_line section:\n "
+    },
+    {
+      "sha": "102d732ad6eb65ee5dcb75cef460c4ddce6e9394",
+      "filename": "gas/testsuite/gas/macros/semi.d",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/27cdfa03b5be812683c18e64009a5da042190ae6/gas/testsuite/gas/macros/semi.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/27cdfa03b5be812683c18e64009a5da042190ae6/gas/testsuite/gas/macros/semi.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/macros/semi.d?ref=27cdfa03b5be812683c18e64009a5da042190ae6",
+      "patch": "@@ -1,6 +1,5 @@\n #objdump: -s -j .text\n #name: semi\n-#notarget: m32c-*\n \n .*: .*\n "
+    },
+    {
+      "sha": "d62a2c4d5f018c8d1387d70120cebd46cf9f33b2",
+      "filename": "ld/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/27cdfa03b5be812683c18e64009a5da042190ae6/ld/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/27cdfa03b5be812683c18e64009a5da042190ae6/ld/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/ChangeLog?ref=27cdfa03b5be812683c18e64009a5da042190ae6",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-05-04  Alan Modra  <amodra@gmail.com>\n+\n+\t* testsuite/ld-scripts/fill.d: Don't xfail m32c\n+\t* testsuite/ld-scripts/fill16.d: Likewise.\n+\n 2019-05-04  Alan Modra  <amodra@gmail.com>\n \n \tPR 24511"
+    },
+    {
+      "sha": "54715c58d8e43f903dc9f29c029ffda03679a080",
+      "filename": "ld/testsuite/ld-scripts/fill.d",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/27cdfa03b5be812683c18e64009a5da042190ae6/ld/testsuite/ld-scripts/fill.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/27cdfa03b5be812683c18e64009a5da042190ae6/ld/testsuite/ld-scripts/fill.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-scripts/fill.d?ref=27cdfa03b5be812683c18e64009a5da042190ae6",
+      "patch": "@@ -6,7 +6,7 @@\n #skip: ia64-*-* mips*-*-freebsd* mips*-*-gnu* mips*-*-irix* mips*-*-kfreebsd*\n #skip: mips*-*-linux* mips*-*-netbsd* mips*-*-openbsd* mips*-*-sysv4*\n #skip: tilegx*-*-* tilepro-*-* x86_64-*-cygwin x86_64-*-mingw* x86_64-*-pe*\n-#xfail: alpha*-*-*ecoff m32c-*-* sh-*-pe sparc*-*-coff\n+#xfail: alpha*-*-*ecoff sh-*-pe sparc*-*-coff\n #xfail: tic30-*-coff tic4x-*-* tic54x-*-* z8k-*-*\n #\n # See also fill16.d.  We use `skip' for configurations unsupported\n@@ -16,7 +16,6 @@\n #\n # alpha-linuxecoff pads out code to 16 bytes.\n # ia64 aligns code to minimum 16 bytes.\n-# m32c pads out code sections with 4 NOPs (see `m32c_md_end').\n # mips aligns to minimum 16 bytes (except for bare-metal ELF and VxWorks).\n # sh-pe pads out code sections to 16 bytes\n # sparc-coff aligns to 8 bytes"
+    },
+    {
+      "sha": "2f3e0fd26db5ed43ee5f6d6b2617fe39d5c2a63a",
+      "filename": "ld/testsuite/ld-scripts/fill16.d",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/27cdfa03b5be812683c18e64009a5da042190ae6/ld/testsuite/ld-scripts/fill16.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/27cdfa03b5be812683c18e64009a5da042190ae6/ld/testsuite/ld-scripts/fill16.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-scripts/fill16.d?ref=27cdfa03b5be812683c18e64009a5da042190ae6",
+      "patch": "@@ -4,7 +4,7 @@\n #ld: -T fill.t\n #objdump: -s -j .text\n #skip: arm-*-coff i[3-7]86-*-coff\n-#xfail: alpha*-*-*ecoff m32c-*-* sh-*-pe sparc*-*-coff\n+#xfail: alpha*-*-*ecoff sh-*-pe sparc*-*-coff\n #xfail: tic30-*-coff tic4x-*-* tic54x-*-* z8k-*-*\n #\n # See also fill.d.  We use `skip' for configurations unsupported\n@@ -15,7 +15,6 @@\n # alpha-linuxecoff pads out code to 16 bytes.\n # arm-coff always aligns code to 4 bytes.\n # i386-coff always aligns code to 4 bytes.\n-# m32c pads out code sections with 4 NOPs (see `m32c_md_end').\n # sh-pe pads out code sections to 16 bytes\n # sparc-coff aligns to 8 bytes\n # tic30-coff aligns to 2 bytes"
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "sha": "947f7597788b646683cb37b2833ed1844ce7d1bc",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OTQ3Zjc1OTc3ODhiNjQ2NjgzY2IzN2IyODMzZWQxODQ0Y2U3ZDFiYw==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-07-06T07:54:43Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-07-06T07:54:43Z"
+    },
+    "message": "[gdb/tui,c++17] Fix NULL string_view in tui_partial_win_by_name\n\nWhen building gdb with CFLAGS=-std=gnu17 and CXXFLAGS=-std=gnu++17 and running\ntest-case gdb.tui/new-layout.exp, we run into:\n...\nUNRESOLVED: gdb.tui/new-layout.exp: left window box after shrink (ll corner)\nFAIL: gdb.tui/new-layout.exp: right window box after shrink (ll corner)\n...\n\nIn a minimal form, we run into an abort when issuing a winheight command:\n...\n$ gdb -tui -ex \"winheight src - 5\"\n   <tui stuff>\nAborted (core dumped)\n$\n...\nwith this backtrace at the abort:\n...\n\\#0  0x0000000000438db0 in std::char_traits<char>::length (__s=0x0)\n     at /usr/include/c++/9/bits/char_traits.h:335\n\\#1  0x000000000043b72e in std::basic_string_view<char, \\\n   std::char_traits<char> >::basic_string_view (this=0x7fffffffd4f0, \\\n   __str=0x0) at /usr/include/c++/9/string_view:124\n\\#2  0x000000000094971b in tui_partial_win_by_name (name=\"src\")\n     at src/gdb/tui/tui-win.c:663\n...\ndue to a NULL comparison which constructs a string_view object from NULL:\n...\n   657  /* Answer the window represented by name.  */\n   658  static struct tui_win_info *\n   659  tui_partial_win_by_name (gdb::string_view name)\n   660  {\n   661    struct tui_win_info *best = nullptr;\n   662\n   663    if (name != NULL)\n...\n\nIn gdbsupport/gdb_string_view.h, we either use:\n- gdb's copy of libstdc++-v3/include/experimental/string_view, or\n- the standard implementation of string_view, when built with C++17 or later\n  (which in gcc's case comes from libstdc++-v3/include/std/string_view)\n\nIn the first case, there's support for constructing a string_view from a NULL\npointer:\n...\n      /*constexpr*/ basic_string_view(const _CharT* __str)\n      : _M_len{__str == nullptr ? 0 : traits_type::length(__str)},\n        _M_str{__str}\n      { }\n...\nbut in the second case, there's not:\n...\n      __attribute__((__nonnull__)) constexpr\n      basic_string_view(const _CharT* __str) noexcept\n      : _M_len{traits_type::length(__str)},\n        _M_str{__str}\n      { }\n...\n\nFix this by removing the NULL comparison altogether.\n\nBuild on x86_64-linux with CFLAGS=-std=gnu17 and CXXFLAGS=-std=gnu++17, and\ntested.\n\ngdb/ChangeLog:\n\n2020-07-06  Tom de Vries  <tdevries@suse.de>\n\n\tPR tui/26205\n\t* tui/tui-win.c (tui_partial_win_by_name): Don't test for NULL name.",
+    "tree": {
+      "sha": "7a827893cd11b07e5c874ebb2cf3acb794487f20",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/7a827893cd11b07e5c874ebb2cf3acb794487f20"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/947f7597788b646683cb37b2833ed1844ce7d1bc",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/947f7597788b646683cb37b2833ed1844ce7d1bc",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/947f7597788b646683cb37b2833ed1844ce7d1bc",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/947f7597788b646683cb37b2833ed1844ce7d1bc/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "ddb43bab174c50656331e5460b18bd8e8be5f522",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ddb43bab174c50656331e5460b18bd8e8be5f522",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/ddb43bab174c50656331e5460b18bd8e8be5f522"
+    }
+  ],
+  "stats": {
+    "total": 28,
+    "additions": 15,
+    "deletions": 13
+  },
+  "files": [
+    {
+      "sha": "b802641c9d2777cce13c4d81d5dbcfa033dbdcfc",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/947f7597788b646683cb37b2833ed1844ce7d1bc/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/947f7597788b646683cb37b2833ed1844ce7d1bc/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=947f7597788b646683cb37b2833ed1844ce7d1bc",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-07-06  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR tui/26205\n+\t* tui/tui-win.c (tui_partial_win_by_name): Don't test for NULL name.\n+\n 2020-07-05  Tom de Vries  <tdevries@suse.de>\n \n \tPR build/26187"
+    },
+    {
+      "sha": "f906b0dc4fea4a64cb70efef12c748ad1ef9aaee",
+      "filename": "gdb/tui/tui-win.c",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 13,
+      "changes": 23,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/947f7597788b646683cb37b2833ed1844ce7d1bc/gdb/tui/tui-win.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/947f7597788b646683cb37b2833ed1844ce7d1bc/gdb/tui/tui-win.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/tui/tui-win.c?ref=947f7597788b646683cb37b2833ed1844ce7d1bc",
+      "patch": "@@ -660,21 +660,18 @@ tui_partial_win_by_name (gdb::string_view name)\n {\n   struct tui_win_info *best = nullptr;\n \n-  if (name != NULL)\n+  for (tui_win_info *item : all_tui_windows ())\n     {\n-      for (tui_win_info *item : all_tui_windows ())\n-\t{\n-\t  const char *cur_name = item->name ();\n+      const char *cur_name = item->name ();\n \n-\t  if (name == cur_name)\n-\t    return item;\n-\t  if (startswith (cur_name, name))\n-\t    {\n-\t      if (best != nullptr)\n-\t\terror (_(\"Window name \\\"%*s\\\" is ambiguous\"),\n-\t\t       (int) name.size (), name.data ());\n-\t      best = item;\n-\t    }\n+      if (name == cur_name)\n+\treturn item;\n+      if (startswith (cur_name, name))\n+\t{\n+\t  if (best != nullptr)\n+\t    error (_(\"Window name \\\"%*s\\\" is ambiguous\"),\n+\t\t   (int) name.size (), name.data ());\n+\t  best = item;\n \t}\n     }\n "
+    }
+  ]
+}

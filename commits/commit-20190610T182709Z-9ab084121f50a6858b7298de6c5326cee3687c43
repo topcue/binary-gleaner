@@ -1,0 +1,110 @@
+{
+  "sha": "9ab084121f50a6858b7298de6c5326cee3687c43",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OWFiMDg0MTIxZjUwYTY4NThiNzI5OGRlNmM1MzI2Y2VlMzY4N2M0Mw==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2019-06-10T18:27:09Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2019-06-10T18:27:09Z"
+    },
+    "message": "[gdb] Fix heap-buffer-overflow in cp_find_first_component_aux\n\nWhen compiling gdb with '-lasan -fsanitizer=address' and running tests with:\n- export ASAN_OPTIONS=\"detect_leaks=0:alloc_dealloc_mismatch=0\",\n- target board cc-with-gdb-index,\n- the \"[gdb/testsuite] Fix gdb.base/break-probes.exp with native-gdbserver\"\n  commit reverted to avoid running into PR24617,\nwe get with gdb.arch/amd64-init-x87-values.exp:\n...\n==31229==ERROR: AddressSanitizer: heap-buffer-overflow on address \\\n  0x62500098c93c at pc 0x000000bcc748 bp 0x7ffe39487660 sp 0x7ffe39487658\nREAD of size 1 at 0x62500098c93c thread T0\n    #0 0xbcc747 in cp_find_first_component_aux src/gdb/cp-support.c:999\n    #1 0xbcc6e9 in cp_find_first_component(char const*) \\\n                   src/gdb/cp-support.c:977\n    #2 0xcc2cf3 in mapped_index_base::build_name_components() \\\n                   src/gdb/dwarf2read.c:4499\n    #3 0xcc3322 in dw2_expand_symtabs_matching_symbol src/gdb/dwarf2read.c:4552\n    #4 0xcc817f in dw2_expand_symtabs_matching src/gdb/dwarf2read.c:5228\n    #5 0xfe8f48 in iterate_over_all_matching_symtabs src/gdb/linespec.c:1147\n    #6 0x1003506 in add_matching_symbols_to_info src/gdb/linespec.c:4413\n    #7 0xffe21b in find_function_symbols src/gdb/linespec.c:3886\n    #8 0xffe4a2 in find_linespec_symbols src/gdb/linespec.c:3914\n    #9 0xfee3ad in linespec_parse_basic src/gdb/linespec.c:1865\n    #10 0xff5128 in parse_linespec src/gdb/linespec.c:2655\n    #11 0xff8872 in event_location_to_sals src/gdb/linespec.c:3150\n    #12 0xff90a8 in decode_line_full(event_location const*, int, \\\n                    program_space*, symtab*, int, linespec_result*, \\\n\t\t    char const*, char const*) src/gdb/linespec.c:3230\n    #13 0x9ce449 in parse_breakpoint_sals src/gdb/breakpoint.c:9057\n    #14 0x9ea022 in create_sals_from_location_default src/gdb/breakpoint.c:13708\n    #15 0x9e2c1f in bkpt_create_sals_from_location src/gdb/breakpoint.c:12514\n    #16 0x9cff06 in create_breakpoint(gdbarch*, event_location const*, \\\n                    char const*, int, char const*, int, int, bptype, int, \\\n\t\t    auto_boolean, breakpoint_ops const*, int, int, int, \\\n\t\t    unsigned int) src/gdb/breakpoint.c:9238\n    #17 0x9d114a in break_command_1 src/gdb/breakpoint.c:9402\n    #18 0x9d1b60 in break_command(char const*, int) src/gdb/breakpoint.c:9473\n    #19 0xac96aa in do_const_cfunc src/gdb/cli/cli-decode.c:106\n    #20 0xad0e5a in cmd_func(cmd_list_element*, char const*, int) \\\n                    src/gdb/cli/cli-decode.c:1892\n    #21 0x15226f6 in execute_command(char const*, int) src/gdb/top.c:630\n    #22 0xddde37 in command_handler(char const*) src/gdb/event-top.c:586\n    #23 0xdde7c1 in command_line_handler(std::unique_ptr<char, \\\n                    gdb::xfree_deleter<char> >&&) src/gdb/event-top.c:773\n    #24 0xddc9e8 in gdb_rl_callback_handler src/gdb/event-top.c:217\n    #25 0x16f2198 in rl_callback_read_char src/readline/callback.c:220\n    #26 0xddc5a1 in gdb_rl_callback_read_char_wrapper_noexcept \\\n                    src/gdb/event-top.c:175\n    #27 0xddc773 in gdb_rl_callback_read_char_wrapper src/gdb/event-top.c:192\n    #28 0xddd9f5 in stdin_event_handler(int, void*) src/gdb/event-top.c:514\n    #29 0xdd7d8f in handle_file_event src/gdb/event-loop.c:731\n    #30 0xdd8607 in gdb_wait_for_event src/gdb/event-loop.c:857\n    #31 0xdd629c in gdb_do_one_event() src/gdb/event-loop.c:321\n    #32 0xdd6344 in start_event_loop() src/gdb/event-loop.c:370\n    #33 0x10a7715 in captured_command_loop src/gdb/main.c:331\n    #34 0x10aa548 in captured_main src/gdb/main.c:1173\n    #35 0x10aa5d8 in gdb_main(captured_main_args*) src/gdb/main.c:1188\n    #36 0x87bd35 in main src/gdb/gdb.c:32\n    #37 0x7f16e1434f89 in __libc_start_main (/lib64/libc.so.6+0x20f89)\n    #38 0x87bb49 in _start (build/gdb/gdb+0x87bb49)\n\n0x62500098c93c is located 0 bytes to the right of 8252-byte region \\\n  [0x62500098a900,0x62500098c93c)\nallocated by thread T0 here:\n    #0 0x7f16e359a600 in malloc (/usr/lib64/libasan.so.5+0xeb600)\n    #1 0x1742ddf in bfd_malloc src/bfd/libbfd.c:275\n    #2 0x1738824 in bfd_get_full_section_contents src/bfd/compress.c:253\n    #3 0xe30044 in gdb_bfd_map_section(bfd_section*, unsigned long*) \\\n                   src/gdb/gdb_bfd.c:704\n    #4 0xcb56bf in dwarf2_read_section(objfile*, dwarf2_section_info*) \\\n                   src/gdb/dwarf2read.c:2539\n    #5 0xd5bcd0 in get_gdb_index_contents_from_section<dwarf2_per_objfile> \\\n                   src/gdb/dwarf2read.c:6217\n    #6 0xd7fc7d in gdb::function_view<gdb::array_view<unsigned char const> \\\n                   (...) const src/gdb/common/function-view.h:284\n    #7 0xd7fddd in gdb::function_view<gdb::array_view<unsigned char const> \\\n                   (...) src/gdb/common/function-view.h:278\n    #8 0xd730cf in gdb::function_view<gdb::array_view<unsigned char const> \\\n                   (...) const src/gdb/common/function-view.h:247\n    #9 0xcbc7ee in dwarf2_read_gdb_index src/gdb/dwarf2read.c:3582\n    #10 0xcce731 in dwarf2_initialize_objfile(objfile*, dw_index_kind*) \\\n                    src/gdb/dwarf2read.c:6297\n    #11 0xdb88c4 in elf_symfile_read src/gdb/elfread.c:1256\n    #12 0x141262a in read_symbols src/gdb/symfile.c:798\n    #13 0x14140a7 in syms_from_objfile_1 src/gdb/symfile.c:1000\n    #14 0x1414393 in syms_from_objfile src/gdb/symfile.c:1017\n    #15 0x1414fb7 in symbol_file_add_with_addrs src/gdb/symfile.c:1124\n    #16 0x14159b7 in symbol_file_add_from_bfd(bfd*, char const*, \\\n                     enum_flags<symfile_add_flag>, std::vector<other_sections, \\\n\t             std::allocator<other_sections> >*, \\\n\t\t     enum_flags<objfile_flag>, objfile*) src/gdb/symfile.c:1203\n    #17 0x1415b6c in symbol_file_add(char const*,\n                     enum_flags<symfile_add_flag>, std::vector<other_sections, \\\n\t\t     std::allocator<other_sections> >*, \\\n\t\t     enum_flags<objfile_flag>) src/gdb/symfile.c:1216\n    #18 0x1415f2f in symbol_file_add_main_1 src/gdb/symfile.c:1240\n    #19 0x1418599 in symbol_file_command(char const*, int) \\\n                     src/gdb/symfile.c:1675\n    #20 0xde2fa6 in file_command src/gdb/exec.c:433\n    #21 0xac96aa in do_const_cfunc src/gdb/cli/cli-decode.c:106\n    #22 0xad0e5a in cmd_func(cmd_list_element*, char const*, int) \\\n                    src/gdb/cli/cli-decode.c:1892\n    #23 0x15226f6 in execute_command(char const*, int) src/gdb/top.c:630\n    #24 0xddde37 in command_handler(char const*) src/gdb/event-top.c:586\n    #25 0xdde7c1 in command_line_handler(std::unique_ptr<char, \\\n                    gdb::xfree_deleter<char> >&&) src/gdb/event-top.c:773\n    #26 0xddc9e8 in gdb_rl_callback_handler src/gdb/event-top.c:217\n    #27 0x16f2198 in rl_callback_read_char src/readline/callback.c:220\n    #28 0xddc5a1 in gdb_rl_callback_read_char_wrapper_noexcept \\\n                    src/gdb/event-top.c:175\n    #29 0xddc773 in gdb_rl_callback_read_char_wrapper src/gdb/event-top.c:192\n\nSUMMARY: AddressSanitizer: heap-buffer-overflow src/gdb/cp-support.c:999 in \\\n  cp_find_first_component_aux\nShadow bytes around the buggy address:\n  0x0c4a801298d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x0c4a801298e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x0c4a801298f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x0c4a80129900: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x0c4a80129910: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n=>0x0c4a80129920: 00 00 00 00 00 00 00[04]fa fa fa fa fa fa fa fa\n  0x0c4a80129930: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa\n  0x0c4a80129940: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa\n  0x0c4a80129950: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa\n  0x0c4a80129960: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa\n  0x0c4a80129970: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07\n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==31229==ABORTING\n...\n\nThe problem happens as follows.\n\nThe executable amd64-init-x87-values gets an index (due to target board\ncc-with-gdb-index), which looks as follows:\n...\nHex dump of section '.gdb_index':\n  0x00000000 08000000 18000000 28000000 28000000 ........(...(...\n  0x00000010 3c000000 3c200000 00000000 00000000 <...< ..........\n  0x00000020 2e000000 00000000 d4004000 00000000 ..........@.....\n  0x00000030 db004000 00000000 00000000 00000000 ..@.............\n  0x00000040 00000000 00000000 00000000 00000000 ................\n  0x00000050 00000000 00000000 00000000 00000000 ................\n  ... more zeroes ...\n  0x00002010 00000000 00000000 00000000 00000000 ................\n  0x00002020 00000000 00000000 00000000 00000000 ................\n  0x00002030 00000000 00000000 00000000          ............\n...\n\nThe structure of this index is:\n...\nheader       : [0x0, 0x18)     : size 0x18\nculist       : [0x18 ,0x28)    : size 0x10\ntypesculist  : [0x28, 0x28)    : size 0x0\nadress area  : [0x28, 0x3c)    : size 0x14\nsymbol table : [0x3c, 0x203c)  : size 0x2000\nconstant pool: [0x203c, 0x203c): size 0x0\nEOF          : 0x203c\n...\n\nNote that the symbol table consists entirely of empty slots (where an empty\nslot is a pair of 32-bit zeroes), and that the constant pool is empty.\n\nThe problem happens here in mapped_index_base::build_name_components:\n...\n  auto count = this->symbol_name_count ();\n  for (offset_type idx = 0; idx < count; idx++)\n    {\n      if (this->symbol_name_slot_invalid (idx))\n\tcontinue;\n\n      const char *name = this->symbol_name_at (idx);\n...\nwhen accessing the slot at idx == 0 in the symbol table,\nsymbol_name_slot_invalid returns false so we calculate name, which is\ncalculated using 'constant_pool + symbol_table[idx].name', which means we get\nname == constant_pool.  And given that the constant pool is empty, name now\npoints past the memory allocated for the index, and when we access name[0] for\nthe first time in cp_find_first_component_aux, we run into the\nheap-buffer-overflow.\n\nFix this by fixing the definition of symbol_name_slot_invalid:\n...\n-    return bucket.name == 0 && bucket.vec;\n+    return bucket.name == 0 && bucket.vec == 0;\n...\n\nTested on x86_64-linux.\n\ngdb/ChangeLog:\n\n2019-06-10  Tom de Vries  <tdevries@suse.de>\n\n\tPR gdb/24618\n\t* dwarf2read.c (struct mapped_index::symbol_name_slot_invalid): Make\n\tsure an empty slot (defined by a 32-bit zero pair) is recognized as\n\tinvalid.",
+    "tree": {
+      "sha": "f0437cfea393915546df761cb176f31d4a168c62",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f0437cfea393915546df761cb176f31d4a168c62"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/9ab084121f50a6858b7298de6c5326cee3687c43",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9ab084121f50a6858b7298de6c5326cee3687c43",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/9ab084121f50a6858b7298de6c5326cee3687c43",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9ab084121f50a6858b7298de6c5326cee3687c43/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "f19e22e9226444ee566b5b5633c0a48a4f981eda",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f19e22e9226444ee566b5b5633c0a48a4f981eda",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/f19e22e9226444ee566b5b5633c0a48a4f981eda"
+    }
+  ],
+  "stats": {
+    "total": 9,
+    "additions": 8,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "6f6e6baee6013ad985e726e9e0096d90ae3b3577",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9ab084121f50a6858b7298de6c5326cee3687c43/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9ab084121f50a6858b7298de6c5326cee3687c43/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=9ab084121f50a6858b7298de6c5326cee3687c43",
+      "patch": "@@ -1,3 +1,10 @@\n+2019-06-10  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR gdb/24618\n+\t* dwarf2read.c (struct mapped_index::symbol_name_slot_invalid): Make\n+\tsure an empty slot (defined by a 32-bit zero pair) is recognized as\n+\tinvalid.\n+\n 2019-06-10  Tom de Vries  <tdevries@suse.de>\n \n \tPR gdb/24611"
+    },
+    {
+      "sha": "06c319dac02349e1c72e3c7e84407994a9df2910",
+      "filename": "gdb/dwarf2read.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9ab084121f50a6858b7298de6c5326cee3687c43/gdb/dwarf2read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9ab084121f50a6858b7298de6c5326cee3687c43/gdb/dwarf2read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2read.c?ref=9ab084121f50a6858b7298de6c5326cee3687c43",
+      "patch": "@@ -212,7 +212,7 @@ struct mapped_index final : public mapped_index_base\n   bool symbol_name_slot_invalid (offset_type idx) const override\n   {\n     const auto &bucket = this->symbol_table[idx];\n-    return bucket.name == 0 && bucket.vec;\n+    return bucket.name == 0 && bucket.vec == 0;\n   }\n \n   /* Convenience method to get at the name of the symbol at IDX in the"
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "sha": "47918cca26dac0c38196148ce09e0936c70c1bf5",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NDc5MThjY2EyNmRhYzBjMzgxOTYxNDhjZTA5ZTA5MzZjNzBjMWJmNQ==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-01-27T10:31:47Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-01-28T10:05:33Z"
+    },
+    "message": "gdb/testsuite: unset XDG_CONFIG_HOME\n\nSince this commit:\n\n  commit 64aaad6349d2b2c45063a5383f877ce9a3a0c354\n  Date:   Fri Sep 25 14:50:56 2020 +0100\n\n      gdb: use get_standard_config_dir when looking for .gdbinit\n\nGDB has been checking for ${XDG_CONFIG_HOME}/gdb/gdbinit on startup.\n\nMost tests pass -nx to GDB to block loading of gdbinit files, but\nthere are a few tests (e.g. gdb.base/gdbinit-history.exp) that don't\nuse -nx and instead setup a fake HOME directory containing a gdbinit\nfile.\n\nHowever, since the above commit, if XDG_CONFIG_HOME is set then once\n-nx is no longer being passed GDB will load any gdbinit file it finds\nin that directory, which could cause the test to fail.\n\nAs a concrete example:\n\n  $ mkdir -p fake_xdg_config_home/gdb/\n  $ cat <<EOF >fake_xdg_config_home/gdb/gdbinit\n  echo goodbye\\n\n  quit\n  EOF\n  $ export XDG_CONFIG_HOME=$PWD/fake_xdg_config_home\n  $ make check-gdb TESTS=\"gdb.base/gdbinit-history.exp\"\n\nShould result in the test failing.\n\nThe solution I propose is to unset XDG_CONFIG_HOME in\ndefault_gdb_init, we already unset a bunch of environment variables in\nthis proc.\n\ngdb/testsuite/ChangeLog:\n\n\t* lib/gdb.exp (default_gdb_init): Unset XDG_CONFIG_HOME.",
+    "tree": {
+      "sha": "e217a02d263b8a9f75ff17af50993a3b95c2cc56",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/e217a02d263b8a9f75ff17af50993a3b95c2cc56"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/47918cca26dac0c38196148ce09e0936c70c1bf5",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/47918cca26dac0c38196148ce09e0936c70c1bf5",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/47918cca26dac0c38196148ce09e0936c70c1bf5",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/47918cca26dac0c38196148ce09e0936c70c1bf5/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "24cf63899bf363c761c344a47dae037fbba8d643",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/24cf63899bf363c761c344a47dae037fbba8d643",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/24cf63899bf363c761c344a47dae037fbba8d643"
+    }
+  ],
+  "stats": {
+    "total": 11,
+    "additions": 11,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "b752e6d4f0721298173a3e36ab2b3db7c909548e",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/47918cca26dac0c38196148ce09e0936c70c1bf5/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/47918cca26dac0c38196148ce09e0936c70c1bf5/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=47918cca26dac0c38196148ce09e0936c70c1bf5",
+      "patch": "@@ -1,3 +1,7 @@\n+2021-01-28  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* lib/gdb.exp (default_gdb_init): Unset XDG_CONFIG_HOME.\n+\n 2021-01-28  Tom de Vries  <tdevries@suse.de>\n \n \t* gdb.ada/out_of_line_in_inlined.exp: Use gdb_breakpoint."
+    },
+    {
+      "sha": "53ac9f1408c7f30689ef056cb451d93681b1c152",
+      "filename": "gdb/testsuite/lib/gdb.exp",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/47918cca26dac0c38196148ce09e0936c70c1bf5/gdb/testsuite/lib/gdb.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/47918cca26dac0c38196148ce09e0936c70c1bf5/gdb/testsuite/lib/gdb.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/gdb.exp?ref=47918cca26dac0c38196148ce09e0936c70c1bf5",
+      "patch": "@@ -5241,6 +5241,13 @@ proc default_gdb_init { test_file_name } {\n     unset -nocomplain ::env(GDBHISTFILE)\n     unset -nocomplain ::env(GDBHISTSIZE)\n \n+    # Ensure that XDG_CONFIG_HOME is not set.  Some tests setup a fake\n+    # home directory in order to test loading settings from gdbinit.\n+    # If XDG_CONFIG_HOME is set then GDB will load a gdbinit from\n+    # there (if one is present) rather than the home directory setup\n+    # in the test.\n+    unset -nocomplain ::env(XDG_CONFIG_HOME)\n+\n     # Initialize GDB's pty with a fixed size, to make sure we avoid pagination\n     # during startup.  See \"man expect\" for details about stty_init.\n     global stty_init"
+    }
+  ]
+}

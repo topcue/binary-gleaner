@@ -1,0 +1,146 @@
+{
+  "sha": "d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZDhjYzhhZjZhMTc4N2Y5YzJlYWZjNjJhMzZhYzg2Y2Y0ZDA4Yzg5Yw==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-07-06T12:28:58Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-07-06T12:28:58Z"
+    },
+    "message": "[gdb/symtab] Fix line-table end-of-sequence sorting\n\nConsider test-case gdb.dwarf2/dw2-ranges-base.exp.  It has (ignoring\nnon-sensical entries that are filtered out by buildsym_compunit::record_line)\na line-table for dw2-ranges-base.c like this:\n...\n Line Number Statements:\n  [0x0000014e]  Extended opcode 2: set Address to 0x4004ba\n  [0x00000159]  Advance Line by 10 to 11\n  [0x0000015b]  Copy\n  [0x0000015c]  Advance PC by 12 to 0x4004c6\n  [0x0000015e]  Extended opcode 1: End of Sequence\n\n  [0x00000161]  Extended opcode 2: set Address to 0x4004ae\n  [0x0000016c]  Advance Line by 20 to 21\n  [0x0000016e]  Copy\n  [0x0000016f]  Advance PC by 12 to 0x4004ba\n  [0x00000171]  Extended opcode 1: End of Sequence\n\n  [0x00000174]  Extended opcode 2: set Address to 0x4004a7\n  [0x0000017f]  Advance Line by 30 to 31\n  [0x00000181]  Copy\n  [0x00000182]  Advance PC by 7 to 0x4004ae\n  [0x00000184]  Extended opcode 1: End of Sequence\n...\n\nIf we disable the sorting in buildsym_compunit::end_symtab_with_blockvector,\nwe have the unsorted line table:\n...\nINDEX  LINE   ADDRESS            IS-STMT\n0      11     0x00000000004004ba Y\n1      END    0x00000000004004c6 Y\n2      21     0x00000000004004ae Y\n3      END    0x00000000004004ba Y\n4      31     0x00000000004004a7 Y\n5      END    0x00000000004004ae Y\n...\nIt contains 3 sequences, 11/END, 21/END and 31/END.\n\nWe want to sort the 3 sequences relative to each other, while sorting on\naddress, to get:\n...\nINDEX  LINE   ADDRESS            IS-STMT\n0      31     0x00000000004004a7 Y\n1      END    0x00000000004004ae Y\n2      21     0x00000000004004ae Y\n3      END    0x00000000004004ba Y\n4      11     0x00000000004004ba Y\n5      END    0x00000000004004c6 Y\n...\n\nHowever, if we re-enable the sorting, we have instead:\n...\nINDEX  LINE   ADDRESS            IS-STMT\n0      31     0x00000000004004a7 Y\n1      21     0x00000000004004ae Y\n2      END    0x00000000004004ae Y\n3      11     0x00000000004004ba Y\n4      END    0x00000000004004ba Y\n5      END    0x00000000004004c6 Y\n...\n\nThis is a regression since commit 3d92a3e313 \"gdb: Don't reorder line table\nentries too much when sorting\", that introduced sorting on address while\nkeeping entries with the same address in pre-sort order.\n\nIndeed the entries 1 and 2 are in pre-sort order (they map to entries 2 and 5\nin the unsorted line table), but entry 1 does not belong in the sequence\nterminated by 2.\n\nFix this by handling End-Of-Sequence entries in the sorting function, such\nthat they are sorted before other entries with the same address.\n\nAlso, revert the find_pc_sect_line workaround introduced in commit 3d92a3e313,\nsince that's no longer necessary.\n\nTested on x86_64-linux.\n\ngdb/ChangeLog:\n\n2020-07-06  Tom de Vries  <tdevries@suse.de>\n\n\t* buildsym.c (buildsym_compunit::end_symtab_with_blockvector): Handle\n\tEnd-Of-Sequence in lte_is_less_than.\n\t* symtab.c (find_pc_sect_line): Revert change from commit 3d92a3e313\n\t\"gdb: Don't reorder line table entries too much when sorting\".\n\ngdb/testsuite/ChangeLog:\n\n2020-07-06  Tom de Vries  <tdevries@suse.de>\n\n\t* gdb.dwarf2/dw2-ranges-base.exp: Test line-table order.",
+    "tree": {
+      "sha": "7942904c5a5af94729930977edccf909e1e189ca",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/7942904c5a5af94729930977edccf909e1e189ca"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "b5b098c2c9b0ea5588e4198740b8b6dfdb740ffd",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b5b098c2c9b0ea5588e4198740b8b6dfdb740ffd",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b5b098c2c9b0ea5588e4198740b8b6dfdb740ffd"
+    }
+  ],
+  "stats": {
+    "total": 36,
+    "additions": 30,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "a07dd38291f0e5b9b1d2377ac5a5c219df75951e",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-07-06  Tom de Vries  <tdevries@suse.de>\n+\n+\t* buildsym.c (buildsym_compunit::end_symtab_with_blockvector): Handle\n+\tEnd-Of-Sequence in lte_is_less_than.\n+\t* symtab.c (find_pc_sect_line): Revert change from commit 3d92a3e313\n+\t\"gdb: Don't reorder line table entries too much when sorting\".\n+\n 2020-07-06  Tom de Vries  <tdevries@suse.de>\n \n \tPR tui/26205"
+    },
+    {
+      "sha": "bd0ca49140106b8c2d7abf67ea112e7283cae4bb",
+      "filename": "gdb/buildsym.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c/gdb/buildsym.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c/gdb/buildsym.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/buildsym.c?ref=d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c",
+      "patch": "@@ -943,6 +943,10 @@ buildsym_compunit::end_symtab_with_blockvector (struct block *static_block,\n \t    = [] (const linetable_entry &ln1,\n \t\t  const linetable_entry &ln2) -> bool\n \t      {\n+\t\tif (ln1.pc == ln2.pc\n+\t\t    && ((ln1.line == 0) != (ln2.line == 0)))\n+\t\t  return ln1.line == 0;\n+\n \t\treturn (ln1.pc < ln2.pc);\n \t      };\n "
+    },
+    {
+      "sha": "f96ad9554d9ea31b2bdcad6f5aa7bba88cf5d3fd",
+      "filename": "gdb/symtab.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 6,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c/gdb/symtab.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c/gdb/symtab.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/symtab.c?ref=d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c",
+      "patch": "@@ -3236,12 +3236,7 @@ find_pc_sect_line (CORE_ADDR pc, struct obj_section *section, int notcurrent)\n       struct linetable_entry *last = item + len;\n       item = std::upper_bound (first, last, pc, pc_compare);\n       if (item != first)\n-\t{\n-\t  /* Found a matching item.  Skip backwards over any end of\n-\t     sequence markers.  */\n-\t  for (prev = item - 1; prev->line == 0 && prev != first; prev--)\n-\t    /* Nothing.  */;\n-\t}\n+\tprev = item - 1;\t\t/* Found a matching item.  */\n \n       /* At this point, prev points at the line whose start addr is <= pc, and\n          item points at the next line.  If we ran off the end of the linetable"
+    },
+    {
+      "sha": "f75ba7d9cf787b1283dc2092a005f7a5937afc8f",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c",
+      "patch": "@@ -1,3 +1,7 @@\n+2020-07-06  Tom de Vries  <tdevries@suse.de>\n+\n+\t* gdb.dwarf2/dw2-ranges-base.exp: Test line-table order.\n+\n 2020-07-03  Pedro Alves  <palves@redhat.com>\n \n \t* gdb.base/structs2.c (main): Adjust second parem_reg call to"
+    },
+    {
+      "sha": "39281a8857f61baabd5851bdb2be417b0aaa2f6b",
+      "filename": "gdb/testsuite/gdb.dwarf2/dw2-ranges-base.exp",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c/gdb/testsuite/gdb.dwarf2/dw2-ranges-base.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c/gdb/testsuite/gdb.dwarf2/dw2-ranges-base.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/dw2-ranges-base.exp?ref=d8cc8af6a1787f9c2eafc62a36ac86cf4d08c89c",
+      "patch": "@@ -144,12 +144,26 @@ gdb_test \"info line frame3\" \\\n \n # Ensure that the line table correctly tracks the end of sequence markers.\n set end_seq_count 0\n+set prev -1\n+set seq_count 0\n gdb_test_multiple \"maint info line-table gdb.dwarf2/dw2-ranges-base.c\" \\\n     \"count END markers in line table\" {\n \t-re \"^$decimal\\[ \\t\\]+$decimal\\[ \\t\\]+$hex\\(\\[ \\t\\]+Y\\)? *\\r\\n\" {\n+\t    if { $prev != -1 } {\n+\t\tgdb_assert \"$prev == 1\" \\\n+\t\t    \"prev of normal entry at $seq_count is end marker\"\n+\t    }\n+\t    set prev 0\n+\t    incr seq_count\n \t    exp_continue\n \t}\n \t-re \"^$decimal\\[ \\t\\]+END\\[ \\t\\]+$hex\\(\\[ \\t\\]+Y\\)? *\\r\\n\" {\n+\t    if { $prev != -1 } {\n+\t\tgdb_assert \"$prev == 0\" \\\n+\t\t    \"prev of end marker at $seq_count is normal entry\"\n+\t    }\n+\t    set prev 1\n+\t    incr seq_count\n \t    incr end_seq_count\n \t    exp_continue\n \t}"
+    }
+  ]
+}

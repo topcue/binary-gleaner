@@ -1,0 +1,110 @@
+{
+  "sha": "2ab76a181f3db93f051aaae66d65ff2733884d96",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MmFiNzZhMTgxZjNkYjkzZjA1MWFhYWU2NmQ2NWZmMjczMzg4NGQ5Ng==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-12-23T00:34:54Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2021-02-03T01:03:48Z"
+    },
+    "message": "Fix attaching in non-stop mode (PR gdb/27055)\n\nAttaching in non-stop mode currently misbehaves, like so:\n\n (gdb) attach 1244450\n Attaching to process 1244450\n [New LWP 1244453]\n [New LWP 1244454]\n [New LWP 1244455]\n [New LWP 1244456]\n [New LWP 1244457]\n [New LWP 1244458]\n [New LWP 1244459]\n [New LWP 1244461]\n [New LWP 1244462]\n [New LWP 1244463]\n No unwaited-for children left.\n\nAt this point, GDB's stopped/running thread state is out of sync with\nthe inferior:\n\n(gdb) info threads\n  Id   Target Id                     Frame\n* 1    LWP 1244450 \"attach-non-stop\" 0xf1b443bf in ?? ()\n  2    LWP 1244453 \"attach-non-stop\" (running)\n  3    LWP 1244454 \"attach-non-stop\" (running)\n  4    LWP 1244455 \"attach-non-stop\" (running)\n  5    LWP 1244456 \"attach-non-stop\" (running)\n  6    LWP 1244457 \"attach-non-stop\" (running)\n  7    LWP 1244458 \"attach-non-stop\" (running)\n  8    LWP 1244459 \"attach-non-stop\" (running)\n  9    LWP 1244461 \"attach-non-stop\" (running)\n  10   LWP 1244462 \"attach-non-stop\" (running)\n  11   LWP 1244463 \"attach-non-stop\" (running)\n(gdb)\n(gdb) interrupt -a\n(gdb)\n*nothing*\n\nThe problem is that attaching installs an inferior continuation,\ncalled when the target reports the initial attach stop, here, in\ninf-loop.c:inferior_event_handler:\n\n      /* Do all continuations associated with the whole inferior (not\n\t a particular thread).  */\n      if (inferior_ptid != null_ptid)\n\tdo_all_inferior_continuations (0);\n\nHowever, currently in non-stop mode, inferior_ptid is still null_ptid\nwhen we get here.\n\nIf you try to do \"set debug infrun 1\" to debug the problem, however,\nthen the attach completes correctly, with GDB reporting a stop for\neach thread.\n\nThe bug is that we're missing a switch_to_thread/context_switch call\nwhen handling the initial stop, here:\n\n  if (stop_soon == STOP_QUIETLY_NO_SIGSTOP\n      && (ecs->event_thread->suspend.stop_signal == GDB_SIGNAL_STOP\n\t  || ecs->event_thread->suspend.stop_signal == GDB_SIGNAL_TRAP\n\t  || ecs->event_thread->suspend.stop_signal == GDB_SIGNAL_0))\n    {\n      stop_print_frame = true;\n      stop_waiting (ecs);\n      ecs->event_thread->suspend.stop_signal = GDB_SIGNAL_0;\n      return;\n    }\n\nNote how the STOP_QUIETLY / STOP_QUIETLY_REMOTE case above that does\ncall context_switch.\n\nAnd the reason \"set debug infrun 1\" \"fixes\" it, is that the debug path\nhas a switch_to_thread call.\n\nThis patch fixes it by moving the main context_switch call earlier.\nIt also removes the:\n\n   if (ecs->ptid != inferior_ptid)\n\ncheck at the same time because:\n\n #1 - that is half of what context_switch already does\n\n #2 - deprecated_context_hook is only used in Insight, and all it does\n      is set an int.  It won't care if we call it when the current\n      thread hasn't actually changed.\n\nA testcase exercising this will be added in a following patch.\n\ngdb/ChangeLog:\n\n\tPR gdb/27055\n\t* infrun.c (handle_signal_stop): Move main context_switch call\n\tearlier, before STOP_QUIETLY_NO_SIGSTOP.",
+    "tree": {
+      "sha": "936b257333dbb15811bbcff25db9c87c53a7a878",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/936b257333dbb15811bbcff25db9c87c53a7a878"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/2ab76a181f3db93f051aaae66d65ff2733884d96",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2ab76a181f3db93f051aaae66d65ff2733884d96",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/2ab76a181f3db93f051aaae66d65ff2733884d96",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2ab76a181f3db93f051aaae66d65ff2733884d96/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "0e33957abf8878a16283bee68dbd3899c2bcba09",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0e33957abf8878a16283bee68dbd3899c2bcba09",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/0e33957abf8878a16283bee68dbd3899c2bcba09"
+    }
+  ],
+  "stats": {
+    "total": 26,
+    "additions": 11,
+    "deletions": 15
+  },
+  "files": [
+    {
+      "sha": "9b3b64dcf93e44101d115e7864045a2dc6b0838a",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2ab76a181f3db93f051aaae66d65ff2733884d96/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2ab76a181f3db93f051aaae66d65ff2733884d96/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=2ab76a181f3db93f051aaae66d65ff2733884d96",
+      "patch": "@@ -1,3 +1,9 @@\n+2021-02-03  Pedro Alves  <pedro@palves.net>\n+\n+\tPR gdb/27055\n+\t* infrun.c (handle_signal_stop): Move main context_switch call\n+\tearlier, before STOP_QUIETLY_NO_SIGSTOP.\n+\n 2021-02-02  Lancelot SIX  <lsix@lancelotsix.com>\n \n \t* NEWS (Changed commands): Add entry for the behavior change of"
+    },
+    {
+      "sha": "405b907856ae96ce740523eac0aeb044cd28fb0c",
+      "filename": "gdb/infrun.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 15,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2ab76a181f3db93f051aaae66d65ff2733884d96/gdb/infrun.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2ab76a181f3db93f051aaae66d65ff2733884d96/gdb/infrun.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infrun.c?ref=2ab76a181f3db93f051aaae66d65ff2733884d96",
+      "patch": "@@ -5735,13 +5735,16 @@ handle_signal_stop (struct execution_control_state *ecs)\n   ecs->event_thread->suspend.stop_pc\n     = regcache_read_pc (get_thread_regcache (ecs->event_thread));\n \n+  context_switch (ecs);\n+\n+  if (deprecated_context_hook)\n+    deprecated_context_hook (ecs->event_thread->global_num);\n+\n   if (debug_infrun)\n     {\n       struct regcache *regcache = get_thread_regcache (ecs->event_thread);\n       struct gdbarch *reg_gdbarch = regcache->arch ();\n \n-      switch_to_thread (ecs->event_thread);\n-\n       infrun_debug_printf (\"stop_pc=%s\",\n \t\t\t   paddress (reg_gdbarch,\n \t\t\t\t     ecs->event_thread->suspend.stop_pc));\n@@ -5764,7 +5767,6 @@ handle_signal_stop (struct execution_control_state *ecs)\n   stop_soon = get_inferior_stop_soon (ecs);\n   if (stop_soon == STOP_QUIETLY || stop_soon == STOP_QUIETLY_REMOTE)\n     {\n-      context_switch (ecs);\n       infrun_debug_printf (\"quietly stopped\");\n       stop_print_frame = true;\n       stop_waiting (ecs);\n@@ -5802,18 +5804,6 @@ handle_signal_stop (struct execution_control_state *ecs)\n       return;\n     }\n \n-  /* See if something interesting happened to the non-current thread.  If\n-     so, then switch to that thread.  */\n-  if (ecs->ptid != inferior_ptid)\n-    {\n-      infrun_debug_printf (\"context switch\");\n-\n-      context_switch (ecs);\n-\n-      if (deprecated_context_hook)\n-\tdeprecated_context_hook (ecs->event_thread->global_num);\n-    }\n-\n   /* At this point, get hold of the now-current thread's frame.  */\n   frame = get_current_frame ();\n   gdbarch = get_frame_arch (frame);"
+    }
+  ]
+}

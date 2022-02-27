@@ -1,0 +1,144 @@
+{
+  "sha": "ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZWJkY2FkM2ZkZGY2ZWMyMWY2ZDRkY2M3MDIzNzlhMTI3MThjZjBjNA==",
+  "commit": {
+    "author": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2020-12-18T02:59:41Z"
+    },
+    "committer": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2021-03-11T09:27:13Z"
+    },
+    "message": "RISC-V: Improve multiple relax passes problem.\n\nAccording to the commit abd20cb637008da9d32018b4b03973e119388a0a, an\nintersting thing is that - the more relax passes, the more chances of\nrelaxations are reduced [1].  Originally, we set the boolean `again`\nto TRUE once the code is actually deleted, and then we run the relaxations\nrepeatedly if `again` is still TRUE.  But `again` only works for the\nrelax pass itself, and won't affect others.  That is - we can not use\n`again` to re-run the relax pass when we already enter into the following\npasses (can not run the relax passes backwards).  Besides, we must seperate\nthe PCREL relaxations into two relax passes for some reasons [2], it make\nus lose some relax opportunities.\n\nThis patch try to fix the problem, and the basic idea was come from Jim\nWilson - we use a new boolean, restart_relax, to determine if we need to\nrun the whole relax passes again from 0 to 2.  Once we have deleted the\ncode between relax pass 0 to 2, the restart_relax will be set to TRUE,\nwe should run the whole relaxations again to give them more chances to\nshorten the code.  We will only enter into the relax pass 3 when the\nrestart_relax is FALSE, since we can't relax anything else once we start\nto handle the alignments.\n\nI have passed the gcc/binutils regressions by riscv-gnu-toolchain, and\nlooks fine for now.\n\n[1] https://sourceware.org/pipermail/binutils/2020-November/114223.html\n[2] https://sourceware.org/pipermail/binutils/2020-November/114235.html\n\nbfd/\n    * elfnn-riscv.c (riscv_elf_link_hash_table): New boolean restart_relax,\n    used to check if we need to run the whole relaxations from relax pass 0\n    to 2 again.\n    (riscv_elf_link_hash_table_create): Init restart_relax to FALSE.\n    (_bfd_riscv_relax_align): Remove obsolete sec_flg0 set.\n    (_bfd_riscv_relax_delete): Set again to TRUE if we do delete the code.\n    (bfd_elfNN_riscv_restart_relax_sections): New function.  Called by\n    after_allocation to check if we need to run the whole relaxations again.\n    (_bfd_riscv_relax_section): We will only enter into the relax pass 3 when\n    the restart_relax is FALSE; At last set restart_relax to TRUE if again is\n    TRUE, too.\n    * elfxx-riscv.h (bfd_elf32_riscv_restart_relax_sections): Declaration.\n    (bfd_elf64_riscv_restart_relax_sections): Likewise.\nld/\n    * emultempl/riscvelf.em (after_allocation): Run ldelf_map_segments many\n    times if riscv_restart_relax_sections returns TRUE.\n    * testsuite/ld-riscv-elf/restart-relax.d: New testcase.  Before applying\n    this patch, the call won't be relaxed to jal; But now we have more chances\n    to do relaxations.\n    * testsuite/ld-riscv-elf/restart-relax.s: Likewise.\n    * testsuite/ld-riscv-elf/ld-riscv-elf.exp: Updated.",
+    "tree": {
+      "sha": "82686d88a94b9113de754458ef5ecf8e9b6806d6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/82686d88a94b9113de754458ef5ecf8e9b6806d6"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "0b9f3e546384710ccb158b2a5137ee916158580d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0b9f3e546384710ccb158b2a5137ee916158580d",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/0b9f3e546384710ccb158b2a5137ee916158580d"
+    }
+  ],
+  "stats": {
+    "total": 118,
+    "additions": 108,
+    "deletions": 10
+  },
+  "files": [
+    {
+      "sha": "c184a4e72fcda5e574fd1fbf525e8126ed8777f1",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 0,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4",
+      "patch": "@@ -1,3 +1,19 @@\n+2021-03-11  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* elfnn-riscv.c (riscv_elf_link_hash_table): New boolean\n+\trestart_relax, used to check if we need to run the whole\n+\trelaxations from relax pass 0 to 2 again.\n+\t(riscv_elf_link_hash_table_create): Init restart_relax to FALSE.\n+\t(_bfd_riscv_relax_align): Remove obsolete sec_flg0 set.\n+\t(_bfd_riscv_relax_delete): Set again to TRUE if we do delete the code.\n+\t(bfd_elfNN_riscv_restart_relax_sections): New function.  Called by\n+\tafter_allocation to check if we need to run the whole relaxations again.\n+\t(_bfd_riscv_relax_section): We will only enter into the relax pass 3\n+\twhen the restart_relax is FALSE; At last set restart_relax to TRUE if\n+\tagain is TRUE, too.\n+\t* elfxx-riscv.h (bfd_elf32_riscv_restart_relax_sections): Declaration.\n+\t(bfd_elf64_riscv_restart_relax_sections): Likewise.\n+\n 2021-03-10  Jan Beulich  <jbeulich@suse.com>\n \n \t* cofflink.c (_bfd_coff_write_global_sym): Range-check symbol"
+    },
+    {
+      "sha": "364d67b6749bf7d929668a740ae73f174f82426e",
+      "filename": "bfd/elfnn-riscv.c",
+      "status": "modified",
+      "additions": 39,
+      "deletions": 9,
+      "changes": 48,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4/bfd/elfnn-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4/bfd/elfnn-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfnn-riscv.c?ref=ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4",
+      "patch": "@@ -131,6 +131,9 @@ struct riscv_elf_link_hash_table\n \n   /* The index of the last unused .rel.iplt slot.  */\n   bfd_vma last_iplt_index;\n+\n+  /* Re-run the relaxations from relax pass 0 if TRUE.  */\n+  bfd_boolean restart_relax;\n };\n \n /* Instruction access functions. */\n@@ -399,6 +402,7 @@ riscv_elf_link_hash_table_create (bfd *abfd)\n     }\n \n   ret->max_alignment = (bfd_vma) -1;\n+  ret->restart_relax = FALSE;\n \n   /* Create hash table for local ifunc.  */\n   ret->loc_hash_table = htab_try_create (1024,\n@@ -4365,7 +4369,8 @@ _bfd_riscv_relax_tls_le (bfd *abfd,\n     }\n }\n \n-/* Implement R_RISCV_ALIGN by deleting excess alignment NOPs.  */\n+/* Implement R_RISCV_ALIGN by deleting excess alignment NOPs.\n+   Once we've handled an R_RISCV_ALIGN, we can't relax anything else.  */\n \n static bfd_boolean\n _bfd_riscv_relax_align (bfd *abfd, asection *sec,\n@@ -4388,9 +4393,6 @@ _bfd_riscv_relax_align (bfd *abfd, asection *sec,\n   bfd_vma aligned_addr = ((symval - 1) & ~(alignment - 1)) + alignment;\n   bfd_vma nop_bytes = aligned_addr - symval;\n \n-  /* Once we've handled an R_RISCV_ALIGN, we can't relax anything else.  */\n-  sec->sec_flg0 = TRUE;\n-\n   /* Make sure there are enough NOPs to actually achieve the alignment.  */\n   if (rel->r_addend < nop_bytes)\n     {\n@@ -4586,23 +4588,47 @@ _bfd_riscv_relax_delete (bfd *abfd,\n \t\t\t bfd_vma symval ATTRIBUTE_UNUSED,\n \t\t\t bfd_vma max_alignment ATTRIBUTE_UNUSED,\n \t\t\t bfd_vma reserve_size ATTRIBUTE_UNUSED,\n-\t\t\t bfd_boolean *again ATTRIBUTE_UNUSED,\n+\t\t\t bfd_boolean *again,\n \t\t\t riscv_pcgp_relocs *pcgp_relocs ATTRIBUTE_UNUSED,\n \t\t\t bfd_boolean undefined_weak ATTRIBUTE_UNUSED)\n {\n   if (!riscv_relax_delete_bytes (abfd, sec, rel->r_offset, rel->r_addend,\n \t\t\t\t link_info))\n     return FALSE;\n   rel->r_info = ELFNN_R_INFO (0, R_RISCV_NONE);\n+  *again = TRUE;\n   return TRUE;\n }\n \n+/* Called by after_allocation to check if we need to run the whole\n+   relaxations again.  */\n+\n+bfd_boolean\n+bfd_elfNN_riscv_restart_relax_sections (struct bfd_link_info *info)\n+{\n+  struct riscv_elf_link_hash_table *htab = riscv_elf_hash_table (info);\n+  bfd_boolean restart = htab->restart_relax;\n+  /* Reset the flag.  */\n+  htab->restart_relax = FALSE;\n+  return restart;\n+}\n+\n /* Relax a section.\n \n    Pass 0: Shortens code sequences for LUI/CALL/TPREL relocs.\n    Pass 1: Shortens code sequences for PCREL relocs.\n-   Pass 2: Deletes the bytes that pass 1 made obselete.\n-   Pass 3: Which cannot be disabled, handles code alignment directives.  */\n+   Pass 2: Deletes the bytes that pass 1 made obsolete.\n+   Pass 3: Which cannot be disabled, handles code alignment directives.\n+\n+   The `again` is used to determine whether the relax pass itself needs to\n+   run again.  And the `restart_relax` is used to determine if we need to\n+   run the whole relax passes again from 0 to 2.  Once we have deleted the\n+   code between relax pass 0 to 2, the restart_relax will be set to TRUE,\n+   and we should run the whole relaxations again to give them more chances\n+   to shorten the code.\n+\n+   Since we can't relax anything else once we start to handle the alignments,\n+   we will only enter into the relax pass 3 when the restart_relax is FALSE.  */\n \n static bfd_boolean\n _bfd_riscv_relax_section (bfd *abfd, asection *sec,\n@@ -4621,11 +4647,12 @@ _bfd_riscv_relax_section (bfd *abfd, asection *sec,\n   *again = FALSE;\n \n   if (bfd_link_relocatable (info)\n-      || sec->sec_flg0\n       || (sec->flags & SEC_RELOC) == 0\n       || sec->reloc_count == 0\n       || (info->disable_target_specific_optimizations\n-\t  && info->relax_pass < 2))\n+\t  && info->relax_pass < 2)\n+      || (htab->restart_relax\n+\t  && info->relax_pass == 3))\n     return TRUE;\n \n   riscv_init_pcgp_relocs (&pcgp_relocs);\n@@ -4864,6 +4891,9 @@ _bfd_riscv_relax_section (bfd *abfd, asection *sec,\n     free (relocs);\n   riscv_free_pcgp_relocs (&pcgp_relocs, abfd, sec);\n \n+  if (*again)\n+    htab->restart_relax = TRUE;\n+\n   return ret;\n }\n "
+    },
+    {
+      "sha": "a676d5cf757aff3b0d28ecedc6f47f5edf07adf4",
+      "filename": "bfd/elfxx-riscv.h",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4/bfd/elfxx-riscv.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4/bfd/elfxx-riscv.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfxx-riscv.h?ref=ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4",
+      "patch": "@@ -105,3 +105,9 @@ riscv_get_prefix_class (const char *);\n \n extern int\n riscv_compare_subsets (const char *, const char *);\n+\n+extern bfd_boolean\n+bfd_elf32_riscv_restart_relax_sections (struct bfd_link_info *);\n+\n+extern bfd_boolean\n+bfd_elf64_riscv_restart_relax_sections (struct bfd_link_info *);"
+    },
+    {
+      "sha": "b5298b9848edddab14e6c0600d82cb4936c4057a",
+      "filename": "ld/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4/ld/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4/ld/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/ChangeLog?ref=ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4",
+      "patch": "@@ -1,3 +1,13 @@\n+2021-03-11  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* emultempl/riscvelf.em (after_allocation): Run ldelf_map_segments\n+\tmany times if riscv_restart_relax_sections returns TRUE.\n+\t* testsuite/ld-riscv-elf/restart-relax.d: New testcase.  Before\n+\tapplying this patch, the call won't be relaxed to jal; But now we\n+\thave more chances to do relaxations.\n+\t* testsuite/ld-riscv-elf/restart-relax.s: Likewise.\n+\t* testsuite/ld-riscv-elf/ld-riscv-elf.exp: Updated.\n+\n 2021-03-10  Jan Beulich  <jbeulich@suse.com>\n \n \t* testsuite/ld-scripts/pr22267.t: Avoid symbol value with more"
+    },
+    {
+      "sha": "5fa7c773fc88f94f3bc6efa5c7bbf88ebe2201ab",
+      "filename": "ld/emultempl/riscvelf.em",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 1,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4/ld/emultempl/riscvelf.em",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4/ld/emultempl/riscvelf.em",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/emultempl/riscvelf.em?ref=ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4",
+      "patch": "@@ -62,7 +62,11 @@ gld${EMULATION_NAME}_after_allocation (void)\n \t}\n     }\n \n-  ldelf_map_segments (need_layout);\n+  do\n+    {\n+      ldelf_map_segments (need_layout);\n+    }\n+  while (bfd_elf${ELFSIZE}_riscv_restart_relax_sections (&link_info));\n }\n \n /* This is a convenient point to tell BFD about target specific flags."
+    },
+    {
+      "sha": "f3ff95cf96ec79c24fedee5823805e32cc6f62ec",
+      "filename": "ld/testsuite/ld-riscv-elf/ld-riscv-elf.exp",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4/ld/testsuite/ld-riscv-elf/ld-riscv-elf.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4/ld/testsuite/ld-riscv-elf/ld-riscv-elf.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/ld-riscv-elf.exp?ref=ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4",
+      "patch": "@@ -86,6 +86,7 @@ if [istarget \"riscv*-*-*\"] {\n     run_dump_test \"disas-jalr\"\n     run_dump_test \"pcrel-lo-addend\"\n     run_dump_test \"pcrel-lo-addend-2\"\n+    run_dump_test \"restart-relax\"\n     run_dump_test \"attr-merge-arch-01\"\n     run_dump_test \"attr-merge-arch-02\"\n     run_dump_test \"attr-merge-arch-03\""
+    },
+    {
+      "sha": "57b62eb20efc3f15be40bbcfa7779d353f70afe0",
+      "filename": "ld/testsuite/ld-riscv-elf/restart-relax.d",
+      "status": "added",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4/ld/testsuite/ld-riscv-elf/restart-relax.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4/ld/testsuite/ld-riscv-elf/restart-relax.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/restart-relax.d?ref=ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4",
+      "patch": "@@ -0,0 +1,14 @@\n+#source: restart-relax.s\n+#as:\n+#ld:\n+#objdump: -d\n+\n+#...\n+Disassembly of section .text:\n+\n+0+[0-9a-f]+ <_start>:\n+.*:[ \t]+[0-9a-f]+[ \t]+addi[ \t]+.*\n+#...\n+.*:[ \t]+[0-9a-f]+[ \t]+jal[ \t]+ra,[0-9a-f]+ <_start>\n+.*:[ \t]+[0-9a-f]+[ \t]+add[ \t]+a0,a1,a2\n+#pass"
+    },
+    {
+      "sha": "efc881d14e0d08526d3fcd7f85598eada4ab50be",
+      "filename": "ld/testsuite/ld-riscv-elf/restart-relax.s",
+      "status": "added",
+      "additions": 17,
+      "deletions": 0,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4/ld/testsuite/ld-riscv-elf/restart-relax.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4/ld/testsuite/ld-riscv-elf/restart-relax.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/restart-relax.s?ref=ebdcad3fddf6ec21f6d4dcc702379a12718cf0c4",
+      "patch": "@@ -0,0 +1,17 @@\n+\t.text\n+\t.global _start\n+_start:\n+\tlla\ta0, data_g\n+.rept 0x3fffe\n+\tnop\n+.endr\n+\tcall _start\n+\t.option rvc\n+\t.align 2\n+\tadd\ta0, a1, a2\n+\n+\t.data\n+\t.global data_g\n+\t.dword 0x0\n+data_g:\n+\t.word 0x1000"
+    }
+  ]
+}

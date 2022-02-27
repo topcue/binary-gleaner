@@ -1,0 +1,134 @@
+{
+  "sha": "e92f2b5eef008a8617bcd6d878b09848adf6ea7f",
+  "node_id": "C_kwDOANOeidoAKGU5MmYyYjVlZWYwMDhhODYxN2JjZDZkODc4YjA5ODQ4YWRmNmVhN2Y",
+  "commit": {
+    "author": {
+      "name": "Lancelot SIX",
+      "email": "lsix@lancelotsix.com",
+      "date": "2021-10-19T21:51:40Z"
+    },
+    "committer": {
+      "name": "Lancelot SIX",
+      "email": "lsix@lancelotsix.com",
+      "date": "2021-11-08T21:55:36Z"
+    },
+    "message": "Improve gdb::array_view ctor from contiguous containers\n\nWhile reading the interface of gdb::array_view, I realized that the\nconstructor that builds an array_view on top of a contiguous container\n(such as std::vector, std::array or even gdb::array_view) can be\nmissused.\n\nLets consider the following code sample:\n\n\tstruct Parent\n\t{\n\t  Parent (int a): a { a } {}\n\t  int a;\n\t};\n\n\tstd::ostream &operator<< (std::ostream& os, const Parent & p)\n\t{ os << \"Parent {a=\" << p.a << \"}\"; return os; }\n\n\tstruct Child : public Parent\n\t{\n\t  Child (int a, int b): Parent { a }, b { b } {}\n\t  int b;\n\t};\n\n\tstd::ostream &operator<< (std::ostream& os, const Child & p)\n\t{ os << \"Child {a=\" << p.a << \", b=\" << p.b << \"}\"; return os; }\n\n\ttemplate <typename T>\n\tvoid print (const gdb::array_view<const T> &p)\n\t{\n\t  std::for_each (p.begin (), p.end (), [](const T &p) { std::cout << p << '\\n'; });\n\t}\n\nThen with the current interface nothinng prevents this usage of\narray_view to be done:\n\n\tconst std::array<Child, 3> elts = {\n\t  Child {1, 2},\n\t  Child {3, 4},\n\t  Child {5, 6}\n\t};\n\tprint_all<Parent> (elts);\n\nThis compiles fine and produces the following output:\n\n\tParent {a=1}\n\tParent {a=2}\n\tParent {a=3}\n\nwhich is obviously wrong.  There is nowhere in memory a Parent-like\nobject for which the A member is 2 and this call to print_all<Parent>\nshold not compile at all (calling print_all<Child> is however fine).\n\nThis comes down to the fact that a Child* is convertible into a Parent*,\nand that an array view is constructed to a pointer to the first element\nand a size.  The valid type pointed to that can be used with this\nconstructor are restricted using SFINAE, which requires that a\npointer to a member into the underlying container can be converted into a\npointer the array_view's data type.\n\nThis patch proposes to change the constraints on the gdb::array_view\nctor which accepts a container now requires that the (decayed) type of\nthe elements in the container match the (decayed) type of the array_view\nbeing constructed.\n\nApplying this change required minimum adjustment in GDB codebase, which\nare also included in this patch.\n\nTested by rebuilding.",
+    "tree": {
+      "sha": "ca1ddafb398545629ba0974847d2624b7545322c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/ca1ddafb398545629ba0974847d2624b7545322c"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/e92f2b5eef008a8617bcd6d878b09848adf6ea7f",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e92f2b5eef008a8617bcd6d878b09848adf6ea7f",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/e92f2b5eef008a8617bcd6d878b09848adf6ea7f",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e92f2b5eef008a8617bcd6d878b09848adf6ea7f/comments",
+  "author": {
+    "login": "lsix",
+    "id": 724339,
+    "node_id": "MDQ6VXNlcjcyNDMzOQ==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/724339?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/lsix",
+    "html_url": "https://github.com/lsix",
+    "followers_url": "https://api.github.com/users/lsix/followers",
+    "following_url": "https://api.github.com/users/lsix/following{/other_user}",
+    "gists_url": "https://api.github.com/users/lsix/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/lsix/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/lsix/subscriptions",
+    "organizations_url": "https://api.github.com/users/lsix/orgs",
+    "repos_url": "https://api.github.com/users/lsix/repos",
+    "events_url": "https://api.github.com/users/lsix/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/lsix/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "lsix",
+    "id": 724339,
+    "node_id": "MDQ6VXNlcjcyNDMzOQ==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/724339?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/lsix",
+    "html_url": "https://github.com/lsix",
+    "followers_url": "https://api.github.com/users/lsix/followers",
+    "following_url": "https://api.github.com/users/lsix/following{/other_user}",
+    "gists_url": "https://api.github.com/users/lsix/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/lsix/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/lsix/subscriptions",
+    "organizations_url": "https://api.github.com/users/lsix/orgs",
+    "repos_url": "https://api.github.com/users/lsix/repos",
+    "events_url": "https://api.github.com/users/lsix/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/lsix/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "8b4195d8d1d1a7c328f9b0dc48cdbf3d8abb6fe6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8b4195d8d1d1a7c328f9b0dc48cdbf3d8abb6fe6",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/8b4195d8d1d1a7c328f9b0dc48cdbf3d8abb6fe6"
+    }
+  ],
+  "stats": {
+    "total": 36,
+    "additions": 29,
+    "deletions": 7
+  },
+  "files": [
+    {
+      "sha": "ed1012375871d634c6dd74bfde4e38226cee749c",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e92f2b5eef008a8617bcd6d878b09848adf6ea7f/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e92f2b5eef008a8617bcd6d878b09848adf6ea7f/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=e92f2b5eef008a8617bcd6d878b09848adf6ea7f",
+      "patch": "@@ -14936,7 +14936,7 @@ add_variant_property (struct field_info *fip, struct type *type,\n     offset_map[fip->fields[i].offset] = i;\n \n   struct objfile *objfile = cu->per_objfile->objfile;\n-  gdb::array_view<variant_part> parts\n+  gdb::array_view<const variant_part> parts\n     = create_variant_parts (&objfile->objfile_obstack, offset_map, fip,\n \t\t\t    fip->variant_parts);\n "
+    },
+    {
+      "sha": "e03abfacdae73263e89e76151eb9478455cc3e68",
+      "filename": "gdb/maint.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e92f2b5eef008a8617bcd6d878b09848adf6ea7f/gdb/maint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e92f2b5eef008a8617bcd6d878b09848adf6ea7f/gdb/maint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/maint.c?ref=e92f2b5eef008a8617bcd6d878b09848adf6ea7f",
+      "patch": "@@ -1158,7 +1158,7 @@ maintenance_selftest (const char *args, int from_tty)\n   auto grp = make_maintenance_selftest_option_group (&opts);\n   gdb::option::process_options\n     (&args, gdb::option::PROCESS_OPTIONS_UNKNOWN_IS_ERROR, grp);\n-  gdb_argv argv (args);\n+  const gdb_argv argv (args);\n   selftests::run_tests (argv.as_array_view (), opts.verbose);\n #else\n   printf_filtered (_(\"\\"
+    },
+    {
+      "sha": "43b7434d10f67ef03aec74e18c9bc022765ae9f2",
+      "filename": "gdb/unittests/array-view-selftests.c",
+      "status": "modified",
+      "additions": 23,
+      "deletions": 2,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e92f2b5eef008a8617bcd6d878b09848adf6ea7f/gdb/unittests/array-view-selftests.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e92f2b5eef008a8617bcd6d878b09848adf6ea7f/gdb/unittests/array-view-selftests.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/unittests/array-view-selftests.c?ref=e92f2b5eef008a8617bcd6d878b09848adf6ea7f",
+      "patch": "@@ -21,6 +21,7 @@\n #include \"gdbsupport/selftest.h\"\n #include \"gdbsupport/array-view.h\"\n #include <array>\n+#include <vector>\n \n namespace selftests {\n namespace array_view_tests {\n@@ -86,8 +87,8 @@ struct A { int i; };\n struct B : A { int j; };\n struct C : A { int l; };\n \n-/* Check that there's no array->view conversion for arrays of derived\n-   types or subclasses.  */\n+/* Check that there's no array->view conversion for arrays of derived types or\n+   subclasses.  */\n static constexpr bool\n check ()\n {\n@@ -116,9 +117,29 @@ check ()\n \t  && !is_convertible <C, array_view<B>> ());\n }\n \n+/* Check that there's no container->view conversion for containers of derived\n+   types or subclasses.  */\n+\n+template<template<typename ...> typename Container>\n+static constexpr bool\n+check_ctor_from_container ()\n+{\n+  using gdb::array_view;\n+\n+  return (    is_convertible <Container<A>, array_view<A>> ()\n+\t  && !is_convertible <Container<B>, array_view<A>> ()\n+\t  && !is_convertible <Container<C>, array_view<A>> ()\n+\n+\t  && !is_convertible <Container<A>, array_view<B>> ()\n+\t  &&  is_convertible <Container<B>, array_view<B>> ()\n+\t  && !is_convertible <Container<C>, array_view<B>> ());\n+}\n+\n } /* namespace no_slicing */\n \n static_assert (no_slicing::check (), \"\");\n+static_assert (no_slicing::check_ctor_from_container<std::vector> (), \"\");\n+static_assert (no_slicing::check_ctor_from_container<gdb::array_view> (), \"\");\n \n /* Check that array_view implicitly converts from std::vector.  */\n "
+    },
+    {
+      "sha": "6f7e45a979c23817c563c46b75c39e8880b48197",
+      "filename": "gdbsupport/array-view.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 3,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e92f2b5eef008a8617bcd6d878b09848adf6ea7f/gdbsupport/array-view.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e92f2b5eef008a8617bcd6d878b09848adf6ea7f/gdbsupport/array-view.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/array-view.h?ref=e92f2b5eef008a8617bcd6d878b09848adf6ea7f",
+      "patch": "@@ -139,9 +139,10 @@ class array_view\n   template<typename Container,\n \t   typename = Requires<gdb::Not<IsDecayedT<Container>>>,\n \t   typename\n-\t     = Requires<std::is_convertible\n-\t\t\t<decltype (std::declval<Container> ().data ()),\n-\t\t\t T *>>,\n+\t     = Requires<DecayedConvertible\n+\t\t\t<typename std::remove_pointer\n+\t\t\t <decltype (std::declval<Container> ().data ())\n+\t\t\t >::type>>,\n \t   typename\n \t     = Requires<std::is_convertible\n \t\t\t<decltype (std::declval<Container> ().size ()),"
+    }
+  ]
+}

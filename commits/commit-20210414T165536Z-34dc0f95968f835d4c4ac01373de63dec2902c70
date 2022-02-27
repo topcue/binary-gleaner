@@ -1,0 +1,170 @@
+{
+  "sha": "34dc0f95968f835d4c4ac01373de63dec2902c70",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MzRkYzBmOTU5NjhmODM1ZDRjNGFjMDEzNzNkZTYzZGVjMjkwMmM3MA==",
+  "commit": {
+    "author": {
+      "name": "Tankut Baris Aktemur",
+      "email": "tankut.baris.aktemur@intel.com",
+      "date": "2021-02-08T15:48:39Z"
+    },
+    "committer": {
+      "name": "Tankut Baris Aktemur",
+      "email": "tankut.baris.aktemur@intel.com",
+      "date": "2021-04-14T16:55:36Z"
+    },
+    "message": "gdb/dwarf2: fix \"info locals\" for clang-compiled inlined functions\n\nGDB reports duplicate local vars with \"<optimized out>\" values for\ninlined functions that are compiled with Clang.\n\nSuppose we have\n\n  __attribute__((always_inline))\n  static void aFunction() {\n    int a = 42;\n    if(a > 2) {\n      int value = a;\n      value += 10; /* break here */\n    }\n  }\n\nThe \"info locals\" command at the \"break here\" line gives the following\noutput:\n\n  ...\n  Breakpoint 1, aFunction () at test.c:6\n  6           value += 10; /* break here */\n  (gdb) info locals\n  value = 42\n  a = 42\n  value = <optimized out>\n  (gdb)\n\nThe reason is, inlined functions that are compiled by Clang do not\ncontain DW_AT_abstract_origin attributes in the DW_TAG_lexical_block\nentries.  See\n\n  https://bugs.llvm.org/show_bug.cgi?id=49953\n\nE.g. the DIE of the inlined function above is\n\n0x00000087:     DW_TAG_inlined_subroutine\n                  DW_AT_abstract_origin (0x0000002a \"aFunction\")\n                  DW_AT_low_pc  (0x00000000004004b2)\n                  DW_AT_high_pc (0x00000000004004d2)\n                  DW_AT_call_file       (\"/tmp/test.c\")\n                  DW_AT_call_line       (11)\n                  DW_AT_call_column     (0x03)\n\n0x0000009b:       DW_TAG_variable\n                    DW_AT_location      (DW_OP_fbreg -4)\n                    DW_AT_abstract_origin       (0x00000032 \"a\")\n\n0x000000a3:       DW_TAG_lexical_block\n                    DW_AT_low_pc        (0x00000000004004c3)\n                    DW_AT_high_pc       (0x00000000004004d2)\n\n0x000000b0:         DW_TAG_variable\n                      DW_AT_location    (DW_OP_fbreg -8)\n                      DW_AT_abstract_origin     (0x0000003e \"value\")\n\nThis causes GDB to fail matching the concrete lexical scope with the\ncorresponding abstract entry.  Hence, the local vars of the abstract\nfunction that are contained in the lexical scope are read separately\n(and thus, in addition to) the local vars of the concrete scope.\nBecause the abstract definitions of the vars do not contain location\ninformation, we see the extra 'value = <optimized out>' above.\n\nThis bug is highly related to PR gdb/25695, but the root cause is not\nexactly the same.  In PR gdb/25695, GCC emits an extra\nDW_TAG_lexical_block without an DW_AT_abstract_origin that wraps the\nbody of the inlined function.  That is, the trees of the abstract DIE\nfor the function and its concrete instance are structurally not the\nsame.  In the case of using Clang, the trees have the same structure.\n\nTo tackle the Clang case, when traversing the children of the concrete\ninstance root, keep a reference to the child of the abstract DIE that\ncorresponds to the concrete child, so that we can match the two DIEs\nheuristically in case of missing DW_AT_abstract_origin attributes.\n\nThe updated gdb.opt/inline-locals.exp test has been checked with GCC\n5-10 and Clang 5-11.\n\ngdb/ChangeLog:\n2021-04-14  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n\n\t* dwarf2/read.c (inherit_abstract_dies): Keep a reference to the\n\tcorresponding child of the abstract DIE when iterating the\n\tchildren of the concrete DIE.\n\ngdb/testsuite/ChangeLog:\n2021-04-14  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n\n\t* gdb.opt/inline-locals.c (scoped): New function.\n\t(main): Call 'scoped'.\n\t* gdb.opt/inline-locals.exp: Update with \"info locals\" tests\n\tfor scoped variables.\n\t* gdb.dwarf2/dw2-inline-with-lexical-scope.c: New file.\n\t* gdb.dwarf2/dw2-inline-with-lexical-scope.exp: New file.",
+    "tree": {
+      "sha": "03e69d91b460534624c2b2620387b7193e6afd61",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/03e69d91b460534624c2b2620387b7193e6afd61"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/34dc0f95968f835d4c4ac01373de63dec2902c70",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/34dc0f95968f835d4c4ac01373de63dec2902c70",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/34dc0f95968f835d4c4ac01373de63dec2902c70",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/34dc0f95968f835d4c4ac01373de63dec2902c70/comments",
+  "author": {
+    "login": "barisaktemur",
+    "id": 55686642,
+    "node_id": "MDQ6VXNlcjU1Njg2NjQy",
+    "avatar_url": "https://avatars.githubusercontent.com/u/55686642?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/barisaktemur",
+    "html_url": "https://github.com/barisaktemur",
+    "followers_url": "https://api.github.com/users/barisaktemur/followers",
+    "following_url": "https://api.github.com/users/barisaktemur/following{/other_user}",
+    "gists_url": "https://api.github.com/users/barisaktemur/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/barisaktemur/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/barisaktemur/subscriptions",
+    "organizations_url": "https://api.github.com/users/barisaktemur/orgs",
+    "repos_url": "https://api.github.com/users/barisaktemur/repos",
+    "events_url": "https://api.github.com/users/barisaktemur/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/barisaktemur/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "barisaktemur",
+    "id": 55686642,
+    "node_id": "MDQ6VXNlcjU1Njg2NjQy",
+    "avatar_url": "https://avatars.githubusercontent.com/u/55686642?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/barisaktemur",
+    "html_url": "https://github.com/barisaktemur",
+    "followers_url": "https://api.github.com/users/barisaktemur/followers",
+    "following_url": "https://api.github.com/users/barisaktemur/following{/other_user}",
+    "gists_url": "https://api.github.com/users/barisaktemur/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/barisaktemur/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/barisaktemur/subscriptions",
+    "organizations_url": "https://api.github.com/users/barisaktemur/orgs",
+    "repos_url": "https://api.github.com/users/barisaktemur/repos",
+    "events_url": "https://api.github.com/users/barisaktemur/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/barisaktemur/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "b9de3b915ce27308adc7e39d11c1fb7aa1f73a54",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b9de3b915ce27308adc7e39d11c1fb7aa1f73a54",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b9de3b915ce27308adc7e39d11c1fb7aa1f73a54"
+    }
+  ],
+  "stats": {
+    "total": 305,
+    "additions": 304,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "3d3e94eebb6a1077e596e4d0ecf12e8e577a7c78",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/34dc0f95968f835d4c4ac01373de63dec2902c70/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/34dc0f95968f835d4c4ac01373de63dec2902c70/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=34dc0f95968f835d4c4ac01373de63dec2902c70",
+      "patch": "@@ -1,3 +1,9 @@\n+2021-04-14  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n+\n+\t* dwarf2/read.c (inherit_abstract_dies): Keep a reference to the\n+\tcorresponding child of the abstract DIE when iterating the\n+\tchildren of the concrete DIE.\n+\n 2021-04-13  Tom de Vries  <tdevries@suse.de>\n \n \t* ui-style.c (read_semi_number, extended_color): Change idx parameter"
+    },
+    {
+      "sha": "32c0ed73cbdf65017d5b5c40aeee29fb4220b30b",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 48,
+      "deletions": 1,
+      "changes": 49,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/34dc0f95968f835d4c4ac01373de63dec2902c70/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/34dc0f95968f835d4c4ac01373de63dec2902c70/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=34dc0f95968f835d4c4ac01373de63dec2902c70",
+      "patch": "@@ -13492,6 +13492,37 @@ inherit_abstract_dies (struct die_info *die, struct dwarf2_cu *cu)\n \t       sect_offset_str (die->sect_off),\n \t       sect_offset_str (origin_die->sect_off));\n \n+  /* Find if the concrete and abstract trees are structurally the\n+     same.  This is a shallow traversal and it is not bullet-proof;\n+     the compiler can trick the debugger into believing that the trees\n+     are isomorphic, whereas they actually are not.  However, the\n+     likelyhood of this happening is pretty low, and a full-fledged\n+     check would be an overkill.  */\n+  bool are_isomorphic = true;\n+  die_info *concrete_child = die->child;\n+  die_info *abstract_child = origin_die->child;\n+  while (concrete_child != nullptr || abstract_child != nullptr)\n+    {\n+      if (concrete_child == nullptr\n+\t  || abstract_child == nullptr\n+\t  || concrete_child->tag != abstract_child->tag)\n+\t{\n+\t  are_isomorphic = false;\n+\t  break;\n+\t}\n+\n+      concrete_child = concrete_child->sibling;\n+      abstract_child = abstract_child->sibling;\n+    }\n+\n+  /* Walk the origin's children in parallel to the concrete children.\n+     This helps match an origin child in case the debug info misses\n+     DW_AT_abstract_origin attributes.  Keep in mind that the abstract\n+     origin tree may not have the same tree structure as the concrete\n+     DIE, though.  */\n+  die_info *corresponding_abstract_child\n+    = are_isomorphic ? origin_die->child : nullptr;\n+\n   std::vector<sect_offset> offsets;\n \n   for (child_die = die->child;\n@@ -13508,7 +13539,12 @@ inherit_abstract_dies (struct die_info *die, struct dwarf2_cu *cu)\n \t one.  */\n       if (child_die->tag == DW_TAG_call_site\n \t  || child_die->tag == DW_TAG_GNU_call_site)\n-\tcontinue;\n+\t{\n+\t  if (are_isomorphic)\n+\t    corresponding_abstract_child\n+\t      = corresponding_abstract_child->sibling;\n+\t  continue;\n+\t}\n \n       /* For each CHILD_DIE, find the corresponding child of\n \t ORIGIN_DIE.  If there is more than one layer of\n@@ -13527,6 +13563,14 @@ inherit_abstract_dies (struct die_info *die, struct dwarf2_cu *cu)\n \t\t\t\t\t     &child_origin_cu);\n \t}\n \n+      /* If missing DW_AT_abstract_origin, try the corresponding child\n+\t of the origin.  Clang emits such lexical scopes.  */\n+      if (child_origin_die == child_die\n+\t  && dwarf2_attr (child_die, DW_AT_abstract_origin, cu) == nullptr\n+\t  && are_isomorphic\n+\t  && child_die->tag == DW_TAG_lexical_block)\n+\tchild_origin_die = corresponding_abstract_child;\n+\n       /* According to DWARF3 3.3.8.2 #3 new entries without their abstract\n \t counterpart may exist.  */\n       if (child_origin_die != child_die)\n@@ -13546,6 +13590,9 @@ inherit_abstract_dies (struct die_info *die, struct dwarf2_cu *cu)\n \t  else\n \t    offsets.push_back (child_origin_die->sect_off);\n \t}\n+\n+      if (are_isomorphic)\n+\tcorresponding_abstract_child = corresponding_abstract_child->sibling;\n     }\n   std::sort (offsets.begin (), offsets.end ());\n   sect_offset *offsets_end = offsets.data () + offsets.size ();"
+    },
+    {
+      "sha": "2e20fd79cb0d434d9493eafd432f79541274e106",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/34dc0f95968f835d4c4ac01373de63dec2902c70/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/34dc0f95968f835d4c4ac01373de63dec2902c70/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=34dc0f95968f835d4c4ac01373de63dec2902c70",
+      "patch": "@@ -1,3 +1,12 @@\n+2021-04-14  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n+\n+\t* gdb.opt/inline-locals.c (scoped): New function.\n+\t(main): Call 'scoped'.\n+\t* gdb.opt/inline-locals.exp: Update with \"info locals\" tests\n+\tfor scoped variables.\n+\t* gdb.dwarf2/dw2-inline-with-lexical-scope.c: New file.\n+\t* gdb.dwarf2/dw2-inline-with-lexical-scope.exp: New file.\n+\n 2021-04-14  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n \n \t* lib/dwarf.exp (_location): Recognize DW_OP_fbreg as an op."
+    },
+    {
+      "sha": "ef9b71af4e04d2598dba431428c5036019cb5735",
+      "filename": "gdb/testsuite/gdb.dwarf2/dw2-inline-with-lexical-scope.c",
+      "status": "added",
+      "additions": 52,
+      "deletions": 0,
+      "changes": 52,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/34dc0f95968f835d4c4ac01373de63dec2902c70/gdb/testsuite/gdb.dwarf2/dw2-inline-with-lexical-scope.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/34dc0f95968f835d4c4ac01373de63dec2902c70/gdb/testsuite/gdb.dwarf2/dw2-inline-with-lexical-scope.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/dw2-inline-with-lexical-scope.c?ref=34dc0f95968f835d4c4ac01373de63dec2902c70",
+      "patch": "@@ -0,0 +1,52 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2021 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see\n+   <http://www.gnu.org/licenses/>.  */\n+\n+#ifdef __GNUC__\n+#define ATTR __attribute__((always_inline))\n+#else\n+#define ATTR\n+#endif\n+\n+int global_num = 0;\n+int global_value = 0;\n+\n+inline ATTR\n+static void\n+func ()\n+{ /* func prologue */\n+  global_num = 42;\n+  int num= 42;\n+  if (num > 2)\n+    {\n+      asm (\"scope_label1: .globl scope_label1\");\n+      global_value = num;\n+      int value = num;\n+      asm (\"breakpoint_label: .globl breakpoint_label\");\n+      value += 10;\n+      asm (\"scope_label2: .globl scope_label2\");\n+    }\n+} /* func end */\n+\n+int\n+main ()\n+{ /* main prologue */\n+  asm (\"main_label: .globl main_label\");\n+  func (); /* func call */\n+  asm (\"main_label2: .globl main_label2\");\n+  return 0; /* main return */\n+} /* main end */"
+    },
+    {
+      "sha": "803f3077d71a7164faa87e3ffc1ee5b00f0f2da5",
+      "filename": "gdb/testsuite/gdb.dwarf2/dw2-inline-with-lexical-scope.exp",
+      "status": "added",
+      "additions": 139,
+      "deletions": 0,
+      "changes": 139,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/34dc0f95968f835d4c4ac01373de63dec2902c70/gdb/testsuite/gdb.dwarf2/dw2-inline-with-lexical-scope.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/34dc0f95968f835d4c4ac01373de63dec2902c70/gdb/testsuite/gdb.dwarf2/dw2-inline-with-lexical-scope.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/dw2-inline-with-lexical-scope.exp?ref=34dc0f95968f835d4c4ac01373de63dec2902c70",
+      "patch": "@@ -0,0 +1,139 @@\n+# Copyright 2021 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test that scoped local variables in an inlined function are printed\n+# properly.\n+\n+load_lib dwarf.exp\n+\n+# This test can only be run on targets that support DWARF-2 and use\n+# gas.\n+if {![dwarf2_support]} {\n+    return 0\n+}\n+\n+standard_testfile .c .S\n+\n+# Make some DWARF for the test.  The concrete inlined instance\n+# (i.e. the DW_TAG_inlined_subroutine) has a DW_TAG_lexical_block that\n+# does not contain a DW_AT_abstract_origin attribute.  This is\n+# deliberate.  Bad GDB printed duplicate local variables with\n+# \"optimized out\" values in this case.\n+\n+set asm_file [standard_output_file $srcfile2]\n+Dwarf::assemble $asm_file {\n+    global srcfile srcdir subdir\n+    declare_labels int_label func_label num_label value_label lines_label\n+\n+    get_func_info main\n+    set func_call [gdb_get_line_number \"func call\"]\n+\n+    set global_num_addr [gdb_target_symbol global_num]\n+    set global_value_addr [gdb_target_symbol global_value]\n+\n+    cu {} {\n+\tcompile_unit {\n+\t    {language @DW_LANG_C99}\n+\t    {name $srcfile}\n+\t    {low_pc $main_start addr}\n+\t    {high_pc \"$main_start + $main_len\" addr}\n+\t    {stmt_list ${lines_label} DW_FORM_sec_offset}\n+\t} {\n+\t    int_label: base_type {\n+\t\t{name \"int\"}\n+\t\t{byte_size 4 sdata}\n+\t\t{encoding @DW_ATE_signed}\n+\t    }\n+\n+\t    func_label: subprogram {\n+\t\t{name func}\n+\t\t{inline 3 data1}\n+\t    } {\n+\t\tnum_label: DW_TAG_variable {\n+\t\t    {name num}\n+\t\t    {type :$int_label}\n+\t\t}\n+\t\tlexical_block {\n+\t\t} {\n+\t\t    value_label: DW_TAG_variable {\n+\t\t\t{name value}\n+\t\t\t{type :$int_label}\n+\t\t    }\n+\t\t}\n+\t    }\n+\n+\t    subprogram {\n+\t\t{name main}\n+\t\t{external 1 flag}\n+\t\t{low_pc $main_start addr}\n+\t\t{high_pc \"$main_start + $main_len\" addr}\n+\t    } {\n+\t\tinlined_subroutine {\n+\t\t    {abstract_origin %$func_label}\n+\t\t    {low_pc main_label addr}\n+\t\t    {high_pc main_label2 addr}\n+\t\t    {call_file 1 data1}\n+\t\t    {call_line $func_call data1}\n+\t\t} {\n+\t\t    DW_TAG_variable {\n+\t\t\t{abstract_origin %$num_label}\n+\t\t\t{location {addr $global_num_addr} SPECIAL_expr}\n+\t\t    }\n+\t\t    lexical_block {\n+\t\t\t{low_pc scope_label1 addr}\n+\t\t\t{high_pc scope_label2 addr}\n+\t\t    } {\n+\t\t\tDW_TAG_variable {\n+\t\t\t    {abstract_origin %$value_label}\n+\t\t\t    {location {addr $global_value_addr} SPECIAL_expr}\n+\t\t\t}\n+\t\t    }\n+\t\t}\n+\t    }\n+\t}\n+    }\n+\n+    lines {version 2} lines_label {\n+\tinclude_dir \"${srcdir}/${subdir}\"\n+\tfile_name \"$srcfile\" 1\n+\n+\tprogram {\n+\t    {DW_LNE_set_address $main_start}\n+\t    {line [gdb_get_line_number \"main prologue\"]}\n+\t    {DW_LNS_copy}\n+\t    {DW_LNE_set_address main_label}\n+\t    {line [gdb_get_line_number \"func call\"]}\n+\t    {DW_LNS_copy}\n+\t    {DW_LNE_set_address main_label}\n+\t    {line [gdb_get_line_number \"func end\"]}\n+\t    {DW_LNS_copy}\n+\t    {DW_LNE_set_address main_label2}\n+\t    {line [gdb_get_line_number \"main end\"]}\n+\t    {DW_LNS_copy}\n+\t    {DW_LNE_set_address $main_end}\n+\t    {DW_LNE_end_sequence}\n+\t}\n+    }\n+}\n+\n+if {[prepare_for_testing \"failed to prepare\" ${testfile} \\\n+\t [list $srcfile $asm_file] {nodebug}]} {\n+    return -1\n+}\n+\n+runto breakpoint_label\n+\n+# Bad GDB was printing an additional \"value = <optimized out>\".\n+gdb_test \"info locals\" \"value = 42\\r\\nnum = 42\""
+    },
+    {
+      "sha": "f8910dadca30fb6550471cff882c0461eaa5f713",
+      "filename": "gdb/testsuite/gdb.opt/inline-locals.c",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 0,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/34dc0f95968f835d4c4ac01373de63dec2902c70/gdb/testsuite/gdb.opt/inline-locals.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/34dc0f95968f835d4c4ac01373de63dec2902c70/gdb/testsuite/gdb.opt/inline-locals.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.opt/inline-locals.c?ref=34dc0f95968f835d4c4ac01373de63dec2902c70",
+      "patch": "@@ -53,6 +53,24 @@ inline ATTR int func2(int arg2)\n   return x * func1 (arg2);\n }\n \n+inline ATTR\n+void\n+scoped (int s)\n+{\n+  int loc1 = 10;\n+  if (s > 0)\n+    {\n+      int loc2 = 20;\n+      s++; /* bp for locals 1 */\n+      if (s > 1)\n+\t{\n+\t  int loc3 = 30;\n+\t  s++; /* bp for locals 2 */\n+\t}\n+    }\n+  s++; /* bp for locals 3 */\n+}\n+\n int main (void)\n {\n   int val;\n@@ -67,5 +85,7 @@ int main (void)\n   val = func2 (result);\n   result = val;\n \n+  scoped (40);\n+\n   return 0;\n }"
+    },
+    {
+      "sha": "d0acb4ae8b5290ff1cb7e85a64ce6c8d66582ffd",
+      "filename": "gdb/testsuite/gdb.opt/inline-locals.exp",
+      "status": "modified",
+      "additions": 30,
+      "deletions": 0,
+      "changes": 30,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/34dc0f95968f835d4c4ac01373de63dec2902c70/gdb/testsuite/gdb.opt/inline-locals.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/34dc0f95968f835d4c4ac01373de63dec2902c70/gdb/testsuite/gdb.opt/inline-locals.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.opt/inline-locals.exp?ref=34dc0f95968f835d4c4ac01373de63dec2902c70",
+      "patch": "@@ -124,3 +124,33 @@ if { ! $no_frames } {\n }\n \n gdb_test \"print array\\[0\\]\" \"\\\\\\$$decimal = 184\" \"print local 3\"\n+\n+# Test printing scoped local variables.\n+\n+proc check_scoped_locals {bp_label pass_re} {\n+    global srcfile\n+\n+    set locals_bp [gdb_get_line_number $bp_label ${srcfile}]\n+    gdb_breakpoint $srcfile:$locals_bp\n+\n+    gdb_continue_to_breakpoint \"$bp_label\" \".*$srcfile:$locals_bp.*\"\n+    set kfail_re [multi_line $pass_re \".*<optimized out>\"]\n+    gdb_test_multiple \"info locals\" \"scoped info locals at $bp_label\" {\n+\t-re -wrap $pass_re {\n+\t    pass $gdb_test_name\n+\t}\n+\t-re -wrap $kfail_re {\n+\t    if {[test_compiler_info {gcc-[0-8]-*-*}]} {\n+\t\tkfail gdb/25695 $gdb_test_name\n+\t    } else {\n+\t\tfail $gdb_test_name\n+\t    }\n+\t}\n+    }\n+}\n+\n+if {! $no_frames } {\n+    check_scoped_locals \"bp for locals 1\" \"loc2 = 20\\r\\nloc1 = 10\"\n+    check_scoped_locals \"bp for locals 2\" \"loc3 = 30\\r\\nloc2 = 20\\r\\nloc1 = 10\"\n+    check_scoped_locals \"bp for locals 3\" \"loc1 = 10\"\n+}"
+    }
+  ]
+}

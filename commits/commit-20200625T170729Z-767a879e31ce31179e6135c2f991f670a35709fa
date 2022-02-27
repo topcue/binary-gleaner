@@ -1,0 +1,170 @@
+{
+  "sha": "767a879e31ce31179e6135c2f991f670a35709fa",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NzY3YTg3OWUzMWNlMzExNzllNjEzNWMyZjk5MWY2NzBhMzU3MDlmYQ==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-06-09T16:38:30Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-06-25T17:07:29Z"
+    },
+    "message": "gdb/riscv: Improved register alias name creation\n\nThis commit does two things:\n\n 1. Makes use of the DECLARE_CSR_ALIAS definitions in riscv-opc.h to\n add additional aliases for CSRs.\n\n 2. Only creates aliases for registers that are actually present on\n the target (as announced in the target XML description).\n\nThis means that the 'csr%d' aliases that exist will only be created\nfor those CSRs the target actually has, which is a nice improvement,\nas accessing one of the CSRs that didn't exist would cause GDB to\ncrash with this error:\n\n  valprint.c:1560: internal-error: bool maybe_negate_by_bytes(const gdb_byte*, unsigned int, bfd_endian, gdb::byte_vector*): Assertion `len > 0' failed.\n\nWhen we look at the DECLARE_CSR_ALIAS lines in riscv-opc.h, these can\nbe split into three groups:\n\n DECLARE_CSR_ALIAS(misa, 0xf10, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9, PRIV_SPEC_CLASS_1P9P1)\n\nThe 'misa' register used to exist of offset 0xf10, but was moved to\nits current offset (0x301) in with privilege spec 1.9.1.  We don't\nwant GDB to create an alias called 'misa' as we will already have a\n'misa' register created by the DECLARE_CSR(misa ....) call earlier in\nriscv-opc.h\n\n DECLARE_CSR_ALIAS(ubadaddr, CSR_UTVAL, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9, PRIV_SPEC_CLASS_1P10)\n DECLARE_CSR_ALIAS(sbadaddr, CSR_STVAL, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9, PRIV_SPEC_CLASS_1P10)\n DECLARE_CSR_ALIAS(sptbr, CSR_SATP, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9, PRIV_SPEC_CLASS_1P10)\n DECLARE_CSR_ALIAS(mbadaddr, CSR_MTVAL, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9, PRIV_SPEC_CLASS_1P10)\n DECLARE_CSR_ALIAS(mucounteren, CSR_MCOUNTINHIBIT, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9, PRIV_SPEC_CLASS_1P10)\n\nThese aliases are all CSRs that were removed in privilege spec 1.10,\nand whose addresses were reused by new CSRs.  The names meaning of the\nold names is totally different to the new CSRs that have taken their\nplace.  I don't believe we should add these as aliases into GDB.  If\nthe new CSR exists in the target then that should be enough.\n\n DECLARE_CSR_ALIAS(dscratch, CSR_DSCRATCH0, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9, PRIV_SPEC_CLASS_1P11)\n\nIn privilege spec 1.11 the 'dscratch' register was renamed to\n'dscratch0', however the meaning of the register didn't change.\nAdding the 'dscratch' alias makes sense I think.\n\nLooking then at the final PRIV_SPEC_CLASS_* field for each alias then\nwe can see that currently we only want to take the alias from\nPRIV_SPEC_CLASS_1P11.  For now then this is what I'm using to filter\nthe aliases within GDB.\n\nIn the future there's no telling how DECLARE_CSR_ALIAS will be used.\nI've heard it said that future RISC-V privilege specs will not reuse\nCSR offsets again.  But it could happen.  We just don't know.\n\nIf / when it does we may need to revisit how aliases are created for\nGDB, but for now this seems to be OK.\n\ngdb/ChangeLog:\n\n\t* riscv-tdep.c (riscv_create_csr_aliases): Handle csr aliases from\n\triscv-opc.h.\n\t(class riscv_pending_register_alias): New class.\n\t(riscv_check_tdesc_feature): Take vector of pending aliases and\n\tpopulate it as appropriate.\n\t(riscv_setup_register_aliases): Delete.\n\t(riscv_gdbarch_init): Create vector of pending aliases and pass it\n\tto riscv_check_tdesc_feature in all cases.  Use the vector to\n\tcreate the register aliases.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.arch/riscv-tdesc-regs-32.xml: New file.\n\t* gdb.arch/riscv-tdesc-regs-64.xml: New file.\n\t* gdb.arch/riscv-tdesc-regs.c: New file.\n\t* gdb.arch/riscv-tdesc-regs.exp: New file.",
+    "tree": {
+      "sha": "0f096be8a402db6851e8d374291f2a33a96318cb",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/0f096be8a402db6851e8d374291f2a33a96318cb"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/767a879e31ce31179e6135c2f991f670a35709fa",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/767a879e31ce31179e6135c2f991f670a35709fa",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/767a879e31ce31179e6135c2f991f670a35709fa",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/767a879e31ce31179e6135c2f991f670a35709fa/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "bb6e55f3ee440c5d03fd47ec32255c20b9f895fe",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bb6e55f3ee440c5d03fd47ec32255c20b9f895fe",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/bb6e55f3ee440c5d03fd47ec32255c20b9f895fe"
+    }
+  ],
+  "stats": {
+    "total": 399,
+    "additions": 370,
+    "deletions": 29
+  },
+  "files": [
+    {
+      "sha": "f6809a69a1c5945fc3cf211415d5b715bf935998",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/767a879e31ce31179e6135c2f991f670a35709fa/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/767a879e31ce31179e6135c2f991f670a35709fa/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=767a879e31ce31179e6135c2f991f670a35709fa",
+      "patch": "@@ -1,3 +1,15 @@\n+2020-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* riscv-tdep.c (riscv_create_csr_aliases): Handle csr aliases from\n+\triscv-opc.h.\n+\t(class riscv_pending_register_alias): New class.\n+\t(riscv_check_tdesc_feature): Take vector of pending aliases and\n+\tpopulate it as appropriate.\n+\t(riscv_setup_register_aliases): Delete.\n+\t(riscv_gdbarch_init): Create vector of pending aliases and pass it\n+\tto riscv_check_tdesc_feature in all cases.  Use the vector to\n+\tcreate the register aliases.\n+\n 2020-06-25  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>\n \n \t* sol2-tdep.c (sol2_static_transform_name): Remove."
+    },
+    {
+      "sha": "55929ae34e48baecb264894f26ab975660cc087f",
+      "filename": "gdb/riscv-tdep.c",
+      "status": "modified",
+      "additions": 66,
+      "deletions": 29,
+      "changes": 95,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/767a879e31ce31179e6135c2f991f670a35709fa/gdb/riscv-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/767a879e31ce31179e6135c2f991f670a35709fa/gdb/riscv-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/riscv-tdep.c?ref=767a879e31ce31179e6135c2f991f670a35709fa",
+      "patch": "@@ -258,6 +258,16 @@ riscv_create_csr_aliases ()\n       int csr_num = reg.regnum - RISCV_FIRST_CSR_REGNUM;\n       const char *alias = xstrprintf (\"csr%d\", csr_num);\n       reg.names.push_back (alias);\n+\n+      /* Setup the other csr aliases.  We don't use a switch table here in\n+         case there are multiple aliases with the same value.  Also filter\n+         based on ABRT_VER in order to avoid a very old alias for misa that\n+         duplicates the name \"misa\" but at a different CSR address.  */\n+#define DECLARE_CSR_ALIAS(NAME,VALUE,CLASS,DEF_VER,ABRT_VER)\t \\\n+      if (csr_num == VALUE && ABRT_VER >= PRIV_SPEC_CLASS_1P11)  \\\n+        reg.names.push_back ( # NAME );\n+#include \"opcode/riscv-opc.h\"\n+#undef DECLARE_CSR_ALIAS\n     }\n }\n \n@@ -2945,6 +2955,37 @@ riscv_find_default_target_description (const struct gdbarch_info info)\n   return riscv_lookup_target_description (features);\n }\n \n+/* Information about a register alias that needs to be set up for this\n+   target.  These are collected when the target's XML description is\n+   analysed, and then processed later, once the gdbarch has been created.  */\n+\n+class riscv_pending_register_alias\n+{\n+public:\n+  /* Constructor.  */\n+\n+  riscv_pending_register_alias (const char *name, const void *baton)\n+    : m_name (name),\n+      m_baton (baton)\n+  { /* Nothing.  */ }\n+\n+  /* Convert this into a user register for GDBARCH.  */\n+\n+  void create (struct gdbarch *gdbarch) const\n+  {\n+    user_reg_add (gdbarch, m_name, value_of_riscv_user_reg, m_baton);\n+  }\n+\n+private:\n+  /* The name for this alias.  */\n+  const char *m_name;\n+\n+  /* The baton value for passing to user_reg_add.  This must point to some\n+     data that will live for at least as long as the gdbarch object to\n+     which the user register is attached.  */\n+  const void *m_baton;\n+};\n+\n /* All of the registers in REG_SET are checked for in FEATURE, TDESC_DATA\n    is updated with the register numbers for each register as listed in\n    REG_SET.  If any register marked as required in REG_SET is not found in\n@@ -2953,7 +2994,8 @@ riscv_find_default_target_description (const struct gdbarch_info info)\n static bool\n riscv_check_tdesc_feature (struct tdesc_arch_data *tdesc_data,\n                            const struct tdesc_feature *feature,\n-                           const struct riscv_register_feature *reg_set)\n+                           const struct riscv_register_feature *reg_set,\n+                           std::vector<riscv_pending_register_alias> *aliases)\n {\n   for (const auto &reg : reg_set->registers)\n     {\n@@ -2965,7 +3007,15 @@ riscv_check_tdesc_feature (struct tdesc_arch_data *tdesc_data,\n \t    tdesc_numbered_register (feature, tdesc_data, reg.regnum, name);\n \n \t  if (found)\n-\t    break;\n+            {\n+              /* We know that the target description mentions this\n+                 register.  In RISCV_REGISTER_NAME we ensure that GDB\n+                 always uses the first name for each register, so here we\n+                 add aliases for all of the remaining names.  */\n+              for (int i = 0; i < reg.names.size (); ++i)\n+\t\taliases->emplace_back (reg.names[i], (void *) &reg.regnum);\n+              break;\n+            }\n \t}\n \n       if (!found && reg.required_p)\n@@ -2993,24 +3043,6 @@ riscv_add_reggroups (struct gdbarch *gdbarch)\n   reggroup_add (gdbarch, csr_reggroup);\n }\n \n-/* Create register aliases for all the alternative names that exist for\n-   registers in REG_SET.  */\n-\n-static void\n-riscv_setup_register_aliases (struct gdbarch *gdbarch,\n-                              const struct riscv_register_feature *reg_set)\n-{\n-  for (auto &reg : reg_set->registers)\n-    {\n-      /* The first item in the names list is the preferred name for the\n-         register, this is what RISCV_REGISTER_NAME returns, and so we\n-         don't need to create an alias with that name here.  */\n-      for (int i = 1; i < reg.names.size (); ++i)\n-        user_reg_add (gdbarch, reg.names[i], value_of_riscv_user_reg,\n-                      &reg.regnum);\n-    }\n-}\n-\n /* Implement the \"dwarf2_reg_to_regnum\" gdbarch method.  */\n \n static int\n@@ -3114,10 +3146,12 @@ riscv_gdbarch_init (struct gdbarch_info info,\n     return NULL;\n \n   struct tdesc_arch_data *tdesc_data = tdesc_data_alloc ();\n+  std::vector<riscv_pending_register_alias> pending_aliases;\n \n   bool valid_p = riscv_check_tdesc_feature (tdesc_data,\n                                             feature_cpu,\n-                                            &riscv_xreg_feature);\n+                                            &riscv_xreg_feature,\n+                                            &pending_aliases);\n   if (valid_p)\n     {\n       /* Check that all of the core cpu registers have the same bitsize.  */\n@@ -3137,7 +3171,8 @@ riscv_gdbarch_init (struct gdbarch_info info,\n   if (feature_fpu != NULL)\n     {\n       valid_p &= riscv_check_tdesc_feature (tdesc_data, feature_fpu,\n-                                            &riscv_freg_feature);\n+                                            &riscv_freg_feature,\n+                                            &pending_aliases);\n \n       /* Search for the first floating point register (by any alias), to\n          determine the bitsize.  */\n@@ -3173,11 +3208,13 @@ riscv_gdbarch_init (struct gdbarch_info info,\n \n   if (feature_virtual)\n     riscv_check_tdesc_feature (tdesc_data, feature_virtual,\n-                               &riscv_virtual_feature);\n+                               &riscv_virtual_feature,\n+                               &pending_aliases);\n \n   if (feature_csr)\n     riscv_check_tdesc_feature (tdesc_data, feature_csr,\n-                               &riscv_csr_feature);\n+                               &riscv_csr_feature,\n+                               &pending_aliases);\n \n   if (!valid_p)\n     {\n@@ -3315,11 +3352,11 @@ riscv_gdbarch_init (struct gdbarch_info info,\n      want, ignoring what the target tells us.  */\n   set_gdbarch_register_reggroup_p (gdbarch, riscv_register_reggroup_p);\n \n-  /* Create register aliases for alternative register names.  */\n-  riscv_setup_register_aliases (gdbarch, &riscv_xreg_feature);\n-  if (riscv_has_fp_regs (gdbarch))\n-    riscv_setup_register_aliases (gdbarch, &riscv_freg_feature);\n-  riscv_setup_register_aliases (gdbarch, &riscv_csr_feature);\n+  /* Create register aliases for alternative register names.  We only\n+     create aliases for registers which were mentioned in the target\n+     description.  */\n+  for (const auto &alias : pending_aliases)\n+    alias.create (gdbarch);\n \n   /* Compile command hooks.  */\n   set_gdbarch_gcc_target_options (gdbarch, riscv_gcc_target_options);"
+    },
+    {
+      "sha": "e333748755ea6241ba92f942370a6f7ee684bee7",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/767a879e31ce31179e6135c2f991f670a35709fa/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/767a879e31ce31179e6135c2f991f670a35709fa/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=767a879e31ce31179e6135c2f991f670a35709fa",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-06-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.arch/riscv-tdesc-regs-32.xml: New file.\n+\t* gdb.arch/riscv-tdesc-regs-64.xml: New file.\n+\t* gdb.arch/riscv-tdesc-regs.c: New file.\n+\t* gdb.arch/riscv-tdesc-regs.exp: New file.\n+\n 2020-06-24  Pedro Alves  <palves@redhat.com>\n \n \t* gdb.arch/amd64-entry-value-paramref.exp: Use"
+    },
+    {
+      "sha": "90406a0c6768e55e0ac53035b053aedf75d5c52e",
+      "filename": "gdb/testsuite/gdb.arch/riscv-tdesc-regs-32.xml",
+      "status": "added",
+      "additions": 89,
+      "deletions": 0,
+      "changes": 89,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/767a879e31ce31179e6135c2f991f670a35709fa/gdb/testsuite/gdb.arch/riscv-tdesc-regs-32.xml",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/767a879e31ce31179e6135c2f991f670a35709fa/gdb/testsuite/gdb.arch/riscv-tdesc-regs-32.xml",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/riscv-tdesc-regs-32.xml?ref=767a879e31ce31179e6135c2f991f670a35709fa",
+      "patch": "@@ -0,0 +1,89 @@\n+<?xml version=\"1.0\"?>\n+<!DOCTYPE target SYSTEM \"gdb-target.dtd\">\n+<target>\n+  <architecture>riscv</architecture>\n+  <feature name=\"org.gnu.gdb.riscv.cpu\">\n+    <reg name=\"zero\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"ra\" bitsize=\"32\" type=\"code_ptr\"/>\n+    <reg name=\"sp\" bitsize=\"32\" type=\"data_ptr\"/>\n+    <reg name=\"gp\" bitsize=\"32\" type=\"data_ptr\"/>\n+    <reg name=\"tp\" bitsize=\"32\" type=\"data_ptr\"/>\n+    <reg name=\"t0\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"t1\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"t2\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"fp\" bitsize=\"32\" type=\"data_ptr\"/>\n+    <reg name=\"s1\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"a0\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"a1\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"a2\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"a3\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"a4\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"a5\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"a6\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"a7\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"s2\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"s3\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"s4\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"s5\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"s6\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"s7\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"s8\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"s9\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"s10\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"s11\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"t3\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"t4\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"t5\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"t6\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"pc\" bitsize=\"32\" type=\"code_ptr\"/>\n+  </feature>\n+  <feature name=\"org.gnu.gdb.riscv.fpu\">\n+    <reg name=\"ft0\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"ft1\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"ft2\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"ft3\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"ft4\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"ft5\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"ft6\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"ft7\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fs0\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fs1\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fa0\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fa1\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fa2\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fa3\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fa4\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fa5\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fa6\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fa7\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fs2\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fs3\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fs4\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fs5\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fs6\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fs7\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fs8\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fs9\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fs10\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"fs11\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"ft8\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"ft9\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"ft10\" bitsize=\"32\" type=\"float\"/>\n+    <reg name=\"ft11\" bitsize=\"32\" type=\"float\"/>\n+    <!-- The following 3 registers are duplicated. -->\n+    <reg name=\"fflags\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"frm\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"fcsr\" bitsize=\"32\" type=\"int\"/>\n+  </feature>\n+  <feature name=\"org.gnu.gdb.riscv.csr\">\n+    <!-- The following 3 registers are duplicated. -->\n+    <reg name=\"fflags\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"frm\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"fcsr\" bitsize=\"32\" type=\"int\"/>\n+    <!-- The following is a CSR unknown to GDB. -->\n+    <reg name=\"unknown_csr\" bitsize=\"32\" type=\"int\"/>\n+    <!-- The following is now known as 'dscratch0' in the official\n+         RISC-V spec, but GDB should NOT rename this register. -->\n+    <reg name=\"dscratch\" bitsize=\"32\" type=\"int\"/>\n+  </feature>\n+</target>"
+    },
+    {
+      "sha": "b2422aeb86667c9e5045fc3c04ad971fa8f0c501",
+      "filename": "gdb/testsuite/gdb.arch/riscv-tdesc-regs-64.xml",
+      "status": "added",
+      "additions": 93,
+      "deletions": 0,
+      "changes": 93,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/767a879e31ce31179e6135c2f991f670a35709fa/gdb/testsuite/gdb.arch/riscv-tdesc-regs-64.xml",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/767a879e31ce31179e6135c2f991f670a35709fa/gdb/testsuite/gdb.arch/riscv-tdesc-regs-64.xml",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/riscv-tdesc-regs-64.xml?ref=767a879e31ce31179e6135c2f991f670a35709fa",
+      "patch": "@@ -0,0 +1,93 @@\n+<?xml version=\"1.0\"?>\n+<!DOCTYPE target SYSTEM \"gdb-target.dtd\">\n+<target>\n+  <architecture>riscv</architecture>\n+  <feature name=\"org.gnu.gdb.riscv.cpu\">\n+    <reg name=\"zero\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"ra\" bitsize=\"64\" type=\"code_ptr\"/>\n+    <reg name=\"sp\" bitsize=\"64\" type=\"data_ptr\"/>\n+    <reg name=\"gp\" bitsize=\"64\" type=\"data_ptr\"/>\n+    <reg name=\"tp\" bitsize=\"64\" type=\"data_ptr\"/>\n+    <reg name=\"t0\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"t1\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"t2\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"fp\" bitsize=\"64\" type=\"data_ptr\"/>\n+    <reg name=\"s1\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"a0\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"a1\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"a2\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"a3\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"a4\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"a5\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"a6\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"a7\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"s2\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"s3\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"s4\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"s5\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"s6\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"s7\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"s8\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"s9\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"s10\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"s11\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"t3\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"t4\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"t5\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"t6\" bitsize=\"64\" type=\"int\"/>\n+    <reg name=\"pc\" bitsize=\"64\" type=\"code_ptr\"/>\n+  </feature>\n+  <feature name=\"org.gnu.gdb.riscv.fpu\">\n+    <union id=\"riscv_double\">\n+      <field name=\"float\" type=\"ieee_single\"/>\n+      <field name=\"double\" type=\"ieee_double\"/>\n+    </union>\n+    <reg name=\"ft0\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"ft1\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"ft2\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"ft3\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"ft4\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"ft5\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"ft6\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"ft7\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fs0\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fs1\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fa0\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fa1\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fa2\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fa3\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fa4\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fa5\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fa6\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fa7\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fs2\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fs3\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fs4\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fs5\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fs6\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fs7\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fs8\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fs9\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fs10\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"fs11\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"ft8\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"ft9\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"ft10\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <reg name=\"ft11\" bitsize=\"64\" type=\"riscv_double\"/>\n+    <!-- The following 3 registers are duplicated. -->\n+    <reg name=\"fflags\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"frm\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"fcsr\" bitsize=\"32\" type=\"int\"/>\n+  </feature>\n+  <feature name=\"org.gnu.gdb.riscv.csr\">\n+    <!-- The following 3 registers are duplicated. -->\n+    <reg name=\"fflags\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"frm\" bitsize=\"32\" type=\"int\"/>\n+    <reg name=\"fcsr\" bitsize=\"32\" type=\"int\"/>\n+    <!-- The following is a CSR unknown to GDB. -->\n+    <reg name=\"unknown_csr\" bitsize=\"32\" type=\"int\"/>\n+    <!-- The following is now known as 'dscratch0' in the official\n+         RISC-V spec, but GDB should NOT rename this register. -->\n+    <reg name=\"dscratch\" bitsize=\"32\" type=\"int\"/>\n+  </feature>\n+</target>"
+    },
+    {
+      "sha": "f4825c8a7c1186e3fc77e381a89369df031109f1",
+      "filename": "gdb/testsuite/gdb.arch/riscv-tdesc-regs.c",
+      "status": "added",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/767a879e31ce31179e6135c2f991f670a35709fa/gdb/testsuite/gdb.arch/riscv-tdesc-regs.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/767a879e31ce31179e6135c2f991f670a35709fa/gdb/testsuite/gdb.arch/riscv-tdesc-regs.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/riscv-tdesc-regs.c?ref=767a879e31ce31179e6135c2f991f670a35709fa",
+      "patch": "@@ -0,0 +1,22 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+int\n+main ()\n+{\n+  return 0;\n+}"
+    },
+    {
+      "sha": "46e64d62a2bb611633b58539f7b0c8651834bed9",
+      "filename": "gdb/testsuite/gdb.arch/riscv-tdesc-regs.exp",
+      "status": "added",
+      "additions": 81,
+      "deletions": 0,
+      "changes": 81,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/767a879e31ce31179e6135c2f991f670a35709fa/gdb/testsuite/gdb.arch/riscv-tdesc-regs.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/767a879e31ce31179e6135c2f991f670a35709fa/gdb/testsuite/gdb.arch/riscv-tdesc-regs.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/riscv-tdesc-regs.exp?ref=767a879e31ce31179e6135c2f991f670a35709fa",
+      "patch": "@@ -0,0 +1,81 @@\n+# Copyright 2020 Free Software Foundation, Inc.\n+#\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Various tests to check which register names are available after\n+# loading a new target description file.\n+\n+if {![istarget \"riscv*-*-*\"]} {\n+    verbose \"Skipping ${gdb_test_file_name}.\"\n+    return\n+}\n+\n+standard_testfile\n+\n+if { [prepare_for_testing \"failed to prepare\" ${testfile} ${srcfile} \\\n+\t  {debug quiet}] } {\n+    unsupported \"failed to compile\"\n+    return -1\n+}\n+\n+if { ![runto_main] } {\n+    untested \"failed to runto main\"\n+    return -1\n+}\n+\n+# First, figure out if we are 32-bit or 64-bit.\n+set xlen [get_valueof \"/d\" \"sizeof (\\$a0)\" 0]\n+set flen [get_valueof \"/d\" \"sizeof (\\$fa0)\" 0]\n+\n+gdb_assert { $xlen != 0 && $flen != 0 } \"read xlen and flen\"\n+\n+# We only handle 32-bit or 64-bit x-registers.\n+if { $xlen != 4 && $xlen != 8 } {\n+    unsupported \"unknown x-register size\"\n+    return -1\n+}\n+\n+# If FLEN is 1 then the target doesn't have floating point support\n+# (the register $fa0 was not recognised).  Otherwise, we can only\n+# proceed if FLEN equals XLEN, otherwise we'd need more test XML\n+# files.\n+if { $flen != 1 && $flen != $xlen } {\n+    unsupport \"unknown xlen/flen combination\"\n+    return -1\n+}\n+\n+if { $xlen == 4 } {\n+    set xml_tdesc \"riscv-tdesc-regs-32.xml\"\n+} else {\n+    set xml_tdesc \"riscv-tdesc-regs-64.xml\"\n+}\n+set xml_tdesc \"${srcdir}/${subdir}/${xml_tdesc}\"\n+\n+# Maybe copy the target over if we're remote testing.\n+if {[is_remote host]} {\n+    set remote_file [remote_download host $xml_tdesc]\n+} else {\n+    set remote_file $xml_tdesc\n+}\n+\n+gdb_test_no_output \"set tdesc filename $remote_file\" \\\n+    \"load the new target description\"\n+\n+# Check that an alias for an unknown CSR will give a suitable error.\n+gdb_test \"info registers \\$csr0\" \"Invalid register `csr0'\"\n+\n+# Check we can access the dscratch register using either of its names.\n+gdb_test \"info registers \\$dscratch0\" \"dscratch0\\[ \\t\\]+.*\"\n+gdb_test \"info registers \\$dscratch\" \"dscratch\\[ \\t\\]+.*\"\n+"
+    }
+  ]
+}

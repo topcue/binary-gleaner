@@ -1,0 +1,98 @@
+{
+  "sha": "8e4e0c7a49d8b216676f31f670f235308ff2117b",
+  "node_id": "C_kwDOANOeidoAKDhlNGUwYzdhNDlkOGIyMTY2NzZmMzFmNjcwZjIzNTMwOGZmMjExN2I",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2021-09-29T13:53:52Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-09-29T13:53:52Z"
+    },
+    "message": "Fix gdb.multi/multi-term-settings.exp race\n\nThe gdb.multi/multi-term-settings.exp testcase sometimes fails like so:\n\n Running /home/pedro/gdb/mygit/src/gdb/testsuite/gdb.multi/multi-term-settings.exp ...\n FAIL: gdb.multi/multi-term-settings.exp: inf1_how=attach: inf2_how=attach: stop with control-c (SIGINT)\n\nIt's easier to reproduce if you stress the machine at the same time, like e.g.:\n\n  $ stress -c 24\n\nLooking at gdb.log, we see:\n\n (gdb) attach 60422\n Attaching to program: build/gdb/testsuite/outputs/gdb.multi/multi-term-settings/multi-term-settings, process 60422\n [New Thread 60422.60422]\n Reading symbols from /lib/x86_64-linux-gnu/libc.so.6...\n Reading symbols from /usr/lib/debug//lib/x86_64-linux-gnu/libc-2.31.so...\n Reading symbols from /lib64/ld-linux-x86-64.so.2...\n (No debugging symbols found in /lib64/ld-linux-x86-64.so.2)\n 0x00007f2fc2485334 in __GI___clock_nanosleep (clock_id=<optimized out>, clock_id@entry <mailto:clock_id@entry>=0, flags=flags@entry <mailto:flags@entry>=0, req=req@entry <mailto:req@entry>=0x7ffe23126940, rem=rem@entry <mailto:rem@entry>=0x0) at ../sysdeps/unix/sysv/linux/clock_nanosleep.c:78\n 78\t../sysdeps/unix/sysv/linux/clock_nanosleep.c: No such file or directory.\n (gdb) PASS: gdb.multi/multi-term-settings.exp: inf1_how=attach: inf2_how=attach: inf2: attach\n set schedule-multiple on\n (gdb) PASS: gdb.multi/multi-term-settings.exp: inf1_how=attach: inf2_how=attach: set schedule-multiple on\n info inferiors\n   Num  Description       Connection                         Executable\n   1    process 60404     1 (extended-remote localhost:2349) build/gdb/testsuite/outputs/gdb.multi/multi-term-settings/multi-term-settings\n * 2    process 60422     1 (extended-remote localhost:2349) build/gdb/testsuite/outputs/gdb.multi/multi-term-settings/multi-term-settings\n (gdb) PASS: gdb.multi/multi-term-settings.exp: inf1_how=attach: inf2_how=attach: info inferiors\n pid=60422, count=46\n pid=60422, count=47\n pid=60422, count=48\n pid=60422, count=49\n pid=60422, count=50\n pid=60422, count=51\n pid=60422, count=52\n pid=60422, count=53\n pid=60422, count=54\n pid=60422, count=55\n pid=60422, count=56\n pid=60422, count=57\n pid=60422, count=58\n pid=60422, count=59\n pid=60422, count=60\n pid=60422, count=61\n pid=60422, count=62\n pid=60422, count=63\n pid=60422, count=64\n pid=60422, count=65\n pid=60422, count=66\n pid=60422, count=67\n pid=60422, count=68\n pid=60422, count=69\n pid=60404, count=54\n pid=60404, count=55\n pid=60404, count=56\n pid=60404, count=57\n pid=60404, count=58\n PASS: gdb.multi/multi-term-settings.exp: inf1_how=attach: inf2_how=attach: continue\n Quit\n (gdb) FAIL: gdb.multi/multi-term-settings.exp: inf1_how=attach: inf2_how=attach: stop with control-c (SIGINT)\n\nIf you look at the testcase's sources, you'll see that the intention\nis to resumes the program with \"continue\", wait to see a few of those\n\"pid=..., count=...\" lines, and then interrupt the program with\nCtrl-C.  But somehow, that resulted in GDB printing \"Quit\", instead of\nthe Ctrl-C stopping the program with SIGINT.\n\nHere's what is happening:\n\n #1 - those \"pid=..., count=...\" lines we see above weren't actually\n      output by the inferior after it has been continued (see #1).\n      Note that \"inf1_how\" and \"inf2_how\" are \"attach\".  What happened\n      is that those \"pid=..., count=...\" lines were output by the\n      inferiors _before_ they were attached to.  We see them at that\n      point instead of earlier, because that's where the testcase\n      reads from the inferiors' spawn_ids.\n\n #2 - The testcase mistakenly thinks those \"pid=..., count=...\" lines\n      happened after the continue was processed by GDB, meaning it has\n      waited enough, and so sends the Ctrl-C.  GDB hasn't yet passed\n      the terminal to the inferior, so the Ctrl-C results in that\n      Quit.\n\nThe fix here is twofold:\n\n #1 - flush inferior output right after attaching\n\n #2 - consume the \"Continuing\" printed by \"continue\", indicating the\n      inferior has the terminal.  This is the same as done throughout\n      the testsuite to handle this exact problem of sending Ctrl-C too\n      soon.\n\ngdb/testsuite/ChangeLog:\nyyyy-mm-dd  Pedro Alves  <pedro@palves.net <mailto:pedro@palves.net>>\n\n\t* gdb.multi/multi-term-settings.exp (create_inferior): Flush\n\tinferior output.\n\t(coretest): Use $gdb_test_name.  After issuing \"continue\", wait\n\tfor \"Continuing\".\n\nChange-Id: Iba7671dfe1eee6b98d29cfdb05a1b9aa2f9defb9",
+    "tree": {
+      "sha": "ff271554f7e5e07182cefc7bef98987232e2ade6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/ff271554f7e5e07182cefc7bef98987232e2ade6"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/8e4e0c7a49d8b216676f31f670f235308ff2117b",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8e4e0c7a49d8b216676f31f670f235308ff2117b",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/8e4e0c7a49d8b216676f31f670f235308ff2117b",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8e4e0c7a49d8b216676f31f670f235308ff2117b/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "607679092fce3bd6d73830b41630e9edd3affea3",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/607679092fce3bd6d73830b41630e9edd3affea3",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/607679092fce3bd6d73830b41630e9edd3affea3"
+    }
+  ],
+  "stats": {
+    "total": 40,
+    "additions": 34,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "dcc6f2ece0f4ee143f220ece8ef932a55c2fa984",
+      "filename": "gdb/testsuite/gdb.multi/multi-term-settings.exp",
+      "status": "modified",
+      "additions": 34,
+      "deletions": 6,
+      "changes": 40,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8e4e0c7a49d8b216676f31f670f235308ff2117b/gdb/testsuite/gdb.multi/multi-term-settings.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8e4e0c7a49d8b216676f31f670f235308ff2117b/gdb/testsuite/gdb.multi/multi-term-settings.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.multi/multi-term-settings.exp?ref=8e4e0c7a49d8b216676f31f670f235308ff2117b",
+      "patch": "@@ -95,6 +95,22 @@ proc create_inferior {which_inf inf_how} {\n \tif {[gdb_test \"attach $testpid\" \\\n \t\t \"Attaching to program: .*, process $testpid.*(in|at).*\" \\\n \t\t \"attach\"] == 0} {\n+\n+\t    # The program is now stopped, but if testing against\n+\t    # gdbserver, then the inferior's output emmitted before it\n+\t    # stopped isn't flushed unless we explicitly do so,\n+\t    # because it is on a different spawn_id.  Do it now, to\n+\t    # avoid confusing tests further below.\n+\t    gdb_test_multiple \"\" \"flush inferior output\" {\n+\t\t-timeout 1\n+\t\t-i $test_spawn_id -re \"pid=\" {\n+\t\t    exp_continue\n+\t\t}\n+\t\ttimeout {\n+\t\t    pass $gdb_test_name\n+\t\t}\n+\t    }\n+\n \t    return $test_spawn_id\n \t}\n     } else {\n@@ -179,9 +195,9 @@ proc coretest {inf1_how inf2_how} {\n \tuplevel 1 {\n \t    if {$count1 >= 3 && $count2 >= 3} {\n \t\tif $expect_ttou {\n-\t\t    fail \"$test (expected SIGTTOU)\"\n+\t\t    fail \"$gdb_test_name (expected SIGTTOU)\"\n \t\t} else {\n-\t\t    pass $test\n+\t\t    pass $gdb_test_name\n \t\t}\n \t    } else {\n \t\texp_continue\n@@ -195,8 +211,20 @@ proc coretest {inf1_how inf2_how} {\n     set count1 0\n     set count2 0\n \n-    set test \"continue\"\n-    gdb_test_multiple $test $test {\n+    # We're going to interrupt with Ctrl-C.  For this to work we must\n+    # be sure to consume the \"Continuing.\" message first, or GDB may\n+    # still own the terminal.  Also, note that in the attach case, we\n+    # flushed inferior output right after attaching, so that we're\n+    # sure that the \"pid=\" lines we see are emitted by the inferior\n+    # after it is continued, instead of having been emitted before it\n+    # was attached to.\n+    gdb_test_multiple \"continue\" \"continue, hand over terminal\" {\n+\t-re \"Continuing\" {\n+\t    pass $gdb_test_name\n+\t}\n+    }\n+\n+    gdb_test_multiple \"\" \"continue\" {\n \t-i $infs_spawn_ids -re \"pid=$pid1, count=\" {\n \t    incr count1\n \t    pass_or_exp_continue\n@@ -207,9 +235,9 @@ proc coretest {inf1_how inf2_how} {\n \t}\n \t-i $gdb_spawn_id -re \"received signal SIGTTOU.*$gdb_prompt \" {\n \t    if $expect_ttou {\n-\t\tpass \"$test (expected SIGTTOU)\"\n+\t\tpass \"$gdb_test_name (expected SIGTTOU)\"\n \t    } else {\n-\t\tfail \"$test (SIGTTOU)\"\n+\t\tfail \"$gdb_test_name (SIGTTOU)\"\n \t    }\n \t}\n     }"
+    }
+  ]
+}

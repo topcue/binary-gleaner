@@ -1,0 +1,134 @@
+{
+  "sha": "e4ad960a577405c4d0f7593f439ad560fabc9d49",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZTRhZDk2MGE1Nzc0MDVjNGQwZjc1OTNmNDM5YWQ1NjBmYWJjOWQ0OQ==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-01-04T18:34:25Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-01-04T18:34:25Z"
+    },
+    "message": "[gdb/symtab] Remove superfluous end-of-sequence marker\n\nWhile working on PR26935 I noticed that when running test-case\ngdb.base/morestack.exp with target board unix/-m32/-fPIE/-pie and ld linker,\nI get this linetable fragment for morestack.S using readelf -wL:\n...\nCU: ../../../../libgcc/config/i386/morestack.S:\nLine number    Starting address    View    Stmt\n109               0xc9c               x\n  ...\n838               0xe03               x\n  -               0xe04\n\n636                   0               x\n637                 0x3               x\n  -                 0x4\n...\nbut with \"maint info line-table\" I get:\n...\nINDEX  LINE   ADDRESS            IS-STMT\n0      END    0x00000004         Y\n1      109    0x00000c9c         Y\n  ...\n110    838    0x00000e03         Y\n111    END    0x00000e04         Y\n...\n\nSo, apparently the entries with addresses 0x0 and 0x3 are filtered out\nbecause the addresses are out of range, but the same doesn't happen with the\nend-of-seq terminator.\n\nFix this by filtering out end-of-seq terminators that do not actually\nterminate anything.\n\nTested on x86_64-linux.\n\ngdb/ChangeLog:\n\n2021-01-04  Tom de Vries  <tdevries@suse.de>\n\n\t* buildsym.c (buildsym_compunit::record_line): Filter out end-of-seq\n\tterminators that do not terminate anything.\n\ngdb/testsuite/ChangeLog:\n\n2021-01-04  Tom de Vries  <tdevries@suse.de>\n\n\t* gdb.dwarf2/dw2-out-of-range-end-of-seq.exp: New file.",
+    "tree": {
+      "sha": "19142dfab7abf006adaa2f3960398087746632b8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/19142dfab7abf006adaa2f3960398087746632b8"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/e4ad960a577405c4d0f7593f439ad560fabc9d49",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e4ad960a577405c4d0f7593f439ad560fabc9d49",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/e4ad960a577405c4d0f7593f439ad560fabc9d49",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e4ad960a577405c4d0f7593f439ad560fabc9d49/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3ec3145c5dd6434f76fa59f1709193ff96a3508f",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/3ec3145c5dd6434f76fa59f1709193ff96a3508f"
+    }
+  ],
+  "stats": {
+    "total": 112,
+    "additions": 110,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "86a8b482fcbf894a0a5fbfbdf18f80fa54dc8b29",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e4ad960a577405c4d0f7593f439ad560fabc9d49/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e4ad960a577405c4d0f7593f439ad560fabc9d49/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=e4ad960a577405c4d0f7593f439ad560fabc9d49",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-01-04  Tom de Vries  <tdevries@suse.de>\n+\n+\t* buildsym.c (buildsym_compunit::record_line): Filter out end-of-seq\n+\tterminators that do not terminate anything.\n+\n 2021-01-04  Simon Marchi  <simon.marchi@efficios.com>\n \n \t* debug.c (debug_print_depth): New."
+    },
+    {
+      "sha": "0f7449fed97f077c3432a824f6659550adb8e069",
+      "filename": "gdb/buildsym.c",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 2,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e4ad960a577405c4d0f7593f439ad560fabc9d49/gdb/buildsym.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e4ad960a577405c4d0f7593f439ad560fabc9d49/gdb/buildsym.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/buildsym.c?ref=e4ad960a577405c4d0f7593f439ad560fabc9d49",
+      "patch": "@@ -707,13 +707,18 @@ buildsym_compunit::record_line (struct subfile *subfile, int line,\n      anyway.  */\n   if (line == 0)\n     {\n+      struct linetable_entry *last = nullptr;\n       while (subfile->line_vector->nitems > 0)\n \t{\n-\t  e = subfile->line_vector->item + subfile->line_vector->nitems - 1;\n-\t  if (e->pc != pc)\n+\t  last = subfile->line_vector->item + subfile->line_vector->nitems - 1;\n+\t  if (last->pc != pc)\n \t    break;\n \t  subfile->line_vector->nitems--;\n \t}\n+\n+      /* Ignore an end-of-sequence marker marking an empty sequence.  */\n+      if (last == nullptr || last->line == 0)\n+\treturn;\n     }\n \n   e = subfile->line_vector->item + subfile->line_vector->nitems++;"
+    },
+    {
+      "sha": "2e475184868ce133e6c317e4065604efedb384f0",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e4ad960a577405c4d0f7593f439ad560fabc9d49/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e4ad960a577405c4d0f7593f439ad560fabc9d49/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=e4ad960a577405c4d0f7593f439ad560fabc9d49",
+      "patch": "@@ -1,3 +1,7 @@\n+2021-01-04  Tom de Vries  <tdevries@suse.de>\n+\n+\t* gdb.dwarf2/dw2-out-of-range-end-of-seq.exp: New file.\n+\n 2021-01-04  Simon Marchi  <simon.marchi@efficios.com>\n \n "
+    },
+    {
+      "sha": "7a32a01389c89ed22f5dd562f4d4e83dd2cd8401",
+      "filename": "gdb/testsuite/gdb.dwarf2/dw2-out-of-range-end-of-seq.exp",
+      "status": "added",
+      "additions": 94,
+      "deletions": 0,
+      "changes": 94,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/e4ad960a577405c4d0f7593f439ad560fabc9d49/gdb/testsuite/gdb.dwarf2/dw2-out-of-range-end-of-seq.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/e4ad960a577405c4d0f7593f439ad560fabc9d49/gdb/testsuite/gdb.dwarf2/dw2-out-of-range-end-of-seq.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/dw2-out-of-range-end-of-seq.exp?ref=e4ad960a577405c4d0f7593f439ad560fabc9d49",
+      "patch": "@@ -0,0 +1,94 @@\n+# Copyright 2021 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Check that an out-of-range DW_LNE_end_sequence is removed from the\n+# line table.\n+\n+load_lib dwarf.exp\n+\n+# This test can only be run on targets which support DWARF-2 and use gas.\n+if {![dwarf2_support]} {\n+    verbose \"Skipping $gdb_test_file_name.\"\n+    return 0\n+}\n+\n+# The .c files use __attribute__.\n+if [get_compiler_info] {\n+    return -1\n+}\n+if !$gcc_compiled {\n+    verbose \"Skipping $gdb_test_file_name.\"\n+    return 0\n+}\n+\n+standard_testfile main.c -dw.S\n+\n+set asm_file [standard_output_file $srcfile2]\n+Dwarf::assemble $asm_file {\n+    declare_labels Llines\n+    global srcdir subdir srcfile\n+\n+    cu {} {\n+\tcompile_unit {\n+\t    {language @DW_LANG_C}\n+\t    {name $srcfile}\n+\t    {stmt_list $Llines DW_FORM_sec_offset}\n+\t} {\n+\t    subprogram {\n+\t\t{external 1 flag}\n+\t\t{MACRO_AT_func {main}}\n+\t    }\n+\t}\n+    }\n+\n+    lines {version 2} Llines {\n+\tinclude_dir \"${srcdir}/${subdir}\"\n+\tfile_name \"$srcfile\" 1\n+\n+\tprogram {\n+\t    {DW_LNE_set_address main_label}\n+\t    {line 1}\n+\t    {DW_LNS_copy}\n+\n+\t    {DW_LNS_advance_pc 1}\n+\t    {DW_LNE_end_sequence}\n+\n+\t    {DW_LNE_set_address 0}\n+\t    {line 2}\n+\t    {DW_LNS_copy}\n+\n+\t    {DW_LNS_advance_pc 1}\n+\t    {DW_LNE_end_sequence}\n+\t}\n+    }\n+}\n+\n+if { [prepare_for_testing \"failed to prepare\" ${testfile} \\\n+\t  [list $srcfile $asm_file] {nodebug}] } {\n+    return -1\n+}\n+\n+if ![runto_main] {\n+    return -1\n+}\n+\n+gdb_test_multiple \"maint info line-table\" \"END with address 1 eliminated\" {\n+    -re -wrap \"END *0x0*1 Y \\r\\n.*\" {\n+\tfail $gdb_test_name\n+    }\n+    -re -wrap \"\" {\n+\tpass $gdb_test_name\n+    }\n+}"
+    }
+  ]
+}

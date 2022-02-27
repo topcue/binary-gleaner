@@ -1,0 +1,91 @@
+{
+  "sha": "223d5266dec459e04d99d1140cfb7c28900e1507",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MjIzZDUyNjZkZWM0NTllMDRkOTlkMTE0MGNmYjdjMjg5MDBlMTUwNw==",
+  "commit": {
+    "author": {
+      "name": "Shahab Vahedi",
+      "email": "shahab@synopsys.com",
+      "date": "2020-07-30T16:40:41Z"
+    },
+    "committer": {
+      "name": "Claudiu Zissulescu",
+      "email": "claziss@gmail.com",
+      "date": "2020-07-31T09:15:17Z"
+    },
+    "message": "ARC: Fix ld/pr24511 test\n\nWith this patch, ld/pr24511 test passes for ARC.\n\nAt first glance, the test was failing because the order of\n\"__init_array_start\" and \"__fini_array_start\" weak symbols were\nreversed:\n\n$ nm -n dump.out\n\n      expected output          |          real output\n00002104 D __init_array_start  |  00002104 D __fini_array_start\n0000210c D __fini_array_start  |  00002104 D __init_array_start\n\nThe order of the symbols are different as a side effect of both\nsymbols being mapped to the _same_ address (0x2104).  Looking\nfurther into the mapping logs [1] revealed that the linker\nscript must consider all instances of \".init_array\" (in other\nwords \".init_array.*\") inside its relevant section. Same logic\nholds for \".fini_array\".\n\nTherefore, adding \"KEEP (*(SORT(.init_array.*)))\" to the linker\nscript, along with the one for \".finit_array.*\", resolved the\nproblem.  While at it, I took the liberty of refactoring the\nscript a little bit and made those pieces of script macros.\n\n[1] Linker's mapping for the relevant part of the test\n---------------------------------------------------------------\n.init_array     0x2104        0x0\n                0x2104        PROVIDE (__init_array_start = .)\n *(.init_array)\n                [!provide]    PROVIDE (__init_array_end = .)\n\n.fini_array     0x2104        0x0\n                0x2104        PROVIDE (__fini_array_start = .)\n *(.fini_array)\n                [!provide]    PROVIDE (__fini_array_end = .)\n\n.data           0x2104        0x0\n *(.data .data.* .gnu.linkonce.d.*)\n .data          0x2104        0x0 pr24511.o\n\n.init_array.01000\n                0x2104        0x8\n .init_array.01000\n                0x2104        0x8 pr24511.o\n\n.fini_array.01000\n                0x210c        0x8\n .fini_array.01000\n                0x210c        0x8 pr24511.o\n---------------------------------------------------------------\n\nld:\n\t* scripttempl/elfarc.sc (.init_array): Keep \".init_array.*\".\n\t  (.fini_array): Keep \".fini_array.*\".\n\nSigned-off-by: Claudiu Zissulescu <claziss@gmail.com>",
+    "tree": {
+      "sha": "1e0dfb3bbd4cb5630c1d71ff4de8099418e4d8bf",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/1e0dfb3bbd4cb5630c1d71ff4de8099418e4d8bf"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/223d5266dec459e04d99d1140cfb7c28900e1507",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/223d5266dec459e04d99d1140cfb7c28900e1507",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/223d5266dec459e04d99d1140cfb7c28900e1507",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/223d5266dec459e04d99d1140cfb7c28900e1507/comments",
+  "author": null,
+  "committer": {
+    "login": "claziss",
+    "id": 2761368,
+    "node_id": "MDQ6VXNlcjI3NjEzNjg=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/2761368?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/claziss",
+    "html_url": "https://github.com/claziss",
+    "followers_url": "https://api.github.com/users/claziss/followers",
+    "following_url": "https://api.github.com/users/claziss/following{/other_user}",
+    "gists_url": "https://api.github.com/users/claziss/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/claziss/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/claziss/subscriptions",
+    "organizations_url": "https://api.github.com/users/claziss/orgs",
+    "repos_url": "https://api.github.com/users/claziss/repos",
+    "events_url": "https://api.github.com/users/claziss/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/claziss/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "15f2a3ede0b026887f861c8e9c23f82355289e46",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/15f2a3ede0b026887f861c8e9c23f82355289e46",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/15f2a3ede0b026887f861c8e9c23f82355289e46"
+    }
+  ],
+  "stats": {
+    "total": 29,
+    "additions": 21,
+    "deletions": 8
+  },
+  "files": [
+    {
+      "sha": "13919b245bb4c1b9069ab4ea22fd5a9eeef8c4e2",
+      "filename": "ld/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/223d5266dec459e04d99d1140cfb7c28900e1507/ld/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/223d5266dec459e04d99d1140cfb7c28900e1507/ld/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/ChangeLog?ref=223d5266dec459e04d99d1140cfb7c28900e1507",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-07-31  Shahab Vahedi  <shahab@synopsys.com>\n+\n+\t* scripttempl/elfarc.sc (.init_array): Keep \".init_array.*\".\n+\t(.fini_array): Keep \".fini_array.*\".\n+\n 2020-07-30  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>\n \n \t* Makefile.am (AM_CPPFLAGS): Add LARGEFILE_CPPFLAGS."
+    },
+    {
+      "sha": "ebf40b84528e30794003d7421df1a665ec9eb748",
+      "filename": "ld/scripttempl/elfarc.sc",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 8,
+      "changes": 24,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/223d5266dec459e04d99d1140cfb7c28900e1507/ld/scripttempl/elfarc.sc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/223d5266dec459e04d99d1140cfb7c28900e1507/ld/scripttempl/elfarc.sc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/scripttempl/elfarc.sc?ref=223d5266dec459e04d99d1140cfb7c28900e1507",
+      "patch": "@@ -118,6 +118,20 @@ if test -z \"${NO_SMALL_DATA}\"; then\n   REL_SBSS2=\".rel.sbss2    ${RELOCATING-0} : { *(.rel.sbss2${RELOCATING+ .rel.sbss2.* .rel.gnu.linkonce.sb2.*}) }\n   .rela.sbss2   ${RELOCATING-0} : { *(.rela.sbss2${RELOCATING+ .rela.sbss2.* .rela.gnu.linkonce.sb2.*}) }\"\n fi\n+INIT_ARRAY=\".init_array   ${RELOCATING-0} :\n+  {\n+    ${RELOCATING+${CREATE_SHLIB-PROVIDE (__init_array_start = .);}}\n+    KEEP (*(SORT(.init_array.*)))\n+    KEEP (*(.init_array))\n+    ${RELOCATING+${CREATE_SHLIB-PROVIDE (__init_array_end = .);}}\n+  }\"\n+FINI_ARRAY=\".fini_array   ${RELOCATING-0} :\n+  {\n+    ${RELOCATING+${CREATE_SHLIB-PROVIDE (__fini_array_start = .);}}\n+    KEEP (*(SORT(.fini_array.*)))\n+    KEEP (*(.fini_array))\n+    ${RELOCATING+${CREATE_SHLIB-PROVIDE (__fini_array_end = .);}}\n+  }\"\n CTOR=\".ctors        ${CONSTRUCTING-0} :\n   {\n     ${CONSTRUCTING+${CTOR_START}}\n@@ -314,14 +328,8 @@ cat <<EOF\n   ${RELOCATING+${CREATE_SHLIB-PROVIDE (__preinit_array_start = .);}}\n   .preinit_array   ${RELOCATING-0} : { *(.preinit_array) }\n   ${RELOCATING+${CREATE_SHLIB-PROVIDE (__preinit_array_end = .);}}\n-\n-  ${RELOCATING+${CREATE_SHLIB-PROVIDE (__init_array_start = .);}}\n-  .init_array   ${RELOCATING-0} : { *(.init_array) }\n-  ${RELOCATING+${CREATE_SHLIB-PROVIDE (__init_array_end = .);}}\n-\n-  ${RELOCATING+${CREATE_SHLIB-PROVIDE (__fini_array_start = .);}}\n-  .fini_array   ${RELOCATING-0} : { *(.fini_array) }\n-  ${RELOCATING+${CREATE_SHLIB-PROVIDE (__fini_array_end = .);}}\n+  ${RELOCATING+${INIT_ARRAY}}\n+  ${RELOCATING+${FINI_ARRAY}}\n \n   .data         ${RELOCATING-0} :\n   {"
+    }
+  ]
+}

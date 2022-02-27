@@ -1,0 +1,182 @@
+{
+  "sha": "5d7071341dd3c01d38fc01398ef8b23b1bd3783c",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NWQ3MDcxMzQxZGQzYzAxZDM4ZmMwMTM5OGVmOGIyM2IxYmQzNzgzYw==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "palves@redhat.com",
+      "date": "2019-06-12T23:06:53Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "palves@redhat.com",
+      "date": "2019-06-12T23:22:07Z"
+    },
+    "message": "Make \"frame apply\" support -OPT options\n\nThis adds support for '-'-style options to the \"frame apply\" family of\ncommands -- \"frame apply COUNT\", \"frame apply level\", \"frame apply\nall\", \"faas\" and \"tfaas\".\n\nThe -q/-c/-s flags were already supported, -past-main/-past-entry is\nnew:\n\n~~~\n(gdb) help frame apply all\nApply a command to all frames.\n\nUsage: frame apply all [OPTION]... COMMAND\nPrints the frame location information followed by COMMAND output.\n\nBy default, an error raised during the execution of COMMAND\naborts \"frame apply\".\n\nOptions:\n  -q\n    Disables printing the frame location information.\n\n  -c\n    Print any error raised by COMMAND and continue.\n\n  -s\n    Silently ignore any errors or empty output produced by COMMAND.\n\n  -past-main [on|off]\n    Set whether backtraces should continue past \"main\".\n    Normally the caller of \"main\" is not of interest, so GDB will terminate\n    the backtrace at \"main\".  Set this if you need to see the rest\n    of the stack trace.\n\n  -past-entry [on|off]\n    Set whether backtraces should continue past the entry point of a program.\n    Normally there are no callers beyond the entry point of a program, so GDB\n    will terminate the backtrace there.  Set this if you need to see\n    the rest of the stack trace.\n~~~\n\nTAB completion of options is now supported.  Also, TAB completion of\nCOMMAND in \"frame apply all COMMAND\" does the right thing now, making\nuse of complete_command, added by the previous patch.  E.g.:\n\n (gdb) thread apply all -ascending frame apply all -past-main print -[TAB]\n -address         -elements        -pretty          -symbol\n -array           -null-stop       -repeats         -union\n -array-indexes   -object          -static-members  -vtbl\n (gdb) thread apply all -ascending frame apply all -past-main print glo[TAB]\n global1         global2\n\nThe change to tfaas_command is necessary because otherwise you get\nthis:\n\n (gdb) tfaas --\n Unrecognized option at: frame apply all -s --\n\nThat's because the above is equivalent to:\n\n (gdb) thread apply all -s frame apply all -s --\n\nand the \"--\" instructs \"thread apply\" to consider everything up to\n\"--\" as its command options.  And from that view, \"frame\" is an\ninvalid option.\n\nThe change makes tfaas be equivalent to:\n\n (gdb) thread apply all -s -- frame apply all -s --\n\ngdb/ChangeLog:\n2019-06-13  Pedro Alves  <palves@redhat.com>\n\n\t* cli/cli-utils.c (parse_flags_qcs): Use validate_flags_qcs.\n\t(validate_flags_qcs): New.\n\t* cli/cli-utils.h (struct qcs_flags): Change field types to int.\n\t(validate_flags_qcs): Declare.\n\t* stack.c (qcs_flag_option_def, fr_qcs_flags_option_defs): New.\n\t(make_frame_apply_options_def_group): New.\n\t(frame_apply_command_count): Process options with\n\tgdb::option::process_options.\n\t(frame_apply_completer): New.\n\t(frame_apply_level_completer, frame_apply_all_completer)\n\t(frame_apply_completer): New.\n\t(_initialize_stack): Update help of \"frame apply\", \"frame apply\n\tlevel\", \"frame apply all\" and \"faas\" to mention supported options\n\tand install command completers.\n\t* stack.h (frame_apply_all_completer): Declare.\n\t* thread.c: Include \"stack.h\".\n\t(tfaas_command): Add \"--\".\n\t(_initialize_thread): Update help \"tfaas\" to mention supported\n\toptions and install command completer.\n\ngdb/testsuite/ChangeLog:\n2019-06-13  Pedro Alves  <palves@redhat.com>\n\n\t* gdb.base/options.exp (test-frame-apply): New.\n\t(top level): Test print commands with different \"frame apply\"\n\tprefixes.",
+    "tree": {
+      "sha": "62f105b390f2950fe27f33439a9b0cbee921b5b8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/62f105b390f2950fe27f33439a9b0cbee921b5b8"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/5d7071341dd3c01d38fc01398ef8b23b1bd3783c",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5d7071341dd3c01d38fc01398ef8b23b1bd3783c",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/5d7071341dd3c01d38fc01398ef8b23b1bd3783c",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5d7071341dd3c01d38fc01398ef8b23b1bd3783c/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "272d4594343349a713f7d8967d90ae2413ecbc30",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/272d4594343349a713f7d8967d90ae2413ecbc30",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/272d4594343349a713f7d8967d90ae2413ecbc30"
+    }
+  ],
+  "stats": {
+    "total": 392,
+    "additions": 348,
+    "deletions": 44
+  },
+  "files": [
+    {
+      "sha": "eb0cb7c3875435bbd11e8f2595e971cd88fedb3a",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5d7071341dd3c01d38fc01398ef8b23b1bd3783c/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5d7071341dd3c01d38fc01398ef8b23b1bd3783c/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=5d7071341dd3c01d38fc01398ef8b23b1bd3783c",
+      "patch": "@@ -1,3 +1,25 @@\n+2019-06-13  Pedro Alves  <palves@redhat.com>\n+\n+\t* cli/cli-utils.c (parse_flags_qcs): Use validate_flags_qcs.\n+\t(validate_flags_qcs): New.\n+\t* cli/cli-utils.h (struct qcs_flags): Change field types to int.\n+\t(validate_flags_qcs): Declare.\n+\t* stack.c (qcs_flag_option_def, fr_qcs_flags_option_defs): New.\n+\t(make_frame_apply_options_def_group): New.\n+\t(frame_apply_command_count): Process options with\n+\tgdb::option::process_options.\n+\t(frame_apply_completer): New.\n+\t(frame_apply_level_completer, frame_apply_all_completer)\n+\t(frame_apply_completer): New.\n+\t(_initialize_stack): Update help of \"frame apply\", \"frame apply\n+\tlevel\", \"frame apply all\" and \"faas\" to mention supported options\n+\tand install command completers.\n+\t* stack.h (frame_apply_all_completer): Declare.\n+\t* thread.c: Include \"stack.h\".\n+\t(tfaas_command): Add \"--\".\n+\t(_initialize_thread): Update help \"tfaas\" to mention supported\n+\toptions and install command completer.\n+\n 2019-06-13  Pedro Alves  <palves@redhat.com>\n \n \t* completer.c (complete_nested_command_line): New."
+    },
+    {
+      "sha": "30d4091a0d1914b2ca999541cd2741dfdcf2c536",
+      "filename": "gdb/cli/cli-utils.c",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 2,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5d7071341dd3c01d38fc01398ef8b23b1bd3783c/gdb/cli/cli-utils.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5d7071341dd3c01d38fc01398ef8b23b1bd3783c/gdb/cli/cli-utils.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cli/cli-utils.c?ref=5d7071341dd3c01d38fc01398ef8b23b1bd3783c",
+      "patch": "@@ -573,8 +573,18 @@ parse_flags_qcs (const char *which_command, const char **str,\n       gdb_assert_not_reached (\"int qcs flag out of bound\");\n     }\n \n-  if (flags->cont && flags->silent)\n-    error (_(\"%s: -c and -s are mutually exclusive\"), which_command);\n+  validate_flags_qcs (which_command, flags);\n \n   return true;\n }\n+\n+/* See documentation in cli-utils.h.  */\n+\n+void\n+validate_flags_qcs (const char *which_command, qcs_flags *flags)\n+{\n+  if (flags->cont && flags->silent)\n+    error (_(\"%s: -c and -s are mutually exclusive\"), which_command);\n+}\n+\n+/* See documentation in cli-utils.h.  */"
+    },
+    {
+      "sha": "e6b877d5ab7b34efedc4807195f578a67eb5b7c3",
+      "filename": "gdb/cli/cli-utils.h",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 4,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5d7071341dd3c01d38fc01398ef8b23b1bd3783c/gdb/cli/cli-utils.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5d7071341dd3c01d38fc01398ef8b23b1bd3783c/gdb/cli/cli-utils.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cli/cli-utils.h?ref=5d7071341dd3c01d38fc01398ef8b23b1bd3783c",
+      "patch": "@@ -229,13 +229,14 @@ check_for_argument (char **str, const char *arg)\n    such that FLAGS [N - 1] is the valid found flag.  */\n extern int parse_flags (const char **str, const char *flags);\n \n-/* qcs_flags struct regroups the flags parsed by parse_flags_qcs.  */\n+/* qcs_flags struct groups the -q, -c, and -s flags parsed by \"thread\n+   apply\" and \"frame apply\" commands */\n \n struct qcs_flags\n {\n-  bool quiet = false;\n-  bool cont = false;\n-  bool silent = false;\n+  int quiet = false;\n+  int cont = false;\n+  int silent = false;\n };\n \n /* A helper function that uses parse_flags to handle the flags qcs :\n@@ -259,4 +260,9 @@ struct qcs_flags\n extern bool parse_flags_qcs (const char *which_command, const char **str,\n \t\t\t     qcs_flags *flags);\n \n+/* Validate FLAGS.  Throws an error if both FLAGS->CONT and\n+   FLAGS->SILENT are true.  WHICH_COMMAND is included in the error\n+   message.  */\n+extern void validate_flags_qcs (const char *which_command, qcs_flags *flags);\n+\n #endif /* CLI_CLI_UTILS_H */"
+    },
+    {
+      "sha": "547e82bbfb2469c349794f633ba5a1b7dcacb819",
+      "filename": "gdb/stack.c",
+      "status": "modified",
+      "additions": 191,
+      "deletions": 31,
+      "changes": 222,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5d7071341dd3c01d38fc01398ef8b23b1bd3783c/gdb/stack.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5d7071341dd3c01d38fc01398ef8b23b1bd3783c/gdb/stack.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/stack.c?ref=5d7071341dd3c01d38fc01398ef8b23b1bd3783c",
+      "patch": "@@ -2823,6 +2823,42 @@ func_command (const char *arg, int from_tty)\n     }\n }\n \n+/* The qcs command line flags for the \"frame apply\" commands.  Keep\n+   this in sync with the \"thread apply\" commands.  */\n+\n+using qcs_flag_option_def\n+  = gdb::option::flag_option_def<qcs_flags>;\n+\n+static const gdb::option::option_def fr_qcs_flags_option_defs[] = {\n+  qcs_flag_option_def {\n+    \"q\", [] (qcs_flags *opt) { return &opt->quiet; },\n+    N_(\"Disables printing the frame location information.\"),\n+  },\n+\n+  qcs_flag_option_def {\n+    \"c\", [] (qcs_flags *opt) { return &opt->cont; },\n+    N_(\"Print any error raised by COMMAND and continue.\"),\n+  },\n+\n+  qcs_flag_option_def {\n+    \"s\", [] (qcs_flags *opt) { return &opt->silent; },\n+    N_(\"Silently ignore any errors or empty output produced by COMMAND.\"),\n+  },\n+};\n+\n+/* Create an option_def_group array for all the \"frame apply\" options,\n+   with FLAGS and SET_BT_OPTS as context.  */\n+\n+static inline std::array<gdb::option::option_def_group, 2>\n+make_frame_apply_options_def_group (qcs_flags *flags,\n+\t\t\t\t    set_backtrace_options *set_bt_opts)\n+{\n+  return {{\n+    { {fr_qcs_flags_option_defs}, flags },\n+    { {set_backtrace_option_defs}, set_bt_opts },\n+  }};\n+}\n+\n /* Apply a GDB command to all stack frames, or a set of identified frames,\n    or innermost COUNT frames.\n    With a negative COUNT, apply command on outermost -COUNT frames.\n@@ -2852,10 +2888,13 @@ frame_apply_command_count (const char *which_command,\n \t\t\t   struct frame_info *trailing, int count)\n {\n   qcs_flags flags;\n-  struct frame_info *fi;\n+  set_backtrace_options set_bt_opts = user_set_backtrace_options;\n \n-  while (cmd != NULL && parse_flags_qcs (which_command, &cmd, &flags))\n-    ;\n+  auto group = make_frame_apply_options_def_group (&flags, &set_bt_opts);\n+  gdb::option::process_options\n+    (&cmd, gdb::option::PROCESS_OPTIONS_UNKNOWN_IS_OPERAND, group);\n+\n+  validate_flags_qcs (which_command, &flags);\n \n   if (cmd == NULL || *cmd == '\\0')\n     error (_(\"Please specify a command to apply on the selected frames\"));\n@@ -2866,7 +2905,12 @@ frame_apply_command_count (const char *which_command,\n      these also.  */\n   scoped_restore_current_thread restore_thread;\n \n-  for (fi = trailing; fi && count--; fi = get_prev_frame (fi))\n+  /* These options are handled quite deep in the unwind machinery, so\n+     we get to pass them down by swapping globals.  */\n+  scoped_restore restore_set_backtrace_options\n+    = make_scoped_restore (&user_set_backtrace_options, set_bt_opts);\n+\n+  for (frame_info *fi = trailing; fi && count--; fi = get_prev_frame (fi))\n     {\n       QUIT;\n \n@@ -2909,6 +2953,104 @@ frame_apply_command_count (const char *which_command,\n     }\n }\n \n+/* Completer for the \"frame apply ...\" commands.  */\n+\n+static void\n+frame_apply_completer (completion_tracker &tracker, const char *text)\n+{\n+  const auto group = make_frame_apply_options_def_group (nullptr, nullptr);\n+  if (gdb::option::complete_options\n+      (tracker, &text, gdb::option::PROCESS_OPTIONS_UNKNOWN_IS_OPERAND, group))\n+    return;\n+\n+  complete_nested_command_line (tracker, text);\n+}\n+\n+/* Completer for the \"frame apply\" commands.  */\n+\n+static void\n+frame_apply_level_cmd_completer (struct cmd_list_element *ignore,\n+\t\t\t\t completion_tracker &tracker,\n+\t\t\t\t const char *text, const char */*word*/)\n+{\n+  /* Do this explicitly because there's an early return below.  */\n+  tracker.set_use_custom_word_point (true);\n+\n+  number_or_range_parser levels (text);\n+\n+  /* Skip the LEVEL list to find the options and command args.  */\n+  try\n+    {\n+      while (!levels.finished ())\n+\t{\n+\t  /* Call for effect.  */\n+\t  levels.get_number ();\n+\n+\t  if (levels.in_range ())\n+\t    levels.skip_range ();\n+\t}\n+    }\n+  catch (const gdb_exception_error &ex)\n+    {\n+      /* get_number throws if it parses a negative number, for\n+\t example.  But a seemingly negative number may be the start of\n+\t an option instead.  */\n+    }\n+\n+  const char *cmd = levels.cur_tok ();\n+\n+  if (cmd == text)\n+    {\n+      /* No level list yet.  */\n+      return;\n+    }\n+\n+  /* Check if we're past a valid LEVEL already.  */\n+  if (levels.finished ()\n+      && cmd > text && !isspace (cmd[-1]))\n+    return;\n+\n+  /* We're past LEVELs, advance word point.  */\n+  tracker.advance_custom_word_point_by (cmd - text);\n+  text = cmd;\n+\n+  frame_apply_completer (tracker, text);\n+}\n+\n+/* Completer for the \"frame apply all\" command.  */\n+\n+void\n+frame_apply_all_cmd_completer (struct cmd_list_element *ignore,\n+\t\t\t       completion_tracker &tracker,\n+\t\t\t       const char *text, const char */*word*/)\n+{\n+  frame_apply_completer (tracker, text);\n+}\n+\n+/* Completer for the \"frame apply COUNT\" command.  */\n+\n+static void\n+frame_apply_cmd_completer (struct cmd_list_element *ignore,\n+\t\t\t   completion_tracker &tracker,\n+\t\t\t   const char *text, const char */*word*/)\n+{\n+  const char *cmd = text;\n+\n+  int count = get_number_trailer (&cmd, 0);\n+  if (count == 0)\n+    return;\n+\n+  /* Check if we're past a valid COUNT already.  */\n+  if (cmd > text && !isspace (cmd[-1]))\n+    return;\n+\n+  /* We're past COUNT, advance word point.  */\n+  tracker.advance_custom_word_point_by (cmd - text);\n+  text = cmd;\n+\n+  frame_apply_completer (tracker, text);\n+}\n+\n /* Implementation of the \"frame apply level\" command.  */\n \n static void\n@@ -3095,44 +3237,62 @@ A single numerical argument specifies the frame to select.\"),\n \n   add_com_alias (\"f\", \"frame\", class_stack, 1);\n \n-#define FRAME_APPLY_FLAGS_HELP \"\\\n+#define FRAME_APPLY_OPTION_HELP \"\\\n Prints the frame location information followed by COMMAND output.\\n\\\n-FLAG arguments are -q (quiet), -c (continue), -s (silent).\\n\\\n-Flag -q disables printing the frame location information.\\n\\\n-By default, if a COMMAND raises an error, frame apply is aborted.\\n\\\n-Flag -c indicates to print the error and continue.\\n\\\n-Flag -s indicates to silently ignore a COMMAND that raises an error\\n\\\n-or produces no output.\"\n-\n-  add_prefix_cmd (\"apply\", class_stack, frame_apply_command,\n-\t\t  _(\"Apply a command to a number of frames.\\n\\\n-Usage: frame apply COUNT [FLAG]... COMMAND\\n\\\n+\\n\\\n+By default, an error raised during the execution of COMMAND\\n\\\n+aborts \\\"frame apply\\\".\\n\\\n+\\n\\\n+Options:\\n\\\n+%OPTIONS%\"\n+\n+  const auto frame_apply_opts\n+    = make_frame_apply_options_def_group (nullptr, nullptr);\n+\n+  static std::string frame_apply_cmd_help = gdb::option::build_help (N_(\"\\\n+Apply a command to a number of frames.\\n\\\n+Usage: frame apply COUNT [OPTION]... COMMAND\\n\\\n With a negative COUNT argument, applies the command on outermost -COUNT frames.\\n\"\n-FRAME_APPLY_FLAGS_HELP),\n-\t\t  &frame_apply_cmd_list, \"frame apply \", 1, &frame_cmd_list);\n+\t\t\t\t  FRAME_APPLY_OPTION_HELP),\n+\t\t\t       frame_apply_opts);\n \n-  add_cmd (\"all\", class_stack, frame_apply_all_command,\n-\t   _(\"\\\n+  cmd = add_prefix_cmd (\"apply\", class_stack, frame_apply_command,\n+\t\t\tframe_apply_cmd_help.c_str (),\n+\t\t\t&frame_apply_cmd_list, \"frame apply \", 1,\n+\t\t\t&frame_cmd_list);\n+  set_cmd_completer_handle_brkchars (cmd, frame_apply_cmd_completer);\n+\n+  static std::string frame_apply_all_cmd_help = gdb::option::build_help (N_(\"\\\n Apply a command to all frames.\\n\\\n \\n\\\n-Usage: frame apply all [FLAG]... COMMAND\\n\"\n-FRAME_APPLY_FLAGS_HELP),\n-\t   &frame_apply_cmd_list);\n+Usage: frame apply all [OPTION]... COMMAND\\n\"\n+\t\t\t\t  FRAME_APPLY_OPTION_HELP),\n+\t\t\t       frame_apply_opts);\n \n-  add_cmd (\"level\", class_stack, frame_apply_level_command,\n-\t   _(\"\\\n+  cmd = add_cmd (\"all\", class_stack, frame_apply_all_command,\n+\t\t frame_apply_all_cmd_help.c_str (),\n+\t\t &frame_apply_cmd_list);\n+  set_cmd_completer_handle_brkchars (cmd, frame_apply_all_cmd_completer);\n+\n+  static std::string frame_apply_level_cmd_help = gdb::option::build_help (N_(\"\\\n Apply a command to a list of frames.\\n\\\n \\n\\\n-Usage: frame apply level LEVEL... [FLAG]... COMMAND\\n\\\n-ID is a space-separated list of LEVELs of frames to apply COMMAND on.\\n\"\n-FRAME_APPLY_FLAGS_HELP),\n+Usage: frame apply level LEVEL... [OPTION]... COMMAND\\n\\\n+LEVEL is a space-separated list of levels of frames to apply COMMAND on.\\n\"\n+\t\t\t\t  FRAME_APPLY_OPTION_HELP),\n+\t\t\t       frame_apply_opts);\n+\n+  cmd = add_cmd (\"level\", class_stack, frame_apply_level_command,\n+\t   frame_apply_level_cmd_help.c_str (),\n \t   &frame_apply_cmd_list);\n+  set_cmd_completer_handle_brkchars (cmd, frame_apply_level_cmd_completer);\n \n-  add_com (\"faas\", class_stack, faas_command, _(\"\\\n+  cmd = add_com (\"faas\", class_stack, faas_command, _(\"\\\n Apply a command to all frames (ignoring errors and empty output).\\n\\\n-Usage: faas COMMAND\\n\\\n-shortcut for 'frame apply all -s COMMAND'\"));\n-\n+Usage: faas [OPTION]... COMMAND\\n\\\n+shortcut for 'frame apply all -s [OPTION]... COMMAND'\\n\\\n+See \\\"help frame apply all\\\" for available options.\"));\n+  set_cmd_completer_handle_brkchars (cmd, frame_apply_all_cmd_completer);\n \n   add_prefix_cmd (\"frame\", class_stack,\n \t\t  &frame_cmd.base_command, _(\"\\"
+    },
+    {
+      "sha": "9ac77c06179346e1c9b395c01f1aaff60b8f7095",
+      "filename": "gdb/stack.h",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5d7071341dd3c01d38fc01398ef8b23b1bd3783c/gdb/stack.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5d7071341dd3c01d38fc01398ef8b23b1bd3783c/gdb/stack.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/stack.h?ref=5d7071341dd3c01d38fc01398ef8b23b1bd3783c",
+      "patch": "@@ -52,4 +52,9 @@ struct symtab* get_last_displayed_symtab (void);\n int get_last_displayed_line (void);\n symtab_and_line get_last_displayed_sal ();\n \n+/* Completer for the \"frame apply all\" command.  */\n+void frame_apply_all_cmd_completer (struct cmd_list_element *ignore,\n+\t\t\t\t    completion_tracker &tracker,\n+\t\t\t\t    const char *text, const char */*word*/);\n+\n #endif /* #ifndef STACK_H */"
+    },
+    {
+      "sha": "fbdff33b3603364b209d91e178773d95ea9dedbf",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5d7071341dd3c01d38fc01398ef8b23b1bd3783c/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5d7071341dd3c01d38fc01398ef8b23b1bd3783c/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=5d7071341dd3c01d38fc01398ef8b23b1bd3783c",
+      "patch": "@@ -1,3 +1,9 @@\n+2019-06-13  Pedro Alves  <palves@redhat.com>\n+\n+\t* gdb.base/options.exp (test-frame-apply): New.\n+\t(top level): Test print commands with different \"frame apply\"\n+\tprefixes.\n+\n 2019-06-13  Pedro Alves  <palves@redhat.com>\n \n         * lib/completion-support.exp (test_gdb_complete_tab_multiple)"
+    },
+    {
+      "sha": "195bbb168ae5fd25b707f6d4e5f93eac04a0dc16",
+      "filename": "gdb/testsuite/gdb.base/options.exp",
+      "status": "modified",
+      "additions": 94,
+      "deletions": 3,
+      "changes": 97,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5d7071341dd3c01d38fc01398ef8b23b1bd3783c/gdb/testsuite/gdb.base/options.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5d7071341dd3c01d38fc01398ef8b23b1bd3783c/gdb/testsuite/gdb.base/options.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/options.exp?ref=5d7071341dd3c01d38fc01398ef8b23b1bd3783c",
+      "patch": "@@ -25,6 +25,9 @@\n #  - print\n #  - compile print\n #  - backtrace\n+#  - frame apply\n+#  - faas\n+#  - tfaas\n \n load_lib completion-support.exp\n \n@@ -295,6 +298,79 @@ proc_with_prefix test-backtrace {} {\n \t\"backtrace (1 + xxx1\"\n }\n \n+# Basic option-machinery + \"frame apply\" command integration tests.\n+proc_with_prefix test-frame-apply {} {\n+    test_gdb_complete_unique \"frame apply all\" \"frame apply all\"\n+\n+    gdb_test \"frame apply level 0-\" \\\n+\t\"Please specify a command to apply on the selected frames\"\n+    test_gdb_complete_none \"frame apply level 0-\"\n+\n+    foreach cmd {\n+\t\"frame apply all\"\n+\t\"frame apply 1\"\n+\t\"frame apply level 0\"\n+\t\"faas\"\n+\t\"tfaas\"\n+    } {\n+\ttest_gdb_completion_offers_commands \"$cmd \"\n+\n+\t# tfaas is silent on command error by design.  This procedure\n+\t# hides that aspect.  EXPECTED_RE is only considered when not\n+\t# testing with \"faas\"/\"tfaas\".\n+\tproc test_error_cmd {cmd arg expected_re} {\n+\t    if {$cmd == \"tfaas\"} {\n+\t\tgdb_test_no_output \"$cmd$arg\"\n+\t    } else {\n+\t\tgdb_test \"$cmd$arg\" $expected_re\n+\t    }\n+\t}\n+\t# Same, but for tests where both \"faas\" and \"tfaas\" are\n+\t# expected to be silent.\n+\tproc test_error_cmd2 {cmd arg expected_re} {\n+\t    if {$cmd == \"tfaas\" || $cmd == \"faas\"} {\n+\t\tgdb_test_no_output \"$cmd$arg\"\n+\t    } else {\n+\t\tgdb_test \"$cmd$arg\" $expected_re\n+\t    }\n+\t}\n+\n+\ttest_error_cmd $cmd \" -\" \"Ambiguous option at: -\"\n+\ttest_gdb_complete_multiple \"$cmd \" \"-\" \"\" {\n+\t    \"-c\"\n+\t    \"-past-entry\"\n+\t    \"-past-main\"\n+\t    \"-q\"\n+\t    \"-s\"\n+\t}\n+\n+\twith_test_prefix \"no-trailing-space\" {\n+\t    test_error_cmd $cmd \" --\" \\\n+\t\t\"Please specify a command to apply on the selected frames\"\n+\t    test_gdb_complete_unique \"$cmd --\" \"$cmd --\"\n+\t}\n+\n+\twith_test_prefix \"trailing-space\" {\n+\t    test_error_cmd $cmd \" -- \" \\\n+\t\t\"Please specify a command to apply on the selected frames\"\n+\t    test_gdb_completion_offers_commands \"$cmd -- \"\n+\t}\n+\n+\t# '-' is a valid TUI command.\n+\ttest_error_cmd2 $cmd \" -- -\" \\\n+\t    \"Cannot enable the TUI when output is not a terminal\"\n+\ttest_gdb_complete_unique \\\n+\t    \"$cmd -- -\" \\\n+\t    \"$cmd -- -\"\n+\n+\ttest_error_cmd2 $cmd \" -foo\" \\\n+\t    \"Undefined command: \\\"-foo\\\".  Try \\\"help\\\"\\\\.\"\n+\ttest_gdb_complete_none \"$cmd -foo\"\n+\n+\ttest_gdb_completion_offers_commands \"$cmd -s \"\n+    }\n+}\n+\n # Miscellaneous tests.\n proc_with_prefix test-misc {variant} {\n     global all_options\n@@ -731,13 +807,28 @@ foreach_with_prefix cmd {\n     test-enum $cmd\n }\n \n-# Run the print integration tests.\n-test-print \"\"\n+# Run the print integration tests, both as \"standalone\", and under\n+# \"frame apply\".  The latter checks that the \"frame apply ... COMMAND\"\n+# commands recurse the completion machinery for COMMAND completion\n+# correctly.\n+foreach prefix {\n+    \"\"\n+    \"frame apply all \"\n+    \"frame apply 1 \"\n+    \"frame apply level 0 \"\n+} {\n+    test-print $prefix\n+}\n \n-# Same for \"compile print\".\n+# Same for \"compile print\".  Not really a wrapper prefix command like\n+# \"frame apply\", but similar enough that we test pretty much the same\n+# things.\n if ![skip_compile_feature_tests] {\n     test-print \"compile \"\n }\n \n # Basic \"backtrace\" integration tests.\n test-backtrace\n+\n+# Basic \"frame apply\" integration tests.\n+test-frame-apply"
+    },
+    {
+      "sha": "24906fa7d60b2d78d026441fdf635f6630430c42",
+      "filename": "gdb/thread.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 4,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5d7071341dd3c01d38fc01398ef8b23b1bd3783c/gdb/thread.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5d7071341dd3c01d38fc01398ef8b23b1bd3783c/gdb/thread.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/thread.c?ref=5d7071341dd3c01d38fc01398ef8b23b1bd3783c",
+      "patch": "@@ -46,6 +46,7 @@\n #include <algorithm>\n #include \"common/gdb_optional.h\"\n #include \"inline-frame.h\"\n+#include \"stack.h\"\n \n /* Definition of struct thread_info exported to gdbthread.h.  */\n \n@@ -1653,7 +1654,7 @@ static void\n tfaas_command (const char *cmd, int from_tty)\n {\n   std::string expanded\n-    = std::string (\"thread apply all -s frame apply all -s \") + cmd;\n+    = std::string (\"thread apply all -s -- frame apply all -s \") + cmd;\n   execute_command (expanded.c_str (), from_tty);\n }\n \n@@ -1938,6 +1939,7 @@ void\n _initialize_thread (void)\n {\n   static struct cmd_list_element *thread_apply_list = NULL;\n+  cmd_list_element *c;\n \n   add_info (\"threads\", info_threads_command,\n \t    _(\"Display currently known threads.\\n\\\n@@ -1983,10 +1985,12 @@ Apply a command to all threads (ignoring errors and empty output).\\n\\\n Usage: taas COMMAND\\n\\\n shortcut for 'thread apply all -s COMMAND'\"));\n \n-  add_com (\"tfaas\", class_run, tfaas_command, _(\"\\\n+  c = add_com (\"tfaas\", class_run, tfaas_command, _(\"\\\n Apply a command to all frames of all threads (ignoring errors and empty output).\\n\\\n-Usage: tfaas COMMAND\\n\\\n-shortcut for 'thread apply all -s frame apply all -s COMMAND'\"));\n+Usage: tfaas [OPTION]... COMMAND\\n\\\n+shortcut for 'thread apply all -s -- frame apply all -s [OPTION]... COMMAND'\\n\\\n+See \\\"help frame apply all\\\" for available options.\"));\n+  set_cmd_completer_handle_brkchars (c, frame_apply_all_cmd_completer);\n \n   add_cmd (\"name\", class_run, thread_name_command,\n \t   _(\"Set the current thread's name.\\n\\"
+    }
+  ]
+}

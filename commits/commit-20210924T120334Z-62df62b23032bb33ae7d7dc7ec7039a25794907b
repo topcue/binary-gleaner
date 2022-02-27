@@ -1,0 +1,98 @@
+{
+  "sha": "62df62b23032bb33ae7d7dc7ec7039a25794907b",
+  "node_id": "C_kwDOANOeidoAKDYyZGY2MmIyMzAzMmJiMzNhZTdkN2RjN2VjNzAzOWEyNTc5NDkwN2I",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2021-09-24T12:03:34Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2021-09-24T12:03:34Z"
+    },
+    "message": "gdb/testsuite: Make it possible to use TCL variables in DWARF assembler loclists\n\nIt is currently not possible to use variables in locations lists.  For\nexample, with:\n\n  diff --git a/gdb/testsuite/gdb.dwarf2/loclists-multiple-cus.exp b/gdb/testsuite/gdb.dwarf2/loclists-multiple-cus.exp\n  index 6b4f5c8cbb8..cdbf948619f 100644\n  --- a/gdb/testsuite/gdb.dwarf2/loclists-multiple-cus.exp\n  +++ b/gdb/testsuite/gdb.dwarf2/loclists-multiple-cus.exp\n  @@ -30,6 +30,8 @@ if {![dwarf2_support]} {\n       return 0\n   }\n\n  +set myconst 0x123456\n  +\n   # Test with 32-bit and 64-bit DWARF.\n   foreach_with_prefix is_64 {false true} {\n       if { $is_64 } {\n  @@ -49,6 +51,7 @@ foreach_with_prefix is_64 {false true} {\n\t  global func1_addr func1_len\n\t  global func2_addr func2_len\n\t  global is_64\n  +       global myconst\n\n\t  # The CU uses the DW_FORM_loclistx form to refer to the .debug_loclists\n\t  # section.\n  @@ -107,7 +110,7 @@ foreach_with_prefix is_64 {false true} {\n\t\t  list_ {\n\t\t      # When in func1.\n\t\t      start_length $func1_addr $func1_len {\n  -                       DW_OP_constu 0x123456\n  +                       DW_OP_constu $myconst\n\t\t\t  DW_OP_stack_value\n\t\t      }\n\nwe get:\n\n  $ make check TESTS=\"*/loclists-multiple-cus.exp\"\n  ...\n  gdb compile failed, build/gdb/testsuite/outputs/gdb.dwarf2/loclists-multiple-cus/loclists-multiple-cus-dw32.S: Assembler messages:\n  build/gdb/testsuite/outputs/gdb.dwarf2/loclists-multiple-cus/loclists-multiple-cus-dw32.S:78: Error: leb128 operand is an undefined symbol: $myconst\n  ...\n\nThat means $myconst was copied literally to the generated assembly\nfile.\n\nThis patch fixes it, by running subst on the location list body, in\nthe context of the caller.  The fix is applied to both\nDwarf::loclists::table::list_::start_length and\nDwarf::loclists::table::list_::start_end.\n\nReported-by: Zoran Zaric <Zoran.Zaric@amd.com>\n\nChange-Id: I615a64431857242d9f477d5699e3732df1b31322",
+    "tree": {
+      "sha": "f739abbbdb31bbabae65f9928f5a533692648c6a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f739abbbdb31bbabae65f9928f5a533692648c6a"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/62df62b23032bb33ae7d7dc7ec7039a25794907b",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/62df62b23032bb33ae7d7dc7ec7039a25794907b",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/62df62b23032bb33ae7d7dc7ec7039a25794907b",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/62df62b23032bb33ae7d7dc7ec7039a25794907b/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "d8f2441d856b3b57bbd3b3c60496ca30678f1b8f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d8f2441d856b3b57bbd3b3c60496ca30678f1b8f",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/d8f2441d856b3b57bbd3b3c60496ca30678f1b8f"
+    }
+  ],
+  "stats": {
+    "total": 4,
+    "additions": 4,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "87bb6c152d182da3ce5d525a1d53bc3a2d0541c6",
+      "filename": "gdb/testsuite/lib/dwarf.exp",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/62df62b23032bb33ae7d7dc7ec7039a25794907b/gdb/testsuite/lib/dwarf.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/62df62b23032bb33ae7d7dc7ec7039a25794907b/gdb/testsuite/lib/dwarf.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/dwarf.exp?ref=62df62b23032bb33ae7d7dc7ec7039a25794907b",
+      "patch": "@@ -1845,6 +1845,8 @@ namespace eval Dwarf {\n \t\t    variable _debug_loclists_list_count\n \t\t    variable _debug_loclists_locdesc_count\n \n+\t\t    set locdesc [uplevel [list subst $locdesc]]\n+\n \t\t    _op .byte 0x08 \"DW_LLE_start_length\"\n \n \t\t    # Start and end of the address range.\n@@ -1874,6 +1876,8 @@ namespace eval Dwarf {\n \t\t    variable _debug_loclists_list_count\n \t\t    variable _debug_loclists_locdesc_count\n \n+\t\t    set locdesc [uplevel [list subst $locdesc]]\n+\n \t\t    _op .byte 0x07 \"DW_LLE_start_end\"\n \n \t\t    # Start and end of the address range."
+    }
+  ]
+}

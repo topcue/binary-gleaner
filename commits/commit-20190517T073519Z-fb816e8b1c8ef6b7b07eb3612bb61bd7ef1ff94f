@@ -1,0 +1,110 @@
+{
+  "sha": "fb816e8b1c8ef6b7b07eb3612bb61bd7ef1ff94f",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZmI4MTZlOGIxYzhlZjZiN2IwN2ViMzYxMmJiNjFiZDdlZjFmZjk0Zg==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2019-05-17T07:35:19Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2019-05-17T07:35:19Z"
+    },
+    "message": "[gdb] Fix heap-use-after-free in typename_concat\n\nWhen running gdb using AddressSanitizer, and loading a cc1plus binary built\nwith profiledbootstrap and -flto, we run into a heap-use-after-free error:\n...\n$ LD_PRELOAD=/usr/lib64/libasan.so.3 ./gdb -batch cc1plus\n==26855==ERROR: AddressSanitizer: heap-use-after-free on address \\\n  0x62100ad8a8b0 at pc 0x7f13803cc9e3 bp 0x7ffe55b0d090 sp 0x7ffe55b0c840\nREAD of size 47 at 0x62100ad8a8b0 thread T0\n    #0 0x7f13803cc9e2  (/usr/lib64/libasan.so.3+0x3e9e2)\n    #1 0x5e7a0d in typename_concat gdb/dwarf2read.c:22661\n    #2 0x5c6437 in partial_die_full_name gdb/dwarf2read.c:8876\n    #3 0x5c6555 in add_partial_symbol gdb/dwarf2read.c:8893\n    #4 0x5c6ecf in add_partial_subprogram gdb/dwarf2read.c:9156\n    #5 0x5c5e90 in scan_partial_symbols gdb/dwarf2read.c:8668\n    #6 0x5c6c0a in add_partial_namespace gdb/dwarf2read.c:9081\n    #7 0x5c5f99 in scan_partial_symbols gdb/dwarf2read.c:8702\n    #8 0x5c48b6 in process_psymtab_comp_unit_reader gdb/dwarf2read.c:8056\n    #9 0x5c3c1f in init_cutu_and_read_dies gdb/dwarf2read.c:7689\n    #10 0x5c4c03 in process_psymtab_comp_unit gdb/dwarf2read.c:8140\n    #11 0x5c58a2 in dwarf2_build_psymtabs_hard gdb/dwarf2read.c:8500\n    #12 0x5c0d03 in dwarf2_build_psymtabs(objfile*) gdb/dwarf2read.c:6337\n    #13 0x612359 in read_psyms gdb/elfread.c:1311\n    #14 0x798a64 in require_partial_symbols(objfile*, int) gdb/psymtab.c:115\n    #15 0x867d7b in read_symbols gdb/symfile.c:821\n    #16 0x8683d9 in syms_from_objfile_1 gdb/symfile.c:1000\n    #17 0x8684a1 in syms_from_objfile gdb/symfile.c:1017\n    #18 0x868873 in symbol_file_add_with_addrs gdb/symfile.c:1124\n    #19 0x868b0a in symbol_file_add_from_bfd(bfd*, char const*, \\\n                    enum_flags<symfile_add_flag>, std::vector<other_sections, \\\n\t\t    std::allocator<other_sections> >*, \\\n\t\t    enum_flags<objfile_flag>, objfile*) gdb/symfile.c:1204\n    #20 0x868b64 in symbol_file_add(char const*, \\\n                    enum_flags<symfile_add_flag>, \\\n\t\t    std::vector<other_sections, \\\n\t\t    std::allocator<other_sections> >*, \\\n\t\t    enum_flags<objfile_flag>) gdb/symfile.c:1217\n    #21 0x868c39 in symbol_file_add_main_1 gdb/symfile.c:1240\n    #22 0x868bd0 in symbol_file_add_main(char const*, \\\n                    enum_flags<symfile_add_flag>) gdb/symfile.c:1231\n    #23 0x71f1b2 in symbol_file_add_main_adapter gdb/main.c:395\n    #24 0x71f10e in catch_command_errors gdb/main.c:372\n    #25 0x71ff5f in captured_main_1 gdb/main.c:1043\n    #26 0x72045d in captured_main gdb/main.c:1163\n    #27 0x7204c8 in gdb_main(captured_main_args*) gdb/main.c:1188\n    #28 0x40fd7d in main gdb/gdb.c:32\n    #29 0x7f137e300f49 in __libc_start_main (/lib64/libc.so.6+0x20f49)\n    #30 0x40fc89 in _start (/data/gdb_versions/devel/build/gdb/gdb+0x40fc89)\n\n0x62100ad8a8b0 is located 944 bytes inside of 4064-byte region \\\n  [0x62100ad8a500,0x62100ad8b4e0)\nfreed by thread T0 here:\n    #0 0x7f13804523a0 in __interceptor_free (/usr/lib64/libasan.so.3+0xc43a0)\n    #1 0x435e44 in xfree<void> gdb/common/common-utils.h:60\n    #2 0xa82c25 in call_freefun libiberty/obstack.c:103\n    #3 0xa83098 in _obstack_free libiberty/obstack.c:280\n    #4 0x4367da in auto_obstack::~auto_obstack() gdb/gdb_obstack.h:101\n    #5 0x5ed72c in dwarf2_cu::~dwarf2_cu() gdb/dwarf2read.c:25341\n    #6 0x5fb5bb in std::default_delete<dwarf2_cu>::operator()(dwarf2_cu*) const \\\n                   /usr/include/c++/7/bits/unique_ptr.h:78\n    #7 0x5f7334 in std::unique_ptr<dwarf2_cu, \\\n                   std::default_delete<dwarf2_cu> >::~unique_ptr() \\\n\t\t   /usr/include/c++/7/bits/unique_ptr.h:268\n    #8 0x5c3ce5 in init_cutu_and_read_dies gdb/dwarf2read.c:7624\n    #9 0x5c4c03 in process_psymtab_comp_unit gdb/dwarf2read.c:8140\n    #10 0x5c58a2 in dwarf2_build_psymtabs_hard gdb/dwarf2read.c:8500\n    #11 0x5c0d03 in dwarf2_build_psymtabs(objfile*) gdb/dwarf2read.c:6337\n    #12 0x612359 in read_psyms gdb/elfread.c:1311\n    #13 0x798a64 in require_partial_symbols(objfile*, int) gdb/psymtab.c:115\n    #14 0x867d7b in read_symbols gdb/symfile.c:821\n    #15 0x8683d9 in syms_from_objfile_1 gdb/symfile.c:1000\n    #16 0x8684a1 in syms_from_objfile gdb/symfile.c:1017\n    #17 0x868873 in symbol_file_add_with_addrs gdb/symfile.c:1124\n    #18 0x868b0a in symbol_file_add_from_bfd(bfd*, char const*, \\\n                    enum_flags<symfile_add_flag>, std::vector<other_sections,  \\\n\t\t    std::allocator<other_sections> >*, \\\n\t\t    enum_flags<objfile_flag>, objfile*) gdb/symfile.c:1204\n    #19 0x868b64 in symbol_file_add(char const*, \\\n                    enum_flags<symfile_add_flag>, std::vector<other_sections, \\\n\t\t    std::allocator<other_sections> >*, \\\n\t\t    enum_flags<objfile_flag>) gdb/symfile.c:1217\n    #20 0x868c39 in symbol_file_add_main_1 gdb/symfile.c:1240\n    #21 0x868bd0 in symbol_file_add_main(char const*, \\\n                    enum_flags<symfile_add_flag>) gdb/symfile.c:1231\n    #22 0x71f1b2 in symbol_file_add_main_adapter gdb/main.c:395\n    #23 0x71f10e in catch_command_errors gdb/main.c:372\n    #24 0x71ff5f in captured_main_1 gdb/main.c:1043\n    #25 0x72045d in captured_main gdb/main.c:1163\n    #26 0x7204c8 in gdb_main(captured_main_args*) gdb/main.c:1188\n    #27 0x40fd7d in main gdb/gdb.c:32\n    #28 0x7f137e300f49 in __libc_start_main (/lib64/libc.so.6+0x20f49)\n\npreviously allocated by thread T0 here:\n    #0 0x7f13804526b8 in __interceptor_malloc (/usr/lib64/libasan.so.3+0xc46b8)\n    #1 0x5114b5 in xmalloc gdb/common/common-utils.c:44\n    #2 0xa82bd5 in call_chunkfun libiberty/obstack.c:94\n    #3 0xa82eda in _obstack_newchunk libiberty/obstack.c:206\n    #4 0x477310 in allocate_on_obstack::operator new(unsigned long, obstack*) \\\n                   gdb/gdb_obstack.h:117\n    #5 0x5dea8c in load_partial_dies gdb/dwarf2read.c:18571\n    #6 0x5c487f in process_psymtab_comp_unit_reader gdb/dwarf2read.c:8054\n    #7 0x5c3c1f in init_cutu_and_read_dies gdb/dwarf2read.c:7689\n    #8 0x5c4c03 in process_psymtab_comp_unit gdb/dwarf2read.c:8140\n    #9 0x5c58a2 in dwarf2_build_psymtabs_hard gdb/dwarf2read.c:8500\n    #10 0x5c0d03 in dwarf2_build_psymtabs(objfile*) gdb/dwarf2read.c:6337\n    #11 0x612359 in read_psyms gdb/elfread.c:1311\n    #12 0x798a64 in require_partial_symbols(objfile*, int) gdb/psymtab.c:115\n    #13 0x867d7b in read_symbols gdb/symfile.c:821\n    #14 0x8683d9 in syms_from_objfile_1 gdb/symfile.c:1000\n    #15 0x8684a1 in syms_from_objfile gdb/symfile.c:1017\n    #16 0x868873 in symbol_file_add_with_addrs gdb/symfile.c:1124\n    #17 0x868b0a in symbol_file_add_from_bfd(bfd*, char const*, \\\n                    enum_flags<symfile_add_flag>, \\\n\t\t    std::vector<other_sections, \\\n\t\t    std::allocator<other_sections> >*, \\\n\t\t    enum_flags<objfile_flag>, objfile*) gdb/symfile.c:1204\n    #18 0x868b64 in symbol_file_add(char const*, enum_flags<symfile_add_flag>, \\\n                    std::vector<other_sections, \\\n\t\t    std::allocator<other_sections> >*, \\\n\t\t    enum_flags<objfile_flag>) gdb/symfile.c:1217\n    #19 0x868c39 in symbol_file_add_main_1 gdb/symfile.c:1240\n    #20 0x868bd0 in symbol_file_add_main(char const*, \\\n                    enum_flags<symfile_add_flag>) gdb/symfile.c:1231\n    #21 0x71f1b2 in symbol_file_add_main_adapter gdb/main.c:395\n    #22 0x71f10e in catch_command_errors gdb/main.c:372\n    #23 0x71ff5f in captured_main_1 gdb/main.c:1043\n    #24 0x72045d in captured_main gdb/main.c:1163\n    #25 0x7204c8 in gdb_main(captured_main_args*) gdb/main.c:1188\n    #26 0x40fd7d in main gdb/gdb.c:32\n    #27 0x7f137e300f49 in __libc_start_main (/lib64/libc.so.6+0x20f49)\n...\n\nThis error happens as follows.\n\nThe function find_partial_die has a cu argument, but returns a pdi which may\nor may not be from that cu:\n...\n/* Find a partial DIE at OFFSET, which may or may not be in CU,\n   except in the case of .debug_types DIEs which do not reference\n   outside their CU (they do however referencing other types via\n   DW_FORM_ref_sig8).  */\n\nstatic struct partial_die_info *\nfind_partial_die (sect_offset sect_off, int offset_in_dwz, struct dwarf2_cu *cu)\n...\n\nSo the pdi returned by find_partial_die here in partial_die_parent_scope may\nbe from another cu:\n...\npartial_die_parent_scope (struct partial_die_info *pdi,\n                          struct dwarf2_cu *cu)\n{\n  const char *grandparent_scope;\n  struct partial_die_info *parent, *real_pdi;\n\n  /* We need to look at our parent DIE; if we have a DW_AT_specification,\n     then this means the parent of the specification DIE.  */\n\n  real_pdi = pdi;\n  while (real_pdi->has_specification)\n    real_pdi = find_partial_die (real_pdi->spec_offset,\n                                 real_pdi->spec_is_dwz, cu);\n\n  parent = real_pdi->die_parent;\n...\nin which case both real_pdi and parent will be not from cu, but from another\none, say cu2.\n\nSubsequently, cu's comp_unit_obstack is used to set parent->scope:\n...\n        parent->scope = typename_concat (&cu->comp_unit_obstack,\n                                         grandparent_scope,\n                                         parent->name, 0, cu);\n...\n\nSo, we use cu->comp_unit_obstack to assign a value to the scope field of\na pdi belonging to cu2, and when cu is deleted, the scope field points to a\nfreed value.\n\nFix this by making find_partial_die return the cu corresponding to the\nreturned pdi, and handling this at the call sites.\n\nTested on x86_64-linux.\n\ngdb/ChangeLog:\n\n2019-05-17  Tom de Vries  <tdevries@suse.de>\n\n\tPR gdb/24094\n\t* dwarf2read.c (struct cu_partial_die_info): New struct.\n\t(find_partial_die): Return cu_partial_die_info.\n\t(partial_die_parent_scope, guess_partial_die_structure_name)\n\t(partial_die_info::fixup): Handle new return type of find_partial_die.",
+    "tree": {
+      "sha": "c121f4e30cf7a98605ed33b64e366766e49acf53",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c121f4e30cf7a98605ed33b64e366766e49acf53"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/fb816e8b1c8ef6b7b07eb3612bb61bd7ef1ff94f",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/fb816e8b1c8ef6b7b07eb3612bb61bd7ef1ff94f",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/fb816e8b1c8ef6b7b07eb3612bb61bd7ef1ff94f",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/fb816e8b1c8ef6b7b07eb3612bb61bd7ef1ff94f/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "6275948b473f6ed3149e97bc18f6f8de28bb3f04",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6275948b473f6ed3149e97bc18f6f8de28bb3f04",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/6275948b473f6ed3149e97bc18f6f8de28bb3f04"
+    }
+  ],
+  "stats": {
+    "total": 50,
+    "additions": 40,
+    "deletions": 10
+  },
+  "files": [
+    {
+      "sha": "abffbe8a263e665a69550d5b23aa473c11fcb180",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/fb816e8b1c8ef6b7b07eb3612bb61bd7ef1ff94f/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/fb816e8b1c8ef6b7b07eb3612bb61bd7ef1ff94f/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=fb816e8b1c8ef6b7b07eb3612bb61bd7ef1ff94f",
+      "patch": "@@ -1,3 +1,11 @@\n+2019-05-17  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR gdb/24094\n+\t* dwarf2read.c (struct cu_partial_die_info): New struct.\n+\t(find_partial_die): Return cu_partial_die_info.\n+\t(partial_die_parent_scope, guess_partial_die_structure_name)\n+\t(partial_die_info::fixup): Handle new return type of find_partial_die.\n+\n 2019-05-16  Sergio Durigan Junior  <sergiodj@redhat.com>\n \n \t* stap-probe.c (stap_parse_register_operand): Make \"regname\" an"
+    },
+    {
+      "sha": "004238a6775cba458aa11df6ab6fa85cc6b41c45",
+      "filename": "gdb/dwarf2read.c",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 10,
+      "changes": 42,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/fb816e8b1c8ef6b7b07eb3612bb61bd7ef1ff94f/gdb/dwarf2read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/fb816e8b1c8ef6b7b07eb3612bb61bd7ef1ff94f/gdb/dwarf2read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2read.c?ref=fb816e8b1c8ef6b7b07eb3612bb61bd7ef1ff94f",
+      "patch": "@@ -1507,8 +1507,17 @@ static unsigned int peek_abbrev_code (bfd *, const gdb_byte *);\n static struct partial_die_info *load_partial_dies\n   (const struct die_reader_specs *, const gdb_byte *, int);\n \n-static struct partial_die_info *find_partial_die (sect_offset, int,\n-\t\t\t\t\t\t  struct dwarf2_cu *);\n+/* A pair of partial_die_info and compilation unit.  */\n+struct cu_partial_die_info\n+{\n+  /* The compilation unit of the partial_die_info.  */\n+  struct dwarf2_cu *cu;\n+  /* A partial_die_info.  */\n+  struct partial_die_info *pdi;\n+};\n+\n+static struct cu_partial_die_info find_partial_die (sect_offset, int,\n+\t\t\t\t\t\t    struct dwarf2_cu *);\n \n static const gdb_byte *read_attribute (const struct die_reader_specs *,\n \t\t\t\t       struct attribute *, struct attr_abbrev *,\n@@ -8754,14 +8763,19 @@ partial_die_parent_scope (struct partial_die_info *pdi,\n {\n   const char *grandparent_scope;\n   struct partial_die_info *parent, *real_pdi;\n+  struct cu_partial_die_info res;\n \n   /* We need to look at our parent DIE; if we have a DW_AT_specification,\n      then this means the parent of the specification DIE.  */\n \n   real_pdi = pdi;\n   while (real_pdi->has_specification)\n-    real_pdi = find_partial_die (real_pdi->spec_offset,\n-\t\t\t\t real_pdi->spec_is_dwz, cu);\n+    {\n+      res = find_partial_die (real_pdi->spec_offset,\n+\t\t\t      real_pdi->spec_is_dwz, cu);\n+      real_pdi = res.pdi;\n+      cu = res.cu;\n+    }\n \n   parent = real_pdi->die_parent;\n   if (parent == NULL)\n@@ -18905,7 +18919,7 @@ dwarf2_cu::find_partial_die (sect_offset sect_off)\n    outside their CU (they do however referencing other types via\n    DW_FORM_ref_sig8).  */\n \n-static struct partial_die_info *\n+static struct cu_partial_die_info\n find_partial_die (sect_offset sect_off, int offset_in_dwz, struct dwarf2_cu *cu)\n {\n   struct dwarf2_per_objfile *dwarf2_per_objfile\n@@ -18919,7 +18933,7 @@ find_partial_die (sect_offset sect_off, int offset_in_dwz, struct dwarf2_cu *cu)\n     {\n       pd = cu->find_partial_die (sect_off);\n       if (pd != NULL)\n-\treturn pd;\n+\treturn { cu, pd };\n       /* We missed recording what we needed.\n \t Load all dies and try again.  */\n       per_cu = cu->per_cu;\n@@ -18967,7 +18981,7 @@ find_partial_die (sect_offset sect_off, int offset_in_dwz, struct dwarf2_cu *cu)\n \t\t    _(\"could not find partial DIE %s \"\n \t\t      \"in cache [from module %s]\\n\"),\n \t\t    sect_offset_str (sect_off), bfd_get_filename (objfile->obfd));\n-  return pd;\n+  return { per_cu->cu, pd };\n }\n \n /* See if we can figure out if the class lives in a namespace.  We do\n@@ -18986,15 +19000,20 @@ guess_partial_die_structure_name (struct partial_die_info *struct_pdi,\n \n   struct partial_die_info *real_pdi;\n   struct partial_die_info *child_pdi;\n+  struct cu_partial_die_info res;\n \n   /* If this DIE (this DIE's specification, if any) has a parent, then\n      we should not do this.  We'll prepend the parent's fully qualified\n      name when we create the partial symbol.  */\n \n   real_pdi = struct_pdi;\n   while (real_pdi->has_specification)\n-    real_pdi = find_partial_die (real_pdi->spec_offset,\n-\t\t\t\t real_pdi->spec_is_dwz, cu);\n+    {\n+      res = find_partial_die (real_pdi->spec_offset,\n+\t\t\t      real_pdi->spec_is_dwz, cu);\n+      real_pdi = res.pdi;\n+      cu = res.cu;\n+    }\n \n   if (real_pdi->die_parent != NULL)\n     return;\n@@ -19039,8 +19058,11 @@ partial_die_info::fixup (struct dwarf2_cu *cu)\n   if (name == NULL && has_specification)\n     {\n       struct partial_die_info *spec_die;\n+      struct cu_partial_die_info res;\n \n-      spec_die = find_partial_die (spec_offset, spec_is_dwz, cu);\n+      res = find_partial_die (spec_offset, spec_is_dwz, cu);\n+      spec_die = res.pdi;\n+      cu = res.cu;\n \n       spec_die->fixup (cu);\n "
+    }
+  ]
+}

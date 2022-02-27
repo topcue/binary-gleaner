@@ -1,0 +1,362 @@
+{
+  "sha": "14470f0755dbc942aa684ed647df978ddfc7cff2",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MTQ0NzBmMDc1NWRiYzk0MmFhNjg0ZWQ2NDdkZjk3OGRkZmM3Y2ZmMg==",
+  "commit": {
+    "author": {
+      "name": "H.J. Lu",
+      "email": "hjl.tools@gmail.com",
+      "date": "2020-01-20T14:58:51Z"
+    },
+    "committer": {
+      "name": "H.J. Lu",
+      "email": "hjl.tools@gmail.com",
+      "date": "2020-01-20T15:01:07Z"
+    },
+    "message": "x86-64: Fix TLSDESC relaxation for x32\n\nFor x32, we must encode \"lea x@TLSDESC(%rip), %reg\" with a REX prefix\neven if it isn't required.  Otherwise linker can\u2019t safely perform\nGDesc -> IE/LE optimization.  X32 TLSDESC sequences can be:\n\n40 8d 05 00 00 00 00\trex lea\tx@TLSDESC(%rip), %reg\n...\n67 ff 10\t\tcall\t*x@TLSCALL(%eax)\n\nor the same sequence as LP64:\n\n48 8d 05 00 00 00 00\tlea\tfoo@TLSDESC(%rip), %reg\n...\nff 10\t\t\tcall\t*foo@TLSCALL(%rax)\n\nWe need to support both sequences for x32.  For both GDesc -> IE/LE\ntransitions,\n\n67 ff 10\t\tcall\t*x@TLSCALL(%eax)\n\nshould relaxed to\n\n0f 1f 00\t\tnopl\t(%rax)\n\nFor GDesc -> LE transition,\n\n40 8d 05 00 00 00 00\trex lea\tx@TLSDESC(%rip), %reg\n\nshould relaxed to\n\n40 c7 c0 fc ff ff ff\trex movl $x@tpoff, %reg\n\nFor GDesc -> IE transition,\n\n40 8d 05 00 00 00 00\trex lea\tx@TLSDESC(%rip), %reg\n\nshould relaxed to\n\n40 8b 05 00 00 00 00\trex movl x@gottpoff(%rip), %eax\n\nbfd/\n\n\tPR ld/25416\n\t* elf64-x86-64.c (elf_x86_64_check_tls_transition): Support\n\t\"rex leal x@tlsdesc(%rip), %reg\" and \"call *x@tlsdesc(%eax)\" in\n\tX32 mode.\n\t(elf_x86_64_relocate_section): In x32 mode, for GDesc -> LE\n\ttransition, relax \"rex leal x@tlsdesc(%rip), %reg\" to\n\t\"rex movl $x@tpoff, %reg\", for GDesc -> IE transition, relax\n\t\"rex leal x@tlsdesc(%rip), %reg\" to\n\t\"rex movl x@gottpoff(%rip), %eax\".  For both transitions, relax\n\t\"call *(%eax)\" to \"nopl (%rax)\".\n\ngas/\n\n\tPR ld/25416\n\t* config/tc-i386.c (output_insn): Add a dummy REX_OPCODE prefix\n\tfor lea with R_X86_64_GOTPC32_TLSDESC relocation when generating\n\tx32 object.\n\t* testsuite/gas/i386/ilp32/x32-tls.d: Updated.\n\t* testsuite/gas/i386/ilp32/x32-tls.s: Add tests for lea with\n\tR_X86_64_GOTPC32_TLSDESC relocation.\n\nld/\n\n\tPR ld/25416\n\t* testsuite/ld-x86-64/pr25416-1.s: New file\n\t* testsuite/ld-x86-64/pr25416-1a.d: Likewise.\n\t* testsuite/ld-x86-64/pr25416-1b.d: Likewise.\n\t* testsuite/ld-x86-64/pr25416-1.s: Likewise.\n\t* testsuite/ld-x86-64/pr25416-2.s: Likewise.\n\t* testsuite/ld-x86-64/pr25416-2a.d: Likewise.\n\t* testsuite/ld-x86-64/pr25416-2b.d: Likewise.\n\t* testsuite/ld-x86-64/pr25416-3.d: Likewise.\n\t* testsuite/ld-x86-64/pr25416-3.s: Likewise.\n\t* testsuite/ld-x86-64/pr25416-4.d: Likewise.\n\t* testsuite/ld-x86-64/pr25416-4.s: Likewise.\n\t* testsuite/ld-x86-64/pr25416-5a.c: Likewise.\n\t* testsuite/ld-x86-64/pr25416-5b.s: Likewise.\n\t* testsuite/ld-x86-64/pr25416-5c.s: Likewise.\n\t* testsuite/ld-x86-64/pr25416-5d.s: Likewise.\n\t* testsuite/ld-x86-64/pr25416-5e.s: Likewise.\n\t* testsuite/ld-x86-64/x86-64.exp: Run PR ld/25416 tests.",
+    "tree": {
+      "sha": "c19e873d9c8c86cc24fe568ec473f7bd8c2b18e2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c19e873d9c8c86cc24fe568ec473f7bd8c2b18e2"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/14470f0755dbc942aa684ed647df978ddfc7cff2",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/14470f0755dbc942aa684ed647df978ddfc7cff2",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/14470f0755dbc942aa684ed647df978ddfc7cff2",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/14470f0755dbc942aa684ed647df978ddfc7cff2/comments",
+  "author": {
+    "login": "hjl-tools",
+    "id": 1072356,
+    "node_id": "MDQ6VXNlcjEwNzIzNTY=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1072356?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/hjl-tools",
+    "html_url": "https://github.com/hjl-tools",
+    "followers_url": "https://api.github.com/users/hjl-tools/followers",
+    "following_url": "https://api.github.com/users/hjl-tools/following{/other_user}",
+    "gists_url": "https://api.github.com/users/hjl-tools/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/hjl-tools/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/hjl-tools/subscriptions",
+    "organizations_url": "https://api.github.com/users/hjl-tools/orgs",
+    "repos_url": "https://api.github.com/users/hjl-tools/repos",
+    "events_url": "https://api.github.com/users/hjl-tools/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/hjl-tools/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "hjl-tools",
+    "id": 1072356,
+    "node_id": "MDQ6VXNlcjEwNzIzNTY=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1072356?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/hjl-tools",
+    "html_url": "https://github.com/hjl-tools",
+    "followers_url": "https://api.github.com/users/hjl-tools/followers",
+    "following_url": "https://api.github.com/users/hjl-tools/following{/other_user}",
+    "gists_url": "https://api.github.com/users/hjl-tools/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/hjl-tools/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/hjl-tools/subscriptions",
+    "organizations_url": "https://api.github.com/users/hjl-tools/orgs",
+    "repos_url": "https://api.github.com/users/hjl-tools/repos",
+    "events_url": "https://api.github.com/users/hjl-tools/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/hjl-tools/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "b9ca1af69e097b8dc15b23a4e12194f9567c4ad7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b9ca1af69e097b8dc15b23a4e12194f9567c4ad7",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b9ca1af69e097b8dc15b23a4e12194f9567c4ad7"
+    }
+  ],
+  "stats": {
+    "total": 600,
+    "additions": 579,
+    "deletions": 21
+  },
+  "files": [
+    {
+      "sha": "ed4054084ec046af909619506210f5e351d73067",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -1,3 +1,16 @@\n+2020-01-20  H.J. Lu  <hongjiu.lu@intel.com>\n+\n+\tPR ld/25416\n+\t* elf64-x86-64.c (elf_x86_64_check_tls_transition): Support\n+\t\"rex leal x@tlsdesc(%rip), %reg\" and \"call *x@tlsdesc(%eax)\" in\n+\tX32 mode.\n+\t(elf_x86_64_relocate_section): In x32 mode, for GDesc -> LE\n+\ttransition, relax \"rex leal x@tlsdesc(%rip), %reg\" to\n+\t\"rex movl $x@tpoff, %reg\", for GDesc -> IE transition, relax\n+\t\"rex leal x@tlsdesc(%rip), %reg\" to\n+\t\"rex movl x@gottpoff(%rip), %eax\".  For both transitions, relax\n+\t\"call *(%eax)\" to \"nopl (%rax)\".\n+\n 2020-01-20  Alan Modra  <amodra@gmail.com>\n \n \t* elf64-ppc.c (LD_R11_0R3, CMPDI_R11_0, STD_R11_0R1, LD_R11_0R1),"
+    },
+    {
+      "sha": "014bea147541caf686d203f519f3adf616146411",
+      "filename": "bfd/elf64-x86-64.c",
+      "status": "modified",
+      "additions": 81,
+      "deletions": 19,
+      "changes": 100,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/bfd/elf64-x86-64.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/bfd/elf64-x86-64.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf64-x86-64.c?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -1223,7 +1223,8 @@ elf_x86_64_check_tls_transition (bfd *abfd,\n \n     case R_X86_64_GOTPC32_TLSDESC:\n       /* Check transition from GDesc access model:\n-\t\tleaq x@tlsdesc(%rip), %rax\n+\t\tleaq x@tlsdesc(%rip), %rax <--- LP64 mode.\n+\t\trex leal x@tlsdesc(%rip), %eax <--- X32 mode.\n \n \t Make sure it's a leaq adding rip to a 32-bit offset\n \t into any register, although it's probably almost always\n@@ -1233,7 +1234,8 @@ elf_x86_64_check_tls_transition (bfd *abfd,\n \treturn FALSE;\n \n       val = bfd_get_8 (abfd, contents + offset - 3);\n-      if ((val & 0xfb) != 0x48)\n+      val &= 0xfb;\n+      if (val != 0x48 && (ABI_64_P (abfd) || val != 0x40))\n \treturn FALSE;\n \n       if (bfd_get_8 (abfd, contents + offset - 2) != 0x8d)\n@@ -1244,13 +1246,26 @@ elf_x86_64_check_tls_transition (bfd *abfd,\n \n     case R_X86_64_TLSDESC_CALL:\n       /* Check transition from GDesc access model:\n-\t\tcall *x@tlsdesc(%rax)\n+\t\tcall *x@tlsdesc(%rax) <--- LP64 mode.\n+\t\tcall *x@tlsdesc(%eax) <--- X32 mode.\n        */\n       if (offset + 2 <= sec->size)\n \t{\n-\t  /* Make sure that it's a call *x@tlsdesc(%rax).  */\n+\t  unsigned int prefix;\n \t  call = contents + offset;\n-\t  return call[0] == 0xff && call[1] == 0x10;\n+\t  prefix = 0;\n+\t  if (!ABI_64_P (abfd))\n+\t    {\n+\t      /* Check for call *x@tlsdesc(%eax).  */\n+\t      if (call[0] == 0x67)\n+\t\t{\n+\t\t  prefix = 1;\n+\t\t  if (offset + 3 > sec->size)\n+\t\t    return FALSE;\n+\t\t}\n+\t    }\n+\t  /* Make sure that it's a call *x@tlsdesc(%rax).  */\n+\t  return call[prefix] == 0xff && call[1 + prefix] == 0x10;\n \t}\n \n       return FALSE;\n@@ -3401,18 +3416,22 @@ elf_x86_64_relocate_section (bfd *output_bfd,\n \t\t{\n \t\t  /* GDesc -> LE transition.\n \t\t     It's originally something like:\n-\t\t     leaq x@tlsdesc(%rip), %rax\n+\t\t     leaq x@tlsdesc(%rip), %rax <--- LP64 mode.\n+\t\t     rex leal x@tlsdesc(%rip), %eax <--- X32 mode.\n \n \t\t     Change it to:\n-\t\t     movl $x@tpoff, %rax.  */\n+\t\t     movq $x@tpoff, %rax <--- LP64 mode.\n+\t\t     rex movl $x@tpoff, %eax <--- X32 mode.\n+\t\t   */\n \n \t\t  unsigned int val, type;\n \n \t\t  if (roff < 3)\n \t\t    goto corrupt_input;\n \t\t  type = bfd_get_8 (input_bfd, contents + roff - 3);\n \t\t  val = bfd_get_8 (input_bfd, contents + roff - 1);\n-\t\t  bfd_put_8 (output_bfd, 0x48 | ((type >> 2) & 1),\n+\t\t  bfd_put_8 (output_bfd,\n+\t\t\t     (type & 0x48) | ((type >> 2) & 1),\n \t\t\t     contents + roff - 3);\n \t\t  bfd_put_8 (output_bfd, 0xc7, contents + roff - 2);\n \t\t  bfd_put_8 (output_bfd, 0xc0 | ((val >> 3) & 7),\n@@ -3426,11 +3445,30 @@ elf_x86_64_relocate_section (bfd *output_bfd,\n \t\t{\n \t\t  /* GDesc -> LE transition.\n \t\t     It's originally:\n-\t\t     call *(%rax)\n+\t\t     call *(%rax) <--- LP64 mode.\n+\t\t     call *(%eax) <--- X32 mode.\n \t\t     Turn it into:\n-\t\t     xchg %ax,%ax.  */\n-\t\t  bfd_put_8 (output_bfd, 0x66, contents + roff);\n-\t\t  bfd_put_8 (output_bfd, 0x90, contents + roff + 1);\n+\t\t     xchg %ax,%ax <-- LP64 mode.\n+\t\t     nopl (%rax)  <-- X32 mode.\n+\t\t   */\n+\t\t  unsigned int prefix = 0;\n+\t\t  if (!ABI_64_P (input_bfd))\n+\t\t    {\n+\t\t      /* Check for call *x@tlsdesc(%eax).  */\n+\t\t      if (contents[roff] == 0x67)\n+\t\t\tprefix = 1;\n+\t\t    }\n+\t\t  if (prefix)\n+\t\t    {\n+\t\t      bfd_put_8 (output_bfd, 0x0f, contents + roff);\n+\t\t      bfd_put_8 (output_bfd, 0x1f, contents + roff + 1);\n+\t\t      bfd_put_8 (output_bfd, 0x00, contents + roff + 2);\n+\t\t    }\n+\t\t  else\n+\t\t    {\n+\t\t      bfd_put_8 (output_bfd, 0x66, contents + roff);\n+\t\t      bfd_put_8 (output_bfd, 0x90, contents + roff + 1);\n+\t\t    }\n \t\t  continue;\n \t\t}\n \t      else if (r_type == R_X86_64_GOTTPOFF)\n@@ -3741,13 +3779,18 @@ elf_x86_64_relocate_section (bfd *output_bfd,\n \t\t{\n \t\t  /* GDesc -> IE transition.\n \t\t     It's originally something like:\n-\t\t     leaq x@tlsdesc(%rip), %rax\n+\t\t     leaq x@tlsdesc(%rip), %rax <--- LP64 mode.\n+\t\t     rex leal x@tlsdesc(%rip), %eax <--- X32 mode.\n \n \t\t     Change it to:\n-\t\t     movq x@gottpoff(%rip), %rax # before xchg %ax,%ax.  */\n+\t\t     # before xchg %ax,%ax in LP64 mode.\n+\t\t     movq x@gottpoff(%rip), %rax\n+\t\t     # before nopl (%rax) in X32 mode.\n+\t\t     rex movl x@gottpoff(%rip), %eax\n+\t\t  */\n \n \t\t  /* Now modify the instruction as appropriate. To\n-\t\t     turn a leaq into a movq in the form we use it, it\n+\t\t     turn a lea into a mov in the form we use it, it\n \t\t     suffices to change the second byte from 0x8d to\n \t\t     0x8b.  */\n \t\t  if (roff < 2)\n@@ -3768,13 +3811,32 @@ elf_x86_64_relocate_section (bfd *output_bfd,\n \t\t{\n \t\t  /* GDesc -> IE transition.\n \t\t     It's originally:\n-\t\t     call *(%rax)\n+\t\t     call *(%rax) <--- LP64 mode.\n+\t\t     call *(%eax) <--- X32 mode.\n \n \t\t     Change it to:\n-\t\t     xchg %ax, %ax.  */\n+\t\t     xchg %ax, %ax <-- LP64 mode.\n+\t\t     nopl (%rax)  <-- X32 mode.\n+\t\t   */\n \n-\t\t  bfd_put_8 (output_bfd, 0x66, contents + roff);\n-\t\t  bfd_put_8 (output_bfd, 0x90, contents + roff + 1);\n+\t\t  unsigned int prefix = 0;\n+\t\t  if (!ABI_64_P (input_bfd))\n+\t\t    {\n+\t\t      /* Check for call *x@tlsdesc(%eax).  */\n+\t\t      if (contents[roff] == 0x67)\n+\t\t\tprefix = 1;\n+\t\t    }\n+\t\t  if (prefix)\n+\t\t    {\n+\t\t      bfd_put_8 (output_bfd, 0x0f, contents + roff);\n+\t\t      bfd_put_8 (output_bfd, 0x1f, contents + roff + 1);\n+\t\t      bfd_put_8 (output_bfd, 0x00, contents + roff + 2);\n+\t\t    }\n+\t\t  else\n+\t\t    {\n+\t\t      bfd_put_8 (output_bfd, 0x66, contents + roff);\n+\t\t      bfd_put_8 (output_bfd, 0x90, contents + roff + 1);\n+\t\t    }\n \t\t  continue;\n \t\t}\n \t      else"
+    },
+    {
+      "sha": "02209481075d0859103833d3ec4777d2b3140455",
+      "filename": "gas/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/gas/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/gas/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/ChangeLog?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -1,3 +1,13 @@\n+2020-01-20  H.J. Lu  <hongjiu.lu@intel.com>\n+\n+\tPR ld/25416\n+\t* config/tc-i386.c (output_insn): Add a dummy REX_OPCODE prefix\n+\tfor lea with R_X86_64_GOTPC32_TLSDESC relocation when generating\n+\tx32 object.\n+\t* testsuite/gas/i386/ilp32/x32-tls.d: Updated.\n+\t* testsuite/gas/i386/ilp32/x32-tls.s: Add tests for lea with\n+\tR_X86_64_GOTPC32_TLSDESC relocation.\n+\n 2020-01-18  Nick Clifton  <nickc@redhat.com>\n \n \t* configure: Regenerate."
+    },
+    {
+      "sha": "87ab43bbce017ed338a388b3e6e8ca7331d0dfa4",
+      "filename": "gas/config/tc-i386.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 2,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/gas/config/tc-i386.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/gas/config/tc-i386.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-i386.c?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -8713,10 +8713,13 @@ output_insn (void)\n #if defined (OBJ_MAYBE_ELF) || defined (OBJ_ELF)\n \t  /* For x32, add a dummy REX_OPCODE prefix for mov/add with\n \t     R_X86_64_GOTTPOFF relocation so that linker can safely\n-\t     perform IE->LE optimization.  */\n+\t     perform IE->LE optimization.  A dummy REX_OPCODE prefix\n+\t     is also needed for lea with R_X86_64_GOTPC32_TLSDESC\n+\t     relocation for GDesc -> IE/LE optimization.  */\n \t  if (x86_elf_abi == X86_64_X32_ABI\n \t      && i.operands == 2\n-\t      && i.reloc[0] == BFD_RELOC_X86_64_GOTTPOFF\n+\t      && (i.reloc[0] == BFD_RELOC_X86_64_GOTTPOFF\n+\t\t  || i.reloc[0] == BFD_RELOC_X86_64_GOTPC32_TLSDESC)\n \t      && i.prefix[REX_PREFIX] == 0)\n \t    add_prefix (REX_OPCODE);\n #endif"
+    },
+    {
+      "sha": "ab4da5c730b094fa642d18b516e0ae8e8fa69ba9",
+      "filename": "gas/testsuite/gas/i386/ilp32/x32-tls.d",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/gas/testsuite/gas/i386/ilp32/x32-tls.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/gas/testsuite/gas/i386/ilp32/x32-tls.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/i386/ilp32/x32-tls.d?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -10,4 +10,6 @@ Disassembly of section .text:\n [ \t]*[a-f0-9]+:\t4c 8b 25 00 00 00 00 \tmov    0x0\\(%rip\\),%r12        # e <_start\\+0xe>\n [ \t]*[a-f0-9]+:\t40 03 05 00 00 00 00 \trex add 0x0\\(%rip\\),%eax        # 15 <_start\\+0x15>\n [ \t]*[a-f0-9]+:\t44 03 25 00 00 00 00 \tadd    0x0\\(%rip\\),%r12d        # 1c <_start\\+0x1c>\n+[ \t]*[a-f0-9]+:\t40 8d 05 00 00 00 00 \trex lea 0x0\\(%rip\\),%eax        # 23 <_start\\+0x23>\n+[ \t]*[a-f0-9]+:\t44 8d 25 00 00 00 00 \tlea    0x0\\(%rip\\),%r12d        # 2a <_start\\+0x2a>\n #pass"
+    },
+    {
+      "sha": "e1599be73c1fd999ee9f1f18017e432c15189b5e",
+      "filename": "gas/testsuite/gas/i386/ilp32/x32-tls.s",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/gas/testsuite/gas/i386/ilp32/x32-tls.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/gas/testsuite/gas/i386/ilp32/x32-tls.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/i386/ilp32/x32-tls.s?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -4,6 +4,8 @@ _start:\n \tmov\tfoo@gottpoff(%rip), %r12\n \tadd\tfoo@gottpoff(%rip), %eax\n \tadd\tfoo@gottpoff(%rip), %r12d\n+\tlea\tfoo@tlsdesc(%rip), %eax\n+\tlea\tfoo@tlsdesc(%rip), %r12d\n \t.globl\tfoo\n \t.section\t.tdata,\"awT\",@progbits\n \t.align 4"
+    },
+    {
+      "sha": "f95a25cf30568ba45e6aa9fdc5d8036d9074abe4",
+      "filename": "ld/ChangeLog",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 0,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/ChangeLog?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -1,3 +1,24 @@\n+2020-01-20  H.J. Lu  <hongjiu.lu@intel.com>\n+\n+\tPR ld/25416\n+\t* testsuite/ld-x86-64/pr25416-1.s: New file\n+\t* testsuite/ld-x86-64/pr25416-1a.d: Likewise.\n+\t* testsuite/ld-x86-64/pr25416-1b.d: Likewise.\n+\t* testsuite/ld-x86-64/pr25416-1.s: Likewise.\n+\t* testsuite/ld-x86-64/pr25416-2.s: Likewise.\n+\t* testsuite/ld-x86-64/pr25416-2a.d: Likewise.\n+\t* testsuite/ld-x86-64/pr25416-2b.d: Likewise.\n+\t* testsuite/ld-x86-64/pr25416-3.d: Likewise.\n+\t* testsuite/ld-x86-64/pr25416-3.s: Likewise.\n+\t* testsuite/ld-x86-64/pr25416-4.d: Likewise.\n+\t* testsuite/ld-x86-64/pr25416-4.s: Likewise.\n+\t* testsuite/ld-x86-64/pr25416-5a.c: Likewise.\n+\t* testsuite/ld-x86-64/pr25416-5b.s: Likewise.\n+\t* testsuite/ld-x86-64/pr25416-5c.s: Likewise.\n+\t* testsuite/ld-x86-64/pr25416-5d.s: Likewise.\n+\t* testsuite/ld-x86-64/pr25416-5e.s: Likewise.\n+\t* testsuite/ld-x86-64/x86-64.exp: Run PR ld/25416 tests.\n+\n 2020-01-20  Alan Modra  <amodra@gmail.com>\n \n \t* testsuite/ld-powerpc/tlsexe.d: Match new __tls_get_addr stub."
+    },
+    {
+      "sha": "66636c1298197d63ff0cb7ea81c8b0375a1916ad",
+      "filename": "ld/testsuite/ld-x86-64/pr25416-1.s",
+      "status": "added",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-1.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-1.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr25416-1.s?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -0,0 +1,13 @@\n+\t.text\n+\t.globl\t_start\n+\t.type\t_start, @function\n+_start:\n+\tlea\tfoo@TLSDESC(%rip), %eax\n+\tcall\t*foo@TLSCALL(%eax)\n+\t.section\t.tdata,\"awT\",@progbits\n+\t.align 4\n+\t.type\tfoo, @object\n+\t.size\tfoo, 4\n+foo:\n+\t.long\t30\n+\t.section\t.note.GNU-stack,\"\",@progbits"
+    },
+    {
+      "sha": "02818b0526ef8cec2aa0dce6aee0256e9d5a47f4",
+      "filename": "ld/testsuite/ld-x86-64/pr25416-1a.d",
+      "status": "added",
+      "additions": 16,
+      "deletions": 0,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-1a.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-1a.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr25416-1a.d?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -0,0 +1,16 @@\n+#name: X32 GDesc 1\n+#source: pr25416-1.s\n+#as: --x32\n+#ld: -melf32_x86_64 -shared\n+#objdump: -dw\n+\n+.*: +file format .*\n+\n+\n+#...\n+Disassembly of section .text:\n+\n+[a-f0-9]+ <_start>:\n+ +[a-f0-9]+:\t40 8d 05 ([0-9a-f]{2} ){4}[ \\t]+rex lea 0x[a-f0-9]+\\(%rip\\),%eax[ \\t]+# [a-f0-9]+ <_GLOBAL_OFFSET_TABLE_\\+0x[a-f0-9]+>\n+ +[a-f0-9]+:\t67 ff 10             \tcallq  \\*\\(%eax\\)\n+#pass"
+    },
+    {
+      "sha": "d1bb6892cbe2cd15b11169ae2db444cd468ff261",
+      "filename": "ld/testsuite/ld-x86-64/pr25416-1b.d",
+      "status": "added",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-1b.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-1b.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr25416-1b.d?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -0,0 +1,15 @@\n+#name: X32 GDesc -> LE 1\n+#source: pr25416-1.s\n+#as: --x32\n+#ld: -melf32_x86_64\n+#objdump: -dw\n+\n+.*: +file format .*\n+\n+\n+Disassembly of section .text:\n+\n+[a-f0-9]+ <_start>:\n+ +[a-f0-9]+:\t40 c7 c0 ([0-9a-f]{2} ){4}[ \\t]+rex mov \\$0x[a-f0-9]+,%eax\n+ +[a-f0-9]+:\t0f 1f 00             \tnopl   \\(%rax\\)\n+#pass"
+    },
+    {
+      "sha": "b6dbb6d93ad3c62922ed1a3a1f31648c814f0873",
+      "filename": "ld/testsuite/ld-x86-64/pr25416-2.s",
+      "status": "added",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-2.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-2.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr25416-2.s?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -0,0 +1,13 @@\n+\t.text\n+\t.globl\t_start\n+\t.type\t_start, @function\n+_start:\n+\tlea\tfoo@TLSDESC(%rip), %rax\n+\tcall\t*foo@TLSCALL(%rax)\n+\t.section\t.tdata,\"awT\",@progbits\n+\t.align 4\n+\t.type\tfoo, @object\n+\t.size\tfoo, 4\n+foo:\n+\t.long\t30\n+\t.section\t.note.GNU-stack,\"\",@progbits"
+    },
+    {
+      "sha": "d1b257652a6097b1951093166166f3ee4533b92a",
+      "filename": "ld/testsuite/ld-x86-64/pr25416-2a.d",
+      "status": "added",
+      "additions": 16,
+      "deletions": 0,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-2a.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-2a.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr25416-2a.d?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -0,0 +1,16 @@\n+#name: X32 GDesc 2\n+#source: pr25416-2.s\n+#as: --x32\n+#ld: -melf32_x86_64 -shared\n+#objdump: -dw\n+\n+.*: +file format .*\n+\n+\n+#...\n+Disassembly of section .text:\n+\n+[a-f0-9]+ <_start>:\n+ +[a-f0-9]+:\t48 8d 05 ([0-9a-f]{2} ){4}[ \\t]+lea    0x[a-f0-9]+\\(%rip\\),%rax[ \\t]+# [a-f0-9]+ <_GLOBAL_OFFSET_TABLE_\\+0x[a-f0-9]+>\n+ +[a-f0-9]+:\tff 10                \tcallq  \\*\\(%rax\\)\n+#pass"
+    },
+    {
+      "sha": "e78283fd6660755c12500efe7a0433fcda21c953",
+      "filename": "ld/testsuite/ld-x86-64/pr25416-2b.d",
+      "status": "added",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-2b.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-2b.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr25416-2b.d?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -0,0 +1,15 @@\n+#name: X32 GDesc -> LE 2\n+#source: pr25416-2.s\n+#as: --x32\n+#ld: -melf32_x86_64\n+#objdump: -dw\n+\n+.*: +file format .*\n+\n+\n+Disassembly of section .text:\n+\n+[a-f0-9]+ <_start>:\n+ +[a-f0-9]+:\t48 c7 c0 ([0-9a-f]{2} ){4}[ \\t]+mov    \\$0x[a-f0-9]+,%rax\n+ +[a-f0-9]+:\t66 90                \txchg   %ax,%ax\n+#pass"
+    },
+    {
+      "sha": "9c1da13484710bf1afaab518050816fa923eba78",
+      "filename": "ld/testsuite/ld-x86-64/pr25416-3.d",
+      "status": "added",
+      "additions": 16,
+      "deletions": 0,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-3.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-3.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr25416-3.d?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -0,0 +1,16 @@\n+#name: X32 GDesc -> IE 1\n+#as: --x32\n+#ld: -melf32_x86_64 -shared\n+#objdump: -dw\n+\n+.*: +file format .*\n+\n+\n+Disassembly of section .text:\n+\n+[a-f0-9]+ <_start>:\n+ +[a-f0-9]+:\t40 8b 05 ([0-9a-f]{2} ){4}[ \\t]+rex mov 0x[a-f0-9]+\\(%rip\\),%eax[ \\t]+# [a-f0-9]+ <.got>\n+ +[a-f0-9]+:\t0f 1f 00             \tnopl   \\(%rax\\)\n+ +[a-f0-9]+:\t64 8b 0c 25 00 00 00 00 \tmov    %fs:0x0,%ecx\n+ +[a-f0-9]+:\t40 03 0d ([0-9a-f]{2} ){4}[ \\t]+rex add 0x[a-f0-9]+\\(%rip\\),%ecx[ \\t]+# [a-f0-9]+ <.got>\n+#pass"
+    },
+    {
+      "sha": "949b1239ed2af6eea4e099eff5553cbbbaca6002",
+      "filename": "ld/testsuite/ld-x86-64/pr25416-3.s",
+      "status": "added",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-3.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-3.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr25416-3.s?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -0,0 +1,15 @@\n+\t.text\n+\t.globl\t_start\n+\t.type\t_start, @function\n+_start:\n+\tlea\tfoo@TLSDESC(%rip), %eax\n+\tcall\t*foo@TLSCALL(%eax)\n+\tmovl\t%fs:0, %ecx\n+\taddl\tfoo@gottpoff(%rip), %ecx\n+\t.section\t.tdata,\"awT\",@progbits\n+\t.align 4\n+\t.type\tfoo, @object\n+\t.size\tfoo, 4\n+foo:\n+\t.long\t30\n+\t.section\t.note.GNU-stack,\"\",@progbits"
+    },
+    {
+      "sha": "8d91fbc0a6604e68da4232ab6de6ac9c50093553",
+      "filename": "ld/testsuite/ld-x86-64/pr25416-4.d",
+      "status": "added",
+      "additions": 16,
+      "deletions": 0,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-4.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-4.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr25416-4.d?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -0,0 +1,16 @@\n+#name: X32 GDesc -> IE 2\n+#as: --x32\n+#ld: -melf32_x86_64 -shared\n+#objdump: -dw\n+\n+.*: +file format .*\n+\n+\n+Disassembly of section .text:\n+\n+[a-f0-9]+ <_start>:\n+ +[a-f0-9]+:\t48 8b 05 ([0-9a-f]{2} ){4}[ \\t]+mov    0x[a-f0-9]+\\(%rip\\),%rax[ \\t]+# [a-f0-9]+ <.got>\n+ +[a-f0-9]+:\t66 90                \txchg   %ax,%ax\n+ +[a-f0-9]+:\t64 8b 0c 25 00 00 00 00 \tmov    %fs:0x0,%ecx\n+ +[a-f0-9]+:\t40 03 0d ([0-9a-f]{2} ){4}[ \\t]+rex add 0x[a-f0-9]+\\(%rip\\),%ecx[ \\t]+# [a-f0-9]+ <.got>\n+#pass"
+    },
+    {
+      "sha": "5120af466c786a84a0e2422f4d88d92de4bc70ec",
+      "filename": "ld/testsuite/ld-x86-64/pr25416-4.s",
+      "status": "added",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-4.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-4.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr25416-4.s?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -0,0 +1,15 @@\n+\t.text\n+\t.globl\t_start\n+\t.type\t_start, @function\n+_start:\n+\tlea\tfoo@TLSDESC(%rip), %rax\n+\tcall\t*foo@TLSCALL(%rax)\n+\tmovl\t%fs:0, %ecx\n+\taddl\tfoo@gottpoff(%rip), %ecx\n+\t.section\t.tdata,\"awT\",@progbits\n+\t.align 4\n+\t.type\tfoo, @object\n+\t.size\tfoo, 4\n+foo:\n+\t.long\t30\n+\t.section\t.note.GNU-stack,\"\",@progbits"
+    },
+    {
+      "sha": "9d820a1911d0303dd189ac1a5bdb77d94dff9c0b",
+      "filename": "ld/testsuite/ld-x86-64/pr25416-5a.c",
+      "status": "added",
+      "additions": 33,
+      "deletions": 0,
+      "changes": 33,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-5a.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-5a.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr25416-5a.c?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -0,0 +1,33 @@\n+#include <stdlib.h>\n+#include <stdio.h>\n+\n+__thread int bar = 301;\n+\n+extern int *test1 (int);\n+extern int *test2 (int);\n+extern int *test3 (int);\n+\n+int\n+main ()\n+{\n+  int *p;\n+  p = test1 (30);\n+  if (*p != 30)\n+    abort ();\n+  *p = 40;\n+  test1 (40);\n+  p = test2 (301);\n+  if (*p != 301)\n+    abort ();\n+  if (p != &bar)\n+    abort ();\n+  *p = 40;\n+  test2 (40);\n+  p = test3 (40);\n+  if (*p != 40)\n+    abort ();\n+  *p = 50;\n+  test3 (50);\n+  puts (\"PASS\");\n+  return 0;\n+}"
+    },
+    {
+      "sha": "8edd248c4fe94f488b210694e54ead741c8896b9",
+      "filename": "ld/testsuite/ld-x86-64/pr25416-5b.s",
+      "status": "added",
+      "additions": 52,
+      "deletions": 0,
+      "changes": 52,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-5b.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-5b.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr25416-5b.s?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -0,0 +1,52 @@\n+\t.text\n+\t.p2align 4\n+\t.globl\ttest1\n+\t.type\ttest1, @function\n+test1:\n+\t.cfi_startproc\n+\tsubl\t$8, %esp\n+\t.cfi_def_cfa_offset 16\n+\tlea\tfoo@TLSDESC(%rip), %eax\n+\tcall\t*foo@TLSCALL(%eax)\n+\taddl\t%fs:0, %eax\n+\tcmpl\t%edi, (%eax)\n+\tjne\t.L5\n+\taddl\t$8, %esp\n+\t.cfi_remember_state\n+\t.cfi_def_cfa_offset 8\n+\tret\n+.L5:\n+\t.cfi_restore_state\n+\tcall\tabort@PLT\n+\t.cfi_endproc\n+\t.size\ttest1, .-test1\n+\t.p2align 4\n+\t.globl\ttest2\n+\t.type\ttest2, @function\n+test2:\n+\t.cfi_startproc\n+\tsubl\t$8, %esp\n+\t.cfi_def_cfa_offset 16\n+\tlea\tbar@TLSDESC(%rip), %eax\n+\tcall\t*bar@TLSCALL(%eax)\n+\taddl\t%fs:0, %eax\n+\tcmpl\t%edi, (%eax)\n+\tjne\t.L9\n+\taddl\t$8, %esp\n+\t.cfi_remember_state\n+\t.cfi_def_cfa_offset 8\n+\tret\n+.L9:\n+\t.cfi_restore_state\n+\tcall\tabort@PLT\n+\t.cfi_endproc\n+\t.size\ttest2, .-test2\n+\t.section\t.tdata,\"awT\",@progbits\n+\t.align 4\n+\t.hidden foo\n+\t.globl foo\n+\t.type\tfoo, @object\n+\t.size\tfoo, 4\n+foo:\n+\t.long\t30\n+\t.section\t.note.GNU-stack,\"\",@progbits"
+    },
+    {
+      "sha": "f42a8a0e6b35d51f0194636a0f57dcee6ddc070c",
+      "filename": "ld/testsuite/ld-x86-64/pr25416-5c.s",
+      "status": "added",
+      "additions": 56,
+      "deletions": 0,
+      "changes": 56,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-5c.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-5c.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr25416-5c.s?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -0,0 +1,56 @@\n+\t.text\n+\t.p2align 4\n+\t.globl\ttest1\n+\t.type\ttest1, @function\n+test1:\n+\t.cfi_startproc\n+\tsubq\t$8, %rsp\n+\t.cfi_def_cfa_offset 16\n+\tlea\tfoo@TLSDESC(%rip), %rax\n+\tcall\t*foo@TLSCALL(%rax)\n+\taddl\t%fs:0, %eax\n+\tcmpl\t%edi, (%eax)\n+\tjne\t.L5\n+\tmovl\t%eax, %r8d\n+\taddq\t$8, %rsp\n+\t.cfi_remember_state\n+\t.cfi_def_cfa_offset 8\n+\tmovq\t%r8, %rax\n+\tret\n+.L5:\n+\t.cfi_restore_state\n+\tcall\tabort@PLT\n+\t.cfi_endproc\n+\t.size\ttest1, .-test1\n+\t.p2align 4\n+\t.globl\ttest2\n+\t.type\ttest2, @function\n+test2:\n+\t.cfi_startproc\n+\tsubq\t$8, %rsp\n+\t.cfi_def_cfa_offset 16\n+\tlea\tbar@TLSDESC(%rip), %rax\n+\tcall\t*bar@TLSCALL(%rax)\n+\taddl\t%fs:0, %eax\n+\tcmpl\t%edi, (%eax)\n+\tjne\t.L9\n+\tmovl\t%eax, %r8d\n+\taddq\t$8, %rsp\n+\t.cfi_remember_state\n+\t.cfi_def_cfa_offset 8\n+\tmovq\t%r8, %rax\n+\tret\n+.L9:\n+\t.cfi_restore_state\n+\tcall\tabort@PLT\n+\t.cfi_endproc\n+\t.size\ttest2, .-test2\n+\t.section\t.tdata,\"awT\",@progbits\n+\t.align 4\n+\t.hidden foo\n+\t.globl foo\n+\t.type\tfoo, @object\n+\t.size\tfoo, 4\n+foo:\n+\t.long\t30\n+\t.section\t.note.GNU-stack,\"\",@progbits"
+    },
+    {
+      "sha": "8d36733d9bf38740b5d75dd6e89f60030dae6702",
+      "filename": "ld/testsuite/ld-x86-64/pr25416-5d.s",
+      "status": "added",
+      "additions": 19,
+      "deletions": 0,
+      "changes": 19,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-5d.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-5d.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr25416-5d.s?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -0,0 +1,19 @@\n+\t.text\n+\t.p2align 4\n+\t.globl\ttest3\n+\t.type\ttest3, @function\n+test3:\n+\t.cfi_startproc\n+\tmovl\t%fs:0, %eax\n+\taddq\tfoo@gottpoff(%rip), %rax\n+\tcmpl\t%edi, (%eax)\n+\tjne\t.L7\n+\tmovl\t%eax, %eax\n+\tret\n+.L7:\n+\tpushq\t%rax\n+\t.cfi_def_cfa_offset 16\n+\tcall\tabort@PLT\n+\t.cfi_endproc\n+\t.size\ttest3, .-test3\n+\t.section\t.note.GNU-stack,\"\",@progbits"
+    },
+    {
+      "sha": "fe0c0e8b1117f7e24dd5c75a252c671ee26dc52a",
+      "filename": "ld/testsuite/ld-x86-64/pr25416-5e.s",
+      "status": "added",
+      "additions": 23,
+      "deletions": 0,
+      "changes": 23,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-5e.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/pr25416-5e.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr25416-5e.s?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -0,0 +1,23 @@\n+\t.text\n+\t.p2align 4\n+\t.globl\ttest3\n+\t.type\ttest3, @function\n+test3:\n+\t.cfi_startproc\n+\tsubl\t$8, %esp\n+\t.cfi_def_cfa_offset 16\n+\tlea\tfoo@TLSDESC(%rip), %eax\n+\tcall\t*foo@TLSCALL(%eax)\n+\taddl\t%fs:0, %eax\n+\tcmpl\t%edi, (%eax)\n+\tjne\t.L5\n+\taddl\t$8, %esp\n+\t.cfi_remember_state\n+\t.cfi_def_cfa_offset 8\n+\tret\n+.L5:\n+\t.cfi_restore_state\n+\tcall\tabort@PLT\n+\t.cfi_endproc\n+\t.size\ttest3, .-test3\n+\t.section\t.note.GNU-stack,\"\",@progbits"
+    },
+    {
+      "sha": "c78b0fd75760f09a5614e4d06c10d9ba99605e19",
+      "filename": "ld/testsuite/ld-x86-64/x86-64.exp",
+      "status": "modified",
+      "additions": 112,
+      "deletions": 0,
+      "changes": 112,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/x86-64.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/14470f0755dbc942aa684ed647df978ddfc7cff2/ld/testsuite/ld-x86-64/x86-64.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/x86-64.exp?ref=14470f0755dbc942aa684ed647df978ddfc7cff2",
+      "patch": "@@ -461,6 +461,12 @@ run_dump_test \"pr24721-x32\"\n run_dump_test \"pr24905\"\n run_dump_test \"pr24905-x32\"\n run_dump_test \"align-branch-1\"\n+run_dump_test \"pr25416-1a\"\n+run_dump_test \"pr25416-2b\"\n+run_dump_test \"pr25416-2a\"\n+run_dump_test \"pr25416-2b\"\n+run_dump_test \"pr25416-3\"\n+run_dump_test \"pr25416-4\"\n \n if { ![istarget \"x86_64-*-linux*\"] && ![istarget \"x86_64-*-nacl*\"]} {\n     return\n@@ -1302,6 +1308,51 @@ if { [isnative] && [check_compiler_available] } {\n     ]\n \n     if  {[istarget \"x86_64-*-linux*-gnux32\"]} {\n+\trun_cc_link_tests [list \\\n+\t    [list \\\n+\t\t\"Build pr25416-5b.o (GDesc -maddress-mode=short)\" \\\n+\t\t\"\" \\\n+\t\t\"-Wa,-mx86-used-note=yes\" \\\n+\t\t{ pr25416-5b.s } \\\n+\t    ] \\\n+\t    [list \\\n+\t\t\"Build pr25416-5b.so (GDesc -> IE -maddress-mode=short)\" \\\n+\t\t\"-shared\" \\\n+\t\t\"-fPIC -Wa,-mx86-used-note=yes\" \\\n+\t\t{ pr25416-5b.s pr25416-5d.s } \\\n+\t\t{} \\\n+\t\t\"pr25416-5b.so\" \\\n+\t    ] \\\n+\t    [list \\\n+\t\t\"Build pr25416-5c.o (GDesc -maddress-mode=long)\" \\\n+\t\t\"\" \\\n+\t\t\"-Wa,-mx86-used-note=yes\" \\\n+\t\t{ pr25416-5c.s } \\\n+\t    ] \\\n+\t    [list \\\n+\t\t\"Build pr25416-5c.so (GDesc -> IE -maddress-mode=long)\" \\\n+\t\t\"-shared\" \\\n+\t\t\"-fPIC -Wa,-mx86-used-note=yes\" \\\n+\t\t{ pr25416-5c.s pr25416-5d.s } \\\n+\t\t{} \\\n+\t\t\"pr25416-5c.so\" \\\n+\t    ] \\\n+\t    [list \\\n+\t\t\"Build pr25416-5d.so (GDesc -maddress-mode=short)\" \\\n+\t\t\"-shared\" \\\n+\t\t\"-fPIC -Wa,-mx86-used-note=yes\" \\\n+\t\t{ pr25416-5b.s pr25416-5e.s } \\\n+\t\t{} \\\n+\t\t\"pr25416-5d.so\" \\\n+\t    ] \\\n+\t    [list \\\n+\t\t\"Build pr25416-5d.o (IE -maddress-mode=short)\" \\\n+\t\t\"\" \\\n+\t\t\"-Wa,-mx86-used-note=yes\" \\\n+\t\t{ pr25416-5d.s } \\\n+\t    ] \\\n+\t]\n+\n \trun_ld_link_exec_tests [list \\\n \t    [list \\\n \t\t\"Run pr22001-1b\" \\\n@@ -1321,6 +1372,67 @@ if { [isnative] && [check_compiler_available] } {\n \t\t\"pass.out\" \\\n \t\t\"$NOPIE_CFLAGS\" \\\n \t    ] \\\n+\t    [list \\\n+\t\t\"Run pr25416-5a (GDesc -> IE -maddress-mode=short)\" \\\n+\t\t\"$NOPIE_LDFLAGS -Wl,--no-as-needed tmpdir/pr25416-5b.so\" \\\n+\t\t\"-Wa,-mx86-used-note=yes\" \\\n+\t\t{ pr25416-5a.c } \\\n+\t\t\"pr25416-5a\" \\\n+\t\t\"pass.out\" \\\n+\t\t\"$NOPIE_CFLAGS\" \\\n+\t    ] \\\n+\t    [list \\\n+\t\t\"Run pr25416-5b (GDesc -> LE -maddress-mode=short\" \\\n+\t\t\"$NOPIE_LDFLAGS tmpdir/pr25416-5b.o tmpdir/pr25416-5d.o\" \\\n+\t\t\"-Wa,-mx86-used-note=yes\" \\\n+\t\t{ pr25416-5a.c } \\\n+\t\t\"pr25416-5b\" \\\n+\t\t\"pass.out\" \\\n+\t\t\"$NOPIE_CFLAGS\" \\\n+\t    ] \\\n+\t    [list \\\n+\t\t\"Run pr25416-5c (GDesc -> IE -maddress-mode=long)\" \\\n+\t\t\"$NOPIE_LDFLAGS -Wl,--no-as-needed tmpdir/pr25416-5c.so\" \\\n+\t\t\"-Wa,-mx86-used-note=yes\" \\\n+\t\t{ pr25416-5a.c } \\\n+\t\t\"pr25416-5c\" \\\n+\t\t\"pass.out\" \\\n+\t\t\"$NOPIE_CFLAGS\" \\\n+\t    ] \\\n+\t    [list \\\n+\t\t\"Run pr25416-5d (GDesc -> LE -maddress-mode=long)\" \\\n+\t\t\"$NOPIE_LDFLAGS tmpdir/pr25416-5c.o tmpdir/pr25416-5d.o\" \\\n+\t\t\"-Wa,-mx86-used-note=yes\" \\\n+\t\t{ pr25416-5a.c } \\\n+\t\t\"pr25416-5d\" \\\n+\t\t\"pass.out\" \\\n+\t\t\"$NOPIE_CFLAGS\" \\\n+\t    ] \\\n+\t    [list \\\n+\t\t\"Run pr25416-5e (GDesc -maddress-mode=short)\" \\\n+\t\t\"$NOPIE_LDFLAGS -Wl,--no-as-needed tmpdir/pr25416-5d.so\" \\\n+\t\t\"-Wa,-mx86-used-note=yes\" \\\n+\t\t{ pr25416-5a.c } \\\n+\t\t\"pr25416-5e\" \\\n+\t\t\"pass.out\" \\\n+\t\t\"$NOPIE_CFLAGS\" \\\n+\t    ] \\\n+\t    [list \\\n+\t\t\"Run pr25416-5f (PIE GDesc -> LE -maddress-mode=short)\" \\\n+\t\t\"-pie tmpdir/pr25416-5b.o tmpdir/pr25416-5d.o\" \\\n+\t\t\"-Wa,-mx86-used-note=yes\" \\\n+\t\t{ pr25416-5a.c } \\\n+\t\t\"pr25416-5f\" \\\n+\t\t\"pass.out\" \\\n+\t    ] \\\n+\t    [list \\\n+\t\t\"Run pr25416-5g (PIE GDesc -> LE -maddress-mode=long)\" \\\n+\t\t\"-pie tmpdir/pr25416-5c.o tmpdir/pr25416-5d.o\" \\\n+\t\t\"-Wa,-mx86-used-note=yes\" \\\n+\t\t{ pr25416-5a.c } \\\n+\t\t\"pr25416-5g\" \\\n+\t\t\"pass.out\" \\\n+\t    ] \\\n \t]\n     } else {\n \trun_cc_link_tests [list \\"
+    }
+  ]
+}

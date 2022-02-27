@@ -1,0 +1,146 @@
+{
+  "sha": "bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YmQ1NzY2ZWM2ODkxNDBhYTgwZTVkNGZkNWMwYmY5Yzk5MGY1YTM4Yg==",
+  "commit": {
+    "author": {
+      "name": "Luis Machado",
+      "email": "luis.machado@linaro.org",
+      "date": "2019-11-01T13:11:17Z"
+    },
+    "committer": {
+      "name": "Luis Machado",
+      "email": "luis.machado@linaro.org",
+      "date": "2019-11-01T13:11:17Z"
+    },
+    "message": "[ARM, thumb] Fix disassembling bug after reloading a symbol file\n\nThe speed optimization from commit 5f6cac4085c95c5339b9549dc06d4f9184184fa6\nmade GDB skip reloading all symbols when the same symbol file is reloaded.\n\nAs a result, ARM targets only read the mapping symbols the first time we\nload a symbol file. When reloaded, the speed optimization above will\ncause an early return and gdbarch_record_special_symbol won't be called to\nsave mapping symbol data, which in turn affects disassembling of thumb\ninstructions.\n\nFirst load and correct disassemble output:\n\nDump of assembler code for function main:\n    0x0000821c <+0>:     bx      pc\n    0x0000821e <+2>:     nop\n    0x00008220 <+4>:     mov     r0, #0\n    0x00008224 <+8>:     bx      lr\n\nSecond load and incorrect disassemble output:\n\nDump of assembler code for function main:\n    0x0000821c <+0>:     bx      pc\n    0x0000821e <+2>:     nop\n    0x00008220 <+4>:     movs    r0, r0\n    0x00008222 <+6>:     b.n     0x8966\n    0x00008224 <+8>:     vrhadd.u16      d14, d14, d31\n\nThis happens because the mapping symbol data is stored in an objfile_key-based\ncontainer, and that data isn't preserved across the two symbol loading\noperations.\n\nThe following patch fixes this by storing the mapping symbol data in a\nbfd_key-based container, which doesn't change as long as the bfd is the same.\n\nI've also added a new test to verify the correct disassemble output.\n\ngdb/ChangeLog:\n\n2019-11-01  Luis Machado  <luis.machado@linaro.org>\n\n\tPR gdb/25124\n\n\t* arm-tdep.c (arm_per_objfile): Rename to ...\n\t(arm_per_bfd): ... this.\n\t(arm_objfile_data_key): Rename to ...\n\t(arm_bfd_data_key): ... this.\n\t(arm_find_mapping_symbol): Adjust access to new bfd_key-based\n\tdata.\n\t(arm_record_special_symbol): Likewise.\n\ngdb/testsuite/ChangeLog:\n\n2019-11-01  Luis Machado  <luis.machado@linaro.org>\n\n\tPR gdb/25124\n\n\t* gdb.arch/pr25124.S: New file.\n\t* gdb.arch/pr25124.exp: New file.\n\nChange-Id: I22c3e6ebe9bfedad66d56fe9656994fa1761c485",
+    "tree": {
+      "sha": "e01a47729932a5823db698dafb63736d6f209aad",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/e01a47729932a5823db698dafb63736d6f209aad"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b/comments",
+  "author": {
+    "login": "luislinaro",
+    "id": 53092780,
+    "node_id": "MDQ6VXNlcjUzMDkyNzgw",
+    "avatar_url": "https://avatars.githubusercontent.com/u/53092780?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/luislinaro",
+    "html_url": "https://github.com/luislinaro",
+    "followers_url": "https://api.github.com/users/luislinaro/followers",
+    "following_url": "https://api.github.com/users/luislinaro/following{/other_user}",
+    "gists_url": "https://api.github.com/users/luislinaro/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/luislinaro/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/luislinaro/subscriptions",
+    "organizations_url": "https://api.github.com/users/luislinaro/orgs",
+    "repos_url": "https://api.github.com/users/luislinaro/repos",
+    "events_url": "https://api.github.com/users/luislinaro/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/luislinaro/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "luislinaro",
+    "id": 53092780,
+    "node_id": "MDQ6VXNlcjUzMDkyNzgw",
+    "avatar_url": "https://avatars.githubusercontent.com/u/53092780?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/luislinaro",
+    "html_url": "https://github.com/luislinaro",
+    "followers_url": "https://api.github.com/users/luislinaro/followers",
+    "following_url": "https://api.github.com/users/luislinaro/following{/other_user}",
+    "gists_url": "https://api.github.com/users/luislinaro/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/luislinaro/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/luislinaro/subscriptions",
+    "organizations_url": "https://api.github.com/users/luislinaro/orgs",
+    "repos_url": "https://api.github.com/users/luislinaro/repos",
+    "events_url": "https://api.github.com/users/luislinaro/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/luislinaro/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "d0d6922c6855c7473d0d2dda45674443ba503cb5",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d0d6922c6855c7473d0d2dda45674443ba503cb5",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/d0d6922c6855c7473d0d2dda45674443ba503cb5"
+    }
+  ],
+  "stats": {
+    "total": 123,
+    "additions": 113,
+    "deletions": 10
+  },
+  "files": [
+    {
+      "sha": "e2bdd5f3e9c72092c02a2c8cd0e85edf43ea87d6",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b",
+      "patch": "@@ -1,3 +1,15 @@\n+2019-11-01  Luis Machado  <luis.machado@linaro.org>\n+\n+\tPR gdb/25124\n+\n+\t* arm-tdep.c (arm_per_objfile): Rename to ...\n+\t(arm_per_bfd): ... this.\n+\t(arm_objfile_data_key): Rename to ...\n+\t(arm_bfd_data_key): ... this.\n+\t(arm_find_mapping_symbol): Adjust access to new bfd_key-based\n+\tdata.\n+\t(arm_record_special_symbol): Likewise.\n+\n 2019-10-31  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* ada-typeprint.c (ada_print_typedef): Don't print newline at the"
+    },
+    {
+      "sha": "3cf3abb9fa61957f5f25b286961bc544df156119",
+      "filename": "gdb/arm-tdep.c",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 10,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b/gdb/arm-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b/gdb/arm-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/arm-tdep.c?ref=bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b",
+      "patch": "@@ -89,14 +89,14 @@ struct arm_mapping_symbol\n \n typedef std::vector<arm_mapping_symbol> arm_mapping_symbol_vec;\n \n-struct arm_per_objfile\n+struct arm_per_bfd\n {\n-  explicit arm_per_objfile (size_t num_sections)\n+  explicit arm_per_bfd (size_t num_sections)\n   : section_maps (new arm_mapping_symbol_vec[num_sections]),\n     section_maps_sorted (new bool[num_sections] ())\n   {}\n \n-  DISABLE_COPY_AND_ASSIGN (arm_per_objfile);\n+  DISABLE_COPY_AND_ASSIGN (arm_per_bfd);\n \n   /* Information about mapping symbols ($a, $d, $t) in the objfile.\n \n@@ -113,8 +113,8 @@ struct arm_per_objfile\n   std::unique_ptr<bool[]> section_maps_sorted;\n };\n \n-/* Per-objfile data used for mapping symbols.  */\n-static objfile_key<arm_per_objfile> arm_objfile_data_key;\n+/* Per-bfd data used for mapping symbols.  */\n+static bfd_key<arm_per_bfd> arm_bfd_data_key;\n \n /* The list of available \"set arm ...\" and \"show arm ...\" commands.  */\n static struct cmd_list_element *setarmcmdlist = NULL;\n@@ -350,7 +350,7 @@ arm_find_mapping_symbol (CORE_ADDR memaddr, CORE_ADDR *start)\n   sec = find_pc_section (memaddr);\n   if (sec != NULL)\n     {\n-      arm_per_objfile *data = arm_objfile_data_key.get (sec->objfile);\n+      arm_per_bfd *data = arm_bfd_data_key.get (sec->objfile->obfd);\n       if (data != NULL)\n \t{\n \t  unsigned int section_idx = sec->the_bfd_section->index;\n@@ -8561,17 +8561,17 @@ arm_record_special_symbol (struct gdbarch *gdbarch, struct objfile *objfile,\n \t\t\t   asymbol *sym)\n {\n   const char *name = bfd_asymbol_name (sym);\n-  struct arm_per_objfile *data;\n+  struct arm_per_bfd *data;\n   struct arm_mapping_symbol new_map_sym;\n \n   gdb_assert (name[0] == '$');\n   if (name[1] != 'a' && name[1] != 't' && name[1] != 'd')\n     return;\n \n-  data = arm_objfile_data_key.get (objfile);\n+  data = arm_bfd_data_key.get (objfile->obfd);\n   if (data == NULL)\n-    data = arm_objfile_data_key.emplace (objfile,\n-\t\t\t\t\t objfile->obfd->section_count);\n+    data = arm_bfd_data_key.emplace (objfile->obfd,\n+\t\t\t\t     objfile->obfd->section_count);\n   arm_mapping_symbol_vec &map\n     = data->section_maps[bfd_asymbol_section (sym)->index];\n "
+    },
+    {
+      "sha": "f6464e9246cd3184db9ba4b8e93484a2663196df",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b",
+      "patch": "@@ -1,3 +1,10 @@\n+2019-11-01  Luis Machado  <luis.machado@linaro.org>\n+\n+\tPR gdb/25124\n+\n+\t* gdb.arch/pr25124.S: New file.\n+\t* gdb.arch/pr25124.exp: New file.\n+\n 2019-10-31  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.fortran/info-modules.exp: Update expected results, and add"
+    },
+    {
+      "sha": "79f82c7522fa58406a01cf1aa82b5d1f027b1536",
+      "filename": "gdb/testsuite/gdb.arch/pr25124.S",
+      "status": "added",
+      "additions": 35,
+      "deletions": 0,
+      "changes": 35,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b/gdb/testsuite/gdb.arch/pr25124.S",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b/gdb/testsuite/gdb.arch/pr25124.S",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/pr25124.S?ref=bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b",
+      "patch": "@@ -0,0 +1,35 @@\n+/* Test proper disassembling of ARM thumb instructions when reloading a symbol\n+   file.\n+\n+   Copyright 2012-2019 Free Software Foundation, Inc.\n+\n+   This file is part of GDB.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+\t.syntax unified\n+\t.thumb\n+\t.text\n+\t.p2align 2\n+\t.global\tmain\n+\t.thumb\n+\t.thumb_func\n+\t.type main, %function\n+main:\n+\tbx\tpc\n+\tnop\n+.code 32\n+\tmov\tr0, #0\n+\tbx\tlr\n+\t.size\tmain, .-main"
+    },
+    {
+      "sha": "656079c40098056df06f7018b2caa759cd8aebbd",
+      "filename": "gdb/testsuite/gdb.arch/pr25124.exp",
+      "status": "added",
+      "additions": 49,
+      "deletions": 0,
+      "changes": 49,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b/gdb/testsuite/gdb.arch/pr25124.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b/gdb/testsuite/gdb.arch/pr25124.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/pr25124.exp?ref=bd5766ec689140aa80e5d4fd5c0bf9c990f5a38b",
+      "patch": "@@ -0,0 +1,49 @@\n+# Copyright 2019 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test proper disassembling of ARM thumb instructions when reloading a symbol\n+# file.\n+\n+if {![is_aarch32_target]} then {\n+    verbose \"Skipping ARM tests.\"\n+    return\n+}\n+\n+standard_testfile .S\n+\n+if { [gdb_compile \"${srcdir}/${subdir}/${srcfile}\" \"${binfile}\" executable debug] != \"\" } {\n+    untested \"failed to compile\"\n+    return -1\n+}\n+\n+gdb_exit\n+gdb_start\n+gdb_reinitialize_dir $srcdir/$subdir\n+\n+# Load the symbol file the first time.\n+gdb_load ${binfile}\n+\n+# Check if the disassemble ouput is correct.\n+gdb_test \"x /i main+8\" \\\n+\t\"$hex <main\\\\+8>:\\[ \\t\\]+bx\\[ \\t\\]+lr\" \\\n+\t\"disassemble thumb instruction (1st try)\"\n+\n+# Reload the symbol file to trigger the bug.\n+gdb_load ${binfile}\n+\n+# Check if the disassemble output is the same as above.\n+gdb_test \"x /i main+8\" \\\n+\t\"$hex <main\\\\+8>:\\[ \\t\\]+bx\\[ \\t\\]+lr\" \\\n+\t\"disassemble thumb instruction (2nd try)\""
+    }
+  ]
+}

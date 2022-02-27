@@ -1,0 +1,103 @@
+{
+  "sha": "2026dcfcc0c0e60efa968b889f010a10a93cfe09",
+  "node_id": "C_kwDOANOeidoAKDIwMjZkY2ZjYzBjMGU2MGVmYTk2OGI4ODlmMDEwYTEwYTkzY2ZlMDk",
+  "commit": {
+    "author": {
+      "name": "Nils-Christian Kempke",
+      "email": "nils-christian.kempke@intel.com",
+      "date": "2022-01-11T17:12:40Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-01-14T14:32:29Z"
+    },
+    "message": "gdb/testsuite: enable __INTEL_LLVM_COMPILER preprocessor in get_compiler_info\n\nIntel Next Gen compiler defines preprocessor __INTEL_LLVM_COMPILER and provides\nversion info in __clang_version__ e.g. value: 12.0.0 (icx 2020.10.0.1113).\n\ngdb/testsuite/ChangeLog:\n2020-12-07  Abdul Basit Ijaz  <abdul.b.ijaz@intel.com>\n\n\t* lib/compiler.c: Add Intel next gen compiler pre-processor check.\n\t* lib/compiler.cc: Ditto.\n\t* lib/fortran.exp (fortran_main): Check Intel next gen compiler in\n\ttest_compiler_info.",
+    "tree": {
+      "sha": "30e6ed80c057b8d65cb74b5e5dc71cdbefc4b070",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/30e6ed80c057b8d65cb74b5e5dc71cdbefc4b070"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/2026dcfcc0c0e60efa968b889f010a10a93cfe09",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2026dcfcc0c0e60efa968b889f010a10a93cfe09",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/2026dcfcc0c0e60efa968b889f010a10a93cfe09",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2026dcfcc0c0e60efa968b889f010a10a93cfe09/comments",
+  "author": {
+    "login": "NCKempke",
+    "id": 24648109,
+    "node_id": "MDQ6VXNlcjI0NjQ4MTA5",
+    "avatar_url": "https://avatars.githubusercontent.com/u/24648109?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/NCKempke",
+    "html_url": "https://github.com/NCKempke",
+    "followers_url": "https://api.github.com/users/NCKempke/followers",
+    "following_url": "https://api.github.com/users/NCKempke/following{/other_user}",
+    "gists_url": "https://api.github.com/users/NCKempke/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/NCKempke/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/NCKempke/subscriptions",
+    "organizations_url": "https://api.github.com/users/NCKempke/orgs",
+    "repos_url": "https://api.github.com/users/NCKempke/repos",
+    "events_url": "https://api.github.com/users/NCKempke/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/NCKempke/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": null,
+  "parents": [
+    {
+      "sha": "ff66e8c5bee8a57b531515342e6126782ea9a651",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ff66e8c5bee8a57b531515342e6126782ea9a651",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/ff66e8c5bee8a57b531515342e6126782ea9a651"
+    }
+  ],
+  "stats": {
+    "total": 21,
+    "additions": 20,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "451cae38312d5c51fc3e4dcfc7320054a279f235",
+      "filename": "gdb/testsuite/lib/compiler.c",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2026dcfcc0c0e60efa968b889f010a10a93cfe09/gdb/testsuite/lib/compiler.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2026dcfcc0c0e60efa968b889f010a10a93cfe09/gdb/testsuite/lib/compiler.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/compiler.c?ref=2026dcfcc0c0e60efa968b889f010a10a93cfe09",
+      "patch": "@@ -67,4 +67,13 @@ set icc_major [string range __ICL 0 1]\n set icc_minor [format \"%d\" [string range __ICL 2 [expr {[string length __ICL] -1}]]]\n set icc_update __INTEL_COMPILER_UPDATE\n set compiler_info [join \"icc $icc_major $icc_minor $icc_update\" -]\n+#elif defined(__INTEL_LLVM_COMPILER) && defined(__clang_version__)\n+/* Intel Next Gen compiler defines preprocessor __INTEL_LLVM_COMPILER and\n+   provides version info in __clang_version__ e.g. value:\n+   \"12.0.0 (icx 2020.10.0.1113)\".  */\n+set total_length [string length __clang_version__]\n+set version_start_index [string last \"(\" __clang_version__]\n+set version_string [string range __clang_version__ $version_start_index+5 $total_length-2]\n+set version_updated_string [string map {. -} $version_string]\n+set compiler_info \"intel-$version_updated_string\"\n #endif"
+    },
+    {
+      "sha": "1dfefee057dc20ccd46bd8d91f08a9b605c66450",
+      "filename": "gdb/testsuite/lib/compiler.cc",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2026dcfcc0c0e60efa968b889f010a10a93cfe09/gdb/testsuite/lib/compiler.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2026dcfcc0c0e60efa968b889f010a10a93cfe09/gdb/testsuite/lib/compiler.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/compiler.cc?ref=2026dcfcc0c0e60efa968b889f010a10a93cfe09",
+      "patch": "@@ -55,4 +55,13 @@ set icc_major [string range __ICL 0 1]\n set icc_minor [format \"%d\" [string range __ICL 2 [expr {[string length __ICL] -1}]]]\n set icc_update __INTEL_COMPILER_UPDATE\n set compiler_info [join \"icc $icc_major $icc_minor $icc_update\" -]\n+#elif defined(__INTEL_LLVM_COMPILER) && defined(__clang_version__)\n+/* Intel Next Gen compiler defines preprocessor __INTEL_LLVM_COMPILER and\n+   provides version info in __clang_version__ e.g. value:\n+   \"12.0.0 (icx 2020.10.0.1113)\".  */\n+set total_length [string length __clang_version__]\n+set version_start_index [string last \"(\" __clang_version__]\n+set version_string [string range __clang_version__ $version_start_index+5 $total_length-2]\n+set version_updated_string [string map {. -} $version_string]\n+set compiler_info \"intel-$version_updated_string\"\n #endif"
+    },
+    {
+      "sha": "a97c6eeb4e3560c23ef515739f5559af714fb6dd",
+      "filename": "gdb/testsuite/lib/fortran.exp",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2026dcfcc0c0e60efa968b889f010a10a93cfe09/gdb/testsuite/lib/fortran.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2026dcfcc0c0e60efa968b889f010a10a93cfe09/gdb/testsuite/lib/fortran.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/fortran.exp?ref=2026dcfcc0c0e60efa968b889f010a10a93cfe09",
+      "patch": "@@ -160,7 +160,8 @@ proc fortran_character1 {} {\n proc fortran_main {} {\n     if {[test_compiler_info {gcc-4-[012]-*}]\n          || [test_compiler_info {gcc-*}]\n-         || [test_compiler_info {icc-*}]} {\n+         || [test_compiler_info {icc-*}]\n+         || [test_compiler_info {intel-*}]} {\n \treturn \"MAIN__\"\n     } elseif {[test_compiler_info {clang-*}]} {\n \treturn \"MAIN_\""
+    }
+  ]
+}

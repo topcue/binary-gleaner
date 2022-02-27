@@ -1,0 +1,146 @@
+{
+  "sha": "d43b7a2d5718f303a9e284f0d14219f05fbcfa17",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZDQzYjdhMmQ1NzE4ZjMwM2E5ZTI4NGYwZDE0MjE5ZjA1ZmJjZmExNw==",
+  "commit": {
+    "author": {
+      "name": "Tankut Baris Aktemur",
+      "email": "tankut.baris.aktemur@intel.com",
+      "date": "2020-04-21T15:24:03Z"
+    },
+    "committer": {
+      "name": "Tankut Baris Aktemur",
+      "email": "tankut.baris.aktemur@intel.com",
+      "date": "2020-04-21T15:24:03Z"
+    },
+    "message": "gdb/infrun: switch the context before 'displaced_step_restore'\n\nIn infrun.c's 'displaced_step_fixup', as part of the 'finish_step_over'\nflow, switch to the eventing thread *before* calling\n'displaced_step_restore', because down in the flow ptid-dependent\nmemory accesses are used via current_inferior() and current_top_target().\n\nWithout this patch, the problem is exposed with the scenario below:\n\n   $ gdb -q\n   (gdb) maint set target-non-stop on\n   (gdb) file a.out\n   Reading symbols from a.out...\n   (gdb) set remote exec-file a.out\n   (gdb) target extended-remote | gdbserver --once --multi -\n   ...\n   (gdb) add-inferior\n   [New inferior 2]\n   Added inferior 2 on connection 1 (extended-remote ...)\n   (gdb) inferior 2\n   [Switching to inferior 2 [<null>] (<noexec>)]\n   (gdb) file a.out\n   Reading symbols from a.out...\n   (gdb) set remote exec-file a.out\n   (gdb) run\n   ...\n   Cannot access memory at address 0x555555555042\n   (gdb)\n\nThe problem is, down inside 'displaced_step_restore', GDB wants to\naccess the memory for inferior 2 because of an internal breakpoint.\nHowever, the current inferior and inferior_ptid are out of sync.\nWhile inferior_ptid correctly points to the process of inf 2 that was\njust started, current_inferior points to inf 1.  Then, the attempt to\naccess the memory fails, because target_has_execution results in false\nsince inf 1 was not started.  I was not able to simplify the failing\nscenario, but it shows the problem.\n\nAfter this patch, we get\n\n  ... same steps above...\n  (gdb) run\n  ...\n  [Inferior 2 (process 28652) exited normally]\n  (gdb)\n\nRegression-tested on X86_64 Linux with `make check`s default board file\nand also `--target_board=native-extended-gdbserver`.  In fact, the bug\nfixed by this patch was exposed when using the native-extended-gdbserver\nboard file.\n\ngdb/ChangeLog:\n2020-04-21  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n\n\t* infrun.c (displaced_step_fixup): Switch to the event_thread\n\tbefore calling displaced_step_restore, not after.\n\ngdb/testsuite/ChangeLog:\n2020-04-21  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n\n\t* gdb.multi/run-only-second-inf.c: New file.\n\t* gdb.multi/run-only-second-inf.exp: New file.",
+    "tree": {
+      "sha": "a221395672b27c050693cec15b5be0e812c7762d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/a221395672b27c050693cec15b5be0e812c7762d"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/d43b7a2d5718f303a9e284f0d14219f05fbcfa17",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d43b7a2d5718f303a9e284f0d14219f05fbcfa17",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/d43b7a2d5718f303a9e284f0d14219f05fbcfa17",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d43b7a2d5718f303a9e284f0d14219f05fbcfa17/comments",
+  "author": {
+    "login": "barisaktemur",
+    "id": 55686642,
+    "node_id": "MDQ6VXNlcjU1Njg2NjQy",
+    "avatar_url": "https://avatars.githubusercontent.com/u/55686642?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/barisaktemur",
+    "html_url": "https://github.com/barisaktemur",
+    "followers_url": "https://api.github.com/users/barisaktemur/followers",
+    "following_url": "https://api.github.com/users/barisaktemur/following{/other_user}",
+    "gists_url": "https://api.github.com/users/barisaktemur/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/barisaktemur/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/barisaktemur/subscriptions",
+    "organizations_url": "https://api.github.com/users/barisaktemur/orgs",
+    "repos_url": "https://api.github.com/users/barisaktemur/repos",
+    "events_url": "https://api.github.com/users/barisaktemur/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/barisaktemur/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "barisaktemur",
+    "id": 55686642,
+    "node_id": "MDQ6VXNlcjU1Njg2NjQy",
+    "avatar_url": "https://avatars.githubusercontent.com/u/55686642?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/barisaktemur",
+    "html_url": "https://github.com/barisaktemur",
+    "followers_url": "https://api.github.com/users/barisaktemur/followers",
+    "following_url": "https://api.github.com/users/barisaktemur/following{/other_user}",
+    "gists_url": "https://api.github.com/users/barisaktemur/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/barisaktemur/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/barisaktemur/subscriptions",
+    "organizations_url": "https://api.github.com/users/barisaktemur/orgs",
+    "repos_url": "https://api.github.com/users/barisaktemur/repos",
+    "events_url": "https://api.github.com/users/barisaktemur/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/barisaktemur/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "bb2a1453479dfa2589f3b62853d4e1cf60825e98",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bb2a1453479dfa2589f3b62853d4e1cf60825e98",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/bb2a1453479dfa2589f3b62853d4e1cf60825e98"
+    }
+  ],
+  "stats": {
+    "total": 93,
+    "additions": 88,
+    "deletions": 5
+  },
+  "files": [
+    {
+      "sha": "89940c658e71675c0f18cb10227df69550835569",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d43b7a2d5718f303a9e284f0d14219f05fbcfa17/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d43b7a2d5718f303a9e284f0d14219f05fbcfa17/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=d43b7a2d5718f303a9e284f0d14219f05fbcfa17",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-04-21  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n+\n+\t* infrun.c (displaced_step_fixup): Switch to the event_thread\n+\tbefore calling displaced_step_restore, not after.\n+\n 2020-04-21  Markus Metzger  <markus.t.metzger@intel.com>\n \n \t* record-btrace.c (record_btrace_enable_warn): Ignore thread if"
+    },
+    {
+      "sha": "0e1ba6986b1f7e7f112fe6177d800fd628d0f88d",
+      "filename": "gdb/infrun.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 5,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d43b7a2d5718f303a9e284f0d14219f05fbcfa17/gdb/infrun.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d43b7a2d5718f303a9e284f0d14219f05fbcfa17/gdb/infrun.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infrun.c?ref=d43b7a2d5718f303a9e284f0d14219f05fbcfa17",
+      "patch": "@@ -1884,15 +1884,16 @@ displaced_step_fixup (thread_info *event_thread, enum gdb_signal signal)\n   if (displaced->step_thread != event_thread)\n     return 0;\n \n-  displaced_step_reset_cleanup cleanup (displaced);\n-\n-  displaced_step_restore (displaced, displaced->step_thread->ptid);\n-\n   /* Fixup may need to read memory/registers.  Switch to the thread\n      that we're fixing up.  Also, target_stopped_by_watchpoint checks\n-     the current thread.  */\n+     the current thread, and displaced_step_restore performs ptid-dependent\n+     memory accesses using current_inferior() and current_top_target().  */\n   switch_to_thread (event_thread);\n \n+  displaced_step_reset_cleanup cleanup (displaced);\n+\n+  displaced_step_restore (displaced, displaced->step_thread->ptid);\n+\n   /* Did the instruction complete successfully?  */\n   if (signal == GDB_SIGNAL_TRAP\n       && !(target_stopped_by_watchpoint ()"
+    },
+    {
+      "sha": "affdb63cd76b6564b758a663de44fcf734f91016",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d43b7a2d5718f303a9e284f0d14219f05fbcfa17/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d43b7a2d5718f303a9e284f0d14219f05fbcfa17/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=d43b7a2d5718f303a9e284f0d14219f05fbcfa17",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-04-21  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n+\n+\t* gdb.multi/run-only-second-inf.c: New file.\n+\t* gdb.multi/run-only-second-inf.exp: New file.\n+\n 2020-04-21  Markus Metzger  <markus.t.metzger@intel.com>\n \n \t* gdb.btrace/multi-inferior.c: New test."
+    },
+    {
+      "sha": "f4825c8a7c1186e3fc77e381a89369df031109f1",
+      "filename": "gdb/testsuite/gdb.multi/run-only-second-inf.c",
+      "status": "added",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d43b7a2d5718f303a9e284f0d14219f05fbcfa17/gdb/testsuite/gdb.multi/run-only-second-inf.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d43b7a2d5718f303a9e284f0d14219f05fbcfa17/gdb/testsuite/gdb.multi/run-only-second-inf.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.multi/run-only-second-inf.c?ref=d43b7a2d5718f303a9e284f0d14219f05fbcfa17",
+      "patch": "@@ -0,0 +1,22 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+int\n+main ()\n+{\n+  return 0;\n+}"
+    },
+    {
+      "sha": "4cce712bd66d51cda44e5f0be1a33e18d7e508e4",
+      "filename": "gdb/testsuite/gdb.multi/run-only-second-inf.exp",
+      "status": "added",
+      "additions": 50,
+      "deletions": 0,
+      "changes": 50,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d43b7a2d5718f303a9e284f0d14219f05fbcfa17/gdb/testsuite/gdb.multi/run-only-second-inf.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d43b7a2d5718f303a9e284f0d14219f05fbcfa17/gdb/testsuite/gdb.multi/run-only-second-inf.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.multi/run-only-second-inf.exp?ref=d43b7a2d5718f303a9e284f0d14219f05fbcfa17",
+      "patch": "@@ -0,0 +1,50 @@\n+# This testcase is part of GDB, the GNU debugger.\n+\n+# Copyright 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Create two inferiors that are not running.  Then run only the second\n+# one.  Expect it to start normally.\n+\n+standard_testfile\n+\n+if {[use_gdb_stub]} {\n+    return 0\n+}\n+\n+if {[prepare_for_testing \"failed to prepare\" $testfile $srcfile {debug}]} {\n+    return -1\n+}\n+\n+# Setting the target to non-stop mode revealed a bug where the context\n+# was not being switched before making ptid-dependent memory access.\n+# So, start GDB with this setting.\n+save_vars { GDBFLAGS } {\n+    append GDBFLAGS \" -ex \\\"maint set target-non-stop on\\\"\"\n+    clean_restart ${binfile}\n+}\n+\n+# Add and start the second inferior.\n+gdb_test \"add-inferior\" \"Added inferior 2.*\" \\\n+    \"add empty inferior 2\"\n+gdb_test \"inferior 2\" \"Switching to inferior 2.*\" \\\n+    \"switch to inferior 2\"\n+gdb_load $binfile\n+\n+if {[gdb_start_cmd] < 0} {\n+    fail \"start the second inf\"\n+} else {\n+    gdb_test \"\" \".*reakpoint ., main .*${srcfile}.*\" \"start the second inf\"\n+}"
+    }
+  ]
+}

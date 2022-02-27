@@ -1,0 +1,60 @@
+{
+  "sha": "1527fe5f584c71dbf006c6646fe2ff729d7b2b48",
+  "node_id": "C_kwDOANOeidoAKDE1MjdmZTVmNTg0YzcxZGJmMDA2YzY2NDZmZTJmZjcyOWQ3YjJiNDg",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-11-06T09:50:36Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-11-30T12:20:09Z"
+    },
+    "message": "gdb: fix disassembler regressions for 32-bit arm\n\nAfter this commit:\n\n  commit 76b43c9b5c2b275cbf4f927bfc25984410cb5dd5\n  Date:   Tue Oct 5 15:10:12 2021 +0100\n\n      gdb: improve error reporting from the disassembler\n\nWe started seeing FAILs in the gdb.base/all-architectures*.exp tests,\nwhen running on a 32-bit ARM target, though I suspect running on any\ntarget that compiles such that bfd_vma is 32-bits would also trigger\nthe failures.\n\nThe problem is that the test is expected GDB's disassembler to print\nan error like this:\n\n  Cannot access memory at address 0x0\n\nHowever, after the above commit we see an error like:\n\n  unknown disassembler error (error = -1)\n\nThe reason for this is this code in opcodes/i386-dis.c (in the\nprint_insn function):\n\n  if (address_mode == mode_64bit && sizeof (bfd_vma) < 8)\n    {\n      (*info->fprintf_func) (info->stream,\n                             _(\"64-bit address is disabled\"));\n      return -1;\n    }\n\nThis code effectively disallows us from ever disassembling 64-bit x86\ncode if we compiled GDB with a 32-bit bfd_vma.  Notice we return\n-1 (indicating a failure to disassemble), but never call the\nmemory_error_func callback.\n\nPrior to the above commit GDB, when it received the -1 return value\nwould assume that a memory error had occurred and just print whatever\nvalue happened to be in the memory error address variable, the default\nvalue of 0 just happened to be fine because the test had asked GDB to\ndo this 'disassemble 0x0,+4'.\n\nIf we instead change the test to do 'disassemble 0x100,+4' then GDB\nwould (previously) have still reported:\n\n  Cannot access memory at address 0x0\n\nwhich makes far less sense.\n\nIn this commit I propose to fix this issue by changing the test to\naccept either the \"Cannot access memory ...\" string, or the newer\n\"unknown disassembler error ...\" string.  With this change done the\ntest now passes.\n\nHowever, there is one weakness with this strategy; if GDB broke such\nthat we _always_ reported \"unknown disassembler error ...\" we would\nnever notice.  This clearly would be bad.  To avoid this issue I have\nadjusted the all-architectures*.exp tests so that, when we disassemble\nfor the default architecture (the one selected by \"auto\") we _only_\nexpect to get the \"Cannot access memory ...\" error string.\n\n[ Note: In an ideal world we should be able to disassemble any\n  architecture at all times.  There's no reason why the 64-bit x86\n  disassembler requires a 64-bit bfd_vma, other than the code happens\n  to be written that way.  We could rewrite the disassemble to not\n  have this requirement, but, I don't plan to do that any time soon. ]\n\nFurther, I have changed the all-architectures*.exp test so that we now\ndisassemble at address 0x100, this should avoid us being able to pass\nby printing a default address of 0x0.  I did originally change the\naddress we disassembled at to 0x4, however, some architectures,\ne.g. ia64, have a default instruction alignment that is greater than\n4, so would still round down to 0x0.  I could have just picked 0x8 as\nan address, but I figured that 0x100 was likely to satisfy most\narchitectures alignment requirements.",
+    "tree": {
+      "sha": "72c2be05a3842ac54b9c5e1b3cc2ea42bdf77872",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/72c2be05a3842ac54b9c5e1b3cc2ea42bdf77872"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/1527fe5f584c71dbf006c6646fe2ff729d7b2b48",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1527fe5f584c71dbf006c6646fe2ff729d7b2b48",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/1527fe5f584c71dbf006c6646fe2ff729d7b2b48",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1527fe5f584c71dbf006c6646fe2ff729d7b2b48/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "24b2de7b776f8f23788d855b1eec290c6e208821",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/24b2de7b776f8f23788d855b1eec290c6e208821",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/24b2de7b776f8f23788d855b1eec290c6e208821"
+    }
+  ],
+  "stats": {
+    "total": 30,
+    "additions": 22,
+    "deletions": 8
+  },
+  "files": [
+    {
+      "sha": "c247d13e581c6a43f5701b013729b3a4e5ffc933",
+      "filename": "gdb/testsuite/gdb.base/all-architectures.exp.tcl",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 8,
+      "changes": 30,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1527fe5f584c71dbf006c6646fe2ff729d7b2b48/gdb/testsuite/gdb.base/all-architectures.exp.tcl",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1527fe5f584c71dbf006c6646fe2ff729d7b2b48/gdb/testsuite/gdb.base/all-architectures.exp.tcl",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/all-architectures.exp.tcl?ref=1527fe5f584c71dbf006c6646fe2ff729d7b2b48",
+      "patch": "@@ -135,6 +135,8 @@ if {[lsearch $supported_archs \"arm\"] >= 0} {\n     gdb_assert {[llength $supported_arm_abi] != 0} \"at least one arm abi\"\n }\n \n+set default_architecture \"i386\"\n+\n # Exercise printing float, double and long double.\n \n proc print_floats {} {\n@@ -148,15 +150,27 @@ proc print_floats {} {\n     gdb_test_internal \"print 1.0f\" \" = 1\" \"print, float\"\n }\n \n-# Run tests on the current architecture.\n+# Run tests on the current architecture ARCH.\n \n-proc do_arch_tests {} {\n+proc do_arch_tests {arch} {\n     print_floats\n \n+    # When we disassemble using the default architecture then we\n+    # expect that the only error we should get from the disassembler\n+    # is a memory error.\n+    #\n+    # When we force the architecture to something other than the\n+    # default then we might get the message about unknown errors, this\n+    # happens if the libopcodes disassembler returns -1 without first\n+    # registering a memory error.\n+    set pattern \"Cannot access memory at address 0x100\"\n+    if { $arch != $::default_architecture } {\n+\tset pattern \"(($pattern)|(unknown disassembler error \\\\(error = -1\\\\)))\"\n+    }\n+\n     # GDB can't access memory because there is no loaded executable\n     # nor live inferior.\n-    gdb_test_internal \"disassemble 0x0,+4\" \\\n-\t\"Cannot access memory at address 0x0\"\n+    gdb_test_internal \"disassemble 0x100,+4\" \"${pattern}\"\n }\n \n # Given we can't change arch, osabi, endianness, etc. atomically, we\n@@ -303,9 +317,9 @@ with_test_prefix \"tests\" {\n \t\t# Run testing axis CUR_AXIS.  This is a recursive\n \t\t# procedure that tries all combinations of options of\n \t\t# all the testing axes.\n-\t\tproc run_axis {all_axes cur_axis} {\n+\t\tproc run_axis {all_axes cur_axis arch} {\n \t\t    if {$cur_axis == [llength $all_axes]} {\n-\t\t\tdo_arch_tests\n+\t\t\tdo_arch_tests $arch\n \t\t\treturn\n \t\t    }\n \n@@ -318,12 +332,12 @@ with_test_prefix \"tests\" {\n \t\t    foreach v $options {\n \t\t\twith_test_prefix \"$var=$v\" {\n \t\t\t    gdb_test_no_output_osabi \"$cmd $v\" \"$cmd\"\n-\t\t\t    run_axis $all_axes [expr $cur_axis + 1]\n+\t\t\t    run_axis $all_axes [expr $cur_axis + 1] $arch\n \t\t\t}\n \t\t    }\n \t\t}\n \n-\t\trun_axis $all_axes 0\n+\t\trun_axis $all_axes 0 $arch\n \t    }\n \t}\n     }"
+    }
+  ]
+}

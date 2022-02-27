@@ -1,0 +1,98 @@
+{
+  "sha": "ea17b3d59fe623b9946ab88b5a93e818bc9cd91c",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZWExN2IzZDU5ZmU2MjNiOTk0NmFiODhiNWE5M2U4MThiYzljZDkxYw==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-09-01T09:25:39Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-09-01T09:25:39Z"
+    },
+    "message": "[gdb/testsuite] Fix gdb.fortran/call-no-debug.exp symbol search\n\nOn openSUSE Tumbleweed I ran into:\n...\n(gdb) ptype outstring_func.part^M\nNo symbol \"outstring_func\" in current context.^M\n(gdb) FAIL: gdb.fortran/call-no-debug.exp: ptype outstring_func.part\n...\nwhile on openSUSE Leap 15.2 I have instead:\n...\n(gdb) ptype string_func_^M\ntype = <unknown return type> ()^M\n(gdb) PASS: gdb.fortran/call-no-debug.exp: ptype string_func_\n...\n\nThe difference is caused by the result for \"info function string_func\", which\nis this for the latter:\n...\n(gdb) info function string_func^M\nAll functions matching regular expression \"string_func\":^M\n^M\nNon-debugging symbols:^M\n0x000000000040089c  string_func_^M\n...\nbut this for the former:\n...\n(gdb) info function string_func^M\nAll functions matching regular expression \"string_func\":^M\n^M\nNon-debugging symbols:^M\n0x00000000004012bb  string_func_^M\n0x00007ffff7bac5b0  outstring_func.part^M\n0x00007ffff7bb1a00  outstring_func.part^M\n...\n\nThe extra symbols are part of glibc:\n...\n$ nm /lib64/libc.so.6 | grep string_func\n00000000000695b0 t outstring_func.part.0\n000000000006ea00 t outstring_func.part.0\n...\n\nIf glibc debug info is installed, we get instead:\n...\n(gdb) info function string_func^M\nAll functions matching regular expression \"string_func\":^M\n^M\nFile /usr/src/debug/glibc-2.33-9.1.x86_64/stdio-common/vfprintf-internal.c:^M\n236:    static int outstring_func(int, size_t, const unsigned int *, FILE *);^M\n^M\nFile vfprintf-internal.c:^M\n236:    static int outstring_func(int, size_t, const unsigned char *, FILE *);^M\n^M\nNon-debugging symbols:^M\n0x00000000004012bb  string_func_^M\n...\nand the FAIL doesn't trigger.\n\nFix this by calling \"info function string_func\" before starting the exec, such\nthat only symbols of the exec are taken into account.\n\nTested on x86_64-linux.\n\ngdb/testsuite/ChangeLog:\n\n2021-09-01  Tom de Vries  <tdevries@suse.de>\n\n\t* gdb.fortran/call-no-debug.exp: Avoid shared lib symbols for\n\tfind_mangled_name calls.",
+    "tree": {
+      "sha": "e9cc912145d8a92e9592610135f8f39a34246b60",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/e9cc912145d8a92e9592610135f8f39a34246b60"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ea17b3d59fe623b9946ab88b5a93e818bc9cd91c",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ea17b3d59fe623b9946ab88b5a93e818bc9cd91c",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ea17b3d59fe623b9946ab88b5a93e818bc9cd91c",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ea17b3d59fe623b9946ab88b5a93e818bc9cd91c/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "90f56146e5748bab6baca97b1470bbd144ae10e8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/90f56146e5748bab6baca97b1470bbd144ae10e8",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/90f56146e5748bab6baca97b1470bbd144ae10e8"
+    }
+  ],
+  "stats": {
+    "total": 19,
+    "additions": 12,
+    "deletions": 7
+  },
+  "files": [
+    {
+      "sha": "a5e982533fde12933e25489d5cae0e37cf4f70ca",
+      "filename": "gdb/testsuite/gdb.fortran/call-no-debug.exp",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 7,
+      "changes": 19,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ea17b3d59fe623b9946ab88b5a93e818bc9cd91c/gdb/testsuite/gdb.fortran/call-no-debug.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ea17b3d59fe623b9946ab88b5a93e818bc9cd91c/gdb/testsuite/gdb.fortran/call-no-debug.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.fortran/call-no-debug.exp?ref=ea17b3d59fe623b9946ab88b5a93e818bc9cd91c",
+      "patch": "@@ -28,11 +28,6 @@ if {[prepare_for_testing_full \"failed to prepare\" \\\n     return -1\n }\n \n-if ![fortran_runto_main] {\n-    untested \"could not run to main\"\n-    return -1\n-}\n-\n # Find a possibly mangled version of NAME, a function we want to call\n # that has no debug information available.  We hope that the mangled\n # version of NAME contains the pattern NAME, and so we use 'info\n@@ -67,12 +62,22 @@ proc find_mangled_name { name } {\n     return $symbol_name\n }\n \n+# Sample before before starting the exec, in order to avoid picking up symbols\n+# from shared libs.\n+set some_func [find_mangled_name \"some_func\"]\n+set string_func [find_mangled_name \"string_func\"]\n+\n+if ![fortran_runto_main] {\n+    untested \"could not run to main\"\n+    return -1\n+}\n+\n # Call the function SOME_FUNC, that takes a single integer and returns\n # an integer.  As the function has no debug information then we have\n # to pass the integer argument as '&1' so that GDB will send the\n # address of an integer '1' (as Fortran arguments are pass by\n # reference).\n-set symbol_name [find_mangled_name \"some_func\"]\n+set symbol_name $some_func\n if { $symbol_name == \"\" } {\n     untested \"couldn't find suitable name for 'some_func'\"\n } else {\n@@ -91,7 +96,7 @@ if { $symbol_name == \"\" } {\n # The compiled program is expecting the address of the string, so we\n # prefix that argument with '&', but the artificial length parameter\n # is pass by value, so there's no need for '&' in that case.\n-set symbol_name [find_mangled_name \"string_func\"]\n+set symbol_name $string_func\n if { $symbol_name == \"\" } {\n     untested \"couldn't find suitable name for 'string_func'\"\n } else {"
+    }
+  ]
+}

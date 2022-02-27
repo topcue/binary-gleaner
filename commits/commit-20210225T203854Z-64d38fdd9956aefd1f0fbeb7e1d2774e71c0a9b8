@@ -1,0 +1,115 @@
+{
+  "sha": "64d38fdd9956aefd1f0fbeb7e1d2774e71c0a9b8",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NjRkMzhmZGQ5OTU2YWVmZDFmMGZiZWI3ZTFkMjc3NGU3MWMwYTliOA==",
+  "commit": {
+    "author": {
+      "name": "Jan Matyas",
+      "email": "jmatyas@codasip.com",
+      "date": "2021-02-25T07:27:09Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-02-25T20:38:54Z"
+    },
+    "message": "Fix initial thread state of non-threaded remote targets\n\nThis change fixes the initial state of the main thread of remote\ntargets which have no concept of threading. Such targets are\ntreated as single-threaded by gdb, and this single thread needs\nto be initially set to the \"resumed\" state, in the same manner as\nthreads in thread-aware remote targets (see remote.c,\nremote_target::remote_add_thread).\n\nWithout this fix, the following assert was triggered on thread-\nunaware remote targets:\n\n    remote_target::select_thread_for_ambiguous_stop_reply(const target_waitstatus*): Assertion `first_resumed_thread != nullptr' failed.\n\nThe bug can be reproduced using gdbserver\n\n    * by disabling packets 'T' and 'qThreadInfo', or\n    * by disabling all thread-related packets.\n\nThe test suite has been updated to include these two scenarios, see\ngdb.server/stop-reply-no-thread.exp.\n\nChange-Id: I2c39c9de17e8d6922a8c1b9e259eb316a554a43d",
+    "tree": {
+      "sha": "b0934299c4e2f443f62620865a50eb117b7a25bb",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/b0934299c4e2f443f62620865a50eb117b7a25bb"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/64d38fdd9956aefd1f0fbeb7e1d2774e71c0a9b8",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/64d38fdd9956aefd1f0fbeb7e1d2774e71c0a9b8",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/64d38fdd9956aefd1f0fbeb7e1d2774e71c0a9b8",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/64d38fdd9956aefd1f0fbeb7e1d2774e71c0a9b8/comments",
+  "author": null,
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "e38332c286bb96026fadc128170303cc4e935225",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e38332c286bb96026fadc128170303cc4e935225",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/e38332c286bb96026fadc128170303cc4e935225"
+    }
+  ],
+  "stats": {
+    "total": 40,
+    "additions": 36,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "74e0dee1b0f9c2e5d8e06b8730e05cc180c275dc",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/64d38fdd9956aefd1f0fbeb7e1d2774e71c0a9b8/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/64d38fdd9956aefd1f0fbeb7e1d2774e71c0a9b8/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=64d38fdd9956aefd1f0fbeb7e1d2774e71c0a9b8",
+      "patch": "@@ -1,3 +1,13 @@\n+2021-02-25  Jan Matyas  <jmatyas@codasip.com>\n+\n+\tPR gdb/26819\n+\t* remote.c (remote_target::start_remote): Ensure the single\n+\tthread, automatically added for remote targets without the\n+\tconcept of threading, is initially in set to the \"resumed\"\n+\tstate.\n+\t* remote.c (remote_target::add_current_inferior_and_thread):\n+\tAdd return value - return the main thread.\n+\n 2021-02-25  Jan Vrany  <jan.vrany@labware.com>\n \n \t* gdb/mi/mi-interp.c (mi_traceframe_changed): Remove trailing \\n from output."
+    },
+    {
+      "sha": "ae15f416153f91747166201972ef35fc6db744ed",
+      "filename": "gdb/remote.c",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 4,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/64d38fdd9956aefd1f0fbeb7e1d2774e71c0a9b8/gdb/remote.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/64d38fdd9956aefd1f0fbeb7e1d2774e71c0a9b8/gdb/remote.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/remote.c?ref=64d38fdd9956aefd1f0fbeb7e1d2774e71c0a9b8",
+      "patch": "@@ -741,7 +741,7 @@ class remote_target : public process_stratum_target\n   int remote_resume_with_vcont (ptid_t ptid, int step,\n \t\t\t\tgdb_signal siggnal);\n \n-  void add_current_inferior_and_thread (const char *wait_status);\n+  thread_info *add_current_inferior_and_thread (const char *wait_status);\n \n   ptid_t wait_ns (ptid_t ptid, struct target_waitstatus *status,\n \t\t  target_wait_flags options);\n@@ -4409,9 +4409,11 @@ remote_target::get_current_thread (const char *wait_status)\n    whose response is a stop reply from which we can also try\n    extracting the thread.  If the target doesn't support the explicit\n    qC query, we infer the current thread from that stop reply, passed\n-   in in WAIT_STATUS, which may be NULL.  */\n+   in in WAIT_STATUS, which may be NULL.\n \n-void\n+   The function returns pointer to the main thread of the inferior. */\n+\n+thread_info *\n remote_target::add_current_inferior_and_thread (const char *wait_status)\n {\n   struct remote_state *rs = get_remote_state ();\n@@ -4445,6 +4447,8 @@ remote_target::add_current_inferior_and_thread (const char *wait_status)\n      yet.  */\n   thread_info *tp = add_thread_silent (this, curr_ptid);\n   switch_to_thread_no_regs (tp);\n+\n+  return tp;\n }\n \n /* Print info about a thread that was found already stopped on\n@@ -4800,7 +4804,8 @@ remote_target::start_remote (int from_tty, int extended_p)\n \t  /* Target has no concept of threads at all.  GDB treats\n \t     non-threaded target as single-threaded; add a main\n \t     thread.  */\n-\t  add_current_inferior_and_thread (wait_status);\n+\t  thread_info *tp = add_current_inferior_and_thread (wait_status);\n+\t  get_remote_thread_info (tp)->set_resumed ();\n \t}\n       else\n \t{"
+    },
+    {
+      "sha": "f2c142e6b941524df775f2468809a9b10ffb4d6d",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/64d38fdd9956aefd1f0fbeb7e1d2774e71c0a9b8/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/64d38fdd9956aefd1f0fbeb7e1d2774e71c0a9b8/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=64d38fdd9956aefd1f0fbeb7e1d2774e71c0a9b8",
+      "patch": "@@ -1,3 +1,10 @@\n+2021-02-25  Jan Matyas  <jmatyas@codasip.com>\n+\n+\tPR gdb/26819\n+\t* gdb.server/stop-reply-no-thread.exp: Add two test\n+\tscenarios that cover remote targets which do not have\n+\tthe concept of threads.\n+\n 2021-02-25  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.fortran/associated.exp: Add missing '-wrap' argument."
+    },
+    {
+      "sha": "823bdf894c095b373e82c60a77ae4a06c395f51e",
+      "filename": "gdb/testsuite/gdb.server/stop-reply-no-thread.exp",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/64d38fdd9956aefd1f0fbeb7e1d2774e71c0a9b8/gdb/testsuite/gdb.server/stop-reply-no-thread.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/64d38fdd9956aefd1f0fbeb7e1d2774e71c0a9b8/gdb/testsuite/gdb.server/stop-reply-no-thread.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.server/stop-reply-no-thread.exp?ref=64d38fdd9956aefd1f0fbeb7e1d2774e71c0a9b8",
+      "patch": "@@ -112,3 +112,13 @@ foreach_with_prefix to_disable { \"\" Tthread T } {\n \trun_test $to_disable $t_nonstop\n     }\n }\n+\n+# Regression for PR gdb/26819: Cover the case when GDBserver does not report\n+# any threads (i.e. the remote target has no concept of threads).\n+#\n+# Scenario 1: Disable 'T' and 'qfThreadInfo' packets\n+# Scenario 2: Disable all threading packets\n+foreach_with_prefix to_disable { \"T,qfThreadInfo\" \"threads\" } {\n+    # Non-stop mode not applicable - off.\n+    run_test $to_disable off\n+}"
+    }
+  ]
+}

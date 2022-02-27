@@ -1,0 +1,72 @@
+{
+  "sha": "d9c4ba536c522b8dc2194d4100270a159be7894a",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZDljNGJhNTM2YzUyMmI4ZGMyMTk0ZDQxMDAyNzBhMTU5YmU3ODk0YQ==",
+  "commit": {
+    "author": {
+      "name": "Sergio Durigan Junior",
+      "email": "sergiodj@redhat.com",
+      "date": "2019-08-25T16:10:35Z"
+    },
+    "committer": {
+      "name": "Sergio Durigan Junior",
+      "email": "sergiodj@redhat.com",
+      "date": "2019-08-26T13:18:37Z"
+    },
+    "message": "Use raw strings on gdb.python/py-xmethods.exp (and fix Python 3.8's \"SyntaxWarning: invalid escape sequence\")\n\nThe way unrecognized escape sequences are handled has changed in\nPython 3.8: users now see a SyntaxWarning message, which will\neventually become a SyntaxError in future versions of Python:\n\n  (gdb) source /blabla/gdb.python/py-xmethods/py-xmethods.py\n  /blabla/gdb.python/py-xmethods/py-xmethods.py:204: SyntaxWarning: invalid escape seque\n  nce \\+\n    'operator\\+',\n  /blabla/gdb.python/py-xmethods/py-xmethods.py:211: SyntaxWarning: invalid escape seque\n  nce \\+\n    'operator\\+\\+',\n\nOne of our testcases, gdb.python/py-xmethods.exp, contains strings in\nthe form of \"operator\\+\".  This is not recognized by Python, but is\nstill needed by the testsuite to work properly.  The solution is\nsimple: we just have to make sure these strings are marked as\nraw (i.e, r\"\").  This is what this patch does.  I took the opportunity\nto also convert other strings to raw, which, in two cases, allowed the\nremoval of an extra backslash.\n\nI tested this using Python 3.7 and Python 3.8, and everything works\nfine.\n\nI think I could push this as obvious, but decided to send it to\ngdb-patches just in case.\n\ngdb/testsuite/ChangeLog:\n2019-08-26  Sergio Durigan Junior  <sergiodj@redhat.com>\n\n\t* gdb.python/py-xmethods.exp: Use raw strings when passing\n\targuments to SimpleXMethodMatcher.",
+    "tree": {
+      "sha": "ca2766a9bdf6c16faab131365fd3fcf28a1099f8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/ca2766a9bdf6c16faab131365fd3fcf28a1099f8"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/d9c4ba536c522b8dc2194d4100270a159be7894a",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d9c4ba536c522b8dc2194d4100270a159be7894a",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/d9c4ba536c522b8dc2194d4100270a159be7894a",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d9c4ba536c522b8dc2194d4100270a159be7894a/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "37606e67df760b14ecf8dd9cf870a2364541b0b6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/37606e67df760b14ecf8dd9cf870a2364541b0b6",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/37606e67df760b14ecf8dd9cf870a2364541b0b6"
+    }
+  ],
+  "stats": {
+    "total": 41,
+    "additions": 23,
+    "deletions": 18
+  },
+  "files": [
+    {
+      "sha": "e8445f8e88b34a05741dc8bfbe28f9a5daed643b",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d9c4ba536c522b8dc2194d4100270a159be7894a/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d9c4ba536c522b8dc2194d4100270a159be7894a/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=d9c4ba536c522b8dc2194d4100270a159be7894a",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-08-26  Sergio Durigan Junior  <sergiodj@redhat.com>\n+\n+\t* gdb.python/py-xmethods.exp: Use raw strings when passing\n+\targuments to SimpleXMethodMatcher.\n+\n 2019-08-22  Tom de Vries  <tdevries@suse.de>\n \n \t* gdb.multi/multi-term-settings.exp (coretest): Make gdb_test messages"
+    },
+    {
+      "sha": "cea48b80d8cc128061c182ef690a19af635531c0",
+      "filename": "gdb/testsuite/gdb.python/py-xmethods.py",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 18,
+      "changes": 36,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d9c4ba536c522b8dc2194d4100270a159be7894a/gdb/testsuite/gdb.python/py-xmethods.py",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d9c4ba536c522b8dc2194d4100270a159be7894a/gdb/testsuite/gdb.python/py-xmethods.py",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.python/py-xmethods.py?ref=d9c4ba536c522b8dc2194d4100270a159be7894a",
+      "patch": "@@ -199,34 +199,34 @@ def match(self, class_type, method_name):\n \n \n global_dm_list = [\n-    SimpleXMethodMatcher('A_plus_A',\n-                         '^dop::A$',\n-                         'operator\\+',\n+    SimpleXMethodMatcher(r'A_plus_A',\n+                         r'^dop::A$',\n+                         r'operator\\+',\n                          A_plus_A,\n                          # This is a replacement, hence match the arg type\n                          # exactly!\n                          type_A.const().reference()),\n-    SimpleXMethodMatcher('plus_plus_A',\n-                         '^dop::A$',\n-                         'operator\\+\\+',\n+    SimpleXMethodMatcher(r'plus_plus_A',\n+                         r'^dop::A$',\n+                         r'operator\\+\\+',\n                          plus_plus_A),\n-    SimpleXMethodMatcher('A_geta',\n-                         '^dop::A$',\n-                         '^geta$',\n+    SimpleXMethodMatcher(r'A_geta',\n+                         r'^dop::A$',\n+                         r'^geta$',\n                          A_geta),\n-    SimpleXMethodMatcher('A_getarrayind',\n-                         '^dop::A$',\n-                         '^getarrayind$',\n+    SimpleXMethodMatcher(r'A_getarrayind',\n+                         r'^dop::A$',\n+                         r'^getarrayind$',\n                          A_getarrayind,\n                          type_int),\n-    SimpleXMethodMatcher('A_indexoper',\n-                         '^dop::A$',\n-                         'operator\\\\[\\\\]',\n+    SimpleXMethodMatcher(r'A_indexoper',\n+                         r'^dop::A$',\n+                         r'operator\\[\\]',\n                          A_indexoper,\n                          type_int),\n-    SimpleXMethodMatcher('B_indexoper',\n-                         '^dop::B$',\n-                         'operator\\\\[\\\\]',\n+    SimpleXMethodMatcher(r'B_indexoper',\n+                         r'^dop::B$',\n+                         r'operator\\[\\]',\n                          B_indexoper,\n                          type_int)\n ]"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "sha": "9ad9b77d64920d3113a9e7ab9f022eb5a45cd49e",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OWFkOWI3N2Q2NDkyMGQzMTEzYTllN2FiOWYwMjJlYjVhNDVjZDQ5ZQ==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-04-28T12:38:18Z"
+    },
+    "committer": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-10-31T22:31:43Z"
+    },
+    "message": "Implement convenience functions to examine GDB settings.\n\nThe new convenience functions $_gdb_setting and $_gdb_setting_str\nprovide access to the GDB settings in user-defined commands.\nSimilarly, $_gdb_maint_setting and $_gdb_maint_setting_str\nprovide access to the GDB maintenance settings.\n\nThe patch was developed following a comment of Eli about the\n'set may-call-functions'.  Eli said that user-defined functions\nshould have a way to change their behavior according to this setting.\nRather than have a specialized $_may_call_functions, this patch\nimplements a general way to access any GDB setting.\n\nCompared to doing such access via Python 'gdb.parameter' and/or\n'gdb.execute(\"set somesetting tosomevalue\"):\n* The 'with' command is much better than the above python usage:\n  if the user types C-c or an error happens between the set pagination off\n  and the python \"set pagination on\", the above python\n  does not restore the original setting.\n\n* Effectively, with the \"gdb.parameter\" python one liner, it is possible to do\n  simple 'if' conditions, such as set and restore pagination.\n  But mixing the \"python if\" within canned\n  sequence of commands is cumbersome for non trivial combinations.\n  E.g. if several commands have to be done for a certain condition\n  accessed from python, I guess something like will be needed:\n     python if __some_setting: gdb.execute(\"some command\")\n     python if __some_setting: gdb.execute(\"some other command\")\n     python if __some_setting: gdb.execute(\"some different command\")\n  (without speaking about nested \"if-s\").\n\n  With the convenience function:\n     if $_gdb_setting(\"some_setting\")\n        some command\n        some other command\n        some different command\n     end\n  Integer settings (for example print elements) will also be more difficult\n  to use.\n  For example, a user defined function that scans and prints a linked list\n  might want to use the value of \"set print elements\" to stop printing\n  the linked list.\n  Doing that by mixing python expression/if is likely doable, but seems\n  not easy with the above one liners.\n\nSo, in summary, the $_gdb_setting and $_gdb_setting_str avoids to have the\nheterogeneous mix of python and GDB commands in one single script\n(and of course, it works even if python is not configured, but that\nmust be an unusual setup I guess).\n\ngdb/ChangeLog\n2019-10-31  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n\n\t* cli/cli-cmds.c (setting_cmd, value_from_setting)\n\t(gdb_setting_internal_fn, gdb_maint_setting_internal_fn)\n\t(str_value_from_setting, gdb_setting_str_internal_fn)\n\t(gdb_maint_setting_str_internal_fn): New functions.\n\t(_initialize_cli_cmds): Define the new convenience functions.\n\t* gdb/cli/cli-setshow.h (get_setshow_command_value_string): Constify.\n\t* gdb/cli/cli-setshow.c (get_setshow_command_value_string): Constify.",
+    "tree": {
+      "sha": "46aea16ddae3415219b847d785c4f3e1f63b3993",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/46aea16ddae3415219b847d785c4f3e1f63b3993"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/9ad9b77d64920d3113a9e7ab9f022eb5a45cd49e",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9ad9b77d64920d3113a9e7ab9f022eb5a45cd49e",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/9ad9b77d64920d3113a9e7ab9f022eb5a45cd49e",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9ad9b77d64920d3113a9e7ab9f022eb5a45cd49e/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "e7e97a2ecd0e605d8128b3d055a8a5f7c2284b80",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e7e97a2ecd0e605d8128b3d055a8a5f7c2284b80",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/e7e97a2ecd0e605d8128b3d055a8a5f7c2284b80"
+    }
+  ],
+  "stats": {
+    "total": 246,
+    "additions": 244,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "7c68083b0121889466f124ebecd12c035251fd95",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9ad9b77d64920d3113a9e7ab9f022eb5a45cd49e/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9ad9b77d64920d3113a9e7ab9f022eb5a45cd49e/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=9ad9b77d64920d3113a9e7ab9f022eb5a45cd49e",
+      "patch": "@@ -1,3 +1,13 @@\n+2019-10-31  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n+\n+\t* cli/cli-cmds.c (setting_cmd, value_from_setting)\n+\t(gdb_setting_internal_fn, gdb_maint_setting_internal_fn)\n+\t(str_value_from_setting, gdb_setting_str_internal_fn)\n+\t(gdb_maint_setting_str_internal_fn): New functions.\n+\t(_initialize_cli_cmds): Define the new convenience functions.\n+\t* gdb/cli/cli-setshow.h (get_setshow_command_value_string): Constify.\n+\t* gdb/cli/cli-setshow.c (get_setshow_command_value_string): Constify.\n+\n 2019-10-31  Christian Biesinger  <cbiesinger@google.com>\n \n \t* agent.c (set_can_use_agent): When the setting is turned on,"
+    },
+    {
+      "sha": "4e58ddc6d6ef902784df5c77dbf0cce43c473a0d",
+      "filename": "gdb/cli/cli-cmds.c",
+      "status": "modified",
+      "additions": 232,
+      "deletions": 0,
+      "changes": 232,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9ad9b77d64920d3113a9e7ab9f022eb5a45cd49e/gdb/cli/cli-cmds.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9ad9b77d64920d3113a9e7ab9f022eb5a45cd49e/gdb/cli/cli-cmds.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cli/cli-cmds.c?ref=9ad9b77d64920d3113a9e7ab9f022eb5a45cd49e",
+      "patch": "@@ -1912,6 +1912,200 @@ show_max_user_call_depth (struct ui_file *file, int from_tty,\n \t\t    value);\n }\n \n+/* Returns the cmd_list_element in SHOWLIST corresponding to the first\n+   argument of ARGV, which must contain one single value.\n+   Throws an error if no value provided, or value not correct.\n+   FNNAME is used in the error message.  */\n+\n+static cmd_list_element *\n+setting_cmd (const char *fnname, struct cmd_list_element *showlist,\n+\t     int argc, struct value **argv)\n+{\n+  if (argc == 0)\n+    error (_(\"You must provide an argument to %s\"), fnname);\n+  if (argc != 1)\n+    error (_(\"You can only provide one argument to %s\"), fnname);\n+\n+  struct type *type0 = check_typedef (value_type (argv[0]));\n+\n+  if (TYPE_CODE (type0) != TYPE_CODE_ARRAY\n+      && TYPE_CODE (type0) != TYPE_CODE_STRING)\n+    error (_(\"First argument of %s must be a string.\"), fnname);\n+\n+  const char *a0 = (const char *) value_contents (argv[0]);\n+  cmd_list_element *cmd = lookup_cmd (&a0, showlist, \"\", -1, 0);\n+\n+  if (cmd == nullptr || cmd_type (cmd) != show_cmd)\n+    error (_(\"First argument of %s must be a \"\n+\t     \"valid setting of the 'show' command.\"), fnname);\n+\n+  return cmd;\n+}\n+\n+/* Builds a value from the show CMD.  */\n+\n+static struct value *\n+value_from_setting (const cmd_list_element *cmd, struct gdbarch *gdbarch)\n+{\n+  switch (cmd->var_type)\n+    {\n+    case var_integer:\n+      if (*(int *) cmd->var == INT_MAX)\n+\treturn value_from_longest (builtin_type (gdbarch)->builtin_int,\n+\t\t\t\t   0);\n+      else\n+\treturn value_from_longest (builtin_type (gdbarch)->builtin_int,\n+\t\t\t\t   *(int *) cmd->var);\n+    case var_zinteger:\n+      return value_from_longest (builtin_type (gdbarch)->builtin_int,\n+\t\t\t\t *(int *) cmd->var);\n+    case var_boolean:\n+      return value_from_longest (builtin_type (gdbarch)->builtin_int,\n+\t\t\t\t *(bool *) cmd->var ? 1 : 0);\n+    case var_zuinteger_unlimited:\n+      return value_from_longest (builtin_type (gdbarch)->builtin_int,\n+\t\t\t\t *(int *) cmd->var);\n+    case var_auto_boolean:\n+      {\n+\tint val;\n+\n+\tswitch (*(enum auto_boolean*) cmd->var)\n+\t  {\n+\t  case AUTO_BOOLEAN_TRUE:\n+\t    val = 1;\n+\t    break;\n+\t  case AUTO_BOOLEAN_FALSE:\n+\t    val = 0;\n+\t    break;\n+\t  case AUTO_BOOLEAN_AUTO:\n+\t    val = -1;\n+\t    break;\n+\t  default:\n+\t    gdb_assert_not_reached (\"invalid var_auto_boolean\");\n+\t  }\n+\treturn value_from_longest (builtin_type (gdbarch)->builtin_int,\n+\t\t\t\t   val);\n+      }\n+    case var_uinteger:\n+      if (*(unsigned int *) cmd->var == UINT_MAX)\n+\treturn value_from_ulongest\n+\t  (builtin_type (gdbarch)->builtin_unsigned_int, 0);\n+      else\n+\treturn value_from_ulongest\n+\t  (builtin_type (gdbarch)->builtin_unsigned_int,\n+\t   *(unsigned int *) cmd->var);\n+    case var_zuinteger:\n+      return value_from_ulongest (builtin_type (gdbarch)->builtin_unsigned_int,\n+\t\t\t\t  *(unsigned int *) cmd->var);\n+    case var_string:\n+    case var_string_noescape:\n+    case var_optional_filename:\n+    case var_filename:\n+    case var_enum:\n+      if (*(char **) cmd->var)\n+\treturn value_cstring (*(char **) cmd->var, strlen (*(char **) cmd->var),\n+\t\t\t      builtin_type (gdbarch)->builtin_char);\n+      else\n+\treturn value_cstring (\"\", 1,\n+\t\t\t      builtin_type (gdbarch)->builtin_char);\n+    default:\n+      gdb_assert_not_reached (\"bad var_type\");\n+    }\n+}\n+\n+/* Implementation of the convenience function $_gdb_setting.  */\n+\n+static struct value *\n+gdb_setting_internal_fn (struct gdbarch *gdbarch,\n+\t\t\t const struct language_defn *language,\n+\t\t\t void *cookie, int argc, struct value **argv)\n+{\n+  return value_from_setting (setting_cmd (\"$_gdb_setting\", showlist,\n+\t\t\t\t\t  argc, argv),\n+\t\t\t     gdbarch);\n+}\n+\n+/* Implementation of the convenience function $_gdb_maint_setting.  */\n+\n+static struct value *\n+gdb_maint_setting_internal_fn (struct gdbarch *gdbarch,\n+\t\t\t       const struct language_defn *language,\n+\t\t\t       void *cookie, int argc, struct value **argv)\n+{\n+  return value_from_setting (setting_cmd (\"$_gdb_maint_setting\",\n+\t\t\t\t\t  maintenance_show_cmdlist,\n+\t\t\t\t\t  argc, argv),\n+\t\t\t     gdbarch);\n+}\n+\n+/* Builds a string value from the show CMD.  */\n+\n+static struct value *\n+str_value_from_setting (const cmd_list_element *cmd, struct gdbarch *gdbarch)\n+{\n+  switch (cmd->var_type)\n+    {\n+    case var_integer:\n+    case var_zinteger:\n+    case var_boolean:\n+    case var_zuinteger_unlimited:\n+    case var_auto_boolean:\n+    case var_uinteger:\n+    case var_zuinteger:\n+      {\n+\tstd::string cmd_val = get_setshow_command_value_string (cmd);\n+\n+\treturn value_cstring (cmd_val.c_str (), cmd_val.size (),\n+\t\t\t      builtin_type (gdbarch)->builtin_char);\n+      }\n+\n+    case var_string:\n+    case var_string_noescape:\n+    case var_optional_filename:\n+    case var_filename:\n+    case var_enum:\n+      /* For these cases, we do not use get_setshow_command_value_string,\n+\t as this function handle some characters specially, e.g. by\n+\t escaping quotes.  So, we directly use the cmd->var string value,\n+\t similarly to the value_from_setting code for these cases.  */\n+      if (*(char **) cmd->var)\n+\treturn value_cstring (*(char **) cmd->var, strlen (*(char **) cmd->var),\n+\t\t\t      builtin_type (gdbarch)->builtin_char);\n+      else\n+\treturn value_cstring (\"\", 1,\n+\t\t\t      builtin_type (gdbarch)->builtin_char);\n+\n+    default:\n+      gdb_assert_not_reached (\"bad var_type\");\n+    }\n+}\n+\n+/* Implementation of the convenience function $_gdb_setting_str.  */\n+\n+static struct value *\n+gdb_setting_str_internal_fn (struct gdbarch *gdbarch,\n+\t\t\t     const struct language_defn *language,\n+\t\t\t     void *cookie, int argc, struct value **argv)\n+{\n+  return str_value_from_setting (setting_cmd (\"$_gdb_setting_str\",\n+\t\t\t\t\t      showlist, argc, argv),\n+\t\t\t\t gdbarch);\n+}\n+\n+\n+/* Implementation of the convenience function $_gdb_maint_setting_str.  */\n+\n+static struct value *\n+gdb_maint_setting_str_internal_fn (struct gdbarch *gdbarch,\n+\t\t\t\t   const struct language_defn *language,\n+\t\t\t\t   void *cookie, int argc, struct value **argv)\n+{\n+  return str_value_from_setting (setting_cmd (\"$_gdb_maint_setting_str\",\n+\t\t\t\t\t      maintenance_show_cmdlist,\n+\t\t\t\t\t      argc, argv),\n+\t\t\t\t gdbarch);\n+}\n+\n void\n _initialize_cli_cmds (void)\n {\n@@ -2053,6 +2247,44 @@ abbreviations for commands and/or values.  E.g.:\\n\\\n   set_cmd_completer_handle_brkchars (c, with_command_completer);\n   add_com_alias (\"w\", \"with\", class_vars, 1);\n \n+  add_internal_function (\"_gdb_setting_str\", _(\"\\\n+$_gdb_setting_str - returns the value of a GDB setting as a string.\\n\\\n+Usage: $_gdb_setting_str (setting)\\n\\\n+\\n\\\n+auto-boolean values are \\\"off\\\", \\\"on\\\", \\\"auto\\\".\\n\\\n+boolean values are \\\"off\\\", \\\"on\\\".\\n\\\n+Some integer settings accept an unlimited value, returned\\n\\\n+as \\\"unlimited\\\".\"),\n+\t\t\t gdb_setting_str_internal_fn, NULL);\n+\n+  add_internal_function (\"_gdb_setting\", _(\"\\\n+$_gdb_setting - returns the value of a GDB setting.\\n\\\n+Usage: $_gdb_setting (setting)\\n\\\n+auto-boolean values are \\\"off\\\", \\\"on\\\", \\\"auto\\\".\\n\\\n+boolean values are \\\"off\\\", \\\"on\\\".\\n\\\n+Some integer settings accept an unlimited value, returned\\n\\\n+as 0 or -1 depending on the setting.\"),\n+\t\t\t gdb_setting_internal_fn, NULL);\n+\n+  add_internal_function (\"_gdb_maint_setting_str\", _(\"\\\n+$_gdb_maint_setting_str - returns the value of a GDB maintenance setting as a string.\\n\\\n+Usage: $_gdb_maint_setting_str (setting)\\n\\\n+\\n\\\n+auto-boolean values are \\\"off\\\", \\\"on\\\", \\\"auto\\\".\\n\\\n+boolean values are \\\"off\\\", \\\"on\\\".\\n\\\n+Some integer settings accept an unlimited value, returned\\n\\\n+as \\\"unlimited\\\".\"),\n+\t\t\t gdb_maint_setting_str_internal_fn, NULL);\n+\n+  add_internal_function (\"_gdb_maint_setting\", _(\"\\\n+$_gdb_maint_setting - returns the value of a GDB maintenance setting.\\n\\\n+Usage: $_gdb_maint_setting (setting)\\n\\\n+auto-boolean values are \\\"off\\\", \\\"on\\\", \\\"auto\\\".\\n\\\n+boolean values are \\\"off\\\", \\\"on\\\".\\n\\\n+Some integer settings accept an unlimited value, returned\\n\\\n+as 0 or -1 depending on the setting.\"),\n+\t\t\t gdb_maint_setting_internal_fn, NULL);\n+\n   add_cmd (\"commands\", no_set_class, show_commands, _(\"\\\n Show the history of commands you typed.\\n\\\n You can supply a command number to start with, or a `+' to start after\\n\\"
+    },
+    {
+      "sha": "4cf2437e2a114f8d5427342789d9166f8f0ad685",
+      "filename": "gdb/cli/cli-setshow.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9ad9b77d64920d3113a9e7ab9f022eb5a45cd49e/gdb/cli/cli-setshow.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9ad9b77d64920d3113a9e7ab9f022eb5a45cd49e/gdb/cli/cli-setshow.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cli/cli-setshow.c?ref=9ad9b77d64920d3113a9e7ab9f022eb5a45cd49e",
+      "patch": "@@ -627,7 +627,7 @@ do_set_command (const char *arg, int from_tty, struct cmd_list_element *c)\n /* See cli/cli-setshow.h.  */\n \n std::string\n-get_setshow_command_value_string (cmd_list_element *c)\n+get_setshow_command_value_string (const cmd_list_element *c)\n {\n   string_file stb;\n "
+    },
+    {
+      "sha": "dbb3e9fdff9d02dd0d267f4997e326fc621a1400",
+      "filename": "gdb/cli/cli-setshow.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9ad9b77d64920d3113a9e7ab9f022eb5a45cd49e/gdb/cli/cli-setshow.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9ad9b77d64920d3113a9e7ab9f022eb5a45cd49e/gdb/cli/cli-setshow.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cli/cli-setshow.h?ref=9ad9b77d64920d3113a9e7ab9f022eb5a45cd49e",
+      "patch": "@@ -58,7 +58,7 @@ extern void do_show_command (const char *arg, int from_tty,\n \t\t\t     struct cmd_list_element *c);\n \n /* Get a string version of C's current value.  */\n-extern std::string get_setshow_command_value_string (cmd_list_element *c);\n+extern std::string get_setshow_command_value_string (const cmd_list_element *c);\n \n extern void cmd_show_list (struct cmd_list_element *list, int from_tty,\n \t\t\t   const char *prefix);"
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "sha": "d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZDdjYjBlZjM1YjExMmUzNWEzZTliNGRjMzBmZmQ4MDBjOWQwYTRmZQ==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2021-07-12T16:10:48Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2021-07-13T14:30:04Z"
+    },
+    "message": "Fix detach with target remote (PR gdb/28080)\n\nCommit 408f66864a1a823591b26420410c982174c239a2 (\"detach in all-stop\nwith threads running\") regressed \"detach\" with \"target remote\":\n\n (gdb) detach\n Detaching from program: target:/any/program, process 3671843\n Detaching from process 3671843\n Ending remote debugging.\n [Inferior 1 (process 3671843) detached]\n In main\n terminate called after throwing an instance of 'gdb_exception_error'\n Aborted (core dumped)\n\nHere's the exception above being thrown:\n\n (top-gdb) bt\n #0  throw_error (error=TARGET_CLOSE_ERROR, fmt=0x555556035588 \"Remote connection closed\") at src/gdbsupport/common-exceptions.cc:222\n #1  0x0000555555bbaa46 in remote_target::readchar (this=0x555556a11040, timeout=10000) at src/gdb/remote.c:9440\n #2  0x0000555555bbb9e5 in remote_target::getpkt_or_notif_sane_1 (this=0x555556a11040, buf=0x555556a11058, forever=0, expecting_notif=0, is_notif=0x0) at src/gdb/remote.c:9928\n #3  0x0000555555bbbda9 in remote_target::getpkt_sane (this=0x555556a11040, buf=0x555556a11058, forever=0) at src/gdb/remote.c:10030\n #4  0x0000555555bc0e75 in remote_target::remote_hostio_send_command (this=0x555556a11040, command_bytes=13, which_packet=14, remote_errno=0x7fffffffcfd0, attachment=0x0, attachment_len=0x0) at src/gdb/remote.c:12137\n #5  0x0000555555bc1b6c in remote_target::remote_hostio_close (this=0x555556a11040, fd=8, remote_errno=0x7fffffffcfd0) at src/gdb/remote.c:12455\n #6  0x0000555555bc1bb4 in remote_target::fileio_close (During symbol reading: .debug_line address at offset 0x64f417 is 0 [in module build/gdb/gdb]\n this=0x555556a11040, fd=8, remote_errno=0x7fffffffcfd0) at src/gdb/remote.c:12462\n #7  0x0000555555c9274c in target_fileio_close (fd=3, target_errno=0x7fffffffcfd0) at src/gdb/target.c:3365\n #8  0x000055555595a19d in gdb_bfd_iovec_fileio_close (abfd=0x555556b9f8a0, stream=0x555556b11530) at src/gdb/gdb_bfd.c:439\n #9  0x0000555555e09e3f in opncls_bclose (abfd=0x555556b9f8a0) at src/bfd/opncls.c:599\n #10 0x0000555555e0a2c7 in bfd_close_all_done (abfd=0x555556b9f8a0) at src/bfd/opncls.c:847\n #11 0x0000555555e0a27a in bfd_close (abfd=0x555556b9f8a0) at src/bfd/opncls.c:814\n #12 0x000055555595a9d3 in gdb_bfd_close_or_warn (abfd=0x555556b9f8a0) at src/gdb/gdb_bfd.c:626\n #13 0x000055555595ad29 in gdb_bfd_unref (abfd=0x555556b9f8a0) at src/gdb/gdb_bfd.c:715\n #14 0x0000555555ae4730 in objfile::~objfile (this=0x555556515540, __in_chrg=<optimized out>) at src/gdb/objfiles.c:573\n #15 0x0000555555ae955a in std::_Sp_counted_ptr<objfile*, (__gnu_cxx::_Lock_policy)2>::_M_dispose (this=0x555556c20db0) at /usr/include/c++/9/bits/shared_ptr_base.h:377\n #16 0x000055555572b7c8 in std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release (this=0x555556c20db0) at /usr/include/c++/9/bits/shared_ptr_base.h:155\n #17 0x00005555557263c3 in std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count (this=0x555556bf0588, __in_chrg=<optimized out>) at /usr/include/c++/9/bits/shared_ptr_base.h:730\n #18 0x0000555555ae745e in std::__shared_ptr<objfile, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr (this=0x555556bf0580, __in_chrg=<optimized out>) at /usr/include/c++/9/bits/shared_ptr_base.h:1169\n #19 0x0000555555ae747e in std::shared_ptr<objfile>::~shared_ptr (this=0x555556bf0580, __in_chrg=<optimized out>) at /usr/include/c++/9/bits/shared_ptr.h:103\n #20 0x0000555555b1c1dc in __gnu_cxx::new_allocator<std::_List_node<std::shared_ptr<objfile> > >::destroy<std::shared_ptr<objfile> > (this=0x5555564cdd60, __p=0x555556bf0580) at /usr/include/c++/9/ext/new_allocator.h:153\n #21 0x0000555555b1bb1d in std::allocator_traits<std::allocator<std::_List_node<std::shared_ptr<objfile> > > >::destroy<std::shared_ptr<objfile> > (__a=..., __p=0x555556bf0580) at /usr/include/c++/9/bits/alloc_traits.h:497\n #22 0x0000555555b1b73e in std::__cxx11::list<std::shared_ptr<objfile>, std::allocator<std::shared_ptr<objfile> > >::_M_erase (this=0x5555564cdd60, __position=std::shared_ptr<objfile> (expired, weak count 1) = {get() = 0x555556515540}) at /usr/include/c++/9/bits/stl_list.h:1921\n #23 0x0000555555b1afeb in std::__cxx11::list<std::shared_ptr<objfile>, std::allocator<std::shared_ptr<objfile> > >::erase (this=0x5555564cdd60, __position=std::shared_ptr<objfile> (expired, weak count 1) = {get() = 0x555556515540}) at /usr/include/c++/9/bits/list.tcc:158\n #24 0x0000555555b19576 in program_space::remove_objfile (this=0x5555564cdd20, objfile=0x555556515540) at src/gdb/progspace.c:210\n #25 0x0000555555ae4502 in objfile::unlink (this=0x555556515540) at src/gdb/objfiles.c:487\n #26 0x0000555555ae5a12 in objfile_purge_solibs () at src/gdb/objfiles.c:875\n #27 0x0000555555c09686 in no_shared_libraries (ignored=0x0, from_tty=1) at src/gdb/solib.c:1236\n #28 0x00005555559e3f5f in detach_command (args=0x0, from_tty=1) at src/gdb/infcmd.c:2769\n\nSo frame #28 already detached the remote process, and then we're\npurging the shared libraries.  GDB had opened remote shared libraries\nvia the target: sysroot, so it tries closing them.  GDBserver is\ntearing down already, so remote communication breaks down and we close\nthe remote target and throw TARGET_CLOSE_ERROR.\n\nNote frame #14:\n\n #14 0x0000555555ae4730 in objfile::~objfile (this=0x555556515540, __in_chrg=<optimized out>) at src/gdb/objfiles.c:573\n\nThat's a dtor, thus noexcept.  That's the reason for the\nstd::terminate.\n\nStepping back a bit, why do we still have open remote files if we've\nmanaged to detach already, and, we're debugging with \"target remote\"?\nThe reason is that commit 408f66864a1a823591b26420410c982174c239a2\nmakes detach_command hold a reference to the target, so the remote\ntarget won't be finally closed until frame #28 returns.  It's closing\nthe target that invalidates target file I/O handles.\n\nThis commit fixes the issue by not relying on target_close to\ninvalidate the target file I/O handles, instead invalidate them\nimmediately in remote_unpush_target.  So when GDB purges the solibs,\nand we end up in target_fileio_close (frame #7 above), there's nothing\nto do, and we don't try to talk with the remote target anymore.\n\nThe regression isn't seen when testing with\n--target_board=native-gdbserver, because that does \"set sysroot\" to\ndisable the \"target:\" sysroot, for test run speed reasons.  So this\ncommit adds a testcase that explicitly tests detach with \"set sysroot\ntarget:\".\n\ngdb/ChangeLog:\nyyyy-mm-dd  Pedro Alves  <pedro@palves.net>\n\n\tPR gdb/28080\n\t* remote.c (remote_unpush_target): Invalidate file I/O target\n\thandles.\n\t* target.c (fileio_handles_invalidate_target): Make extern.\n\t* target.h (fileio_handles_invalidate_target): Declare.\n\ngdb/testsuite/ChangeLog:\nyyyy-mm-dd  Pedro Alves  <pedro@palves.net>\n\n\tPR gdb/28080\n\t* gdb.base/detach-sysroot-target.exp: New.\n\t* gdb.base/detach-sysroot-target.c: New.\n\nReported-By: Jonah Graham <jonah@kichwacoders.com>\n\nChange-Id: I851234910172f42a1b30e731161376c344d2727d",
+    "tree": {
+      "sha": "cf5045d53819bb81fbb83ca462f31189f625eb39",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/cf5045d53819bb81fbb83ca462f31189f625eb39"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "6b66b5a5a29e18e1c1ddd29ea0749050d532de65",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6b66b5a5a29e18e1c1ddd29ea0749050d532de65",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/6b66b5a5a29e18e1c1ddd29ea0749050d532de65"
+    }
+  ],
+  "stats": {
+    "total": 104,
+    "additions": 98,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "96e2750cd3228fb74b7624fa049ab366b8a6408d",
+      "filename": "gdb/remote.c",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe/gdb/remote.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe/gdb/remote.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/remote.c?ref=d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe",
+      "patch": "@@ -5636,6 +5636,15 @@ remote_unpush_target (remote_target *target)\n       pop_all_targets_at_and_above (process_stratum);\n       generic_mourn_inferior ();\n     }\n+\n+  /* Don't rely on target_close doing this when the target is popped\n+     from the last remote inferior above, because something may be\n+     holding a reference to the target higher up on the stack, meaning\n+     target_close won't be called yet.  We lost the connection to the\n+     target, so clear these now, otherwise we may later throw\n+     TARGET_CLOSE_ERROR while trying to tell the remote target to\n+     close the file.  */\n+  fileio_handles_invalidate_target (target);\n }\n \n static void"
+    },
+    {
+      "sha": "787528981917570d24038c1129c1c4c276906473",
+      "filename": "gdb/target.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 6,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe/gdb/target.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe/gdb/target.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/target.c?ref=d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe",
+      "patch": "@@ -3121,13 +3121,9 @@ static std::vector<fileio_fh_t> fileio_fhandles;\n    list each time a new file is opened.  */\n static int lowest_closed_fd;\n \n-/* Invalidate the target associated with open handles that were open\n-   on target TARG, since we're about to close (and maybe destroy) the\n-   target.  The handles remain open from the client's perspective, but\n-   trying to do anything with them other than closing them will fail\n-   with EIO.  */\n+/* See target.h.  */\n \n-static void\n+void\n fileio_handles_invalidate_target (target_ops *targ)\n {\n   for (fileio_fh_t &fh : fileio_fhandles)"
+    },
+    {
+      "sha": "ddd4f3803cb853197ad16d529057299b7058a78b",
+      "filename": "gdb/target.h",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe/gdb/target.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe/gdb/target.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/target.h?ref=d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe",
+      "patch": "@@ -2230,6 +2230,12 @@ extern LONGEST target_fileio_read_alloc (struct inferior *inf,\n extern gdb::unique_xmalloc_ptr<char> target_fileio_read_stralloc\n     (struct inferior *inf, const char *filename);\n \n+/* Invalidate the target associated with open handles that were open\n+   on target TARG, since we're about to close (and maybe destroy) the\n+   target.  The handles remain open from the client's perspective, but\n+   trying to do anything with them other than closing them will fail\n+   with EIO.  */\n+extern void fileio_handles_invalidate_target (target_ops *targ);\n \n /* Tracepoint-related operations.  */\n "
+    },
+    {
+      "sha": "9811b15f06d5a78008ab6a6c585ff933e234aea8",
+      "filename": "gdb/testsuite/gdb.base/detach-sysroot-target.c",
+      "status": "added",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe/gdb/testsuite/gdb.base/detach-sysroot-target.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe/gdb/testsuite/gdb.base/detach-sysroot-target.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/detach-sysroot-target.c?ref=d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe",
+      "patch": "@@ -0,0 +1,22 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2021 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+int\n+main ()\n+{\n+  return 0;\n+}"
+    },
+    {
+      "sha": "9ae1eb6277aed40ac128f314d7d0fa3a34c4ca51",
+      "filename": "gdb/testsuite/gdb.base/detach-sysroot-target.exp",
+      "status": "added",
+      "additions": 59,
+      "deletions": 0,
+      "changes": 59,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe/gdb/testsuite/gdb.base/detach-sysroot-target.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe/gdb/testsuite/gdb.base/detach-sysroot-target.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/detach-sysroot-target.exp?ref=d7cb0ef35b112e35a3e9b4dc30ffd800c9d0a4fe",
+      "patch": "@@ -0,0 +1,59 @@\n+# Copyright 2021 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+# Test running a program from the GDB prompt and then detaching it,\n+# with \"set sysroot target:\".  Regression test for PR gdb/28080.\n+#\n+# It is assumed that it is only safe to tweak the sysroot on the\n+# current board if it is currently either empty or already \"target:\".\n+# If set to anything else, we skip the test.\n+\n+standard_testfile\n+\n+if {[prepare_for_testing \"failed to prepare\" ${binfile} ${srcfile}]} {\n+    return\n+}\n+\n+gdb_test_multiple \"show sysroot\" \"\" {\n+    -wrap -re \"The current system root is \\\"\\\"\\\\.\" {\n+\tpass $gdb_test_name\n+\n+\t# Explicitly set target: sysroot.\n+\tgdb_test_no_output \"set sysroot target:\"\n+    }\n+    -wrap -re \"The current system root is \\\"target:\\\"\\\\.\" {\n+\tpass $gdb_test_name\n+\n+\t# Nothing else to do.\n+    }\n+    -re \"$gdb_prompt $\" {\n+\tpass $gdb_test_name\n+\n+\t# If testing with any other sysroot, we probably should not\n+\t# mess with it.\n+\tunsupported \"sysroot is set\"\n+\treturn\n+    }\n+}\n+\n+if ![runto_main] {\n+    fail \"couldn't run to main\"\n+    return\n+}\n+\n+# With PR gdb/28080, this would crash GDB when testing with \"target\n+# remote\".\n+set escapedbinfile [string_to_regexp ${binfile}]\n+gdb_test \"detach\" \"Detaching from program: .*$escapedbinfile, .*\""
+    }
+  ]
+}

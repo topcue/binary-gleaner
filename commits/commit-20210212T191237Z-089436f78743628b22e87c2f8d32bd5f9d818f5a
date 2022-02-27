@@ -1,0 +1,134 @@
+{
+  "sha": "089436f78743628b22e87c2f8d32bd5f9d818f5a",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MDg5NDM2Zjc4NzQzNjI4YjIyZTg3YzJmOGQzMmJkNWY5ZDgxOGY1YQ==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-02-12T19:12:37Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-02-12T19:12:37Z"
+    },
+    "message": "[gdb/threads] Fix lin_thread_get_thread_signals for glibc 2.28\n\nWhen running test-case gdb.threads/create-fail.exp on openSUSE Factory\n(with glibc version 2.32) I run into:\n...\n(gdb) continue\nContinuing.\n[New Thread 0x7ffff7c83700 (LWP 626354)]\n[New Thread 0x7ffff7482700 (LWP 626355)]\n[Thread 0x7ffff7c83700 (LWP 626354) exited]\n[New Thread 0x7ffff6c81700 (LWP 626356)]\n[Thread 0x7ffff7482700 (LWP 626355) exited]\n[New Thread 0x7ffff6480700 (LWP 626357)]\n[Thread 0x7ffff6c81700 (LWP 626356) exited]\n[New Thread 0x7ffff5c7f700 (LWP 626358)]\n[Thread 0x7ffff6480700 (LWP 626357) exited]\npthread_create: 22: Invalid argument\n\nThread 6 \"create-fail\" received signal SIG32, Real-time event 32.\n[Switching to Thread 0x7ffff5c7f700 (LWP 626358)]\n0x00007ffff7d87695 in clone () from /lib64/libc.so.6\n(gdb) FAIL: gdb.threads/create-fail.exp: iteration 1: run till end\n...\nThe problem is that glibc-internal signal SIGCANCEL is not recognized by gdb.\n\nThere's code in check_thread_signals that is supposed to take care of that,\nbut it's not working because this code in lin_thread_get_thread_signals has\nstopped working:\n...\n  /* NPTL reserves the first two RT signals, but does not provide any\n     way for the debugger to query the signal numbers - fortunately\n     they don't change.  */\n  sigaddset (set, __SIGRTMIN);\n  sigaddset (set, __SIGRTMIN + 1);\n...\n\nSince glibc commit d2dc5467c6 \"Filter out NPTL internal signals (BZ #22391)\"\n(first released as part of glibc 2.28), a sigaddset with a glibc-internal\nsignal has no other effect than setting errno to EINVALID.\n\nFix this by eliminating the usage of sigset_t in check_thread_signals and\nlin_thread_get_thread_signals.\n\nThe same problem was observed on Ubuntu 20.04.\n\nTested on x86_64-linux, openSUSE Factory.\nTested on aarch64-linux, Ubuntu 20.04 and Ubuntu 18.04.\n\ngdb/ChangeLog:\n\n2021-02-12  Tom de Vries  <tdevries@suse.de>\n\n\tPR threads/26228\n\t* linux-nat.c (lin_thread_get_thread_signals): Remove.\n\t(lin_thread_signals): New static var.\n\t(lin_thread_get_thread_signal_num, lin_thread_get_thread_signal):\n\tNew function.\n\t* linux-nat.h (lin_thread_get_thread_signals): Remove.\n\t(lin_thread_get_thread_signal_num, lin_thread_get_thread_signal):\n\tDeclare.\n\t* linux-thread-db.c (check_thread_signals): Use\n\tlin_thread_get_thread_signal_num and lin_thread_get_thread_signal.",
+    "tree": {
+      "sha": "a70e45e069b51af1d728560fa42e644efa868bbb",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/a70e45e069b51af1d728560fa42e644efa868bbb"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/089436f78743628b22e87c2f8d32bd5f9d818f5a",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/089436f78743628b22e87c2f8d32bd5f9d818f5a",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/089436f78743628b22e87c2f8d32bd5f9d818f5a",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/089436f78743628b22e87c2f8d32bd5f9d818f5a/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "c054dcd552c6ef094376d820b42d0cc6ab717e43",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c054dcd552c6ef094376d820b42d0cc6ab717e43",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/c054dcd552c6ef094376d820b42d0cc6ab717e43"
+    }
+  ],
+  "stats": {
+    "total": 67,
+    "additions": 40,
+    "deletions": 27
+  },
+  "files": [
+    {
+      "sha": "e79b9535f707833e97f5dc537f568743e6f156f9",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/089436f78743628b22e87c2f8d32bd5f9d818f5a/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/089436f78743628b22e87c2f8d32bd5f9d818f5a/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=089436f78743628b22e87c2f8d32bd5f9d818f5a",
+      "patch": "@@ -1,3 +1,16 @@\n+2021-02-12  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR threads/26228\n+\t* linux-nat.c (lin_thread_get_thread_signals): Remove.\n+\t(lin_thread_signals): New static var.\n+\t(lin_thread_get_thread_signal_num, lin_thread_get_thread_signal):\n+\tNew function.\n+\t* linux-nat.h (lin_thread_get_thread_signals): Remove.\n+\t(lin_thread_get_thread_signal_num, lin_thread_get_thread_signal):\n+\tDeclare.\n+\t* linux-thread-db.c (check_thread_signals): Use\n+\tlin_thread_get_thread_signal_num and lin_thread_get_thread_signal.\n+\n 2021-02-12  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* f-exp.y (f77_keywords): Add allocated."
+    },
+    {
+      "sha": "42dcd77ac450e43f7de2c1e55045089f2942693c",
+      "filename": "gdb/linux-nat.c",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 9,
+      "changes": 26,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/089436f78743628b22e87c2f8d32bd5f9d818f5a/gdb/linux-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/089436f78743628b22e87c2f8d32bd5f9d818f5a/gdb/linux-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/linux-nat.c?ref=089436f78743628b22e87c2f8d32bd5f9d818f5a",
+      "patch": "@@ -4411,16 +4411,24 @@ Enables printf debugging output.\"),\n    the GNU/Linux Threads library and therefore doesn't really belong\n    here.  */\n \n-/* Return the set of signals used by the threads library in *SET.  */\n+/* NPTL reserves the first two RT signals, but does not provide any\n+   way for the debugger to query the signal numbers - fortunately\n+   they don't change.  */\n+static int lin_thread_signals[] = { __SIGRTMIN, __SIGRTMIN + 1 };\n \n-void\n-lin_thread_get_thread_signals (sigset_t *set)\n+/* See linux-nat.h.  */\n+\n+unsigned int\n+lin_thread_get_thread_signal_num (void)\n {\n-  sigemptyset (set);\n+  return sizeof (lin_thread_signals) / sizeof (lin_thread_signals[0]);\n+}\n \n-  /* NPTL reserves the first two RT signals, but does not provide any\n-     way for the debugger to query the signal numbers - fortunately\n-     they don't change.  */\n-  sigaddset (set, __SIGRTMIN);\n-  sigaddset (set, __SIGRTMIN + 1);\n+/* See linux-nat.h.  */\n+\n+int\n+lin_thread_get_thread_signal (unsigned int i)\n+{\n+  gdb_assert (i < lin_thread_get_thread_signal_num ());\n+  return lin_thread_signals[i];\n }"
+    },
+    {
+      "sha": "ff4d753422dffd246b2828fa8b9bbf058ecf440a",
+      "filename": "gdb/linux-nat.h",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 2,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/089436f78743628b22e87c2f8d32bd5f9d818f5a/gdb/linux-nat.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/089436f78743628b22e87c2f8d32bd5f9d818f5a/gdb/linux-nat.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/linux-nat.h?ref=089436f78743628b22e87c2f8d32bd5f9d818f5a",
+      "patch": "@@ -304,8 +304,11 @@ void check_for_thread_db (void);\n    true on success, false if the process isn't using libpthread.  */\n extern int thread_db_notice_clone (ptid_t parent, ptid_t child);\n \n-/* Return the set of signals used by the threads library.  */\n-extern void lin_thread_get_thread_signals (sigset_t *mask);\n+/* Return the number of signals used by the threads library.  */\n+extern unsigned int lin_thread_get_thread_signal_num (void);\n+\n+/* Return the i-th signal used by the threads library.  */\n+extern int lin_thread_get_thread_signal (unsigned int i);\n \n /* Find process PID's pending signal set from /proc/pid/status.  */\n void linux_proc_pending_signals (int pid, sigset_t *pending,"
+    },
+    {
+      "sha": "4dab64ac34483c82d35f01ac8855c10a8867c40d",
+      "filename": "gdb/linux-thread-db.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 16,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/089436f78743628b22e87c2f8d32bd5f9d818f5a/gdb/linux-thread-db.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/089436f78743628b22e87c2f8d32bd5f9d818f5a/gdb/linux-thread-db.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/linux-thread-db.c?ref=089436f78743628b22e87c2f8d32bd5f9d818f5a",
+      "patch": "@@ -161,8 +161,6 @@ static thread_db_target the_thread_db_target;\n /* Non-zero if we have determined the signals used by the threads\n    library.  */\n static int thread_signals;\n-static sigset_t thread_stop_set;\n-static sigset_t thread_print_set;\n \n struct thread_db_info\n {\n@@ -1225,23 +1223,14 @@ check_thread_signals (void)\n {\n   if (!thread_signals)\n     {\n-      sigset_t mask;\n       int i;\n \n-      lin_thread_get_thread_signals (&mask);\n-      sigemptyset (&thread_stop_set);\n-      sigemptyset (&thread_print_set);\n-\n-      for (i = 1; i < NSIG; i++)\n+      for (i = 0; i < lin_thread_get_thread_signal_num (); i++)\n \t{\n-\t  if (sigismember (&mask, i))\n-\t    {\n-\t      if (signal_stop_update (gdb_signal_from_host (i), 0))\n-\t\tsigaddset (&thread_stop_set, i);\n-\t      if (signal_print_update (gdb_signal_from_host (i), 0))\n-\t\tsigaddset (&thread_print_set, i);\n-\t      thread_signals = 1;\n-\t    }\n+\t  int sig = lin_thread_get_thread_signal (i);\n+\t  signal_stop_update (gdb_signal_from_host (sig), 0);\n+\t  signal_print_update (gdb_signal_from_host (sig), 0);\n+\t  thread_signals = 1;\n \t}\n     }\n }"
+    }
+  ]
+}

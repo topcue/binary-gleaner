@@ -1,0 +1,146 @@
+{
+  "sha": "dfa1952ee8ec0b020744befbf8f3e9f128242a1a",
+  "node_id": "C_kwDOANOeidoAKGRmYTE5NTJlZThlYzBiMDIwNzQ0YmVmYmY4ZjNlOWYxMjgyNDJhMWE",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2022-01-27T22:35:26Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2022-01-27T22:35:26Z"
+    },
+    "message": "gdb: work around negative DW_AT_data_member_location GCC 11 bug\n\ng++ 11.1.0 has a bug where it will emit a negative\nDW_AT_data_member_location in some cases:\n\n    $ cat test.cpp\n    #include <memory>\n\n    int\n    main()\n    {\n      std::unique_ptr<int> ptr;\n    }\n    $ g++ -g test.cpp\n    $ llvm-dwarfdump -F a.out\n    ...\n    0x00000964:       DW_TAG_member\n                        DW_AT_name [DW_FORM_strp]   (\"_M_head_impl\")\n                        DW_AT_decl_file [DW_FORM_data1]     (\"/usr/include/c++/11.1.0/tuple\")\n                        DW_AT_decl_line [DW_FORM_data1]     (125)\n                        DW_AT_decl_column [DW_FORM_data1]   (0x27)\n                        DW_AT_type [DW_FORM_ref4]   (0x0000067a \"default_delete<int>\")\n                        DW_AT_data_member_location [DW_FORM_sdata]  (-1)\n    ...\n\nThis leads to a GDB crash (when built with ASan, otherwise probably\ngarbage results), since it tries to read just before (to the left, in\nASan speak) of the value's buffer:\n\n    ==888645==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x6020000c52af at pc 0x7f711b239f4b bp 0x7fff356bd470 sp 0x7fff356bcc18\n    READ of size 1 at 0x6020000c52af thread T0\n        #0 0x7f711b239f4a in __interceptor_memcpy /build/gcc/src/gcc/libsanitizer/sanitizer_common/sanitizer_common_interceptors.inc:827\n        #1 0x555c4977efa1 in value_contents_copy_raw /home/simark/src/binutils-gdb/gdb/value.c:1347\n        #2 0x555c497909cd in value_primitive_field(value*, long, int, type*) /home/simark/src/binutils-gdb/gdb/value.c:3126\n        #3 0x555c478f2eaa in cp_print_value_fields(value*, ui_file*, int, value_print_options const*, type**, int) /home/simark/src/binutils-gdb/gdb/cp-valprint.c:333\n        #4 0x555c478f63b2 in cp_print_value /home/simark/src/binutils-gdb/gdb/cp-valprint.c:513\n        #5 0x555c478f02ca in cp_print_value_fields(value*, ui_file*, int, value_print_options const*, type**, int) /home/simark/src/binutils-gdb/gdb/cp-valprint.c:161\n        #6 0x555c478f63b2 in cp_print_value /home/simark/src/binutils-gdb/gdb/cp-valprint.c:513\n        #7 0x555c478f02ca in cp_print_value_fields(value*, ui_file*, int, value_print_options const*, type**, int) /home/simark/src/binutils-gdb/gdb/cp-valprint.c:161\n        #8 0x555c478f63b2 in cp_print_value /home/simark/src/binutils-gdb/gdb/cp-valprint.c:513\n        #9 0x555c478f02ca in cp_print_value_fields(value*, ui_file*, int, value_print_options const*, type**, int) /home/simark/src/binutils-gdb/gdb/cp-valprint.c:161\n        #10 0x555c4760d45f in c_value_print_struct /home/simark/src/binutils-gdb/gdb/c-valprint.c:383\n        #11 0x555c4760df4c in c_value_print_inner(value*, ui_file*, int, value_print_options const*) /home/simark/src/binutils-gdb/gdb/c-valprint.c:438\n        #12 0x555c483ff9a7 in language_defn::value_print_inner(value*, ui_file*, int, value_print_options const*) const /home/simark/src/binutils-gdb/gdb/language.c:632\n        #13 0x555c49758b68 in do_val_print /home/simark/src/binutils-gdb/gdb/valprint.c:1048\n        #14 0x555c49759b17 in common_val_print(value*, ui_file*, int, value_print_options const*, language_defn const*) /home/simark/src/binutils-gdb/gdb/valprint.c:1151\n        #15 0x555c478f2fcb in cp_print_value_fields(value*, ui_file*, int, value_print_options const*, type**, int) /home/simark/src/binutils-gdb/gdb/cp-valprint.c:335\n        #16 0x555c478f63b2 in cp_print_value /home/simark/src/binutils-gdb/gdb/cp-valprint.c:513\n        #17 0x555c478f02ca in cp_print_value_fields(value*, ui_file*, int, value_print_options const*, type**, int) /home/simark/src/binutils-gdb/gdb/cp-valprint.c:161\n        #18 0x555c4760d45f in c_value_print_struct /home/simark/src/binutils-gdb/gdb/c-valprint.c:383\n        #19 0x555c4760df4c in c_value_print_inner(value*, ui_file*, int, value_print_options const*) /home/simark/src/binutils-gdb/gdb/c-valprint.c:438\n        #20 0x555c483ff9a7 in language_defn::value_print_inner(value*, ui_file*, int, value_print_options const*) const /home/simark/src/binutils-gdb/gdb/language.c:632\n        #21 0x555c49758b68 in do_val_print /home/simark/src/binutils-gdb/gdb/valprint.c:1048\n        #22 0x555c49759b17 in common_val_print(value*, ui_file*, int, value_print_options const*, language_defn const*) /home/simark/src/binutils-gdb/gdb/valprint.c:1151\n        #23 0x555c478f2fcb in cp_print_value_fields(value*, ui_file*, int, value_print_options const*, type**, int) /home/simark/src/binutils-gdb/gdb/cp-valprint.c:335\n        #24 0x555c4760d45f in c_value_print_struct /home/simark/src/binutils-gdb/gdb/c-valprint.c:383\n        #25 0x555c4760df4c in c_value_print_inner(value*, ui_file*, int, value_print_options const*) /home/simark/src/binutils-gdb/gdb/c-valprint.c:438\n        #26 0x555c483ff9a7 in language_defn::value_print_inner(value*, ui_file*, int, value_print_options const*) const /home/simark/src/binutils-gdb/gdb/language.c:632\n        #27 0x555c49758b68 in do_val_print /home/simark/src/binutils-gdb/gdb/valprint.c:1048\n        #28 0x555c49759b17 in common_val_print(value*, ui_file*, int, value_print_options const*, language_defn const*) /home/simark/src/binutils-gdb/gdb/valprint.c:1151\n        #29 0x555c4760f04c in c_value_print(value*, ui_file*, value_print_options const*) /home/simark/src/binutils-gdb/gdb/c-valprint.c:587\n        #30 0x555c483ff954 in language_defn::value_print(value*, ui_file*, value_print_options const*) const /home/simark/src/binutils-gdb/gdb/language.c:614\n        #31 0x555c49759f61 in value_print(value*, ui_file*, value_print_options const*) /home/simark/src/binutils-gdb/gdb/valprint.c:1189\n        #32 0x555c48950f70 in print_formatted /home/simark/src/binutils-gdb/gdb/printcmd.c:337\n        #33 0x555c48958eda in print_value(value*, value_print_options const&) /home/simark/src/binutils-gdb/gdb/printcmd.c:1258\n        #34 0x555c48959891 in print_command_1 /home/simark/src/binutils-gdb/gdb/printcmd.c:1367\n        #35 0x555c4895a3df in print_command /home/simark/src/binutils-gdb/gdb/printcmd.c:1458\n        #36 0x555c4767f974 in do_simple_func /home/simark/src/binutils-gdb/gdb/cli/cli-decode.c:97\n        #37 0x555c47692e25 in cmd_func(cmd_list_element*, char const*, int) /home/simark/src/binutils-gdb/gdb/cli/cli-decode.c:2475\n        #38 0x555c4936107e in execute_command(char const*, int) /home/simark/src/binutils-gdb/gdb/top.c:670\n        #39 0x555c485f1bff in catch_command_errors /home/simark/src/binutils-gdb/gdb/main.c:523\n        #40 0x555c485f249c in execute_cmdargs /home/simark/src/binutils-gdb/gdb/main.c:618\n        #41 0x555c485f6677 in captured_main_1 /home/simark/src/binutils-gdb/gdb/main.c:1317\n        #42 0x555c485f6c83 in captured_main /home/simark/src/binutils-gdb/gdb/main.c:1338\n        #43 0x555c485f6d65 in gdb_main(captured_main_args*) /home/simark/src/binutils-gdb/gdb/main.c:1363\n        #44 0x555c46e41ba8 in main /home/simark/src/binutils-gdb/gdb/gdb.c:32\n        #45 0x7f71198bcb24 in __libc_start_main (/usr/lib/libc.so.6+0x27b24)\n        #46 0x555c46e4197d in _start (/home/simark/build/binutils-gdb-one-target/gdb/gdb+0x77f197d)\n\n    0x6020000c52af is located 1 bytes to the left of 8-byte region [0x6020000c52b0,0x6020000c52b8)\n    allocated by thread T0 here:\n        #0 0x7f711b2b7459 in __interceptor_calloc /build/gcc/src/gcc/libsanitizer/asan/asan_malloc_linux.cpp:154\n        #1 0x555c470acdc9 in xcalloc /home/simark/src/binutils-gdb/gdb/alloc.c:100\n        #2 0x555c49b775cd in xzalloc(unsigned long) /home/simark/src/binutils-gdb/gdbsupport/common-utils.cc:29\n        #3 0x555c4977bdeb in allocate_value_contents /home/simark/src/binutils-gdb/gdb/value.c:1029\n        #4 0x555c4977be25 in allocate_value(type*) /home/simark/src/binutils-gdb/gdb/value.c:1040\n        #5 0x555c4979030d in value_primitive_field(value*, long, int, type*) /home/simark/src/binutils-gdb/gdb/value.c:3092\n        #6 0x555c478f6280 in cp_print_value /home/simark/src/binutils-gdb/gdb/cp-valprint.c:501\n        #7 0x555c478f02ca in cp_print_value_fields(value*, ui_file*, int, value_print_options const*, type**, int) /home/simark/src/binutils-gdb/gdb/cp-valprint.c:161\n        #8 0x555c478f63b2 in cp_print_value /home/simark/src/binutils-gdb/gdb/cp-valprint.c:513\n        #9 0x555c478f02ca in cp_print_value_fields(value*, ui_file*, int, value_print_options const*, type**, int) /home/simark/src/binutils-gdb/gdb/cp-valprint.c:161\n        #10 0x555c478f63b2 in cp_print_value /home/simark/src/binutils-gdb/gdb/cp-valprint.c:513\n        #11 0x555c478f02ca in cp_print_value_fields(value*, ui_file*, int, value_print_options const*, type**, int) /home/simark/src/binutils-gdb/gdb/cp-valprint.c:161\n        #12 0x555c4760d45f in c_value_print_struct /home/simark/src/binutils-gdb/gdb/c-valprint.c:383\n        #13 0x555c4760df4c in c_value_print_inner(value*, ui_file*, int, value_print_options const*) /home/simark/src/binutils-gdb/gdb/c-valprint.c:438\n        #14 0x555c483ff9a7 in language_defn::value_print_inner(value*, ui_file*, int, value_print_options const*) const /home/simark/src/binutils-gdb/gdb/language.c:632\n        #15 0x555c49758b68 in do_val_print /home/simark/src/binutils-gdb/gdb/valprint.c:1048\n        #16 0x555c49759b17 in common_val_print(value*, ui_file*, int, value_print_options const*, language_defn const*) /home/simark/src/binutils-gdb/gdb/valprint.c:1151\n        #17 0x555c478f2fcb in cp_print_value_fields(value*, ui_file*, int, value_print_options const*, type**, int) /home/simark/src/binutils-gdb/gdb/cp-valprint.c:335\n        #18 0x555c478f63b2 in cp_print_value /home/simark/src/binutils-gdb/gdb/cp-valprint.c:513\n        #19 0x555c478f02ca in cp_print_value_fields(value*, ui_file*, int, value_print_options const*, type**, int) /home/simark/src/binutils-gdb/gdb/cp-valprint.c:161\n        #20 0x555c4760d45f in c_value_print_struct /home/simark/src/binutils-gdb/gdb/c-valprint.c:383\n        #21 0x555c4760df4c in c_value_print_inner(value*, ui_file*, int, value_print_options const*) /home/simark/src/binutils-gdb/gdb/c-valprint.c:438\n        #22 0x555c483ff9a7 in language_defn::value_print_inner(value*, ui_file*, int, value_print_options const*) const /home/simark/src/binutils-gdb/gdb/language.c:632\n        #23 0x555c49758b68 in do_val_print /home/simark/src/binutils-gdb/gdb/valprint.c:1048\n        #24 0x555c49759b17 in common_val_print(value*, ui_file*, int, value_print_options const*, language_defn const*) /home/simark/src/binutils-gdb/gdb/valprint.c:1151\n        #25 0x555c478f2fcb in cp_print_value_fields(value*, ui_file*, int, value_print_options const*, type**, int) /home/simark/src/binutils-gdb/gdb/cp-valprint.c:335\n        #26 0x555c4760d45f in c_value_print_struct /home/simark/src/binutils-gdb/gdb/c-valprint.c:383\n        #27 0x555c4760df4c in c_value_print_inner(value*, ui_file*, int, value_print_options const*) /home/simark/src/binutils-gdb/gdb/c-valprint.c:438\n        #28 0x555c483ff9a7 in language_defn::value_print_inner(value*, ui_file*, int, value_print_options const*) const /home/simark/src/binutils-gdb/gdb/language.c:632\n        #29 0x555c49758b68 in do_val_print /home/simark/src/binutils-gdb/gdb/valprint.c:1048\n\nSince there are some binaries with this in the wild, I think it would be\nuseful for GDB to work around this.  I did the obvious simple thing, if\nthe DW_AT_data_member_location's value is -1, replace it with 0.  I\nadded a producer check to only apply this fixup for GCC 11.  The idea is\nthat if some other compiler ever uses a DW_AT_data_member_location value\nof -1 by mistake, we don't know (before analyzing the bug at least) if\nthey did mean 0 or some other value.  So I wouldn't want to apply the\nfixup in that case.\n\nBug: https://sourceware.org/bugzilla/show_bug.cgi?id=28063\nChange-Id: Ieef3459b0b9bbce8bdad838ba83b4b64e7269d42",
+    "tree": {
+      "sha": "0219fbc4d421a88d6b30e2bf4b8ccbc3876cee82",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/0219fbc4d421a88d6b30e2bf4b8ccbc3876cee82"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/dfa1952ee8ec0b020744befbf8f3e9f128242a1a",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/dfa1952ee8ec0b020744befbf8f3e9f128242a1a",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/dfa1952ee8ec0b020744befbf8f3e9f128242a1a",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/dfa1952ee8ec0b020744befbf8f3e9f128242a1a/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "3ceda72296e87579632a0929a638be1f9e5c97d7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3ceda72296e87579632a0929a638be1f9e5c97d7",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/3ceda72296e87579632a0929a638be1f9e5c97d7"
+    }
+  ],
+  "stats": {
+    "total": 124,
+    "additions": 124,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "b1fd688188a76fd68bada657ced364d41d91cad6",
+      "filename": "gdb/dwarf2/cu.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/dfa1952ee8ec0b020744befbf8f3e9f128242a1a/gdb/dwarf2/cu.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/dfa1952ee8ec0b020744befbf8f3e9f128242a1a/gdb/dwarf2/cu.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/cu.c?ref=dfa1952ee8ec0b020744befbf8f3e9f128242a1a",
+      "patch": "@@ -32,6 +32,7 @@ dwarf2_cu::dwarf2_cu (dwarf2_per_cu_data *per_cu,\n     checked_producer (false),\n     producer_is_gxx_lt_4_6 (false),\n     producer_is_gcc_lt_4_3 (false),\n+    producer_is_gcc_11 (false),\n     producer_is_icc (false),\n     producer_is_icc_lt_14 (false),\n     producer_is_codewarrior (false),"
+    },
+    {
+      "sha": "bce0a3de63a41a982019a8dc24c3dc048f211b7d",
+      "filename": "gdb/dwarf2/cu.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/dfa1952ee8ec0b020744befbf8f3e9f128242a1a/gdb/dwarf2/cu.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/dfa1952ee8ec0b020744befbf8f3e9f128242a1a/gdb/dwarf2/cu.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/cu.h?ref=dfa1952ee8ec0b020744befbf8f3e9f128242a1a",
+      "patch": "@@ -253,6 +253,7 @@ struct dwarf2_cu\n   bool checked_producer : 1;\n   bool producer_is_gxx_lt_4_6 : 1;\n   bool producer_is_gcc_lt_4_3 : 1;\n+  bool producer_is_gcc_11 : 1;\n   bool producer_is_icc : 1;\n   bool producer_is_icc_lt_14 : 1;\n   bool producer_is_codewarrior : 1;"
+    },
+    {
+      "sha": "1a749eac334fe6a25a511d2268722f1089441500",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/dfa1952ee8ec0b020744befbf8f3e9f128242a1a/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/dfa1952ee8ec0b020744befbf8f3e9f128242a1a/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=dfa1952ee8ec0b020744befbf8f3e9f128242a1a",
+      "patch": "@@ -14320,6 +14320,7 @@ check_producer (struct dwarf2_cu *cu)\n     {\n       cu->producer_is_gxx_lt_4_6 = major < 4 || (major == 4 && minor < 6);\n       cu->producer_is_gcc_lt_4_3 = major < 4 || (major == 4 && minor < 3);\n+      cu->producer_is_gcc_11 = major == 11;\n     }\n   else if (producer_is_icc (cu->producer, &major, &minor))\n     {\n@@ -14464,6 +14465,19 @@ handle_member_location (struct die_info *die, struct dwarf2_cu *cu,\n       if (attr->form_is_constant ())\n \t{\n \t  LONGEST offset = attr->constant_value (0);\n+\n+\t  /* Work around this GCC 11 bug, where it would erroneously use -1\n+\t     data member locations, instead of 0:\n+\n+\t       Negative DW_AT_data_member_location\n+\t       https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101378\n+\t     */\n+\t  if (offset == -1 && cu->producer_is_gcc_11)\n+\t    {\n+\t      complaint (_(\"DW_AT_data_member_location value of -1, assuming 0\"));\n+\t      offset = 0;\n+\t    }\n+\n \t  field->set_loc_bitpos (offset * bits_per_byte);\n \t}\n       else if (attr->form_is_section_offset ())"
+    },
+    {
+      "sha": "6d8e8df01e9d6ff7486853511d20f004590e18b8",
+      "filename": "gdb/testsuite/gdb.dwarf2/negative-data-member-location.c",
+      "status": "added",
+      "additions": 31,
+      "deletions": 0,
+      "changes": 31,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/dfa1952ee8ec0b020744befbf8f3e9f128242a1a/gdb/testsuite/gdb.dwarf2/negative-data-member-location.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/dfa1952ee8ec0b020744befbf8f3e9f128242a1a/gdb/testsuite/gdb.dwarf2/negative-data-member-location.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/negative-data-member-location.c?ref=dfa1952ee8ec0b020744befbf8f3e9f128242a1a",
+      "patch": "@@ -0,0 +1,31 @@\n+/* Copyright (C) 2021-2022 Free Software Foundation, Inc.\n+\n+   This file is part of GDB.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+struct the_struct\n+{\n+  /* Define the field as an array of char instead of an int to support targets\n+     that have sizeof(int) != 4.  */\n+  char x[4];\n+};\n+\n+struct the_struct s = { { 0x11, 0x22, 0x22, 0x11 } };\n+\n+int\n+main (void)\n+{\n+  return 0;\n+}"
+    },
+    {
+      "sha": "57030d77134b3332462e86a787c19533255bab51",
+      "filename": "gdb/testsuite/gdb.dwarf2/negative-data-member-location.exp",
+      "status": "added",
+      "additions": 77,
+      "deletions": 0,
+      "changes": 77,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/dfa1952ee8ec0b020744befbf8f3e9f128242a1a/gdb/testsuite/gdb.dwarf2/negative-data-member-location.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/dfa1952ee8ec0b020744befbf8f3e9f128242a1a/gdb/testsuite/gdb.dwarf2/negative-data-member-location.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/negative-data-member-location.exp?ref=dfa1952ee8ec0b020744befbf8f3e9f128242a1a",
+      "patch": "@@ -0,0 +1,77 @@\n+# Copyright 2021-2022 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test our workaround for a GCC 11 bug, where it sometimes puts a -1 value for\n+# DW_AT_data_member_location:\n+#\n+#   Negative DW_AT_data_member_location\n+#   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101378\n+\n+load_lib dwarf.exp\n+\n+# This test can only be run on targets which support DWARF-2 and use gas.\n+if { ![dwarf2_support] } {\n+    return 0\n+}\n+\n+standard_testfile .c -dw.S\n+\n+set asm_file [standard_output_file ${srcfile2}]\n+\n+Dwarf::assemble ${asm_file} {\n+    cu {} {\n+\tDW_TAG_compile_unit {\n+\t    {DW_AT_language @DW_LANG_C99}\n+\t    {DW_AT_producer \"GNU C++17 11.1.0 -mtune=generic -march=x86-64 -g3 -O0\"}\n+\t    {name ${::srcfile}}\n+\t} {\n+\t    declare_labels int_label struct_label\n+\n+\t    int_label: DW_TAG_base_type {\n+\t\t{DW_AT_byte_size 4 DW_FORM_udata}\n+\t\t{DW_AT_encoding @DW_ATE_signed}\n+\t\t{DW_AT_name \"int\"}\n+\t    }\n+\n+\t    struct_label: DW_TAG_structure_type {\n+\t\t{DW_AT_name \"the_struct\"}\n+\t\t{DW_AT_byte_size 4 DW_FORM_udata}\n+\t    } {\n+\t\tDW_TAG_member {\n+\t\t    {DW_AT_name \"field\"}\n+\t\t    {DW_AT_type :$int_label}\n+\t\t    {DW_AT_data_member_location -1 DW_FORM_sdata}\n+\t\t}\n+\t    }\n+\n+\t    DW_TAG_variable {\n+\t\t{DW_AT_name \"s\"}\n+\t\t{DW_AT_type :$struct_label}\n+\t\t{DW_AT_location {DW_OP_addr [gdb_target_symbol \"s\"]} SPECIAL_expr}\n+\t    }\n+\t}\n+    }\n+}\n+\n+if { [prepare_for_testing \"failed to prepare\" ${testfile} [list $srcfile $asm_file] {nodebug}] } {\n+    return\n+}\n+\n+if { ![runto_main] } {\n+    return\n+}\n+\n+gdb_test \"print /x s\" \" = {field = 0x11222211}\"\n+gdb_test \"print /x s.field\" \" = 0x11222211\""
+    }
+  ]
+}

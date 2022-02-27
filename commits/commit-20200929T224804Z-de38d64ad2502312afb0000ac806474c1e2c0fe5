@@ -1,0 +1,134 @@
+{
+  "sha": "de38d64ad2502312afb0000ac806474c1e2c0fe5",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZGUzOGQ2NGFkMjUwMjMxMmFmYjAwMDBhYzgwNjQ3NGMxZTJjMGZlNQ==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-09-29T19:08:51Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-09-29T22:48:04Z"
+    },
+    "message": "Tweak gdbsupport/valid-expr.h for GCC 6, fix build\n\nWith GCC 6.4 and 6.5 (at least), unit tests that use\ngdbsupport/valid-expr.h's CHECK_VALID fail to compile, with:\n\n In file included from src/gdb/unittests/offset-type-selftests.c:24:0:\n src/gdb/unittests/offset-type-selftests.c: In substitution of 'template<class Expected, template<class ...> class Op, class ... Args> using is_detected_exact = std::is_same<Expected, typename gdb::detection_detail::detector<gdb::nonesuch, void, Op, Args ...>::type> [with Expected = selftests::offset_type::off_A&; Op = selftests::offset_type::check_valid_expr75::archetype; Args = {selftests::offset_type::off_A, selftests::offset_type::off_B}]':\n src/gdb/unittests/offset-type-selftests.c:75:1:   required from here\n src/gdb/../gdbsupport/valid-expr.h:65:20: error: type/value mismatch at argument 2 in template parameter list for 'template<class Expected, template<class ...> class Op, class ... Args> using is_detected_exact = std::is_same<Expected, typename gdb::detection_detail::detector<gdb::nonesuch, void, Op, Args ...>::type>'\n     archetype, TYPES>::value == VALID,   \\\n\t\t     ^\n\nThe important part is the \"error: type/value mismatch\" error.  Seems\nlike that GCC doesn't understand that archetype is an alias template,\nand is being strict in requiring a template class.\n\nThe fix here is then to make archetype a template class, to pacify\nGCC.  The resulting code looks like this:\n\n  template <TYPENAMES, typename = decltype (EXPR)>\n  struct archetype\n  {\n  };\n\n  static_assert (gdb::is_detected_exact<archetype<TYPES, EXPR_TYPE>,\n \t\t archetype, TYPES>::value == VALID, \"\");\n\nis_detected_exact<Expected, Op, Args> checks whether Op<Args> is type\nExpected:\n\n - For Expected, we pass the explicit EXPR_TYPE, overriding the\n   default parameter type of archetype.\n\n - For Args we don't pass the last template parameter, so archtype\n   defaults to the EXPR's decltype.\n\nSo in essence, we're really checking whether EXPR_TYPE is the same as\ndecltype(EXPR).\n\nWe need to do the decltype in a template context in order to trigger\nSFINAE instead of failing to compile.\n\n\nThe hunk in unittests/enum-flags-selftests.c becomes necessary,\nbecause unlike with the current alias template version, this new\nversion makes GCC trigger -Wenum-compare warnings as well:\n\n src/gdb/unittests/enum-flags-selftests.c:328:33: error: comparison between 'enum selftests::enum_flags_tests::RE' and 'enum selftests::enum_flags_tests::RE2' [-Werror=enum-compare]\n  CHECK_VALID (true,  bool, RE () != RE2 ())\n\t\t\t\t  ^\n src/gdb/../gdbsupport/valid-expr.h:61:45: note: in definition of macro 'CHECK_VALID_EXPR_INT'\n    template <TYPENAMES, typename = decltype (EXPR)>   \\\n\t\t\t\t\t      ^\n\nBuild-tested with:\n\n - GCC {4.8.5, 6.4, 6.5, 7.3.1, 9.3.0, 11.0.0-20200910}\n - Clang 10.0.0\n\ngdbsupport/ChangeLog:\n\n\t* valid-expr.h (CHECK_VALID_EXPR_INT): Make archetype a template\n\tclass instead of an alias template and adjust static_assert.\n\ngdb/ChangeLog:\n\n\t* unittests/enum-flags-selftests.c: Check whether __GNUC__ is\n\tdefined before using '#pragma GCC diagnostic' instead of checking\n\t__clang__.",
+    "tree": {
+      "sha": "7f0eaefadcc4b0d8bbcc780f30917cfe597efbf6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/7f0eaefadcc4b0d8bbcc780f30917cfe597efbf6"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/de38d64ad2502312afb0000ac806474c1e2c0fe5",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/de38d64ad2502312afb0000ac806474c1e2c0fe5",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/de38d64ad2502312afb0000ac806474c1e2c0fe5",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/de38d64ad2502312afb0000ac806474c1e2c0fe5/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "aeaccbf4c55033bd6641709f98f3f6d65e695f85",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/aeaccbf4c55033bd6641709f98f3f6d65e695f85",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/aeaccbf4c55033bd6641709f98f3f6d65e695f85"
+    }
+  ],
+  "stats": {
+    "total": 43,
+    "additions": 33,
+    "deletions": 10
+  },
+  "files": [
+    {
+      "sha": "28e34fba04fa65f51d2d3f67ba7aeb8615a1b491",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de38d64ad2502312afb0000ac806474c1e2c0fe5/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de38d64ad2502312afb0000ac806474c1e2c0fe5/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=de38d64ad2502312afb0000ac806474c1e2c0fe5",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-09-29  Pedro Alves  <pedro@palves.net>\n+\n+\t* unittests/enum-flags-selftests.c: Check whether __GNUC__ is\n+\tdefined before using '#pragma GCC diagnostic' instead of checking\n+\t__clang__.\n+\n 2020-09-28  Tom Tromey  <tom@tromey.com>\n \n \t* infrun.c (displaced_step_fixup, thread_still_needs_step_over)"
+    },
+    {
+      "sha": "5455120a2594f716ce3e8a5e42c7218505854110",
+      "filename": "gdb/unittests/enum-flags-selftests.c",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 7,
+      "changes": 24,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de38d64ad2502312afb0000ac806474c1e2c0fe5/gdb/unittests/enum-flags-selftests.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de38d64ad2502312afb0000ac806474c1e2c0fe5/gdb/unittests/enum-flags-selftests.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/unittests/enum-flags-selftests.c?ref=de38d64ad2502312afb0000ac806474c1e2c0fe5",
+      "patch": "@@ -315,18 +315,28 @@ CHECK_VALID (false, void, EF () != EF2 ())\n CHECK_VALID (false, void, EF () != RE2 ())\n CHECK_VALID (false, void, RE () != EF2 ())\n \n-/* On clang, disable -Wenum-compare due to \"error: comparison of two\n-   values with different enumeration types [-Werror,-Wenum-compare]\".\n-   clang doesn't suppress -Wenum-compare in SFINAE contexts.  Not a\n-   big deal since misuses like these in GDB will be caught by -Werror\n-   anyway.  This check is here mainly for completeness.  */\n-#if defined __clang__\n+/* Disable -Wenum-compare due to:\n+\n+   Clang:\n+\n+    \"error: comparison of two values with different enumeration types\n+    [-Werror,-Wenum-compare]\"\n+\n+   GCC:\n+\n+    \"error: comparison between \u2018enum selftests::enum_flags_tests::RE\u2019\n+     and \u2018enum selftests::enum_flags_tests::RE2\u2019\n+     [-Werror=enum-compare]\"\n+\n+   Not a big deal since misuses like these in GDB will be caught by\n+   -Werror anyway.  This check is here mainly for completeness.  */\n+#if defined __GNUC__\n # pragma GCC diagnostic push\n # pragma GCC diagnostic ignored \"-Wenum-compare\"\n #endif\n CHECK_VALID (true,  bool, RE () == RE2 ())\n CHECK_VALID (true,  bool, RE () != RE2 ())\n-#if defined __clang__\n+#if defined __GNUC__\n # pragma GCC diagnostic pop\n #endif\n "
+    },
+    {
+      "sha": "91435ff1e8e6966cf4d0b8d8737aa2239a8f51e1",
+      "filename": "gdbsupport/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de38d64ad2502312afb0000ac806474c1e2c0fe5/gdbsupport/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de38d64ad2502312afb0000ac806474c1e2c0fe5/gdbsupport/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/ChangeLog?ref=de38d64ad2502312afb0000ac806474c1e2c0fe5",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-09-29  Pedro Alves  <pedro@palves.net>\n+\n+\t* valid-expr.h (CHECK_VALID_EXPR_INT): Make archetype a template\n+\tclass instead of an alias template and adjust static_assert.\n+\n 2020-09-24  Simon Marchi  <simon.marchi@efficios.com>\n \n \t* event-loop.c (struct file_handler): Remove typedef, re-format."
+    },
+    {
+      "sha": "ff5b8f510a4028a3976462e61aa1153d20b99036",
+      "filename": "gdbsupport/valid-expr.h",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 3,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de38d64ad2502312afb0000ac806474c1e2c0fe5/gdbsupport/valid-expr.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de38d64ad2502312afb0000ac806474c1e2c0fe5/gdbsupport/valid-expr.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/valid-expr.h?ref=de38d64ad2502312afb0000ac806474c1e2c0fe5",
+      "patch": "@@ -58,10 +58,12 @@\n #define CHECK_VALID_EXPR_INT(TYPENAMES, TYPES, VALID, EXPR_TYPE, EXPR)\t\\\n   namespace CONCAT (check_valid_expr, __LINE__) {\t\t\t\\\n \t\t\t\t\t\t\t\t\t\\\n-  template <TYPENAMES>\t\t\t\t\t\t\t\\\n-    using archetype = decltype (EXPR);\t\t\t\t\t\\\n+  template <TYPENAMES, typename = decltype (EXPR)>\t\t\t\\\n+  struct archetype\t\t\t\t\t\t\t\\\n+  {\t\t\t\t\t\t\t\t\t\\\n+  };\t\t\t\t\t\t\t\t\t\\\n \t\t\t\t\t\t\t\t\t\\\n-  static_assert (gdb::is_detected_exact<EXPR_TYPE,\t\t\t\\\n+  static_assert (gdb::is_detected_exact<archetype<TYPES, EXPR_TYPE>,\t\\\n \t\t archetype, TYPES>::value == VALID,\t\t\t\\\n \t\t \"\");\t\t\t\t\t\t\t\\\n   } /* namespace */"
+    }
+  ]
+}

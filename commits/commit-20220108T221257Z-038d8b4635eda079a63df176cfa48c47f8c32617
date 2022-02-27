@@ -1,0 +1,60 @@
+{
+  "sha": "038d8b4635eda079a63df176cfa48c47f8c32617",
+  "node_id": "C_kwDOANOeidoAKDAzOGQ4YjQ2MzVlZGEwNzlhNjNkZjE3NmNmYTQ4YzQ3ZjhjMzI2MTc",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-01-06T15:32:55Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-01-08T22:12:57Z"
+    },
+    "message": "gdb/hurd: handle inferiors exiting\n\nWhile testing on GNU/Hurd (i386) I noticed that GDB crashes when an\ninferior exits, with this error:\n\n  inferior.c:293: internal-error: inferior* find_inferior_pid(process_stratum_target*, int): Assertion `pid != 0' failed.\n\nThe problem appears to be in gnu_nat_target::wait.\n\nWe always set inferior_ptid to null_ptid before calling target_wait,\nthis has been the case since the multi-target changes were made to GDB\nin commit:\n\n  commit 5b6d1e4fa4fc6827c7b3f0e99ff120dfa14d65d2\n  Date:   Fri Jan 10 20:06:08 2020 +0000\n\n      Multi-target support\n\nWith follow up changes in commit:\n\n  commit 24ed6739b699f329c2c45aedee5f8c7d2f54e493\n  Date:   Thu Jan 30 14:35:40 2020 +0000\n\n      gdb/remote: Restore support for 'S' stop reply packet\n\nUnfortunately, the GNU/Hurd target is still relying on the value of\ninferior_ptid in the case where an inferior exits - we return the\nvalue of inferior_ptid as the pid of the process that exited.  This\nwas fine in the single target world, where inferior_ptid identified\nthe one running inferior, but this is no longer good enough.\n\nInstead, we should return a ptid containing the pid of the process\nthat exited, as obtained from the wait event, and this is what this\ncommit does.\n\nI've not run the full testsuite on GNU/Hurd as there appear to be lots\nof other issues with this target that makes running the full testsuite\nvery painful, but I think this looks like a small easy improvement.",
+    "tree": {
+      "sha": "d892d607dc8306449782ed5b66b132cf15a2f622",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/d892d607dc8306449782ed5b66b132cf15a2f622"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/038d8b4635eda079a63df176cfa48c47f8c32617",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/038d8b4635eda079a63df176cfa48c47f8c32617",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/038d8b4635eda079a63df176cfa48c47f8c32617",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/038d8b4635eda079a63df176cfa48c47f8c32617/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "249f1cf8e669cc2fa7832601e0bbf460c5bfb97d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/249f1cf8e669cc2fa7832601e0bbf460c5bfb97d",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/249f1cf8e669cc2fa7832601e0bbf460c5bfb97d"
+    }
+  ],
+  "stats": {
+    "total": 5,
+    "additions": 4,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "9c53e3c0c2f408550f7929453cf5073fd7db74ef",
+      "filename": "gdb/gnu-nat.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 1,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/038d8b4635eda079a63df176cfa48c47f8c32617/gdb/gnu-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/038d8b4635eda079a63df176cfa48c47f8c32617/gdb/gnu-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gnu-nat.c?ref=038d8b4635eda079a63df176cfa48c47f8c32617",
+      "patch": "@@ -1603,7 +1603,10 @@ gnu_nat_target::wait (ptid_t ptid, struct target_waitstatus *status,\n \t\t\t\t\t\t\t       available\n \t\t\t\t\t\t\t       thread.  */\n       else\n-\tptid = inferior_ptid;\t/* let wait_for_inferior handle exit case */\n+\t{\n+\t  /* The process exited. */\n+\t  ptid = ptid_t (inf->pid);\n+\t}\n     }\n \n   if (thread"
+    }
+  ]
+}

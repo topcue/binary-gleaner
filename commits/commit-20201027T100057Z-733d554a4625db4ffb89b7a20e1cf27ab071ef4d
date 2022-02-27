@@ -1,0 +1,266 @@
+{
+  "sha": "733d554a4625db4ffb89b7a20e1cf27ab071ef4d",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NzMzZDU1NGE0NjI1ZGI0ZmZiODliN2EyMGUxY2YyN2FiMDcxZWY0ZA==",
+  "commit": {
+    "author": {
+      "name": "Tankut Baris Aktemur",
+      "email": "tankut.baris.aktemur@intel.com",
+      "date": "2020-10-27T09:56:03Z"
+    },
+    "committer": {
+      "name": "Tankut Baris Aktemur",
+      "email": "tankut.baris.aktemur@intel.com",
+      "date": "2020-10-27T10:00:57Z"
+    },
+    "message": "gdb/breakpoint: add flags to 'condition' and 'break' commands to force condition\n\nThe previous patch made it possible to define a condition if it's\nvalid at some locations.  If the condition is invalid at all of the\nlocations, it's rejected.  However, there may be cases where the user\nknows the condition *will* be valid at a location in the future,\ne.g. due to a shared library load.\n\nTo make it possible that such condition can be defined, this patch\nadds an optional '-force' flag to the 'condition' command, and,\nrespectively, a '-force-condition' flag to the 'break'command.  When\nthe force flag is passed, the condition is not rejected even when it\nis invalid for all the current locations (note that all the locations\nwould be internally disabled in this case).\n\nFor instance:\n\n  (gdb) break test.c:5\n  Breakpoint 1 at 0x1155: file test.c, line 5.\n  (gdb) cond 1 foo == 42\n  No symbol \"foo\" in current context.\n\nDefining the condition was not possible because 'foo' is not\navailable.  The user can override this behavior with the '-force'\nflag:\n\n  (gdb) cond -force 1 foo == 42\n  warning: failed to validate condition at location 1.1, disabling:\n    No symbol \"foo\" in current context.\n  (gdb) info breakpoints\n  Num     Type           Disp Enb Address            What\n  1       breakpoint     keep y   <MULTIPLE>\n          stop only if foo == 42\n  1.1                         N   0x0000000000001155 in main at test.c:5\n\nNow the condition is accepted, but the location is automatically\ndisabled.  If a future location has a context in which 'foo' is\navailable, that location would be enabled.\n\nFor the 'break' command, -force-condition has the same result:\n\n  (gdb) break test.c:5 -force-condition if foo == 42\n  warning: failed to validate condition at location 0x1169, disabling:\n    No symbol \"foo\" in current context.\n  Breakpoint 1 at 0x1169: file test.c, line 5.\n\ngdb/ChangeLog:\n2020-10-27  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n\n\t* breakpoint.h (set_breakpoint_condition): Add a new bool parameter.\n\t* breakpoint.c: Update the help text of the 'condition' and 'break'\n\tcommands.\n\t(set_breakpoint_condition): Take a new bool parameter\n\tto control whether condition definition should be forced even when\n\tthe condition expression is invalid in all of the current locations.\n\t(condition_command): Update the call to 'set_breakpoint_condition'.\n\t(find_condition_and_thread): Take the \"-force-condition\" flag into\n\taccount.\n        * linespec.c (linespec_keywords): Add \"-force-condition\" as an\n\telement.\n        (FORCE_KEYWORD_INDEX): New #define.\n        (linespec_lexer_lex_keyword): Update to consider \"-force-condition\"\n\tas a keyword.\n\t* ada-lang.c (create_ada_exception_catchpoint): Ditto.\n\t* guile/scm-breakpoint.c (gdbscm_set_breakpoint_condition_x): Ditto.\n\t* python/py-breakpoint.c (bppy_set_condition): Ditto.\n\t* NEWS: Mention the changes to the 'break' and 'condition' commands.\n\ngdb/testsuite/ChangeLog:\n2020-10-27  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n\n\t* gdb.base/condbreak-multi-context.exp: Expand to test forcing\n\tthe condition.\n\t* gdb.linespec/cpcompletion.exp: Update to consider the\n\t'-force-condition' keyword.\n\t* gdb.linespec/explicit.exp: Ditto.\n\t* lib/completion-support.exp: Ditto.\n\ngdb/doc/ChangeLog:\n2020-10-27  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n\n\t* gdb.texinfo (Set Breaks): Document the '-force-condition' flag\n\tof the 'break'command.\n\t* gdb.texinfo (Conditions): Document the '-force' flag of the\n\t'condition' command.",
+    "tree": {
+      "sha": "d80ff024b78e88d2eba1c53d91766761a0ee92e8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/d80ff024b78e88d2eba1c53d91766761a0ee92e8"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/733d554a4625db4ffb89b7a20e1cf27ab071ef4d",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/733d554a4625db4ffb89b7a20e1cf27ab071ef4d",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/733d554a4625db4ffb89b7a20e1cf27ab071ef4d",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/comments",
+  "author": {
+    "login": "barisaktemur",
+    "id": 55686642,
+    "node_id": "MDQ6VXNlcjU1Njg2NjQy",
+    "avatar_url": "https://avatars.githubusercontent.com/u/55686642?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/barisaktemur",
+    "html_url": "https://github.com/barisaktemur",
+    "followers_url": "https://api.github.com/users/barisaktemur/followers",
+    "following_url": "https://api.github.com/users/barisaktemur/following{/other_user}",
+    "gists_url": "https://api.github.com/users/barisaktemur/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/barisaktemur/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/barisaktemur/subscriptions",
+    "organizations_url": "https://api.github.com/users/barisaktemur/orgs",
+    "repos_url": "https://api.github.com/users/barisaktemur/repos",
+    "events_url": "https://api.github.com/users/barisaktemur/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/barisaktemur/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "barisaktemur",
+    "id": 55686642,
+    "node_id": "MDQ6VXNlcjU1Njg2NjQy",
+    "avatar_url": "https://avatars.githubusercontent.com/u/55686642?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/barisaktemur",
+    "html_url": "https://github.com/barisaktemur",
+    "followers_url": "https://api.github.com/users/barisaktemur/followers",
+    "following_url": "https://api.github.com/users/barisaktemur/following{/other_user}",
+    "gists_url": "https://api.github.com/users/barisaktemur/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/barisaktemur/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/barisaktemur/subscriptions",
+    "organizations_url": "https://api.github.com/users/barisaktemur/orgs",
+    "repos_url": "https://api.github.com/users/barisaktemur/repos",
+    "events_url": "https://api.github.com/users/barisaktemur/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/barisaktemur/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "b5fa468fef441528147c3a47b085612d5305f181",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b5fa468fef441528147c3a47b085612d5305f181",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b5fa468fef441528147c3a47b085612d5305f181"
+    }
+  ],
+  "stats": {
+    "total": 210,
+    "additions": 189,
+    "deletions": 21
+  },
+  "files": [
+    {
+      "sha": "7cf96aa255f3a6d1fb4d3957de19d3d964de9dfd",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 0,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=733d554a4625db4ffb89b7a20e1cf27ab071ef4d",
+      "patch": "@@ -1,3 +1,24 @@\n+2020-10-27  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n+\n+\t* breakpoint.h (set_breakpoint_condition): Add a new bool parameter.\n+\t* breakpoint.c: Update the help text of the 'condition' and 'break'\n+\tcommands.\n+\t(set_breakpoint_condition): Take a new bool parameter\n+\tto control whether condition definition should be forced even when\n+\tthe condition expression is invalid in all of the current locations.\n+\t(condition_command): Update the call to 'set_breakpoint_condition'.\n+\t(find_condition_and_thread): Take the \"-force-condition\" flag into\n+\taccount.\n+\t* linespec.c (linespec_keywords): Add \"-force-condition\" as an\n+\telement.\n+\t(FORCE_KEYWORD_INDEX): New #define.\n+\t(linespec_lexer_lex_keyword): Update to consider \"-force-condition\"\n+\tas a keyword.\n+\t* ada-lang.c (create_ada_exception_catchpoint): Ditto.\n+\t* guile/scm-breakpoint.c (gdbscm_set_breakpoint_condition_x): Ditto.\n+\t* python/py-breakpoint.c (bppy_set_condition): Ditto.\n+\t* NEWS: Mention the changes to the 'break' and 'condition' commands.\n+\n 2020-10-27  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n \n \t* breakpoint.h (class bp_location) <disabled_by_cond>: New field."
+    },
+    {
+      "sha": "c99d3181a8bc792c2e9126b44576ee6af8a82c21",
+      "filename": "gdb/NEWS",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/NEWS",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/NEWS",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/NEWS?ref=733d554a4625db4ffb89b7a20e1cf27ab071ef4d",
+      "patch": "@@ -21,6 +21,28 @@ set debug event-loop\n show debug event-loop\n   Control the display of debug output about GDB's event loop.\n \n+* Changed commands\n+\n+break [PROBE_MODIFIER] [LOCATION] [thread THREADNUM]\n+      [-force-condition] [if CONDITION]\n+  This command would previously refuse setting a breakpoint if the\n+  CONDITION expression is invalid at a location.  It now accepts and\n+  defines the breakpoint if there is at least one location at which\n+  the CONDITION is valid.  The locations for which the CONDITION is\n+  invalid, are automatically disabled.  If CONDITION is invalid at all\n+  of the locations, setting the breakpoint is still rejected.  However,\n+  the '-force-condition' flag can be used in this case for forcing GDB to\n+  define the breakpoint, making all the current locations automatically\n+  disabled.  This may be useful if the user knows the condition will\n+  become meaningful at a future location, e.g. due to a shared library\n+  load.\n+\n+condition [-force] N COND\n+  The behavior of this command is changed the same way for the 'break'\n+  command as explained above.  The '-force' flag can be used to force\n+  GDB into defining the condition even when COND is invalid for all the\n+  current locations of breakpoint N.\n+\n *** Changes in GDB 10\n \n * There are new feature names for ARC targets: \"org.gnu.gdb.arc.core\""
+    },
+    {
+      "sha": "9aba81449d4f66032728c830a294ae39355e7d31",
+      "filename": "gdb/ada-lang.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/ada-lang.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/ada-lang.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ada-lang.c?ref=733d554a4625db4ffb89b7a20e1cf27ab071ef4d",
+      "patch": "@@ -12684,7 +12684,7 @@ create_ada_exception_catchpoint (struct gdbarch *gdbarch,\n   c->excep_string = excep_string;\n   create_excep_cond_exprs (c.get (), ex_kind);\n   if (!cond_string.empty ())\n-    set_breakpoint_condition (c.get (), cond_string.c_str (), from_tty);\n+    set_breakpoint_condition (c.get (), cond_string.c_str (), from_tty, false);\n   install_breakpoint (0, std::move (c), 1);\n }\n "
+    },
+    {
+      "sha": "152f4066b482537299b76d0efecbb59d2b181eac",
+      "filename": "gdb/breakpoint.c",
+      "status": "modified",
+      "additions": 43,
+      "deletions": 8,
+      "changes": 51,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/breakpoint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/breakpoint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/breakpoint.c?ref=733d554a4625db4ffb89b7a20e1cf27ab071ef4d",
+      "patch": "@@ -882,7 +882,7 @@ set_breakpoint_location_condition (const char *cond_string, bp_location *loc,\n \n void\n set_breakpoint_condition (struct breakpoint *b, const char *exp,\n-\t\t\t  int from_tty)\n+\t\t\t  int from_tty, bool force)\n {\n   if (*exp == 0)\n     {\n@@ -950,8 +950,9 @@ set_breakpoint_condition (struct breakpoint *b, const char *exp,\n \t      catch (const gdb_exception_error &e)\n \t\t{\n \t\t  /* Condition string is invalid.  If this happens to\n-\t\t     be the last loc, abandon.  */\n-\t\t  if (loc->next == nullptr)\n+\t\t     be the last loc, abandon (if not forced) or continue\n+\t\t     (if forced).  */\n+\t\t  if (loc->next == nullptr && !force)\n \t\t    throw;\n \t\t}\n \t    }\n@@ -1032,6 +1033,18 @@ condition_command (const char *arg, int from_tty)\n     error_no_arg (_(\"breakpoint number\"));\n \n   p = arg;\n+\n+  /* Check if the \"-force\" flag was passed.  */\n+  bool force = false;\n+  const char *tok = skip_spaces (p);\n+  const char *end_tok = skip_to_space (tok);\n+  int toklen = end_tok - tok;\n+  if (toklen >= 1 && strncmp (tok, \"-force\", toklen) == 0)\n+    {\n+      force = true;\n+      p = end_tok + 1;\n+    }\n+\n   bnum = get_number (&p);\n   if (bnum == 0)\n     error (_(\"Bad breakpoint argument: '%s'\"), arg);\n@@ -1051,7 +1064,7 @@ condition_command (const char *arg, int from_tty)\n \t\t     \" a %s stop condition defined for this breakpoint.\"),\n \t\t   ext_lang_capitalized_name (extlang));\n \t  }\n-\tset_breakpoint_condition (b, p, from_tty);\n+\tset_breakpoint_condition (b, p, from_tty, force);\n \n \tif (is_breakpoint (b))\n \t  update_global_location_list (UGLL_MAY_INSERT);\n@@ -9172,6 +9185,7 @@ find_condition_and_thread (const char *tok, CORE_ADDR pc,\n   *thread = -1;\n   *task = 0;\n   *rest = NULL;\n+  bool force = false;\n \n   while (tok && *tok)\n     {\n@@ -9195,10 +9209,25 @@ find_condition_and_thread (const char *tok, CORE_ADDR pc,\n       if (toklen >= 1 && strncmp (tok, \"if\", toklen) == 0)\n \t{\n \t  tok = cond_start = end_tok + 1;\n-\t  parse_exp_1 (&tok, pc, block_for_pc (pc), 0);\n+\t  try\n+\t    {\n+\t      parse_exp_1 (&tok, pc, block_for_pc (pc), 0);\n+\t    }\n+\t  catch (const gdb_exception_error &)\n+\t    {\n+\t      if (!force)\n+\t\tthrow;\n+\t      else\n+\t\ttok = tok + strlen (tok);\n+\t    }\n \t  cond_end = tok;\n \t  *cond_string = savestring (cond_start, cond_end - cond_start);\n \t}\n+      else if (toklen >= 1 && strncmp (tok, \"-force-condition\", toklen) == 0)\n+\t{\n+\t  tok = cond_start = end_tok + 1;\n+\t  force = true;\n+\t}\n       else if (toklen >= 1 && strncmp (tok, \"thread\", toklen) == 0)\n \t{\n \t  const char *tmptok;\n@@ -15252,7 +15281,8 @@ specified name as a complete fully-qualified name instead.\"\n    command.  */\n \n #define BREAK_ARGS_HELP(command) \\\n-command\" [PROBE_MODIFIER] [LOCATION] [thread THREADNUM] [if CONDITION]\\n\\\n+command\" [PROBE_MODIFIER] [LOCATION] [thread THREADNUM]\\n\\\n+\\t[-force-condition] [if CONDITION]\\n\\\n PROBE_MODIFIER shall be present if the command is to be placed in a\\n\\\n probe point.  Accepted values are `-probe' (for a generic, automatically\\n\\\n guessed probe type), `-probe-stap' (for a SystemTap probe) or \\n\\\n@@ -15265,6 +15295,9 @@ stack frame.  This is useful for breaking on return to a stack frame.\\n\\\n \\n\\\n THREADNUM is the number from \\\"info threads\\\".\\n\\\n CONDITION is a boolean expression.\\n\\\n+\\n\\\n+With the \\\"-force-condition\\\" flag, the condition is defined even when\\n\\\n+it is invalid for all current locations.\\n\\\n \\n\" LOCATION_HELP_STRING \"\\n\\n\\\n Multiple breakpoints at one place are permitted, and useful if their\\n\\\n conditions are different.\\n\\\n@@ -15586,8 +15619,10 @@ then no output is printed when it is hit, except what the commands print.\"));\n \n   c = add_com (\"condition\", class_breakpoint, condition_command, _(\"\\\n Specify breakpoint number N to break only if COND is true.\\n\\\n-Usage is `condition N COND', where N is an integer and COND is an\\n\\\n-expression to be evaluated whenever breakpoint N is reached.\"));\n+Usage is `condition [-force] N COND', where N is an integer and COND\\n\\\n+is an expression to be evaluated whenever breakpoint N is reached.\\n\\\n+With the \\\"-force\\\" flag, the condition is defined even when it is\\n\\\n+invalid for all current locations.\"));\n   set_cmd_completer (c, condition_completer);\n \n   c = add_com (\"tbreak\", class_breakpoint, tbreak_command, _(\"\\"
+    },
+    {
+      "sha": "7845dd7f88f8d34170451fa2528a3b9d96be326e",
+      "filename": "gdb/breakpoint.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/breakpoint.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/breakpoint.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/breakpoint.h?ref=733d554a4625db4ffb89b7a20e1cf27ab071ef4d",
+      "patch": "@@ -1627,9 +1627,11 @@ extern int breakpoints_should_be_inserted_now (void);\n    in our opinion won't ever trigger.  */\n extern void breakpoint_retire_moribund (void);\n \n-/* Set break condition of breakpoint B to EXP.  */\n+/* Set break condition of breakpoint B to EXP.\n+   If FORCE, define the condition even if it is invalid in\n+   all of the breakpoint locations.  */\n extern void set_breakpoint_condition (struct breakpoint *b, const char *exp,\n-\t\t\t\t      int from_tty);\n+\t\t\t\t      int from_tty, bool force);\n \n /* Checks if we are catching syscalls or not.\n    Returns 0 if not, greater than 0 if we are.  */"
+    },
+    {
+      "sha": "b8a4429b6613edb73a1c4cb93274f0615164a921",
+      "filename": "gdb/doc/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/doc/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/doc/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/ChangeLog?ref=733d554a4625db4ffb89b7a20e1cf27ab071ef4d",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-10-27  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n+\n+\t* gdb.texinfo (Set Breaks): Document the '-force-condition' flag\n+\tof the 'break'command.\n+\t* gdb.texinfo (Conditions): Document the '-force' flag of the\n+\t'condition' command.\n+\n 2020-10-27  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n \n \t* gdb.texinfo (Set Breaks): Document disabling of breakpoint"
+    },
+    {
+      "sha": "d779d4a84f1d890f0639143f34eac5311a366b45",
+      "filename": "gdb/doc/gdb.texinfo",
+      "status": "modified",
+      "additions": 30,
+      "deletions": 0,
+      "changes": 30,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/doc/gdb.texinfo",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/doc/gdb.texinfo",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/gdb.texinfo?ref=733d554a4625db4ffb89b7a20e1cf27ab071ef4d",
+      "patch": "@@ -4318,6 +4318,30 @@ undefined variable:\n No symbol \"foo\" in current context.\n @end smallexample\n \n+@item break @dots{} -force-condition if @var{cond}\n+There may be cases where the condition @var{cond} is invalid at all\n+the current locations, but the user knows that it will be valid at a\n+future location; for example, because of a library load.  In such\n+cases, by using the @code{-force-condition} keyword before @samp{if},\n+@value{GDBN} can be forced to define the breakpoint with the given\n+condition expression instead of refusing it.\n+\n+@smallexample\n+(@value{GDBP}) break func -force-condition if foo\n+warning: failed to validate condition at location 1, disabling:\n+  No symbol \"foo\" in current context.\n+warning: failed to validate condition at location 2, disabling:\n+  No symbol \"foo\" in current context.\n+warning: failed to validate condition at location 3, disabling:\n+  No symbol \"foo\" in current context.\n+Breakpoint 1 at 0x1158: test.c:18. (3 locations)\n+@end smallexample\n+\n+This causes all the present locations where the breakpoint would\n+otherwise be inserted, to be disabled, as seen in the example above.\n+However, if there exist locations at which the condition is valid, the\n+@code{-force-condition} keyword has no effect.\n+\n @kindex tbreak\n @item tbreak @var{args}\n Set a breakpoint enabled only for one stop.  The @var{args} are the\n@@ -5503,6 +5527,12 @@ not actually evaluate @var{expression} at the time the @code{condition}\n command (or a command that sets a breakpoint with a condition, like\n @code{break if @dots{}}) is given, however.  @xref{Expressions, ,Expressions}.\n \n+@item condition -force @var{bnum} @var{expression}\n+When the @code{-force} flag is used, define the condition even if\n+@var{expression} is invalid at all the current locations of breakpoint\n+@var{bnum}.  This is similar to the @code{-force-condition} option\n+of the @code{break} command.\n+\n @item condition @var{bnum}\n Remove the condition from breakpoint number @var{bnum}.  It becomes\n an ordinary unconditional breakpoint."
+    },
+    {
+      "sha": "7c9707235ecd618867640ff7479a4b899e975ad8",
+      "filename": "gdb/guile/scm-breakpoint.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/guile/scm-breakpoint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/guile/scm-breakpoint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/guile/scm-breakpoint.c?ref=733d554a4625db4ffb89b7a20e1cf27ab071ef4d",
+      "patch": "@@ -905,7 +905,7 @@ gdbscm_set_breakpoint_condition_x (SCM self, SCM newvalue)\n \t   ? nullptr\n \t   : gdbscm_scm_to_c_string (newvalue));\n \n-      set_breakpoint_condition (bp_smob->bp, exp ? exp.get () : \"\", 0);\n+      set_breakpoint_condition (bp_smob->bp, exp ? exp.get () : \"\", 0, false);\n \n       return SCM_UNSPECIFIED;\n     });"
+    },
+    {
+      "sha": "34161931167f974ceba45ecb1da6c58a80c6c9c9",
+      "filename": "gdb/linespec.c",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 3,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/linespec.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/linespec.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/linespec.c?ref=733d554a4625db4ffb89b7a20e1cf27ab071ef4d",
+      "patch": "@@ -72,7 +72,7 @@ enum class linespec_complete_what\n   /* An expression.  E.g., \"break foo if EXPR\", or \"break *EXPR\".  */\n   EXPRESSION,\n \n-  /* A linespec keyword (\"if\"/\"thread\"/\"task\").\n+  /* A linespec keyword (\"if\"/\"thread\"/\"task\"/\"-force-condition\").\n      E.g., \"break func threa<tab>\".  */\n   KEYWORD,\n };\n@@ -254,8 +254,9 @@ typedef enum ls_token_type linespec_token_type;\n \n /* List of keywords.  This is NULL-terminated so that it can be used\n    as enum completer.  */\n-const char * const linespec_keywords[] = { \"if\", \"thread\", \"task\", NULL };\n+const char * const linespec_keywords[] = { \"if\", \"thread\", \"task\", \"-force-condition\", NULL };\n #define IF_KEYWORD_INDEX 0\n+#define FORCE_KEYWORD_INDEX 3\n \n /* A token of the linespec lexer  */\n \n@@ -486,11 +487,22 @@ linespec_lexer_lex_keyword (const char *p)\n \t    {\n \t      int j;\n \n+\t      /* Special case: \"-force\" is always followed by an \"if\".  */\n+\t      if (i == FORCE_KEYWORD_INDEX)\n+\t\t{\n+\t\t  p += len;\n+\t\t  p = skip_spaces (p);\n+\t\t  int nextlen = strlen (linespec_keywords[IF_KEYWORD_INDEX]);\n+\t\t  if (!(strncmp (p, linespec_keywords[IF_KEYWORD_INDEX], nextlen) == 0\n+\t\t\t&& isspace (p[nextlen])))\n+\t\t    return NULL;\n+\t\t}\n+\n \t      /* Special case: \"if\" ALWAYS stops the lexer, since it\n \t\t is not possible to predict what is going to appear in\n \t\t the condition, which can only be parsed after SaLs have\n \t\t been found.  */\n-\t      if (i != IF_KEYWORD_INDEX)\n+\t      else if (i != IF_KEYWORD_INDEX)\n \t\t{\n \t\t  p += len;\n \t\t  p = skip_spaces (p);"
+    },
+    {
+      "sha": "8099b06531b834de6d94c352976c046240f6da4a",
+      "filename": "gdb/python/py-breakpoint.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/python/py-breakpoint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/python/py-breakpoint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/py-breakpoint.c?ref=733d554a4625db4ffb89b7a20e1cf27ab071ef4d",
+      "patch": "@@ -461,7 +461,7 @@ bppy_set_condition (PyObject *self, PyObject *newvalue, void *closure)\n \n   try\n     {\n-      set_breakpoint_condition (self_bp->bp, exp, 0);\n+      set_breakpoint_condition (self_bp->bp, exp, 0, false);\n     }\n   catch (gdb_exception &ex)\n     {"
+    },
+    {
+      "sha": "cf646c7838d32b94579921797c19f4fa09ea68e9",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=733d554a4625db4ffb89b7a20e1cf27ab071ef4d",
+      "patch": "@@ -1,3 +1,12 @@\n+2020-10-27  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n+\n+\t* gdb.base/condbreak-multi-context.exp: Expand to test forcing\n+\tthe condition.\n+\t* gdb.linespec/cpcompletion.exp: Update to consider the\n+\t'-force-condition' keyword.\n+\t* gdb.linespec/explicit.exp: Ditto.\n+\t* lib/completion-support.exp: Ditto.\n+\n 2020-10-27  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n \n \t* gdb.base/condbreak-multi-context.cc: New file."
+    },
+    {
+      "sha": "cef4280a81c27f24b32d353f4274cee384134aef",
+      "filename": "gdb/testsuite/gdb.base/condbreak-multi-context.exp",
+      "status": "modified",
+      "additions": 25,
+      "deletions": 0,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/testsuite/gdb.base/condbreak-multi-context.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/testsuite/gdb.base/condbreak-multi-context.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/condbreak-multi-context.exp?ref=733d554a4625db4ffb89b7a20e1cf27ab071ef4d",
+      "patch": "@@ -228,3 +228,28 @@ with_test_prefix \"scenario 3\" {\n     # The second BP's locations are all disabled.  No more hits!\n     gdb_continue_to_end\n }\n+\n+# Scenario 4: Test the '-force'/'-force-condition' flag.\n+\n+with_test_prefix \"force\" {\n+    clean_restart ${binfile}\n+\n+    gdb_breakpoint \"func\"\n+    # Pick a condition that is invalid at every location.\n+    set bpnum1 [get_integer_valueof \"\\$bpnum\" 0 \"get bpnum1\"]\n+    gdb_test \"cond -force $bpnum1 foo\" \\\n+\t[multi_line \\\n+\t     \"${warning} at location ${bpnum1}.1, disabling:\" \\\n+\t     \"  No symbol \\\"foo\\\" in current context.\" \\\n+\t     \"${warning} at location ${bpnum1}.2, disabling:\" \\\n+\t     \"  No symbol \\\"foo\\\" in current context.\" \\\n+\t     \"${warning} at location ${bpnum1}.3, disabling:\" \\\n+\t     \"  No symbol \\\"foo\\\" in current context.\"] \\\n+\t\"force the condition of bp 1\"\n+    check_bp_locations $bpnum1 {N* N* N*} \"after forcing the condition\"\n+\n+    # Now with the 'break' command.\n+    gdb_breakpoint \"func -force-condition if baz\"\n+    set bpnum2 [get_integer_valueof \"\\$bpnum\" 0 \"get bpnum2\"]\n+    check_bp_locations $bpnum2 {N* N* N*} \"set using the break command\"\n+}"
+    },
+    {
+      "sha": "de96556f22d4b359c8196e8775943bed7b65b547",
+      "filename": "gdb/testsuite/gdb.linespec/cpcompletion.exp",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 4,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/testsuite/gdb.linespec/cpcompletion.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/testsuite/gdb.linespec/cpcompletion.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.linespec/cpcompletion.exp?ref=733d554a4625db4ffb89b7a20e1cf27ab071ef4d",
+      "patch": "@@ -836,12 +836,14 @@ proc_with_prefix function-labels {} {\n }\n \n # Test that completion after a function name offers keyword\n-# (if/task/thread) matches in linespec mode, and also the explicit\n-# location options in explicit locations mode.\n+# (if/task/thread/-force-condition) matches in linespec mode, and also\n+# the explicit location options in explicit locations mode.\n \n proc_with_prefix keywords-after-function {} {\n     set explicit_list \\\n-\t[concat $completion::explicit_opts_list $completion::keyword_list]\n+\t[lsort [concat \\\n+\t\t    $completion::explicit_opts_list \\\n+\t\t    $completion::keyword_list]]\n \n     # Test without a source file, with a known source file, and with\n     # and unknown source file.\n@@ -865,7 +867,9 @@ proc_with_prefix keywords-after-function {} {\n \n proc_with_prefix keywords-after-label {} {\n     set explicit_list \\\n-\t[concat $completion::explicit_opts_list $completion::keyword_list]\n+\t[lsort [concat \\\n+\t\t    $completion::explicit_opts_list \\\n+\t\t    $completion::keyword_list]]\n \n     foreach_location_labels \\\n \t{ \"\" \"cpls.cc\" } \\"
+    },
+    {
+      "sha": "52a1fce537105f0710dcd9a9d9a3eadf6c93cfeb",
+      "filename": "gdb/testsuite/gdb.linespec/explicit.exp",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/testsuite/gdb.linespec/explicit.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/testsuite/gdb.linespec/explicit.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.linespec/explicit.exp?ref=733d554a4625db4ffb89b7a20e1cf27ab071ef4d",
+      "patch": "@@ -405,6 +405,7 @@ namespace eval $testfile {\n \t# completion matches both the explicit location options and\n \t# the linespec keywords.\n \tset completions_list {\n+\t    \"-force-condition\"\n \t    \"-function\"\n \t    \"-label\"\n \t    \"-line\""
+    },
+    {
+      "sha": "dbb958157ed5e76178c9f7e1952769a4bbf2440d",
+      "filename": "gdb/testsuite/lib/completion-support.exp",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/testsuite/lib/completion-support.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/733d554a4625db4ffb89b7a20e1cf27ab071ef4d/gdb/testsuite/lib/completion-support.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/completion-support.exp?ref=733d554a4625db4ffb89b7a20e1cf27ab071ef4d",
+      "patch": "@@ -27,7 +27,7 @@ namespace eval completion {\n     # List of all quote chars, including no-quote at all.\n     variable maybe_quoted_list {\"\" \"'\" \"\\\"\"}\n \n-    variable keyword_list {\"if\" \"task\" \"thread\"}\n+    variable keyword_list {\"-force-condition\" \"if\" \"task\" \"thread\"}\n \n     variable explicit_opts_list \\\n \t{\"-function\" \"-label\" \"-line\" \"-qualified\" \"-source\"}"
+    }
+  ]
+}

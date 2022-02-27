@@ -1,0 +1,134 @@
+{
+  "sha": "33d569b709886a1208145806da80b689d9cae9da",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MzNkNTY5YjcwOTg4NmExMjA4MTQ1ODA2ZGE4MGI2ODlkOWNhZTlkYQ==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2019-10-23T12:24:02Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2019-10-24T14:27:02Z"
+    },
+    "message": "gdb/python: Return None from Progspace.block_for_pc on error\n\nThe documentation for Progspace.block_for_pc says:\n\n  Return the innermost gdb.Block containing the given pc value. If the\n  block cannot be found for the pc value specified, the function will\n  return None.\n\nHowever, the implementation actually throws an error for invalid\naddresses, like this:\n\n    (gdb) python print gdb.current_progspace ().block_for_pc (1)\n    Traceback (most recent call last):\n      File \"<string>\", line 1, in <module>\n    RuntimeError: Cannot locate object file for block.\n    Error while executing Python code.\n    (gdb)\n\nThis has been the behaviour since the command was first added (when\nthe documentation was still as above) in this commit:\n\n    commit f3e9a8177c41893858fce2bdf339dbe90b3a4ef5\n    Date:   Wed Feb 24 21:18:28 2010 +0000\n\nSince that commit the code in question has moved around, but the\nimportant parts are largely unchanged.  The function in question is\nnow in py-progspace.c:pspy_block_for_pc.\n\nExamining the code shows that the real state is more complex than just\nthe function throws an error instead of returning None, instead the\nreal situation is:\n\n  1. If we can't find a compilation unit for the $pc value then we\n  throw an error, but\n\n  2. If we can find a compilation unit, but can't find a block within\n  the compilation unit for the $pc then return None.\n\nI suspect for most users of the Python API this distinction is\nirrelevant, and I propose that we standardise on one single failure\nmechanism.\n\nGiven the function can currently return None in some cases, and is\ndocumented to return None on error, I propose we make that the case\nfor all error paths, which is what this patch does.\n\nAs the Progspace.block_for_pc method is currently untested, I've added\nsome basic tests including for a call with an invalid $pc.\n\nThis is potentially an API breaking change, though an undocumented\npart of the API.  Also, users should have been checking and handling a\nNone return value anyway, so my hope is that this shouldn't be too\ndisruptive.\n\ngdb/ChangeLog:\n\n\t* python/py-progspace.c (pspy_block_for_pc): Return None for all\n\terror paths.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.python/py-progspace.exp: Add tests for the\n\tProgspace.block_for_pc method.\n\nChange-Id: I9cea8d2132902bcad0013d1fd39080dd5423cc57",
+    "tree": {
+      "sha": "393153a80ff5ac6d102cadcd43379e0e5273dbd7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/393153a80ff5ac6d102cadcd43379e0e5273dbd7"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/33d569b709886a1208145806da80b689d9cae9da",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/33d569b709886a1208145806da80b689d9cae9da",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/33d569b709886a1208145806da80b689d9cae9da",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/33d569b709886a1208145806da80b689d9cae9da/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "867c09822cfff34f91cb8f222cb8ae3eb9acb6d8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/867c09822cfff34f91cb8f222cb8ae3eb9acb6d8",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/867c09822cfff34f91cb8f222cb8ae3eb9acb6d8"
+    }
+  ],
+  "stats": {
+    "total": 30,
+    "additions": 25,
+    "deletions": 5
+  },
+  "files": [
+    {
+      "sha": "887c7fb68ae59314fd55b002dc3036e90ace97d9",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/33d569b709886a1208145806da80b689d9cae9da/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/33d569b709886a1208145806da80b689d9cae9da/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=33d569b709886a1208145806da80b689d9cae9da",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-10-24  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* python/py-progspace.c (pspy_block_for_pc): Return None for all\n+\terror paths.\n+\n 2019-10-23  Tom Tromey  <tom@tromey.com>\n \n \t* arc-tdep.c: Remove \"..\" from include."
+    },
+    {
+      "sha": "bdb70723e562f0c358fc4393c4ca37052b9064cb",
+      "filename": "gdb/python/py-progspace.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 5,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/33d569b709886a1208145806da80b689d9cae9da/gdb/python/py-progspace.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/33d569b709886a1208145806da80b689d9cae9da/gdb/python/py-progspace.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/py-progspace.c?ref=33d569b709886a1208145806da80b689d9cae9da",
+      "patch": "@@ -397,11 +397,7 @@ pspy_block_for_pc (PyObject *o, PyObject *args)\n     }\n \n   if (cust == NULL || COMPUNIT_OBJFILE (cust) == NULL)\n-    {\n-      PyErr_SetString (PyExc_RuntimeError,\n-\t\t       _(\"Cannot locate object file for block.\"));\n-      return NULL;\n-    }\n+    Py_RETURN_NONE;\n \n   if (block)\n     return block_to_block_object (block, COMPUNIT_OBJFILE (cust));"
+    },
+    {
+      "sha": "12ef1fe4954cba9f865091c6f1cd1b0547881851",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/33d569b709886a1208145806da80b689d9cae9da/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/33d569b709886a1208145806da80b689d9cae9da/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=33d569b709886a1208145806da80b689d9cae9da",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-10-24  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.python/py-progspace.exp: Add tests for the\n+\tProgspace.block_for_pc method.\n+\n 2019-10-23  Tom Tromey  <tom@tromey.com>\n \n \t* configure: Rebuild."
+    },
+    {
+      "sha": "d1bcb81bb47c31c9305797807aea6b3fd7b4a90b",
+      "filename": "gdb/testsuite/gdb.python/py-progspace.exp",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/33d569b709886a1208145806da80b689d9cae9da/gdb/testsuite/gdb.python/py-progspace.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/33d569b709886a1208145806da80b689d9cae9da/gdb/testsuite/gdb.python/py-progspace.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.python/py-progspace.exp?ref=33d569b709886a1208145806da80b689d9cae9da",
+      "patch": "@@ -57,6 +57,20 @@ if {![runto_main]} {\n     return\n }\n \n+# Check we can get a block for the current $pc.\n+set pc_val [get_integer_valueof \"\\$pc\" 0]\n+gdb_py_test_silent_cmd \"python blk = gdb.current_progspace ().block_for_pc (${pc_val})\" \\\n+    \"get block for the current \\$pc\" 1\n+gdb_test \"python print blk.start <= ${pc_val}\" \"True\" \\\n+    \"block start is before \\$pc\"\n+gdb_test \"python print blk.end >= ${pc_val}\" \"True\" \\\n+    \"block end is after \\$pc\"\n+\n+# Check what happens when we ask for a block of an invalid address.\n+if ![is_address_zero_readable] {\n+    gdb_test \"python print gdb.current_progspace ().block_for_pc (0)\" \"None\"\n+}\n+\n # With a single inferior, progspace.objfiles () and gdb.objfiles () should\n # be identical.\n gdb_test \"python print (progspace.objfiles () == gdb.objfiles ())\" \"True\""
+    }
+  ]
+}

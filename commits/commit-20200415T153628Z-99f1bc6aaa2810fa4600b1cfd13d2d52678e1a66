@@ -1,0 +1,134 @@
+{
+  "sha": "99f1bc6aaa2810fa4600b1cfd13d2d52678e1a66",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OTlmMWJjNmFhYTI4MTBmYTQ2MDBiMWNmZDEzZDJkNTI2NzhlMWE2Ng==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-04-04T13:54:15Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-04-15T15:36:28Z"
+    },
+    "message": "gdb: Don't corrupt completions hash when expanding the hash table\n\nCommit:\n\n  commit 724fd9ba432a20ef2e3f2c0d6060bff131226816\n  Date:   Mon Jan 27 17:37:20 2020 +0000\n\n      gdb: Restructure the completion_tracker class\n\ncaused the completion hash table to become corrupted if the table ever\nneeded to grow beyond its original size of 200 elements.\n\nThe hash table stores completion_tracker::completion_hash_entry\nobjects, but hashes them based on their name, which is only one field\nof the object.\n\nWhen possibly inserting a new element we compute the hash with\nhtab_hash_string of the new elements name, and then lookup matching\nelements using htab_find_slot_with_hash.  If there's not matching\nelement we create a completion_hash_entry object within the hash\ntable.\n\nHowever, when we allocate the hash we pass htab_hash_string to\nhtab_create_alloc as the hash function, and this is not OK.  This\nmeans that when the hash table needs to grow, existing elements within\nthe hash are re-hashed by passing the completion_hash_entry pointer to\nhtab_hash_string, which obviously does not do what we expect.\n\nThe solution is to create a new hash function that takes a pointer to\na completion_hash_entry, and then calls htab_hash_string on the name\nof the entry only.\n\nThis regression was spotted when running the gdb.base/completion.exp\ntest on the aarch64 target.\n\ngdb/ChangeLog:\n\n\t* completer.c (class completion_tracker::completion_hash_entry)\n\t<hash_name>: New member function.\n\t(completion_tracker::discard_completions): New callback to hash a\n\tcompletion_hash_entry, pass this to htab_create_alloc.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.base/many-completions.exp: New file.",
+    "tree": {
+      "sha": "1574f14e84090934908b825d6a4a6ad3254e2675",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/1574f14e84090934908b825d6a4a6ad3254e2675"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/99f1bc6aaa2810fa4600b1cfd13d2d52678e1a66",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/99f1bc6aaa2810fa4600b1cfd13d2d52678e1a66",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/99f1bc6aaa2810fa4600b1cfd13d2d52678e1a66",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/99f1bc6aaa2810fa4600b1cfd13d2d52678e1a66/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "a0e9b53238c3033222c53b1654da535c0743ab6e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a0e9b53238c3033222c53b1654da535c0743ab6e",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/a0e9b53238c3033222c53b1654da535c0743ab6e"
+    }
+  ],
+  "stats": {
+    "total": 121,
+    "additions": 120,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "bb5ddeca70f130c20d9793e4b0b95d4b21bc0b32",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/99f1bc6aaa2810fa4600b1cfd13d2d52678e1a66/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/99f1bc6aaa2810fa4600b1cfd13d2d52678e1a66/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=99f1bc6aaa2810fa4600b1cfd13d2d52678e1a66",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-04-15  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* completer.c (class completion_tracker::completion_hash_entry)\n+\t<hash_name>: New member function.\n+\t(completion_tracker::discard_completions): New callback to hash a\n+\tcompletion_hash_entry, pass this to htab_create_alloc.\n+\n 2016-01-20  Jon Turney  <jon.turney@dronecode.org.uk>\n \n \t* windows-nat.c (windows_make_so): Warn rather than stopping with"
+    },
+    {
+      "sha": "0dd91a7195f7e29d574f62f9bdb15b7faddde013",
+      "filename": "gdb/completer.c",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 1,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/99f1bc6aaa2810fa4600b1cfd13d2d52678e1a66/gdb/completer.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/99f1bc6aaa2810fa4600b1cfd13d2d52678e1a66/gdb/completer.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/completer.c?ref=99f1bc6aaa2810fa4600b1cfd13d2d52678e1a66",
+      "patch": "@@ -82,6 +82,12 @@ class completion_tracker::completion_hash_entry\n     return strcmp (m_name.get (), str) == 0;\n   }\n \n+  /* Return the hash value based on the name of the entry.  */\n+  hashval_t hash_name () const\n+  {\n+    return htab_hash_string (m_name.get ());\n+  }\n+\n   /* A static function that can be passed to the htab hash system to be\n      used as a callback that deletes an item from the hash.  */\n   static void deleter (void *arg)\n@@ -1602,8 +1608,18 @@ completion_tracker::discard_completions ()\n \treturn entry->is_name_eq (name_str);\n       };\n \n+  /* Callback used by the hash table to compute the hash value for an\n+     existing entry.  This is needed when expanding the hash table.  */\n+  static auto entry_hash_func\n+    = [] (const void *arg) -> hashval_t\n+      {\n+\tconst completion_hash_entry *entry\n+\t  = (const completion_hash_entry *) arg;\n+\treturn entry->hash_name ();\n+      };\n+\n   m_entries_hash = htab_create_alloc (INITIAL_COMPLETION_HTAB_SIZE,\n-\t\t\t\t      htab_hash_string, entry_eq_func,\n+\t\t\t\t      entry_hash_func, entry_eq_func,\n \t\t\t\t      completion_hash_entry::deleter,\n \t\t\t\t      xcalloc, xfree);\n }"
+    },
+    {
+      "sha": "e021d3ea7a85182e64fa6c99b43fb969d739cfdd",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/99f1bc6aaa2810fa4600b1cfd13d2d52678e1a66/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/99f1bc6aaa2810fa4600b1cfd13d2d52678e1a66/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=99f1bc6aaa2810fa4600b1cfd13d2d52678e1a66",
+      "patch": "@@ -1,3 +1,7 @@\n+2020-04-15  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.base/many-completions.exp: New file.\n+\n 2020-04-14  Tom de Vries  <tdevries@suse.de>\n \n \tPR symtab/25718"
+    },
+    {
+      "sha": "9597963abbac3e9cba3b046b177aa15957162013",
+      "filename": "gdb/testsuite/gdb.base/many-completions.exp",
+      "status": "added",
+      "additions": 92,
+      "deletions": 0,
+      "changes": 92,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/99f1bc6aaa2810fa4600b1cfd13d2d52678e1a66/gdb/testsuite/gdb.base/many-completions.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/99f1bc6aaa2810fa4600b1cfd13d2d52678e1a66/gdb/testsuite/gdb.base/many-completions.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/many-completions.exp?ref=99f1bc6aaa2810fa4600b1cfd13d2d52678e1a66",
+      "patch": "@@ -0,0 +1,92 @@\n+# Copyright 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test the case where we have so many completions that we require the\n+# completions hash table within GDB to grow.  Make sure that afte the\n+# hash table has grown we try to add duplicate entries into the\n+# hash. This checks that GDB doesn't corrupt the hash table when\n+# resizing it.\n+#\n+# In this case we create a test with more functions than the default\n+# number of entires in the completion hash table (which is 200), then\n+# complete on all function names.\n+#\n+# GDB will add all the function names from the DWARF, and then from\n+# the ELF symbol table, this ensures that we should have duplicates\n+# added after resizing the table.\n+\n+# Create a test source file and return the name of the file.  COUNT is\n+# the number of dummy functions to create, this should be more than\n+# the default number of entries in the completion hash table within\n+# GDB (see gdb/completer.c).\n+proc prepare_test_source_file { count } {\n+    global gdb_test_file_name\n+\n+    set filename [standard_output_file \"$gdb_test_file_name.c\"]\n+    set outfile [open $filename w]\n+\n+    puts $outfile \"\n+#define MAKE_FUNC(NUM) \\\\\n+  void                 \\\\\n+  func_ ## NUM (void)  \\\\\n+  { /* Nothing.  */ }\n+\n+#define CALL_FUNC(NUM) \\\\\n+  func_ ## NUM ()\n+\"\n+\n+    for { set i 0 } { $i < $count } { incr i } {\n+\tputs $outfile \"MAKE_FUNC ([format {%03d} $i])\"\n+    }\n+\n+    puts $outfile \"\\nint\\nmain ()\\n{\"\n+    for { set i 0 } { $i < $count } { incr i } {\n+\tputs $outfile \"  CALL_FUNC ([format {%03d} $i]);\"\n+    }\n+\n+    puts $outfile \"  return 0;\\n}\"\n+    close $outfile\n+\n+    return $filename\n+}\n+\n+# Build a source file and compile it.\n+set filename [prepare_test_source_file 250]\n+standard_testfile $filename\n+if {[prepare_for_testing \"failed to prepare\" \"$testfile\" $srcfile \\\n+\t { debug }]} {\n+    return -1\n+}\n+\n+# Start the test.\n+if {![runto_main]} {\n+    fail \"couldn't run to main\"\n+    return\n+}\n+\n+# We don't want to stop gathering completions too early.\n+gdb_test_no_output \"set max-completions unlimited\"\n+\n+# Collect all possible completions, and check for duplictes.\n+set completions [capture_command_output \"complete break func_\" \"\"]\n+set duplicates 0\n+foreach {-> name} [regexp -all -inline -line {^break (\\w+\\S*)} $completions] {\n+    incr all_funcs($name)\n+    if { $all_funcs($name) > 1 } {\n+\tincr duplicates\n+\tverbose -log \"Duplicate entry for '$name' found\"\n+    }\n+}\n+gdb_assert { $duplicates == 0 } \"duplicate check\""
+    }
+  ]
+}

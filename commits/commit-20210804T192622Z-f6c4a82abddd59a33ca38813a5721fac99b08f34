@@ -1,0 +1,122 @@
+{
+  "sha": "f6c4a82abddd59a33ca38813a5721fac99b08f34",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZjZjNGE4MmFiZGRkNTlhMzNjYTM4ODEzYTU3MjFmYWM5OWIwOGYzNA==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-08-03T15:31:13Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-08-04T19:26:22Z"
+    },
+    "message": "gdb: avoid dereferencing empty str_offsets_base optional in dwarf_decode_macros\n\nSince 4d7188abfdf2 (\"gdbsupport: add debug assertions in\ngdb::optional::get\"), some macro-related tests fail on Ubuntu 20.04 with\nthe system gcc 9.3.0 compiler when building with _GLIBCXX_DEBUG.  For\nexample, gdb.base/info-macros.exp results in:\n\n   (gdb) break -qualified main\n   /home/smarchi/src/binutils-gdb/gdb/../gdbsupport/gdb_optional.h:206: internal-error: T& gdb::optional<T>::get() [with T = long unsigned int]: Assertion `this->has_value ()' failed.\n\nThe binary contains DWARF 4 debug info and includes a pre-standard\n(pre-DWARF 5) .debug_macro section.  The CU doesn't have a\nDW_AT_str_offsets_base attribute (which doesn't exist in DWARF 4).  The\nfield dwarf2_cu::str_offsets_base is therefore empty.  At\ndwarf2/read.c:24138, we unconditionally read the value in the optional,\nwhich triggers the assertion shown above.\n\nThe same thing happens when building the test program with DWARF 5 with\nthe same gcc compiler, as that version of gcc doesn't use indirect\nstring forms, even with DWARF 5.  So it still doesn't add a\nDW_AT_str_offsets_base attribute on the CU.\n\nFix that by propagating down a gdb::optional<ULONGEST> for the str\noffsets base instead of ULONGEST.  That value is only used in\ndwarf_decode_macro_bytes, when encountering an \"strx\" macro operation\n(DW_MACRO_define_strx or DW_MACRO_undef_strx).  Add a check there that\nwe indeed have a value in the optional before reading it.  This is\nunlikely to happen, but could happen in theory with an erroneous file\nthat uses DW_MACRO_define_strx but does not provide a\nDW_AT_str_offsets_base (in practice, some things would probably have\nfailed before and stopped processing of debug info).  I tested the\ncomplaint by inverting the condition and using a clang-compiled binary,\nwhich uses the strx operators.  This is the result:\n\n    During symbol reading: use of DW_MACRO_define_strx with unknown string offsets base [in module /home/simark/build/binutils-gdb/gdb/testsuite/outputs/gdb.base/info-macros/info-macros]\n\nThe test now passes cleanly with the setup mentioned above, and the\ntestsuite looks on par with how it was before 4d7188abfdf2.\n\nChange-Id: I7ebd2724beb7b9b4178872374c2a177aea696e77",
+    "tree": {
+      "sha": "82a69aaac3048ae67afd458e760e5302b226f590",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/82a69aaac3048ae67afd458e760e5302b226f590"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/f6c4a82abddd59a33ca38813a5721fac99b08f34",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f6c4a82abddd59a33ca38813a5721fac99b08f34",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/f6c4a82abddd59a33ca38813a5721fac99b08f34",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f6c4a82abddd59a33ca38813a5721fac99b08f34/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "d40947728b7f5d42acf5711a0a5f2edec0c1a82a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d40947728b7f5d42acf5711a0a5f2edec0c1a82a",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/d40947728b7f5d42acf5711a0a5f2edec0c1a82a"
+    }
+  ],
+  "stats": {
+    "total": 27,
+    "additions": 20,
+    "deletions": 7
+  },
+  "files": [
+    {
+      "sha": "082c4e9672ae872b202efc4e9f9e2c66278712e5",
+      "filename": "gdb/dwarf2/macro.c",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 4,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f6c4a82abddd59a33ca38813a5721fac99b08f34/gdb/dwarf2/macro.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f6c4a82abddd59a33ca38813a5721fac99b08f34/gdb/dwarf2/macro.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/macro.c?ref=f6c4a82abddd59a33ca38813a5721fac99b08f34",
+      "patch": "@@ -429,7 +429,7 @@ dwarf_decode_macro_bytes (dwarf2_per_objfile *per_objfile,\n \t\t\t  unsigned int offset_size,\n \t\t\t  struct dwarf2_section_info *str_section,\n \t\t\t  struct dwarf2_section_info *str_offsets_section,\n-\t\t\t  ULONGEST str_offsets_base,\n+\t\t\t  gdb::optional<ULONGEST> str_offsets_base,\n \t\t\t  htab_t include_hash)\n {\n   struct objfile *objfile = per_objfile->objfile;\n@@ -575,15 +575,27 @@ dwarf_decode_macro_bytes (dwarf2_per_objfile *per_objfile,\n \t    int offset_index = read_unsigned_leb128 (abfd, mac_ptr, &bytes_read);\n \t    mac_ptr += bytes_read;\n \n+\t    /* Use of the strx operators requires a DW_AT_str_offsets_base.  */\n+\t    if (!str_offsets_base.has_value ())\n+\t      {\n+\t\tcomplaint (_(\"use of %s with unknown string offsets base \"\n+\t\t\t     \"[in module %s]\"),\n+\t\t\t   (macinfo_type == DW_MACRO_define_strx\n+\t\t\t    ? \"DW_MACRO_define_strx\"\n+\t\t\t    : \"DW_MACRO_undef_strx\"),\n+\t\t\t   objfile_name (objfile));\n+\t\tbreak;\n+\t      }\n+\n \t    str_offsets_section->read (objfile);\n \t    const gdb_byte *info_ptr = (str_offsets_section->buffer\n-\t\t\t\t\t+ str_offsets_base\n+\t\t\t\t\t+ *str_offsets_base\n \t\t\t\t\t+ offset_index * offset_size);\n \n \t    const char *macinfo_str = (macinfo_type == DW_MACRO_define_strx ?\n \t\t\t\t       \"DW_MACRO_define_strx\" : \"DW_MACRO_undef_strx\");\n \n-\t    if (str_offsets_base + offset_index * offset_size\n+\t    if (*str_offsets_base + offset_index * offset_size\n \t\t>= str_offsets_section->size)\n \t      {\n \t\tcomplaint (_(\"%s pointing outside of .debug_str_offsets section \"\n@@ -767,7 +779,8 @@ dwarf_decode_macros (dwarf2_per_objfile *per_objfile,\n \t\t     const struct line_header *lh, unsigned int offset_size,\n \t\t     unsigned int offset, struct dwarf2_section_info *str_section,\n \t\t     struct dwarf2_section_info *str_offsets_section,\n-\t\t     ULONGEST str_offsets_base, int section_is_gnu)\n+\t\t     gdb::optional<ULONGEST> str_offsets_base,\n+\t\t     int section_is_gnu)\n {\n   bfd *abfd;\n   const gdb_byte *mac_ptr, *mac_end;"
+    },
+    {
+      "sha": "5a05392312490d3cab7cad4e53213e78180fa578",
+      "filename": "gdb/dwarf2/macro.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f6c4a82abddd59a33ca38813a5721fac99b08f34/gdb/dwarf2/macro.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f6c4a82abddd59a33ca38813a5721fac99b08f34/gdb/dwarf2/macro.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/macro.h?ref=f6c4a82abddd59a33ca38813a5721fac99b08f34",
+      "patch": "@@ -30,7 +30,7 @@ extern void dwarf_decode_macros (dwarf2_per_objfile *per_objfile,\n \t\t\t\t unsigned int offset,\n \t\t\t\t dwarf2_section_info *str_section,\n \t\t\t\t dwarf2_section_info *str_offsets_section,\n-\t\t\t\t ULONGEST str_offsets_base,\n+\t\t\t\t gdb::optional<ULONGEST> str_offsets_base,\n \t\t\t\t int section_is_gnu);\n \n #endif /* GDB_DWARF2_MACRO_H */"
+    },
+    {
+      "sha": "acabee3315f8ed356240f4c58745218c76032d1e",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f6c4a82abddd59a33ca38813a5721fac99b08f34/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f6c4a82abddd59a33ca38813a5721fac99b08f34/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=f6c4a82abddd59a33ca38813a5721fac99b08f34",
+      "patch": "@@ -24122,7 +24122,7 @@ dwarf_decode_macros (struct dwarf2_cu *cu, unsigned int offset,\n \n   struct dwarf2_section_info *str_offsets_section;\n   struct dwarf2_section_info *str_section;\n-  ULONGEST str_offsets_base;\n+  gdb::optional<ULONGEST> str_offsets_base;\n \n   if (cu->dwo_unit != nullptr)\n     {\n@@ -24135,7 +24135,7 @@ dwarf_decode_macros (struct dwarf2_cu *cu, unsigned int offset,\n     {\n       str_offsets_section = &per_objfile->per_bfd->str_offsets;\n       str_section = &per_objfile->per_bfd->str;\n-      str_offsets_base = *cu->str_offsets_base;\n+      str_offsets_base = cu->str_offsets_base;\n     }\n \n   dwarf_decode_macros (per_objfile, builder, section, lh,"
+    }
+  ]
+}

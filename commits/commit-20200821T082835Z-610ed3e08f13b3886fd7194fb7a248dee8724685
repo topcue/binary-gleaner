@@ -1,0 +1,110 @@
+{
+  "sha": "610ed3e08f13b3886fd7194fb7a248dee8724685",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NjEwZWQzZTA4ZjEzYjM4ODZmZDcxOTRmYjdhMjQ4ZGVlODcyNDY4NQ==",
+  "commit": {
+    "author": {
+      "name": "Jan Beulich",
+      "email": "jbeulich@suse.com",
+      "date": "2020-08-21T08:28:35Z"
+    },
+    "committer": {
+      "name": "Jan Beulich",
+      "email": "jbeulich@suse.com",
+      "date": "2020-08-21T08:28:35Z"
+    },
+    "message": "fix objcopy of PE images with .buildid section\n\nXen Project embeds a build ID in its hypervisor binary (including its\nEFI variant), living in a standalone section. This usually gets placed\nright after .rodata, and due to the rounding done on the (file) size of\n.rodata the two sections appear to overlap (as far as e.g.\nfind_section_by_vma() is concerned). With the first byte \"found\" in\n.rodata, nothing guarantees that the entire debug dir fits in that\nsection, leading to apparently random failure of objcopy on such an\nimage.\n\nPossible alternatives to the solution chosen:\n- make find_section_by_vma() honor virt_size,\n- correct the recording of sizes elsewhere (ibfd has size == virt_size,\n  while obfd doesn't),\n- fix the linker to avoid producing apparently overlapping sections.\n\nWhile touching the condition around and the contents of the disgnostic,\npull it up ahead of the bfd_malloc_and_get_section() call: There's no\npoint first obtaining the section contents, in order to then fail.",
+    "tree": {
+      "sha": "f72f21054bc5b20cade2d9ebea3e3a1ca6eb318b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f72f21054bc5b20cade2d9ebea3e3a1ca6eb318b"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/610ed3e08f13b3886fd7194fb7a248dee8724685",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/610ed3e08f13b3886fd7194fb7a248dee8724685",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/610ed3e08f13b3886fd7194fb7a248dee8724685",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/610ed3e08f13b3886fd7194fb7a248dee8724685/comments",
+  "author": {
+    "login": "jbeulich",
+    "id": 5610135,
+    "node_id": "MDQ6VXNlcjU2MTAxMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/5610135?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/jbeulich",
+    "html_url": "https://github.com/jbeulich",
+    "followers_url": "https://api.github.com/users/jbeulich/followers",
+    "following_url": "https://api.github.com/users/jbeulich/following{/other_user}",
+    "gists_url": "https://api.github.com/users/jbeulich/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/jbeulich/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/jbeulich/subscriptions",
+    "organizations_url": "https://api.github.com/users/jbeulich/orgs",
+    "repos_url": "https://api.github.com/users/jbeulich/repos",
+    "events_url": "https://api.github.com/users/jbeulich/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/jbeulich/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "jbeulich",
+    "id": 5610135,
+    "node_id": "MDQ6VXNlcjU2MTAxMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/5610135?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/jbeulich",
+    "html_url": "https://github.com/jbeulich",
+    "followers_url": "https://api.github.com/users/jbeulich/followers",
+    "following_url": "https://api.github.com/users/jbeulich/following{/other_user}",
+    "gists_url": "https://api.github.com/users/jbeulich/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/jbeulich/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/jbeulich/subscriptions",
+    "organizations_url": "https://api.github.com/users/jbeulich/orgs",
+    "repos_url": "https://api.github.com/users/jbeulich/repos",
+    "events_url": "https://api.github.com/users/jbeulich/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/jbeulich/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "9cc9699833ccf94634b247da10a31c2ed60a9aad",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9cc9699833ccf94634b247da10a31c2ed60a9aad",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/9cc9699833ccf94634b247da10a31c2ed60a9aad"
+    }
+  ],
+  "stats": {
+    "total": 39,
+    "additions": 24,
+    "deletions": 15
+  },
+  "files": [
+    {
+      "sha": "62407f987aa2ca3ba4c3e102970b7b641dec2510",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/610ed3e08f13b3886fd7194fb7a248dee8724685/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/610ed3e08f13b3886fd7194fb7a248dee8724685/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=610ed3e08f13b3886fd7194fb7a248dee8724685",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-08-21  Jan Beulich  <jbeulich@suse.com>\n+\n+\t* peXXigen.c (_bfd_XX_bfd_copy_private_bfd_data_common): Check\n+\tlast byte of debug dir, not first.\n+\n 2020-08-20  Nick Clifton  <nickc@redhat.com>\n \n \tPR 26428"
+    },
+    {
+      "sha": "646ad0f0bf55a135daa3fcab9935b6e8e24941b8",
+      "filename": "bfd/peXXigen.c",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 15,
+      "changes": 34,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/610ed3e08f13b3886fd7194fb7a248dee8724685/bfd/peXXigen.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/610ed3e08f13b3886fd7194fb7a248dee8724685/bfd/peXXigen.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/peXXigen.c?ref=610ed3e08f13b3886fd7194fb7a248dee8724685",
+      "patch": "@@ -2943,29 +2943,33 @@ _bfd_XX_bfd_copy_private_bfd_data_common (bfd * ibfd, bfd * obfd)\n     {\n       bfd_vma addr = ope->pe_opthdr.DataDirectory[PE_DEBUG_DATA].VirtualAddress\n \t+ ope->pe_opthdr.ImageBase;\n-      asection *section = find_section_by_vma (obfd, addr);\n+      /* In particular a .buildid section may overlap (in VA space) with\n+\t whatever section comes ahead of it (largely because of section->size\n+\t representing s_size, not virt_size).  Therefore don't look for the\n+\t section containing the first byte, but for that covering the last\n+\t one.  */\n+      bfd_vma last = addr + ope->pe_opthdr.DataDirectory[PE_DEBUG_DATA].Size - 1;\n+      asection *section = find_section_by_vma (obfd, last);\n       bfd_byte *data;\n \n+      /* PR 17512: file: 0f15796a.  */\n+      if (section && addr < section->vma)\n+\t{\n+\t  /* xgettext:c-format */\n+\t  _bfd_error_handler\n+\t    (_(\"%pB: Data Directory (%lx bytes at %\" PRIx64 \") \"\n+\t       \"extends across section boundary at %\" PRIx64),\n+\t     obfd, ope->pe_opthdr.DataDirectory[PE_DEBUG_DATA].Size,\n+\t     (uint64_t) addr, (uint64_t) section->vma);\n+\t  return FALSE;\n+\t}\n+\n       if (section && bfd_malloc_and_get_section (obfd, section, &data))\n \t{\n \t  unsigned int i;\n \t  struct external_IMAGE_DEBUG_DIRECTORY *dd =\n \t    (struct external_IMAGE_DEBUG_DIRECTORY *)(data + (addr - section->vma));\n \n-\t  /* PR 17512: file: 0f15796a.  */\n-\t  if ((unsigned long) ope->pe_opthdr.DataDirectory[PE_DEBUG_DATA].Size\n-\t      > section->size - (addr - section->vma))\n-\t    {\n-\t      /* xgettext:c-format */\n-\t      _bfd_error_handler\n-\t\t(_(\"%pB: Data Directory size (%lx) \"\n-\t\t   \"exceeds space left in section (%\" PRIx64 \")\"),\n-\t\t obfd, ope->pe_opthdr.DataDirectory[PE_DEBUG_DATA].Size,\n-\t\t (uint64_t) (section->size - (addr - section->vma)));\n-\t      free (data);\n-\t      return FALSE;\n-\t    }\n-\n \t  for (i = 0; i < ope->pe_opthdr.DataDirectory[PE_DEBUG_DATA].Size\n \t\t / sizeof (struct external_IMAGE_DEBUG_DIRECTORY); i++)\n \t    {"
+    }
+  ]
+}

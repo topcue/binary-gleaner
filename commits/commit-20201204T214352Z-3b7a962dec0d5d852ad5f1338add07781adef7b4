@@ -1,0 +1,182 @@
+{
+  "sha": "3b7a962dec0d5d852ad5f1338add07781adef7b4",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6M2I3YTk2MmRlYzBkNWQ4NTJhZDVmMTMzOGFkZDA3NzgxYWRlZjdiNA==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2020-12-04T21:43:52Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2020-12-04T21:43:52Z"
+    },
+    "message": "gdb: clear inferior displaced stepping state and in-line step-over info on exec\n\nWhen a process does an exec, all its program space is replaced with the\nnewly loaded executable.  All non-main threads disappear and the main\nthread starts executing at the entry point of the new executable.\n\nThings can go wrong if a displaced step operation is in progress while\nwe process the exec event.\n\nIf the main thread is the one executing the displaced step: when that\nthread (now executing in the new executable) stops somewhere (say, at a\nbreakpoint), displaced_step_fixup will run and clear up the state.  We\nwill execute the \"fixup\" phase for the instruction we single-stepped in\nthe old program space.  We are now in a completely different context,\nso doing the fixup may corrupt the state.\n\nIf it is a non-main thread that is doing the displaced step: while\nhandling the exec event, GDB deletes the thread_info representing that\nthread (since the thread doesn't exist in the inferior after the exec).\nBut inferior::displaced_step_state::step_thread will still point to it.\nWhen handling events later, this condition, in displaced_step_fixup,\nwill likely never be true:\n\n    /* Was this event for the thread we displaced?  */\n    if (displaced->step_thread != event_thread)\n      return 0;\n\n... since displaced->step_thread points to a deleted thread (unless that\nstorage gets re-used for a new thread_info, but that wouldn't be good\neither).  This effectively makes the displaced stepping buffer occupied\nfor ever.  When a thread in the new program space will want to do a\ndisplaced step, it will wait for ever.\n\nI think we simply need to reset the displaced stepping state of the\ninferior on exec.  Everything execution-related that existed before the\nexec is now gone.\n\nSimilarly, if a thread does an in-line step over an exec syscall\ninstruction, nothing clears the in-line step over info when the event is\nhandled.  So it the in-line step over info stays there indefinitely, and\nthings hang because we can never start another step over.  To fix this,\nI added a call to clear_step_over_info in infrun_inferior_execd.\n\nAdd a test with a program with two threads that does an exec.  The test\nincludes the following axes:\n\n- whether it's the leader thread or the other thread that does the exec.\n\n- whether the exec'r and exec'd program have different text segment\n  addresses.  This is to hopefully catch cases where the displaced\n  stepping info doesn't get reset, and GDB later tries to restore bytes\n  of the old address space in the new address space.  If the mapped\n  addresses are different, we should get some memory error.   This\n  happens without the patch applied:\n\n  $ ./gdb -q -nx --data-directory=data-directory testsuite/outputs/gdb.threads/step-over-exec/step-over-exec-execr-thread-leader-diff-text-segs-true -ex \"b main\" -ex r -ex \"b my_execve_syscall if 0\"  -ex \"set displaced-stepping on\"\n  ...\n  Breakpoint 1, main (argc=1, argv=0x7fffffffde38) at /home/simark/src/binutils-gdb/gdb/testsuite/gdb.threads/step-over-exec.c:69\n  69        argv0 = argv[0];\n  Breakpoint 2 at 0x60133a: file /home/simark/src/binutils-gdb/gdb/testsuite/lib/my-syscalls.S, line 34.\n  (gdb) c\n  Continuing.\n  [New Thread 0x7ffff7c62640 (LWP 1455423)]\n  Leader going in exec.\n  Exec-ing /home/simark/build/binutils-gdb/gdb/testsuite/outputs/gdb.threads/step-over-exec/step-over-exec-execr-thread-leader-diff-text-segs-true-execd\n  [Thread 0x7ffff7c62640 (LWP 1455423) exited]\n  process 1455418 is executing new program: /home/simark/build/binutils-gdb/gdb/testsuite/outputs/gdb.threads/step-over-exec/step-over-exec-execr-thread-leader-diff-text-segs-true-execd\n  Error in re-setting breakpoint 2: Function \"my_execve_syscall\" not defined.\n  No unwaited-for children left.\n  (gdb) n\n  Single stepping until exit from function _start,\n  which has no line number information.\n  Cannot access memory at address 0x6010d2\n  (gdb)\n\n- Whether displaced stepping is allowed or not, so that we end up\n  testing both displaced stepping and in-line stepping on arches that do\n  support displaced stepping (otherwise, it just tests in-line stepping\n  twice I suppose)\n\nTo be able to precisely put a breakpoint on the syscall instruction, I\nadded a small assembly file (lib/my-syscalls.S) that contains minimal\nLinux syscall wrappers.  I prefer that to the strategy used in\ngdb.base/step-over-syscall.exp, which is to stepi into the glibc wrapper\nuntil we find something that looks like a syscall instruction, I find\nthat more predictable.\n\ngdb/ChangeLog:\n\n\t* infrun.c (infrun_inferior_execd): New function.\n\t(_initialize_infrun): Attach inferior_execd observer.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.threads/step-over-exec.exp: New.\n\t* gdb.threads/step-over-exec.c: New.\n\t* gdb.threads/step-over-exec-execd.c: New.\n\t* lib/my-syscalls.S: New.\n\t* lib/my-syscalls.h: New.\n\nChange-Id: I1bbc8538e683f53af5b980091849086f4fec5ff9",
+    "tree": {
+      "sha": "5a0921be06f07f650ad95bf87eccecbe7099a7c3",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/5a0921be06f07f650ad95bf87eccecbe7099a7c3"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/3b7a962dec0d5d852ad5f1338add07781adef7b4",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3b7a962dec0d5d852ad5f1338add07781adef7b4",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/3b7a962dec0d5d852ad5f1338add07781adef7b4",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3b7a962dec0d5d852ad5f1338add07781adef7b4/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "42a4fec513f11d4ff346f62fc0df3731ce9f7d59",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/42a4fec513f11d4ff346f62fc0df3731ce9f7d59",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/42a4fec513f11d4ff346f62fc0df3731ce9f7d59"
+    }
+  ],
+  "stats": {
+    "total": 343,
+    "additions": 343,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "8ce239f4b35237027a22590b36d1527b12aab641",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3b7a962dec0d5d852ad5f1338add07781adef7b4/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3b7a962dec0d5d852ad5f1338add07781adef7b4/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=3b7a962dec0d5d852ad5f1338add07781adef7b4",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-12-04  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\t* infrun.c (infrun_inferior_execd): New function.\n+\t(_initialize_infrun): Attach inferior_execd observer.\n+\n 2020-12-04  Simon Marchi  <simon.marchi@efficios.com>\n \n \t* observable.h (inferior_execd): Declare new observable."
+    },
+    {
+      "sha": "0e0a7a691c437cee61a05942deefeba05a1d4d73",
+      "filename": "gdb/infrun.c",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 0,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3b7a962dec0d5d852ad5f1338add07781adef7b4/gdb/infrun.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3b7a962dec0d5d852ad5f1338add07781adef7b4/gdb/infrun.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infrun.c?ref=3b7a962dec0d5d852ad5f1338add07781adef7b4",
+      "patch": "@@ -1528,6 +1528,21 @@ infrun_inferior_exit (struct inferior *inf)\n   inf->displaced_step_state.reset ();\n }\n \n+static void\n+infrun_inferior_execd (inferior *inf)\n+{\n+  /* If a thread was doing a displaced step in this inferior at the moment of\n+     the exec, it no longer exists.  Even if the exec'ing thread was the one\n+     doing a displaced step, we don't want to to any fixup nor restore displaced\n+     stepping buffer bytes.  */\n+  inf->displaced_step_state.reset ();\n+\n+  /* Since an in-line step is done with everything else stopped, if there was\n+     one in progress at the time of the exec, it must have been the exec'ing\n+     thread.  */\n+  clear_step_over_info ();\n+}\n+\n /* If ON, and the architecture supports it, GDB will use displaced\n    stepping to step over breakpoints.  If OFF, or if the architecture\n    doesn't support it, GDB will instead use the traditional\n@@ -9509,6 +9524,7 @@ enabled by default on some platforms.\"),\n   gdb::observers::thread_stop_requested.attach (infrun_thread_stop_requested);\n   gdb::observers::thread_exit.attach (infrun_thread_thread_exit);\n   gdb::observers::inferior_exit.attach (infrun_inferior_exit);\n+  gdb::observers::inferior_execd.attach (infrun_inferior_execd);\n \n   /* Explicitly create without lookup, since that tries to create a\n      value with a void typed value, and when we get here, gdbarch"
+    },
+    {
+      "sha": "d3350bcc506da0546b5c63711394d9a6d3113dc3",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3b7a962dec0d5d852ad5f1338add07781adef7b4/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3b7a962dec0d5d852ad5f1338add07781adef7b4/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=3b7a962dec0d5d852ad5f1338add07781adef7b4",
+      "patch": "@@ -1,3 +1,11 @@\n+2020-12-04  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\t* gdb.threads/step-over-exec.exp: New.\n+\t* gdb.threads/step-over-exec.c: New.\n+\t* gdb.threads/step-over-exec-execd.c: New.\n+\t* lib/my-syscalls.S: New.\n+\t* lib/my-syscalls.h: New.\n+\n 2020-12-04  Simon Marchi  <simon.marchi@efficios.com>\n \n \t* lib/dwarf.exp (declare_labels): Use name as text if text is"
+    },
+    {
+      "sha": "5f3835c1b296019fa8d9633f44e9e9c7f6c9c4cb",
+      "filename": "gdb/testsuite/gdb.threads/step-over-exec-execd.c",
+      "status": "added",
+      "additions": 30,
+      "deletions": 0,
+      "changes": 30,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3b7a962dec0d5d852ad5f1338add07781adef7b4/gdb/testsuite/gdb.threads/step-over-exec-execd.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3b7a962dec0d5d852ad5f1338add07781adef7b4/gdb/testsuite/gdb.threads/step-over-exec-execd.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/step-over-exec-execd.c?ref=3b7a962dec0d5d852ad5f1338add07781adef7b4",
+      "patch": "@@ -0,0 +1,30 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+int a_variable_in_execd = 1212;\n+\n+static void\n+foo (void)\n+{\n+}\n+\n+int\n+main (void)\n+{\n+  foo ();\n+  return a_variable_in_execd;\n+}"
+    },
+    {
+      "sha": "a043e8d2535fa426caedf97cfc4417d05fbcd3d4",
+      "filename": "gdb/testsuite/gdb.threads/step-over-exec.c",
+      "status": "added",
+      "additions": 90,
+      "deletions": 0,
+      "changes": 90,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3b7a962dec0d5d852ad5f1338add07781adef7b4/gdb/testsuite/gdb.threads/step-over-exec.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3b7a962dec0d5d852ad5f1338add07781adef7b4/gdb/testsuite/gdb.threads/step-over-exec.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/step-over-exec.c?ref=3b7a962dec0d5d852ad5f1338add07781adef7b4",
+      "patch": "@@ -0,0 +1,90 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#include <unistd.h>\n+#include <stdio.h>\n+#include <stdlib.h>\n+#include <string.h>\n+#include <pthread.h>\n+\n+#include \"../lib/my-syscalls.h\"\n+\n+#if (!defined(LEADER_DOES_EXEC) && !defined(OTHER_DOES_EXEC) \\\n+     || defined(LEADER_DOES_EXEC) && defined(OTHER_DOES_EXEC))\n+# error \"Exactly one of LEADER_DOES_EXEC and OTHER_DOES_EXEC must be defined.\"\n+#endif\n+\n+\n+static char *argv0;\n+static pthread_barrier_t barrier;\n+\n+static void\n+do_the_exec (void)\n+{\n+  char *execd_path = (char *) malloc (strlen (argv0) + sizeof (\"-execd\"));\n+  sprintf (execd_path, \"%s-execd\", argv0);\n+  char *argv[] = { execd_path, NULL };\n+\n+  printf (\"Exec-ing %s\\n\", execd_path);\n+\n+  extern char **environ;\n+  my_execve (execd_path, argv, environ);\n+\n+  printf (\"Exec failed :(\\n\");\n+  abort ();\n+}\n+\n+static void *\n+thread_func (void *arg)\n+{\n+  pthread_barrier_wait (&barrier);\n+#ifdef OTHER_DOES_EXEC\n+  printf (\"Other going in exec.\\n\");\n+  do_the_exec ();\n+#endif\n+\n+  /* Just make sure the thread does not exit when the leader does the exec.  */\n+  pthread_barrier_wait (&barrier);\n+\n+  return NULL;\n+}\n+\n+int\n+main (int argc, char *argv[])\n+{\n+  argv0 = argv[0];\n+\n+  int ret = pthread_barrier_init (&barrier, NULL, 2);\n+  if (ret != 0)\n+    abort ();\n+\n+  pthread_t thread;\n+  ret = pthread_create (&thread, NULL, thread_func, argv[0]);\n+  if (ret != 0)\n+    abort ();\n+\n+  pthread_barrier_wait (&barrier);\n+\n+#ifdef LEADER_DOES_EXEC\n+  printf (\"Leader going in exec.\\n\");\n+  do_the_exec ();\n+#endif\n+\n+  pthread_join (thread, NULL);\n+\n+  return 0;\n+}"
+    },
+    {
+      "sha": "411980cfc708dd1fbca3696094a0cf5a136fdf52",
+      "filename": "gdb/testsuite/gdb.threads/step-over-exec.exp",
+      "status": "added",
+      "additions": 113,
+      "deletions": 0,
+      "changes": 113,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3b7a962dec0d5d852ad5f1338add07781adef7b4/gdb/testsuite/gdb.threads/step-over-exec.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3b7a962dec0d5d852ad5f1338add07781adef7b4/gdb/testsuite/gdb.threads/step-over-exec.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/step-over-exec.exp?ref=3b7a962dec0d5d852ad5f1338add07781adef7b4",
+      "patch": "@@ -0,0 +1,113 @@\n+# Copyright 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test stepping over an exec syscall instruction in a multi-threaded program.\n+\n+standard_testfile .c -execd.c\n+\n+set syscalls_src $srcdir/lib/my-syscalls.S\n+\n+# EXECR_THREAD is \"leader\" or \"other\", and decides which thread does the exec.\n+#\n+# If DIFFERENT_TEXT_SEGMENTS is true, the exec'er and exec'd program are\n+# compiled with different, explicit text segment addresses.  This makes it so\n+# the address of the displaced stepping buffer in the old executable is likely\n+# not accessible in the new executable.  This might catch cases where GDB tries\n+# (wrongfully) to restore the bytes saved from the old executable in the new\n+# executable.\n+#\n+# DISPLACED_STEPPING is \"auto\" or \"off\" and controls the value of \"set\n+# displaced-stepping\".\n+\n+proc do_test { execr_thread different_text_segments displaced_stepping } {\n+    global srcdir subdir srcfile srcfile2 binfile\n+    global syscalls_src\n+    global decimal hex\n+\n+    set execr_srcs [list $srcdir/$subdir/$srcfile $syscalls_src]\n+    set execd_srcs [list $srcdir/$subdir/$srcfile2]\n+\n+    # Generate unique filenames for each case.\n+    set execr_binfile $binfile-execr-thread-$execr_thread-diff-text-segs-$different_text_segments\n+    set execd_binfile $execr_binfile-execd\n+\n+    set execr_opts [list debug]\n+    set execd_opts [list debug]\n+\n+    if { $different_text_segments } {\n+\tlappend execr_opts \"ldflags=-Wl,-Ttext-segment=0x600000\"\n+\tlappend execd_opts \"ldflags=-Wl,-Ttext-segment=0x800000\"\n+    }\n+\n+    if { $execr_thread == \"leader\" } {\n+\tlappend execr_opts \"additional_flags=-DLEADER_DOES_EXEC\"\n+    } elseif { $execr_thread == \"other\" } {\n+\tlappend execr_opts \"additional_flags=-DOTHER_DOES_EXEC\"\n+    } else {\n+\terror \"Invalid execr_thread value: $execr_thread.\"\n+    }\n+\n+    # Compile execr binary (the one that does the exec).\n+    if {[gdb_compile_pthreads $execr_srcs $execr_binfile executable $execr_opts] != \"\" } {\n+\treturn -1\n+    }\n+\n+    # Compile the second binary (the one that gets exec'd).\n+    if {[gdb_compile $execd_srcs $execd_binfile executable $execd_opts] != \"\" } {\n+\treturn -1\n+    }\n+\n+    clean_restart ${execr_binfile}\n+\n+    gdb_test_no_output \"set displaced-stepping $displaced_stepping\"\n+\n+    if ![runto_main] {\n+\treturn\n+    }\n+\n+    # Leave breakpoint main inserted, we expect to hit it after exec.\n+\n+    # This breakpoint will be stepped by whatever thread does the exec.\n+    gdb_test \"break my_execve_syscall if 0\" \"Breakpoint $decimal at $hex.*\"\n+\n+    # Continue across exec to main.\n+    if { [target_is_gdbserver] } {\n+\tsetup_kfail gdb/27020 \"*-*-*\"\n+    }\n+    set failed [gdb_test \"continue\" \\\n+\t\t    \"process $decimal is executing new program: .* hit Breakpoint $decimal, main .*\" \\\n+\t\t    \"continue across exec\"]\n+    if { $failed } {\n+\treturn\n+    }\n+\n+    # Just to confirm we are indeed in the execd program.\n+    gdb_test \"print a_variable_in_execd\" \" = 1212\"\n+\n+    # Continue execution to make sure we can step over the breakpoint on main.\n+    # It would be nice to use gdb_continue_to_end to ensure the program can\n+    # exit properly, but it hangs due to PR gdb/26995.\n+    gdb_breakpoint foo\n+    gdb_test \"continue\" \"Breakpoint $decimal, foo .*\" \\\n+\t\"continue to foo\"\n+}\n+\n+foreach_with_prefix displaced_stepping {auto off} {\n+    foreach_with_prefix different_text_segments {true false} {\n+\tforeach_with_prefix execr_thread {leader other} {\n+\t    do_test $execr_thread $different_text_segments $displaced_stepping\n+\t}\n+    }\n+}"
+    },
+    {
+      "sha": "f75f7ec5b59ac5623093aff284b18269807b6c59",
+      "filename": "gdb/testsuite/lib/my-syscalls.S",
+      "status": "added",
+      "additions": 56,
+      "deletions": 0,
+      "changes": 56,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3b7a962dec0d5d852ad5f1338add07781adef7b4/gdb/testsuite/lib/my-syscalls.S",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3b7a962dec0d5d852ad5f1338add07781adef7b4/gdb/testsuite/lib/my-syscalls.S",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/my-syscalls.S?ref=3b7a962dec0d5d852ad5f1338add07781adef7b4",
+      "patch": "@@ -0,0 +1,56 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+\n+/* This file implements simple Linux syscall wrappers, to be used by tests that\n+   need to know exactly where the syscall instructions are.  */\n+\n+#include <asm/unistd.h>\n+\n+/* int my_execve (const char *file, char *argv[], char *envp[]);  */\n+\n+.global my_execve\n+my_execve:\n+\n+#if defined(__x86_64__)\n+\n+\tmov $__NR_execve, %rax\n+\t/* rdi, rsi and rdx already contain the right arguments.  */\n+my_execve_syscall:\n+\tsyscall\n+\tret\n+\n+#elif defined(__i386__)\n+\n+\tmov $__NR_execve, %eax\n+\tmov 4(%esp), %ebx\n+\tmov 8(%esp), %ecx\n+\tmov 12(%esp), %edx\n+my_execve_syscall:\n+\tint $0x80\n+\tret\n+\n+#elif defined(__aarch64__)\n+\n+\tmov x8, #__NR_execve\n+\t/* x0, x1 and x2 already contain the right arguments.  */\n+my_execve_syscall:\n+\tsvc #0\n+\n+#else\n+# error \"Unsupported architecture\"\n+#endif"
+    },
+    {
+      "sha": "8a82780e35bb022f6b27f4037101a375870f808f",
+      "filename": "gdb/testsuite/lib/my-syscalls.h",
+      "status": "added",
+      "additions": 25,
+      "deletions": 0,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3b7a962dec0d5d852ad5f1338add07781adef7b4/gdb/testsuite/lib/my-syscalls.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3b7a962dec0d5d852ad5f1338add07781adef7b4/gdb/testsuite/lib/my-syscalls.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/my-syscalls.h?ref=3b7a962dec0d5d852ad5f1338add07781adef7b4",
+      "patch": "@@ -0,0 +1,25 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#ifndef MY_SYSCALLS_H\n+#define MY_SYSCALLS_H\n+\n+/* Declarations for syscall wrappers implemented in my-syscalls.S.  */\n+\n+int my_execve (const char *file, char *argv[], char *envp[]);\n+\n+#endif /* MY_SYSCALLS_H */"
+    }
+  ]
+}

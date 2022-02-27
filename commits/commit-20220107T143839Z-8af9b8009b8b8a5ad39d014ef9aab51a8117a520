@@ -1,0 +1,60 @@
+{
+  "sha": "8af9b8009b8b8a5ad39d014ef9aab51a8117a520",
+  "node_id": "C_kwDOANOeidoAKDhhZjliODAwOWI4YjhhNWFkMzlkMDE0ZWY5YWFiNTFhODExN2E1MjA",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-12-22T16:04:56Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-01-07T14:38:39Z"
+    },
+    "message": "gdb/doc: Remove (...) around guile procedure names in @deffn lines\n\nMost guile procedures in the guile.texi file are defined like:\n\n  @deffn {Scheme Procedure} name arg1 arg2 arg3\n\nBut there are two places where we do this:\n\n  @deffn {Scheme Procedure} (name arg1 arg2 arg3)\n\nNotice the added (...).  Though this does represent how a procedure\ncall is written in scheme, it's not the normal style throughout the\nmanual.  I also checked the 'info guile' info page to see how they\nwrote there declarations, and they use the first style too.\n\nThe second style also has the drawback that index entries are added as\n'(name', and so they are grouped in the '(' section of the index,\nwhich is not very user friendly.\n\nIn this commit I've changed the definitions of make-command and\nmake-parameter to use the first style.\n\nThe procedure declaration lines can get pretty long with all of the\narguments, and this was true for both of the procedures I am changing\nin this commit.  I have made use of a trailing '@' to split the deffn\nlines, and keep them under 80 characters in the texi source.  This\nmakes no difference to how the final document looks.\n\nFinally, our current style for keyword arguments, appears to be:\n\n  [#:keyword-name argument-name]\n\nI don't really understand the reason for this, 'info guile' just seems\nto use:\n\n  [#:keyword-name]\n\nwhich seems just as good to me.  But I don't propose to change\nthat just now.  What I do notice though, is that sometimes, texinfo\nwill place a line break between the keyword-name and the\nargument-name, for example, the pdf of make-command is:\n\n  make-command name [#:invoke invoke] [#:command-class\n    command-class] [#:completer-class completer] [#:prefix? prefix] [#:doc\n    doc-string]\n\nNotice the line break after '#:command-class' and after '#:doc',\nneither of which are ideal.  And so, for the two commands I am\nchanging in this commit, I have made use of @w{...} to prevent line\nbreaks between the keyword-name and the argument-name.  Now the pdf\nlooks like this:\n\n  make-command name [#:invoke invoke]\n    [#:command-class command-class] [#:completer-class completer]\n    [#:prefix? prefix] [#:doc doc-string]\n\nWhich seems much better.  I'll probably update the other deffn lines\nat some point.",
+    "tree": {
+      "sha": "4636545204500fdc14f87e4f6c8eb7084d00f368",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/4636545204500fdc14f87e4f6c8eb7084d00f368"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/8af9b8009b8b8a5ad39d014ef9aab51a8117a520",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8af9b8009b8b8a5ad39d014ef9aab51a8117a520",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/8af9b8009b8b8a5ad39d014ef9aab51a8117a520",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8af9b8009b8b8a5ad39d014ef9aab51a8117a520/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "0e9f1c04b9572920c7f940203a67d5af3f6c19f6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0e9f1c04b9572920c7f940203a67d5af3f6c19f6",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/0e9f1c04b9572920c7f940203a67d5af3f6c19f6"
+    }
+  ],
+  "stats": {
+    "total": 15,
+    "additions": 11,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "c7e367a9ca84e263d1a1647287edbb7d40220a98",
+      "filename": "gdb/doc/guile.texi",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 4,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8af9b8009b8b8a5ad39d014ef9aab51a8117a520/gdb/doc/guile.texi",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8af9b8009b8b8a5ad39d014ef9aab51a8117a520/gdb/doc/guile.texi",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/guile.texi?ref=8af9b8009b8b8a5ad39d014ef9aab51a8117a520",
+      "patch": "@@ -1727,8 +1727,10 @@ the command to @value{GDBN} from @code{make-command}.\n There is no support for multi-line commands, that is commands that\n consist of multiple lines and are terminated with @code{end}.\n \n-@c TODO: line length\n-@deffn {Scheme Procedure} (make-command name @r{[}#:invoke invoke{]} @r{[}#:command-class command-class@r{]} @r{[}#:completer-class completer{]} @r{[}#:prefix? prefix@r{]} @r{[}#:doc doc-string{]})\n+@deffn {Scheme Procedure} make-command name @w{@r{[}#:invoke invoke@r{]}} @\n+    @w{@r{[}#:command-class command-class@r{]}} @\n+    @w{@r{[}#:completer-class completer@r{]}} @\n+    @w{@r{[}#:prefix? prefix@r{]}} @w{@r{[}#:doc doc-string@r{]}}\n \n The argument @var{name} is the name of the command.  If @var{name} consists of\n multiple words, then the initial words are looked for as prefix\n@@ -2017,8 +2019,13 @@ the parameter to @value{GDBN} from @code{make-parameter}.\n Parameters are exposed to the user via the @code{set} and\n @code{show} commands.  @xref{Help}.\n \n-@c TODO line length\n-@deffn {Scheme Procedure} (make-parameter name @r{[}#:command-class command-class@r{]} @r{[}#:parameter-type parameter-type{]} @r{[}#:enum-list enum-list@r{]} @r{[}#:set-func set-func{]} @r{[}#:show-func show-func{]} @r{[}#:doc doc{]} @r{[}#:set-doc set-doc{]} @r{[}#:show-doc show-doc{]} @r{[}#:initial-value initial-value{]})\n+@deffn {Scheme Procedure} make-parameter name @\n+    @w{@r{[}#:command-class command-class@r{]}} @\n+    @w{@r{[}#:parameter-type parameter-type@r{]}} @\n+    @w{@r{[}#:enum-list enum-list@r{]}} @w{@r{[}#:set-func set-func@r{]}} @\n+    @w{@r{[}#:show-func show-func@r{]}} @w{@r{[}#:doc doc@r{]}} @\n+    @w{@r{[}#:set-doc set-doc@r{]}} @w{@r{[}#:show-doc show-doc@r{]}} @\n+    @w{@r{[}#:initial-value initial-value@r{]}}\n \n The argument @var{name} is the name of the new parameter.  If @var{name}\n consists of multiple words, then the initial words are looked for as prefix"
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "sha": "aa17805fb9a3a1983a510ba425b682fba03410c2",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YWExNzgwNWZiOWEzYTE5ODNhNTEwYmE0MjViNjgyZmJhMDM0MTBjMg==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2019-08-31T22:44:40Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2019-09-13T00:31:29Z"
+    },
+    "message": "gdb: Have 'maint info sections' print all sections again\n\nIn this commit:\n\n  commit 6eac171f0624303d944ff1a1ae4d0e3b0a63c800\n  Date:   Fri Aug 16 00:25:14 2019 +0200\n\n      [gdb] Make maint info sections print relocated addresses\n\nA couple of things broke with the 'maintenance info sections' command,\nhere is some before output:\n\n  (gdb) maintenance info sections\n  Exec file:\n      `/path/to/gdb/build/gdb/testsuite/outputs/gdb.base/maint/maint',\n          file type elf64-x86-64.\n   [0]     0x00400238->0x00400254 at 0x00000238: .interp ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [1]     0x00400254->0x00400274 at 0x00000254: .note.ABI-tag ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [2]     0x00400274->0x00400298 at 0x00000274: .note.gnu.build-id ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [3]     0x00400298->0x004002bc at 0x00000298: .gnu.hash ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [4]     0x004002c0->0x00400380 at 0x000002c0: .dynsym ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [5]     0x00400380->0x004003e3 at 0x00000380: .dynstr ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [6]     0x004003e4->0x004003f4 at 0x000003e4: .gnu.version ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [7]     0x004003f8->0x00400418 at 0x000003f8: .gnu.version_r ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [8]     0x00400418->0x00400460 at 0x00000418: .rela.dyn ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [9]     0x00400460->0x004004c0 at 0x00000460: .rela.plt ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [10]     0x004004c0->0x004004d7 at 0x000004c0: .init ALLOC LOAD READONLY CODE HAS_CONTENTS\n   [11]     0x004004e0->0x00400530 at 0x000004e0: .plt ALLOC LOAD READONLY CODE HAS_CONTENTS\n   [12]     0x00400530->0x00400802 at 0x00000530: .text ALLOC LOAD READONLY CODE HAS_CONTENTS\n   [13]     0x00400804->0x0040080d at 0x00000804: .fini ALLOC LOAD READONLY CODE HAS_CONTENTS\n   [14]     0x00400810->0x0040084e at 0x00000810: .rodata ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [15]     0x00400850->0x004008c4 at 0x00000850: .eh_frame_hdr ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [16]     0x004008c8->0x00400ab8 at 0x000008c8: .eh_frame ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [17]     0x00600e00->0x00600e08 at 0x00000e00: .init_array ALLOC LOAD DATA HAS_CONTENTS\n   [18]     0x00600e08->0x00600e10 at 0x00000e08: .fini_array ALLOC LOAD DATA HAS_CONTENTS\n   [19]     0x00600e10->0x00600ff0 at 0x00000e10: .dynamic ALLOC LOAD DATA HAS_CONTENTS\n   [20]     0x00600ff0->0x00601000 at 0x00000ff0: .got ALLOC LOAD DATA HAS_CONTENTS\n   [21]     0x00601000->0x00601038 at 0x00001000: .got.plt ALLOC LOAD DATA HAS_CONTENTS\n   [22]     0x00601038->0x0060103c at 0x00001038: .data ALLOC LOAD DATA HAS_CONTENTS\n   [23]     0x00601040->0x006012c8 at 0x0000103c: .bss ALLOC\n   [24]     0x00000000->0x0000002c at 0x0000103c: .comment READONLY HAS_CONTENTS\n   [25]     0x00000000->0x00000060 at 0x00001068: .debug_aranges READONLY HAS_CONTENTS\n   [26]     0x00000000->0x0000061b at 0x000010c8: .debug_info READONLY HAS_CONTENTS\n   [27]     0x00000000->0x00000264 at 0x000016e3: .debug_abbrev READONLY HAS_CONTENTS\n   [28]     0x00000000->0x000001e6 at 0x00001947: .debug_line READONLY HAS_CONTENTS\n   [29]     0x00000000->0x00000487 at 0x00001b2d: .debug_str READONLY HAS_CONTENTS\n  (gdb)\n\nAnd here is the output after the above commit:\n\n  (gdb) maintenance info sections\n  +maintenance info sections\n  Exec file:\n      `/path/to/gdb/build/gdb/testsuite/outputs/gdb.base/maint/maint',\n          file type elf64-x86-64.\n      0x00400238->0x00400254 at 0x00000238: .interp ALLOC LOAD READONLY DATA HAS_CONTENTS\n      0x00400254->0x00400274 at 0x00000254: .note.ABI-tag ALLOC LOAD READONLY DATA HAS_CONTENTS\n      0x00400274->0x00400298 at 0x00000274: .note.gnu.build-id ALLOC LOAD READONLY DATA HAS_CONTENTS\n      0x00400298->0x004002bc at 0x00000298: .gnu.hash ALLOC LOAD READONLY DATA HAS_CONTENTS\n      0x004002c0->0x00400380 at 0x000002c0: .dynsym ALLOC LOAD READONLY DATA HAS_CONTENTS\n      0x00400380->0x004003e3 at 0x00000380: .dynstr ALLOC LOAD READONLY DATA HAS_CONTENTS\n      0x004003e4->0x004003f4 at 0x000003e4: .gnu.version ALLOC LOAD READONLY DATA HAS_CONTENTS\n      0x004003f8->0x00400418 at 0x000003f8: .gnu.version_r ALLOC LOAD READONLY DATA HAS_CONTENTS\n      0x00400418->0x00400460 at 0x00000418: .rela.dyn ALLOC LOAD READONLY DATA HAS_CONTENTS\n      0x00400460->0x004004c0 at 0x00000460: .rela.plt ALLOC LOAD READONLY DATA HAS_CONTENTS\n      0x004004c0->0x004004d7 at 0x000004c0: .init ALLOC LOAD READONLY CODE HAS_CONTENTS\n      0x004004e0->0x00400530 at 0x000004e0: .plt ALLOC LOAD READONLY CODE HAS_CONTENTS\n      0x00400530->0x00400802 at 0x00000530: .text ALLOC LOAD READONLY CODE HAS_CONTENTS\n      0x00400804->0x0040080d at 0x00000804: .fini ALLOC LOAD READONLY CODE HAS_CONTENTS\n      0x00400810->0x0040084e at 0x00000810: .rodata ALLOC LOAD READONLY DATA HAS_CONTENTS\n      0x00400850->0x004008c4 at 0x00000850: .eh_frame_hdr ALLOC LOAD READONLY DATA HAS_CONTENTS\n      0x004008c8->0x00400ab8 at 0x000008c8: .eh_frame ALLOC LOAD READONLY DATA HAS_CONTENTS\n      0x00600e00->0x00600e08 at 0x00000e00: .init_array ALLOC LOAD DATA HAS_CONTENTS\n      0x00600e08->0x00600e10 at 0x00000e08: .fini_array ALLOC LOAD DATA HAS_CONTENTS\n      0x00600e10->0x00600ff0 at 0x00000e10: .dynamic ALLOC LOAD DATA HAS_CONTENTS\n      0x00600ff0->0x00601000 at 0x00000ff0: .got ALLOC LOAD DATA HAS_CONTENTS\n      0x00601000->0x00601038 at 0x00001000: .got.plt ALLOC LOAD DATA HAS_CONTENTS\n      0x00601038->0x0060103c at 0x00001038: .data ALLOC LOAD DATA HAS_CONTENTS\n      0x00601040->0x006012c8 at 0x0000103c: .bss ALLOC\n      0x00000000->0x00000000 at 0x00000000: *COM* IS_COMMON\n      0x00000000->0x00000000 at 0x00000000: *UND*\n      0x00000000->0x00000000 at 0x00000000: *ABS*\n      0x00000000->0x00000000 at 0x00000000: *IND*\n  (gdb)\n\nWe lost the section index numbers, but more importantly, we lost the\ninformation about the .debug* sections.  We also gained entries for\nthe \"fake\" sections *COM*, *UND*, *ABS*, and *IND*.\n\nI noticed this when running:\n\n  make check-gdb RUNTESTFLAGS=\"--target_board=cc-with-gdb-index gdb.base/maint.exp\"\n\nAs this test relies on looking in the 'maint info sections' output to\nsee if we have a .debug_names or .gdb_index section, and these are\ndebug sections so they no longer show up in the 'main info sections'\noutput, the gdb.base/maint.exp test fails.\n\nThis commit restores the old behaviour while keeping the important\nchange that the above commit introduced, the addresses printed for\nsections are the relocated addresses where appropriate.  The above\ncommit mentions using this test:\n\n   make check-gdb RUNTESTFLAGS=\"CFLAGS_FOR_TARGET='-pie' gdb.base/compare-sections.exp\"\n\nAnd this still passes after this commit.\n\nThe output for 'maint info sections' now looks like this:\n\n  (gdb) maintenance info sections\n  Exec file:\n      `/home/andrew/projects/binutils-gdb/build/gdb/testsuite/outputs/gdb.base/maint/maint',\n          file type elf64-x86-64.\n   [0]      0x00400238->0x00400254 at 0x00000238: .interp ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [1]      0x00400254->0x00400274 at 0x00000254: .note.ABI-tag ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [2]      0x00400274->0x00400298 at 0x00000274: .note.gnu.build-id ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [3]      0x00400298->0x004002bc at 0x00000298: .gnu.hash ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [4]      0x004002c0->0x00400380 at 0x000002c0: .dynsym ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [5]      0x00400380->0x004003e3 at 0x00000380: .dynstr ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [6]      0x004003e4->0x004003f4 at 0x000003e4: .gnu.version ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [7]      0x004003f8->0x00400418 at 0x000003f8: .gnu.version_r ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [8]      0x00400418->0x00400460 at 0x00000418: .rela.dyn ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [9]      0x00400460->0x004004c0 at 0x00000460: .rela.plt ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [10]     0x004004c0->0x004004d7 at 0x000004c0: .init ALLOC LOAD READONLY CODE HAS_CONTENTS\n   [11]     0x004004e0->0x00400530 at 0x000004e0: .plt ALLOC LOAD READONLY CODE HAS_CONTENTS\n   [12]     0x00400530->0x00400802 at 0x00000530: .text ALLOC LOAD READONLY CODE HAS_CONTENTS\n   [13]     0x00400804->0x0040080d at 0x00000804: .fini ALLOC LOAD READONLY CODE HAS_CONTENTS\n   [14]     0x00400810->0x0040084e at 0x00000810: .rodata ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [15]     0x00400850->0x004008c4 at 0x00000850: .eh_frame_hdr ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [16]     0x004008c8->0x00400ab8 at 0x000008c8: .eh_frame ALLOC LOAD READONLY DATA HAS_CONTENTS\n   [17]     0x00600e00->0x00600e08 at 0x00000e00: .init_array ALLOC LOAD DATA HAS_CONTENTS\n   [18]     0x00600e08->0x00600e10 at 0x00000e08: .fini_array ALLOC LOAD DATA HAS_CONTENTS\n   [19]     0x00600e10->0x00600ff0 at 0x00000e10: .dynamic ALLOC LOAD DATA HAS_CONTENTS\n   [20]     0x00600ff0->0x00601000 at 0x00000ff0: .got ALLOC LOAD DATA HAS_CONTENTS\n   [21]     0x00601000->0x00601038 at 0x00001000: .got.plt ALLOC LOAD DATA HAS_CONTENTS\n   [22]     0x00601038->0x0060103c at 0x00001038: .data ALLOC LOAD DATA HAS_CONTENTS\n   [23]     0x00601040->0x006012c8 at 0x0000103c: .bss ALLOC\n   [24]     0x00000000->0x0000002c at 0x0000103c: .comment READONLY HAS_CONTENTS\n   [25]     0x00000000->0x00000060 at 0x00001068: .debug_aranges READONLY HAS_CONTENTS\n   [26]     0x00000000->0x0000061b at 0x000010c8: .debug_info READONLY HAS_CONTENTS\n   [27]     0x00000000->0x00000264 at 0x000016e3: .debug_abbrev READONLY HAS_CONTENTS\n   [28]     0x00000000->0x000001e6 at 0x00001947: .debug_line READONLY HAS_CONTENTS\n   [29]     0x00000000->0x00000487 at 0x00001b2d: .debug_str READONLY HAS_CONTENTS\n  (gdb)\n\nThis is basically as it was before, except that the index numbers are\nnow padded so the section information all lines up.\n\nWhen GDB has relocated a section then the relocated addresses will be\nprinted, otherwise the non-relocated addresses from the bfd will be\nprinted.\n\nI've added a test to gdb.base/maint.exp to do some basic validation of\nthe output format.\n\ngdb/ChangeLog:\n\n\t* maint.c: Add 'cmath' include.\n\t(struct maint_print_section_data): New structure.\n\t(print_section_index): New function.\n\t(print_bfd_section_info): Add header comment, small whitespace\n\tcleanup, and update to call new print_section_index function.\n\t(print_objfile_section_info): Likewise.\n\t(maint_obj_section_from_bfd_section): New function.\n\t(print_bfd_section_info_maybe_relocated): New function.\n\t(maintenance_info_sections): Add header comment, always use\n\tbfd_map_over_sections instead of ALL_OBJFILE_OSECTIONS.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.base/maint.exp: Add test for 'maint info sections'.",
+    "tree": {
+      "sha": "7b8817d980614091c50b1c15dbd4b473b40c798c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/7b8817d980614091c50b1c15dbd4b473b40c798c"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/aa17805fb9a3a1983a510ba425b682fba03410c2",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/aa17805fb9a3a1983a510ba425b682fba03410c2",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/aa17805fb9a3a1983a510ba425b682fba03410c2",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/aa17805fb9a3a1983a510ba425b682fba03410c2/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "3dd9bb462012df685d6d41300dacedae1c81e28a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3dd9bb462012df685d6d41300dacedae1c81e28a",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/3dd9bb462012df685d6d41300dacedae1c81e28a"
+    }
+  ],
+  "stats": {
+    "total": 176,
+    "additions": 161,
+    "deletions": 15
+  },
+  "files": [
+    {
+      "sha": "4158161393e3472ecf88904a6388f9e55abafd1c",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/aa17805fb9a3a1983a510ba425b682fba03410c2/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/aa17805fb9a3a1983a510ba425b682fba03410c2/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=aa17805fb9a3a1983a510ba425b682fba03410c2",
+      "patch": "@@ -1,3 +1,16 @@\n+2019-09-12  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* maint.c: Add 'cmath' include.\n+\t(struct maint_print_section_data): New structure.\n+\t(print_section_index): New function.\n+\t(print_bfd_section_info): Add header comment, small whitespace\n+\tcleanup, and update to call new print_section_index function.\n+\t(print_objfile_section_info): Likewise.\n+\t(maint_obj_section_from_bfd_section): New function.\n+\t(print_bfd_section_info_maybe_relocated): New function.\n+\t(maintenance_info_sections): Add header comment, always use\n+\tbfd_map_over_sections instead of ALL_OBJFILE_OSECTIONS.\n+\n 2019-09-12  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* psymtab.c (find_pc_sect_psymtab): Move baseaddr local into more"
+    },
+    {
+      "sha": "286ec31013571b661f166a4666c9bfee30318dad",
+      "filename": "gdb/maint.c",
+      "status": "modified",
+      "additions": 127,
+      "deletions": 15,
+      "changes": 142,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/aa17805fb9a3a1983a510ba425b682fba03410c2/gdb/maint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/aa17805fb9a3a1983a510ba425b682fba03410c2/gdb/maint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/maint.c?ref=aa17805fb9a3a1983a510ba425b682fba03410c2",
+      "patch": "@@ -23,6 +23,7 @@\n #include \"defs.h\"\n #include \"arch-utils.h\"\n #include <ctype.h>\n+#include <cmath>\n #include <signal.h>\n #include \"command.h\"\n #include \"gdbcmd.h\"\n@@ -276,14 +277,68 @@ maint_print_section_info (const char *name, flagword flags,\n   printf_filtered (\"\\n\");\n }\n \n+/* Information passed between the \"maintenance info sections\" command, and\n+   the worker function that prints each section.  */\n+struct maint_print_section_data\n+{\n+  /* The GDB objfile we're printing this section for.  */\n+  struct objfile *objfile;\n+\n+  /* The argument string passed by the user to the top level maintenance\n+     info sections command.  Used for filtering which sections are\n+     printed.  */\n+  const char *arg;\n+\n+  /* The number of digits in the highest section index for all sections\n+     from the bfd object associated with OBJFILE.  Used when pretty\n+     printing the index number to ensure all of the indexes line up.  */\n+  int index_digits;\n+\n+  /* Constructor.  */\n+  maint_print_section_data (struct objfile *objfile, const char *arg,\n+\t\t\t    bfd *abfd)\n+    : objfile (objfile),\n+      arg(arg)\n+  {\n+    int section_count = gdb_bfd_count_sections (abfd);\n+    index_digits = ((int) log10 (section_count)) + 1;\n+  }\n+\n+private:\n+  maint_print_section_data () = delete;\n+  maint_print_section_data (const maint_print_section_data &) = delete;\n+};\n+\n+/* Helper function to pretty-print the section index of ASECT from ABFD.\n+   The INDEX_DIGITS is the number of digits in the largest index that will\n+   be printed, and is used to pretty-print the resulting string.  */\n+\n+static void\n+print_section_index (bfd *abfd,\n+\t\t     asection *asect,\n+\t\t     int index_digits)\n+{\n+  std::string result\n+    = string_printf (\" [%d] \", gdb_bfd_section_index (abfd, asect));\n+  /* The '+ 4' for the leading and trailing characters.  */\n+  printf_filtered (\"%-*s\", (index_digits + 4), result.c_str ());\n+}\n+\n+/* Print information about ASECT from ABFD.  DATUM holds a pointer to a\n+   maint_print_section_data object.  The section will be printed using the\n+   VMA's from the bfd, which will not be the relocated addresses for bfds\n+   that should be relocated.  The information must be printed with the\n+   same layout as PRINT_OBJFILE_SECTION_INFO below.  */\n+\n static void\n-print_bfd_section_info (bfd *abfd, \n-\t\t\tasection *asect, \n+print_bfd_section_info (bfd *abfd,\n+\t\t\tasection *asect,\n \t\t\tvoid *datum)\n {\n   flagword flags = bfd_get_section_flags (abfd, asect);\n   const char *name = bfd_section_name (abfd, asect);\n-  const char *arg = (const char *) datum;\n+  maint_print_section_data *print_data = (maint_print_section_data *) datum;\n+  const char *arg = print_data->arg;\n \n   if (arg == NULL || *arg == '\\0'\n       || match_substring (arg, name)\n@@ -295,19 +350,25 @@ print_bfd_section_info (bfd *abfd,\n \n       addr = bfd_section_vma (abfd, asect);\n       endaddr = addr + bfd_section_size (abfd, asect);\n-      printf_filtered (\" [%d] \", gdb_bfd_section_index (abfd, asect));\n+      print_section_index (abfd, asect, print_data->index_digits);\n       maint_print_section_info (name, flags, addr, endaddr,\n \t\t\t\tasect->filepos, addr_size);\n     }\n }\n \n+/* Print information about ASECT which is GDB's wrapper around a section\n+   from ABFD.  The information must be printed with the same layout as\n+   PRINT_BFD_SECTION_INFO above.  PRINT_DATA holds information used to\n+   filter which sections are printed, and for formatting the output.  */\n+\n static void\n-print_objfile_section_info (bfd *abfd, \n-\t\t\t    struct obj_section *asect, \n-\t\t\t    const char *string)\n+print_objfile_section_info (bfd *abfd,\n+\t\t\t    struct obj_section *asect,\n+\t\t\t    maint_print_section_data *print_data)\n {\n   flagword flags = bfd_get_section_flags (abfd, asect->the_bfd_section);\n   const char *name = bfd_section_name (abfd, asect->the_bfd_section);\n+  const char *string = print_data->arg;\n \n   if (string == NULL || *string == '\\0'\n       || match_substring (string, name)\n@@ -316,6 +377,8 @@ print_objfile_section_info (bfd *abfd,\n       struct gdbarch *gdbarch = gdbarch_from_bfd (abfd);\n       int addr_size = gdbarch_addr_bit (gdbarch) / 8;\n \n+      print_section_index (abfd, asect->the_bfd_section,\n+\t\t\t   print_data->index_digits);\n       maint_print_section_info (name, flags,\n \t\t\t\tobj_section_addr (asect),\n \t\t\t\tobj_section_endaddr (asect),\n@@ -324,12 +387,56 @@ print_objfile_section_info (bfd *abfd,\n     }\n }\n \n+/* Find an obj_section, GDB's wrapper around a bfd section for ASECTION\n+   from ABFD.  It might be that no such wrapper exists (for example debug\n+   sections don't have such wrappers) in which case nullptr is returned.  */\n+\n+static obj_section *\n+maint_obj_section_from_bfd_section (bfd *abfd,\n+\t\t\t\t    asection *asection,\n+\t\t\t\t    objfile *ofile)\n+{\n+  if (ofile->sections == nullptr)\n+    return nullptr;\n+\n+  obj_section *osect\n+    = &ofile->sections[gdb_bfd_section_index (abfd, asection)];\n+\n+  if (osect >= ofile->sections_end)\n+    return nullptr;\n+\n+  return osect;\n+}\n+\n+/* Print information about ASECT from ABFD.  DATUM holds a pointer to a\n+   maint_print_section_data object.  Where possible the information for\n+   ASECT will print the relocated addresses of the section.  */\n+\n+static void\n+print_bfd_section_info_maybe_relocated (bfd *abfd,\n+\t\t\t\t\tasection *asect,\n+\t\t\t\t\tvoid *datum)\n+{\n+  maint_print_section_data *print_data = (maint_print_section_data *) datum;\n+  objfile *objfile = print_data->objfile;\n+\n+  gdb_assert (objfile->sections != NULL);\n+  obj_section *osect\n+    = maint_obj_section_from_bfd_section (abfd, asect, objfile);\n+\n+  if (osect->the_bfd_section == NULL)\n+    print_bfd_section_info (abfd, asect, datum);\n+  else\n+    print_objfile_section_info (abfd, osect, print_data);\n+}\n+\n+/* Implement the \"maintenance info sections\" command.  */\n+\n static void\n maintenance_info_sections (const char *arg, int from_tty)\n {\n   if (exec_bfd)\n     {\n-      struct obj_section *osect;\n       bool allobj = false;\n \n       printf_filtered (_(\"Exec file:\\n\"));\n@@ -352,22 +459,27 @@ maintenance_info_sections (const char *arg, int from_tty)\n \t  if (allobj)\n \t    printf_filtered (_(\"  Object file: %s\\n\"),\n \t\t\t     bfd_get_filename (ofile->obfd));\n-\t  ALL_OBJFILE_OSECTIONS (ofile, osect)\n-\t    {\n-\t      if (!allobj && ofile->obfd != exec_bfd)\n-\t\tcontinue;\n-\t      print_objfile_section_info (ofile->obfd, osect, arg);\n-\t    }\n+\t  else if (ofile->obfd != exec_bfd)\n+\t    continue;\n+\n+\t  maint_print_section_data print_data (ofile, arg, ofile->obfd);\n+\n+\t  bfd_map_over_sections (ofile->obfd,\n+\t\t\t\t print_bfd_section_info_maybe_relocated,\n+\t\t\t\t (void *) &print_data);\n \t}\n     }\n \n   if (core_bfd)\n     {\n+      maint_print_section_data print_data (nullptr, arg, core_bfd);\n+\n       printf_filtered (_(\"Core file:\\n\"));\n       printf_filtered (\"    `%s', \", bfd_get_filename (core_bfd));\n       wrap_here (\"        \");\n       printf_filtered (_(\"file type %s.\\n\"), bfd_get_target (core_bfd));\n-      bfd_map_over_sections (core_bfd, print_bfd_section_info, (void *) arg);\n+      bfd_map_over_sections (core_bfd, print_bfd_section_info,\n+\t\t\t     (void *) &print_data);\n     }\n }\n "
+    },
+    {
+      "sha": "27980548cb43b3147947281dd42450a81b6ac594",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/aa17805fb9a3a1983a510ba425b682fba03410c2/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/aa17805fb9a3a1983a510ba425b682fba03410c2/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=aa17805fb9a3a1983a510ba425b682fba03410c2",
+      "patch": "@@ -1,3 +1,7 @@\n+2019-09-12  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.base/maint.exp: Add test for 'maint info sections'.\n+\n 2019-09-12  Tom de Vries  <tdevries@suse.de>\n \n \t* gdb.base/store.exp: Allow register variables to be optimized out at"
+    },
+    {
+      "sha": "a5d5dacaba966001f8ab35076168e446212a662c",
+      "filename": "gdb/testsuite/gdb.base/maint.exp",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 0,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/aa17805fb9a3a1983a510ba425b682fba03410c2/gdb/testsuite/gdb.base/maint.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/aa17805fb9a3a1983a510ba425b682fba03410c2/gdb/testsuite/gdb.base/maint.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/maint.exp?ref=aa17805fb9a3a1983a510ba425b682fba03410c2",
+      "patch": "@@ -109,6 +109,23 @@ if ![runto_main] then {\n         perror \"tests suppressed\"\n }\n \n+# Check that 'maint info sections' output looks correct.  When\n+# checking the lines for each section we reject section names starting\n+# with a '*' character, the internal *COM*, *UND*, *ABS*, and *IND*\n+# sections should not be displayed in this output.\n+set test \"check maint info sections output\"\n+gdb_test_multiple \"maint info sections\" $test {\n+    -re \"Exec file:\\r\\n\\[\\t ]+`\\[^'\\]+', file type \\[^.\\]+\\.\\r\\n\" {\n+\texp_continue\n+    }\n+    -re \"^ \\\\\\[\\[0-9\\]+\\\\\\]\\[\\t \\]+$hex->$hex at $hex: \\[^*\\r\\]+\\r\\n\" {\n+\texp_continue\n+    }\n+    -re \"^$gdb_prompt $\" {\n+\tpass $test\n+    }\n+}\n+\n # If we're using .gdb_index or .debug_names there will be no psymtabs.\n set have_gdb_index 0\n gdb_test_multiple \"maint info sections .gdb_index .debug_names\" \"check for .gdb_index\" {"
+    }
+  ]
+}

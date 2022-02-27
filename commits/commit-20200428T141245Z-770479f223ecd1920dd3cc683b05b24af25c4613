@@ -1,0 +1,103 @@
+{
+  "sha": "770479f223ecd1920dd3cc683b05b24af25c4613",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NzcwNDc5ZjIyM2VjZDE5MjBkZDNjYzY4M2IwNWIyNGFmMjVjNDYxMw==",
+  "commit": {
+    "author": {
+      "name": "Mark Williams",
+      "email": "mark@myosotissp.com",
+      "date": "2020-04-28T14:12:45Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-04-28T14:12:45Z"
+    },
+    "message": "gdb: Fix toplevel types with -fdebug-types-section\n\nWhen debugging a program compiled with -fdebug-types-section,\nonly the first top-level type in each file is visible to gdb.\n\nThe problem was caused by moving the assignment to list_in_scope\nfrom process_full_comp_unit and process_full_type_unit to\nstart_symtab.  This was fine for process_full_comp_unit, because\nsymtabs and comp units are one-to-one.  But there can be many type\nunits per symtab (one for each type), and we only call start_symtab\nfor the first one.  This adds the necessary assignments on the paths\nwhere start_symtab is not called.\n\ngdb/Changelog:\n\n2020-04-28 Mark Williams <mark@myosotissp.com>\n\n\tPR gdb/24480\n\t* dwarf2read.c: Add missing assingments to list_in_scope when\n\tstart_symtab was already called.\n\ngdb/testsuite/Changelog:\n\n2020-04-28 Mark Williams <mark@myosotissp.com>\n\n\tPR gdb/24480\n\t* dw4-toplevel-types.exp: Test for top level types.\n\t* dw4-toplevel-types.cc: Test for top level types.",
+    "tree": {
+      "sha": "aeae1890889747e08b165d86c2230886a47298d7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/aeae1890889747e08b165d86c2230886a47298d7"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/770479f223ecd1920dd3cc683b05b24af25c4613",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/770479f223ecd1920dd3cc683b05b24af25c4613",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/770479f223ecd1920dd3cc683b05b24af25c4613",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/770479f223ecd1920dd3cc683b05b24af25c4613/comments",
+  "author": null,
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "1b95cdb76caca1b7a9ecf9324acf23139f11f7d1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1b95cdb76caca1b7a9ecf9324acf23139f11f7d1",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/1b95cdb76caca1b7a9ecf9324acf23139f11f7d1"
+    }
+  ],
+  "stats": {
+    "total": 59,
+    "additions": 59,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "130c20dbd8227bfb2a5787b111bfb6c89a4d64e4",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/770479f223ecd1920dd3cc683b05b24af25c4613/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/770479f223ecd1920dd3cc683b05b24af25c4613/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=770479f223ecd1920dd3cc683b05b24af25c4613",
+      "patch": "@@ -10921,6 +10921,7 @@ dwarf2_cu::setup_type_unit_groups (struct die_info *die)\n \t\t\t    COMPUNIT_DIRNAME (cust),\n \t\t\t    compunit_language (cust),\n \t\t\t    0, cust));\n+\t  list_in_scope = get_builder ()->get_file_symbols ();\n \t}\n       return;\n     }\n@@ -10972,6 +10973,7 @@ dwarf2_cu::setup_type_unit_groups (struct die_info *die)\n \t\t\tCOMPUNIT_DIRNAME (cust),\n \t\t\tcompunit_language (cust),\n \t\t\t0, cust));\n+      list_in_scope = get_builder ()->get_file_symbols ();\n \n       auto &file_names = line_header->file_names ();\n       for (i = 0; i < file_names.size (); ++i)"
+    },
+    {
+      "sha": "c47598c46efcf4fa9333f3929960628d64e21bfe",
+      "filename": "gdb/testsuite/gdb.dwarf2/dw4-toplevel-types.cc",
+      "status": "added",
+      "additions": 21,
+      "deletions": 0,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/770479f223ecd1920dd3cc683b05b24af25c4613/gdb/testsuite/gdb.dwarf2/dw4-toplevel-types.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/770479f223ecd1920dd3cc683b05b24af25c4613/gdb/testsuite/gdb.dwarf2/dw4-toplevel-types.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/dw4-toplevel-types.cc?ref=770479f223ecd1920dd3cc683b05b24af25c4613",
+      "patch": "@@ -0,0 +1,21 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+struct X {} x;\n+struct Y {} y;\n+struct Z {} z;\n+int main() {}"
+    },
+    {
+      "sha": "8e3875ad71e41959d2467eb298a7e3da2405a6e3",
+      "filename": "gdb/testsuite/gdb.dwarf2/dw4-toplevel-types.exp",
+      "status": "added",
+      "additions": 36,
+      "deletions": 0,
+      "changes": 36,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/770479f223ecd1920dd3cc683b05b24af25c4613/gdb/testsuite/gdb.dwarf2/dw4-toplevel-types.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/770479f223ecd1920dd3cc683b05b24af25c4613/gdb/testsuite/gdb.dwarf2/dw4-toplevel-types.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/dw4-toplevel-types.exp?ref=770479f223ecd1920dd3cc683b05b24af25c4613",
+      "patch": "@@ -0,0 +1,36 @@\n+# Copyright 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test dwarf4 signatured types (DW_TAG_type_unit).\n+\n+standard_testfile .cc\n+\n+# This test is intended for targets which support DWARF-4.\n+# Since we pass an explicit -gdwarf-4 -fdebug-types-section to the compiler,\n+# we let that be the test of whether the target supports it.\n+\n+if { [prepare_for_testing \"failed to prepare\" \"${testfile}\" \\\n+\t  $srcfile {debug c++ additional_flags=-gdwarf-4 \\\n+\t\t\tadditional_flags=-fdebug-types-section}] } {\n+    return -1\n+}\n+\n+if ![runto_main] {\n+    return -1\n+}\n+\n+gdb_test \"ptype X\" \"type = struct X {.*\"\n+gdb_test \"ptype Y\" \"type = struct Y {.*\"\n+gdb_test \"ptype Z\" \"type = struct Z {.*\""
+    }
+  ]
+}

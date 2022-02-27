@@ -1,0 +1,134 @@
+{
+  "sha": "973695d6bb824a1e724d5ea24e7ece013109dc74",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OTczNjk1ZDZiYjgyNGExZTcyNGQ1ZWEyNGU3ZWNlMDEzMTA5ZGM3NA==",
+  "commit": {
+    "author": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2020-08-07T20:07:44Z"
+    },
+    "committer": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2020-09-01T01:53:17Z"
+    },
+    "message": "Work around incorrect/broken pathnames in NT_FILE note\n\nLuis Machado reported some regressions after I pushed recent core file\nrelated patches fixing BZ 25631:\n\n    FAIL: gdb.base/corefile.exp: backtrace in corefile.exp\n    FAIL: gdb.base/corefile.exp: core-file warning-free\n    FAIL: gdb.base/corefile.exp: print func2::coremaker_local\n    FAIL: gdb.base/corefile.exp: up in corefile.exp\n    FAIL: gdb.base/corefile.exp: up in corefile.exp (reinit)\n\nThis commit fixes these regressions.  Thanks to Luis for testing\nan earlier version of the patch.  (I was unable to reproduce these\nregressions in various test environments that I created.)\n\nLuis is testing in a docker container which is using the AUFS storage\ndriver.  It turns out that the kernel is placing docker host paths in\nthe NT_FILE note instead of paths within the container.\n\nI've made a similar docker environment (though apparently not similar\nenough to reproduce the regressions).  This is one of the paths that\nI see mentioned in the warning messages printed while loading the\ncore file during NT_FILE note processing - note that I've shortened\nthe path component starting with \"d07c4\":\n\n/var/lib/docker/aufs/diff/d07c4...21/lib/x86_64-linux-gnu/ld-2.27.so\n\nThis is a path on the docker host; it does not exist in the\ncontainer.  In the docker container, this is the path:\n\n/lib/x86_64-linux-gnu/ld-2.27.so\n\nMy first thought was to disable all NT_FILE mappings when any path was\nfound to be bad.  This would have caused GDB to fall back to accessing\nmemory using the file stratum as it did before I added the NT_FILE\nnote loading code.  After further consideration, I realized that we\ncould do better than this.  For file-backed memory access, we can\nstill use the NT_FILE mappings when available, and then attempt to\naccess memory using the file stratum constrained to those address\nranges corresponding to the \"broken\" mappings.\n\nIn order to test it, I made some additions to corefile2.exp in which\nthe test case's executable is renamed.  The core file is then loaded;\ndue to the fact that the executable has been renamed, those mappings\nwill be unavailable.  After loading the core file, the executable is\nrenamed back to its original name at which point it is loaded using\nGDB's \"file\" command.  The \"interesting\" tests are then run.  These\ntests will print out values in file-backed memory regions along with\nmmap'd regions placed within/over the file-backed regions.  Despite\nthe fact that the executable could not be found during the NT_FILE\nnote processing, these tests still work correctly due to the fact that\nmemory is available from the file stratum combined with the fact that\nthe broken NT_FILE mappings are used to prevent file-backed access\noutside of the \"broken\" mappings.\n\ngdb/ChangeLog:\n\n\t* corelow.c (unordered_set): Include.\n\t(class core_target): Add field 'm_core_unavailable_mappings'.\n\t(core_target::build_file_mappings): Print only one warning\n\tper inaccessible file.  Add unavailable/broken mappings\n\tto m_core_unavailable_mappings.\n\t(core_target::xfer_partial): Call...\n\t(core_target::xfer_memory_via_mappings): New method.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.base/corefile2.exp (renamed binfile): New tests.",
+    "tree": {
+      "sha": "47088f8b6178d6ba3759e5f6211396ffb3d7778c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/47088f8b6178d6ba3759e5f6211396ffb3d7778c"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/973695d6bb824a1e724d5ea24e7ece013109dc74",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/973695d6bb824a1e724d5ea24e7ece013109dc74",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/973695d6bb824a1e724d5ea24e7ece013109dc74",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/973695d6bb824a1e724d5ea24e7ece013109dc74/comments",
+  "author": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "264fc0e27bf1a7f469f73867cb8f10f33f34415e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/264fc0e27bf1a7f469f73867cb8f10f33f34415e",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/264fc0e27bf1a7f469f73867cb8f10f33f34415e"
+    }
+  ],
+  "stats": {
+    "total": 125,
+    "additions": 117,
+    "deletions": 8
+  },
+  "files": [
+    {
+      "sha": "4840de8591a4299ef8f3c5563dec7b9fd5850b43",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/973695d6bb824a1e724d5ea24e7ece013109dc74/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/973695d6bb824a1e724d5ea24e7ece013109dc74/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=973695d6bb824a1e724d5ea24e7ece013109dc74",
+      "patch": "@@ -1,3 +1,13 @@\n+2020-08-31  Kevin Buettner  <kevinb@redhat.com>\n+\n+\t* corelow.c (unordered_set): Include.\n+\t(class core_target): Add field 'm_core_unavailable_mappings'.\n+\t(core_target::build_file_mappings): Print only one warning\n+\tper inaccessible file.  Add unavailable/broken mappings\n+\tto m_core_unavailable_mappings.\n+\t(core_target::xfer_partial): Call...\n+\t(core_target::xfer_memory_via_mappings): New method.\n+\n 2020-08-31  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* dwarf2/read.c (struct field_info) <non_public_fields>: Change"
+    },
+    {
+      "sha": "96ec739c62fb4fc33e91bdd66274250b0ae614e5",
+      "filename": "gdb/corelow.c",
+      "status": "modified",
+      "additions": 76,
+      "deletions": 8,
+      "changes": 84,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/973695d6bb824a1e724d5ea24e7ece013109dc74/gdb/corelow.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/973695d6bb824a1e724d5ea24e7ece013109dc74/gdb/corelow.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/corelow.c?ref=973695d6bb824a1e724d5ea24e7ece013109dc74",
+      "patch": "@@ -47,6 +47,7 @@\n #include \"build-id.h\"\n #include \"gdbsupport/pathstuff.h\"\n #include <unordered_map>\n+#include <unordered_set>\n #include \"gdbcmd.h\"\n \n #ifndef O_LARGEFILE\n@@ -131,9 +132,21 @@ class core_target final : public process_stratum_target\n      information about memory mapped files.  */\n   target_section_table m_core_file_mappings {};\n \n+  /* Unavailable mappings.  These correspond to pathnames which either\n+     weren't found or could not be opened.  Knowing these addresses can\n+     still be useful.  */\n+  std::vector<mem_range> m_core_unavailable_mappings;\n+\n   /* Build m_core_file_mappings.  Called from the constructor.  */\n   void build_file_mappings ();\n \n+  /* Helper method for xfer_partial.  */\n+  enum target_xfer_status xfer_memory_via_mappings (gdb_byte *readbuf,\n+\t\t\t\t\t\t    const gdb_byte *writebuf,\n+\t\t\t\t\t\t    ULONGEST offset,\n+\t\t\t\t\t\t    ULONGEST len,\n+\t\t\t\t\t\t    ULONGEST *xfered_len);\n+\n   /* FIXME: kettenis/20031023: Eventually this field should\n      disappear.  */\n   struct gdbarch *m_core_gdbarch = NULL;\n@@ -182,6 +195,7 @@ void\n core_target::build_file_mappings ()\n {\n   std::unordered_map<std::string, struct bfd *> bfd_map;\n+  std::unordered_set<std::string> unavailable_paths;\n \n   /* See linux_read_core_file_mappings() in linux-tdep.c for an example\n      read_core_file_mappings method.  */\n@@ -216,9 +230,12 @@ core_target::build_file_mappings ()\n \t      = exec_file_find (filename, NULL);\n \t    if (expanded_fname == nullptr)\n \t      {\n-\t\twarning (_(\"Can't open file %s during file-backed mapping \"\n-\t\t\t   \"note processing\"),\n-\t\t\t filename);\n+\t\tm_core_unavailable_mappings.emplace_back (start, end - start);\n+\t\t/* Print just one warning per path.  */\n+\t\tif (unavailable_paths.insert (filename).second)\n+\t\t  warning (_(\"Can't open file %s during file-backed mapping \"\n+\t\t\t     \"note processing\"),\n+\t\t\t   filename);\n \t\treturn;\n \t      }\n \n@@ -227,6 +244,7 @@ core_target::build_file_mappings ()\n \n \t    if (bfd == nullptr || !bfd_check_format (bfd, bfd_object))\n \t      {\n+\t\tm_core_unavailable_mappings.emplace_back (start, end - start);\n \t\t/* If we get here, there's a good chance that it's due to\n \t\t   an internal error.  We issue a warning instead of an\n \t\t   internal error because of the possibility that the\n@@ -268,6 +286,8 @@ core_target::build_file_mappings ()\n \tts->owner = nullptr;\n \tts->the_bfd_section = sec;\n       });\n+\n+  normalize_mem_ranges (&m_core_unavailable_mappings);\n }\n \n static void add_to_thread_list (bfd *, asection *, void *);\n@@ -728,6 +748,57 @@ core_target::files_info ()\n   print_section_info (&m_core_section_table, core_bfd);\n }\n \f\n+/* Helper method for core_target::xfer_partial.  */\n+\n+enum target_xfer_status\n+core_target::xfer_memory_via_mappings (gdb_byte *readbuf,\n+\t\t\t\t       const gdb_byte *writebuf,\n+\t\t\t\t       ULONGEST offset, ULONGEST len,\n+\t\t\t\t       ULONGEST *xfered_len)\n+{\n+  enum target_xfer_status xfer_status;\n+\n+  xfer_status = (section_table_xfer_memory_partial\n+\t\t   (readbuf, writebuf,\n+\t\t    offset, len, xfered_len,\n+\t\t    m_core_file_mappings.sections,\n+\t\t    m_core_file_mappings.sections_end));\n+\n+  if (xfer_status == TARGET_XFER_OK || m_core_unavailable_mappings.empty ())\n+    return xfer_status;\n+\n+  /* There are instances - e.g. when debugging within a docker\n+     container using the AUFS storage driver - where the pathnames\n+     obtained from the note section are incorrect.  Despite the path\n+     being wrong, just knowing the start and end addresses of the\n+     mappings is still useful; we can attempt an access of the file\n+     stratum constrained to the address ranges corresponding to the\n+     unavailable mappings.  */\n+\n+  ULONGEST memaddr = offset;\n+  ULONGEST memend = offset + len;\n+\n+  for (const auto &mr : m_core_unavailable_mappings)\n+    {\n+      if (address_in_mem_range (memaddr, &mr))\n+        {\n+\t  if (!address_in_mem_range (memend, &mr))\n+\t    len = mr.start + mr.length - memaddr;\n+\n+\t  xfer_status = this->beneath ()->xfer_partial (TARGET_OBJECT_MEMORY,\n+\t\t\t\t\t\t\tNULL,\n+\t\t\t\t\t\t\treadbuf,\n+\t\t\t\t\t\t\twritebuf,\n+\t\t\t\t\t\t\toffset,\n+\t\t\t\t\t\t\tlen,\n+\t\t\t\t\t\t\txfered_len);\n+\t  break;\n+\t}\n+    }\n+\n+  return xfer_status;\n+}\n+\n enum target_xfer_status\n core_target::xfer_partial (enum target_object object, const char *annex,\n \t\t\t   gdb_byte *readbuf, const gdb_byte *writebuf,\n@@ -761,11 +832,8 @@ core_target::xfer_partial (enum target_object object, const char *annex,\n \t   result.  If not, check the stratum beneath us, which should\n \t   be the file stratum.  */\n \tif (m_core_file_mappings.sections != nullptr)\n-\t  xfer_status = section_table_xfer_memory_partial\n-\t\t\t  (readbuf, writebuf,\n-\t\t\t   offset, len, xfered_len,\n-\t\t\t   m_core_file_mappings.sections,\n-\t\t\t   m_core_file_mappings.sections_end);\n+\t  xfer_status = xfer_memory_via_mappings (readbuf, writebuf, offset,\n+\t\t\t\t\t\t  len, xfered_len);\n \telse\n \t  xfer_status = this->beneath ()->xfer_partial (object, annex, readbuf,\n \t\t\t\t\t\t\twritebuf, offset, len,"
+    },
+    {
+      "sha": "e50b2352d9ff2413c6f1447261dd410c14cb38f3",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/973695d6bb824a1e724d5ea24e7ece013109dc74/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/973695d6bb824a1e724d5ea24e7ece013109dc74/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=973695d6bb824a1e724d5ea24e7ece013109dc74",
+      "patch": "@@ -1,3 +1,7 @@\n+2020-08-31  Kevin Buettner  <kevinb@redhat.com>\n+\n+\t* gdb.base/corefile2.exp (renamed binfile): New tests.\n+\n 2020-08-31  Simon Marchi  <simon.marchi@efficios.com>\n \n \t* gdb.dwarf2/dw2-reg-undefined.exp: Remove spurious #."
+    },
+    {
+      "sha": "38b8eb770bdf83c809a94da8da09b48c06f547e1",
+      "filename": "gdb/testsuite/gdb.base/corefile2.exp",
+      "status": "modified",
+      "additions": 27,
+      "deletions": 0,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/973695d6bb824a1e724d5ea24e7ece013109dc74/gdb/testsuite/gdb.base/corefile2.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/973695d6bb824a1e724d5ea24e7ece013109dc74/gdb/testsuite/gdb.base/corefile2.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/corefile2.exp?ref=973695d6bb824a1e724d5ea24e7ece013109dc74",
+      "patch": "@@ -143,6 +143,33 @@ gdb_test_multiple $test \"\" {\n     }\n }\n \n+# Test again with executable renamed during loading of core file.\n+\n+with_test_prefix \"renamed binfile\" {\n+    # Don't load $binfile in this call to clean_restart.  (BFD will\n+    # complain that $binfile has disappeared after the rename if it's\n+    # loaded first.)\n+    clean_restart\n+\n+    # Rename $binfile so that it won't be found during loading of\n+    # the core file.\n+    set hide_binfile [standard_output_file \"${testfile}.hide\"]\n+    remote_exec host \"mv -f $binfile $hide_binfile\"\n+\n+    # Load core file - check that a warning is printed.\n+    global xfail\n+    if { $xfail } { setup_xfail \"*-*-*\" }\n+    gdb_test \"core-file $corefile\" \\\n+\t\"warning: Can't open file.*during.* note processing.*Core was generated by .*\\#0  .*\\(\\)\" \\\n+\t\"load core file without having first loaded binfile\"\n+\n+    # Restore $binfile and then load it.\n+    remote_exec host \"mv -f $hide_binfile $binfile\"\n+    gdb_load ${binfile}\n+\n+    do_tests\n+}\n+\n # Restart and run to the abort call.\n \n clean_restart $binfile"
+    }
+  ]
+}

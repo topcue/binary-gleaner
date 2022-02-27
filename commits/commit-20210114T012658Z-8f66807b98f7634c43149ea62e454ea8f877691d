@@ -1,0 +1,146 @@
+{
+  "sha": "8f66807b98f7634c43149ea62e454ea8f877691d",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OGY2NjgwN2I5OGY3NjM0YzQzMTQ5ZWE2MmU0NTRlYThmODc3NjkxZA==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-01-14T01:26:58Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-01-14T01:26:58Z"
+    },
+    "message": "gdb: better handling of 'S' packets\n\nThis commit builds on work started in the following two commits:\n\n  commit 24ed6739b699f329c2c45aedee5f8c7d2f54e493\n  Date:   Thu Jan 30 14:35:40 2020 +0000\n\n      gdb/remote: Restore support for 'S' stop reply packet\n\n  commit cada5fc921e39a1945c422eea055c8b326d8d353\n  Date:   Wed Mar 11 12:30:13 2020 +0000\n\n      gdb: Handle W and X remote packets without giving a warning\n\nThis is related to how GDB handles remote targets that send back 'S'\npackets.\n\nIn the first of the above commits we fixed GDB's ability to handle a\nsingle process, single threaded target that sends back 'S' packets.\nAlthough the 'T' packet would always be preferred to 'S' these days,\nthere's nothing really wrong with 'S' for this situation.\n\nThe second commit above fixed an oversight in the first commit, a\nsingle-process, multi-threaded target can send back a process wide\nevent, for example the process exited event 'W' without including a\nprocess-id, this also is fine as there is no ambiguity in this case.\n\nIn PR gdb/26819 we run into yet another problem with the above\ncommits.  In this case we have a single process with two threads, GDB\nhits a breakpoint in thread 2 and then performs a stepi:\n\n  (gdb) b main\n  Breakpoint 1 at 0x1212340830: file infinite_loop.S, line 10.\n  (gdb) c\n  Continuing.\n\n  Thread 2 hit Breakpoint 1, main () at infinite_loop.S:10\n  10    in infinite_loop.S\n  (gdb) set debug remote 1\n  (gdb) stepi\n  Sending packet: $vCont;s:2#24...Packet received: S05\n  ../binutils-gdb/gdb/infrun.c:5807: internal-error: int finish_step_over(execution_control_state*): Assertion `ecs->event_thread->control.trap_expected' failed.\n\nWhat happens in this case is that on the RISC-V target displaced\nstepping is not supported, so when the stepi is issued GDB steps just\nthread 2.  As only a single thread was set running the target decides\nthat is can get away with sending back an 'S' packet without a\nthread-id.  GDB then associates the stop with thread 1 (the first\nnon-exited thread), but as thread 1 was not previously set executing\nthe assertion seen above triggers.\n\nAs an aside I am surprised that the target sends pack 'S' in this\nsituation.  The target is happy to send back 'T' (including thread-id)\nwhen multiple threads are set running, so (to me) it would seem easier\nto just always use the 'T' packet when multiple threads are in use.\nHowever, the target only uses 'T' when multiple threads are actually\nexecuting, otherwise an 'S' packet it used.\n\nStill, when looking at the above situation we can see that GDB should\nbe able to understand which thread the 'S' reply is referring too.\n\nThe problem is that is that in commit 24ed6739b699 (above) when a stop\nreply comes in with no thread-id we look for the first non-exited\nthread and select that as the thread the stop applies too.\n\nWhat we should really do is select the first non-exited, resumed thread,\nand associate the stop event with this thread.  In the above example\nboth thread 1 and 2 are non-exited, but only thread 2 is resumed, so\nthis is what we should use.\n\nThere's a test for this issue included which works with stock\ngdbserver by disabling use of the 'T' packet, and enabling\n'scheduler-locking' within GDB so only one thread is set running.\n\ngdb/ChangeLog:\n\n\tPR gdb/26819\n\t* remote.c\n\t(remote_target::select_thread_for_ambiguous_stop_reply): New\n\tmember function.\n\t(remote_target::process_stop_reply): Call\n\tselect_thread_for_ambiguous_stop_reply.\n\ngdb/testsuite/ChangeLog:\n\n\tPR gdb/26819\n\t* gdb.server/stop-reply-no-thread-multi.c: New file.\n\t* gdb.server/stop-reply-no-thread-multi.exp: New file.\n\nChange-Id: I9b49d76c2a99063dcc76203fa0f5270a72825d15",
+    "tree": {
+      "sha": "37c83dcb4a88de879934dab8e89684b8589fac2f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/37c83dcb4a88de879934dab8e89684b8589fac2f"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/8f66807b98f7634c43149ea62e454ea8f877691d",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8f66807b98f7634c43149ea62e454ea8f877691d",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/8f66807b98f7634c43149ea62e454ea8f877691d",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8f66807b98f7634c43149ea62e454ea8f877691d/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "bd497355ea57d629a5c1ac610308bafd5b0eff8f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bd497355ea57d629a5c1ac610308bafd5b0eff8f",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/bd497355ea57d629a5c1ac610308bafd5b0eff8f"
+    }
+  ],
+  "stats": {
+    "total": 391,
+    "additions": 336,
+    "deletions": 55
+  },
+  "files": [
+    {
+      "sha": "7d20a69a744b613aa266ccf84e354a7dc8564766",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8f66807b98f7634c43149ea62e454ea8f877691d/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8f66807b98f7634c43149ea62e454ea8f877691d/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=8f66807b98f7634c43149ea62e454ea8f877691d",
+      "patch": "@@ -1,3 +1,12 @@\n+2021-01-13  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\tPR gdb/26819\n+\t* remote.c\n+\t(remote_target::select_thread_for_ambiguous_stop_reply): New\n+\tmember function.\n+\t(remote_target::process_stop_reply): Call\n+\tselect_thread_for_ambiguous_stop_reply.\n+\n 2021-01-13  Simon Marchi  <simon.marchi@efficios.com>\n \n \t* record-btrace.c (class record_btrace_target): Remove."
+    },
+    {
+      "sha": "74ebbf9ab023389e4e396b6fad66a26da3fa47d2",
+      "filename": "gdb/remote.c",
+      "status": "modified",
+      "additions": 108,
+      "deletions": 55,
+      "changes": 163,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8f66807b98f7634c43149ea62e454ea8f877691d/gdb/remote.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8f66807b98f7634c43149ea62e454ea8f877691d/gdb/remote.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/remote.c?ref=8f66807b98f7634c43149ea62e454ea8f877691d",
+      "patch": "@@ -747,6 +747,9 @@ class remote_target : public process_stratum_target\n   ptid_t process_stop_reply (struct stop_reply *stop_reply,\n \t\t\t     target_waitstatus *status);\n \n+  ptid_t select_thread_for_ambiguous_stop_reply\n+    (const struct target_waitstatus *status);\n+\n   void remote_notice_new_inferior (ptid_t currthread, int executing);\n \n   void process_initial_stop_replies (int from_tty);\n@@ -7753,75 +7756,125 @@ remote_notif_get_pending_events (remote_target *remote, notif_client *nc)\n   remote->remote_notif_get_pending_events (nc);\n }\n \n-/* Called when it is decided that STOP_REPLY holds the info of the\n-   event that is to be returned to the core.  This function always\n-   destroys STOP_REPLY.  */\n+/* Called from process_stop_reply when the stop packet we are responding\n+   to didn't include a process-id or thread-id.  STATUS is the stop event\n+   we are responding to.\n+\n+   It is the task of this function to select a suitable thread (or process)\n+   and return its ptid, this is the thread (or process) we will assume the\n+   stop event came from.\n+\n+   In some cases there isn't really any choice about which thread (or\n+   process) is selected, a basic remote with a single process containing a\n+   single thread might choose not to send any process-id or thread-id in\n+   its stop packets, this function will select and return the one and only\n+   thread.\n+\n+   However, if a target supports multiple threads (or processes) and still\n+   doesn't include a thread-id (or process-id) in its stop packet then\n+   first, this is a badly behaving target, and second, we're going to have\n+   to select a thread (or process) at random and use that.  This function\n+   will print a warning to the user if it detects that there is the\n+   possibility that GDB is guessing which thread (or process) to\n+   report.\n+\n+   Note that this is called before GDB fetches the updated thread list from the\n+   target.  So it's possible for the stop reply to be ambiguous and for GDB to\n+   not realize it.  For example, if there's initially one thread, the target\n+   spawns a second thread, and then sends a stop reply without an id that\n+   concerns the first thread.  GDB will assume the stop reply is about the\n+   first thread - the only thread it knows about - without printing a warning.\n+   Anyway, if the remote meant for the stop reply to be about the second thread,\n+   then it would be really broken, because GDB doesn't know about that thread\n+   yet.  */\n \n ptid_t\n-remote_target::process_stop_reply (struct stop_reply *stop_reply,\n-\t\t\t\t   struct target_waitstatus *status)\n+remote_target::select_thread_for_ambiguous_stop_reply\n+  (const struct target_waitstatus *status)\n {\n-  ptid_t ptid;\n+  /* Some stop events apply to all threads in an inferior, while others\n+     only apply to a single thread.  */\n+  bool process_wide_stop\n+    = (status->kind == TARGET_WAITKIND_EXITED\n+       || status->kind == TARGET_WAITKIND_SIGNALLED);\n \n-  *status = stop_reply->ws;\n-  ptid = stop_reply->ptid;\n+  thread_info *first_resumed_thread = nullptr;\n+  bool ambiguous = false;\n \n-  /* If no thread/process was reported by the stub then use the first\n-     non-exited thread in the current target.  */\n-  if (ptid == null_ptid)\n+  /* Consider all non-exited threads of the target, find the first resumed\n+     one.  */\n+  for (thread_info *thr : all_non_exited_threads (this))\n     {\n-      /* Some stop events apply to all threads in an inferior, while others\n-\t only apply to a single thread.  */\n-      bool is_stop_for_all_threads\n-\t= (status->kind == TARGET_WAITKIND_EXITED\n-\t   || status->kind == TARGET_WAITKIND_SIGNALLED);\n+      remote_thread_info *remote_thr = get_remote_thread_info (thr);\n \n-      for (thread_info *thr : all_non_exited_threads (this))\n+      if (remote_thr->resume_state () != resume_state::RESUMED)\n+\tcontinue;\n+\n+      if (first_resumed_thread == nullptr)\n+\tfirst_resumed_thread = thr;\n+      else if (!process_wide_stop\n+\t       || first_resumed_thread->ptid.pid () != thr->ptid.pid ())\n+\tambiguous = true;\n+    }\n+\n+  gdb_assert (first_resumed_thread != nullptr);\n+\n+  /* Warn if the remote target is sending ambiguous stop replies.  */\n+  if (ambiguous)\n+    {\n+      static bool warned = false;\n+\n+      if (!warned)\n \t{\n-\t  if (ptid != null_ptid\n-\t      && (!is_stop_for_all_threads\n-\t\t  || ptid.pid () != thr->ptid.pid ()))\n-\t    {\n-\t      static bool warned = false;\n+\t  /* If you are seeing this warning then the remote target has\n+\t     stopped without specifying a thread-id, but the target\n+\t     does have multiple threads (or inferiors), and so GDB is\n+\t     having to guess which thread stopped.\n \n-\t      if (!warned)\n-\t\t{\n-\t\t  /* If you are seeing this warning then the remote target\n-\t\t     has stopped without specifying a thread-id, but the\n-\t\t     target does have multiple threads (or inferiors), and\n-\t\t     so GDB is having to guess which thread stopped.\n-\n-\t\t     Examples of what might cause this are the target\n-\t\t     sending and 'S' stop packet, or a 'T' stop packet and\n-\t\t     not including a thread-id.\n-\n-\t\t     Additionally, the target might send a 'W' or 'X\n-\t\t     packet without including a process-id, when the target\n-\t\t     has multiple running inferiors.  */\n-\t\t  if (is_stop_for_all_threads)\n-\t\t    warning (_(\"multi-inferior target stopped without \"\n-\t\t\t       \"sending a process-id, using first \"\n-\t\t\t       \"non-exited inferior\"));\n-\t\t  else\n-\t\t    warning (_(\"multi-threaded target stopped without \"\n-\t\t\t       \"sending a thread-id, using first \"\n-\t\t\t       \"non-exited thread\"));\n-\t\t  warned = true;\n-\t\t}\n-\t      break;\n-\t    }\n+\t     Examples of what might cause this are the target sending\n+\t     and 'S' stop packet, or a 'T' stop packet and not\n+\t     including a thread-id.\n \n-\t  /* If this is a stop for all threads then don't use a particular\n-\t     threads ptid, instead create a new ptid where only the pid\n-\t     field is set.  */\n-\t  if (is_stop_for_all_threads)\n-\t    ptid = ptid_t (thr->ptid.pid ());\n+\t     Additionally, the target might send a 'W' or 'X packet\n+\t     without including a process-id, when the target has\n+\t     multiple running inferiors.  */\n+\t  if (process_wide_stop)\n+\t    warning (_(\"multi-inferior target stopped without \"\n+\t\t       \"sending a process-id, using first \"\n+\t\t       \"non-exited inferior\"));\n \t  else\n-\t    ptid = thr->ptid;\n+\t    warning (_(\"multi-threaded target stopped without \"\n+\t\t       \"sending a thread-id, using first \"\n+\t\t       \"non-exited thread\"));\n+\t  warned = true;\n \t}\n-      gdb_assert (ptid != null_ptid);\n     }\n \n+  /* If this is a stop for all threads then don't use a particular threads\n+     ptid, instead create a new ptid where only the pid field is set.  */\n+  if (process_wide_stop)\n+    return ptid_t (first_resumed_thread->ptid.pid ());\n+  else\n+    return first_resumed_thread->ptid;\n+}\n+\n+/* Called when it is decided that STOP_REPLY holds the info of the\n+   event that is to be returned to the core.  This function always\n+   destroys STOP_REPLY.  */\n+\n+ptid_t\n+remote_target::process_stop_reply (struct stop_reply *stop_reply,\n+\t\t\t\t   struct target_waitstatus *status)\n+{\n+  *status = stop_reply->ws;\n+  ptid_t ptid = stop_reply->ptid;\n+\n+  /* If no thread/process was reported by the stub then select a suitable\n+     thread/process.  */\n+  if (ptid == null_ptid)\n+    ptid = select_thread_for_ambiguous_stop_reply (status);\n+  gdb_assert (ptid != null_ptid);\n+\n   if (status->kind != TARGET_WAITKIND_EXITED\n       && status->kind != TARGET_WAITKIND_SIGNALLED\n       && status->kind != TARGET_WAITKIND_NO_RESUMED)"
+    },
+    {
+      "sha": "cfc49db6c1a53655b0f5229de47ead4d8d1b61d2",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8f66807b98f7634c43149ea62e454ea8f877691d/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8f66807b98f7634c43149ea62e454ea8f877691d/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=8f66807b98f7634c43149ea62e454ea8f877691d",
+      "patch": "@@ -1,3 +1,9 @@\n+2021-01-13  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\tPR gdb/26819\n+\t* gdb.server/stop-reply-no-thread-multi.c: New file.\n+\t* gdb.server/stop-reply-no-thread-multi.exp: New file.\n+\n 2021-01-12  Tom de Vries  <tdevries@suse.de>\n \n \t* gdb.arch/i386-mpx-call.c (have_mpx): Remove."
+    },
+    {
+      "sha": "40cc71a85bc56afb6ca5056527affb3375aa35a5",
+      "filename": "gdb/testsuite/gdb.server/stop-reply-no-thread-multi.c",
+      "status": "added",
+      "additions": 77,
+      "deletions": 0,
+      "changes": 77,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8f66807b98f7634c43149ea62e454ea8f877691d/gdb/testsuite/gdb.server/stop-reply-no-thread-multi.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8f66807b98f7634c43149ea62e454ea8f877691d/gdb/testsuite/gdb.server/stop-reply-no-thread-multi.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.server/stop-reply-no-thread-multi.c?ref=8f66807b98f7634c43149ea62e454ea8f877691d",
+      "patch": "@@ -0,0 +1,77 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2021 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#include <stdlib.h>\n+#include <pthread.h>\n+#include <unistd.h>\n+\n+volatile int worker_blocked = 1;\n+volatile int main_blocked = 1;\n+\n+void\n+unlock_worker (void)\n+{\n+  worker_blocked = 0;\n+}\n+\n+void\n+unlock_main (void)\n+{\n+  main_blocked = 0;\n+}\n+\n+void\n+breakpt (void)\n+{\n+  /* Nothing.  */\n+}\n+\n+static void *\n+worker (void *data)\n+{\n+  unlock_main ();\n+\n+  while (worker_blocked)\n+    ;\n+\n+  breakpt ();\n+\n+  return NULL;\n+}\n+\n+int\n+main (void)\n+{\n+  pthread_t thr;\n+  void *retval;\n+\n+  /* Ensure the test doesn't run forever.  */\n+  alarm (99);\n+\n+  if (pthread_create (&thr, NULL, worker, NULL) != 0)\n+    abort ();\n+\n+  while (main_blocked)\n+    ;\n+\n+  unlock_worker ();\n+\n+  if (pthread_join (thr, &retval) != 0)\n+    abort ();\n+\n+  return 0;\n+}"
+    },
+    {
+      "sha": "6350f5771e31d10e7d6f3a48cea97bc845d2c9a1",
+      "filename": "gdb/testsuite/gdb.server/stop-reply-no-thread-multi.exp",
+      "status": "added",
+      "additions": 136,
+      "deletions": 0,
+      "changes": 136,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8f66807b98f7634c43149ea62e454ea8f877691d/gdb/testsuite/gdb.server/stop-reply-no-thread-multi.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8f66807b98f7634c43149ea62e454ea8f877691d/gdb/testsuite/gdb.server/stop-reply-no-thread-multi.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.server/stop-reply-no-thread-multi.exp?ref=8f66807b98f7634c43149ea62e454ea8f877691d",
+      "patch": "@@ -0,0 +1,136 @@\n+# This testcase is part of GDB, the GNU debugger.\n+#\n+# Copyright 2021 Free Software Foundation, Inc.\n+#\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test how GDB handles the case where a target either doesn't use 'T'\n+# packets at all or doesn't include a thread-id in a 'T' packet, AND,\n+# where the test program contains multiple threads.\n+#\n+# In general if multiple threads are executing and the target doesn't\n+# include a thread-id in its stop response then GDB will not be able\n+# to correctly figure out which thread the stop applies to.\n+#\n+# However, this test covers a very specific case, there are multiple\n+# threads but only a single thread is actually executing.  So, when\n+# the stop comes from the target, without a thread-id, GDB should be\n+# able to correctly figure out which thread has stopped.\n+\n+load_lib gdbserver-support.exp\n+\n+if { [skip_gdbserver_tests] } {\n+    verbose \"skipping gdbserver tests\"\n+    return -1\n+}\n+\n+standard_testfile\n+if { [build_executable \"failed to prepare\" $testfile $srcfile {debug pthreads}] == -1 } {\n+    return -1\n+}\n+\n+# Run the tests with different features of GDBserver disabled.\n+proc run_test { disable_feature } {\n+    global binfile gdb_prompt decimal hex\n+\n+    clean_restart ${binfile}\n+\n+    # Make sure we're disconnected, in case we're testing with an\n+    # extended-remote board, therefore already connected.\n+    gdb_test \"disconnect\" \".*\"\n+\n+    set packet_arg \"\"\n+    if { $disable_feature != \"\" } {\n+\tset packet_arg \"--disable-packet=${disable_feature}\"\n+    }\n+    set res [gdbserver_start $packet_arg $binfile]\n+    set gdbserver_protocol [lindex $res 0]\n+    set gdbserver_gdbport [lindex $res 1]\n+\n+    # Disable XML-based thread listing, and multi-process extensions.\n+    gdb_test_no_output \"set remote threads-packet off\"\n+    gdb_test_no_output \"set remote multiprocess-feature-packet off\"\n+\n+    set res [gdb_target_cmd $gdbserver_protocol $gdbserver_gdbport]\n+    if ![gdb_assert {$res == 0} \"connect\"] {\n+\treturn\n+    }\n+\n+    # There should be only one thread listed at this point.\n+    gdb_test_multiple \"info threads\" \"\" {\n+\t-re \"2 Thread.*$gdb_prompt $\" {\n+\t    fail $gdb_test_name\n+\t}\n+\t-re \"has terminated.*$gdb_prompt $\" {\n+\t    fail $gdb_test_name\n+\t}\n+\t-re \"\\\\\\* 1\\[\\t \\]*Thread\\[^\\r\\n\\]*\\r\\n$gdb_prompt $\" {\n+\t    pass $gdb_test_name\n+\t}\n+    }\n+\n+    gdb_breakpoint \"unlock_worker\"\n+    gdb_continue_to_breakpoint \"run to unlock_worker\"\n+\n+    # There should be two threads at this point with thread 1 selected.\n+    gdb_test \"info threads\" \\\n+\t\"\\\\\\* 1\\[\\t \\]*Thread\\[^\\r\\n\\]*\\r\\n  2\\[\\t \\]*Thread\\[^\\r\\n\\]*\" \\\n+\t\"second thread should now exist\"\n+\n+    # Switch threads.\n+    gdb_test \"thread 2\" \".*\" \"switch to second thread\"\n+\n+    # Now turn on scheduler-locking so that when we step thread 2 only\n+    # that one thread will be set running.\n+    gdb_test_no_output \"set scheduler-locking on\"\n+\n+    # Single step thread 2.  Only the one thread will step.  When the\n+    # thread stops, if the stop packet doesn't include a thread-id\n+    # then GDB should still understand which thread stopped.\n+    gdb_test_multiple \"stepi\" \"\" {\n+\t-re -wrap \"Thread 1 received signal SIGTRAP.*\" {\n+\t    fail $gdb_test_name\n+\t}\n+\t-re -wrap \"$hex.*$decimal.*while \\\\(worker_blocked\\\\).*\" {\n+\t    pass $gdb_test_name\n+\t}\n+    }\n+\n+    # Check that thread 2 is still selected.\n+    gdb_test \"info threads\" \\\n+\t\"  1\\[\\t \\]*Thread\\[^\\r\\n\\]*\\r\\n\\\\\\* 2\\[\\t \\]*Thread\\[^\\r\\n\\]*\" \\\n+\t\"second thread should still be selected after stepi\"\n+\n+    # Turn scheduler locking off again so that when we continue all\n+    # threads will be set running.\n+    gdb_test_no_output \"set scheduler-locking off\"\n+\n+    # Continue until exit.  The server sends a 'W' with no PID.\n+    # Bad GDB gave an error like below when target is nonstop:\n+    #  (gdb) c\n+    #  Continuing.\n+    #  No process or thread specified in stop reply: W00\n+    gdb_continue_to_end \"\" continue 1\n+}\n+\n+# Disable different features within gdbserver:\n+#\n+# Tthread: Start GDBserver, with \";thread:NNN\" in T stop replies disabled,\n+#          emulating old gdbservers when debugging single-threaded programs.\n+#\n+# T: Start GDBserver with the entire 'T' stop reply packet disabled,\n+#    GDBserver will instead send the 'S' stop reply.\n+foreach_with_prefix to_disable { \"\" Tthread T } {\n+    run_test $to_disable\n+}"
+    }
+  ]
+}

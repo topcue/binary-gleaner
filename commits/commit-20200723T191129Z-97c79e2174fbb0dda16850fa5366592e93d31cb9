@@ -1,0 +1,132 @@
+{
+  "sha": "97c79e2174fbb0dda16850fa5366592e93d31cb9",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OTdjNzllMjE3NGZiYjBkZGExNjg1MGZhNTM2NjU5MmU5M2QzMWNiOQ==",
+  "commit": {
+    "author": {
+      "name": "Maciej W. Rozycki",
+      "email": "macro@wdc.com",
+      "date": "2020-07-23T19:11:29Z"
+    },
+    "committer": {
+      "name": "Maciej W. Rozycki",
+      "email": "macro@wdc.com",
+      "date": "2020-07-23T19:11:29Z"
+    },
+    "message": "PR ld/26288: Allow the use of `--just-symbols' with ET_EXEC input\n\nFix a regression from commit a87e1817a435 (\"Have the linker fail if any\nattempt to link in an executable is made.\") and do not reject ET_EXEC\ninput supplied with the `--just-symbols' option.  Such use is legitimate\nas the file requested is not actually linked and only the symbols are\nextracted. Furthermore it is often the most useful application, as\nalready observed in our documentation for the option, where it allows\n\"to refer symbolically to absolute locations of memory defined in other\nprograms.\"\n\nProvide a set of tests for the use of ET_EXEC with `--just-symbols'.\nThese are excluded however for SH/PE targets because they complain if a\nsection's VMA is 0:\n\nld: zero vma section reloc detected: `.text' #0 f=32795\nld: zero vma section reloc detected: `.data' #1 f=291\n\nand for x86_64/PE targets because they seem to hardwire the VMA:\n\n 100000000 12000000 01000000 00000000 00000000  ................\n\n\tld/\n\tPR ld/26288\n\t* ldelf.c (ldelf_after_open): Do not reject ET_EXEC input\n\tsupplied with `--just-symbols'.\n\t* testsuite/ld-misc/just-symbols.exp: New test script.\n\t* testsuite/ld-misc/just-symbols-1.dd: New test dump.\n\t* testsuite/ld-misc/just-symbols.ld: New test linker script.\n\t* testsuite/ld-misc/just-symbols-0.s: New test source.\n\t* testsuite/ld-misc/just-symbols-1.s: New test source.",
+    "tree": {
+      "sha": "46d249709c800809267461e2b193934f339a8f2e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/46d249709c800809267461e2b193934f339a8f2e"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/97c79e2174fbb0dda16850fa5366592e93d31cb9",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/97c79e2174fbb0dda16850fa5366592e93d31cb9",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/97c79e2174fbb0dda16850fa5366592e93d31cb9",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/97c79e2174fbb0dda16850fa5366592e93d31cb9/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "b5dd7120f6bcbd1fe650b8839a53b2bd423fbf60",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b5dd7120f6bcbd1fe650b8839a53b2bd423fbf60",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b5dd7120f6bcbd1fe650b8839a53b2bd423fbf60"
+    }
+  ],
+  "stats": {
+    "total": 91,
+    "additions": 90,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "467c2bc5673b42ecf6ca5e7d43c964c736a9b571",
+      "filename": "ld/ChangeLog",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/97c79e2174fbb0dda16850fa5366592e93d31cb9/ld/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/97c79e2174fbb0dda16850fa5366592e93d31cb9/ld/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/ChangeLog?ref=97c79e2174fbb0dda16850fa5366592e93d31cb9",
+      "patch": "@@ -1,3 +1,14 @@\n+2020-07-23  Maciej W. Rozycki  <macro@wdc.com>\n+\n+\tPR ld/26288\n+\t* ldelf.c (ldelf_after_open): Do not reject ET_EXEC input\n+\tsupplied with `--just-symbols'.\n+\t* testsuite/ld-misc/just-symbols.exp: New test script.\n+\t* testsuite/ld-misc/just-symbols-1.dd: New test dump.\n+\t* testsuite/ld-misc/just-symbols.ld: New test linker script.\n+\t* testsuite/ld-misc/just-symbols-0.s: New test source.\n+\t* testsuite/ld-misc/just-symbols-1.s: New test source.\n+\n 2020-07-23  Maciej W. Rozycki  <macro@wdc.com>\n \n \tPR ld/26288"
+    },
+    {
+      "sha": "729239c101e1ba83a7423456f0b2315a5f2f3dd2",
+      "filename": "ld/ldelf.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/97c79e2174fbb0dda16850fa5366592e93d31cb9/ld/ldelf.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/97c79e2174fbb0dda16850fa5366592e93d31cb9/ld/ldelf.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/ldelf.c?ref=97c79e2174fbb0dda16850fa5366592e93d31cb9",
+      "patch": "@@ -1043,7 +1043,8 @@ ldelf_after_open (int use_libpath, int native, int is_linux, int is_freebsd,\n   /* Do not allow executable files to be used as inputs to the link.  */\n   for (abfd = link_info.input_bfds; abfd; abfd = abfd->link.next)\n     {\n-      if (elf_tdata (abfd) != NULL\n+      if (!bfd_input_just_syms (abfd)\n+\t  && elf_tdata (abfd) != NULL\n \t  && elf_tdata (abfd)->elf_header != NULL\n \t  /* FIXME: Maybe check for other non-supportable types as well ?  */\n \t  && elf_tdata (abfd)->elf_header->e_type == ET_EXEC)"
+    },
+    {
+      "sha": "bceb6ba706e748dbf1fdccf032293d50cee420e6",
+      "filename": "ld/testsuite/ld-misc/just-symbols-0.s",
+      "status": "added",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/97c79e2174fbb0dda16850fa5366592e93d31cb9/ld/testsuite/ld-misc/just-symbols-0.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/97c79e2174fbb0dda16850fa5366592e93d31cb9/ld/testsuite/ld-misc/just-symbols-0.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-misc/just-symbols-0.s?ref=97c79e2174fbb0dda16850fa5366592e93d31cb9",
+      "patch": "@@ -0,0 +1,4 @@\n+\t.data\n+\t.org\t0x12\n+\t.globl\tfoo\n+foo:"
+    },
+    {
+      "sha": "8908a235ae9a05d6d1c078b3c569d43f1c02030a",
+      "filename": "ld/testsuite/ld-misc/just-symbols-1.dd",
+      "status": "added",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/97c79e2174fbb0dda16850fa5366592e93d31cb9/ld/testsuite/ld-misc/just-symbols-1.dd",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/97c79e2174fbb0dda16850fa5366592e93d31cb9/ld/testsuite/ld-misc/just-symbols-1.dd",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-misc/just-symbols-1.dd?ref=97c79e2174fbb0dda16850fa5366592e93d31cb9",
+      "patch": "@@ -0,0 +1,5 @@\n+.*: +file format .*\n+\n+Contents of section \\.data:\n+ [0-9a-f]+ (?:(:?12000000|00120000|00000012) 0{8}|0{8} 00000012) 0{8} 0{8} .*\n+#pass"
+    },
+    {
+      "sha": "975d08337ba322ac601152ac64cd7e7d6c0c0212",
+      "filename": "ld/testsuite/ld-misc/just-symbols-1.s",
+      "status": "added",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/97c79e2174fbb0dda16850fa5366592e93d31cb9/ld/testsuite/ld-misc/just-symbols-1.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/97c79e2174fbb0dda16850fa5366592e93d31cb9/ld/testsuite/ld-misc/just-symbols-1.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-misc/just-symbols-1.s?ref=97c79e2174fbb0dda16850fa5366592e93d31cb9",
+      "patch": "@@ -0,0 +1,4 @@\n+\t.data\n+bar:\n+\t.dc.a\tfoo\n+\t.org\t0x10"
+    },
+    {
+      "sha": "1c1f866b737994308ce376ba94b7c7c0d50f15db",
+      "filename": "ld/testsuite/ld-misc/just-symbols.exp",
+      "status": "added",
+      "additions": 57,
+      "deletions": 0,
+      "changes": 57,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/97c79e2174fbb0dda16850fa5366592e93d31cb9/ld/testsuite/ld-misc/just-symbols.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/97c79e2174fbb0dda16850fa5366592e93d31cb9/ld/testsuite/ld-misc/just-symbols.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-misc/just-symbols.exp?ref=97c79e2174fbb0dda16850fa5366592e93d31cb9",
+      "patch": "@@ -0,0 +1,57 @@\n+# Expect script for ld --just-symbols tests.\n+#   Copyright (C) 2020 Free Software Foundation, Inc.\n+#\n+# This file is part of the GNU Binutils.\n+#\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program; if not, write to the Free Software\n+# Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,\n+# MA 02110-1301, USA.\n+#\n+\n+# SH/PE targets complain about zero VMA.\n+# x86_64/PE targets hardcode VMA to 0x100000000.\n+if { [istarget sh-*-pe] \\\n+     || [istarget x86_64-*-cygwin] \\\n+     || [istarget x86_64-*-mingw*] \\\n+     || [istarget x86_64-*-pe] \\\n+     || [istarget x86_64-*-pep] } {\n+    return\n+}\n+\n+run_ld_link_tests {\n+    {\"Object for --just-symbols test\"\n+     \"-r -T just-symbols.ld\" \"\"\n+     \"\"\n+     {just-symbols-0.s}\n+     {}\n+     \"just-symbols-0.o\"}\n+    {\"Executable for --just-symbols test\"\n+     \"-e 0 -T just-symbols.ld\" \"\"\n+     \"\"\n+     {just-symbols-0.s}\n+     {}\n+     \"just-symbols-0\"}\n+    {\"Object with --just-symbols test\"\n+     \"-e 0 -T just-symbols.ld --just-symbols=tmpdir/just-symbols-0.o\" \"\"\n+     \"\"\n+     {just-symbols-1.s}\n+     {{objdump {-s -j .data} just-symbols-1.dd}}\n+     \"just-symbols-1obj\"}\n+    {\"Executable with --just-symbols test\"\n+     \"-e 0 -T just-symbols.ld --just-symbols=tmpdir/just-symbols-0\" \"\"\n+     \"\"\n+     {just-symbols-1.s}\n+     {{objdump {-s -j .data} just-symbols-1.dd}}\n+     \"just-symbols-1exe\"}\n+}"
+    },
+    {
+      "sha": "3d6598757a0fe4a5f4a8eeaff303ec3de3f8ff56",
+      "filename": "ld/testsuite/ld-misc/just-symbols.ld",
+      "status": "added",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/97c79e2174fbb0dda16850fa5366592e93d31cb9/ld/testsuite/ld-misc/just-symbols.ld",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/97c79e2174fbb0dda16850fa5366592e93d31cb9/ld/testsuite/ld-misc/just-symbols.ld",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-misc/just-symbols.ld?ref=97c79e2174fbb0dda16850fa5366592e93d31cb9",
+      "patch": "@@ -0,0 +1,7 @@\n+SECTIONS\n+{\n+  .text : { *(.text) }\n+  .data : { *(.data) }\n+  .bss  : {  *(.bss) }\n+  /DISCARD/ : { *(*) }\n+}"
+    }
+  ]
+}

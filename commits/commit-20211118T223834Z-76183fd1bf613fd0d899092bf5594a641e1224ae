@@ -1,0 +1,98 @@
+{
+  "sha": "76183fd1bf613fd0d899092bf5594a641e1224ae",
+  "node_id": "C_kwDOANOeidoAKDc2MTgzZmQxYmY2MTNmZDBkODk5MDkyYmY1NTk0YTY0MWUxMjI0YWU",
+  "commit": {
+    "author": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2021-11-18T22:06:01Z"
+    },
+    "committer": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2021-11-18T22:38:34Z"
+    },
+    "message": "dprintf-execution-x-script.exp: Adjust test for native-extended-gdbserver\n\nWithout this commit, doing...\n\nmake check RUNTESTFLAGS=\"--target_board=native-extended-gdbserver\" \\\n           TESTS=\"gdb.base/dprintf-execution-x-script.exp\"\n\n...will show one failure.\n\nHere's a snippet from gdb.log showing the circumstances - I've trimmed\nthe paths for readability:\n\nbuiltin_spawn gdb -nw -nx -data-directory data-directory -iex set height 0 -iex set width 0 -iex set auto-connect-native-target off -iex set sysroot -ex set height unlimited -x testsuite/gdb.base/dprintf-execution-x-script.gdb --args testsuite/outputs/gdb.base/dprintf-execution-x-script/dprintf-execution-x-script\n...\nReading symbols from testsuite/outputs/gdb.base/dprintf-execution-x-script/dprintf-execution-x-script...\nDprintf 1 at 0x40116e: file testsuite/gdb.base/dprintf-execution-x-script.c, line 38.\nBreakpoint 2 at 0x40113a: file testsuite/gdb.base/dprintf-execution-x-script.c, line 26.\ntestsuite/gdb.base/dprintf-execution-x-script.gdb:21: Error in sourced command file:\nDon't know how to run.  Try \"help target\".\n(gdb) FAIL: gdb.base/dprintf-execution-x-script.exp: load and run script with -x\n...\nGNU gdb (GDB) 12.0.50.20211118-git\nCopyright (C) 2021 Free Software Foundation, Inc.\n...\n(gdb) set height 0\n(gdb) set width 0\n(gdb) builtin_spawn gdbserver/gdbserver --once --multi localhost:2346\nListening on port 2346\ntarget extended-remote localhost:2346\nRemote debugging using localhost:2346\n...\n[Tests after this point will pass.]\n\nNote that the command which spawns gdb prevents the gdb script from\nusing the native target via \"-iex set auto-connect-native-target off\".\n\nMoreover, the script in question contains a \"run\" command, so GDB\ndoesn't know how to run (since it's prevented from using the native\ntarget and no alternate \"target\" command has been issued.  But, once\nGDB finishes starting up, the test will spawn a gdbserver and then\nconnect to it.  The other (two) tests after this point both pass.\n\nI've fixed this by using gdb_test_multiple instead of gdb_test.\nWhen a \"Don't know how to run message\" is received, the test is\nunsupported.\n\nI've also added a comment explaining the reason for needing to check\nfor \"Don't know how to run\" despite bailing out at the top of the test\nvia:\n\n  if ![target_can_use_run_cmd] {\n      return 0\n  }",
+    "tree": {
+      "sha": "2deb652ef91ce6890ae23bdf017ec1b68f6588c6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/2deb652ef91ce6890ae23bdf017ec1b68f6588c6"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/76183fd1bf613fd0d899092bf5594a641e1224ae",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/76183fd1bf613fd0d899092bf5594a641e1224ae",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/76183fd1bf613fd0d899092bf5594a641e1224ae",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/76183fd1bf613fd0d899092bf5594a641e1224ae/comments",
+  "author": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "140eb481d1c31d9327b7baf7901c354c8e224dab",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/140eb481d1c31d9327b7baf7901c354c8e224dab",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/140eb481d1c31d9327b7baf7901c354c8e224dab"
+    }
+  ],
+  "stats": {
+    "total": 23,
+    "additions": 22,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "99caf359e41e9acbd128821158a3cc34e88ef31d",
+      "filename": "gdb/testsuite/gdb.base/dprintf-execution-x-script.exp",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 1,
+      "changes": 23,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/76183fd1bf613fd0d899092bf5594a641e1224ae/gdb/testsuite/gdb.base/dprintf-execution-x-script.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/76183fd1bf613fd0d899092bf5594a641e1224ae/gdb/testsuite/gdb.base/dprintf-execution-x-script.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/dprintf-execution-x-script.exp?ref=76183fd1bf613fd0d899092bf5594a641e1224ae",
+      "patch": "@@ -67,7 +67,28 @@ set b \"Breakpoint ., inc_vi\"\n set pat \"${d}0.*?$b.*?${d}1.*?$b.*?${d}2.*?$b.*?\"\n \n proc do_test {cmd test} {\n-    gdb_test $cmd \"$::pat$::inferior_exited_re normally.*\" $test\n+    gdb_test_multiple $cmd $test {\n+\t-re \"$::pat$::inferior_exited_re normally.*$::gdb_prompt $\" {\n+\t    pass $test\n+\t}\n+\t-re \"Don't know how to run.*$::gdb_prompt $\" {\n+\t    # Even though we bailed out at the beginning of this test case\n+\t    # for targets which can't use the \"run\" command, there are\n+\t    # still targets, e.g. native-extended-gdbserver, which can\n+\t    # run, but will still print the \"Don't know how to run\"\n+\t    # message.  In the case of native-extended-gdbserver, it would\n+\t    # first need to connect to the target in order to run.  For\n+\t    # that particular target, the very first test which attempts\n+\t    # to use the \"run\" command from a command line script is\n+\t    # the one that is unsupported.  The other two tests will\n+\t    # pass because, after reaching the (gdb) prompt, a gdbserver\n+\t    # is spawned and then connected to.  (The command line which\n+\t    # spawns GDB for this target has a \"-iex set\n+\t    # auto-connect-native-target off\" which prevents it from\n+\t    # attempting to \"run\" using the native target.)\n+\t    unsupported $test\n+\t}\n+    }\n }\n \n # Check output from running script with -x"
+    }
+  ]
+}

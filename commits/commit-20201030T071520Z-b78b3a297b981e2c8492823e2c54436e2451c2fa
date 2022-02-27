@@ -1,0 +1,182 @@
+{
+  "sha": "b78b3a297b981e2c8492823e2c54436e2451c2fa",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6Yjc4YjNhMjk3Yjk4MWUyYzg0OTI4MjNlMmM1NDQzNmUyNDUxYzJmYQ==",
+  "commit": {
+    "author": {
+      "name": "Tankut Baris Aktemur",
+      "email": "tankut.baris.aktemur@intel.com",
+      "date": "2020-10-30T07:13:57Z"
+    },
+    "committer": {
+      "name": "Tankut Baris Aktemur",
+      "email": "tankut.baris.aktemur@intel.com",
+      "date": "2020-10-30T07:15:20Z"
+    },
+    "message": "gdb/infrun: disable pagination in fetch_inferior_event\n\nHaving pagination enabled when handling an inferior event gives the\nuser an option to quit, which causes early exit in GDB's flow and may\nlead to half-baked state.  For instance, here is a case where we quit\nin the middle of handling an inferior exit:\n\n  $ gdb ./a.out\n  Reading symbols from ./a.out...\n  (gdb) set height 2\n  (gdb) run\n  Starting program: ./a.out\n  --Type <RET> for more, q to quit, c to continue without paging--q\n  Quit\n  Couldn't get registers: No such process.\n  (gdb) set height unlimited\n  Couldn't get registers: No such process.\n  (gdb) info threads\n    Id   Target Id         Frame\n  * 1    process 27098     Couldn't get registers: No such process.\n  Couldn't get registers: No such process.\n  (gdb)\n\nOr suppose having a multi-threaded program like below:\n\n  static void *\n  fun (void *dummy)\n  {\n    int a = 1; /* break-here */\n    return NULL;\n  }\n\n  int\n  main (void)\n  {\n    pthread_t thread;\n    pthread_create (&thread, NULL, fun, NULL);\n    pthread_join (thread, NULL);\n\n    return 0;\n  }\n\nIf we define a breakpoint at line \"break-here\", we expect only Thread\n2 to hit it.\n\n  $ gdb ./a.out\n  Reading symbols from ./a.out...\n  (gdb) break 7\n  Breakpoint 1 at 0x1182: file mt.c, line 7.\n  (gdb) set height 2\n  (gdb) run\n  Starting program: ./a.out\n  [Thread debugging using libthread_db enabled]\n  Using host libthread_db library \"/lib/x86_64-linux-gnu/libthread_db.so.1\".\n  [New Thread 0x7ffff77c4700 (LWP 23048)]\n  --Type <RET> for more, q to quit, c to continue without paging--q\n  Quit\n  (gdb) set height unlimited\n  (gdb) info thread\n    Id   Target Id                                 Frame\n  * 1    Thread 0x7ffff7fe3740 (LWP 23044) \"a.out\" 0x00007ffff7bbed2d in ...\n    2    Thread 0x7ffff77c4700 (LWP 23048) \"a.out\" fun (dummy=0x0) at mt.c:7\n  (gdb)\n\nThe prompt for continuation was triggered because Thread 2 hit the\nbreakpoint.  (If we had hit 'c', we were going to see that stop event,\nbut we didn't.)  The context did not switch to Thread 2.  GDB also did\nnot execute several other things it would normally do in\ninfrun.c:normal_stop after outputting \"[Switching to Thread ...]\" (but\nit seems harmless in this case).  If we 'continue' at this state, both\nthreads run until termination, and we don't see the breakpoint hit\nevent ever.\n\nHere is another related and more complicated scenario that leads to a\nGDB crash.  Create two inferiors, one sitting on top of a native\ntarget, and the other on a remote target, so that we have a\nmulti-target setting, like so:\n\n  (gdb) i inferiors\n    Num  Description       Connection     Executable\n    1    process 13786     1 (native)     a.out\n  * 2    process 13806     2 (remote ...) target:a.out\n\nNext, resume both inferiors to run until termination:\n\n  (gdb) set schedule-multiple on\n  (gdb) set height 2\n  (gdb) continue\n  Continuing.\n  --Type <RET> for more, q to quit, c to continue without paging--[Inferior 2 (process 13806) exited normally]\n\n  terminate called after throwing an instance of 'gdb_exception_error'\n  Aborted\n\nHere, GDB first received a termination event from Inferior 1.  GDB\nattempted to print this event, triggering a \"prompt for continue\", and\nGDB started polling for events, hoping to get an input from the user.\nHowever, the exit event from Inferior 2 was received instead.  So, GDB\nstarted processing an exit event while being in the middle of\nprocessing another exit event.  It was not ready for this situation\nand eventually crashed.\n\nTo address these cases, temporarily disable pagination in\nfetch_inferior_event.  This doesn't affect commands like 'info\nthreads', 'backtrace', or 'thread apply'.\n\nRegression-tested on X86_64 Linux.\n\ngdb/ChangeLog:\n2020-10-30  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n\n\t* infrun.c (fetch_inferior_event): Temporarily disable pagination.\n\ngdb/testsuite/ChangeLog:\n2020-10-30  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n\n\t* gdb.base/paginate-after-ctrl-c-running.exp: Update with no pagination\n\tbehavior.\n\t* gdb.base/paginate-bg-execution.exp: Ditto.\n\t* gdb.base/paginate-inferior-exit.exp: Ditto.\n\t* gdb.base/double-prompt-target-event-error.c: Remove.\n\t* gdb.base/double-prompt-target-event-error.exp: Remove.",
+    "tree": {
+      "sha": "59d3172eef410e43451791ab649671b968ed4ea6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/59d3172eef410e43451791ab649671b968ed4ea6"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/b78b3a297b981e2c8492823e2c54436e2451c2fa",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b78b3a297b981e2c8492823e2c54436e2451c2fa",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/b78b3a297b981e2c8492823e2c54436e2451c2fa",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b78b3a297b981e2c8492823e2c54436e2451c2fa/comments",
+  "author": {
+    "login": "barisaktemur",
+    "id": 55686642,
+    "node_id": "MDQ6VXNlcjU1Njg2NjQy",
+    "avatar_url": "https://avatars.githubusercontent.com/u/55686642?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/barisaktemur",
+    "html_url": "https://github.com/barisaktemur",
+    "followers_url": "https://api.github.com/users/barisaktemur/followers",
+    "following_url": "https://api.github.com/users/barisaktemur/following{/other_user}",
+    "gists_url": "https://api.github.com/users/barisaktemur/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/barisaktemur/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/barisaktemur/subscriptions",
+    "organizations_url": "https://api.github.com/users/barisaktemur/orgs",
+    "repos_url": "https://api.github.com/users/barisaktemur/repos",
+    "events_url": "https://api.github.com/users/barisaktemur/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/barisaktemur/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "barisaktemur",
+    "id": 55686642,
+    "node_id": "MDQ6VXNlcjU1Njg2NjQy",
+    "avatar_url": "https://avatars.githubusercontent.com/u/55686642?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/barisaktemur",
+    "html_url": "https://github.com/barisaktemur",
+    "followers_url": "https://api.github.com/users/barisaktemur/followers",
+    "following_url": "https://api.github.com/users/barisaktemur/following{/other_user}",
+    "gists_url": "https://api.github.com/users/barisaktemur/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/barisaktemur/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/barisaktemur/subscriptions",
+    "organizations_url": "https://api.github.com/users/barisaktemur/orgs",
+    "repos_url": "https://api.github.com/users/barisaktemur/repos",
+    "events_url": "https://api.github.com/users/barisaktemur/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/barisaktemur/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "d70bdd3cc4cfdfd30bed44a271ff80f98b96eebf",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d70bdd3cc4cfdfd30bed44a271ff80f98b96eebf",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/d70bdd3cc4cfdfd30bed44a271ff80f98b96eebf"
+    }
+  ],
+  "stats": {
+    "total": 304,
+    "additions": 40,
+    "deletions": 264
+  },
+  "files": [
+    {
+      "sha": "1433cf901c83e7865a46bb64d3fca04292b00d79",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b78b3a297b981e2c8492823e2c54436e2451c2fa/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b78b3a297b981e2c8492823e2c54436e2451c2fa/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=b78b3a297b981e2c8492823e2c54436e2451c2fa",
+      "patch": "@@ -1,3 +1,7 @@\n+2020-10-30  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n+\n+\t* infrun.c (fetch_inferior_event): Temporarily disable pagination.\n+\n 2020-10-30  Pedro Alves  <pedro@palves.net>\n \n \t* thread.c (lookup_selected_frame): Move ..."
+    },
+    {
+      "sha": "19031a0103dbf4d2ed21c52683dc868570133ecd",
+      "filename": "gdb/infrun.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b78b3a297b981e2c8492823e2c54436e2451c2fa/gdb/infrun.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b78b3a297b981e2c8492823e2c54436e2451c2fa/gdb/infrun.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infrun.c?ref=b78b3a297b981e2c8492823e2c54436e2451c2fa",
+      "patch": "@@ -3866,6 +3866,12 @@ fetch_inferior_event ()\n      the main console.  */\n   scoped_restore save_ui = make_scoped_restore (&current_ui, main_ui);\n \n+  /* Temporarily disable pagination.  Otherwise, the user would be\n+     given an option to press 'q' to quit, which would cause an early\n+     exit and could leave GDB in a half-baked state.  */\n+  scoped_restore save_pagination\n+    = make_scoped_restore (&pagination_enabled, false);\n+\n   /* End up with readline processing input, if necessary.  */\n   {\n     SCOPE_EXIT { reinstall_readline_callback_handler_cleanup (); };"
+    },
+    {
+      "sha": "6c28c59a3aee6365c04a89f8bbaf0b96e5886139",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b78b3a297b981e2c8492823e2c54436e2451c2fa/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b78b3a297b981e2c8492823e2c54436e2451c2fa/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=b78b3a297b981e2c8492823e2c54436e2451c2fa",
+      "patch": "@@ -1,3 +1,12 @@\n+2020-10-30  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n+\n+\t* gdb.base/paginate-after-ctrl-c-running.exp: Update with no pagination\n+\tbehavior.\n+\t* gdb.base/paginate-bg-execution.exp: Ditto.\n+\t* gdb.base/paginate-inferior-exit.exp: Ditto.\n+\t* gdb.base/double-prompt-target-event-error.c: Remove.\n+\t* gdb.base/double-prompt-target-event-error.exp: Remove.\n+\n 2020-10-29  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n \n \t* gdb.base/kill-detach-inferiors-cmd.exp: Check that 'kill"
+    },
+    {
+      "sha": "469f91dd1c1e64034c3a7e27bc7a890b949107e1",
+      "filename": "gdb/testsuite/gdb.base/double-prompt-target-event-error.c",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 25,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d70bdd3cc4cfdfd30bed44a271ff80f98b96eebf/gdb/testsuite/gdb.base/double-prompt-target-event-error.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d70bdd3cc4cfdfd30bed44a271ff80f98b96eebf/gdb/testsuite/gdb.base/double-prompt-target-event-error.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/double-prompt-target-event-error.c?ref=d70bdd3cc4cfdfd30bed44a271ff80f98b96eebf",
+      "patch": "@@ -1,25 +0,0 @@\n-/* This testcase is part of GDB, the GNU debugger.\n-\n-   Copyright 2014-2020 Free Software Foundation, Inc.\n-\n-   This program is free software; you can redistribute it and/or modify\n-   it under the terms of the GNU General Public License as published by\n-   the Free Software Foundation; either version 3 of the License, or\n-   (at your option) any later version.\n-\n-   This program is distributed in the hope that it will be useful,\n-   but WITHOUT ANY WARRANTY; without even the implied warranty of\n-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n-   GNU General Public License for more details.\n-\n-   You should have received a copy of the GNU General Public License\n-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n-\n-#include <unistd.h>\n-\n-int\n-main (void)\n-{\n-  sleep (3);\n-  return 0; /* after sleep */\n-}"
+    },
+    {
+      "sha": "459d1866f321710a2e5c8f2b92a04d0c771c6b8e",
+      "filename": "gdb/testsuite/gdb.base/double-prompt-target-event-error.exp",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 122,
+      "changes": 122,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d70bdd3cc4cfdfd30bed44a271ff80f98b96eebf/gdb/testsuite/gdb.base/double-prompt-target-event-error.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d70bdd3cc4cfdfd30bed44a271ff80f98b96eebf/gdb/testsuite/gdb.base/double-prompt-target-event-error.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/double-prompt-target-event-error.exp?ref=d70bdd3cc4cfdfd30bed44a271ff80f98b96eebf",
+      "patch": "@@ -1,122 +0,0 @@\n-# Copyright (C) 2014-2020 Free Software Foundation, Inc.\n-\n-# This program is free software; you can redistribute it and/or modify\n-# it under the terms of the GNU General Public License as published by\n-# the Free Software Foundation; either version 3 of the License, or\n-# (at your option) any later version.\n-#\n-# This program is distributed in the hope that it will be useful,\n-# but WITHOUT ANY WARRANTY; without even the implied warranty of\n-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n-# GNU General Public License for more details.\n-#\n-# You should have received a copy of the GNU General Public License\n-# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n-\n-if [target_info exists gdb,nointerrupts] {\n-    verbose \"Skipping double-prompt-target-event-error.exp because of nointerrupts.\"\n-    return\n-}\n-\n-standard_testfile\n-\n-if {[prepare_for_testing \"failed to prepare\" $testfile $srcfile debug] == -1} {\n-    return -1\n-}\n-\n-# Test throwing an error while GDB is handling a target event.  We use\n-# a ctrl-c/quit in a pagination prompt to emulate an error.  COMMAND\n-# is either \"continue\" or \"wrapcont\".  The latter is a continue issued\n-# from a user-defined command.  That exercises the case of the\n-# interpreter forced sync, which was the case that originally had a\n-# bug.\n-\n-proc cancel_pagination_in_target_event { command } {\n-    global binfile srcfile\n-    global gdb_prompt pagination_prompt\n-\n-    set testline [gdb_get_line_number \"after sleep\"]\n-\n-    with_test_prefix \"ctrlc target event: $command\" {\n-\tclean_restart $binfile\n-\n-\tif ![runto_main] then {\n-\t    fail \"can't run to main\"\n-\t    return 0\n-\t}\n-\n-\tgdb_test \"b $srcfile:$testline\" \\\n-\t    \"Breakpoint .*$srcfile, line $testline.*\" \\\n-\t    \"set breakpoint\"\n-\n-\tgdb_test_no_output \"set height 2\"\n-\n-\tif { $command == \"wrapcont\" } {\n-\t    gdb_test_multiple \"define wrapcont\" \"define user command: wrapcont\" {\n-\t\t-re \"Type commands for definition of \\\"wrapcont\\\".\\r\\nEnd with a line saying just \\\"end\\\".\\r\\n>$\" {\n-\t\t    # Note that \"Continuing.\" is ommitted when\n-\t\t    # \"continue\" is issued from a user-defined\n-\t\t    # command.  Issue it ourselves.\n-\t\t    gdb_test \"echo Continuing\\.\\ncontinue\\nend\" \"\" \\\n-\t\t\t\"define user command: wrapcont\"\n-\t\t}\n-\t    }\n-\t}\n-\n-\t# Wait for pagination prompt after the \"Continuing\" line,\n-\t# indicating the program was running and then stopped.\n-\tset saw_continuing 0\n-\tset test \"continue to pagination\"\n-\tgdb_test_multiple \"$command\" $test {\n-\t    -re \"$pagination_prompt$\" {\n-\t\tif {$saw_continuing} {\n-\t\t    pass $test\n-\t\t} else {\n-\t\t    send_gdb \"\\n\"\n-\t\t    exp_continue\n-\t\t}\n-\t    }\n-\t    -re \"Continuing\" {\n-\t\tset saw_continuing 1\n-\t\texp_continue\n-\t    }\n-\t}\n-\n-\t# We're now stopped in a pagination query while handling a\n-\t# target event (printing where the program stopped).  Quitting\n-\t# the pagination should result in only one prompt being\n-\t# output.\n-\tsend_gdb \"\\003p 1\\n\"\n-\n-\t# Note gdb_test_multiple has a default match for the prompt,\n-\t# which issues a FAIL.  Consume the first prompt.\n-\tset test \"first prompt\"\n-\tgdb_test_multiple \"\" $test {\n-\t    -re \"$gdb_prompt\" {\n-\t\tpass \"first prompt\"\n-\t    }\n-\t}\n-\n-\t# We should only see one prompt more, and it should be\n-\t# preceeded by print's output.\n-\tset test \"no double prompt\"\n-\tgdb_test_multiple \"\" $test {\n-\t    -re \"$gdb_prompt.*$gdb_prompt $\" {\n-\t\t# The bug is present, and expect managed to read\n-\t\t# enough characters into the buffer to fill it with\n-\t\t# both prompts.\n-\t\tfail $test\n-\t    }\n-\t    -re \" = 1\\r\\n$gdb_prompt $\" {\n-\t\tpass $test\n-\t    }\n-\t}\n-\n-\t# In case the board file wants to send further commands.\n-\tgdb_test_no_output \"set height unlimited\"\n-    }\n-}\n-\n-foreach variant { \"continue\" \"wrapcont\" } {\n-    cancel_pagination_in_target_event $variant\n-}"
+    },
+    {
+      "sha": "f904912bce368343c96a73878020411651838e1a",
+      "filename": "gdb/testsuite/gdb.base/paginate-after-ctrl-c-running.exp",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 16,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b78b3a297b981e2c8492823e2c54436e2451c2fa/gdb/testsuite/gdb.base/paginate-after-ctrl-c-running.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b78b3a297b981e2c8492823e2c54436e2451c2fa/gdb/testsuite/gdb.base/paginate-after-ctrl-c-running.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/paginate-after-ctrl-c-running.exp?ref=b78b3a297b981e2c8492823e2c54436e2451c2fa",
+      "patch": "@@ -24,12 +24,12 @@ if {[build_executable \"failed to prepare\" $testfile $srcfile debug] == -1} {\n     return -1\n }\n \n-# Send a ctrl-c while the target is running and the next output causes\n-# a pagination prompt.\n+# Send a ctrl-c while the target is running and check that the output\n+# does not cause a pagination prompt.\n \n-proc test_ctrlc_while_target_running_paginates {} {\n+proc test_ctrlc_while_target_running_does_not_paginate {} {\n     global binfile srcfile\n-    global gdb_prompt pagination_prompt\n+    global gdb_prompt\n \n     set testline [gdb_get_line_number \"after sleep\"]\n \n@@ -62,18 +62,11 @@ proc test_ctrlc_while_target_running_paginates {} {\n \tsend_gdb \"\\003\"\n \n \t# GDB now intercepts the SIGINT and tries to let the user know\n-\t# about the spurious signal, but that paginates.  Make sure\n-\t# the user can respond to the pagination query.\n-\tset test \"got prompt\"\n-\tset saw_pagination_prompt 0\n-\tgdb_test_multiple \"\" $test {\n-\t    -re \"$pagination_prompt$\" {\n-\t\tset saw_pagination_prompt 1\n-\t\tsend_gdb \"\\n\"\n-\t\texp_continue\n-\t    }\n+\t# about the spurious signal.  Make sure that this does not\n+\t# trigger pagination.\n+\tgdb_test_multiple \"\" \"no pagination\" {\n \t    -re \"$gdb_prompt $\" {\n-\t\tgdb_assert $saw_pagination_prompt $test\n+\t\tpass $gdb_test_name\n \t    }\n \t}\n \n@@ -85,4 +78,4 @@ proc test_ctrlc_while_target_running_paginates {} {\n     }\n }\n \n-test_ctrlc_while_target_running_paginates\n+test_ctrlc_while_target_running_does_not_paginate"
+    },
+    {
+      "sha": "388dd52c9c79d6bdd5480f51e1b7bdf10642254b",
+      "filename": "gdb/testsuite/gdb.base/paginate-bg-execution.exp",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 69,
+      "changes": 77,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b78b3a297b981e2c8492823e2c54436e2451c2fa/gdb/testsuite/gdb.base/paginate-bg-execution.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b78b3a297b981e2c8492823e2c54436e2451c2fa/gdb/testsuite/gdb.base/paginate-bg-execution.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/paginate-bg-execution.exp?ref=b78b3a297b981e2c8492823e2c54436e2451c2fa",
+      "patch": "@@ -13,21 +13,21 @@\n # You should have received a copy of the GNU General Public License\n # along with this program.  If not, see <http://www.gnu.org/licenses/>.\n \n-# A collection of tests related to running execution commands directly\n-# from the command line, with \"-ex\".\n+# Test that a breakpoint hit event coming from background execution\n+# does not trigger pagination.\n \n standard_testfile\n \n if {[build_executable \"failed to prepare\" $testfile $srcfile debug] == -1} {\n     return -1\n }\n \n-# Check that we handle pagination correctly when it triggers due to an\n-# background execution command entered directly on the command line.\n+# Check that we handle a stop event coming from a background execution\n+# command without getting caught in pagination.\n \n proc test_bg_execution_pagination_return {} {\n     global binfile\n-    global pagination_prompt\n+    global decimal\n \n     with_test_prefix \"paginate\" {\n \tclean_restart $binfile\n@@ -43,66 +43,9 @@ proc test_bg_execution_pagination_return {} {\n \n \tgdb_test \"continue&\" \"Continuing\\.\"\n \n-\tset test \"pagination handled, breakpoint hit\"\n-\tset saw_pagination_prompt 0\n-\tgdb_test_multiple \"\" $test {\n-\t    -re \"$pagination_prompt$\" {\n-\t\tset saw_pagination_prompt 1\n-\t\tsend_gdb \"\\n\"\n-\t\texp_continue\n-\t    }\n-\t    -re \"after sleep\\[^\\r\\n\\]+\\r\\n$\" {\n-\t\tgdb_assert $saw_pagination_prompt $test\n-\t    }\n-\t}\n-\n-\t# GDB used to crash here.\n-\tgdb_test \"p 1\" \" = 1\" \"GDB accepts further input\"\n-\n-\t# In case the board file wants to send further commands.\n-\tgdb_test_no_output \"set height unlimited\"\n-    }\n-}\n-\n-# Check that we handle canceling pagination correctly when it triggers\n-# due to a background execution command entered directly on the\n-# command line.\n-\n-proc test_bg_execution_pagination_cancel { how } {\n-    global binfile\n-    global gdb_prompt pagination_prompt\n-\n-    with_test_prefix \"cancel with $how\" {\n-\tclean_restart $binfile\n-\n-\tif ![runto_main] then {\n-\t    fail \"can't run to main\"\n-\t    return 0\n-\t}\n-\n-\tgdb_test \"b after_sleep\"\n-\n-\tgdb_test_no_output \"set height 2\"\n-\n-\tgdb_test \"continue&\" \"Continuing\\.\"\n-\n-\tset test \"continue& paginates\"\n-\tgdb_test_multiple \"\" $test {\n-\t    -re \"$pagination_prompt$\" {\n-\t\tpass $test\n-\t    }\n-\t}\n-\n-\tset test \"cancel pagination\"\n-\tif { $how == \"ctrl-c\" } {\n-\t    send_gdb \"\\003\"\n-\t} else {\n-\t    send_gdb \"q\\n\"\n-\n-\t}\n-\tgdb_test_multiple \"\" $test {\n-\t    -re \"Quit\\r\\n$gdb_prompt $\" {\n-\t\tpass $test\n+\tgdb_test_multiple \"\" \"no pagination, breakpoint hit\" {\n+\t    -re \"Breakpoint $decimal, after_sleep\\[^\\r\\n\\]+\\r\\n\\[^\\r\\n\\]+\\r\\n\" {\n+\t\tpass $gdb_test_name\n \t    }\n \t}\n \n@@ -114,7 +57,3 @@ proc test_bg_execution_pagination_cancel { how } {\n }\n \n test_bg_execution_pagination_return\n-if ![target_info exists gdb,nointerrupts] {\n-    test_bg_execution_pagination_cancel \"ctrl-c\"\n-}\n-test_bg_execution_pagination_cancel \"quit\""
+    },
+    {
+      "sha": "095276359167ce949ae123c04ffc0b7cb4db5667",
+      "filename": "gdb/testsuite/gdb.base/paginate-inferior-exit.exp",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 32,
+      "changes": 36,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b78b3a297b981e2c8492823e2c54436e2451c2fa/gdb/testsuite/gdb.base/paginate-inferior-exit.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b78b3a297b981e2c8492823e2c54436e2451c2fa/gdb/testsuite/gdb.base/paginate-inferior-exit.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/paginate-inferior-exit.exp?ref=b78b3a297b981e2c8492823e2c54436e2451c2fa",
+      "patch": "@@ -13,8 +13,7 @@\n # You should have received a copy of the GNU General Public License\n # along with this program.  If not, see <http://www.gnu.org/licenses/>.\n \n-# A collection of tests related to running execution commands directly\n-# from the command line, with \"-ex\".\n+# Test that an inferior exit event does not trigger pagination.\n \n standard_testfile\n \n@@ -40,36 +39,9 @@ proc test_paginate_inferior_exited {} {\n \t# Force pagination.\n \tgdb_test_no_output \"set height 2\"\n \n-\tset test \"continue to pagination\"\n-\n-\t# Wait for the \"Starting program\" line, indicating the program\n-\t# is running.\n-\tset saw_starting 0\n-\tgdb_test_multiple \"continue\" $test {\n-\t    -re \"$pagination_prompt\" {\n-\t\tif {$saw_starting} {\n-\t\t    pass $test\n-\t\t} else {\n-\t\t    send_gdb \"\\n\"\n-\t\t    exp_continue\n-\t\t}\n-\t    }\n-\t    -re \"Continuing\" {\n-\t\tset saw_starting 1\n-\t\texp_continue\n-\t    }\n-\t}\n-\n-\t# We're now stopped in a pagination output while handling a\n-\t# target event, trying to print about the program exiting.\n-\tset test \"inferior exits normally\"\n-\n-\tsend_gdb \"\\n\"\n-\tgdb_test_multiple \"\" $test {\n-\t    -re \"$inferior_exited_re normally.*$gdb_prompt $\" {\n-\t\tpass $test\n-\t    }\n-\t}\n+\t# The program continues until termination, without pagination\n+\t# being triggered.\n+\tgdb_continue_to_end\n \n \tgdb_test \"p 1\" \" = 1\" \"GDB accepts further input\"\n "
+    }
+  ]
+}

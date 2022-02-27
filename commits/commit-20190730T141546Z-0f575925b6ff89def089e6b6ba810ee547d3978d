@@ -1,0 +1,110 @@
+{
+  "sha": "0f575925b6ff89def089e6b6ba810ee547d3978d",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MGY1NzU5MjViNmZmODlkZWYwODllNmI2YmE4MTBlZTU0N2QzOTc4ZA==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2019-07-30T14:15:46Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2019-07-30T14:15:46Z"
+    },
+    "message": "[gdb/testsuite] Work around tcl bug in libsegfault.exp with check-read1\n\nWhen running libsegfault.exp with check-read1, I get:\n...\nRunning gdb/testsuite/gdb.base/libsegfault.exp ...\nERROR: tcl error sourcing gdb/testsuite/gdb.base/libsegfault.exp.\nERROR: no such variable\n    (read trace on \"env(LD_PRELOAD)\")\n    invoked from within\n\"set env(LD_PRELOAD)\"\n    (\"uplevel\" body line 1)\n    invoked from within\n\"uplevel 1 [list set $var]\"\n    invoked from within\n\"if [uplevel 1 [list array exists $var]] {\n                set saved_arrays($var) [uplevel 1 [list array get $var]]\n            } else {\n                set saved_scalars($var) [uplevel ...\"\n    invoked from within\n\"if [uplevel 1 [list info exists $var]] {\n            if [uplevel 1 [list array exists $var]] {\n                set saved_arrays($var) [uplevel 1 [list array get $var]]\n          ...\"\n    (procedure \"save_vars\" line 11)\n    invoked from within\n\"save_vars { env(LD_PRELOAD) } {\n        if { ![info exists env(LD_PRELOAD) ]\n             || $env(LD_PRELOAD) == \"\" } {\n            set env(LD_PRELOAD) \"$lib\"\n        } else {\n         ...\"\n    (procedure \"gdb_spawn_with_ld_preload\" line 4)\n    invoked from within\n\"gdb_spawn_with_ld_preload $libsegfault \"\"\"\n...\n\nThere are several things here interacting with environment variable\nLD_PRELOAD:\n- the expect \"binary\" build/gdb/testsuite/expect-read1 with does\n  export LD_PRELOAD=build/gdb/testsuite/read1.so before calling native expect\n- read1.so which does unsetenv (\"LD_PRELOAD\") upon first call to read\n- the test-case, which wants to set or append libSegFault.so to LD_PRELOAD\n\nThe error occurs when accessing $env(LD_PRELOAD), in a branch where\n\"info exists env(LD_PRELOAD)\" returns true. AFAIU, this is\nhttps://core.tcl-lang.org/tcl/tktview?name=67fd4f973a \"incorrect results of\n'info exists' when unset env var in one interp and check for existence from\nanother interp\".\n\nWork around the tcl bug by not unsetting the variable, but setting it to \"\"\ninstead:\n...\n-      unsetenv (\"LD_PRELOAD\");\n+      setenv (\"LD_PRELOAD\", \"\", 1);\n...\n\nVerified that reverting commit de28a3b72e \"[gdb/testsuite, 2/2] Fix\ngdb.linespec/explicit.exp with check-read1\" reintroduced the check-read1\nfailure in gdb.linespec/explicit.exp.\n\nThis fixes a similar error in attach-slow-waitpid.exp, which also sets\nLD_PRELOAD.\n\nTested on x86_64-linux with check-read1.\n\ngdb/testsuite/ChangeLog:\n\n2019-07-30  Tom de Vries  <tdevries@suse.de>\n\n\t* lib/read1.c (read): Don't use unsetenv (v), use setenv (v, \"\", 1)\n\tinstead.",
+    "tree": {
+      "sha": "13f9a9806eed2d02dbd484f1d0db9ddb9e4444b8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/13f9a9806eed2d02dbd484f1d0db9ddb9e4444b8"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/0f575925b6ff89def089e6b6ba810ee547d3978d",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0f575925b6ff89def089e6b6ba810ee547d3978d",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/0f575925b6ff89def089e6b6ba810ee547d3978d",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0f575925b6ff89def089e6b6ba810ee547d3978d/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "b13057d9ceaa4944dc2d0ebf5df750d9350d0727",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b13057d9ceaa4944dc2d0ebf5df750d9350d0727",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b13057d9ceaa4944dc2d0ebf5df750d9350d0727"
+    }
+  ],
+  "stats": {
+    "total": 11,
+    "additions": 10,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "0bf6be994e4c744ecece6070847b283b1028ad1b",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0f575925b6ff89def089e6b6ba810ee547d3978d/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0f575925b6ff89def089e6b6ba810ee547d3978d/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=0f575925b6ff89def089e6b6ba810ee547d3978d",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-07-30  Tom de Vries  <tdevries@suse.de>\n+\n+\t* lib/read1.c (read): Don't use unsetenv (v), use setenv (v, \"\", 1)\n+\tinstead.\n+\n 2019-07-30  Tom de Vries  <tdevries@suse.de>\n \n \tPR testsuite/24834"
+    },
+    {
+      "sha": "bee0945543ef825eda030e3df97cb32ebd7b585b",
+      "filename": "gdb/testsuite/lib/read1.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 1,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0f575925b6ff89def089e6b6ba810ee547d3978d/gdb/testsuite/lib/read1.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0f575925b6ff89def089e6b6ba810ee547d3978d/gdb/testsuite/lib/read1.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/read1.c?ref=0f575925b6ff89def089e6b6ba810ee547d3978d",
+      "patch": "@@ -31,7 +31,11 @@ read (int fd, void *buf, size_t count)\n   static ssize_t (*read2) (int fd, void *buf, size_t count) = NULL;\n   if (read2 == NULL)\n     {\n-      unsetenv (\"LD_PRELOAD\");\n+      /* Use setenv (v, \"\", 1) rather than unsetenv (v) to work around\n+         https://core.tcl-lang.org/tcl/tktview?name=67fd4f973a \"incorrect\n+\t results of 'info exists' when unset env var in one interp and check\n+\t for existence from another interp\".  */\n+      setenv (\"LD_PRELOAD\", \"\", 1);\n       read2 = dlsym (RTLD_NEXT, \"read\");\n     }\n   if (count > 1 && isatty (fd) >= 1)"
+    }
+  ]
+}

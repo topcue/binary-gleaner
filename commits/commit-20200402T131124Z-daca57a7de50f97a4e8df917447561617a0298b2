@@ -1,0 +1,350 @@
+{
+  "sha": "daca57a7de50f97a4e8df917447561617a0298b2",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZGFjYTU3YTdkZTUwZjk3YTRlOGRmOTE3NDQ3NTYxNjE3YTAyOThiMg==",
+  "commit": {
+    "author": {
+      "name": "Tankut Baris Aktemur",
+      "email": "tankut.baris.aktemur@intel.com",
+      "date": "2020-04-02T13:11:24Z"
+    },
+    "committer": {
+      "name": "Tankut Baris Aktemur",
+      "email": "tankut.baris.aktemur@intel.com",
+      "date": "2020-04-02T13:11:24Z"
+    },
+    "message": "gdbserver/linux-low: turn 'cannot_{fetch/store}_register' into methods\n\ngdbserver/ChangeLog:\n2020-04-02  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n\n\tTurn the 'cannot_fetch_register' and 'cannot_store_register'\n\tlinux target ops into methods of linux_process_target.\n\n\t* linux-low.h (struct linux_target_ops): Remove the low target ops.\n\t(class linux_process_target) <fetch_register>\n\t<store_register>\n\t<usr_fetch_inferior_registers>\n\t<usr_store_inferior_registers>\n\t<low_cannot_fetch_register>\n\t<low_cannot_fetch_register> Declare.\n\t* linux-low.cc (fetch_register): Turn into...\n\t(linux_process_target::fetch_register): ...this.\n\t(store_register): Turn into ...\n\t(linux_process_target::store_register): ...this.\n\t(usr_fetch_inferior_registers): Turn into...\n\t(linux_process_target::usr_fetch_inferior_registers): ...this.\n\t(usr_store_inferior_registers): Turn into...\n\t(linux_process_target::usr_store_inferior_registers): ...this.\n\t* linux-x86-low.cc (class x86_target)\n\t<low_cannot_fetch_register>\n\t<low_cannot_store_register>: Declare.\n\t(x86_cannot_store_register): Turn into...\n\t(x86_target::low_cannot_store_register): ...this.\n\t(x86_cannot_fetch_register): Turn into...\n\t(x86_target::low_cannot_fetch_register): ...this.\n\t(the_low_target): Remove the target op fields.\n\t* linux-aarch64-low.cc (class aarch64_target)\n\t<low_cannot_fetch_register>\n\t<low_cannot_store_register>: Declare.\n\t(aarch64_target::low_cannot_fetch_register)\n\t(aarch64_target::low_cannot_store_register): Define.\n\t(the_low_target): Remove the op fields.\n\t* linux-arm-low.cc (class arm_target)\n\t<low_cannot_fetch_register>\n\t<low_cannot_store_register>: Declare.\n\t(arm_cannot_fetch_register): Turn into...\n\t(arm_target::low_cannot_fetch_register): ...this.\n\t(arm_cannot_store_register): Turn into...\n\t(arm_target::low_cannot_store_register): ...this.\n\t(the_low_target): Remove the op fields.\n\t* linux-bfin-low.cc (class bfin_target)\n\t<low_cannot_fetch_register>\n\t<low_cannot_store_register>: Declare.\n\t(bfin_cannot_fetch_register): Turn into...\n\t(bfin_target::low_cannot_fetch_register): ...this.\n\t(bfin_cannot_store_register): Turn into...\n\t(bfin_target::low_cannot_store_register): ...this.\n\t(the_low_target): Remove the op fields.\n\t* linux-cris-low.cc (class cris_target)\n\t<low_cannot_fetch_register>\n\t<low_cannot_store_register>: Declare.\n\t(cris_cannot_fetch_register): Turn into...\n\t(cris_target::low_cannot_fetch_register): ...this.\n\t(cris_cannot_store_register): Turn into...\n\t(cris_target::low_cannot_store_register): ...this.\n\t(the_low_target): Remove the op fields.\n\t* linux-crisv32-low.cc (class crisv32_target)\n\t<low_cannot_fetch_register>\n\t<low_cannot_store_register>: Declare.\n\t(crisv32_target::low_cannot_fetch_register)\n\t(crisv32_target::low_cannot_store_register): Define.\n\t(the_low_target): Remove the op fields.\n\t* linux-ia64-low.cc (class ia64_target)\n\t<low_cannot_fetch_register>\n\t<low_cannot_store_register>: Declare.\n\t(ia64_cannot_fetch_register): Turn into...\n\t(ia64_target::low_cannot_fetch_register): ...this.\n\t(ia64_cannot_store_register): Turn into...\n\t(ia64_target::low_cannot_store_register): ...this.\n\t(the_low_target): Remove the op fields.\n\t* linux-m32r-low.cc (class m32r_target)\n\t<low_cannot_fetch_register>\n\t<low_cannot_store_register>: Declare.\n\t(m32r_cannot_fetch_register): Turn into...\n\t(m32r_target::low_cannot_fetch_register): ...this.\n\t(m32r_cannot_store_register): Turn into...\n\t(m32r_target::low_cannot_store_register): ...this.\n\t(the_low_target): Remove the op fields.\n\t* linux-m68k-low.cc (class m68k_target)\n\t<low_cannot_fetch_register>\n\t<low_cannot_store_register>: Declare.\n\t(m68k_cannot_fetch_register): Turn into...\n\t(m68k_target::low_cannot_fetch_register): ...this.\n\t(m68k_cannot_store_register): Turn into...\n\t(m68k_target::low_cannot_store_register): ...this.\n\t(the_low_target): Remove the op fields.\n\t* linux-mips-low.cc (class mips_target)\n\t<low_cannot_fetch_register>\n\t<low_cannot_store_register>: Declare.\n\t(mips_cannot_fetch_register): Turn into...\n\t(mips_target::low_cannot_fetch_register): ...this.\n\t(mips_cannot_store_register): Turn into...\n\t(mips_target::low_cannot_store_register): ...this.\n\t(get_usrregs_info): Inline at the call sites in\n\tlow_cannot_fetch_register and low_cannot_store_register,\n\tand remove.\n\t(the_low_target): Remove the op fields.\n\t* linux-nios2-low.cc (class nios2_target)\n\t<low_cannot_fetch_register>\n\t<low_cannot_store_register>: Declare.\n\t(nios2_cannot_fetch_register): Turn into...\n\t(nios2_target::low_cannot_fetch_register): ...this.\n\t(nios2_cannot_store_register): Turn into...\n\t(nios2_target::low_cannot_store_register): ...this.\n\t(the_low_target): Remove the op fields.\n\t* linux-ppc-low.cc (class ppc_target)\n\t<low_cannot_fetch_register>\n\t<low_cannot_store_register>: Declare.\n\t(ppc_cannot_fetch_register): Turn into...\n\t(ppc_target::low_cannot_fetch_register): ...this.\n\t(ppc_cannot_store_register): Turn into...\n\t(ppc_target::low_cannot_store_register): ...this.\n\t(the_low_target): Remove the op fields.\n\t* linux-riscv-low.cc (class riscv_target)\n\t<low_cannot_fetch_register>\n\t<low_cannot_store_register>: Declare.\n\t(riscv_target::low_cannot_fetch_register)\n\t(riscv_target::low_cannot_store_register): Define.\n\t(the_low_target): Remove the op fields.\n\t* linux-s390-low.cc (class s390_target)\n\t<low_cannot_fetch_register>\n\t<low_cannot_store_register>: Declare.\n\t(s390_cannot_fetch_register): Turn into...\n\t(s390_target::low_cannot_fetch_register): ...this.\n\t(s390_cannot_store_register): Turn into...\n\t(s390_target::low_cannot_store_register): ...this.\n\t(the_low_target): Remove the op fields.\n\t* linux-sh-low.cc (class sh_target)\n\t<low_cannot_fetch_register>\n\t<low_cannot_store_register>: Declare.\n\t(sh_cannot_fetch_register): Turn into...\n\t(sh_target::low_cannot_fetch_register): ...this.\n\t(sh_cannot_store_register): Turn into...\n\t(sh_target::low_cannot_store_register): ...this.\n\t(the_low_target): Remove the op fields.\n\t* linux-sparc-low.cc (class sparc_target)\n\t<low_cannot_fetch_register>\n\t<low_cannot_store_register>: Declare.\n\t(sparc_cannot_fetch_register): Turn into...\n\t(sparc_target::low_cannot_fetch_register): ...this.\n\t(sparc_cannot_store_register): Turn into...\n\t(sparc_target::low_cannot_store_register): ...this.\n\t(the_low_target): Remove the op fields.\n\t* linux-tic6x-low.cc (class tic6x_target)\n\t<low_cannot_fetch_register>\n\t<low_cannot_store_register>: Declare.\n\t(tic6x_cannot_fetch_register): Turn into...\n\t(tic6x_target::low_cannot_fetch_register): ...this.\n\t(tic6x_cannot_store_register): Turn into...\n\t(tic6x_target::low_cannot_store_register): ...this.\n\t(the_low_target): Remove the op fields.\n\t* linux-tile-low.cc (class tile_target)\n\t<low_cannot_fetch_register>\n\t<low_cannot_store_register>: Declare.\n\t(tile_cannot_fetch_register): Turn into...\n\t(tile_target::low_cannot_fetch_register): ...this.\n\t(tile_cannot_store_register): Turn into...\n\t(tile_target::low_cannot_store_register): ...this.\n\t(the_low_target): Remove the op fields.\n\t* linux-xtensa-low.cc (class xtensa_target)\n\t<low_cannot_fetch_register>\n\t<low_cannot_store_register>: Declare.\n\t(xtensa_target::low_cannot_fetch_register)\n\t(xtensa_target::low_cannot_store_register): Define.\n\t(the_low_target): Remove the op fields.",
+    "tree": {
+      "sha": "c73e1076e18bd72edf5d8fc252349c7f33ed5121",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c73e1076e18bd72edf5d8fc252349c7f33ed5121"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/daca57a7de50f97a4e8df917447561617a0298b2",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/daca57a7de50f97a4e8df917447561617a0298b2",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/daca57a7de50f97a4e8df917447561617a0298b2",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/daca57a7de50f97a4e8df917447561617a0298b2/comments",
+  "author": {
+    "login": "barisaktemur",
+    "id": 55686642,
+    "node_id": "MDQ6VXNlcjU1Njg2NjQy",
+    "avatar_url": "https://avatars.githubusercontent.com/u/55686642?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/barisaktemur",
+    "html_url": "https://github.com/barisaktemur",
+    "followers_url": "https://api.github.com/users/barisaktemur/followers",
+    "following_url": "https://api.github.com/users/barisaktemur/following{/other_user}",
+    "gists_url": "https://api.github.com/users/barisaktemur/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/barisaktemur/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/barisaktemur/subscriptions",
+    "organizations_url": "https://api.github.com/users/barisaktemur/orgs",
+    "repos_url": "https://api.github.com/users/barisaktemur/repos",
+    "events_url": "https://api.github.com/users/barisaktemur/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/barisaktemur/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "barisaktemur",
+    "id": 55686642,
+    "node_id": "MDQ6VXNlcjU1Njg2NjQy",
+    "avatar_url": "https://avatars.githubusercontent.com/u/55686642?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/barisaktemur",
+    "html_url": "https://github.com/barisaktemur",
+    "followers_url": "https://api.github.com/users/barisaktemur/followers",
+    "following_url": "https://api.github.com/users/barisaktemur/following{/other_user}",
+    "gists_url": "https://api.github.com/users/barisaktemur/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/barisaktemur/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/barisaktemur/subscriptions",
+    "organizations_url": "https://api.github.com/users/barisaktemur/orgs",
+    "repos_url": "https://api.github.com/users/barisaktemur/repos",
+    "events_url": "https://api.github.com/users/barisaktemur/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/barisaktemur/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "aa8d21c9bb43baaa35f456a3d371942a26cdce4e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/aa8d21c9bb43baaa35f456a3d371942a26cdce4e",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/aa8d21c9bb43baaa35f456a3d371942a26cdce4e"
+    }
+  ],
+  "stats": {
+    "total": 642,
+    "additions": 453,
+    "deletions": 189
+  },
+  "files": [
+    {
+      "sha": "8aaca90c061c24230f1ab55e7144368cb1d4bb55",
+      "filename": "gdbserver/ChangeLog",
+      "status": "modified",
+      "additions": 168,
+      "deletions": 0,
+      "changes": 168,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/ChangeLog?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -1,3 +1,171 @@\n+2020-04-02  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n+\n+\tTurn the 'cannot_fetch_register' and 'cannot_store_register'\n+\tlinux target ops into methods of linux_process_target.\n+\n+\t* linux-low.h (struct linux_target_ops): Remove the low target ops.\n+\t(class linux_process_target) <fetch_register>\n+\t<store_register>\n+\t<usr_fetch_inferior_registers>\n+\t<usr_store_inferior_registers>\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_fetch_register> Declare.\n+\t* linux-low.cc (fetch_register): Turn into...\n+\t(linux_process_target::fetch_register): ...this.\n+\t(store_register): Turn into ...\n+\t(linux_process_target::store_register): ...this.\n+\t(usr_fetch_inferior_registers): Turn into...\n+\t(linux_process_target::usr_fetch_inferior_registers): ...this.\n+\t(usr_store_inferior_registers): Turn into...\n+\t(linux_process_target::usr_store_inferior_registers): ...this.\n+\t* linux-x86-low.cc (class x86_target)\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_store_register>: Declare.\n+\t(x86_cannot_store_register): Turn into...\n+\t(x86_target::low_cannot_store_register): ...this.\n+\t(x86_cannot_fetch_register): Turn into...\n+\t(x86_target::low_cannot_fetch_register): ...this.\n+\t(the_low_target): Remove the target op fields.\n+\t* linux-aarch64-low.cc (class aarch64_target)\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_store_register>: Declare.\n+\t(aarch64_target::low_cannot_fetch_register)\n+\t(aarch64_target::low_cannot_store_register): Define.\n+\t(the_low_target): Remove the op fields.\n+\t* linux-arm-low.cc (class arm_target)\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_store_register>: Declare.\n+\t(arm_cannot_fetch_register): Turn into...\n+\t(arm_target::low_cannot_fetch_register): ...this.\n+\t(arm_cannot_store_register): Turn into...\n+\t(arm_target::low_cannot_store_register): ...this.\n+\t(the_low_target): Remove the op fields.\n+\t* linux-bfin-low.cc (class bfin_target)\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_store_register>: Declare.\n+\t(bfin_cannot_fetch_register): Turn into...\n+\t(bfin_target::low_cannot_fetch_register): ...this.\n+\t(bfin_cannot_store_register): Turn into...\n+\t(bfin_target::low_cannot_store_register): ...this.\n+\t(the_low_target): Remove the op fields.\n+\t* linux-cris-low.cc (class cris_target)\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_store_register>: Declare.\n+\t(cris_cannot_fetch_register): Turn into...\n+\t(cris_target::low_cannot_fetch_register): ...this.\n+\t(cris_cannot_store_register): Turn into...\n+\t(cris_target::low_cannot_store_register): ...this.\n+\t(the_low_target): Remove the op fields.\n+\t* linux-crisv32-low.cc (class crisv32_target)\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_store_register>: Declare.\n+\t(crisv32_target::low_cannot_fetch_register)\n+\t(crisv32_target::low_cannot_store_register): Define.\n+\t(the_low_target): Remove the op fields.\n+\t* linux-ia64-low.cc (class ia64_target)\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_store_register>: Declare.\n+\t(ia64_cannot_fetch_register): Turn into...\n+\t(ia64_target::low_cannot_fetch_register): ...this.\n+\t(ia64_cannot_store_register): Turn into...\n+\t(ia64_target::low_cannot_store_register): ...this.\n+\t(the_low_target): Remove the op fields.\n+\t* linux-m32r-low.cc (class m32r_target)\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_store_register>: Declare.\n+\t(m32r_cannot_fetch_register): Turn into...\n+\t(m32r_target::low_cannot_fetch_register): ...this.\n+\t(m32r_cannot_store_register): Turn into...\n+\t(m32r_target::low_cannot_store_register): ...this.\n+\t(the_low_target): Remove the op fields.\n+\t* linux-m68k-low.cc (class m68k_target)\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_store_register>: Declare.\n+\t(m68k_cannot_fetch_register): Turn into...\n+\t(m68k_target::low_cannot_fetch_register): ...this.\n+\t(m68k_cannot_store_register): Turn into...\n+\t(m68k_target::low_cannot_store_register): ...this.\n+\t(the_low_target): Remove the op fields.\n+\t* linux-mips-low.cc (class mips_target)\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_store_register>: Declare.\n+\t(mips_cannot_fetch_register): Turn into...\n+\t(mips_target::low_cannot_fetch_register): ...this.\n+\t(mips_cannot_store_register): Turn into...\n+\t(mips_target::low_cannot_store_register): ...this.\n+\t(get_usrregs_info): Inline at the call sites in\n+\tlow_cannot_fetch_register and low_cannot_store_register,\n+\tand remove.\n+\t(the_low_target): Remove the op fields.\n+\t* linux-nios2-low.cc (class nios2_target)\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_store_register>: Declare.\n+\t(nios2_cannot_fetch_register): Turn into...\n+\t(nios2_target::low_cannot_fetch_register): ...this.\n+\t(nios2_cannot_store_register): Turn into...\n+\t(nios2_target::low_cannot_store_register): ...this.\n+\t(the_low_target): Remove the op fields.\n+\t* linux-ppc-low.cc (class ppc_target)\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_store_register>: Declare.\n+\t(ppc_cannot_fetch_register): Turn into...\n+\t(ppc_target::low_cannot_fetch_register): ...this.\n+\t(ppc_cannot_store_register): Turn into...\n+\t(ppc_target::low_cannot_store_register): ...this.\n+\t(the_low_target): Remove the op fields.\n+\t* linux-riscv-low.cc (class riscv_target)\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_store_register>: Declare.\n+\t(riscv_target::low_cannot_fetch_register)\n+\t(riscv_target::low_cannot_store_register): Define.\n+\t(the_low_target): Remove the op fields.\n+\t* linux-s390-low.cc (class s390_target)\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_store_register>: Declare.\n+\t(s390_cannot_fetch_register): Turn into...\n+\t(s390_target::low_cannot_fetch_register): ...this.\n+\t(s390_cannot_store_register): Turn into...\n+\t(s390_target::low_cannot_store_register): ...this.\n+\t(the_low_target): Remove the op fields.\n+\t* linux-sh-low.cc (class sh_target)\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_store_register>: Declare.\n+\t(sh_cannot_fetch_register): Turn into...\n+\t(sh_target::low_cannot_fetch_register): ...this.\n+\t(sh_cannot_store_register): Turn into...\n+\t(sh_target::low_cannot_store_register): ...this.\n+\t(the_low_target): Remove the op fields.\n+\t* linux-sparc-low.cc (class sparc_target)\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_store_register>: Declare.\n+\t(sparc_cannot_fetch_register): Turn into...\n+\t(sparc_target::low_cannot_fetch_register): ...this.\n+\t(sparc_cannot_store_register): Turn into...\n+\t(sparc_target::low_cannot_store_register): ...this.\n+\t(the_low_target): Remove the op fields.\n+\t* linux-tic6x-low.cc (class tic6x_target)\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_store_register>: Declare.\n+\t(tic6x_cannot_fetch_register): Turn into...\n+\t(tic6x_target::low_cannot_fetch_register): ...this.\n+\t(tic6x_cannot_store_register): Turn into...\n+\t(tic6x_target::low_cannot_store_register): ...this.\n+\t(the_low_target): Remove the op fields.\n+\t* linux-tile-low.cc (class tile_target)\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_store_register>: Declare.\n+\t(tile_cannot_fetch_register): Turn into...\n+\t(tile_target::low_cannot_fetch_register): ...this.\n+\t(tile_cannot_store_register): Turn into...\n+\t(tile_target::low_cannot_store_register): ...this.\n+\t(the_low_target): Remove the op fields.\n+\t* linux-xtensa-low.cc (class xtensa_target)\n+\t<low_cannot_fetch_register>\n+\t<low_cannot_store_register>: Declare.\n+\t(xtensa_target::low_cannot_fetch_register)\n+\t(xtensa_target::low_cannot_store_register): Define.\n+\t(the_low_target): Remove the op fields.\n+\n 2020-04-02  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n \n \tTurn the 'regs_info' linux target op into a method of"
+    },
+    {
+      "sha": "19484219d73d5fcb2dca675cadc946de658ea7a3",
+      "filename": "gdbserver/linux-aarch64-low.cc",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 2,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-aarch64-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-aarch64-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-aarch64-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -60,12 +60,30 @@ class aarch64_target : public linux_process_target\n protected:\n \n   void low_arch_setup () override;\n+\n+  bool low_cannot_fetch_register (int regno) override;\n+\n+  bool low_cannot_store_register (int regno) override;\n };\n \n /* The singleton target ops object.  */\n \n static aarch64_target the_aarch64_target;\n \n+bool\n+aarch64_target::low_cannot_fetch_register (int regno)\n+{\n+  gdb_assert_not_reached (\"linux target op low_cannot_fetch_register \"\n+\t\t\t  \"is not implemented by the target\");\n+}\n+\n+bool\n+aarch64_target::low_cannot_store_register (int regno)\n+{\n+  gdb_assert_not_reached (\"linux target op low_cannot_store_register \"\n+\t\t\t  \"is not implemented by the target\");\n+}\n+\n /* Per-process arch-specific data we want to keep.  */\n \n struct arch_process_info\n@@ -3067,8 +3085,6 @@ aarch64_supports_hardware_single_step (void)\n \n struct linux_target_ops the_low_target =\n {\n-  NULL, /* cannot_fetch_register */\n-  NULL, /* cannot_store_register */\n   NULL, /* fetch_register */\n   aarch64_get_pc,\n   aarch64_set_pc,"
+    },
+    {
+      "sha": "896c5fd1e64c0095431dbe9936cc28de7d210395",
+      "filename": "gdbserver/linux-arm-low.cc",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 6,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-arm-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-arm-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-arm-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -65,6 +65,10 @@ class arm_target : public linux_process_target\n protected:\n \n   void low_arch_setup () override;\n+\n+  bool low_cannot_fetch_register (int regno) override;\n+\n+  bool low_cannot_store_register (int regno) override;\n };\n \n /* The singleton target ops object.  */\n@@ -166,14 +170,14 @@ static struct arm_get_next_pcs_ops get_next_pcs_ops = {\n   arm_linux_get_next_pcs_fixup,\n };\n \n-static int\n-arm_cannot_store_register (int regno)\n+bool\n+arm_target::low_cannot_store_register (int regno)\n {\n   return (regno >= arm_num_regs);\n }\n \n-static int\n-arm_cannot_fetch_register (int regno)\n+bool\n+arm_target::low_cannot_fetch_register (int regno)\n {\n   return (regno >= arm_num_regs);\n }\n@@ -1023,8 +1027,6 @@ arm_target::get_regs_info ()\n }\n \n struct linux_target_ops the_low_target = {\n-  arm_cannot_fetch_register,\n-  arm_cannot_store_register,\n   NULL, /* fetch_register */\n   linux_get_pc_32bit,\n   linux_set_pc_32bit,"
+    },
+    {
+      "sha": "e7cd1e2963775ccdf783f314a491c11ca0617972",
+      "filename": "gdbserver/linux-bfin-low.cc",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 6,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-bfin-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-bfin-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-bfin-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -34,6 +34,10 @@ class bfin_target : public linux_process_target\n protected:\n \n   void low_arch_setup () override;\n+\n+  bool low_cannot_fetch_register (int regno) override;\n+\n+  bool low_cannot_store_register (int regno) override;\n };\n \n /* The singleton target ops object.  */\n@@ -59,14 +63,14 @@ static int bfin_regmap[] =\n \n #define bfin_num_regs ARRAY_SIZE (bfin_regmap)\n \n-static int\n-bfin_cannot_store_register (int regno)\n+bool\n+bfin_target::low_cannot_store_register (int regno)\n {\n   return (regno >= bfin_num_regs);\n }\n \n-static int\n-bfin_cannot_fetch_register (int regno)\n+bool\n+bfin_target::low_cannot_fetch_register (int regno)\n {\n   return (regno >= bfin_num_regs);\n }\n@@ -131,8 +135,6 @@ bfin_target::get_regs_info ()\n }\n \n struct linux_target_ops the_low_target = {\n-  bfin_cannot_fetch_register,\n-  bfin_cannot_store_register,\n   NULL, /* fetch_register */\n   linux_get_pc_32bit,\n   linux_set_pc_32bit,"
+    },
+    {
+      "sha": "03ca52e39e46df98c9a417567af0011aecd1f544",
+      "filename": "gdbserver/linux-cris-low.cc",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 8,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-cris-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-cris-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-cris-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -31,6 +31,10 @@ class cris_target : public linux_process_target\n protected:\n \n   void low_arch_setup () override;\n+\n+  bool low_cannot_fetch_register (int regno) override;\n+\n+  bool low_cannot_store_register (int regno) override;\n };\n \n /* The singleton target ops object.  */\n@@ -58,20 +62,20 @@ static int cris_regmap[] = {\n \n };\n \n-static int\n-cris_cannot_store_register (int regno)\n+bool\n+cris_target::low_cannot_store_register (int regno)\n {\n   if (cris_regmap[regno] == -1)\n-    return 1;\n+    return true;\n \n   return (regno >= cris_num_regs);\n }\n \n-static int\n-cris_cannot_fetch_register (int regno)\n+bool\n+cris_target::low_cannot_fetch_register (int regno)\n {\n   if (cris_regmap[regno] == -1)\n-    return 1;\n+    return true;\n \n   return (regno >= cris_num_regs);\n }\n@@ -128,8 +132,6 @@ cris_target::get_regs_info ()\n }\n \n struct linux_target_ops the_low_target = {\n-  cris_cannot_fetch_register,\n-  cris_cannot_store_register,\n   NULL, /* fetch_register */\n   linux_get_pc_32bit,\n   linux_set_pc_32bit,"
+    },
+    {
+      "sha": "03f0aa138e2f261104d60d9eb9f08b2fd1e5bff6",
+      "filename": "gdbserver/linux-crisv32-low.cc",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 2,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-crisv32-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-crisv32-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-crisv32-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -31,12 +31,30 @@ class crisv32_target : public linux_process_target\n protected:\n \n   void low_arch_setup () override;\n+\n+  bool low_cannot_fetch_register (int regno) override;\n+\n+  bool low_cannot_store_register (int regno) override;\n };\n \n /* The singleton target ops object.  */\n \n static crisv32_target the_crisv32_target;\n \n+bool\n+crisv32_target::low_cannot_fetch_register (int regno)\n+{\n+  gdb_assert_not_reached (\"linux target op low_cannot_fetch_register \"\n+\t\t\t  \"is not implemented by the target\");\n+}\n+\n+bool\n+crisv32_target::low_cannot_store_register (int regno)\n+{\n+  gdb_assert_not_reached (\"linux target op low_cannot_store_register \"\n+\t\t\t  \"is not implemented by the target\");\n+}\n+\n /* Defined in auto-generated file reg-crisv32.c.  */\n void init_registers_crisv32 (void);\n extern const struct target_desc *tdesc_crisv32;\n@@ -411,8 +429,6 @@ crisv32_target::get_regs_info ()\n }\n \n struct linux_target_ops the_low_target = {\n-  NULL,\n-  NULL,\n   NULL, /* fetch_register */\n   linux_get_pc_32bit,\n   linux_set_pc_32bit,"
+    },
+    {
+      "sha": "471530a621bffff4c215811148c4d4eccae53bff",
+      "filename": "gdbserver/linux-ia64-low.cc",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 8,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-ia64-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-ia64-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-ia64-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -34,6 +34,10 @@ class ia64_target : public linux_process_target\n protected:\n \n   void low_arch_setup () override;\n+\n+  bool low_cannot_fetch_register (int regno) override;\n+\n+  bool low_cannot_store_register (int regno) override;\n };\n \n /* The singleton target ops object.  */\n@@ -283,16 +287,16 @@ static int ia64_regmap[] =\n     -1,\n   };\n \n-static int\n-ia64_cannot_store_register (int regno)\n+bool\n+ia64_target::low_cannot_store_register (int regno)\n {\n-  return 0;\n+  return false;\n }\n \n-static int\n-ia64_cannot_fetch_register (int regno)\n+bool\n+ia64_target::low_cannot_fetch_register (int regno)\n {\n-  return 0;\n+  return false;\n }\n \n /* GDB register numbers.  */\n@@ -363,8 +367,6 @@ ia64_target::low_arch_setup ()\n \n \n struct linux_target_ops the_low_target = {\n-  ia64_cannot_fetch_register,\n-  ia64_cannot_store_register,\n   ia64_fetch_register,\n };\n "
+    },
+    {
+      "sha": "caa2d8dbd589ae76855c3da1e3062691e106f2b0",
+      "filename": "gdbserver/linux-low.cc",
+      "status": "modified",
+      "additions": 24,
+      "deletions": 35,
+      "changes": 59,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -5418,10 +5418,10 @@ register_addr (const struct usrregs_info *usrregs, int regnum)\n   return addr;\n }\n \n-/* Fetch one register.  */\n-static void\n-fetch_register (const struct usrregs_info *usrregs,\n-\t\tstruct regcache *regcache, int regno)\n+\n+void\n+linux_process_target::fetch_register (const usrregs_info *usrregs,\n+\t\t\t\t      regcache *regcache, int regno)\n {\n   CORE_ADDR regaddr;\n   int i, size;\n@@ -5430,7 +5430,7 @@ fetch_register (const struct usrregs_info *usrregs,\n \n   if (regno >= usrregs->num_regs)\n     return;\n-  if ((*the_low_target.cannot_fetch_register) (regno))\n+  if (low_cannot_fetch_register (regno))\n     return;\n \n   regaddr = register_addr (usrregs, regno);\n@@ -5466,10 +5466,9 @@ fetch_register (const struct usrregs_info *usrregs,\n     supply_register (regcache, regno, buf);\n }\n \n-/* Store one register.  */\n-static void\n-store_register (const struct usrregs_info *usrregs,\n-\t\tstruct regcache *regcache, int regno)\n+void\n+linux_process_target::store_register (const usrregs_info *usrregs,\n+\t\t\t\t      regcache *regcache, int regno)\n {\n   CORE_ADDR regaddr;\n   int i, size;\n@@ -5478,7 +5477,7 @@ store_register (const struct usrregs_info *usrregs,\n \n   if (regno >= usrregs->num_regs)\n     return;\n-  if ((*the_low_target.cannot_store_register) (regno))\n+  if (low_cannot_store_register (regno))\n     return;\n \n   regaddr = register_addr (usrregs, regno);\n@@ -5514,22 +5513,21 @@ store_register (const struct usrregs_info *usrregs,\n \t  if (errno == ESRCH)\n \t    return;\n \n-\t  if ((*the_low_target.cannot_store_register) (regno) == 0)\n+\n+\t  if (!low_cannot_store_register (regno))\n \t    error (\"writing register %d: %s\", regno, safe_strerror (errno));\n \t}\n       regaddr += sizeof (PTRACE_XFER_TYPE);\n     }\n }\n+#endif /* HAVE_LINUX_USRREGS */\n \n-/* Fetch all registers, or just one, from the child process.\n-   If REGNO is -1, do this for all registers, skipping any that are\n-   assumed to have been retrieved by regsets_fetch_inferior_registers,\n-   unless ALL is non-zero.\n-   Otherwise, REGNO specifies which register (so we can save time).  */\n-static void\n-usr_fetch_inferior_registers (const struct regs_info *regs_info,\n-\t\t\t      struct regcache *regcache, int regno, int all)\n+void\n+linux_process_target::usr_fetch_inferior_registers (const regs_info *regs_info,\n+\t\t\t\t\t\t    regcache *regcache,\n+\t\t\t\t\t\t    int regno, int all)\n {\n+#ifdef HAVE_LINUX_USRREGS\n   struct usrregs_info *usr = regs_info->usrregs;\n \n   if (regno == -1)\n@@ -5540,17 +5538,15 @@ usr_fetch_inferior_registers (const struct regs_info *regs_info,\n     }\n   else\n     fetch_register (usr, regcache, regno);\n+#endif\n }\n \n-/* Store our register values back into the inferior.\n-   If REGNO is -1, do this for all registers, skipping any that are\n-   assumed to have been saved by regsets_store_inferior_registers,\n-   unless ALL is non-zero.\n-   Otherwise, REGNO specifies which register (so we can save time).  */\n-static void\n-usr_store_inferior_registers (const struct regs_info *regs_info,\n-\t\t\t      struct regcache *regcache, int regno, int all)\n+void\n+linux_process_target::usr_store_inferior_registers (const regs_info *regs_info,\n+\t\t\t\t\t\t    regcache *regcache,\n+\t\t\t\t\t\t    int regno, int all)\n {\n+#ifdef HAVE_LINUX_USRREGS\n   struct usrregs_info *usr = regs_info->usrregs;\n \n   if (regno == -1)\n@@ -5561,15 +5557,8 @@ usr_store_inferior_registers (const struct regs_info *regs_info,\n     }\n   else\n     store_register (usr, regcache, regno);\n-}\n-\n-#else /* !HAVE_LINUX_USRREGS */\n-\n-#define usr_fetch_inferior_registers(regs_info, regcache, regno, all) do {} while (0)\n-#define usr_store_inferior_registers(regs_info, regcache, regno, all) do {} while (0)\n-\n #endif\n-\n+}\n \n void\n linux_process_target::fetch_registers (regcache *regcache, int regno)"
+    },
+    {
+      "sha": "65c570e06692bdae7dc1b4b7f72c74d6340fdeb2",
+      "filename": "gdbserver/linux-low.h",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 5,
+      "changes": 37,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-low.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-low.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-low.h?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -131,11 +131,6 @@ struct lwp_info;\n \n struct linux_target_ops\n {\n-  /* Return 0 if we can fetch/store the register, 1 if we cannot\n-     fetch/store the register.  */\n-  int (*cannot_fetch_register) (int);\n-  int (*cannot_store_register) (int);\n-\n   /* Hook to fetch a register in some non-standard way.  Used for\n      example by backends that have read-only registers with hardcoded\n      values (e.g., IA64's gr0/fr0/fr1).  Returns true if register\n@@ -566,11 +561,43 @@ class linux_process_target : public process_stratum_target\n   /* Call low_arch_setup on THREAD.  */\n   void arch_setup_thread (thread_info *thread);\n \n+#ifdef HAVE_LINUX_USRREGS\n+  /* Fetch one register.  */\n+  void fetch_register (const usrregs_info *usrregs, regcache *regcache,\n+\t\t       int regno);\n+\n+  /* Store one register.  */\n+  void store_register (const usrregs_info *usrregs, regcache *regcache,\n+\t\t       int regno);\n+#endif\n+\n+  /* Fetch all registers, or just one, from the child process.\n+     If REGNO is -1, do this for all registers, skipping any that are\n+     assumed to have been retrieved by regsets_fetch_inferior_registers,\n+     unless ALL is non-zero.\n+     Otherwise, REGNO specifies which register (so we can save time).  */\n+  void usr_fetch_inferior_registers (const regs_info *regs_info,\n+\t\t\t\t     regcache *regcache, int regno, int all);\n+\n+  /* Store our register values back into the inferior.\n+     If REGNO is -1, do this for all registers, skipping any that are\n+     assumed to have been saved by regsets_store_inferior_registers,\n+     unless ALL is non-zero.\n+     Otherwise, REGNO specifies which register (so we can save time).  */\n+  void usr_store_inferior_registers (const regs_info *regs_info,\n+\t\t\t\t     regcache *regcache, int regno, int all);\n+\n protected:\n   /* The architecture-specific \"low\" methods are listed below.  */\n \n   /* Architecture-specific setup for the current thread.  */\n   virtual void low_arch_setup () = 0;\n+\n+  /* Return false if we can fetch/store the register, true if we cannot\n+     fetch/store the register.  */\n+  virtual bool low_cannot_fetch_register (int regno) = 0;\n+\n+  virtual bool low_cannot_store_register (int regno) = 0;\n };\n \n extern linux_process_target *the_linux_target;"
+    },
+    {
+      "sha": "912708db817e0fe9ed7c10e68d48e769b97271fc",
+      "filename": "gdbserver/linux-m32r-low.cc",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 6,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-m32r-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-m32r-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-m32r-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -34,6 +34,10 @@ class m32r_target : public linux_process_target\n protected:\n \n   void low_arch_setup () override;\n+\n+  bool low_cannot_fetch_register (int regno) override;\n+\n+  bool low_cannot_store_register (int regno) override;\n };\n \n /* The singleton target ops object.  */\n@@ -58,14 +62,14 @@ static int m32r_regmap[] = {\n #endif\n };\n \n-static int\n-m32r_cannot_store_register (int regno)\n+bool\n+m32r_target::low_cannot_store_register (int regno)\n {\n   return (regno >= m32r_num_regs);\n }\n \n-static int\n-m32r_cannot_fetch_register (int regno)\n+bool\n+m32r_target::low_cannot_fetch_register (int regno)\n {\n   return (regno >= m32r_num_regs);\n }\n@@ -130,8 +134,6 @@ m32r_target::get_regs_info ()\n }\n \n struct linux_target_ops the_low_target = {\n-  m32r_cannot_fetch_register,\n-  m32r_cannot_store_register,\n   NULL, /* fetch_register */\n   linux_get_pc_32bit,\n   linux_set_pc_32bit,"
+    },
+    {
+      "sha": "08545aa946fb7f7835337e8112e3db9df03f8cb7",
+      "filename": "gdbserver/linux-m68k-low.cc",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 6,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-m68k-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-m68k-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-m68k-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -30,6 +30,10 @@ class m68k_target : public linux_process_target\n protected:\n \n   void low_arch_setup () override;\n+\n+  bool low_cannot_fetch_register (int regno) override;\n+\n+  bool low_cannot_store_register (int regno) override;\n };\n \n /* The singleton target ops object.  */\n@@ -71,14 +75,14 @@ static int m68k_regmap[] =\n #endif\n };\n \n-static int\n-m68k_cannot_store_register (int regno)\n+bool\n+m68k_target::low_cannot_store_register (int regno)\n {\n   return (regno >= m68k_num_regs);\n }\n \n-static int\n-m68k_cannot_fetch_register (int regno)\n+bool\n+m68k_target::low_cannot_fetch_register (int regno)\n {\n   return (regno >= m68k_num_regs);\n }\n@@ -225,8 +229,6 @@ m68k_supports_hardware_single_step (void)\n }\n \n struct linux_target_ops the_low_target = {\n-  m68k_cannot_fetch_register,\n-  m68k_cannot_store_register,\n   NULL, /* fetch_register */\n   linux_get_pc_32bit,\n   linux_set_pc_32bit,"
+    },
+    {
+      "sha": "0900dc88e0b70c612ca85fb971db6020004019de",
+      "filename": "gdbserver/linux-mips-low.cc",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 27,
+      "changes": 48,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-mips-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-mips-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-mips-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -36,6 +36,10 @@ class mips_target : public linux_process_target\n protected:\n \n   void low_arch_setup () override;\n+\n+  bool low_cannot_fetch_register (int regno) override;\n+\n+  bool low_cannot_store_register (int regno) override;\n };\n \n /* The singleton target ops object.  */\n@@ -170,14 +174,6 @@ mips_target::low_arch_setup ()\n   current_process ()->tdesc = mips_read_description ();\n }\n \n-static struct usrregs_info *\n-get_usrregs_info (void)\n-{\n-  const struct regs_info *regs_info = the_linux_target->get_regs_info ();\n-\n-  return regs_info->usrregs;\n-}\n-\n /* Per-process arch-specific data we want to keep.  */\n \n struct arch_process_info\n@@ -218,53 +214,53 @@ struct arch_lwp_info\n    ZERO_REGNUM, it's always 0.  We also can not set BADVADDR, CAUSE,\n    or FCRIR via ptrace().  */\n \n-static int\n-mips_cannot_fetch_register (int regno)\n+bool\n+mips_target::low_cannot_fetch_register (int regno)\n {\n   const struct target_desc *tdesc;\n \n-  if (get_usrregs_info ()->regmap[regno] == -1)\n-    return 1;\n+  if (get_regs_info ()->usrregs->regmap[regno] == -1)\n+    return true;\n \n   tdesc = current_process ()->tdesc;\n \n   /* On n32 we can't access 64-bit registers via PTRACE_PEEKUSR.  */\n   if (register_size (tdesc, regno) > sizeof (PTRACE_XFER_TYPE))\n-    return 1;\n+    return true;\n \n   if (find_regno (tdesc, \"r0\") == regno)\n-    return 1;\n+    return true;\n \n-  return 0;\n+  return false;\n }\n \n-static int\n-mips_cannot_store_register (int regno)\n+bool\n+mips_target::low_cannot_store_register (int regno)\n {\n   const struct target_desc *tdesc;\n \n-  if (get_usrregs_info ()->regmap[regno] == -1)\n-    return 1;\n+  if (get_regs_info ()->usrregs->regmap[regno] == -1)\n+    return true;\n \n   tdesc = current_process ()->tdesc;\n \n   /* On n32 we can't access 64-bit registers via PTRACE_POKEUSR.  */\n   if (register_size (tdesc, regno) > sizeof (PTRACE_XFER_TYPE))\n-    return 1;\n+    return true;\n \n   if (find_regno (tdesc, \"r0\") == regno)\n-    return 1;\n+    return true;\n \n   if (find_regno (tdesc, \"cause\") == regno)\n-    return 1;\n+    return true;\n \n   if (find_regno (tdesc, \"badvaddr\") == regno)\n-    return 1;\n+    return true;\n \n   if (find_regno (tdesc, \"fir\") == regno)\n-    return 1;\n+    return true;\n \n-  return 0;\n+  return false;\n }\n \n static int\n@@ -954,8 +950,6 @@ mips_target::get_regs_info ()\n }\n \n struct linux_target_ops the_low_target = {\n-  mips_cannot_fetch_register,\n-  mips_cannot_store_register,\n   mips_fetch_register,\n   mips_get_pc,\n   mips_set_pc,"
+    },
+    {
+      "sha": "adbb0f2622e002c7dece2a0bc0c391776198f60f",
+      "filename": "gdbserver/linux-nios2-low.cc",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 16,
+      "changes": 28,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-nios2-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-nios2-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-nios2-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -42,6 +42,10 @@ class nios2_target : public linux_process_target\n protected:\n \n   void low_arch_setup () override;\n+\n+  bool low_cannot_fetch_register (int regno) override;\n+\n+  bool low_cannot_store_register (int regno) override;\n };\n \n /* The singleton target ops object.  */\n@@ -90,26 +94,20 @@ nios2_target::low_arch_setup ()\n   current_process ()->tdesc = tdesc_nios2_linux;\n }\n \n-/* Implement the cannot_fetch_register linux_target_ops method.  */\n+/* Implement the low_cannot_fetch_register linux target ops method.  */\n \n-static int\n-nios2_cannot_fetch_register (int regno)\n+bool\n+nios2_target::low_cannot_fetch_register (int regno)\n {\n-  if (nios2_regmap[regno] == -1)\n-    return 1;\n-\n-  return 0;\n+  return (nios2_regmap[regno] == -1);\n }\n \n-/* Implement the cannot_store_register linux_target_ops method.  */\n+/* Implement the low_cannot_store_register linux target ops method.  */\n \n-static int\n-nios2_cannot_store_register (int regno)\n+bool\n+nios2_target::low_cannot_store_register (int regno)\n {\n-  if (nios2_regmap[regno] == -1)\n-    return 1;\n-\n-  return 0;\n+  return (nios2_regmap[regno] == -1);\n }\n \n /* Breakpoint support.  Also see comments on nios2_breakpoint_from_pc\n@@ -253,8 +251,6 @@ nios2_target::get_regs_info ()\n \n struct linux_target_ops the_low_target =\n {\n-  nios2_cannot_fetch_register,\n-  nios2_cannot_store_register,\n   NULL,\n   linux_get_pc_32bit,\n   linux_set_pc_32bit,"
+    },
+    {
+      "sha": "968538df3703bdee735128c058a00fa9df17a65b",
+      "filename": "gdbserver/linux-ppc-low.cc",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 10,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-ppc-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-ppc-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-ppc-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -55,6 +55,10 @@ class ppc_target : public linux_process_target\n protected:\n \n   void low_arch_setup () override;\n+\n+  bool low_cannot_fetch_register (int regno) override;\n+\n+  bool low_cannot_store_register (int regno) override;\n };\n \n /* The singleton target ops object.  */\n@@ -160,30 +164,30 @@ ppc_check_regset (int tid, int regset_id, int regsetsize)\n   return 0;\n }\n \n-static int\n-ppc_cannot_store_register (int regno)\n+bool\n+ppc_target::low_cannot_store_register (int regno)\n {\n   const struct target_desc *tdesc = current_process ()->tdesc;\n \n #ifndef __powerpc64__\n   /* Some kernels do not allow us to store fpscr.  */\n   if (!(ppc_hwcap & PPC_FEATURE_HAS_SPE)\n       && regno == find_regno (tdesc, \"fpscr\"))\n-    return 1;\n+    return true;\n #endif\n \n   /* Some kernels do not allow us to store orig_r3 or trap.  */\n   if (regno == find_regno (tdesc, \"orig_r3\")\n       || regno == find_regno (tdesc, \"trap\"))\n-    return 1;\n+    return true;\n \n-  return 0;\n+  return false;\n }\n \n-static int\n-ppc_cannot_fetch_register (int regno)\n+bool\n+ppc_target::low_cannot_fetch_register (int regno)\n {\n-  return 0;\n+  return false;\n }\n \n static void\n@@ -3388,8 +3392,6 @@ ppc_get_ipa_tdesc_idx (void)\n }\n \n struct linux_target_ops the_low_target = {\n-  ppc_cannot_fetch_register,\n-  ppc_cannot_store_register,\n   NULL, /* fetch_register */\n   ppc_get_pc,\n   ppc_set_pc,"
+    },
+    {
+      "sha": "4f2e28beafced2135379b4bf068f9fbae61dd727",
+      "filename": "gdbserver/linux-riscv-low.cc",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 2,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-riscv-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-riscv-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-riscv-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -41,12 +41,30 @@ class riscv_target : public linux_process_target\n protected:\n \n   void low_arch_setup () override;\n+\n+  bool low_cannot_fetch_register (int regno) override;\n+\n+  bool low_cannot_store_register (int regno) override;\n };\n \n /* The singleton target ops object.  */\n \n static riscv_target the_riscv_target;\n \n+bool\n+riscv_target::low_cannot_fetch_register (int regno)\n+{\n+  gdb_assert_not_reached (\"linux target op low_cannot_fetch_register \"\n+\t\t\t  \"is not implemented by the target\");\n+}\n+\n+bool\n+riscv_target::low_cannot_store_register (int regno)\n+{\n+  gdb_assert_not_reached (\"linux target op low_cannot_store_register \"\n+\t\t\t  \"is not implemented by the target\");\n+}\n+\n /* Implementation of linux target ops method \"low_arch_setup\".  */\n \n void\n@@ -273,8 +291,6 @@ riscv_breakpoint_at (CORE_ADDR pc)\n /* RISC-V/Linux target operations.  */\n struct linux_target_ops the_low_target =\n {\n-  NULL, /* cannot_fetch_register */\n-  NULL, /* cannot_store_register */\n   riscv_fetch_register,\n   riscv_get_pc,\n   riscv_set_pc,"
+    },
+    {
+      "sha": "2ba0dec0551113511fd7c29d74999813bfbc414f",
+      "filename": "gdbserver/linux-s390-low.cc",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 8,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-s390-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-s390-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-s390-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -62,6 +62,10 @@ class s390_target : public linux_process_target\n protected:\n \n   void low_arch_setup () override;\n+\n+  bool low_cannot_fetch_register (int regno) override;\n+\n+  bool low_cannot_store_register (int regno) override;\n };\n \n /* The singleton target ops object.  */\n@@ -157,16 +161,16 @@ static int s390_regmap_3264[] = {\n #endif\n \n \n-static int\n-s390_cannot_fetch_register (int regno)\n+bool\n+s390_target::low_cannot_fetch_register (int regno)\n {\n-  return 0;\n+  return false;\n }\n \n-static int\n-s390_cannot_store_register (int regno)\n+bool\n+s390_target::low_cannot_store_register (int regno)\n {\n-  return 0;\n+  return false;\n }\n \n static void\n@@ -2808,8 +2812,6 @@ s390_emit_ops (void)\n }\n \n struct linux_target_ops the_low_target = {\n-  s390_cannot_fetch_register,\n-  s390_cannot_store_register,\n   NULL, /* fetch_register */\n   s390_get_pc,\n   s390_set_pc,"
+    },
+    {
+      "sha": "b4fd534547e755ad449a9eac3a8da5ab13e64a9b",
+      "filename": "gdbserver/linux-sh-low.cc",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 8,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-sh-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-sh-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-sh-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -30,6 +30,10 @@ class sh_target : public linux_process_target\n protected:\n \n   void low_arch_setup () override;\n+\n+  bool low_cannot_fetch_register (int regno) override;\n+\n+  bool low_cannot_store_register (int regno) override;\n };\n \n /* The singleton target ops object.  */\n@@ -63,16 +67,16 @@ static int sh_regmap[] = {\n  REG_FPREG0*4+48,  REG_FPREG0*4+52,  REG_FPREG0*4+56,  REG_FPREG0*4+60,\n };\n \n-static int\n-sh_cannot_store_register (int regno)\n+bool\n+sh_target::low_cannot_store_register (int regno)\n {\n-  return 0;\n+  return false;\n }\n \n-static int\n-sh_cannot_fetch_register (int regno)\n+bool\n+sh_target::low_cannot_fetch_register (int regno)\n {\n-  return 0;\n+  return false;\n }\n \n /* Correct in either endianness, obviously.  */\n@@ -160,8 +164,6 @@ sh_target::low_arch_setup ()\n }\n \n struct linux_target_ops the_low_target = {\n-  sh_cannot_fetch_register,\n-  sh_cannot_store_register,\n   NULL, /* fetch_register */\n   linux_get_pc_32bit,\n   linux_set_pc_32bit,"
+    },
+    {
+      "sha": "4e0d930f800d96f8608fe02eb64e893346cba9a1",
+      "filename": "gdbserver/linux-sparc-low.cc",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 6,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-sparc-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-sparc-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-sparc-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -53,6 +53,10 @@ class sparc_target : public linux_process_target\n protected:\n \n   void low_arch_setup () override;\n+\n+  bool low_cannot_fetch_register (int regno) override;\n+\n+  bool low_cannot_store_register (int regno) override;\n };\n \n /* The singleton target ops object.  */\n@@ -119,14 +123,14 @@ static const struct regs_range_t fpregs_ranges[] = {\n void init_registers_sparc64 (void);\n extern const struct target_desc *tdesc_sparc64;\n \n-static int\n-sparc_cannot_store_register (int regno)\n+bool\n+sparc_target::low_cannot_store_register (int regno)\n {\n   return (regno >= sparc_num_regs || sparc_regmap[regno] == -1);\n }\n \n-static int\n-sparc_cannot_fetch_register (int regno)\n+bool\n+sparc_target::low_cannot_fetch_register (int regno)\n {\n   return (regno >= sparc_num_regs || sparc_regmap[regno] == -1);\n }\n@@ -315,8 +319,6 @@ sparc_target::get_regs_info ()\n }\n \n struct linux_target_ops the_low_target = {\n-  sparc_cannot_fetch_register,\n-  sparc_cannot_store_register,\n   NULL, /* fetch_register */\n   linux_get_pc_64bit,\n   /* No sparc_set_pc is needed.  */"
+    },
+    {
+      "sha": "be6eb98b45c4edba129f9ca10d3edf57ca0c5a0d",
+      "filename": "gdbserver/linux-tic6x-low.cc",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 6,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-tic6x-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-tic6x-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-tic6x-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -49,6 +49,10 @@ class tic6x_target : public linux_process_target\n protected:\n \n   void low_arch_setup () override;\n+\n+  bool low_cannot_fetch_register (int regno) override;\n+\n+  bool low_cannot_store_register (int regno) override;\n };\n \n /* The singleton target ops object.  */\n@@ -223,14 +227,14 @@ tic6x_read_description (enum c6x_feature feature)\n   return *tdesc;\n }\n \n-static int\n-tic6x_cannot_fetch_register (int regno)\n+bool\n+tic6x_target::low_cannot_fetch_register (int regno)\n {\n   return (tic6x_regmap[regno] == -1);\n }\n \n-static int\n-tic6x_cannot_store_register (int regno)\n+bool\n+tic6x_target::low_cannot_store_register (int regno)\n {\n   return (tic6x_regmap[regno] == -1);\n }\n@@ -403,8 +407,6 @@ tic6x_target::get_regs_info ()\n }\n \n struct linux_target_ops the_low_target = {\n-  tic6x_cannot_fetch_register,\n-  tic6x_cannot_store_register,\n   NULL, /* fetch_register */\n   tic6x_get_pc,\n   tic6x_set_pc,"
+    },
+    {
+      "sha": "b9af7af7fb56fd76547c094e520f568e2bfb9fcd",
+      "filename": "gdbserver/linux-tile-low.cc",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 12,
+      "changes": 26,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-tile-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-tile-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-tile-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -34,6 +34,10 @@ class tile_target : public linux_process_target\n protected:\n \n   void low_arch_setup () override;\n+\n+  bool low_cannot_fetch_register (int regno) override;\n+\n+  bool low_cannot_store_register (int regno) override;\n };\n \n /* The singleton target ops object.  */\n@@ -63,26 +67,26 @@ static int tile_regmap[] =\n   56\n };\n \n-static int\n-tile_cannot_fetch_register (int regno)\n+bool\n+tile_target::low_cannot_fetch_register (int regno)\n {\n   if (regno >= 0 && regno < 56)\n-    return 0;\n+    return false;\n   else if (regno == 64)\n-    return 0;\n+    return false;\n   else\n-    return 1;\n+    return true;\n }\n \n-static int\n-tile_cannot_store_register (int regno)\n+bool\n+tile_target::low_cannot_store_register (int regno)\n {\n   if (regno >= 0 && regno < 56)\n-    return 0;\n+    return false;\n   else if (regno == 64)\n-    return 0;\n+    return false;\n   else\n-    return 1;\n+    return true;\n }\n \n static uint64_t tile_breakpoint = 0x400b3cae70166000ULL;\n@@ -192,8 +196,6 @@ tile_supports_hardware_single_step (void)\n \n struct linux_target_ops the_low_target =\n {\n-  tile_cannot_fetch_register,\n-  tile_cannot_store_register,\n   NULL,\n   linux_get_pc_64bit,\n   linux_set_pc_64bit,"
+    },
+    {
+      "sha": "8c9ab733ea88c7a684705a5355e892cf3eab3aa8",
+      "filename": "gdbserver/linux-x86-low.cc",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 8,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-x86-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-x86-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-x86-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -109,6 +109,10 @@ class x86_target : public linux_process_target\n protected:\n \n   void low_arch_setup () override;\n+\n+  bool low_cannot_fetch_register (int regno) override;\n+\n+  bool low_cannot_store_register (int regno) override;\n };\n \n /* The singleton target ops object.  */\n@@ -301,23 +305,23 @@ x86_get_thread_area (int lwpid, CORE_ADDR *addr)\n \n \n \f\n-static int\n-x86_cannot_store_register (int regno)\n+bool\n+x86_target::low_cannot_store_register (int regno)\n {\n #ifdef __x86_64__\n   if (is_64bit_tdesc ())\n-    return 0;\n+    return false;\n #endif\n \n   return regno >= I386_NUM_REGS;\n }\n \n-static int\n-x86_cannot_fetch_register (int regno)\n+bool\n+x86_target::low_cannot_fetch_register (int regno)\n {\n #ifdef __x86_64__\n   if (is_64bit_tdesc ())\n-    return 0;\n+    return false;\n #endif\n \n   return regno >= I386_NUM_REGS;\n@@ -2881,8 +2885,6 @@ x86_get_ipa_tdesc_idx (void)\n \n struct linux_target_ops the_low_target =\n {\n-  x86_cannot_fetch_register,\n-  x86_cannot_store_register,\n   NULL, /* fetch_register */\n   x86_get_pc,\n   x86_set_pc,"
+    },
+    {
+      "sha": "876c2ad63e0d1960b0ac5bd03917baf7ce3e0ba9",
+      "filename": "gdbserver/linux-xtensa-low.cc",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 2,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-xtensa-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/daca57a7de50f97a4e8df917447561617a0298b2/gdbserver/linux-xtensa-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-xtensa-low.cc?ref=daca57a7de50f97a4e8df917447561617a0298b2",
+      "patch": "@@ -31,12 +31,30 @@ class xtensa_target : public linux_process_target\n protected:\n \n   void low_arch_setup () override;\n+\n+  bool low_cannot_fetch_register (int regno) override;\n+\n+  bool low_cannot_store_register (int regno) override;\n };\n \n /* The singleton target ops object.  */\n \n static xtensa_target the_xtensa_target;\n \n+bool\n+xtensa_target::low_cannot_fetch_register (int regno)\n+{\n+  gdb_assert_not_reached (\"linux target op low_cannot_fetch_register \"\n+\t\t\t  \"is not implemented by the target\");\n+}\n+\n+bool\n+xtensa_target::low_cannot_store_register (int regno)\n+{\n+  gdb_assert_not_reached (\"linux target op low_cannot_store_register \"\n+\t\t\t  \"is not implemented by the target\");\n+}\n+\n /* Defined in auto-generated file reg-xtensa.c.  */\n void init_registers_xtensa (void);\n extern const struct target_desc *tdesc_xtensa;\n@@ -284,8 +302,6 @@ xtensa_target::get_regs_info ()\n }\n \n struct linux_target_ops the_low_target = {\n-  0,\n-  0,\n   NULL, /* fetch_register */\n   linux_get_pc_32bit,\n   linux_set_pc_32bit,"
+    }
+  ]
+}

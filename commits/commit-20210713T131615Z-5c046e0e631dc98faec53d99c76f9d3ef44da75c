@@ -1,0 +1,122 @@
+{
+  "sha": "5c046e0e631dc98faec53d99c76f9d3ef44da75c",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NWMwNDZlMGU2MzFkYzk4ZmFlYzUzZDk5Yzc2ZjlkM2VmNDRkYTc1Yw==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-07-12T02:13:06Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-07-13T13:16:15Z"
+    },
+    "message": "gdb: disable commit-resumed on -exec-interrupt --thread-group\n\nAs reported in PR gdb/28077, we hit an internal error when using\n-exec-interrupt with --thread-group:\n\n    info threads\n    &\"info threads\\n\"\n    ~\"  Id   Target Id             Frame \\n\"\n    ~\"* 1    process 403312 \\\"loop\\\" (running)\\n\"\n    ^done\n    (gdb)\n    -exec-interrupt --thread-group i1\n    ~\"/home/simark/src/binutils-gdb/gdb/target.c:3768: internal-error: void target_stop(ptid_t): Assertion `!proc_target->commit_resumed_state' failed.\\nA problem internal to GDB has been detected,\\nfurther debugging may prove unreliable.\\nQuit this debugging session? (y or n) \"\n\nThis is because this code path never disables commit-resumed (a\nrequirement for calling target_stop, as documented in\nprocess_stratum_target::\u00bbcommit_resumed_state) before calling\ntarget_stop.\n\nThe other 3 code paths in mi_cmd_exec_interrupt use interrupt_target_1,\nwhich does it.  But the --thread-group code path uses its own thing\nwhich doesn't do it.  Fix this by adding a scoped_disable_commit_resumed\nin this code path.\n\nCalling -exec-interrupt with --thread-group is apparently not tested at\nthe moment (which is why this bug could creep in).  Add a new test for\nthat.  The test runs two inferiors and tries to interrupt them with\n\"-exec-interrupt --thread-group X\".\n\nThis will need to be merged in the gdb-11-branch, so here are ChangeLog\nentries:\n\ngdb/ChangeLog:\n\n\t* mi/mi-main.c (mi_cmd_exec_interrupt): Use\n\tscoped_disable_commit_resumed in the --thread-group case.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.mi/interrupt-thread-group.c: New.\n\t* gdb.mi/interrupt-thread-group.exp: New.\n\nBug: https://sourceware.org/bugzilla/show_bug.cgi?id=28077\nChange-Id: I615efefcbcaf2c15d47caf5e4b9d82854b2a2fcb",
+    "tree": {
+      "sha": "4c16868a7e7729f0e20df805b96df018ef8784f3",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/4c16868a7e7729f0e20df805b96df018ef8784f3"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/5c046e0e631dc98faec53d99c76f9d3ef44da75c",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5c046e0e631dc98faec53d99c76f9d3ef44da75c",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/5c046e0e631dc98faec53d99c76f9d3ef44da75c",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5c046e0e631dc98faec53d99c76f9d3ef44da75c/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "aa0587b290e9155e71c01447c0e3f57c3ee0ecc3",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/aa0587b290e9155e71c01447c0e3f57c3ee0ecc3",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/aa0587b290e9155e71c01447c0e3f57c3ee0ecc3"
+    }
+  ],
+  "stats": {
+    "total": 198,
+    "additions": 198,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "44008d1c0a869db70c9639c76d0b5c86afaf5540",
+      "filename": "gdb/mi/mi-main.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5c046e0e631dc98faec53d99c76f9d3ef44da75c/gdb/mi/mi-main.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5c046e0e631dc98faec53d99c76f9d3ef44da75c/gdb/mi/mi-main.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/mi/mi-main.c?ref=5c046e0e631dc98faec53d99c76f9d3ef44da75c",
+      "patch": "@@ -383,6 +383,9 @@ mi_cmd_exec_interrupt (const char *command, char **argv, int argc)\n     {\n       struct inferior *inf = find_inferior_id (current_context->thread_group);\n \n+      scoped_disable_commit_resumed disable_commit_resumed\n+\t(\"interrupting all threads of thread group\");\n+\n       iterate_over_threads (interrupt_thread_callback, &inf->pid);\n     }\n   else"
+    },
+    {
+      "sha": "738c6fc3e3ee2db12be7aebf4be8504f04ab4204",
+      "filename": "gdb/testsuite/gdb.mi/interrupt-thread-group.c",
+      "status": "added",
+      "additions": 65,
+      "deletions": 0,
+      "changes": 65,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5c046e0e631dc98faec53d99c76f9d3ef44da75c/gdb/testsuite/gdb.mi/interrupt-thread-group.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5c046e0e631dc98faec53d99c76f9d3ef44da75c/gdb/testsuite/gdb.mi/interrupt-thread-group.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.mi/interrupt-thread-group.c?ref=5c046e0e631dc98faec53d99c76f9d3ef44da75c",
+      "patch": "@@ -0,0 +1,65 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2021 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#include <unistd.h>\n+#include <pthread.h>\n+#include <assert.h>\n+\n+#define NUM_THREADS 4\n+\n+static pthread_barrier_t barrier;\n+\n+static void *\n+thread_function (void *arg)\n+{\n+  pthread_barrier_wait (&barrier);\n+\n+  for (int i = 0; i < 30; i++)\n+    sleep (1);\n+\n+  return NULL;\n+}\n+\n+static void\n+all_threads_started (void)\n+{}\n+\n+int\n+main (void)\n+{\n+  pthread_t threads[NUM_THREADS];\n+\n+  pthread_barrier_init (&barrier, NULL, NUM_THREADS + 1);\n+\n+  for (int i = 0; i < NUM_THREADS; i++)\n+    {\n+      int res = pthread_create (&threads[i], NULL, thread_function, NULL);\n+      assert (res == 0);\n+    }\n+\n+  pthread_barrier_wait (&barrier);\n+  all_threads_started ();\n+\n+  for (int i = 0; i < NUM_THREADS; i++)\n+    {\n+      int res = pthread_join (threads[i], NULL);\n+      assert (res == 0);\n+    }\n+\n+  return 0;\n+}\n+"
+    },
+    {
+      "sha": "88da82931cf480fba7c01e2b5176e9184ed1681b",
+      "filename": "gdb/testsuite/gdb.mi/interrupt-thread-group.exp",
+      "status": "added",
+      "additions": 130,
+      "deletions": 0,
+      "changes": 130,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5c046e0e631dc98faec53d99c76f9d3ef44da75c/gdb/testsuite/gdb.mi/interrupt-thread-group.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5c046e0e631dc98faec53d99c76f9d3ef44da75c/gdb/testsuite/gdb.mi/interrupt-thread-group.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.mi/interrupt-thread-group.exp?ref=5c046e0e631dc98faec53d99c76f9d3ef44da75c",
+      "patch": "@@ -0,0 +1,130 @@\n+# Copyright 2021 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test --exec-interrupt with thread-group.\n+#\n+# Run two inferiors, try interrupting them both with --exec-interrupt +\n+# --thread-group.\n+\n+load_lib mi-support.exp\n+set MIFLAGS \"-i=mi\"\n+\n+standard_testfile .c\n+\n+if {[gdb_compile_pthreads \"$srcdir/$subdir/$srcfile\" $binfile \\\n+\texecutable debug] != \"\" } {\n+    return -1\n+}\n+\n+save_vars { GDBFLAGS } {\n+    append GDBFLAGS \" -ex \\\"set non-stop on\\\" -ex \\\"set mi-async\\\"\"\n+    mi_clean_restart $binfile\n+}\n+\n+mi_detect_async\n+\n+# Create breakpoint by hand instead of using mi_runto, since we'll need it for\n+# both inferiors.\n+mi_create_breakpoint \"all_threads_started\" \\\n+    \"set breakpoint on all_threads_started\"\n+\n+# Run first inferior to all_threads_started (to ensure all threads are started)\n+# and resume it.\n+if { [mi_run_cmd] < 0 } {\n+    return\n+}\n+\n+mi_expect_stop \"breakpoint-hit\" \"all_threads_started\" \".*\" \".*\" \".*\" {\"\" \"disp=\\\"keep\\\"\"} \\\n+    \"inferior i1 stops at all_threads_started\"\n+\n+mi_send_resuming_command \"exec-continue --thread-group i1\" \\\n+    \"continue inferior 1\"\n+\n+# We can't run a second inferior on stub targets.  We can still test with one\n+# inferior and ensure that the command has the desired effect.\n+set use_second_inferior [expr {![use_gdb_stub]}]\n+\n+if { $use_second_inferior } {\n+    # The inferior created by the -add-inferior MI command does not inherit the\n+    # target connection of the first inferior.  If debugging through an\n+    # extended-remote connection, that means we can't run that second inferior\n+    # on the remote connection.  Use the add-inferior CLI command as a stop-gap.\n+    if { [mi_is_target_remote] } {\n+\tmi_gdb_test \"add-inferior\" \\\n+\t    \"\\\\^done\" \\\n+\t    \"add inferior 2\"\n+    } else {\n+\tmi_gdb_test \"-add-inferior\" \\\n+\t    \"\\\\^done,inferior=\\\"i2\\\"\" \\\n+\t    \"add inferior 2\"\n+    }\n+    mi_gdb_test \"-file-exec-and-symbols --thread-group i2 $::binfile\" \\\n+\t\"\\\\^done\" \\\n+\t\"set executable of inferior 2\"\n+    # Run second inferior to all_threads_started (to ensure all threads are\n+    # started) and resume it.\n+    mi_gdb_test \"-exec-run --thread-group i2\" \\\n+\t\"\\\\^running.*\" \\\n+\t\"run inferior 2\"\n+\n+    mi_expect_stop \"breakpoint-hit\" \"all_threads_started\" \".*\" \".*\" \".*\" {\"\" \"disp=\\\"keep\\\"\"} \\\n+\t\"inferior i2 stops at all_threads_started\"\n+\n+    mi_send_resuming_command \"exec-continue --thread-group i2\" \\\n+\t\"continue inferior 2\"\n+\n+    mi_check_thread_states {\n+\t\"running\" \"running\" \"running\" \"running\" \"running\"\n+\t\"running\" \"running\" \"running\" \"running\" \"running\"\n+    } \"before interrupting\"\n+} else {\n+    mi_check_thread_states {\n+\t\"running\" \"running\" \"running\" \"running\" \"running\"\n+    } \"before interrupting\"\n+}\n+\n+# Interrupt inferior 1, wait for events.\n+mi_gdb_test \"-exec-interrupt --thread-group i1\" \\\n+    \"\\\\^done\" \\\n+    \"interrupt inferior 1\"\n+\n+for {set i 0} {$i < 5} {incr i} {\n+    mi_expect_interrupt \"inferior 1, interrupt $i\"\n+}\n+\n+if { $use_second_inferior } {\n+    mi_check_thread_states {\n+\t\"stopped\" \"stopped\" \"stopped\" \"stopped\" \"stopped\"\n+\t\"running\" \"running\" \"running\" \"running\" \"running\"\n+    } \"after interrupting inferior 1\"\n+\n+    # Interrupt inferior 2, wait for events.\n+    mi_gdb_test \"-exec-interrupt --thread-group i2\" \\\n+\t\"\\\\^done\" \\\n+\t\"interrupt inferior 2\"\n+\n+    for {set i 0} {$i < 5} {incr i} {\n+\tmi_expect_interrupt \"inferior 2, interrupt $i\"\n+    }\n+\n+    mi_check_thread_states {\n+\t\"stopped\" \"stopped\" \"stopped\" \"stopped\" \"stopped\"\n+\t\"stopped\" \"stopped\" \"stopped\" \"stopped\" \"stopped\"\n+    } \"after interrupting inferior 2\"\n+} else {\n+    mi_check_thread_states {\n+\t\"stopped\" \"stopped\" \"stopped\" \"stopped\" \"stopped\"\n+    } \"after interrupting inferior 1\"\n+}"
+    }
+  ]
+}

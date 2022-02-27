@@ -1,0 +1,72 @@
+{
+  "sha": "de8af80891ff0eee61cd219b316e176e9ae88e91",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZGU4YWY4MDg5MWZmMGVlZTYxY2QyMTliMzE2ZTE3NmU5YWU4OGU5MQ==",
+  "commit": {
+    "author": {
+      "name": "Sandra Loosemore",
+      "email": "sandra@codesourcery.com",
+      "date": "2019-08-23T15:18:54Z"
+    },
+    "committer": {
+      "name": "Sandra Loosemore",
+      "email": "sandra@codesourcery.com",
+      "date": "2019-08-23T15:18:54Z"
+    },
+    "message": "Fix bug in nios2 prologue analysis.\n\nThe nios2 prologue analyzer was mistakenly using an unsigned int field\nto represent a 32-bit signed value.  This caused problems with an\nincorrect conversion being applied to negative values when they were\nautomatically promoted for addition to a 64-bit CORE_ADDR value.\n\nThis patch fixes test failures in gdb.base/large-frame.exp and\ngdb.dwarf2/dw2-ref-missing-frame.exp.  Normally the nios2 backend\nprefers to use the dwarf2 unwinder so the prologue analyzer is only\ninvoked if there is no dwarf2 information.\n\n2019-08-23  Sandra Loosemore  <sandra@codesourcery.com>\n\n\tgdb/\n\t* nios2-tdep.c (struct reg_value): Improve comments.  Make\n\tthe offset field signed.",
+    "tree": {
+      "sha": "86e11f1ea91c9ef4a6228c42c3b9db0b4972d505",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/86e11f1ea91c9ef4a6228c42c3b9db0b4972d505"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/de8af80891ff0eee61cd219b316e176e9ae88e91",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/de8af80891ff0eee61cd219b316e176e9ae88e91",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/de8af80891ff0eee61cd219b316e176e9ae88e91",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/de8af80891ff0eee61cd219b316e176e9ae88e91/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "09f7b0de537d465fc8ed9f9433e348c1bc78aab2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/09f7b0de537d465fc8ed9f9433e348c1bc78aab2",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/09f7b0de537d465fc8ed9f9433e348c1bc78aab2"
+    }
+  ],
+  "stats": {
+    "total": 13,
+    "additions": 10,
+    "deletions": 3
+  },
+  "files": [
+    {
+      "sha": "df8488b109a88deaaa6429f24b59cea10fc1abe3",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de8af80891ff0eee61cd219b316e176e9ae88e91/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de8af80891ff0eee61cd219b316e176e9ae88e91/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=de8af80891ff0eee61cd219b316e176e9ae88e91",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-08-23  Sandra Loosemore  <sandra@codesourcery.com>\n+\n+\t* nios2-tdep.c (struct reg_value): Improve comments.  Make\n+\tthe offset field signed.\n+\n 2019-08-22  Christian Biesinger  <cbiesinger@google.com>\n \n \t* python/lib/gdb/__init__.py (_execute_file): New function."
+    },
+    {
+      "sha": "8d685d4acaa3717db99445f966fafa10a9598804",
+      "filename": "gdb/nios2-tdep.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 3,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de8af80891ff0eee61cd219b316e176e9ae88e91/gdb/nios2-tdep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de8af80891ff0eee61cd219b316e176e9ae88e91/gdb/nios2-tdep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/nios2-tdep.c?ref=de8af80891ff0eee61cd219b316e176e9ae88e91",
+      "patch": "@@ -58,13 +58,15 @@ static int nios2_debug = 0;\n    analysis; see the reg_value and reg_saved tables in\n    struct nios2_unwind_cache, respectively.  */\n \n-/* struct reg_value is used to record that a register has the same value\n-   as reg at the given offset from the start of a function.  */\n+/* struct reg_value is used to record that a register has reg's initial\n+   value at the start of a function plus the given constant offset.\n+   If reg == 0, then the value is just the offset.\n+   If reg < 0, then the value is unknown.  */\n \n struct reg_value\n {\n   int reg;\n-  unsigned int offset;\n+  int offset;\n };\n \n /* struct reg_saved is used to record that a register value has been saved at"
+    }
+  ]
+}

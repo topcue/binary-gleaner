@@ -1,0 +1,98 @@
+{
+  "sha": "47d36ffbf032e971cdea82267a83084eec8ae83c",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NDdkMzZmZmJmMDMyZTk3MWNkZWE4MjI2N2E4MzA4NGVlYzhhZTgzYw==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-06-27T03:31:24Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-07-04T22:48:15Z"
+    },
+    "message": "gdb: return early if no execution in darwin_solib_create_inferior_hook\n\nWhen loading a file using the file command on macOS, we get:\n\n    $ ./gdb -nx --data-directory=data-directory -q -ex \"file ./test\"\n    Reading symbols from ./test...\n    Reading symbols from /Users/smarchi/build/binutils-gdb/gdb/test.dSYM/Contents/Resources/DWARF/test...\n    /Users/smarchi/src/binutils-gdb/gdb/thread.c:72: internal-error: struct thread_info *inferior_thread(): Assertion `current_thread_ != nullptr' failed.\n    A problem internal to GDB has been detected,\n    further debugging may prove unreliable.\n    Quit this debugging session? (y or n)\n\nThe backtrace is:\n\n    * frame #0: 0x0000000101fcb826 gdb`internal_error(file=\"/Users/smarchi/src/binutils-gdb/gdb/thread.c\", line=72, fmt=\"%s: Assertion `%s' failed.\") at errors.cc:52:3\n      frame #1: 0x00000001018a2584 gdb`inferior_thread() at thread.c:72:3\n      frame #2: 0x0000000101469c09 gdb`get_current_regcache() at regcache.c:421:31\n      frame #3: 0x00000001015f9812 gdb`darwin_solib_get_all_image_info_addr_at_init(info=0x0000603000006d00) at solib-darwin.c:464:34\n      frame #4: 0x00000001015f7a04 gdb`darwin_solib_create_inferior_hook(from_tty=1) at solib-darwin.c:515:5\n      frame #5: 0x000000010161205e gdb`solib_create_inferior_hook(from_tty=1) at solib.c:1200:3\n      frame #6: 0x00000001016d8f76 gdb`symbol_file_command(args=\"./test\", from_tty=1) at symfile.c:1650:7\n      frame #7: 0x0000000100abab17 gdb`file_command(arg=\"./test\", from_tty=1) at exec.c:555:3\n      frame #8: 0x00000001004dc799 gdb`do_const_cfunc(c=0x000061100000c340, args=\"./test\", from_tty=1) at cli-decode.c:102:3\n      frame #9: 0x00000001004ea042 gdb`cmd_func(cmd=0x000061100000c340, args=\"./test\", from_tty=1) at cli-decode.c:2160:7\n      frame #10: 0x00000001018d4f59 gdb`execute_command(p=\"t\", from_tty=1) at top.c:674:2\n      frame #11: 0x0000000100eee430 gdb`catch_command_errors(command=(gdb`execute_command(char const*, int) at top.c:561), arg=\"file ./test\", from_tty=1, do_bp_actions=true)(char const*, int), char const*, int, bool) at main.c:523:7\n      frame #12: 0x0000000100eee902 gdb`execute_cmdargs(cmdarg_vec=0x00007ffeefbfeba0 size=1, file_type=CMDARG_FILE, cmd_type=CMDARG_COMMAND, ret=0x00007ffeefbfec20) at main.c:618:9\n      frame #13: 0x0000000100eed3a4 gdb`captured_main_1(context=0x00007ffeefbff780) at main.c:1322:3\n      frame #14: 0x0000000100ee810d gdb`captured_main(data=0x00007ffeefbff780) at main.c:1343:3\n      frame #15: 0x0000000100ee8025 gdb`gdb_main(args=0x00007ffeefbff780) at main.c:1368:7\n      frame #16: 0x00000001000044f1 gdb`main(argc=6, argv=0x00007ffeefbff8a0) at gdb.c:32:10\n      frame #17: 0x00007fff20558f5d libdyld.dylib`start + 1\n\nThe solib_create_inferior_hook call in symbol_file_command was added by\ncommit ea142fbfc9c1 (\"Fix breakpoints on file reloads for PIE\nbinaries\").  It causes solib_create_inferior_hook to be called while\nthe inferior is not running, which darwin_solib_create_inferior_hook\ndoes not expect.  darwin_solib_get_all_image_info_addr_at_init, in\nparticular, assumes that there is a current thread, as it tries to get\nthe current thread's regcache.\n\nFix it by adding a target_has_execution check and returning early.  Note\nthat there is a similar check in svr4_solib_create_inferior_hook.\n\ngdb/ChangeLog:\n\n\t* solib-darwin.c (darwin_solib_create_inferior_hook): Return\n\tearly if no execution.\n\nChange-Id: Ia11dd983a1e29786e5ce663d0fcaa6846dc611bb",
+    "tree": {
+      "sha": "4fee30619c80ece6f89cb29296c06cddfa7867da",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/4fee30619c80ece6f89cb29296c06cddfa7867da"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/47d36ffbf032e971cdea82267a83084eec8ae83c",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/47d36ffbf032e971cdea82267a83084eec8ae83c",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/47d36ffbf032e971cdea82267a83084eec8ae83c",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/47d36ffbf032e971cdea82267a83084eec8ae83c/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "bdec4c4f1e341def60234dc81d20cf59191dcfb7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bdec4c4f1e341def60234dc81d20cf59191dcfb7",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/bdec4c4f1e341def60234dc81d20cf59191dcfb7"
+    }
+  ],
+  "stats": {
+    "total": 4,
+    "additions": 4,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "e10a6dda776b9d1c9bc0d7bd02ba05775822d197",
+      "filename": "gdb/solib-darwin.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/47d36ffbf032e971cdea82267a83084eec8ae83c/gdb/solib-darwin.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/47d36ffbf032e971cdea82267a83084eec8ae83c/gdb/solib-darwin.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/solib-darwin.c?ref=47d36ffbf032e971cdea82267a83084eec8ae83c",
+      "patch": "@@ -504,6 +504,10 @@ darwin_solib_read_all_image_info_addr (struct darwin_info *info)\n static void\n darwin_solib_create_inferior_hook (int from_tty)\n {\n+  /* Everything below only makes sense if we have a running inferior.  */\n+  if (!target_has_execution ())\n+    return;\n+\n   struct darwin_info *info = get_darwin_info ();\n   CORE_ADDR load_addr;\n "
+    }
+  ]
+}

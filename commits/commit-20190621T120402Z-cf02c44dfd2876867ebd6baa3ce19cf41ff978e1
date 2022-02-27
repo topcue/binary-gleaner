@@ -1,0 +1,110 @@
+{
+  "sha": "cf02c44dfd2876867ebd6baa3ce19cf41ff978e1",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6Y2YwMmM0NGRmZDI4NzY4NjdlYmQ2YmFhM2NlMTljZjQxZmY5NzhlMQ==",
+  "commit": {
+    "author": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2019-06-19T14:56:52Z"
+    },
+    "committer": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2019-06-21T12:04:02Z"
+    },
+    "message": "libctf: fix ctf_open endianness problems with raw CTF files\n\nctf_open (or, rather, ctf_fdopen, which underlies it) has several\nendianness problems, even though it was written after the\nendian-swapping code was implemented, so should have been endian-aware.\n\nEven though the comment right above the relevant check says that it wil\ncheck for CTF magic in any endianness, it only checks in the native\nendianness, so opening raw LE CTF files on BE, or vice-versa, will fail.\nIt also checks the CTF version by hand, without ever endianness-swapping\nthe header, so that too will fail, and is entirely redundant because\nctf_simple_open does the job properly in any case.  We have a similar\nproblem in the next if block, which checks for raw CTF archives: we are\nchecking in the native endianness while we should be doing a le64toh()\non it to check in little-endian form only: so opening CTF archives\ncreated on the local machine will fail if the local machine is\nbig-endian.\n\nAdding insult to injury, if ctf_simple_open then fails, we go on and try\nto turn it into a single-element CTF archive regardless, throwing the\nerror away.  Since this involves dereferencing null pointers it is not\nlikely to work very well.\n\nlibctf/\n\t* ctf-open-bfd.c: Add swap.h and ctf-endian.h.\n\t(ctf_fdopen): Check for endian-swapped raw CTF magic, and\n\tlittle-endian CTF archive magic.  Do not check the CTF version:\n\tctf_simple_open does that in endian-safe ways.  Do not dereference\n\tnull pointers on open failure.",
+    "tree": {
+      "sha": "11af8fe5ed84d1d8083f9df62e24ef50e864de1d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/11af8fe5ed84d1d8083f9df62e24ef50e864de1d"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/cf02c44dfd2876867ebd6baa3ce19cf41ff978e1",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cf02c44dfd2876867ebd6baa3ce19cf41ff978e1",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/cf02c44dfd2876867ebd6baa3ce19cf41ff978e1",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cf02c44dfd2876867ebd6baa3ce19cf41ff978e1/comments",
+  "author": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "7cee18263c234073bfe88cbc962b1fc68509df82",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7cee18263c234073bfe88cbc962b1fc68509df82",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/7cee18263c234073bfe88cbc962b1fc68509df82"
+    }
+  ],
+  "stats": {
+    "total": 31,
+    "additions": 22,
+    "deletions": 9
+  },
+  "files": [
+    {
+      "sha": "2324aebc07c43205e72c5ef4683d3429386b4df1",
+      "filename": "libctf/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf02c44dfd2876867ebd6baa3ce19cf41ff978e1/libctf/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf02c44dfd2876867ebd6baa3ce19cf41ff978e1/libctf/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ChangeLog?ref=cf02c44dfd2876867ebd6baa3ce19cf41ff978e1",
+      "patch": "@@ -1,3 +1,11 @@\n+2019-06-19  Nick Alcock <nick.alcock@oracle.com>\n+\n+\t* ctf-open-bfd.c: Add swap.h and ctf-endian.h.\n+\t(ctf_fdopen): Check for endian-swapped raw CTF magic, and\n+\tlittle-endian CTF archive magic.  Do not check the CTF version:\n+\tctf_simple_open does that in endian-safe ways.  Do not dereference\n+\tnull pointers on open failure.\n+\n 2019-06-19  Nick Alcock <nick.alcock@oracle.com>\n \n \t* ctf-open.c (get_vbytes_common): Return the new slice size."
+    },
+    {
+      "sha": "bb2d7e64de21b9c1aa8f69e75bf7159b5c8824d9",
+      "filename": "libctf/ctf-open-bfd.c",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 9,
+      "changes": 23,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cf02c44dfd2876867ebd6baa3ce19cf41ff978e1/libctf/ctf-open-bfd.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cf02c44dfd2876867ebd6baa3ce19cf41ff978e1/libctf/ctf-open-bfd.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-open-bfd.c?ref=cf02c44dfd2876867ebd6baa3ce19cf41ff978e1",
+      "patch": "@@ -26,6 +26,8 @@\n #include <fcntl.h>\n #include <elf.h>\n #include <bfd.h>\n+#include \"swap.h\"\n+#include \"ctf-endian.h\"\n \n #include \"elf-bfd.h\"\n \n@@ -243,24 +245,27 @@ ctf_fdopen (int fd, const char *filename, const char *target, int *errp)\n   if ((nbytes = ctf_pread (fd, &ctfhdr, sizeof (ctfhdr), 0)) <= 0)\n     return (ctf_set_open_errno (errp, nbytes < 0 ? errno : ECTF_FMT));\n \n-  /* If we have read enough bytes to form a CTF header and the magic\n-     string matches, attempt to interpret the file as raw CTF.  */\n+  /* If we have read enough bytes to form a CTF header and the magic string\n+     matches, in either endianness, attempt to interpret the file as raw\n+     CTF.  */\n \n-  if ((size_t) nbytes >= sizeof (ctf_preamble_t) &&\n-      ctfhdr.ctp_magic == CTF_MAGIC)\n+  if ((size_t) nbytes >= sizeof (ctf_preamble_t)\n+      && (ctfhdr.ctp_magic == CTF_MAGIC\n+\t  || ctfhdr.ctp_magic == bswap_16 (CTF_MAGIC)))\n     {\n       ctf_file_t *fp = NULL;\n       void *data;\n \n-      if (ctfhdr.ctp_version > CTF_VERSION)\n-\treturn (ctf_set_open_errno (errp, ECTF_CTFVERS));\n-\n       if ((data = ctf_mmap (st.st_size, 0, fd)) == NULL)\n \treturn (ctf_set_open_errno (errp, errno));\n \n       if ((fp = ctf_simple_open (data, (size_t) st.st_size, NULL, 0, 0,\n \t\t\t\t NULL, 0, errp)) == NULL)\n-\tctf_munmap (data, (size_t) st.st_size);\n+\t{\n+\t  ctf_munmap (data, (size_t) st.st_size);\n+\t  return NULL;\t\t\t/* errno is set for us.  */\n+\t}\n+\n       fp->ctf_data_mmapped = data;\n       fp->ctf_data_mmapped_len = (size_t) st.st_size;\n \n@@ -270,7 +275,7 @@ ctf_fdopen (int fd, const char *filename, const char *target, int *errp)\n   if ((nbytes = ctf_pread (fd, &arc_magic, sizeof (arc_magic), 0)) <= 0)\n     return (ctf_set_open_errno (errp, nbytes < 0 ? errno : ECTF_FMT));\n \n-  if ((size_t) nbytes >= sizeof (uint64_t) && arc_magic == CTFA_MAGIC)\n+  if ((size_t) nbytes >= sizeof (uint64_t) && le64toh (arc_magic) == CTFA_MAGIC)\n     {\n       struct ctf_archive *arc;\n "
+    }
+  ]
+}

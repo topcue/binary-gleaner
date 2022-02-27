@@ -1,0 +1,158 @@
+{
+  "sha": "06acc08f0aa81d0053e9a60bc3bdc1ea3321962e",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MDZhY2MwOGYwYWE4MWQwMDUzZTlhNjBiYzNiZGMxZWEzMzIxOTYyZQ==",
+  "commit": {
+    "author": {
+      "name": "Tankut Baris Aktemur",
+      "email": "tankut.baris.aktemur@intel.com",
+      "date": "2019-11-12T14:12:43Z"
+    },
+    "committer": {
+      "name": "Tankut Baris Aktemur",
+      "email": "tankut.baris.aktemur@intel.com",
+      "date": "2019-12-06T07:01:18Z"
+    },
+    "message": "gdb: fix overload resolution for see-through references\n\nThe overload resolution mechanism assigns badness values to the\nnecessary conversions to be made on types to pick a champion.  A\nbadness value consists of a \"rank\" that scores the conversion and a\n\"subrank\" to differentiate conversions of the same kind.\n\nAn auxiliary function, 'sum_ranks', is used for adding two badness\nvalues.  In all of its uses, except two, 'sum_ranks' is used for\npopulating the subrank of a badness value.  The two exceptions are in\n'rank_one_type':\n\n~~~\n  /* See through references, since we can almost make non-references\n     references.  */\n\n  if (TYPE_IS_REFERENCE (arg))\n    return (sum_ranks (rank_one_type (parm, TYPE_TARGET_TYPE (arg), NULL),\n\t\t       REFERENCE_CONVERSION_BADNESS));\n  if (TYPE_IS_REFERENCE (parm))\n    return (sum_ranks (rank_one_type (TYPE_TARGET_TYPE (parm), arg, NULL),\n\t\t       REFERENCE_CONVERSION_BADNESS));\n~~~\n\nHere, the result of a recursive call is combined with\nREFERENCE_CONVERSION_BADNESS.  This leads to the problem of\nover-punishment by combining two ranks.  Consider this:\n\n    void an_overloaded_function (const foo &);\n    void an_overloaded_function (const foo &&);\n    ...\n    foo arg;\n    an_overloaded_function(arg);\n\nWhen ranking 'an_overloaded_function (const foo &)', the badness\nvalues REFERENCE_CONVERSION_BADNESS and CV_CONVERSION_BADNESS are\ncombined, whereas 'rank_one_type' assigns only the\nREFERENCE_CONVERSION_BADNESS value to 'an_overloaded_function (const\nfoo &&)' (there is a different execution flow for that).  This yields\nin GDB picking the latter function as the overload champion instead of\nthe former.\n\nIn fact, the 'rank_one_type' function should have given\n'an_overloaded_function (const foo &)' the CV_CONVERSION_BADNESS\nvalue, with the see-through referencing increasing the subrank a\nlittle bit.  This can be achieved by introducing a new badness value,\nREFERENCE_SEE_THROUGH_BADNESS, which bumps up the subrank only, and\nusing it in the two \"exceptional\" cases of 'sum_ranks'.\n\ngdb/ChangeLog:\n2019-12-06  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n\n\t* gdbtypes.h: Define the REFERENCE_SEE_THROUGH_BADNESS value.\n\t* gdbtypes.c (rank_one_type): Use REFERENCE_SEE_THROUGH_BADNESS\n\tfor ranking see-through reference cases.\n\ngdb/testsuite/ChangeLog:\n2019-12-06  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n\n\t* gdb.cp/rvalue-ref-overload.cc: Add a case that involves both\n\tCV and reference conversion for overload resolution.\n\t* gdb.cp/rvalue-ref-overload.exp: Test it.\n\nChange-Id: I39ae6505ab85ad0bd21915368c82540ceeb3aae9",
+    "tree": {
+      "sha": "95cb7b35042212a65b4428015da39a829b8f164f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/95cb7b35042212a65b4428015da39a829b8f164f"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/06acc08f0aa81d0053e9a60bc3bdc1ea3321962e",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/06acc08f0aa81d0053e9a60bc3bdc1ea3321962e",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/06acc08f0aa81d0053e9a60bc3bdc1ea3321962e",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/06acc08f0aa81d0053e9a60bc3bdc1ea3321962e/comments",
+  "author": {
+    "login": "barisaktemur",
+    "id": 55686642,
+    "node_id": "MDQ6VXNlcjU1Njg2NjQy",
+    "avatar_url": "https://avatars.githubusercontent.com/u/55686642?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/barisaktemur",
+    "html_url": "https://github.com/barisaktemur",
+    "followers_url": "https://api.github.com/users/barisaktemur/followers",
+    "following_url": "https://api.github.com/users/barisaktemur/following{/other_user}",
+    "gists_url": "https://api.github.com/users/barisaktemur/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/barisaktemur/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/barisaktemur/subscriptions",
+    "organizations_url": "https://api.github.com/users/barisaktemur/orgs",
+    "repos_url": "https://api.github.com/users/barisaktemur/repos",
+    "events_url": "https://api.github.com/users/barisaktemur/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/barisaktemur/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "barisaktemur",
+    "id": 55686642,
+    "node_id": "MDQ6VXNlcjU1Njg2NjQy",
+    "avatar_url": "https://avatars.githubusercontent.com/u/55686642?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/barisaktemur",
+    "html_url": "https://github.com/barisaktemur",
+    "followers_url": "https://api.github.com/users/barisaktemur/followers",
+    "following_url": "https://api.github.com/users/barisaktemur/following{/other_user}",
+    "gists_url": "https://api.github.com/users/barisaktemur/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/barisaktemur/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/barisaktemur/subscriptions",
+    "organizations_url": "https://api.github.com/users/barisaktemur/orgs",
+    "repos_url": "https://api.github.com/users/barisaktemur/repos",
+    "events_url": "https://api.github.com/users/barisaktemur/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/barisaktemur/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "e0fad1eadfcb68d543cdd96f44dca86364778fa2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e0fad1eadfcb68d543cdd96f44dca86364778fa2",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/e0fad1eadfcb68d543cdd96f44dca86364778fa2"
+    }
+  ],
+  "stats": {
+    "total": 31,
+    "additions": 29,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "2d6071271ac60c3fdf42f477b356373bfc36ce3f",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/06acc08f0aa81d0053e9a60bc3bdc1ea3321962e/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/06acc08f0aa81d0053e9a60bc3bdc1ea3321962e/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=06acc08f0aa81d0053e9a60bc3bdc1ea3321962e",
+      "patch": "@@ -1,3 +1,9 @@\n+2019-12-06  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n+\n+\t* gdbtypes.h: Define the REFERENCE_SEE_THROUGH_BADNESS value.\n+\t* gdbtypes.c (rank_one_type): Use REFERENCE_SEE_THROUGH_BADNESS\n+\tfor ranking see-through reference cases.\n+\n 2019-12-06  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n \t* stack.c (faas_command): Check a command is provided.\n \t* thread.c (taas_command, tfaas_command): Likewise."
+    },
+    {
+      "sha": "e226cb7f940ec9e86e730a4772d8fa3ad1571dc5",
+      "filename": "gdb/gdbtypes.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/06acc08f0aa81d0053e9a60bc3bdc1ea3321962e/gdb/gdbtypes.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/06acc08f0aa81d0053e9a60bc3bdc1ea3321962e/gdb/gdbtypes.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbtypes.c?ref=06acc08f0aa81d0053e9a60bc3bdc1ea3321962e",
+      "patch": "@@ -60,6 +60,7 @@ const struct rank VOID_PTR_CONVERSION_BADNESS = {2,0};\n const struct rank BOOL_CONVERSION_BADNESS = {3,0};\n const struct rank BASE_CONVERSION_BADNESS = {2,0};\n const struct rank REFERENCE_CONVERSION_BADNESS = {2,0};\n+const struct rank REFERENCE_SEE_THROUGH_BADNESS = {0,1};\n const struct rank NULL_POINTER_CONVERSION_BADNESS = {2,0};\n const struct rank NS_POINTER_CONVERSION_BADNESS = {10,0};\n const struct rank NS_INTEGER_POINTER_CONVERSION_BADNESS = {3,0};\n@@ -4338,10 +4339,10 @@ rank_one_type (struct type *parm, struct type *arg, struct value *value)\n \n   if (TYPE_IS_REFERENCE (arg))\n     return (sum_ranks (rank_one_type (parm, TYPE_TARGET_TYPE (arg), NULL),\n-                       REFERENCE_CONVERSION_BADNESS));\n+                       REFERENCE_SEE_THROUGH_BADNESS));\n   if (TYPE_IS_REFERENCE (parm))\n     return (sum_ranks (rank_one_type (TYPE_TARGET_TYPE (parm), arg, NULL),\n-                       REFERENCE_CONVERSION_BADNESS));\n+                       REFERENCE_SEE_THROUGH_BADNESS));\n   if (overload_debug)\n   /* Debugging only.  */\n     fprintf_filtered (gdb_stderr, "
+    },
+    {
+      "sha": "a1d95e09debb4aa3080c07a093b18c499aff9bac",
+      "filename": "gdb/gdbtypes.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/06acc08f0aa81d0053e9a60bc3bdc1ea3321962e/gdb/gdbtypes.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/06acc08f0aa81d0053e9a60bc3bdc1ea3321962e/gdb/gdbtypes.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbtypes.h?ref=06acc08f0aa81d0053e9a60bc3bdc1ea3321962e",
+      "patch": "@@ -2105,6 +2105,7 @@ extern const struct rank BASE_CONVERSION_BADNESS;\n /* * Badness of converting from non-reference to reference.  Subrank\n    is the type of reference conversion being done.  */\n extern const struct rank REFERENCE_CONVERSION_BADNESS;\n+extern const struct rank REFERENCE_SEE_THROUGH_BADNESS;\n /* * Conversion to rvalue reference.  */\n #define REFERENCE_CONVERSION_RVALUE 1\n /* * Conversion to const lvalue reference.  */"
+    },
+    {
+      "sha": "adbbd9c9d85c941f6f2a88de138773a0e87b244c",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/06acc08f0aa81d0053e9a60bc3bdc1ea3321962e/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/06acc08f0aa81d0053e9a60bc3bdc1ea3321962e/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=06acc08f0aa81d0053e9a60bc3bdc1ea3321962e",
+      "patch": "@@ -1,3 +1,9 @@\n+2019-12-06  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n+\n+\t* gdb.cp/rvalue-ref-overload.cc: Add a case that involves both\n+\tCV and reference conversion for overload resolution.\n+\t* gdb.cp/rvalue-ref-overload.exp: Test it.\n+\n 2019-12-06  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n \n \t* gdb.threads/pthreads.exp: Test taas and tfaas without command."
+    },
+    {
+      "sha": "e3111d528bd623873d5094f60565ecd9750e21f5",
+      "filename": "gdb/testsuite/gdb.cp/rvalue-ref-overload.cc",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/06acc08f0aa81d0053e9a60bc3bdc1ea3321962e/gdb/testsuite/gdb.cp/rvalue-ref-overload.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/06acc08f0aa81d0053e9a60bc3bdc1ea3321962e/gdb/testsuite/gdb.cp/rvalue-ref-overload.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.cp/rvalue-ref-overload.cc?ref=06acc08f0aa81d0053e9a60bc3bdc1ea3321962e",
+      "patch": "@@ -35,6 +35,8 @@ class foo\n \n   int overload1arg (foo_lval_ref);\n   int overload1arg (foo_rval_ref);\n+  int overloadConst (const foo &);\n+  int overloadConst (const foo &&);\n };\n \n void\n@@ -71,6 +73,11 @@ main ()\n   // result = 1 + 2 + 3 + 3 = 9\n   int result = f (i) + f (ci) + f (0) + f (std::move (i));\n \n+  /* Overload resolution below requires both a CV-conversion\n+     and reference conversion.  */\n+  int test_const // = 3\n+    = foo_rr_instance1.overloadConst (arg);\n+\n   marker1 (); // marker1-returns-here\n   return result;\n }\n@@ -84,3 +91,5 @@ foo::~foo ()                       {}\n \n int foo::overload1arg (foo_lval_ref arg)           { return 1; }\n int foo::overload1arg (foo_rval_ref arg)           { return 2; }\n+int foo::overloadConst (const foo &arg)            { return 3; }\n+int foo::overloadConst (const foo &&arg)           { return 4; }"
+    },
+    {
+      "sha": "693c7cad20a7f2a16f2f20398b1b82479062d55e",
+      "filename": "gdb/testsuite/gdb.cp/rvalue-ref-overload.exp",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/06acc08f0aa81d0053e9a60bc3bdc1ea3321962e/gdb/testsuite/gdb.cp/rvalue-ref-overload.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/06acc08f0aa81d0053e9a60bc3bdc1ea3321962e/gdb/testsuite/gdb.cp/rvalue-ref-overload.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.cp/rvalue-ref-overload.exp?ref=06acc08f0aa81d0053e9a60bc3bdc1ea3321962e",
+      "patch": "@@ -49,6 +49,8 @@ cp_test_ptype_class \"foo_rr_instance1\" \"\" \"class\" \"foo\" \\\n \t{ method public \"~foo();\" }\n \t{ method public \"int overload1arg(foo_lval_ref);\" }\n \t{ method public \"int overload1arg(foo_rval_ref);\" }\n+\t{ method public \"int overloadConst(const foo &);\" }\n+\t{ method public \"int overloadConst(const foo &&);\" }\n     }\n \n gdb_test \"print foo_rr_instance1.overload1arg(arg)\" \\\n@@ -59,6 +61,8 @@ gdb_test \"print foo_rr_instance1.overload1arg(static_cast<foo&&>(arg))\" \\\n     \"\\\\$\\[0-9\\]+ = 2\" \\\n     \"print call overloaded func foo && arg\"\n \n+gdb_test \"print foo_rr_instance1.overloadConst(arg)\" \"3\"\n+\n # Test lvalue vs rvalue function overloads\n gdb_test \"print f (i)\" \"= 1\" \"lvalue reference overload\"\n "
+    }
+  ]
+}

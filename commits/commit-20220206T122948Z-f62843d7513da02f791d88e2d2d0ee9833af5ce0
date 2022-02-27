@@ -1,0 +1,84 @@
+{
+  "sha": "f62843d7513da02f791d88e2d2d0ee9833af5ce0",
+  "node_id": "C_kwDOANOeidoAKGY2Mjg0M2Q3NTEzZGEwMmY3OTFkODhlMmQyZDBlZTk4MzNhZjVjZTA",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-01-24T21:25:38Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-02-06T12:29:48Z"
+    },
+    "message": "gdb/tui: add window width information to 'info win' output\n\nNow that we support horizontal window placement in the tui, it makes\nsense to have 'info win' include the width, as well as the height, of\nthe currently visible windows.\n\nThat's what this commit does.  Example output is now:\n\n  (gdb) info win\n  Name       Lines Columns Focus\n  src           12      40 (has focus)\n  asm           12      41\n  status         1      80\n  cmd           11      80\n\nI've added a NEWS entry, but the documentation was already suitably\nvague, it just says that 'info win' displays the size of the visible\nwindows, so I don't think anything needs to be added there.\n\nI've also added some tests, as far as I could find, the 'info win'\ncommand was previously untested.",
+    "tree": {
+      "sha": "2850be1323647e31ada0cd724610706746665ac9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/2850be1323647e31ada0cd724610706746665ac9"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/f62843d7513da02f791d88e2d2d0ee9833af5ce0",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f62843d7513da02f791d88e2d2d0ee9833af5ce0",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/f62843d7513da02f791d88e2d2d0ee9833af5ce0",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f62843d7513da02f791d88e2d2d0ee9833af5ce0/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "94e57f287f96af6af97dd086e4a04ddf55b7cf60",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/94e57f287f96af6af97dd086e4a04ddf55b7cf60",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/94e57f287f96af6af97dd086e4a04ddf55b7cf60"
+    }
+  ],
+  "stats": {
+    "total": 69,
+    "additions": 68,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "8da68c88defc3ca3384f0bb4db5c3892f6becc6e",
+      "filename": "gdb/NEWS",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f62843d7513da02f791d88e2d2d0ee9833af5ce0/gdb/NEWS",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f62843d7513da02f791d88e2d2d0ee9833af5ce0/gdb/NEWS",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/NEWS?ref=f62843d7513da02f791d88e2d2d0ee9833af5ce0",
+      "patch": "@@ -102,6 +102,10 @@ show debug lin-lwp\n   debug linux-nat' and 'show debug linux-nat' should be used\n   instead.\n \n+info win\n+  This command now includes information about the width of the tui\n+  windows in its output.\n+\n * Python API\n \n   ** New function gdb.add_history(), which takes a gdb.Value object"
+    },
+    {
+      "sha": "2607d5be4932d61a2d8ed88a3e6ee46fe665a31b",
+      "filename": "gdb/testsuite/gdb.tui/info-win.exp",
+      "status": "added",
+      "additions": 61,
+      "deletions": 0,
+      "changes": 61,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f62843d7513da02f791d88e2d2d0ee9833af5ce0/gdb/testsuite/gdb.tui/info-win.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f62843d7513da02f791d88e2d2d0ee9833af5ce0/gdb/testsuite/gdb.tui/info-win.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.tui/info-win.exp?ref=f62843d7513da02f791d88e2d2d0ee9833af5ce0",
+      "patch": "@@ -0,0 +1,61 @@\n+# Copyright 2022 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test 'info win'.\n+\n+tuiterm_env\n+\n+standard_testfile\n+\n+Term::clean_restart 24 80\n+\n+if {![Term::enter_tui]} {\n+    unsupported \"TUI not supported\"\n+    return\n+}\n+\n+Term::command \"layout src\"\n+Term::command \"info win\"\n+Term::check_region_contents \"info win, layout src\" \\\n+    0 16 80 8 [multi_line \"info win\\\\s+\" \\\n+\t\t   \"Name\\\\s+Lines\\\\s+Columns\\\\s+Focus\\\\s+\" \\\n+\t\t   \"src\\\\s+15\\\\s+80\\\\s+\\\\(has focus\\\\)\\\\s+\" \\\n+\t\t   \"status\\\\s+1\\\\s+80\\\\s+\" \\\n+\t\t   \"cmd\\\\s+8\\\\s+80\\\\s+\"]\n+\n+Term::command \"tui new-layout h { -horizontal src 1 asm 1 } 1 status 0 cmd 1\"\n+Term::command \"layout h\"\n+Term::command \"winheight cmd + 3\"\n+\n+# As the tuiterm.exp library just waits for the prompt and command to\n+# be echo'ed bcak to the screen, multiple 'info win' calls like this\n+# have a problem.  Dejagnu will send the command to gdb, but will then\n+# immediately see the '(gdb) info win' output from the first use\n+# above.  This means we end up rushing ahead, and some tests might\n+# fail.\n+#\n+# To work around this, I'm sending a unique command 'p 1' here, that\n+# only happens after the second 'info win' call.  When the 'p 1'\n+# completes, I know the second 'info win' has also completed.\n+Term::command \"info win\"\n+Term::command \"p 1\"\n+\n+Term::check_region_contents \"info win, layout h\" \\\n+    0 13 80 11 [multi_line \"info win\\\\s+\" \\\n+\t\t   \"Name\\\\s+Lines\\\\s+Columns\\\\s+Focus\\\\s+\" \\\n+\t\t   \"src\\\\s+12\\\\s+40\\\\s+\\\\(has focus\\\\)\\\\s+\" \\\n+\t\t   \"asm\\\\s+12\\\\s+41\\\\s+\" \\\n+\t\t   \"status\\\\s+1\\\\s+80\\\\s+\" \\\n+\t\t   \"cmd\\\\s+11\\\\s+80\\\\s+\"]"
+    },
+    {
+      "sha": "fd6ca59a728ac58e6b98581e22c93b94fc12c29d",
+      "filename": "gdb/tui/tui-win.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f62843d7513da02f791d88e2d2d0ee9833af5ce0/gdb/tui/tui-win.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f62843d7513da02f791d88e2d2d0ee9833af5ce0/gdb/tui/tui-win.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/tui/tui-win.c?ref=f62843d7513da02f791d88e2d2d0ee9833af5ce0",
+      "patch": "@@ -714,9 +714,10 @@ tui_all_windows_info (const char *arg, int from_tty)\n   struct tui_win_info *win_with_focus = tui_win_with_focus ();\n   struct ui_out *uiout = current_uiout;\n \n-  ui_out_emit_table table_emitter (uiout, 3, -1, \"tui-windows\");\n+  ui_out_emit_table table_emitter (uiout, 4, -1, \"tui-windows\");\n   uiout->table_header (10, ui_left, \"name\", \"Name\");\n   uiout->table_header (5, ui_right, \"lines\", \"Lines\");\n+  uiout->table_header (7, ui_right, \"columns\", \"Columns\");\n   uiout->table_header (10, ui_left, \"focus\", \"Focus\");\n   uiout->table_body ();\n \n@@ -727,6 +728,7 @@ tui_all_windows_info (const char *arg, int from_tty)\n \n \tuiout->field_string (\"name\", win_info->name ());\n \tuiout->field_signed (\"lines\", win_info->height);\n+\tuiout->field_signed (\"columns\", win_info->width);\n \tif (win_with_focus == win_info)\n \t  uiout->field_string (\"focus\", _(\"(has focus)\"));\n \telse"
+    }
+  ]
+}

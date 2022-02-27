@@ -1,0 +1,72 @@
+{
+  "sha": "4a5700b62f767ed08c97122bad182244700bb4e3",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NGE1NzAwYjYyZjc2N2VkMDhjOTcxMjJiYWQxODIyNDQ3MDBiYjRlMw==",
+  "commit": {
+    "author": {
+      "name": "Mark Wielaard",
+      "email": "mark@klomp.org",
+      "date": "2020-08-26T19:46:04Z"
+    },
+    "committer": {
+      "name": "Mark Wielaard",
+      "email": "mark@klomp.org",
+      "date": "2020-08-28T13:26:01Z"
+    },
+    "message": "gas: Handle bad -gdwarf options, just like bad --gdwarf options.\n\nparse_args uses getopt_long_only so it can handle long options both\nwith double and single dash. But this means that some single dash\noptions like -gdwarf-1 don't generate an error (unlike --gdwarf-1).\n\nThis is especially confusing since there is also --gdwarf2, but no\n--gdwarf4 (it is --gdwarf-4). When giving -gdwarf4 the option is\nsilently interpreted as -g (which set dwarf_version to 2). This causes\nsome confusion for people who don't expect this and suddenly get\nDWARF2 instead of DWARF4 as they might expect.\n\nSo make it so that the -gdwarf<unknown> creates an error, just like\n--gdwarf<unknown> would.",
+    "tree": {
+      "sha": "93dcbc99f16e535590937a39944f5d1a63945957",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/93dcbc99f16e535590937a39944f5d1a63945957"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/4a5700b62f767ed08c97122bad182244700bb4e3",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4a5700b62f767ed08c97122bad182244700bb4e3",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/4a5700b62f767ed08c97122bad182244700bb4e3",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4a5700b62f767ed08c97122bad182244700bb4e3/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "64b63c2993db8606334f6f0852b4e7bb70b5682a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/64b63c2993db8606334f6f0852b4e7bb70b5682a",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/64b63c2993db8606334f6f0852b4e7bb70b5682a"
+    }
+  ],
+  "stats": {
+    "total": 11,
+    "additions": 11,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "63d1596eba430ad8e0f6840f2df114e0deffdbdc",
+      "filename": "gas/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4a5700b62f767ed08c97122bad182244700bb4e3/gas/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4a5700b62f767ed08c97122bad182244700bb4e3/gas/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/ChangeLog?ref=4a5700b62f767ed08c97122bad182244700bb4e3",
+      "patch": "@@ -1,3 +1,7 @@\n+2020-08-26  Mark Wielaard  <mark@klomp.org>\n+\n+\t* as.c (parse_args): Handle bad -gdwarf options.\n+\n 2020-08-28  Cooper Qu  <cooper.qu@linux.alibaba.com>\n \n \t* gas/config/tc-csky.c (md_begin): Set attributes."
+    },
+    {
+      "sha": "eda759452387399a89d9373520d618fa99c50573",
+      "filename": "gas/as.c",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/4a5700b62f767ed08c97122bad182244700bb4e3/gas/as.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/4a5700b62f767ed08c97122bad182244700bb4e3/gas/as.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/as.c?ref=4a5700b62f767ed08c97122bad182244700bb4e3",
+      "patch": "@@ -816,6 +816,13 @@ This program has absolutely no warranty.\\n\"));\n \t      && md_parse_option (optc, optarg))\n \t    continue;\n \n+\t  /* We end up here for any -gsomething-not-already-a-long-option.\n+\t     give some useful feedback on not (yet) supported -gdwarfxxx\n+\t     versions/sections/options.  */\n+\t  if (strncmp (old_argv[optind - 1], \"-gdwarf\",\n+\t\t       strlen (\"-gdwarf\")) == 0)\n+\t    as_fatal (_(\"unknown DWARF option %s\\n\"), old_argv[optind - 1]);\n+\n \t  if (md_debug_format_selector)\n \t    debug_type = md_debug_format_selector (& use_gnu_debug_info_extensions);\n \t  else if (IS_ELF)"
+    }
+  ]
+}

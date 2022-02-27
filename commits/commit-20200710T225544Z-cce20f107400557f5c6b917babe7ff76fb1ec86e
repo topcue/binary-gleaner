@@ -1,0 +1,122 @@
+{
+  "sha": "cce20f107400557f5c6b917babe7ff76fb1ec86e",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6Y2NlMjBmMTA3NDAwNTU3ZjVjNmI5MTdiYWJlN2ZmNzZmYjFlYzg2ZQ==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-07-09T17:14:09Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "palves@redhat.com",
+      "date": "2020-07-10T22:55:44Z"
+    },
+    "message": "Fix crash if connection drops in scoped_restore_current_thread's ctor, part 2\n\nRunning the testsuite against an Asan-enabled build of GDB makes\ngdb.base/multi-target.exp expose this bug.\n\nscoped_restore_current_thread's ctor calls get_frame_id to record the\nselected frame's ID to restore later.  If the frame ID hasn't been\ncomputed yet, it will be computed on the spot, and that will usually\nrequire accessing the target's memory and registers.  If the remote\nconnection closes, while we're computing the frame ID, the remote\ntarget exits its inferiors, unpushes itself, and throws a\nTARGET_CLOSE_ERROR error.  Exiting the inferiors deletes the\ninferior's threads.\n\nscoped_restore_current_thread increments the current thread's refcount\nto prevent the thread from being deleted from under its feet.\nHowever, the code that does that isn't considering the case of the\nthread being deleted from within get_frame_id.  It only increments the\nrefcount _after_ get_frame_id returns.  So if the current thread is\nindeed deleted, the\n\n     tp->incref ();\n\nstatement references a stale TP pointer.\n\nIncrementing the refcounts earlier fixes it.\n\nWe should probably also let the TARGET_CLOSE_ERROR error propagate in\nthis case.  That alone would fix it, though it seems better to tweak\nthe refcount handling too.  And to avoid having to manually decref\nbefore throwing, convert to use gdb::ref_ptr.\n\nUnfortunately, we can't define inferior_ref in inferior.h and then use\nit in scoped_restore_current_thread, because\nscoped_restore_current_thread is defined before inferior is\n(inferior.h includes gdbthread.h).  To break that dependency, we would\nhave to move scoped_restore_current_thread to its own header.  I'm not\ndoing that here.\n\ngdb/ChangeLog:\n\n\t* gdbthread.h (inferior_ref): Define.\n\t(scoped_restore_current_thread) <m_thread>: Now a thread_info_ref.\n\t(scoped_restore_current_thread) <m_inf>: Now an inferior_ref.\n\t* thread.c\n\t(scoped_restore_current_thread::restore):\n\tAdjust to gdb::ref_ptr.\n\t(scoped_restore_current_thread::~scoped_restore_current_thread):\n\tRemove manual decref handling.\n\t(scoped_restore_current_thread::scoped_restore_current_thread):\n\tAdjust to use\n\tinferior_ref::new_reference/thread_info_ref::new_reference.\n\tIncref the thread before calling get_frame_id instead of after.\n\tLet TARGET_CLOSE_ERROR propagate.",
+    "tree": {
+      "sha": "50f669eb895d044c52697bcd578c26297ef705fa",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/50f669eb895d044c52697bcd578c26297ef705fa"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/cce20f107400557f5c6b917babe7ff76fb1ec86e",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cce20f107400557f5c6b917babe7ff76fb1ec86e",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/cce20f107400557f5c6b917babe7ff76fb1ec86e",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cce20f107400557f5c6b917babe7ff76fb1ec86e/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "6d7aa59270373b6b1de6ac28e40ebf972028ee3e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6d7aa59270373b6b1de6ac28e40ebf972028ee3e",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/6d7aa59270373b6b1de6ac28e40ebf972028ee3e"
+    }
+  ],
+  "stats": {
+    "total": 55,
+    "additions": 36,
+    "deletions": 19
+  },
+  "files": [
+    {
+      "sha": "aafefd7a9252f3c1d14a46a04a7f2439ac3a32dc",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 0,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cce20f107400557f5c6b917babe7ff76fb1ec86e/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cce20f107400557f5c6b917babe7ff76fb1ec86e/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=cce20f107400557f5c6b917babe7ff76fb1ec86e",
+      "patch": "@@ -1,3 +1,19 @@\n+2020-07-10  Pedro Alves  <pedro@palves.net>\n+\n+\t* gdbthread.h (inferior_ref): Define.\n+\t(scoped_restore_current_thread) <m_thread>: Now a thread_info_ref.\n+\t(scoped_restore_current_thread) <m_inf>: Now an inferior_ref.\n+\t* thread.c\n+\t(scoped_restore_current_thread::restore):\n+\tAdjust to gdb::ref_ptr.\n+\t(scoped_restore_current_thread::~scoped_restore_current_thread):\n+\tRemove manual decref handling.\n+\t(scoped_restore_current_thread::scoped_restore_current_thread):\n+\tAdjust to use\n+\tinferior_ref::new_reference/thread_info_ref::new_reference.\n+\tIncref the thread before calling get_frame_id instead of after.\n+\tLet TARGET_CLOSE_ERROR propagate.\n+\n 2020-07-10  Pedro Alves  <pedro@palves.net>\n \n \t* frame-tailcall.c (dwarf2_tailcall_sniffer_first): Only swallow"
+    },
+    {
+      "sha": "ab5771fdb47c25c0bbf93becaebf1d27c62d987e",
+      "filename": "gdb/gdbthread.h",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 4,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cce20f107400557f5c6b917babe7ff76fb1ec86e/gdb/gdbthread.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cce20f107400557f5c6b917babe7ff76fb1ec86e/gdb/gdbthread.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbthread.h?ref=cce20f107400557f5c6b917babe7ff76fb1ec86e",
+      "patch": "@@ -395,6 +395,13 @@ class thread_info : public refcounted_object\n using thread_info_ref\n   = gdb::ref_ptr<struct thread_info, refcounted_object_ref_policy>;\n \n+/* A gdb::ref_ptr pointer to an inferior.  This would ideally be in\n+   inferior.h, but it can't due to header dependencies (inferior.h\n+   includes gdbthread.h).  */\n+\n+using inferior_ref\n+  = gdb::ref_ptr<struct inferior, refcounted_object_ref_policy>;\n+\n /* Create an empty thread list, or empty the existing one.  */\n extern void init_thread_list (void);\n \n@@ -660,10 +667,9 @@ class scoped_restore_current_thread\n   void restore ();\n \n   bool m_dont_restore = false;\n-  /* Use the \"class\" keyword here, because of a clash with a \"thread_info\"\n-     function in the Darwin API.  */\n-  class thread_info *m_thread;\n-  inferior *m_inf;\n+  thread_info_ref m_thread;\n+  inferior_ref m_inf;\n+\n   frame_id m_selected_frame_id;\n   int m_selected_frame_level;\n   bool m_was_stopped;"
+    },
+    {
+      "sha": "4dce1ef82aaf5ad2dde8ea690f09047da22607ef",
+      "filename": "gdb/thread.c",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 15,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cce20f107400557f5c6b917babe7ff76fb1ec86e/gdb/thread.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cce20f107400557f5c6b917babe7ff76fb1ec86e/gdb/thread.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/thread.c?ref=cce20f107400557f5c6b917babe7ff76fb1ec86e",
+      "patch": "@@ -1396,9 +1396,9 @@ scoped_restore_current_thread::restore ()\n \t in the mean time exited (or killed, detached, etc.), then don't revert\n \t back to it, but instead simply drop back to no thread selected.  */\n       && m_inf->pid != 0)\n-    switch_to_thread (m_thread);\n+    switch_to_thread (m_thread.get ());\n   else\n-    switch_to_inferior_no_thread (m_inf);\n+    switch_to_inferior_no_thread (m_inf.get ());\n \n   /* The running state of the originally selected thread may have\n      changed, so we have to recheck it here.  */\n@@ -1425,23 +1425,19 @@ scoped_restore_current_thread::~scoped_restore_current_thread ()\n \t     but swallow the exception.  */\n \t}\n     }\n-\n-  if (m_thread != NULL)\n-    m_thread->decref ();\n-  m_inf->decref ();\n }\n \n scoped_restore_current_thread::scoped_restore_current_thread ()\n {\n-  m_thread = NULL;\n-  m_inf = current_inferior ();\n+  m_inf = inferior_ref::new_reference (current_inferior ());\n \n   if (inferior_ptid != null_ptid)\n     {\n-      thread_info *tp = inferior_thread ();\n+      m_thread = thread_info_ref::new_reference (inferior_thread ());\n+\n       struct frame_info *frame;\n \n-      m_was_stopped = tp->state == THREAD_STOPPED;\n+      m_was_stopped = m_thread->state == THREAD_STOPPED;\n       if (m_was_stopped\n \t  && target_has_registers\n \t  && target_has_stack\n@@ -1466,13 +1462,12 @@ scoped_restore_current_thread::scoped_restore_current_thread ()\n \t{\n \t  m_selected_frame_id = null_frame_id;\n \t  m_selected_frame_level = -1;\n-\t}\n \n-      tp->incref ();\n-      m_thread = tp;\n+\t  /* Better let this propagate.  */\n+\t  if (ex.error == TARGET_CLOSE_ERROR)\n+\t    throw;\n+\t}\n     }\n-\n-  m_inf->incref ();\n }\n \n /* See gdbthread.h.  */"
+    }
+  ]
+}

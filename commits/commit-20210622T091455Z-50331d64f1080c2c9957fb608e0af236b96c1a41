@@ -1,0 +1,180 @@
+{
+  "sha": "50331d64f1080c2c9957fb608e0af236b96c1a41",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NTAzMzFkNjRmMTA4MGMyYzk5NTdmYjYwOGUwYWYyMzZiOTZjMWE0MQ==",
+  "commit": {
+    "author": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2021-06-22T04:02:52Z"
+    },
+    "committer": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2021-06-22T09:14:55Z"
+    },
+    "message": "RISC-V: Clarify the addends of pc-relative access.\n\nThe original discussion was here,\nhttps://github.com/riscv/riscv-elf-psabi-doc/issues/184\n\nAfter discussing with Kito Cheng, I think the addends of %pcrel_hi\nand %pcrel_lo are both allowed in GNU toolchain.  However, both of\nthe them mean the offset of symbols, rather than the pc address.\nBut the addends of %got_pcrel_hi and it's %pcrel_lo do not look\nreasonable.  I believe gcc won't generate the got patterns with\naddends, so linker should report dangerous relocation errors,\nin case the assembly code use them.\n\nAnother issue was here,\nhttps://sourceware.org/pipermail/binutils/2021-June/116983.html\n\nAt the beginnig, I suppose %pcrel_hi and %pcrel_lo are valid only\nwhen they are in the same input section.  But Jim Wilson points out\nthat gcc may generate %hi and %lo in the different input sections,\nwhen -freorder-blocks-and-partition option is used.  So that a memory\nreferences for a loop may have the %hi outside the loop, but the %lo\nremain in the loop.  However, it is hard to create the testcases,\nto see if %pcrel_hi and %pcrel_lo have the same behavior.\n\nUnfortunately, I notice that the current pcrel resolver cannot\nwork for the above case.  For now we build a hash table for pcrel\nat the start of riscv_elf_relocate_section, and then free the hash\nat the end.  But riscv_elf_relocate_section only handles an input\nsection at a time, so that means we can only resolve the %pcrel_hi\nand %pcrel_lo which are in the same input section.  Otherwise, like\nthe above case, we will report \"%pcrel_lo missing matching %pcrel_hi\"\nfor them.  I have no plan to improve this in the short-term, so maybe\nwe can wait until someone meets the problem before we deal with it.\n\nbfd/\n    * elfnn-riscv.c (riscv_pcrel_hi_reloc): Added field to store\n    the original relocation type, in case the type is converted to\n    R_RISCV_HI20.\n    (riscv_pcrel_lo_reloc): Removed unused name field.\n    (riscv_pcrel_relocs): Added comments.\n    (riscv_zero_pcrel_hi_reloc): Removed unused input_bfd.\n    (riscv_record_pcrel_hi_reloc): Updated.\n    (riscv_record_pcrel_lo_reloc): Likewise.\n    (riscv_resolve_pcrel_lo_relocs): Likewise.  Check the original\n    type of auipc, to make sure the %pcrel_lo without any addends.\n    Otherwise, report dangerous relocation error.\n    (riscv_elf_relocate_section): Updated above functions are changed.\n    For R_RISCV_GOT_HI20, report dangerous relocation error when addend\n    isn't zero.\nld/\n    * testsuite/ld-riscv-elf/ld-riscv-elf.exp: Updated.\n    * testsuite/ld-riscv-elf/pcrel-lo-addend-3a.d: New testcase.\n    * testsuite/ld-riscv-elf/pcrel-lo-addend-3a.s: Likewise.\n    * testsuite/ld-riscv-elf/pcrel-lo-addend-3b.d: New testcase.\n    Should report error since the %pcrel_lo with addend refers to\n    %got_pcrel_hi.\n    * testsuite/ld-riscv-elf/pcrel-lo-addend-3b.s: Likewise.\n    * testsuite/ld-riscv-elf/pcrel-lo-addend-3c.d: New testcase.\n    Should report error since the %got_pcrel_hi with addend.\n    * testsuite/ld-riscv-elf/pcrel-lo-addend-3c.s: Likewise.\n    * testsuite/ld-riscv-elf/pcrel-lo-addend-3.ld: Likewise.",
+    "tree": {
+      "sha": "315aae4fb8f5472c8bbdfa4a8bfeabc803b93104",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/315aae4fb8f5472c8bbdfa4a8bfeabc803b93104"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/50331d64f1080c2c9957fb608e0af236b96c1a41",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/50331d64f1080c2c9957fb608e0af236b96c1a41",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/50331d64f1080c2c9957fb608e0af236b96c1a41",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/50331d64f1080c2c9957fb608e0af236b96c1a41/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "80dc83fd0e70f4d522a534bc601df5e05b81d564",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/80dc83fd0e70f4d522a534bc601df5e05b81d564",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/80dc83fd0e70f4d522a534bc601df5e05b81d564"
+    }
+  ],
+  "stats": {
+    "total": 280,
+    "additions": 212,
+    "deletions": 68
+  },
+  "files": [
+    {
+      "sha": "f18e16549da575efb30cf8e9840858e9ca77c210",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 0,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/50331d64f1080c2c9957fb608e0af236b96c1a41/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/50331d64f1080c2c9957fb608e0af236b96c1a41/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=50331d64f1080c2c9957fb608e0af236b96c1a41",
+      "patch": "@@ -1,3 +1,20 @@\n+2021-06-22  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* elfnn-riscv.c (riscv_pcrel_hi_reloc): Added field to store\n+\tthe original relocation type, in case the type is converted to\n+\tR_RISCV_HI20.\n+\t(riscv_pcrel_lo_reloc): Removed unused name field.\n+\t(riscv_pcrel_relocs): Added comments.\n+\t(riscv_zero_pcrel_hi_reloc): Removed unused input_bfd.\n+\t(riscv_record_pcrel_hi_reloc): Updated.\n+\t(riscv_record_pcrel_lo_reloc): Likewise.\n+\t(riscv_resolve_pcrel_lo_relocs): Likewise.  Check the original\n+\ttype of auipc, to make sure the %pcrel_lo without any addends.\n+\tOtherwise, report dangerous relocation error.\n+\t(riscv_elf_relocate_section): Updated above functions are changed.\n+\tFor R_RISCV_GOT_HI20, report dangerous relocation error when addend\n+\tisn't zero.\n+\n 2021-06-19  H.J. Lu  <hongjiu.lu@intel.com>\n \n \tPR ld/27998"
+    },
+    {
+      "sha": "f206708a9f356eb119589228c8c68a048ed2c89c",
+      "filename": "bfd/elfnn-riscv.c",
+      "status": "modified",
+      "additions": 92,
+      "deletions": 68,
+      "changes": 160,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/50331d64f1080c2c9957fb608e0af236b96c1a41/bfd/elfnn-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/50331d64f1080c2c9957fb608e0af236b96c1a41/bfd/elfnn-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfnn-riscv.c?ref=50331d64f1080c2c9957fb608e0af236b96c1a41",
+      "patch": "@@ -1739,25 +1739,41 @@ perform_relocation (const reloc_howto_type *howto,\n \n typedef struct\n {\n+  /* PC value.  */\n   bfd_vma address;\n+  /* Relocation value with addend.  */\n   bfd_vma value;\n+  /* Original reloc type.  */\n+  int type;\n } riscv_pcrel_hi_reloc;\n \n typedef struct riscv_pcrel_lo_reloc\n {\n+  /* PC value of auipc.  */\n+  bfd_vma address;\n+  /* Internal relocation.  */\n+  const Elf_Internal_Rela *reloc;\n+  /* Record the following information helps to resolve the %pcrel\n+     which cross different input section.  For now we build a hash\n+     for pcrel at the start of riscv_elf_relocate_section, and then\n+     free the hash at the end.  But riscv_elf_relocate_section only\n+     handles an input section at a time, so that means we can only\n+     resolve the %pcrel_hi and %pcrel_lo which are in the same input\n+     section.  Otherwise, we will report dangerous relocation errors\n+     for those %pcrel which are not in the same input section.  */\n   asection *input_section;\n   struct bfd_link_info *info;\n   reloc_howto_type *howto;\n-  const Elf_Internal_Rela *reloc;\n-  bfd_vma addr;\n-  const char *name;\n   bfd_byte *contents;\n+  /* The next riscv_pcrel_lo_reloc.  */\n   struct riscv_pcrel_lo_reloc *next;\n } riscv_pcrel_lo_reloc;\n \n typedef struct\n {\n+  /* Hash table for riscv_pcrel_hi_reloc.  */\n   htab_t hi_relocs;\n+  /* Linked list for riscv_pcrel_lo_reloc.  */\n   riscv_pcrel_lo_reloc *lo_relocs;\n } riscv_pcrel_relocs;\n \n@@ -1805,8 +1821,7 @@ riscv_zero_pcrel_hi_reloc (Elf_Internal_Rela *rel,\n \t\t\t   bfd_vma pc,\n \t\t\t   bfd_vma addr,\n \t\t\t   bfd_byte *contents,\n-\t\t\t   const reloc_howto_type *howto,\n-\t\t\t   bfd *input_bfd ATTRIBUTE_UNUSED)\n+\t\t\t   const reloc_howto_type *howto)\n {\n   /* We may need to reference low addreses in PC-relative modes even when the\n      PC is far away from these addresses.  For example, undefweak references\n@@ -1839,11 +1854,14 @@ riscv_zero_pcrel_hi_reloc (Elf_Internal_Rela *rel,\n }\n \n static bool\n-riscv_record_pcrel_hi_reloc (riscv_pcrel_relocs *p, bfd_vma addr,\n-\t\t\t     bfd_vma value, bool absolute)\n+riscv_record_pcrel_hi_reloc (riscv_pcrel_relocs *p,\n+\t\t\t     bfd_vma addr,\n+\t\t\t     bfd_vma value,\n+\t\t\t     int type,\n+\t\t\t     bool absolute)\n {\n   bfd_vma offset = absolute ? value : value - addr;\n-  riscv_pcrel_hi_reloc entry = {addr, offset};\n+  riscv_pcrel_hi_reloc entry = {addr, offset, type};\n   riscv_pcrel_hi_reloc **slot =\n     (riscv_pcrel_hi_reloc **) htab_find_slot (p->hi_relocs, &entry, INSERT);\n \n@@ -1857,20 +1875,19 @@ riscv_record_pcrel_hi_reloc (riscv_pcrel_relocs *p, bfd_vma addr,\n \n static bool\n riscv_record_pcrel_lo_reloc (riscv_pcrel_relocs *p,\n+\t\t\t     bfd_vma addr,\n+\t\t\t     const Elf_Internal_Rela *reloc,\n \t\t\t     asection *input_section,\n \t\t\t     struct bfd_link_info *info,\n \t\t\t     reloc_howto_type *howto,\n-\t\t\t     const Elf_Internal_Rela *reloc,\n-\t\t\t     bfd_vma addr,\n-\t\t\t     const char *name,\n \t\t\t     bfd_byte *contents)\n {\n   riscv_pcrel_lo_reloc *entry;\n   entry = (riscv_pcrel_lo_reloc *) bfd_malloc (sizeof (riscv_pcrel_lo_reloc));\n   if (entry == NULL)\n     return false;\n-  *entry = (riscv_pcrel_lo_reloc) {input_section, info, howto, reloc, addr,\n-\t\t\t\t   name, contents, p->lo_relocs};\n+  *entry = (riscv_pcrel_lo_reloc) {addr, reloc, input_section, info,\n+\t\t\t\t   howto, contents, p->lo_relocs};\n   p->lo_relocs = entry;\n   return true;\n }\n@@ -1884,26 +1901,34 @@ riscv_resolve_pcrel_lo_relocs (riscv_pcrel_relocs *p)\n     {\n       bfd *input_bfd = r->input_section->owner;\n \n-      riscv_pcrel_hi_reloc search = {r->addr, 0};\n+      riscv_pcrel_hi_reloc search = {r->address, 0, 0};\n       riscv_pcrel_hi_reloc *entry = htab_find (p->hi_relocs, &search);\n-      if (entry == NULL\n-\t  /* Check the overflow when adding reloc addend.  */\n-\t  || (RISCV_CONST_HIGH_PART (entry->value)\n-\t      != RISCV_CONST_HIGH_PART (entry->value + r->reloc->r_addend)))\n+      /* There may be a risk if the %pcrel_lo with addend refers to\n+\t an IFUNC symbol.  The %pcrel_hi has been relocated to plt,\n+\t so the corresponding %pcrel_lo with addend looks wrong.  */\n+      char *string = NULL;\n+      if (entry == NULL)\n+\tstring = _(\"%pcrel_lo missing matching %pcrel_hi\");\n+      else if (entry->type == R_RISCV_GOT_HI20\n+\t       && r->reloc->r_addend != 0)\n+\tstring = _(\"%pcrel_lo with addend isn't allowed for R_RISCV_GOT_HI20\");\n+      else if (RISCV_CONST_HIGH_PART (entry->value)\n+\t       != RISCV_CONST_HIGH_PART (entry->value + r->reloc->r_addend))\n \t{\n-\t  char *string;\n-\t  if (entry == NULL)\n-\t    string = _(\"%pcrel_lo missing matching %pcrel_hi\");\n-\t  else if (asprintf (&string,\n-\t\t\t     _(\"%%pcrel_lo overflow with an addend, the \"\n-\t\t\t       \"value of %%pcrel_hi is 0x%\" PRIx64 \" without \"\n-\t\t\t       \"any addend, but may be 0x%\" PRIx64 \" after \"\n-\t\t\t       \"adding the %%pcrel_lo addend\"),\n-\t\t\t     (int64_t) RISCV_CONST_HIGH_PART (entry->value),\n-\t\t\t     (int64_t) RISCV_CONST_HIGH_PART\n+\t  /* Check the overflow when adding reloc addend.  */\n+\t  if (asprintf (&string,\n+\t\t\t_(\"%%pcrel_lo overflow with an addend, the \"\n+\t\t\t  \"value of %%pcrel_hi is 0x%\" PRIx64 \" without \"\n+\t\t\t  \"any addend, but may be 0x%\" PRIx64 \" after \"\n+\t\t\t  \"adding the %%pcrel_lo addend\"),\n+\t\t\t(int64_t) RISCV_CONST_HIGH_PART (entry->value),\n+\t\t\t(int64_t) RISCV_CONST_HIGH_PART\n \t\t\t\t(entry->value + r->reloc->r_addend)) == -1)\n \t    string = _(\"%pcrel_lo overflow with an addend\");\n+\t}\n \n+      if (string != NULL)\n+\t{\n \t  (*r->info->callbacks->reloc_dangerous)\n \t    (r->info, string, input_bfd, r->input_section, r->reloc->r_offset);\n \t  return true;\n@@ -2225,12 +2250,9 @@ riscv_elf_relocate_section (bfd *output_bfd,\n \t\trelocation = base_got->output_section->vma\n \t\t\t     + base_got->output_offset + off;\n \n-\t\tr_type = ELFNN_R_TYPE (rel->r_info);\n-\t\thowto = riscv_elf_rtype_to_howto (input_bfd, r_type);\n-\t\tif (howto == NULL)\n-\t\t  r = bfd_reloc_notsupported;\n-\t\telse if (!riscv_record_pcrel_hi_reloc (&pcrel_relocs, pc,\n-\t\t\t\t\t\t       relocation, false))\n+\t\tif (!riscv_record_pcrel_hi_reloc (&pcrel_relocs, pc,\n+\t\t\t\t\t\t  relocation, r_type,\n+\t\t\t\t\t\t  false))\n \t\t  r = bfd_reloc_overflow;\n \t\tgoto do_relocation;\n \n@@ -2242,12 +2264,9 @@ riscv_elf_relocate_section (bfd *output_bfd,\n \t\tgoto do_relocation;\n \n \t      case R_RISCV_PCREL_HI20:\n-\t\tr_type = ELFNN_R_TYPE (rel->r_info);\n-\t\thowto = riscv_elf_rtype_to_howto (input_bfd, r_type);\n-\t\tif (howto == NULL)\n-\t\t  r = bfd_reloc_notsupported;\n-\t\telse if (!riscv_record_pcrel_hi_reloc (&pcrel_relocs, pc,\n-\t\t\t\t\t\t       relocation, false))\n+\t\tif (!riscv_record_pcrel_hi_reloc (&pcrel_relocs, pc,\n+\t\t\t\t\t\t  relocation, r_type,\n+\t\t\t\t\t\t  false))\n \t\t  r = bfd_reloc_overflow;\n \t\tgoto do_relocation;\n \n@@ -2384,21 +2403,29 @@ riscv_elf_relocate_section (bfd *output_bfd,\n \t\t  local_got_offsets[r_symndx] |= 1;\n \t\t}\n \t    }\n-\t  relocation = sec_addr (htab->elf.sgot) + off;\n-\t  absolute = riscv_zero_pcrel_hi_reloc (rel,\n-\t\t\t\t\t\tinfo,\n-\t\t\t\t\t\tpc,\n-\t\t\t\t\t\trelocation,\n-\t\t\t\t\t\tcontents,\n-\t\t\t\t\t\thowto,\n-\t\t\t\t\t\tinput_bfd);\n-\t  r_type = ELFNN_R_TYPE (rel->r_info);\n-\t  howto = riscv_elf_rtype_to_howto (input_bfd, r_type);\n-\t  if (howto == NULL)\n-\t    r = bfd_reloc_notsupported;\n-\t  else if (!riscv_record_pcrel_hi_reloc (&pcrel_relocs, pc,\n-\t\t\t\t\t\t relocation, absolute))\n-\t    r = bfd_reloc_overflow;\n+\n+\t  if (rel->r_addend != 0)\n+\t    {\n+\t      msg = _(\"The addend isn't allowed for R_RISCV_GOT_HI20\");\n+\t      r = bfd_reloc_dangerous;\n+\t    }\n+\t  else\n+\t    {\n+\t      /* Address of got entry.  */\n+\t      relocation = sec_addr (htab->elf.sgot) + off;\n+\t      absolute = riscv_zero_pcrel_hi_reloc (rel, info, pc,\n+\t\t\t\t\t\t    relocation, contents,\n+\t\t\t\t\t\t    howto);\n+\t      /* Update howto if relocation is changed.  */\n+\t      howto = riscv_elf_rtype_to_howto (input_bfd,\n+\t\t\t\t\t\tELFNN_R_TYPE (rel->r_info));\n+\t      if (howto == NULL)\n+\t\tr = bfd_reloc_notsupported;\n+\t      else if (!riscv_record_pcrel_hi_reloc (&pcrel_relocs, pc,\n+\t\t\t\t\t\t     relocation, r_type,\n+\t\t\t\t\t\t     absolute))\n+\t\tr = bfd_reloc_overflow;\n+\t    }\n \t  break;\n \n \tcase R_RISCV_ADD8:\n@@ -2499,20 +2526,16 @@ riscv_elf_relocate_section (bfd *output_bfd,\n \t  }\n \n \tcase R_RISCV_PCREL_HI20:\n-\t  absolute = riscv_zero_pcrel_hi_reloc (rel,\n-\t\t\t\t\t\tinfo,\n-\t\t\t\t\t\tpc,\n-\t\t\t\t\t\trelocation,\n-\t\t\t\t\t\tcontents,\n-\t\t\t\t\t\thowto,\n-\t\t\t\t\t\tinput_bfd);\n-\t  r_type = ELFNN_R_TYPE (rel->r_info);\n-\t  howto = riscv_elf_rtype_to_howto (input_bfd, r_type);\n+\t  absolute = riscv_zero_pcrel_hi_reloc (rel, info, pc, relocation,\n+\t\t\t\t\t\tcontents, howto);\n+\t  /* Update howto if relocation is changed.  */\n+\t  howto = riscv_elf_rtype_to_howto (input_bfd,\n+\t\t\t\t\t    ELFNN_R_TYPE (rel->r_info));\n \t  if (howto == NULL)\n \t    r = bfd_reloc_notsupported;\n \t  else if (!riscv_record_pcrel_hi_reloc (&pcrel_relocs, pc,\n \t\t\t\t\t\t relocation + rel->r_addend,\n-\t\t\t\t\t\t absolute))\n+\t\t\t\t\t\t r_type, absolute))\n \t    r = bfd_reloc_overflow;\n \t  break;\n \n@@ -2532,8 +2555,8 @@ riscv_elf_relocate_section (bfd *output_bfd,\n \t      break;\n \t    }\n \n-\t  if (riscv_record_pcrel_lo_reloc (&pcrel_relocs, input_section, info,\n-\t\t\t\t\t   howto, rel, relocation, name,\n+\t  if (riscv_record_pcrel_lo_reloc (&pcrel_relocs, relocation, rel,\n+\t\t\t\t\t   input_section, info, howto,\n \t\t\t\t\t   contents))\n \t    continue;\n \t  r = bfd_reloc_overflow;\n@@ -2726,7 +2749,8 @@ riscv_elf_relocate_section (bfd *output_bfd,\n \t  BFD_ASSERT (off < (bfd_vma) -2);\n \t  relocation = sec_addr (htab->elf.sgot) + off + (is_ie ? ie_off : 0);\n \t  if (!riscv_record_pcrel_hi_reloc (&pcrel_relocs, pc,\n-\t\t\t\t\t    relocation, false))\n+\t\t\t\t\t    relocation, r_type,\n+\t\t\t\t\t    false))\n \t    r = bfd_reloc_overflow;\n \t  unresolved_reloc = false;\n \t  break;"
+    },
+    {
+      "sha": "b4c49cc65139a38a9c3970ca6db8fe87fcc53f39",
+      "filename": "ld/ChangeLog",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/50331d64f1080c2c9957fb608e0af236b96c1a41/ld/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/50331d64f1080c2c9957fb608e0af236b96c1a41/ld/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/ChangeLog?ref=50331d64f1080c2c9957fb608e0af236b96c1a41",
+      "patch": "@@ -1,3 +1,17 @@\n+2021-06-22  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* testsuite/ld-riscv-elf/ld-riscv-elf.exp: Updated.\n+\t* testsuite/ld-riscv-elf/pcrel-lo-addend-3a.d: New testcase.\n+\t* testsuite/ld-riscv-elf/pcrel-lo-addend-3a.s: Likewise.\n+\t* testsuite/ld-riscv-elf/pcrel-lo-addend-3b.d: New testcase.\n+\tShould report error since the %pcrel_lo with addend refers to\n+\t%got_pcrel_hi.\n+\t* testsuite/ld-riscv-elf/pcrel-lo-addend-3b.s: Likewise.\n+\t* testsuite/ld-riscv-elf/pcrel-lo-addend-3c.d: New testcase.\n+\tShould report error since the %got_pcrel_hi with addend.\n+\t* testsuite/ld-riscv-elf/pcrel-lo-addend-3c.s: Likewise.\n+\t* testsuite/ld-riscv-elf/pcrel-lo-addend-3.ld: Likewise.\n+\n 2021-06-19  H.J. Lu  <hongjiu.lu@intel.com>\n \n \tPR ld/27998"
+    },
+    {
+      "sha": "1f1245af7074299c310ba90793735cc6a7d60a0b",
+      "filename": "ld/testsuite/ld-riscv-elf/ld-riscv-elf.exp",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/50331d64f1080c2c9957fb608e0af236b96c1a41/ld/testsuite/ld-riscv-elf/ld-riscv-elf.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/50331d64f1080c2c9957fb608e0af236b96c1a41/ld/testsuite/ld-riscv-elf/ld-riscv-elf.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/ld-riscv-elf.exp?ref=50331d64f1080c2c9957fb608e0af236b96c1a41",
+      "patch": "@@ -87,6 +87,9 @@ if [istarget \"riscv*-*-*\"] {\n     run_dump_test \"pcrel-lo-addend\"\n     run_dump_test \"pcrel-lo-addend-2a\"\n     run_dump_test \"pcrel-lo-addend-2b\"\n+    run_dump_test \"pcrel-lo-addend-3a\"\n+    run_dump_test \"pcrel-lo-addend-3b\"\n+    run_dump_test \"pcrel-lo-addend-3c\"\n     run_dump_test \"restart-relax\"\n     run_dump_test \"attr-merge-arch-01\"\n     run_dump_test \"attr-merge-arch-02\""
+    },
+    {
+      "sha": "fabb65bdc82dcc5806f741223fb076fa9c6744ab",
+      "filename": "ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3.ld",
+      "status": "added",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/50331d64f1080c2c9957fb608e0af236b96c1a41/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3.ld",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/50331d64f1080c2c9957fb608e0af236b96c1a41/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3.ld",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3.ld?ref=50331d64f1080c2c9957fb608e0af236b96c1a41",
+      "patch": "@@ -0,0 +1,13 @@\n+ENTRY(_start)\n+SECTIONS\n+{\n+\t.got  0x1000 : {\n+\t\t*(.got)\n+\t}\n+\t.data 0x2000: {\n+\t\t*(.data)\n+\t}\n+        .text 0x900000000 : {\n+                *(.text)\n+        }\n+}"
+    },
+    {
+      "sha": "1f77e20d52eaa459f89c2dedb4a66909d939daf2",
+      "filename": "ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3a.d",
+      "status": "added",
+      "additions": 18,
+      "deletions": 0,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/50331d64f1080c2c9957fb608e0af236b96c1a41/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3a.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/50331d64f1080c2c9957fb608e0af236b96c1a41/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3a.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3a.d?ref=50331d64f1080c2c9957fb608e0af236b96c1a41",
+      "patch": "@@ -0,0 +1,18 @@\n+#source: pcrel-lo-addend-3a.s\n+#as: -march=rv64i -mabi=lp64 -mno-relax\n+#ld: -m[riscv_choose_lp64_emul] -Tpcrel-lo-addend-3.ld\n+#objdump: -d\n+\n+#...\n+Disassembly of section .text:\n+\n+0+900000000 <_start>:\n+.*:[ \t]+[0-9a-f]+[ \t]+lui[ \t]+a5,0x2\n+.*:[ \t]+[0-9a-f]+[ \t]+ld[ \t]+a0,0\\(a5\\) # 2000 <ll>\n+.*:[ \t]+[0-9a-f]+[ \t]+ld[ \t]+a0,4\\(a5\\)\n+.*:[ \t]+[0-9a-f]+[ \t]+lui[ \t]+a5,0x2\n+.*:[ \t]+[0-9a-f]+[ \t]+ld[ \t]+a0,4\\(a5\\) # 2004 <ll\\+0x4>\n+.*:[ \t]+[0-9a-f]+[ \t]+ld[ \t]+a0,8\\(a5\\)\n+.*:[ \t]+[0-9a-f]+[ \t]+lui[ \t]+a5,0x1\n+.*:[ \t]+[0-9a-f]+[ \t]+ld[ \t]+a0,8\\(a5\\) # 1008 <_GLOBAL_OFFSET_TABLE_\\+0x8>\n+#pass"
+    },
+    {
+      "sha": "14dc596dca9f68acaddb1512097b263879c134d2",
+      "filename": "ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3a.s",
+      "status": "added",
+      "additions": 21,
+      "deletions": 0,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/50331d64f1080c2c9957fb608e0af236b96c1a41/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3a.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/50331d64f1080c2c9957fb608e0af236b96c1a41/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3a.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3a.s?ref=50331d64f1080c2c9957fb608e0af236b96c1a41",
+      "patch": "@@ -0,0 +1,21 @@\n+\t.text\n+\t.globl _start\n+\t.align 3\n+_start:\n+.LA0:\tauipc\ta5, %pcrel_hi (ll)\n+\tld\ta0, %pcrel_lo (.LA0)(a5)\n+\tld\ta0, %pcrel_lo (.LA0 + 0x4)(a5)\n+\n+.LA1:\tauipc\ta5, %pcrel_hi (ll + 0x4)\n+\tld\ta0, %pcrel_lo (.LA1)(a5)\n+\tld\ta0, %pcrel_lo (.LA1 + 0x4)(a5)\n+\n+.LA2:\tauipc\ta5, %got_pcrel_hi (ll)\n+\tld\ta0, %pcrel_lo (.LA2)(a5)\n+\n+\t.globl ll\n+\t.data\n+ll:\n+\t.dword\t0\n+\t.dword\t0\n+\t.dword\t0"
+    },
+    {
+      "sha": "9c87c165a586fd78403c9c7259fb95d8e51b5a6b",
+      "filename": "ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3b.d",
+      "status": "added",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/50331d64f1080c2c9957fb608e0af236b96c1a41/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3b.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/50331d64f1080c2c9957fb608e0af236b96c1a41/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3b.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3b.d?ref=50331d64f1080c2c9957fb608e0af236b96c1a41",
+      "patch": "@@ -0,0 +1,4 @@\n+#source: pcrel-lo-addend-3b.s\n+#as: -march=rv64i -mabi=lp64 -mno-relax\n+#ld: -m[riscv_choose_lp64_emul] -Tpcrel-lo-addend-3.ld\n+#error: .*dangerous relocation: The addend isn't allowed for R_RISCV_GOT_HI20"
+    },
+    {
+      "sha": "0b7ebd63a20409d5ad3852afd871137051211049",
+      "filename": "ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3b.s",
+      "status": "added",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/50331d64f1080c2c9957fb608e0af236b96c1a41/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3b.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/50331d64f1080c2c9957fb608e0af236b96c1a41/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3b.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3b.s?ref=50331d64f1080c2c9957fb608e0af236b96c1a41",
+      "patch": "@@ -0,0 +1,13 @@\n+\t.text\n+\t.globl _start\n+\t.align 3\n+_start:\n+.LA0:\tauipc\ta5, %got_pcrel_hi (ll + 0x4)\n+\tld\ta0, %pcrel_lo (.LA0)(a5)\n+\n+\t.globl ll\n+\t.data\n+ll:\n+\t.dword\t0\n+\t.dword\t0\n+\t.dword\t0"
+    },
+    {
+      "sha": "295895b82679314c30f622eea465d760586faf1b",
+      "filename": "ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3c.d",
+      "status": "added",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/50331d64f1080c2c9957fb608e0af236b96c1a41/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3c.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/50331d64f1080c2c9957fb608e0af236b96c1a41/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3c.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3c.d?ref=50331d64f1080c2c9957fb608e0af236b96c1a41",
+      "patch": "@@ -0,0 +1,4 @@\n+#source: pcrel-lo-addend-3c.s\n+#as: -march=rv64i -mabi=lp64 -mno-relax\n+#ld: -m[riscv_choose_lp64_emul] -Tpcrel-lo-addend-3.ld\n+#error: .*dangerous relocation: %pcrel_lo with addend isn't allowed for R_RISCV_GOT_HI20"
+    },
+    {
+      "sha": "0495851cf938e48d5713726ee798da67f7289407",
+      "filename": "ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3c.s",
+      "status": "added",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/50331d64f1080c2c9957fb608e0af236b96c1a41/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3c.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/50331d64f1080c2c9957fb608e0af236b96c1a41/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3c.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-riscv-elf/pcrel-lo-addend-3c.s?ref=50331d64f1080c2c9957fb608e0af236b96c1a41",
+      "patch": "@@ -0,0 +1,13 @@\n+\t.text\n+\t.globl _start\n+\t.align 3\n+_start:\n+.LA0:\tauipc\ta5, %got_pcrel_hi (ll)\n+\tld\ta0, %pcrel_lo (.LA0 + 0x4)(a5)\n+\n+\t.globl ll\n+\t.data\n+ll:\n+\t.dword\t0\n+\t.dword\t0\n+\t.dword\t0"
+    }
+  ]
+}

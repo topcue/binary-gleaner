@@ -1,0 +1,110 @@
+{
+  "sha": "757e686afb4ac97bcf9333b10a6a0880bdd310f8",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NzU3ZTY4NmFmYjRhYzk3YmNmOTMzM2IxMGE2YTA4ODBiZGQzMTBmOA==",
+  "commit": {
+    "author": {
+      "name": "John Baldwin",
+      "email": "jhb@FreeBSD.org",
+      "date": "2021-07-29T20:16:28Z"
+    },
+    "committer": {
+      "name": "John Baldwin",
+      "email": "jhb@FreeBSD.org",
+      "date": "2021-07-29T20:16:28Z"
+    },
+    "message": "Don't compile x86 debug register support on OpenBSD.\n\nSimon Marchi tried gdb on OpenBSD, and it immediately segfaults when\nrunning a program.  Simon tracked down the problem to x86_dr_low.get_status\nbeing nullptr at this point:\n\n    (lldb) print x86_dr_low.get_status\n    (unsigned long (*)()) $0 = 0x0000000000000000\n    (lldb) bt\n    * thread #1, stop reason = step over\n      * frame #0: 0x0000033b64b764aa gdb`x86_dr_stopped_data_address(state=0x0000033d7162a310, addr_p=0x00007f7ffffc5688) at x86-dregs.c:645:12\n        frame #1: 0x0000033b64b766de gdb`x86_dr_stopped_by_watchpoint(state=0x0000033d7162a310) at x86-dregs.c:687:10\n        frame #2: 0x0000033b64ea5f72 gdb`x86_stopped_by_watchpoint() at x86-nat.c:206:10\n        frame #3: 0x0000033b64637fbb gdb`x86_nat_target<obsd_nat_target>::stopped_by_watchpoint(this=0x0000033b65252820) at x86-nat.h:100:12\n        frame #4: 0x0000033b64d3ff11 gdb`target_stopped_by_watchpoint() at target.c:468:46\n        frame #5: 0x0000033b6469b001 gdb`watchpoints_triggered(ws=0x00007f7ffffc61c8) at breakpoint.c:4790:32\n        frame #6: 0x0000033b64a8bb8b gdb`handle_signal_stop(ecs=0x00007f7ffffc61a0) at infrun.c:6072:29\n        frame #7: 0x0000033b64a7e3a7 gdb`handle_inferior_event(ecs=0x00007f7ffffc61a0) at infrun.c:5694:7\n        frame #8: 0x0000033b64a7c1a0 gdb`fetch_inferior_event() at infrun.c:4090:5\n        frame #9: 0x0000033b64a51921 gdb`inferior_event_handler(event_type=INF_REG_EVENT) at inf-loop.c:41:7\n        frame #10: 0x0000033b64a827c9 gdb`infrun_async_inferior_event_handler(data=0x0000000000000000) at infrun.c:9384:3\n        frame #11: 0x0000033b6465bd4f gdb`check_async_event_handlers() at async-event.c:335:4\n        frame #12: 0x0000033b65070917 gdb`gdb_do_one_event() at event-loop.cc:216:10\n        frame #13: 0x0000033b64af0db1 gdb`start_event_loop() at main.c:421:13\n        frame #14: 0x0000033b64aefe9a gdb`captured_command_loop() at main.c:481:3\n        frame #15: 0x0000033b64aed5c2 gdb`captured_main(data=0x00007f7ffffc6470) at main.c:1353:4\n        frame #16: 0x0000033b64aed4f2 gdb`gdb_main(args=0x00007f7ffffc6470) at main.c:1368:7\n        frame #17: 0x0000033b6459d787 gdb`main(argc=5, argv=0x00007f7ffffc6518) at gdb.c:32:10\n        frame #18: 0x0000033b6459d521 gdb`___start + 321\n\nOn BSDs, get_status is set in _initialize_x86_bsd_nat, but only if\nHAVE_PT_GETDBREGS is defined.  PT_GETDBREGS doesn't exist on OpenBSD, so\nget_status (and the other fields of x86_dr_low) are left as nullptr.\n\nOpenBSD doesn't support getting or setting the x86 debug registers, so\nfix by omitting debug register support entirely on OpenBSD:\n\n- Change x86bsd_nat_target to only inherit from x86_nat_target if\n  PT_GETDBREGS is supported.\n\n- Don't include x86-nat.o and nat/x86-dregs.o for OpenBSD/amd64.  They\n  were already omitted for OpenBSD/i386.",
+    "tree": {
+      "sha": "f567c1f1445d0758418c316d08cc01fed84cbc01",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f567c1f1445d0758418c316d08cc01fed84cbc01"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/757e686afb4ac97bcf9333b10a6a0880bdd310f8",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/757e686afb4ac97bcf9333b10a6a0880bdd310f8",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/757e686afb4ac97bcf9333b10a6a0880bdd310f8",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/757e686afb4ac97bcf9333b10a6a0880bdd310f8/comments",
+  "author": {
+    "login": "bsdjhb",
+    "id": 8976613,
+    "node_id": "MDQ6VXNlcjg5NzY2MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/8976613?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/bsdjhb",
+    "html_url": "https://github.com/bsdjhb",
+    "followers_url": "https://api.github.com/users/bsdjhb/followers",
+    "following_url": "https://api.github.com/users/bsdjhb/following{/other_user}",
+    "gists_url": "https://api.github.com/users/bsdjhb/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/bsdjhb/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/bsdjhb/subscriptions",
+    "organizations_url": "https://api.github.com/users/bsdjhb/orgs",
+    "repos_url": "https://api.github.com/users/bsdjhb/repos",
+    "events_url": "https://api.github.com/users/bsdjhb/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/bsdjhb/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "bsdjhb",
+    "id": 8976613,
+    "node_id": "MDQ6VXNlcjg5NzY2MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/8976613?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/bsdjhb",
+    "html_url": "https://github.com/bsdjhb",
+    "followers_url": "https://api.github.com/users/bsdjhb/followers",
+    "following_url": "https://api.github.com/users/bsdjhb/following{/other_user}",
+    "gists_url": "https://api.github.com/users/bsdjhb/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/bsdjhb/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/bsdjhb/subscriptions",
+    "organizations_url": "https://api.github.com/users/bsdjhb/orgs",
+    "repos_url": "https://api.github.com/users/bsdjhb/repos",
+    "events_url": "https://api.github.com/users/bsdjhb/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/bsdjhb/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "abdd4204a2f80798e5e517aeaa0955778c728bdf",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/abdd4204a2f80798e5e517aeaa0955778c728bdf",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/abdd4204a2f80798e5e517aeaa0955778c728bdf"
+    }
+  ],
+  "stats": {
+    "total": 14,
+    "additions": 9,
+    "deletions": 5
+  },
+  "files": [
+    {
+      "sha": "655c75dd1abe4fae253e51ac1df3d109bc543fee",
+      "filename": "gdb/configure.nat",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 3,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/757e686afb4ac97bcf9333b10a6a0880bdd310f8/gdb/configure.nat",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/757e686afb4ac97bcf9333b10a6a0880bdd310f8/gdb/configure.nat",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/configure.nat?ref=757e686afb4ac97bcf9333b10a6a0880bdd310f8",
+      "patch": "@@ -451,9 +451,8 @@ case ${gdb_host} in\n \tcase ${gdb_host_cpu} in\n \t    i386)\n \t\t# Host: OpenBSD/amd64\n-\t\tNATDEPFILES=\"${NATDEPFILES} obsd-nat.o amd64-nat.o x86-nat.o \\\n-\t\tx86-bsd-nat.o amd64-bsd-nat.o amd64-obsd-nat.o bsd-kvm.o \\\n-\t\tnat/x86-dregs.o\"\n+\t\tNATDEPFILES=\"${NATDEPFILES} obsd-nat.o amd64-nat.o \\\n+\t\tx86-bsd-nat.o amd64-bsd-nat.o amd64-obsd-nat.o bsd-kvm.o\"\n \t\tLOADLIBES='-lkvm'\n \t\t;;\n \t    mips)"
+    },
+    {
+      "sha": "caf62e38df65ea84815fd730e13e5edd23600eb2",
+      "filename": "gdb/x86-bsd-nat.h",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 2,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/757e686afb4ac97bcf9333b10a6a0880bdd310f8/gdb/x86-bsd-nat.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/757e686afb4ac97bcf9333b10a6a0880bdd310f8/gdb/x86-bsd-nat.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/x86-bsd-nat.h?ref=757e686afb4ac97bcf9333b10a6a0880bdd310f8",
+      "patch": "@@ -27,18 +27,23 @@ extern size_t x86bsd_xsave_len;\n \n /* A prototype *BSD/x86 target.  */\n \n+#ifdef HAVE_PT_GETDBREGS\n template<typename BaseTarget>\n class x86bsd_nat_target : public x86_nat_target<BaseTarget>\n {\n   using base_class = x86_nat_target<BaseTarget>;\n public:\n-#ifdef HAVE_PT_GETDBREGS\n   void mourn_inferior () override\n   {\n     x86_cleanup_dregs ();\n     base_class::mourn_inferior ();\n   }\n-#endif /* HAVE_PT_GETDBREGS */\n };\n+#else /* !HAVE_PT_GETDBREGS */\n+template<typename BaseTarget>\n+class x86bsd_nat_target : public BaseTarget\n+{\n+};\n+#endif /* HAVE_PT_GETDBREGS */\n \n #endif /* x86-bsd-nat.h */"
+    }
+  ]
+}

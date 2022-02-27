@@ -1,0 +1,110 @@
+{
+  "sha": "677c92fe9a530f3f8959b8a0e311f58f9a616fa4",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6Njc3YzkyZmU5YTUzMGYzZjg5NTliOGEwZTMxMWY1OGY5YTYxNmZhNA==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2020-09-14T15:51:04Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2020-09-14T15:51:21Z"
+    },
+    "message": "gdb: don't use inferior_ptid in linux_nat_wait_1\n\ntarget_ops::wait implementations should not rely on the value of\ninferior_ptid on entry.  While looking at another wait-related patch, I\nnoticed that the code in linux_nat_wait_1, checking for a newly created\nprocess, did just that.  This patch fixes it.  Note that I didn't see\nany bug, this \"fix\" is simply to make the function respect the\ntarget_ops::wait contract.\n\nInstead of checking inferior_ptid, check for the passed in `ptid`\nvalue.\n\nDuring startup, linux_nat_wait_1 gets called a few times with the\npid-only ptid, while startup_inferior waits for the expected number of\nexec events.  For this reason, I needed to add a `find_lwp_pid` call to\nensure that the actions of changing the main thread's ptid, and adding\nthe initial lwp, were done only once for a given process.\n\nThis was not needed before, since thread_change_ptid, through the\nthread_ptid_changed observer, ends up changing inferior_ptid.  So the\nsecond time around, inferior_ptid was not a pid-only ptid.\n\nThat find_lwp_pid won't add much overhead, as it will only be called\nwhen the ptid is a pid-only ptid.  And AFAIK, that only happens during\ninferior startup.\n\nAn alternative to that `find_lwp_pid` call might be to make\nstartup_inferior realize that the main thread has changed ptid, and make\nit wait for the new ptid.  But that doesn't look easy to do.\n\nRegtested on amd64/Linux.\n\ngdb/ChangeLog:\n\n\t* linux-nat.c (linux_nat_wait_1): Don't use inferior_ptid when\n\tchecking for initial lwp.\n\nChange-Id: I8f1d5c766f5cb2a29c948bc75fa4582d7130c23f",
+    "tree": {
+      "sha": "d4e7ef4ff0853d0e81600c3605896ec389e9fac6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/d4e7ef4ff0853d0e81600c3605896ec389e9fac6"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/677c92fe9a530f3f8959b8a0e311f58f9a616fa4",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/677c92fe9a530f3f8959b8a0e311f58f9a616fa4",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/677c92fe9a530f3f8959b8a0e311f58f9a616fa4",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/677c92fe9a530f3f8959b8a0e311f58f9a616fa4/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "3eba3a011a89c75c10bd1860eee4589e65697165",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3eba3a011a89c75c10bd1860eee4589e65697165",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/3eba3a011a89c75c10bd1860eee4589e65697165"
+    }
+  ],
+  "stats": {
+    "total": 16,
+    "additions": 10,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "c60d20b9a695711ea2109b0bb5b06d0d2306fb80",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/677c92fe9a530f3f8959b8a0e311f58f9a616fa4/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/677c92fe9a530f3f8959b8a0e311f58f9a616fa4/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=677c92fe9a530f3f8959b8a0e311f58f9a616fa4",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-09-14  Simon Marchi  <simon.marchi@polymtl.ca>\n+\n+\t* linux-nat.c (linux_nat_wait_1): Don't use inferior_ptid when\n+\tchecking for initial lwp.\n+\n 2020-09-14  Tom Tromey  <tromey@adacore.com>\n \n \t* m68k-tdep.c (m68k_extract_return_value): Use"
+    },
+    {
+      "sha": "4f53670da5e34cab07656b0637cdbcc24841ae51",
+      "filename": "gdb/linux-nat.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 6,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/677c92fe9a530f3f8959b8a0e311f58f9a616fa4/gdb/linux-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/677c92fe9a530f3f8959b8a0e311f58f9a616fa4/gdb/linux-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/linux-nat.c?ref=677c92fe9a530f3f8959b8a0e311f58f9a616fa4",
+      "patch": "@@ -3143,14 +3143,13 @@ linux_nat_wait_1 (ptid_t ptid, struct target_waitstatus *ourstatus,\n   /* The first time we get here after starting a new inferior, we may\n      not have added it to the LWP list yet - this is the earliest\n      moment at which we know its PID.  */\n-  if (inferior_ptid.is_pid ())\n+  if (ptid.is_pid () && find_lwp_pid (ptid) == nullptr)\n     {\n-      /* Upgrade the main thread's ptid.  */\n-      thread_change_ptid (linux_target, inferior_ptid,\n-\t\t\t  ptid_t (inferior_ptid.pid (),\n-\t\t\t\t  inferior_ptid.pid (), 0));\n+      ptid_t lwp_ptid (ptid.pid (), ptid.pid ());\n \n-      lp = add_initial_lwp (inferior_ptid);\n+      /* Upgrade the main thread's ptid.  */\n+      thread_change_ptid (linux_target, ptid, lwp_ptid);\n+      lp = add_initial_lwp (lwp_ptid);\n       lp->resumed = 1;\n     }\n "
+    }
+  ]
+}

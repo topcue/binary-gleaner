@@ -1,0 +1,218 @@
+{
+  "sha": "1eb399142793d31d1b7a358baad5fded996e02eb",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MWViMzk5MTQyNzkzZDMxZDFiN2EzNThiYWFkNWZkZWQ5OTZlMDJlYg==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2020-04-27T14:46:51Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2020-04-27T14:47:50Z"
+    },
+    "message": "gdb, gdbserver: remove configure check for fs_base/gs_base in user_regs_struct\n\nI recently stumbled on this code mentioning Linux kernel 2.6.25, and\nthought it could be time for some spring cleaning (newer GDBs probably\ndon't need to supports 12-year old kernels).  I then found that the\n\"legacy\" case is probably broken anyway, which gives an even better\nmotivation for its removal.\n\nIn short, this patch removes the configure checks that check if\nuser_regs_struct contains the fs_base/gs_base fields and adjusts all\nuses of the HAVE_STRUCT_USER_REGS_STRUCT_{FS,GS}_BASE macros.  The\nlonger explanation/rationale follows.\n\nApparently, Linux kernels since 2.6.25 (that's from 2008) have been\nreliably providing fs_base and gs_base as part of user_regs_struct.\nCommit df5d438e33d7 in the Linux kernel [1] seems related.  This means\nthat we can get these values by reading registers with PTRACE_GETREGS.\nPreviously, these values were obtained using a separate\nPTRACE_ARCH_PRCTL ptrace call.\n\nFirst, I'm not even sure the configure check was really right in the\nfirst place.\n\nThe user_regs_struct used by GDB comes from\n/usr/include/x86_64-linux-gnu/sys/user.h (or equivalent on other\ndistros) and is provided by glibc.  glibc has had the fs_base/gs_base\nfields in there for a very long time, at least since this commit from\n2001 [2].  The Linux kernel also has its version of user_regs_struct,\nwhich I think was exported to user-space at some point.  It included the\nfs_base/gs_base fields since at least this 2002 commit [3].  In any\ncase, my conclusion is that the fields were there long before the\naforementioned Linux kernel commit.  The kernel commit didn't add these\nfields, it only made sure that they have reliable values when obtained\nwith PTRACE_GETREGS.\n\nSo, checking for the presence of the fs_base/gs_base fields in struct\nuser_regs_struct doesn't sound like a good way of knowing if we can\nreliably get the fs_base/gs_base values from PTRACE_GETREGS.  My guess\nis that if we were using that strategy on a < 2.6.25 kernel, things\nwould not work correctly:\n\n- configure would find that the user_regs_struct has the fs_base/gs_base\n  fields (which are probided by glibc anyway)\n- we would be reading the fs_base/gs_base values using PTRACE_GETREGS,\n  for which the kernel would provide unreliable values\n\nSecond, I have tried to see how things worked by forcing GDB to not use\nfs_base/gs_base from PTRACE_GETREGS (forcing it to use the \"legacy\"\ncode, by configuring with\n\n  ac_cv_member_struct_user_regs_struct_gs_base=no ac_cv_member_struct_user_regs_struct_fs_base=no\n\nDoing so breaks writing registers back to the inferior.  For example,\ncalling an inferior functions gives an internal error:\n\n    (gdb) p malloc(10)\n    /home/smarchi/src/binutils-gdb/gdb/i387-tdep.c:1408: internal-error: invalid i387 regnum 152\n\nThe relevant last frames where this error happens are:\n\n    #8  0x0000563123d262fc in internal_error (file=0x563123e93fd8 \"/home/smarchi/src/binutils-gdb/gdb/i387-tdep.c\", line=1408, fmt=0x563123e94482 \"invalid i387 regnum %d\") at /home/smarchi/src/binutils-gdb/gdbsupport/errors.cc:55\n    #9  0x0000563123047d0d in i387_collect_xsave (regcache=0x5631269453f0, regnum=152, xsave=0x7ffd38402a20, gcore=0) at /home/smarchi/src/binutils-gdb/gdb/i387-tdep.c:1408\n    #10 0x0000563122c69e8a in amd64_collect_xsave (regcache=0x5631269453f0, regnum=152, xsave=0x7ffd38402a20, gcore=0) at /home/smarchi/src/binutils-gdb/gdb/amd64-tdep.c:3448\n    #11 0x0000563122c5e94c in amd64_linux_nat_target::store_registers (this=0x56312515fd10 <the_amd64_linux_nat_target>, regcache=0x5631269453f0, regnum=152) at /home/smarchi/src/binutils-gdb/gdb/amd64-linux-nat.c:335\n    #12 0x00005631234c8c80 in target_store_registers (regcache=0x5631269453f0, regno=152) at /home/smarchi/src/binutils-gdb/gdb/target.c:3485\n    #13 0x00005631232e8df7 in regcache::raw_write (this=0x5631269453f0, regnum=152, buf=0x56312759e468 \"@\\225\\372\\367\\377\\177\") at /home/smarchi/src/binutils-gdb/gdb/regcache.c:765\n    #14 0x00005631232e8f0c in regcache::cooked_write (this=0x5631269453f0, regnum=152, buf=0x56312759e468 \"@\\225\\372\\367\\377\\177\") at /home/smarchi/src/binutils-gdb/gdb/regcache.c:778\n    #15 0x00005631232e75ec in regcache::restore (this=0x5631269453f0, src=0x5631275eb130) at /home/smarchi/src/binutils-gdb/gdb/regcache.c:283\n    #16 0x0000563123083fc4 in infcall_suspend_state::restore (this=0x5631273ed930, gdbarch=0x56312718cf20, tp=0x5631270bca90, regcache=0x5631269453f0) at /home/smarchi/src/binutils-gdb/gdb/infrun.c:9103\n    #17 0x0000563123081eed in restore_infcall_suspend_state (inf_state=0x5631273ed930) at /home/smarchi/src/binutils-gdb/gdb/infrun.c:9151\n\nThe problem seems to be that amd64_linux_nat_target::store_registers\ncalls amd64_native_gregset_supplies_p to know whether gregset provides\nfs_base.  When !HAVE_STRUCT_USER_REGS_STRUCT_FS_BASE,\namd64_native_gregset_supplies_p returns false.  store_registers\ntherefore assumes that it must be an \"xstate\" register.  This is of\ncourse wrong, and that leads to the failed assertion when\ni387_collect_xsave doesn't recognize the register.\n\namd64_linux_nat_target::store_registers could probably be fixed to\nhandle this case, but I don't think it's worth it, given that it would\nonly be to support very old kernels.\n\n[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=df5d438e33d7fc914ba9b6e0d6b019a8966c5fcc\n[2] https://sourceware.org/git/?p=glibc.git;a=commit;h=c9cf6ddeebb7bb\n[3] https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git/commit/?id=88e4bc32686ebd0b1111a94f93eba2d334241f68\n\ngdb/ChangeLog:\n\n\t* configure.ac: Remove check for fs_base/gs_base in\n\tuser_regs_struct.\n\t* configure: Re-generate.\n\t* config.in: Re-generate.\n\t* amd64-nat.c (amd64_native_gregset_reg_offset): Adjust.\n\t* amd64-linux-nat.c (amd64_linux_nat_target::fetch_registers,\n\tamd64_linux_nat_target::store_registers, ps_get_thread_area, ): Adjust.\n\ngdbserver/ChangeLog:\n\n\t* configure.ac: Remove check for fs_base/gs_base in\n\tuser_regs_struct.\n\t* configure: Re-generate.\n\t* config.in: Re-generate.\n\t* linux-x86-low.cc (x86_64_regmap, x86_fill_gregset,\n\tx86_store_gregset): Adjust.",
+    "tree": {
+      "sha": "fd64c7f70ebbfc23e2624f5d2f6fa6b7bb850f76",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/fd64c7f70ebbfc23e2624f5d2f6fa6b7bb850f76"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/1eb399142793d31d1b7a358baad5fded996e02eb",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1eb399142793d31d1b7a358baad5fded996e02eb",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/1eb399142793d31d1b7a358baad5fded996e02eb",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1eb399142793d31d1b7a358baad5fded996e02eb/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "45fc7c9968485f5ee0532a14fad211372e12f837",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/45fc7c9968485f5ee0532a14fad211372e12f837",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/45fc7c9968485f5ee0532a14fad211372e12f837"
+    }
+  ],
+  "stats": {
+    "total": 199,
+    "additions": 22,
+    "deletions": 177
+  },
+  "files": [
+    {
+      "sha": "78b3ed80244ccf8fa4e9a35415cac4ecabc07c63",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1eb399142793d31d1b7a358baad5fded996e02eb/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1eb399142793d31d1b7a358baad5fded996e02eb/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=1eb399142793d31d1b7a358baad5fded996e02eb",
+      "patch": "@@ -1,3 +1,13 @@\n+2020-04-27  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\t* configure.ac: Remove check for fs_base/gs_base in\n+\tuser_regs_struct.\n+\t* configure: Re-generate.\n+\t* config.in: Re-generate.\n+\t* amd64-nat.c (amd64_native_gregset_reg_offset): Adjust.\n+\t* amd64-linux-nat.c (amd64_linux_nat_target::fetch_registers,\n+\tamd64_linux_nat_target::store_registers, ps_get_thread_area, ): Adjust.\n+\n 2020-04-27  Luis Machado  <luis.machado@linaro.org>\n \n \t* dwarf2/frame-tailcall.c (dwarf2_tailcall_sniffer_first): Handle"
+    },
+    {
+      "sha": "d860571c37d809799ae750ca50d666895094ba1a",
+      "filename": "gdb/amd64-linux-nat.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 59,
+      "changes": 62,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1eb399142793d31d1b7a358baad5fded996e02eb/gdb/amd64-linux-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1eb399142793d31d1b7a358baad5fded996e02eb/gdb/amd64-linux-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/amd64-linux-nat.c?ref=1eb399142793d31d1b7a358baad5fded996e02eb",
+      "patch": "@@ -259,30 +259,6 @@ amd64_linux_nat_target::fetch_registers (struct regcache *regcache, int regnum)\n \n \t  amd64_supply_fxsave (regcache, -1, &fpregs);\n \t}\n-#ifndef HAVE_STRUCT_USER_REGS_STRUCT_FS_BASE\n-      {\n-\t/* PTRACE_ARCH_PRCTL is obsolete since 2.6.25, where the\n-\t   fs_base and gs_base fields of user_regs_struct can be\n-\t   used directly.  */\n-\tunsigned long base;\n-\n-\tif (regnum == -1 || regnum == AMD64_FSBASE_REGNUM)\n-\t  {\n-\t    if (ptrace (PTRACE_ARCH_PRCTL, tid, &base, ARCH_GET_FS) < 0)\n-\t      perror_with_name (_(\"Couldn't get segment register fs_base\"));\n-\n-\t    regcache->raw_supply (AMD64_FSBASE_REGNUM, &base);\n-\t  }\n-\n-\tif (regnum == -1 || regnum == AMD64_GSBASE_REGNUM)\n-\t  {\n-\t    if (ptrace (PTRACE_ARCH_PRCTL, tid, &base, ARCH_GET_GS) < 0)\n-\t      perror_with_name (_(\"Couldn't get segment register gs_base\"));\n-\n-\t    regcache->raw_supply (AMD64_GSBASE_REGNUM, &base);\n-\t  }\n-      }\n-#endif\n     }\n }\n \n@@ -348,30 +324,6 @@ amd64_linux_nat_target::store_registers (struct regcache *regcache, int regnum)\n \t  if (ptrace (PTRACE_SETFPREGS, tid, 0, (long) &fpregs) < 0)\n \t    perror_with_name (_(\"Couldn't write floating point status\"));\n \t}\n-\n-#ifndef HAVE_STRUCT_USER_REGS_STRUCT_FS_BASE\n-      {\n-\t/* PTRACE_ARCH_PRCTL is obsolete since 2.6.25, where the\n-\t   fs_base and gs_base fields of user_regs_struct can be\n-\t   used directly.  */\n-\tvoid *base;\n-\n-\tif (regnum == -1 || regnum == AMD64_FSBASE_REGNUM)\n-\t  {\n-\t    regcache->raw_collect (AMD64_FSBASE_REGNUM, &base);\n-\n-\t    if (ptrace (PTRACE_ARCH_PRCTL, tid, base, ARCH_SET_FS) < 0)\n-\t      perror_with_name (_(\"Couldn't write segment register fs_base\"));\n-\t  }\n-\tif (regnum == -1 || regnum == AMD64_GSBASE_REGNUM)\n-\t  {\n-\n-\t    regcache->raw_collect (AMD64_GSBASE_REGNUM, &base);\n-\t    if (ptrace (PTRACE_ARCH_PRCTL, tid, base, ARCH_SET_GS) < 0)\n-\t      perror_with_name (_(\"Couldn't write segment register gs_base\"));\n-\t  }\n-      }\n-#endif\n     }\n }\n \f\n@@ -408,11 +360,7 @@ ps_get_thread_area (struct ps_prochandle *ph,\n       switch (idx)\n \t{\n \tcase FS:\n-#ifdef HAVE_STRUCT_USER_REGS_STRUCT_FS_BASE\n \t    {\n-\t      /* PTRACE_ARCH_PRCTL is obsolete since 2.6.25, where the\n-\t\t fs_base and gs_base fields of user_regs_struct can be\n-\t\t used directly.  */\n \t      unsigned long fs;\n \t      errno = 0;\n \t      fs = ptrace (PTRACE_PEEKUSER, lwpid,\n@@ -423,12 +371,10 @@ ps_get_thread_area (struct ps_prochandle *ph,\n \t\t  return PS_OK;\n \t\t}\n \t    }\n-#endif\n-\t  if (ptrace (PTRACE_ARCH_PRCTL, lwpid, base, ARCH_GET_FS) == 0)\n-\t    return PS_OK;\n+\n \t  break;\n+\n \tcase GS:\n-#ifdef HAVE_STRUCT_USER_REGS_STRUCT_GS_BASE\n \t    {\n \t      unsigned long gs;\n \t      errno = 0;\n@@ -440,10 +386,8 @@ ps_get_thread_area (struct ps_prochandle *ph,\n \t\t  return PS_OK;\n \t\t}\n \t    }\n-#endif\n-\t  if (ptrace (PTRACE_ARCH_PRCTL, lwpid, base, ARCH_GET_GS) == 0)\n-\t    return PS_OK;\n \t  break;\n+\n \tdefault:                   /* Should not happen.  */\n \t  return PS_BADADDR;\n \t}"
+    },
+    {
+      "sha": "fb3f52234812a7c82c175c7ee7c8eb9fa93eb3f0",
+      "filename": "gdb/amd64-nat.c",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 7,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1eb399142793d31d1b7a358baad5fded996e02eb/gdb/amd64-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1eb399142793d31d1b7a358baad5fded996e02eb/gdb/amd64-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/amd64-nat.c?ref=1eb399142793d31d1b7a358baad5fded996e02eb",
+      "patch": "@@ -68,13 +68,6 @@ amd64_native_gregset_reg_offset (struct gdbarch *gdbarch, int regnum)\n   if (regnum >= num_regs)\n     return -1;\n \n-  /* Kernels that predate Linux 2.6.25 don't provide access to\n-     these segment registers in user_regs_struct.   */\n-#ifndef HAVE_STRUCT_USER_REGS_STRUCT_FS_BASE\n-  if (regnum == AMD64_FSBASE_REGNUM || regnum == AMD64_GSBASE_REGNUM)\n-    return -1;\n-#endif\n-\n   return reg_offset[regnum];\n }\n "
+    },
+    {
+      "sha": "d950515e513aaf9d57f44b91ed918f9d05cbf337",
+      "filename": "gdb/config.in",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 6,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1eb399142793d31d1b7a358baad5fded996e02eb/gdb/config.in",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1eb399142793d31d1b7a358baad5fded996e02eb/gdb/config.in",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/config.in?ref=1eb399142793d31d1b7a358baad5fded996e02eb",
+      "patch": "@@ -469,12 +469,6 @@\n /* Define to 1 if `td_pcb' is a member of `struct thread'. */\n #undef HAVE_STRUCT_THREAD_TD_PCB\n \n-/* Define to 1 if `fs_base' is a member of `struct user_regs_struct'. */\n-#undef HAVE_STRUCT_USER_REGS_STRUCT_FS_BASE\n-\n-/* Define to 1 if `gs_base' is a member of `struct user_regs_struct'. */\n-#undef HAVE_STRUCT_USER_REGS_STRUCT_GS_BASE\n-\n /* Define to 1 if you have the <sys/debugreg.h> header file. */\n #undef HAVE_SYS_DEBUGREG_H\n "
+    },
+    {
+      "sha": "b6233adccf215cd84438b9504ec0e1cf1ed791ed",
+      "filename": "gdb/configure",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 27,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1eb399142793d31d1b7a358baad5fded996e02eb/gdb/configure",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1eb399142793d31d1b7a358baad5fded996e02eb/gdb/configure",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/configure?ref=1eb399142793d31d1b7a358baad5fded996e02eb",
+      "patch": "@@ -15395,33 +15395,6 @@ _ACEOF\n fi\n \n \n-# See if <sys/user.h> supports the %fs_base and %gs_bas amd64 segment registers.\n-# Older amd64 Linux's don't have the fs_base and gs_base members of\n-# `struct user_regs_struct'.\n-ac_fn_c_check_member \"$LINENO\" \"struct user_regs_struct\" \"fs_base\" \"ac_cv_member_struct_user_regs_struct_fs_base\" \"#include <sys/types.h>\n-#include <sys/user.h>\n-\"\n-if test \"x$ac_cv_member_struct_user_regs_struct_fs_base\" = xyes; then :\n-\n-cat >>confdefs.h <<_ACEOF\n-#define HAVE_STRUCT_USER_REGS_STRUCT_FS_BASE 1\n-_ACEOF\n-\n-\n-fi\n-ac_fn_c_check_member \"$LINENO\" \"struct user_regs_struct\" \"gs_base\" \"ac_cv_member_struct_user_regs_struct_gs_base\" \"#include <sys/types.h>\n-#include <sys/user.h>\n-\"\n-if test \"x$ac_cv_member_struct_user_regs_struct_gs_base\" = xyes; then :\n-\n-cat >>confdefs.h <<_ACEOF\n-#define HAVE_STRUCT_USER_REGS_STRUCT_GS_BASE 1\n-_ACEOF\n-\n-\n-fi\n-\n-\n # See if <sys/ptrace.h> provides the PTRACE_GETREGS request.\n { $as_echo \"$as_me:${as_lineno-$LINENO}: checking for PTRACE_GETREGS\" >&5\n $as_echo_n \"checking for PTRACE_GETREGS... \" >&6; }"
+    },
+    {
+      "sha": "9dac11469f5b4760dab2897b25fa39202de00ca0",
+      "filename": "gdb/configure.ac",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 7,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1eb399142793d31d1b7a358baad5fded996e02eb/gdb/configure.ac",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1eb399142793d31d1b7a358baad5fded996e02eb/gdb/configure.ac",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/configure.ac?ref=1eb399142793d31d1b7a358baad5fded996e02eb",
+      "patch": "@@ -1372,13 +1372,6 @@ AC_CHECK_MEMBERS([struct reg.r_fs, struct reg.r_gs], [], [],\n                  [#include <sys/types.h>\n #include <machine/reg.h>])\n \n-# See if <sys/user.h> supports the %fs_base and %gs_bas amd64 segment registers.\n-# Older amd64 Linux's don't have the fs_base and gs_base members of\n-# `struct user_regs_struct'.\n-AC_CHECK_MEMBERS([struct user_regs_struct.fs_base, struct user_regs_struct.gs_base],\n-     [], [], [#include <sys/types.h>\n-#include <sys/user.h>])\n-\n # See if <sys/ptrace.h> provides the PTRACE_GETREGS request.\n AC_MSG_CHECKING(for PTRACE_GETREGS)\n AC_CACHE_VAL(gdb_cv_have_ptrace_getregs,"
+    },
+    {
+      "sha": "3b5fd99de146901a53914ad64e9cb8f06c2198d1",
+      "filename": "gdbserver/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1eb399142793d31d1b7a358baad5fded996e02eb/gdbserver/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1eb399142793d31d1b7a358baad5fded996e02eb/gdbserver/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/ChangeLog?ref=1eb399142793d31d1b7a358baad5fded996e02eb",
+      "patch": "@@ -1,3 +1,12 @@\n+2020-04-27  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\t* configure.ac: Remove check for fs_base/gs_base in\n+\tuser_regs_struct.\n+\t* configure: Re-generate.\n+\t* config.in: Re-generate.\n+\t* linux-x86-low.cc (x86_64_regmap, x86_fill_gregset,\n+\tx86_store_gregset): Adjust.\n+\n 2020-04-22  Hannes Domani  <ssbssa@yahoo.de>\n \n \t* server.cc (handle_search_memory_1): Fix gdb_read_memory return value"
+    },
+    {
+      "sha": "07213aa52739ff0f8fdf1b66e70f815128329f82",
+      "filename": "gdbserver/config.in",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 6,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1eb399142793d31d1b7a358baad5fded996e02eb/gdbserver/config.in",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1eb399142793d31d1b7a358baad5fded996e02eb/gdbserver/config.in",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/config.in?ref=1eb399142793d31d1b7a358baad5fded996e02eb",
+      "patch": "@@ -303,12 +303,6 @@\n /* Define to 1 if `st_blocks' is a member of `struct stat'. */\n #undef HAVE_STRUCT_STAT_ST_BLOCKS\n \n-/* Define to 1 if `fs_base' is a member of `struct user_regs_struct'. */\n-#undef HAVE_STRUCT_USER_REGS_STRUCT_FS_BASE\n-\n-/* Define to 1 if `gs_base' is a member of `struct user_regs_struct'. */\n-#undef HAVE_STRUCT_USER_REGS_STRUCT_GS_BASE\n-\n /* Define to 1 if the target supports __sync_*_compare_and_swap */\n #undef HAVE_SYNC_BUILTINS\n "
+    },
+    {
+      "sha": "5479823705e572316661ce4a2016f1fa151d4692",
+      "filename": "gdbserver/configure",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 28,
+      "changes": 28,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1eb399142793d31d1b7a358baad5fded996e02eb/gdbserver/configure",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1eb399142793d31d1b7a358baad5fded996e02eb/gdbserver/configure",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/configure?ref=1eb399142793d31d1b7a358baad5fded996e02eb",
+      "patch": "@@ -10043,34 +10043,6 @@ cat >>confdefs.h <<_ACEOF\n _ACEOF\n \n \n-# See if <sys/user.h> supports the %fs_base and %gs_bas amd64 segment registers.\n-# Older amd64 Linux's don't have the fs_base and gs_base members of\n-# `struct user_regs_struct'.\n-ac_fn_c_check_member \"$LINENO\" \"struct user_regs_struct\" \"fs_base\" \"ac_cv_member_struct_user_regs_struct_fs_base\" \"#include <sys/types.h>\n-#include <sys/user.h>\n-\"\n-if test \"x$ac_cv_member_struct_user_regs_struct_fs_base\" = xyes; then :\n-\n-cat >>confdefs.h <<_ACEOF\n-#define HAVE_STRUCT_USER_REGS_STRUCT_FS_BASE 1\n-_ACEOF\n-\n-\n-fi\n-ac_fn_c_check_member \"$LINENO\" \"struct user_regs_struct\" \"gs_base\" \"ac_cv_member_struct_user_regs_struct_gs_base\" \"#include <sys/types.h>\n-#include <sys/user.h>\n-\"\n-if test \"x$ac_cv_member_struct_user_regs_struct_gs_base\" = xyes; then :\n-\n-cat >>confdefs.h <<_ACEOF\n-#define HAVE_STRUCT_USER_REGS_STRUCT_GS_BASE 1\n-_ACEOF\n-\n-\n-fi\n-\n-\n-\n ac_fn_c_check_type \"$LINENO\" \"socklen_t\" \"ac_cv_type_socklen_t\" \"#include <sys/types.h>\n #include <sys/socket.h>\n "
+    },
+    {
+      "sha": "090a6dcdb6e92ae6d4a13fa6f68a6dc8ba0ab83a",
+      "filename": "gdbserver/configure.ac",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 8,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1eb399142793d31d1b7a358baad5fded996e02eb/gdbserver/configure.ac",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1eb399142793d31d1b7a358baad5fded996e02eb/gdbserver/configure.ac",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/configure.ac?ref=1eb399142793d31d1b7a358baad5fded996e02eb",
+      "patch": "@@ -145,14 +145,6 @@ libiberty_INIT\n \n AC_CHECK_DECLS([perror, vasprintf, vsnprintf])\n \n-# See if <sys/user.h> supports the %fs_base and %gs_bas amd64 segment registers.\n-# Older amd64 Linux's don't have the fs_base and gs_base members of\n-# `struct user_regs_struct'.\n-AC_CHECK_MEMBERS([struct user_regs_struct.fs_base, struct user_regs_struct.gs_base],\n-     [], [], [#include <sys/types.h>\n-#include <sys/user.h>])\n-\n-\n AC_CHECK_TYPES(socklen_t, [], [],\n [#include <sys/types.h>\n #include <sys/socket.h>"
+    },
+    {
+      "sha": "7a65c1d079f86e96d1b0ee3f816e358a0bbdb6f4",
+      "filename": "gdbserver/linux-x86-low.cc",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 29,
+      "changes": 29,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1eb399142793d31d1b7a358baad5fded996e02eb/gdbserver/linux-x86-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1eb399142793d31d1b7a358baad5fded996e02eb/gdbserver/linux-x86-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-x86-low.cc?ref=1eb399142793d31d1b7a358baad5fded996e02eb",
+      "patch": "@@ -233,11 +233,7 @@ static const int x86_64_regmap[] =\n   -1,\n   -1, -1, -1, -1, -1, -1, -1, -1,\n   ORIG_RAX * 8,\n-#ifdef HAVE_STRUCT_USER_REGS_STRUCT_FS_BASE\n   21 * 8,  22 * 8,\n-#else\n-  -1, -1,\n-#endif\n   -1, -1, -1, -1,\t\t\t/* MPX registers BND0 ... BND3.  */\n   -1, -1,\t\t\t\t/* MPX registers BNDCFGU, BNDSTATUS.  */\n   -1, -1, -1, -1, -1, -1, -1, -1,       /* xmm16 ... xmm31 (AVX512)  */\n@@ -413,19 +409,6 @@ x86_fill_gregset (struct regcache *regcache, void *buf)\n \tif (x86_64_regmap[i] != -1)\n \t  collect_register (regcache, i, ((char *) buf) + x86_64_regmap[i]);\n \n-#ifndef HAVE_STRUCT_USER_REGS_STRUCT_FS_BASE\n-      {\n-        unsigned long base;\n-        int lwpid = lwpid_of (current_thread);\n-\n-        collect_register_by_name (regcache, \"fs_base\", &base);\n-        ptrace (PTRACE_ARCH_PRCTL, lwpid, &base, ARCH_SET_FS);\n-\n-        collect_register_by_name (regcache, \"gs_base\", &base);\n-        ptrace (PTRACE_ARCH_PRCTL, lwpid, &base, ARCH_SET_GS);\n-      }\n-#endif\n-\n       return;\n     }\n \n@@ -468,18 +451,6 @@ x86_store_gregset (struct regcache *regcache, const void *buf)\n \tif (x86_64_regmap[i] != -1)\n \t  supply_register (regcache, i, ((char *) buf) + x86_64_regmap[i]);\n \n-#ifndef HAVE_STRUCT_USER_REGS_STRUCT_FS_BASE\n-      {\n-        unsigned long base;\n-        int lwpid = lwpid_of (current_thread);\n-\n-        if (ptrace (PTRACE_ARCH_PRCTL, lwpid, &base, ARCH_GET_FS) == 0)\n-          supply_register_by_name (regcache, \"fs_base\", &base);\n-\n-        if (ptrace (PTRACE_ARCH_PRCTL, lwpid, &base, ARCH_GET_GS) == 0)\n-          supply_register_by_name (regcache, \"gs_base\", &base);\n-      }\n-#endif\n       return;\n     }\n #endif"
+    }
+  ]
+}

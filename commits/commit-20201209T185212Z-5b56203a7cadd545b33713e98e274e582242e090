@@ -1,0 +1,170 @@
+{
+  "sha": "5b56203a7cadd545b33713e98e274e582242e090",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NWI1NjIwM2E3Y2FkZDU0NWIzMzcxM2U5OGUyNzRlNTgyMjQyZTA5MA==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2020-12-09T18:52:12Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2020-12-09T18:52:12Z"
+    },
+    "message": "gdb: fix value_subscript when array upper bound is not known\n\nSince commit 7c6f27129631 (\"gdb: make get_discrete_bounds check for\nnon-constant range bounds\"), subscripting  flexible array member fails:\n\n    struct no_size\n    {\n      int n;\n      int items[];\n    };\n\n    (gdb) p *ns\n    $1 = {n = 3, items = 0x5555555592a4}\n    (gdb) p ns->items[0]\n    Cannot access memory at address 0xfffe555b733a0164\n    (gdb) p *((int *) 0x5555555592a4)\n    $2 = 101  <--- we would expect that\n    (gdb) p &ns->items[0]\n    $3 = (int *) 0xfffe5559ee829a24  <--- wrong address\n\nSince the flexible array member (items) has an unspecified size, the array type\ncreated for it in the DWARF doesn't have dimensions (this is with gcc 9.3.0,\nUbuntu 20.04):\n\n    0x000000a4:   DW_TAG_array_type\n                    DW_AT_type [DW_FORM_ref4]       (0x00000038 \"int\")\n                    DW_AT_sibling [DW_FORM_ref4]    (0x000000b3)\n\n    0x000000ad:     DW_TAG_subrange_type\n                      DW_AT_type [DW_FORM_ref4]     (0x00000031 \"long unsigned int\")\n\nThis causes GDB to create a range type (TYPE_CODE_RANGE) with a defined\nconstant low bound (dynamic_prop with kind PROP_CONST) and an undefined\nhigh bound (dynamic_prop with kind PROP_UNDEFINED).\n\nvalue_subscript gets both bounds of that range using\nget_discrete_bounds.  Before commit 7c6f27129631, get_discrete_bounds\ndidn't check the kind of the dynamic_props and would just blindly read\nthem as if they were PROP_CONST.  It would return 0 for the high bound,\nbecause we zero-initialize the range_bounds structure.  And it didn't\nreally matter in this case, because the returned high bound wasn't used\nin the end.\n\nCommit 7c6f27129631 changed get_discrete_bounds to return a failure if\neither the low or high bound is not a constant, to make sure we don't\nread a dynamic prop that isn't a PROP_CONST as a PROP_CONST.  This\nchange made get_discrete_bounds start to return a failure for that\nrange, and as a result would not set *lowp and *highp.  And since\nvalue_subscript doesn't check get_discrete_bounds' return value, it just\ncarries on an uses an uninitialized value for the low bound.  If\nvalue_subscript did check the return value of get_discrete_bounds, we\nwould get an error message instead of a bogus value.  But it would still\nbe a bug, as we wouldn't be able to print the flexible array member's\nelements.\n\nLooking at value_subscript, we see that the low bound is always needed,\nbut the high bound is only needed if !c_style.  So, change\nvalue_subscript to use get_discrete_low_bound and\nget_discrete_high_bound separately.  This fixes the case described\nabove, where the low bound is known but the high bound isn't (and is not\nneeded).  This restores the original behavior without accessing a\ndynamic_prop in a wrong way.\n\nA test is added.  In addition to the case described above, a case with\nan array member of size 0 is added, which is a GNU C extension that\nexisted before flexible array members were introduced.  That case\ncurrently fails when compiled with gcc <= 8.  gcc <= 8 produces DWARF\nsimilar to the one shown above, while gcc 9 adds a DW_AT_count of 0 in\nthere, which makes the high bound known.  A case where an array member\nof size 0 is the only member of the struct is also added, as that was\nhow PR 28675 was originally reported, and it's an interesting corner\ncase that I think could trigger other funny bugs.\n\nQuestion about the implementation: in value_subscript, I made it such\nthat if the low or high bound is unknown, we fall back to zero.  That\neffectively makes it the same as it was before 7c6f27129631.  But should\nwe instead error() out?\n\ngdb/ChangeLog:\n\n\tPR 26875, PR 26901\n\t* gdbtypes.c (get_discrete_low_bound): Make non-static.\n\t(get_discrete_high_bound): Make non-static.\n\t* gdbtypes.h (get_discrete_low_bound): New declaration.\n\t(get_discrete_high_bound): New declaration.\n\t* valarith.c (value_subscript): Only fetch high bound if\n\tnecessary.\n\ngdb/testsuite/ChangeLog:\n\n\tPR 26875, PR 26901\n\t* gdb.base/flexible-array-member.c: New test.\n\t* gdb.base/flexible-array-member.exp: New test.\n\nChange-Id: I832056f80e6c56f621f398b4780d55a3a1e299d7",
+    "tree": {
+      "sha": "0bb7425345397bcee7876b2534e8216ba56f548f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/0bb7425345397bcee7876b2534e8216ba56f548f"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/5b56203a7cadd545b33713e98e274e582242e090",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5b56203a7cadd545b33713e98e274e582242e090",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/5b56203a7cadd545b33713e98e274e582242e090",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5b56203a7cadd545b33713e98e274e582242e090/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "14c09924a070918034b465b8ca78282afee62839",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/14c09924a070918034b465b8ca78282afee62839",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/14c09924a070918034b465b8ca78282afee62839"
+    }
+  ],
+  "stats": {
+    "total": 190,
+    "additions": 179,
+    "deletions": 11
+  },
+  "files": [
+    {
+      "sha": "0e01628c65199f1613ea79f0260ed68715eb8312",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5b56203a7cadd545b33713e98e274e582242e090/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5b56203a7cadd545b33713e98e274e582242e090/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=5b56203a7cadd545b33713e98e274e582242e090",
+      "patch": "@@ -1,3 +1,13 @@\n+2020-12-09  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\tPR 26875, PR 26901\n+\t* gdbtypes.c (get_discrete_low_bound): Make non-static.\n+\t(get_discrete_high_bound): Make non-static.\n+\t* gdbtypes.h (get_discrete_low_bound): New declaration.\n+\t(get_discrete_high_bound): New declaration.\n+\t* valarith.c (value_subscript): Only fetch high bound if\n+\tnecessary.\n+\n 2020-12-09  Simon Marchi  <simon.marchi@efficios.com>\n \n \t* gdbtypes.c (get_discrete_bounds): Implement with"
+    },
+    {
+      "sha": "9a170080d3000cecf5e63b896a1bd143c1448d19",
+      "filename": "gdb/gdbtypes.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5b56203a7cadd545b33713e98e274e582242e090/gdb/gdbtypes.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5b56203a7cadd545b33713e98e274e582242e090/gdb/gdbtypes.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbtypes.c?ref=5b56203a7cadd545b33713e98e274e582242e090",
+      "patch": "@@ -1036,9 +1036,9 @@ has_static_range (const struct range_bounds *bounds)\n \t  && bounds->stride.kind () == PROP_CONST);\n }\n \n-/* If TYPE's low bound is a known constant, return it, else return nullopt.  */\n+/* See gdbtypes.h.  */\n \n-static gdb::optional<LONGEST>\n+gdb::optional<LONGEST>\n get_discrete_low_bound (struct type *type)\n {\n   type = check_typedef (type);\n@@ -1107,9 +1107,9 @@ get_discrete_low_bound (struct type *type)\n     }\n }\n \n-/* If TYPE's high bound is a known constant, return it, else return nullopt.  */\n+/* See gdbtypes.h.  */\n \n-static gdb::optional<LONGEST>\n+gdb::optional<LONGEST>\n get_discrete_high_bound (struct type *type)\n {\n   type = check_typedef (type);"
+    },
+    {
+      "sha": "02fd8bc839b18d68523060698d7c5f958ccd072e",
+      "filename": "gdb/gdbtypes.h",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5b56203a7cadd545b33713e98e274e582242e090/gdb/gdbtypes.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5b56203a7cadd545b33713e98e274e582242e090/gdb/gdbtypes.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbtypes.h?ref=5b56203a7cadd545b33713e98e274e582242e090",
+      "patch": "@@ -2474,6 +2474,14 @@ extern int get_vptr_fieldno (struct type *, struct type **);\n extern bool get_discrete_bounds (struct type *type, LONGEST *lowp,\n \t\t\t\t LONGEST *highp);\n \n+/* If TYPE's low bound is a known constant, return it, else return nullopt.  */\n+\n+extern gdb::optional<LONGEST> get_discrete_low_bound (struct type *type);\n+\n+/* If TYPE's high bound is a known constant, return it, else return nullopt.  */\n+\n+extern gdb::optional<LONGEST> get_discrete_high_bound (struct type *type);\n+\n /* Assuming TYPE is a simple, non-empty array type, compute its upper\n    and lower bound.  Save the low bound into LOW_BOUND if not NULL.\n    Save the high bound into HIGH_BOUND if not NULL."
+    },
+    {
+      "sha": "09cd099b13f036b57e95676b0987ab66361746d5",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5b56203a7cadd545b33713e98e274e582242e090/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5b56203a7cadd545b33713e98e274e582242e090/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=5b56203a7cadd545b33713e98e274e582242e090",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-12-09  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\tPR 26875, PR 26901\n+\t* gdb.base/flexible-array-member.c: New test.\n+\t* gdb.base/flexible-array-member.exp: New test.\n+\n 2020-12-08  Tom de Vries  <tdevries@suse.de>\n \n \t* gdb.arch/amd64-gs_base.exp: Undo commit 67748e0f66, reimplement"
+    },
+    {
+      "sha": "1d8bb06b5146e3de4f1798d8a4818bf2159422bb",
+      "filename": "gdb/testsuite/gdb.base/flexible-array-member.c",
+      "status": "added",
+      "additions": 70,
+      "deletions": 0,
+      "changes": 70,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5b56203a7cadd545b33713e98e274e582242e090/gdb/testsuite/gdb.base/flexible-array-member.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5b56203a7cadd545b33713e98e274e582242e090/gdb/testsuite/gdb.base/flexible-array-member.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/flexible-array-member.c?ref=5b56203a7cadd545b33713e98e274e582242e090",
+      "patch": "@@ -0,0 +1,70 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#include <stdlib.h>\n+\n+struct no_size\n+{\n+  int n;\n+  int items[];\n+};\n+\n+struct zero_size\n+{\n+  int n;\n+  int items[0];\n+};\n+\n+struct zero_size_only\n+{\n+  int items[0];\n+};\n+\n+struct no_size *ns;\n+struct zero_size *zs;\n+struct zero_size_only *zso;\n+\n+static void\n+break_here (void)\n+{\n+}\n+\n+int\n+main (void)\n+{\n+  ns = (struct no_size *) malloc (sizeof (*ns) + 3 * sizeof (int));\n+  zs = (struct zero_size *) malloc (sizeof (*zs) + 3 * sizeof (int));\n+  zso = (struct zero_size_only *) malloc (sizeof (*zso) + 3 * sizeof (int));\n+\n+  ns->n = 3;\n+  ns->items[0] = 101;\n+  ns->items[1] = 102;\n+  ns->items[2] = 103;\n+\n+  zs->n = 3;\n+  zs->items[0] = 201;\n+  zs->items[1] = 202;\n+  zs->items[2] = 203;\n+\n+  zso->items[0] = 301;\n+  zso->items[1] = 302;\n+  zso->items[2] = 303;\n+\n+  break_here ();\n+\n+  return 0;\n+}"
+    },
+    {
+      "sha": "973a248c5b6a3b8db1e14e12236e07a245b10f0b",
+      "filename": "gdb/testsuite/gdb.base/flexible-array-member.exp",
+      "status": "added",
+      "additions": 66,
+      "deletions": 0,
+      "changes": 66,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5b56203a7cadd545b33713e98e274e582242e090/gdb/testsuite/gdb.base/flexible-array-member.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5b56203a7cadd545b33713e98e274e582242e090/gdb/testsuite/gdb.base/flexible-array-member.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/flexible-array-member.exp?ref=5b56203a7cadd545b33713e98e274e582242e090",
+      "patch": "@@ -0,0 +1,66 @@\n+# Copyright 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test printing and subscripting flexible array members.\n+\n+standard_testfile\n+\n+if { [prepare_for_testing \"failed to prepare\" \\\n+\t${testfile} ${srcfile}] } {\n+    return\n+}\n+\n+if { ![runto break_here] } {\n+    untested \"could not run to break_here\"\n+    return\n+}\n+\n+# The various cases are:\n+#\n+#  - ns: flexible array member with no size\n+#  - zs: flexible array member with size 0 (GNU C extension that predates the\n+#    standardization of the feature, but widely supported)\n+#  - zso: zero-size only, a corner case where the array is the sole member of\n+#    the structure\n+\n+# Print the whole structure.\n+\n+gdb_test \"print *ns\" \" = {n = 3, items = $hex}\"\n+gdb_test \"print *zs\" \" = {n = 3, items = $hex}\"\n+gdb_test \"print *zso\" \" = {items = $hex}\"\n+\n+# Print all items.\n+\n+gdb_test \"print ns->items\\[0\\]\" \" = 101\"\n+gdb_test \"print ns->items\\[1\\]\" \" = 102\"\n+gdb_test \"print ns->items\\[2\\]\" \" = 103\"\n+\n+gdb_test \"print zs->items\\[0\\]\" \" = 201\"\n+gdb_test \"print zs->items\\[1\\]\" \" = 202\"\n+gdb_test \"print zs->items\\[2\\]\" \" = 203\"\n+\n+gdb_test \"print zso->items\\[0\\]\" \" = 301\"\n+gdb_test \"print zso->items\\[1\\]\" \" = 302\"\n+gdb_test \"print zso->items\\[2\\]\" \" = 303\"\n+\n+# Check taking the address of array elements (how PR 28675 was originally\n+# reported).\n+\n+gdb_test \"print ns->items == &ns->items\\[0\\]\" \" = 1\"\n+gdb_test \"print ns->items + 1 == &ns->items\\[1\\]\" \" = 1\"\n+gdb_test \"print zs->items == &zs->items\\[0\\]\" \" = 1\"\n+gdb_test \"print zs->items + 1 == &zs->items\\[1\\]\" \" = 1\"\n+gdb_test \"print zso->items == &zso->items\\[0\\]\" \" = 1\"\n+gdb_test \"print zso->items + 1 == &zso->items\\[1\\]\" \" = 1\""
+    },
+    {
+      "sha": "37988f1dfa7457515045e88e78ca9016c784e339",
+      "filename": "gdb/valarith.c",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 7,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5b56203a7cadd545b33713e98e274e582242e090/gdb/valarith.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5b56203a7cadd545b33713e98e274e582242e090/gdb/valarith.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/valarith.c?ref=5b56203a7cadd545b33713e98e274e582242e090",
+      "patch": "@@ -150,25 +150,33 @@ value_subscript (struct value *array, LONGEST index)\n       || tarray->code () == TYPE_CODE_STRING)\n     {\n       struct type *range_type = tarray->index_type ();\n-      LONGEST lowerbound, upperbound;\n+      gdb::optional<LONGEST> lowerbound = get_discrete_low_bound (range_type);\n+      if (!lowerbound.has_value ())\n+\tlowerbound = 0;\n \n-      get_discrete_bounds (range_type, &lowerbound, &upperbound);\n       if (VALUE_LVAL (array) != lval_memory)\n-\treturn value_subscripted_rvalue (array, index, lowerbound);\n+\treturn value_subscripted_rvalue (array, index, *lowerbound);\n \n       if (!c_style)\n \t{\n-\t  if (index >= lowerbound && index <= upperbound)\n-\t    return value_subscripted_rvalue (array, index, lowerbound);\n+\t  gdb::optional<LONGEST> upperbound\n+\t    = get_discrete_high_bound (range_type);\n+\n+\t  if (!upperbound.has_value ())\n+\t    upperbound = 0;\n+\n+\t  if (index >= *lowerbound && index <= *upperbound)\n+\t    return value_subscripted_rvalue (array, index, *lowerbound);\n+\n \t  /* Emit warning unless we have an array of unknown size.\n \t     An array of unknown size has lowerbound 0 and upperbound -1.  */\n-\t  if (upperbound > -1)\n+\t  if (*upperbound > -1)\n \t    warning (_(\"array or string index out of range\"));\n \t  /* fall doing C stuff */\n \t  c_style = true;\n \t}\n \n-      index -= lowerbound;\n+      index -= *lowerbound;\n       array = value_coerce_array (array);\n     }\n "
+    }
+  ]
+}

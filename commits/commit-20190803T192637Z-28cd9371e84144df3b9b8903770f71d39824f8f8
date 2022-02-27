@@ -1,0 +1,72 @@
+{
+  "sha": "28cd9371e84144df3b9b8903770f71d39824f8f8",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MjhjZDkzNzFlODQxNDRkZjNiOWI4OTAzNzcwZjcxZDM5ODI0ZjhmOA==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-03-31T18:06:39Z"
+    },
+    "committer": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-08-03T19:26:37Z"
+    },
+    "message": "New \"info sources\" args [-dirname | -basename] [--] [REGEXP]\n\ngdb/ChangeLog\n\n2019-08-03  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n\n\t* symtab.c (filename_partial_match_opts): New struct type.\n\t(struct output_source_filename_data): New members\n\tregexp, c_regexp, partial_match.\n\t(output_source_filename): Use new members to decide to print file.\n\t(info_sources_option_defs): New variable.\n\t(make_info_sources_options_def_group, print_info_sources_header,\n\tinfo_sources_command_completer):\n\tNew functions.\n\t(info_sources_command): Read new optional arguments.\n\t(_initialize_symtab): Update info sources help.",
+    "tree": {
+      "sha": "eabecba93ab6fc3251c69a91ca9c3062f0d4619c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/eabecba93ab6fc3251c69a91ca9c3062f0d4619c"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/28cd9371e84144df3b9b8903770f71d39824f8f8",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/28cd9371e84144df3b9b8903770f71d39824f8f8",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/28cd9371e84144df3b9b8903770f71d39824f8f8",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/28cd9371e84144df3b9b8903770f71d39824f8f8/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "6d6231ed5822782b76a2aad268cc4891e4f91dfc",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6d6231ed5822782b76a2aad268cc4891e4f91dfc",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/6d6231ed5822782b76a2aad268cc4891e4f91dfc"
+    }
+  ],
+  "stats": {
+    "total": 172,
+    "additions": 164,
+    "deletions": 8
+  },
+  "files": [
+    {
+      "sha": "a5c8942037498e81504df3d06f88666e31e54f46",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/28cd9371e84144df3b9b8903770f71d39824f8f8/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/28cd9371e84144df3b9b8903770f71d39824f8f8/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=28cd9371e84144df3b9b8903770f71d39824f8f8",
+      "patch": "@@ -1,3 +1,16 @@\n+2019-08-03  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n+\n+\t* symtab.c (filename_partial_match_opts): New struct type.\n+\t(struct output_source_filename_data): New members\n+\tregexp, c_regexp, partial_match.\n+\t(output_source_filename): Use new members to decide to print file.\n+\t(info_sources_option_defs): New variable.\n+\t(make_info_sources_options_def_group, print_info_sources_header,\n+\tinfo_sources_command_completer):\n+\tNew functions.\n+\t(info_sources_command): Read new optional arguments.\n+\t(_initialize_symtab): Update info sources help.\n+\n 2019-08-02  Alexandre Oliva <oliva@adacore.com>\n \n \t* ada-lang.c (exception_support_info_v0): Renamed from..."
+    },
+    {
+      "sha": "95008a5bd268555cf17e258ebc29917652b6acd1",
+      "filename": "gdb/symtab.c",
+      "status": "modified",
+      "additions": 151,
+      "deletions": 8,
+      "changes": 159,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/28cd9371e84144df3b9b8903770f71d39824f8f8/gdb/symtab.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/28cd9371e84144df3b9b8903770f71d39824f8f8/gdb/symtab.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/symtab.c?ref=28cd9371e84144df3b9b8903770f71d39824f8f8",
+      "patch": "@@ -4126,10 +4126,28 @@ operator_chars (const char *p, const char **end)\n }\n \f\n \n+/* What part to match in a file name.  */\n+\n+struct filename_partial_match_opts\n+{\n+  /* Only match the directory name part.   */\n+  int dirname = false;\n+\n+  /* Only match the basename part.  */\n+  int basename = false;\n+};\n+\n /* Data structure to maintain printing state for output_source_filename.  */\n \n struct output_source_filename_data\n {\n+  /* Output only filenames matching REGEXP.  */\n+  std::string regexp;\n+  gdb::optional<compiled_regex> c_regexp;\n+  /* Possibly only match a part of the filename.  */\n+  filename_partial_match_opts partial_match;\n+\n+\n   /* Cache of what we've seen so far.  */\n   struct filename_seen_cache *filename_seen_cache;\n \n@@ -4161,7 +4179,27 @@ output_source_filename (const char *name,\n       return;\n     }\n \n-  /* No; print it and reset *FIRST.  */\n+  /* Does it match data->regexp?  */\n+  if (data->c_regexp.has_value ())\n+    {\n+      const char *to_match;\n+      std::string dirname;\n+\n+      if (data->partial_match.dirname)\n+\t{\n+\t  dirname = ldirname (name);\n+\t  to_match = dirname.c_str ();\n+\t}\n+      else if (data->partial_match.basename)\n+\tto_match = lbasename (name);\n+      else\n+\tto_match = name;\n+\n+      if (data->c_regexp->exec (to_match, 0, NULL, 0) != 0)\n+\treturn;\n+    }\n+\n+  /* Print it and reset *FIRST.  */\n   if (! data->first)\n     printf_filtered (\", \");\n   data->first = 0;\n@@ -4180,8 +4218,74 @@ output_partial_symbol_filename (const char *filename, const char *fullname,\n \t\t\t  (struct output_source_filename_data *) data);\n }\n \n+using isrc_flag_option_def\n+  = gdb::option::flag_option_def<filename_partial_match_opts>;\n+\n+static const gdb::option::option_def info_sources_option_defs[] = {\n+\n+  isrc_flag_option_def {\n+    \"dirname\",\n+    [] (filename_partial_match_opts *opts) { return &opts->dirname; },\n+    N_(\"Show only the files having a dirname matching REGEXP.\"),\n+  },\n+\n+  isrc_flag_option_def {\n+    \"basename\",\n+    [] (filename_partial_match_opts *opts) { return &opts->basename; },\n+    N_(\"Show only the files having a basename matching REGEXP.\"),\n+  },\n+\n+};\n+\n+/* Create an option_def_group for the \"info sources\" options, with\n+   ISRC_OPTS as context.  */\n+\n+static inline gdb::option::option_def_group\n+make_info_sources_options_def_group (filename_partial_match_opts *isrc_opts)\n+{\n+  return {{info_sources_option_defs}, isrc_opts};\n+}\n+\n+/* Prints the header message for the source files that will be printed\n+   with the matching info present in DATA.  SYMBOL_MSG is a message\n+   that tells what will or has been done with the symbols of the\n+   matching source files.  */\n+\n static void\n-info_sources_command (const char *ignore, int from_tty)\n+print_info_sources_header (const char *symbol_msg,\n+\t\t\t   const struct output_source_filename_data *data)\n+{\n+  puts_filtered (symbol_msg);\n+  if (!data->regexp.empty ())\n+    {\n+      if (data->partial_match.dirname)\n+\tprintf_filtered (_(\"(dirname matching regular expression \\\"%s\\\")\"),\n+\t\t\t data->regexp.c_str ());\n+      else if (data->partial_match.basename)\n+\tprintf_filtered (_(\"(basename matching regular expression \\\"%s\\\")\"),\n+\t\t\t data->regexp.c_str ());\n+      else\n+\tprintf_filtered (_(\"(filename matching regular expression \\\"%s\\\")\"),\n+\t\t\t data->regexp.c_str ());\n+    }\n+  puts_filtered (\"\\n\");\n+}\n+\n+/* Completer for \"info sources\".  */\n+\n+static void\n+info_sources_command_completer (cmd_list_element *ignore,\n+\t\t\t\tcompletion_tracker &tracker,\n+\t\t\t\tconst char *text, const char *word)\n+{\n+  const auto group = make_info_sources_options_def_group (nullptr);\n+  if (gdb::option::complete_options\n+      (tracker, &text, gdb::option::PROCESS_OPTIONS_UNKNOWN_IS_OPERAND, group))\n+    return;\n+}\n+\n+static void\n+info_sources_command (const char *args, int from_tty)\n {\n   struct output_source_filename_data data;\n \n@@ -4192,11 +4296,38 @@ info_sources_command (const char *ignore, int from_tty)\n \n   filename_seen_cache filenames_seen;\n \n-  data.filename_seen_cache = &filenames_seen;\n+  auto group = make_info_sources_options_def_group (&data.partial_match);\n+\n+  gdb::option::process_options\n+    (&args, gdb::option::PROCESS_OPTIONS_UNKNOWN_IS_ERROR, group);\n \n-  printf_filtered (\"Source files for which symbols have been read in:\\n\\n\");\n+  if (args != NULL && *args != '\\000')\n+    data.regexp = args;\n \n+  data.filename_seen_cache = &filenames_seen;\n   data.first = 1;\n+\n+  if (data.partial_match.dirname && data.partial_match.basename)\n+    error (_(\"You cannot give both -basename and -dirname to 'info sources'.\"));\n+  if ((data.partial_match.dirname || data.partial_match.basename)\n+      && data.regexp.empty ())\n+     error (_(\"Missing REGEXP for 'info sources'.\"));\n+\n+  if (data.regexp.empty ())\n+    data.c_regexp.reset ();\n+  else\n+    {\n+      int cflags = REG_NOSUB;\n+#ifdef HAVE_CASE_INSENSITIVE_FILE_SYSTEM\n+      cflags |= REG_ICASE;\n+#endif\n+      data.c_regexp.emplace (data.regexp.c_str (), cflags,\n+\t\t\t     _(\"Invalid regexp\"));\n+    }\n+\n+  print_info_sources_header\n+    (_(\"Source files for which symbols have been read in:\\n\"), &data);\n+\n   for (objfile *objfile : current_program_space->objfiles ())\n     {\n       for (compunit_symtab *cu : objfile->compunits ())\n@@ -4211,8 +4342,8 @@ info_sources_command (const char *ignore, int from_tty)\n     }\n   printf_filtered (\"\\n\\n\");\n \n-  printf_filtered (\"Source files for which symbols \"\n-\t\t   \"will be read in on demand:\\n\\n\");\n+  print_info_sources_header\n+    (_(\"Source files for which symbols will be read in on demand:\\n\"), &data);\n \n   filenames_seen.clear ();\n   data.first = 1;\n@@ -6110,8 +6241,20 @@ Print information about all types matching REGEXP, or all types if no\\n\\\n REGEXP is given.  The optional flag -q disables printing of headers.\"));\n   set_cmd_completer_handle_brkchars (c, info_types_command_completer);\n \n-  add_info (\"sources\", info_sources_command,\n-\t    _(\"Source files in the program.\"));\n+  const auto info_sources_opts = make_info_sources_options_def_group (nullptr);\n+\n+  static std::string info_sources_help\n+    = gdb::option::build_help (_(\"\\\n+All source files in the program or those matching REGEXP.\\n\\\n+Usage: info sources [OPTION]... [REGEXP]\\n\\\n+By default, REGEXP is used to match anywhere in the filename.\\n\\\n+\\n\\\n+Options:\\n\\\n+%OPTIONS%\"),\n+\t\t\t       info_sources_opts);\n+\n+  c = add_info (\"sources\", info_sources_command, info_sources_help.c_str ());\n+  set_cmd_completer_handle_brkchars (c, info_sources_command_completer);\n \n   add_com (\"rbreak\", class_breakpoint, rbreak_command,\n \t   _(\"Set a breakpoint for all functions matching REGEXP.\"));"
+    }
+  ]
+}

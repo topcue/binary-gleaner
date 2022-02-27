@@ -1,0 +1,158 @@
+{
+  "sha": "5b0e2db4fa08b43e9ff78d6e9a45d496522bd241",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NWIwZTJkYjRmYTA4YjQzZTlmZjc4ZDZlOWE0NWQ0OTY1MjJiZDI0MQ==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2019-06-11T22:33:53Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2019-07-09T09:31:21Z"
+    },
+    "message": "gdb: Don't skip prologue for explicit line breakpoints in assembler\n\nIt was observed that in some cases, placing a breakpoint in an\nassembler file using filename:line-number syntax would result in the\nbreakpoint being placed at a different line within the file.\n\nFor example, consider this x86-64 assembler:\n\n    test:\n            push   %rbp\t\t/* Break here.  */\n            mov    %rsp, %rbp\n            nop\t\t\t/* Stops here.  */\n\nThe user places the breakpoint using file:line notation targeting the\nline marked 'Break here', GDB actually stops at the line marked 'Stops\nhere'.\n\nThe reason is that the label 'test' is identified as the likely start\nof a function, and the call to symtab.c:skip_prologue_sal causes GDB\nto skip forward over the instructions that GDB believes to be part of\nthe prologue.\n\nI believe however, that when debugging assembler code, where the user\nhas instruction-by-instruction visibility, if they ask for a specific\nline, GDB should (as far as possible) stop on that line, and not\nperform any prologue skipping.  I don't believe that the behaviour of\nhigher level languages should change, in these cases skipping the\nprologue seems like the correct thing to do.\n\nIn order to implement this change I needed to extend our current\ntracking of when the user has requested an explicit line number.  We\nalready tracked this in some cases, but not in others (see the changes\nin linespec.c).  However, once I did this I started to see some\nadditional failures (in tests gdb.base/break-include.exp\ngdb.base/ending-run.exp gdb.mi/mi-break.exp gdb.mi/mi-reverse.exp\ngdb.mi/mi-simplerun.exp) where we currently expected a breakpoint\nplaced at one file and line number to be updated to reference a\ndifferent line number, this was fixed by removing some code in\nsymtab.c:skip_prologue_sal.  My concern here is that removing this\ncheck didn't cause anything else to fail.\n\nI have a new test that covers my original case, this is written for\nx86-64 as most folk have access to such a target, however, any\narchitecture that has a prologue scanner can be impacted by this\nchange.\n\ngdb/ChangeLog:\n\n\t* linespec.c (decode_digits_list_mode): Set explicit_line to a\n\tbool value.\n\t(decode_digits_ordinary): Set explicit_line field in sal.\n\t* symtab.c (skip_prologue_sal): Don't skip prologue for a\n\tsymtab_and_line that was set on an explicit line number in\n\tassembler code.  Do always update the recorded symtab and line if\n\twe do skip the prologue.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.arch/amd64-break-on-asm-line.S: New file.\n\t* gdb.arch/amd64-break-on-asm-line.exp: New file.",
+    "tree": {
+      "sha": "a0ebcb1c70557a5a28a42339c049354f76a854af",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/a0ebcb1c70557a5a28a42339c049354f76a854af"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/5b0e2db4fa08b43e9ff78d6e9a45d496522bd241",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5b0e2db4fa08b43e9ff78d6e9a45d496522bd241",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/5b0e2db4fa08b43e9ff78d6e9a45d496522bd241",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5b0e2db4fa08b43e9ff78d6e9a45d496522bd241/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "0ba852ab4126a6eb4be88577d62dc25f2be7f725",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0ba852ab4126a6eb4be88577d62dc25f2be7f725",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/0ba852ab4126a6eb4be88577d62dc25f2be7f725"
+    }
+  ],
+  "stats": {
+    "total": 109,
+    "additions": 100,
+    "deletions": 9
+  },
+  "files": [
+    {
+      "sha": "0ad7576c4b270bfb1c28f61df70387d05a6d3270",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5b0e2db4fa08b43e9ff78d6e9a45d496522bd241/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5b0e2db4fa08b43e9ff78d6e9a45d496522bd241/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=5b0e2db4fa08b43e9ff78d6e9a45d496522bd241",
+      "patch": "@@ -1,3 +1,13 @@\n+2019-07-09  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* linespec.c (decode_digits_list_mode): Set explicit_line to a\n+\tbool value.\n+\t(decode_digits_ordinary): Set explicit_line field in sal.\n+\t* symtab.c (skip_prologue_sal): Don't skip prologue for a\n+\tsymtab_and_line that was set on an explicit line number in\n+\tassembler code.  Do always update the recorded symtab and line if\n+\twe do skip the prologue.\n+\n 2019-07-09  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* breakpoint.c (set_breakpoint_location_function): Remove"
+    },
+    {
+      "sha": "83468f83ed92f560774c392d1f5642f86f7ab646",
+      "filename": "gdb/linespec.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5b0e2db4fa08b43e9ff78d6e9a45d496522bd241/gdb/linespec.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5b0e2db4fa08b43e9ff78d6e9a45d496522bd241/gdb/linespec.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/linespec.c?ref=5b0e2db4fa08b43e9ff78d6e9a45d496522bd241",
+      "patch": "@@ -4101,7 +4101,7 @@ decode_digits_list_mode (struct linespec_state *self,\n \tval.symtab = elt;\n       val.pspace = SYMTAB_PSPACE (elt);\n       val.pc = 0;\n-      val.explicit_line = 1;\n+      val.explicit_line = true;\n \n       add_sal_to_sals (self, &values, &val, NULL, 0);\n     }\n@@ -4135,6 +4135,7 @@ decode_digits_ordinary (struct linespec_state *self,\n \t  sal.pspace = SYMTAB_PSPACE (elt);\n \t  sal.symtab = elt;\n \t  sal.line = line;\n+\t  sal.explicit_line = true;\n \t  sal.pc = pc;\n \t  sals.push_back (std::move (sal));\n \t}"
+    },
+    {
+      "sha": "6e7e32fb4d872d919beabbe9ca5588c22057e2ae",
+      "filename": "gdb/symtab.c",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 8,
+      "changes": 21,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5b0e2db4fa08b43e9ff78d6e9a45d496522bd241/gdb/symtab.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5b0e2db4fa08b43e9ff78d6e9a45d496522bd241/gdb/symtab.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/symtab.c?ref=5b0e2db4fa08b43e9ff78d6e9a45d496522bd241",
+      "patch": "@@ -3673,8 +3673,10 @@ skip_prologue_using_lineinfo (CORE_ADDR func_addr, struct symtab *symtab)\n \n /* Adjust SAL to the first instruction past the function prologue.\n    If the PC was explicitly specified, the SAL is not changed.\n-   If the line number was explicitly specified, at most the SAL's PC\n-   is updated.  If SAL is already past the prologue, then do nothing.  */\n+   If the line number was explicitly specified then the SAL can still be\n+   updated, unless the language for SAL is assembler, in which case the SAL\n+   will be left unchanged.\n+   If SAL is already past the prologue, then do nothing.  */\n \n void\n skip_prologue_sal (struct symtab_and_line *sal)\n@@ -3693,6 +3695,15 @@ skip_prologue_sal (struct symtab_and_line *sal)\n   if (sal->explicit_pc)\n     return;\n \n+  /* In assembly code, if the user asks for a specific line then we should\n+     not adjust the SAL.  The user already has instruction level\n+     visibility in this case, so selecting a line other than one requested\n+     is likely to be the wrong choice.  */\n+  if (sal->symtab != nullptr\n+      && sal->explicit_line\n+      && SYMTAB_LANGUAGE (sal->symtab) == language_asm)\n+    return;\n+\n   scoped_restore_current_pspace_and_thread restore_pspace_thread;\n \n   switch_to_program_space_and_thread (sal->pspace);\n@@ -3812,12 +3823,6 @@ skip_prologue_sal (struct symtab_and_line *sal)\n \n   sal->pc = pc;\n   sal->section = section;\n-\n-  /* Unless the explicit_line flag was set, update the SAL line\n-     and symtab to correspond to the modified PC location.  */\n-  if (sal->explicit_line)\n-    return;\n-\n   sal->symtab = start_sal.symtab;\n   sal->line = start_sal.line;\n   sal->end = start_sal.end;"
+    },
+    {
+      "sha": "a7d09cb802200e388e8c19140f11a5ea1ce2f187",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5b0e2db4fa08b43e9ff78d6e9a45d496522bd241/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5b0e2db4fa08b43e9ff78d6e9a45d496522bd241/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=5b0e2db4fa08b43e9ff78d6e9a45d496522bd241",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-07-09  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.arch/amd64-break-on-asm-line.S: New file.\n+\t* gdb.arch/amd64-break-on-asm-line.exp: New file.\n+\n 2019-07-08  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n \n \t* gdb.base/printcmds.exp: Test printing C string and"
+    },
+    {
+      "sha": "141f71f9fdf36206b39eb59e11eb1ced370fd454",
+      "filename": "gdb/testsuite/gdb.arch/amd64-break-on-asm-line.S",
+      "status": "added",
+      "additions": 35,
+      "deletions": 0,
+      "changes": 35,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5b0e2db4fa08b43e9ff78d6e9a45d496522bd241/gdb/testsuite/gdb.arch/amd64-break-on-asm-line.S",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5b0e2db4fa08b43e9ff78d6e9a45d496522bd241/gdb/testsuite/gdb.arch/amd64-break-on-asm-line.S",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/amd64-break-on-asm-line.S?ref=5b0e2db4fa08b43e9ff78d6e9a45d496522bd241",
+      "patch": "@@ -0,0 +1,35 @@\n+/* Copyright 2019 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+   This file is part of the gdb testsuite.\n+\n+   Test that a breakpoint placed by line number in an assembler file\n+   will stop at the specified line.  Previously versions of GDB have\n+   incorrectly invoked the prologue analysis logic and skipped\n+   forward.  */\n+\n+\t.text\n+\t.global main\n+main:\n+\tnop\n+test:\n+\t/* The next two instructions are required to look like an\n+\t   x86-64 prologue so that GDB's prologue scanner will spot\n+\t   them and skip forward.  */\n+\tpush    %rbp\t\t/* Break here.  */\n+\tmov\t%rsp, %rbp\n+\tnop\t\t\t/* Incorrect.  */\n+\tnop\n+\tnop"
+    },
+    {
+      "sha": "6218ce541bdfb8ffa52d6c692f4b4e9351244ff4",
+      "filename": "gdb/testsuite/gdb.arch/amd64-break-on-asm-line.exp",
+      "status": "added",
+      "additions": 35,
+      "deletions": 0,
+      "changes": 35,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5b0e2db4fa08b43e9ff78d6e9a45d496522bd241/gdb/testsuite/gdb.arch/amd64-break-on-asm-line.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5b0e2db4fa08b43e9ff78d6e9a45d496522bd241/gdb/testsuite/gdb.arch/amd64-break-on-asm-line.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/amd64-break-on-asm-line.exp?ref=5b0e2db4fa08b43e9ff78d6e9a45d496522bd241",
+      "patch": "@@ -0,0 +1,35 @@\n+# Copyright 2019 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+if { ![istarget x86_64-*-* ] || ![is_lp64_target] } {\n+    return\n+}\n+\n+standard_testfile .S\n+\n+if { [prepare_for_testing \"failed to prepare\" ${testfile} ${srcfile} \\\n+\t  { debug }] } {\n+    untested \"could not compile\"\n+    return -1\n+}\n+\n+if ![runto_main] {\n+    untested \"could not run to main\"\n+    return -1\n+}\n+\n+gdb_breakpoint [gdb_get_line_number \"Break here\"]\n+gdb_continue_to_breakpoint \"Break on specified line\" \\\n+    \".*/\\\\* Break here\\\\.  \\\\*/.*\""
+    }
+  ]
+}

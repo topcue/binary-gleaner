@@ -1,0 +1,108 @@
+{
+  "sha": "7622049e0bef81fab900860400838bc977449892",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NzYyMjA0OWUwYmVmODFmYWI5MDA4NjA0MDA4MzhiYzk3NzQ0OTg5Mg==",
+  "commit": {
+    "author": {
+      "name": "Senthil Kumar Selvaraj",
+      "email": "senthilkumar.selvaraj@microchip.com",
+      "date": "2019-05-16T06:42:33Z"
+    },
+    "committer": {
+      "name": "Senthil Kumar Selvaraj",
+      "email": "senthilkumar.selvaraj@microchip.com",
+      "date": "2019-05-21T07:18:06Z"
+    },
+    "message": "Fix PR 24571 -  Relaxation does not shorten jmp or call to target at pc-relative range boundary\n\nThe range check done to transform an absolute call/jump to a pc-relative one is\noff-by-one, and that causes this shortening optimization to be missed if the\nbranch target is right at the range boundary.\n\nIn the non-shrinkable case, the range is what is mentioned in the ISA - -4094\nbytes in the backward direction, and 4096 bytes in the positive direction.\n\nIn the shrinkable case, the forward jump range increases by two bytes (deleted\nbecause of the shortening from call/jmp to rcall/rjmp), and therefore, the\nrange is -4094 in the reverse, and 4098 in the positive direction.\n\nFix the ranges for !shrinkable and shrinkable cases, and add a test caes to\nensure jumps to max forward and backward ranges get relaxed to rjmp.",
+    "tree": {
+      "sha": "31038b59df87994bae534de94b70c8c7d7441634",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/31038b59df87994bae534de94b70c8c7d7441634"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/7622049e0bef81fab900860400838bc977449892",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7622049e0bef81fab900860400838bc977449892",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/7622049e0bef81fab900860400838bc977449892",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7622049e0bef81fab900860400838bc977449892/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "338ba75534fbfeb64d7009f29a89f25826a1f4d2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/338ba75534fbfeb64d7009f29a89f25826a1f4d2",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/338ba75534fbfeb64d7009f29a89f25826a1f4d2"
+    }
+  ],
+  "stats": {
+    "total": 58,
+    "additions": 55,
+    "deletions": 3
+  },
+  "files": [
+    {
+      "sha": "7d22cc03d3edd662c99413e1b5e30820d47beca1",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7622049e0bef81fab900860400838bc977449892/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7622049e0bef81fab900860400838bc977449892/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=7622049e0bef81fab900860400838bc977449892",
+      "patch": "@@ -1,3 +1,9 @@\n+2019-05-21  Senthil Kumar Selvaraj  <senthilkumar.selvaraj@microchip.com>\n+\n+\tPR ld/24571\n+\t* bfd/elf32-avr.c (elf32_avr_relax_section): Adjust range check\n+\twhen computing distance_short_enough.\n+\n 2019-05-21  Senthil Kumar Selvaraj  <senthilkumar.selvaraj@microchip.com>\n \n \tPR ld/24564"
+    },
+    {
+      "sha": "34ad42300dd9383ac681009dd9d4a6de3f9a2876",
+      "filename": "bfd/elf32-avr.c",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 3,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7622049e0bef81fab900860400838bc977449892/bfd/elf32-avr.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7622049e0bef81fab900860400838bc977449892/bfd/elf32-avr.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf32-avr.c?ref=7622049e0bef81fab900860400838bc977449892",
+      "patch": "@@ -2643,16 +2643,28 @@ elf32_avr_relax_section (bfd *abfd,\n \t    /* Compute the distance from this insn to the branch target.  */\n \t    gap = value - dot;\n \n+\t    /* The ISA manual states that addressable range is PC - 2k + 1 to\n+\t       PC + 2k. In bytes, that would be -4094 <= PC <= 4096. The range\n+\t       is shifted one word to the right, because pc-relative instructions\n+\t       implicitly add one word i.e. rjmp 0 jumps to next insn, not the\n+\t       current one.\n+\t       Therefore, for the !shrinkable case, the range is as above.\n+\t       If shrinkable, then the current code only deletes bytes 3 and\n+\t       4 of the absolute call/jmp, so the forward jump range increases\n+\t       by 2 bytes, but the backward (negative) jump range remains\n+\t       the same. */\n+\n+\n \t    /* Check if the gap falls in the range that can be accommodated\n \t       in 13bits signed (It is 12bits when encoded, as we deal with\n \t       word addressing). */\n-\t    if (!shrinkable && ((int) gap >= -4096 && (int) gap <= 4095))\n+\t    if (!shrinkable && ((int) gap >= -4094 && (int) gap <= 4096))\n \t      distance_short_enough = 1;\n \t    /* If shrinkable, then we can check for a range of distance which\n-\t       is two bytes farther on both the directions because the call\n+\t       is two bytes farther on the positive direction because the call\n \t       or jump target will be closer by two bytes after the\n \t       relaxation. */\n-\t    else if (shrinkable && ((int) gap >= -4094 && (int) gap <= 4097))\n+\t    else if (shrinkable && ((int) gap >= -4094 && (int) gap <= 4098))\n \t      distance_short_enough = 1;\n \n \t    /* Here we handle the wrap-around case.  E.g. for a 16k device"
+    },
+    {
+      "sha": "e038e400333b9c2128da4aaa9578d67e908a7ce1",
+      "filename": "ld/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7622049e0bef81fab900860400838bc977449892/ld/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7622049e0bef81fab900860400838bc977449892/ld/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/ChangeLog?ref=7622049e0bef81fab900860400838bc977449892",
+      "patch": "@@ -1,3 +1,9 @@\n+2019-05-21  Senthil Kumar Selvaraj  <senthilkumar.selvaraj@microchip.com>\n+\n+\tPR ld/24571\n+\t* ld/testsuite/ld-avr/relax-insn-at-range-boundary.d: New test.\n+\t* ld/testsuite/ld-avr/relax-insn-at-range-boundary.s: New test.\n+\n 2019-05-21  Senthil Kumar Selvaraj  <senthilkumar.selvaraj@microchip.com>\n \n \tPR ld/24564"
+    },
+    {
+      "sha": "6183896f7c065cf2373166d8c72fac76f41c2d98",
+      "filename": "ld/testsuite/ld-avr/relax-insn-at-range-boundary.d",
+      "status": "added",
+      "additions": 17,
+      "deletions": 0,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7622049e0bef81fab900860400838bc977449892/ld/testsuite/ld-avr/relax-insn-at-range-boundary.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7622049e0bef81fab900860400838bc977449892/ld/testsuite/ld-avr/relax-insn-at-range-boundary.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-avr/relax-insn-at-range-boundary.d?ref=7622049e0bef81fab900860400838bc977449892",
+      "patch": "@@ -0,0 +1,17 @@\n+#name: AVR relaxation, jump to symbol at ends of pc-relative range boundary\n+#as: -mlink-relax -mavr51\n+#ld: --relax -mavr51\n+#source: relax-insn-at-range-boundary.s\n+#objdump: -d\n+#target: avr-*-*\n+\n+#...\n+00000000.*\n+\t...\n+     ffc:\t00 00       \tnop\n+     ffe:\t00 c8       \trjmp\t.-4096   \t; 0x0 .*\n+    1000:\tff c7       \trjmp\t.+4094   \t; 0x2000 <forward_target>\n+\t...\n+\n+00002000 <forward_target>:\n+#..."
+    },
+    {
+      "sha": "4d710df36d107837c25b6ab60b208d23fa29d442",
+      "filename": "ld/testsuite/ld-avr/relax-insn-at-range-boundary.s",
+      "status": "added",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7622049e0bef81fab900860400838bc977449892/ld/testsuite/ld-avr/relax-insn-at-range-boundary.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7622049e0bef81fab900860400838bc977449892/ld/testsuite/ld-avr/relax-insn-at-range-boundary.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-avr/relax-insn-at-range-boundary.s?ref=7622049e0bef81fab900860400838bc977449892",
+      "patch": "@@ -0,0 +1,11 @@\n+.section \".text\", \"ax\",@progbits\n+.global main\n+main:\n+backward_target:                ; Exactly -4094 bytes from jmp\n+  .ds.b 4094, 0\n+  jmp backward_target\n+  jmp forward_target\n+  .ds.b 4094, 0\n+forward_target:                 ; Exactly 4098 bytes before relax, 4096 bytes after relax\n+  nop\n+"
+    }
+  ]
+}

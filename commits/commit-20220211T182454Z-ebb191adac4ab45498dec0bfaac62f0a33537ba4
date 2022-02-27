@@ -1,0 +1,254 @@
+{
+  "sha": "ebb191adac4ab45498dec0bfaac62f0a33537ba4",
+  "node_id": "C_kwDOANOeidoAKGViYjE5MWFkYWM0YWI0NTQ5OGRlYzBiZmFhYzYyZjBhMzM1MzdiYTQ",
+  "commit": {
+    "author": {
+      "name": "H.J. Lu",
+      "email": "hjl.tools@gmail.com",
+      "date": "2022-02-09T23:51:22Z"
+    },
+    "committer": {
+      "name": "H.J. Lu",
+      "email": "hjl.tools@gmail.com",
+      "date": "2022-02-11T18:24:54Z"
+    },
+    "message": "x86: Disallow invalid relocation against protected symbol\n\nI am checking this into master and will backport it to 2.38 branch.\n\nH.J\n----\nOn x86, GCC 12 supports -mno-direct-extern-access to enable canonical\nreference to protected function and disable copy relocation.  With\n-mno-direct-extern-access, the canonical protected function symbols must\nbe accessed via canonical reference and the protected data symbols in\nshared libraries are non-copyable. Under glibc 2.35, non-canonical\nreference to the canonical protected function will get the run-time error:\n\n./y: internal_f: ./libfoo.so: non-canonical reference to canonical protected function\n\nand copy relocations against the non-copyable protected symbols will get\nthe run-time error:\n\n./x: internal_i: ./libfoo.so: copy relocation against non-copyable protected symbol\n\nUpdate x86 linker to disallow non-canonical reference to the canonical\nprotected function:\n\nld: plt.o: non-canonical reference to canonical protected function `internal_f' in libfoo.so\nld: failed to set dynamic section sizes: bad value\n\nand copy relocation against the non-copyable protected symbol:\n\nld: main.o: copy relocation against non-copyable protected symbol `internal_i' in libfoo.so\n\nat link-time.\n\nbfd/\n\n\tPR ld/28875\n\t* elf-properties.c (_bfd_elf_parse_gnu_properties): Don't skip\n\tshared libraries for GNU_PROPERTY_1_NEEDED_INDIRECT_EXTERN_ACCESS.\n\t* elf32-i386.c (elf_i386_scan_relocs): Disallow non-canonical\n\treference to canonical protected function.\n\t* elf64-x86-64.c (elf_x86_64_scan_relocs): Likewise.\n\t* elfxx-x86.c (elf_x86_allocate_dynrelocs): Don't allow copy\n\trelocation against non-copyable protected symbol.\n\nld/\n\n\tPR ld/28875\n\t* testsuite/ld-i386/i386.exp: Check non-canonical reference to\n\tcanonical protected function and check copy relocation against\n\tnon-copyable protected symbol.\n\t* testsuite/ld-i386/pr21997-1.err: New file.\n\t* testsuite/ld-i386/pr28875.err: Likewise.\n\t* testsuite/ld-i386/pr28875a.c: Likewise.\n\t* testsuite/ld-i386/pr28875b.c: Likewise.\n\t* testsuite/ld-x86-64/pr21997-1a.err: Updated.\n\t* testsuite/ld-x86-64/pr21997-1b.err: Likewise.\n\t* testsuite/ld-x86-64/pr28875-data.err: New file.\n\t* testsuite/ld-x86-64/pr28875-func.err: Likewise.\n\t* testsuite/ld-x86-64/x86-64.exp: Check non-canonical reference\n\tto canonical protected function and check copy relocation against\n\tnon-copyable protected symbol.",
+    "tree": {
+      "sha": "34999ecb8d01541fde94b8a70b3164d80682a516",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/34999ecb8d01541fde94b8a70b3164d80682a516"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ebb191adac4ab45498dec0bfaac62f0a33537ba4",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ebb191adac4ab45498dec0bfaac62f0a33537ba4",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ebb191adac4ab45498dec0bfaac62f0a33537ba4",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ebb191adac4ab45498dec0bfaac62f0a33537ba4/comments",
+  "author": {
+    "login": "hjl-tools",
+    "id": 1072356,
+    "node_id": "MDQ6VXNlcjEwNzIzNTY=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1072356?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/hjl-tools",
+    "html_url": "https://github.com/hjl-tools",
+    "followers_url": "https://api.github.com/users/hjl-tools/followers",
+    "following_url": "https://api.github.com/users/hjl-tools/following{/other_user}",
+    "gists_url": "https://api.github.com/users/hjl-tools/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/hjl-tools/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/hjl-tools/subscriptions",
+    "organizations_url": "https://api.github.com/users/hjl-tools/orgs",
+    "repos_url": "https://api.github.com/users/hjl-tools/repos",
+    "events_url": "https://api.github.com/users/hjl-tools/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/hjl-tools/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "hjl-tools",
+    "id": 1072356,
+    "node_id": "MDQ6VXNlcjEwNzIzNTY=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1072356?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/hjl-tools",
+    "html_url": "https://github.com/hjl-tools",
+    "followers_url": "https://api.github.com/users/hjl-tools/followers",
+    "following_url": "https://api.github.com/users/hjl-tools/following{/other_user}",
+    "gists_url": "https://api.github.com/users/hjl-tools/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/hjl-tools/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/hjl-tools/subscriptions",
+    "organizations_url": "https://api.github.com/users/hjl-tools/orgs",
+    "repos_url": "https://api.github.com/users/hjl-tools/repos",
+    "events_url": "https://api.github.com/users/hjl-tools/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/hjl-tools/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "29ba33db77f22a54d97db90cb87c39126efad3db",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/29ba33db77f22a54d97db90cb87c39126efad3db",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/29ba33db77f22a54d97db90cb87c39126efad3db"
+    }
+  ],
+  "stats": {
+    "total": 141,
+    "additions": 116,
+    "deletions": 25
+  },
+  "files": [
+    {
+      "sha": "d67aadde16b778477b2d8f73dce0eac74edb5417",
+      "filename": "bfd/elf-properties.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 4,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebb191adac4ab45498dec0bfaac62f0a33537ba4/bfd/elf-properties.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebb191adac4ab45498dec0bfaac62f0a33537ba4/bfd/elf-properties.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf-properties.c?ref=ebb191adac4ab45498dec0bfaac62f0a33537ba4",
+      "patch": "@@ -195,14 +195,11 @@ _bfd_elf_parse_gnu_properties (bfd *abfd, Elf_Internal_Note *note)\n \t\t  prop = _bfd_elf_get_property (abfd, type, datasz);\n \t\t  prop->u.number |= bfd_h_get_32 (abfd, ptr);\n \t\t  prop->pr_kind = property_number;\n-\t\t  if ((abfd->flags & DYNAMIC) == 0\n-\t\t      && type == GNU_PROPERTY_1_NEEDED\n+\t\t  if (type == GNU_PROPERTY_1_NEEDED\n \t\t      && ((prop->u.number\n \t\t\t   & GNU_PROPERTY_1_NEEDED_INDIRECT_EXTERN_ACCESS)\n \t\t\t  != 0))\n \t\t    {\n-\t\t      /* NB: Skip the shared library since it may not be\n-\t\t\t the same at run-time.  */\n \t\t      elf_has_indirect_extern_access (abfd) = true;\n \t\t      /* GNU_PROPERTY_NO_COPY_ON_PROTECTED is implied.  */\n \t\t      elf_has_no_copy_on_protected (abfd) = true;"
+    },
+    {
+      "sha": "fb5ed161f50c4cde39e8d7b24fe843fe18aaad09",
+      "filename": "bfd/elf32-i386.c",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 0,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebb191adac4ab45498dec0bfaac62f0a33537ba4/bfd/elf32-i386.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebb191adac4ab45498dec0bfaac62f0a33537ba4/bfd/elf32-i386.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf32-i386.c?ref=ebb191adac4ab45498dec0bfaac62f0a33537ba4",
+      "patch": "@@ -1779,6 +1779,23 @@ elf_i386_scan_relocs (bfd *abfd,\n \t\t    func_pointer_ref = true;\n \t\t}\n \n+\t      if (h->pointer_equality_needed\n+\t\t  && h->type == STT_FUNC\n+\t\t  && eh->def_protected\n+\t\t  && elf_has_indirect_extern_access (h->root.u.def.section->owner))\n+\t\t{\n+\t\t  /* Disallow non-canonical reference to canonical\n+\t\t     protected function.  */\n+\t\t  _bfd_error_handler\n+\t\t    /* xgettext:c-format */\n+\t\t    (_(\"%pB: non-canonical reference to canonical \"\n+\t\t       \"protected function `%s' in %pB\"),\n+\t\t     abfd, h->root.root.string,\n+\t\t     h->root.u.def.section->owner);\n+\t\t  bfd_set_error (bfd_error_bad_value);\n+\t\t  goto error_return;\n+\t\t}\n+\n \t      if (!func_pointer_ref)\n \t\t{\n \t\t  /* If this reloc is in a read-only section, we might"
+    },
+    {
+      "sha": "b5718e71121fc58d6bf7277b81f57a45bdd42890",
+      "filename": "bfd/elf64-x86-64.c",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 0,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebb191adac4ab45498dec0bfaac62f0a33537ba4/bfd/elf64-x86-64.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebb191adac4ab45498dec0bfaac62f0a33537ba4/bfd/elf64-x86-64.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf64-x86-64.c?ref=ebb191adac4ab45498dec0bfaac62f0a33537ba4",
+      "patch": "@@ -2223,6 +2223,23 @@ elf_x86_64_scan_relocs (bfd *abfd, struct bfd_link_info *info,\n \t\t    func_pointer_ref = true;\n \t\t}\n \n+\t      if (h->pointer_equality_needed\n+\t\t  && h->type == STT_FUNC\n+\t\t  && eh->def_protected\n+\t\t  && elf_has_indirect_extern_access (h->root.u.def.section->owner))\n+\t\t{\n+\t\t  /* Disallow non-canonical reference to canonical\n+\t\t     protected function.  */\n+\t\t  _bfd_error_handler\n+\t\t    /* xgettext:c-format */\n+\t\t    (_(\"%pB: non-canonical reference to canonical \"\n+\t\t       \"protected function `%s' in %pB\"),\n+\t\t     abfd, h->root.root.string,\n+\t\t     h->root.u.def.section->owner);\n+\t\t  bfd_set_error (bfd_error_bad_value);\n+\t\t  goto error_return;\n+\t\t}\n+\n \t      if (!func_pointer_ref)\n \t\t{\n \t\t  /* If this reloc is in a read-only section, we might"
+    },
+    {
+      "sha": "acb2cc8528db8f69bd5168da42cd64bcdabd1905",
+      "filename": "bfd/elfxx-x86.c",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 0,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebb191adac4ab45498dec0bfaac62f0a33537ba4/bfd/elfxx-x86.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebb191adac4ab45498dec0bfaac62f0a33537ba4/bfd/elfxx-x86.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfxx-x86.c?ref=ebb191adac4ab45498dec0bfaac62f0a33537ba4",
+      "patch": "@@ -524,6 +524,24 @@ elf_x86_allocate_dynrelocs (struct elf_link_hash_entry *h, void *inf)\n     {\n       asection *sreloc;\n \n+      if (eh->def_protected\n+\t  && elf_has_no_copy_on_protected (h->root.u.def.section->owner))\n+\t{\n+\t  /* Disallow copy relocation against non-copyable protected\n+\t     symbol.  */\n+\t  asection *s = p->sec->output_section;\n+\t  if (s != NULL && (s->flags & SEC_READONLY) != 0)\n+\t    {\n+\t      info->callbacks->einfo\n+\t\t/* xgettext:c-format */\n+\t\t(_(\"%F%P: %pB: copy relocation against non-copyable \"\n+\t\t   \"protected symbol `%s' in %pB\\n\"),\n+\t\t p->sec->owner, h->root.root.string,\n+\t\t h->root.u.def.section->owner);\n+\t      return false;\n+\t    }\n+\t}\n+\n       sreloc = elf_section_data (p->sec)->sreloc;\n \n       BFD_ASSERT (sreloc != NULL);"
+    },
+    {
+      "sha": "d997c757325833847bb225e5ac1aa7e9c0c51404",
+      "filename": "ld/testsuite/ld-i386/i386.exp",
+      "status": "modified",
+      "additions": 24,
+      "deletions": 9,
+      "changes": 33,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-i386/i386.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-i386/i386.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-i386/i386.exp?ref=ebb191adac4ab45498dec0bfaac62f0a33537ba4",
+      "patch": "@@ -1288,6 +1288,30 @@ if { [isnative]\n \t    {} \\\n \t    \"pr22842.so\" \\\n \t] \\\n+\t[list \\\n+\t    \"Build pr28875.so\" \\\n+\t    \"-shared -Wl,-z,indirect-extern-access\" \\\n+\t    \"-fPIC\" \\\n+\t    { pr28875a.c } \\\n+\t    {} \\\n+\t    \"pr28875.so\" \\\n+\t] \\\n+\t[list \\\n+\t    \"Build pr28875\" \\\n+\t    \"$NOPIE_LDFLAGS -Wl,--no-as-needed tmpdir/pr28875.so\" \\\n+\t    \"$NOPIE_CFLAGS\" \\\n+\t    { pr28875b.c } \\\n+\t    {{error_output \"pr28875.err\"}} \\\n+\t    \"pr28875\" \\\n+\t] \\\n+\t[list \\\n+\t    \"Build pr21997-1\" \\\n+\t    \"$NOPIE_LDFLAGS -Wl,--no-as-needed,-z,notext tmpdir/pr21997-1.so\" \\\n+\t    \"$NOPIE_CFLAGS -Wa,-mx86-used-note=yes\" \\\n+\t    { pr21997-1b.c } \\\n+\t    {{error_output \"pr21997-1.err\"}} \\\n+\t    \"pr21997-1\" \\\n+\t] \\\n     ]\n \n     run_ld_link_exec_tests [list \\\n@@ -1343,15 +1367,6 @@ if { [isnative]\n \t    \"pass.out\" \\\n \t    \"-fPIC\" \\\n \t] \\\n-\t[list \\\n-\t    \"Run pr21997-1\" \\\n-\t    \"$NOPIE_LDFLAGS -Wl,--no-as-needed,-z,notext tmpdir/pr21997-1.so\" \\\n-\t    \"-Wa,-mx86-used-note=yes\" \\\n-\t    { pr21997-1b.c } \\\n-\t    \"pr21997-1\" \\\n-\t    \"pass.out\" \\\n-\t    \"$NOPIE_CFLAGS\" \\\n-\t] \\\n \t[list \\\n \t    \"Run pr21997-1 (PIC 1)\" \\\n \t    \"$NOPIE_LDFLAGS -Wl,--no-as-needed tmpdir/pr21997-1.so\" \\"
+    },
+    {
+      "sha": "e46f1cebeb933a835a7f5600722ee1faa83fc32c",
+      "filename": "ld/testsuite/ld-i386/pr21997-1.err",
+      "status": "added",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-i386/pr21997-1.err",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-i386/pr21997-1.err",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-i386/pr21997-1.err?ref=ebb191adac4ab45498dec0bfaac62f0a33537ba4",
+      "patch": "@@ -0,0 +1,2 @@\n+.*: tmpdir/pr21997-1b.o: copy relocation against non-copyable protected symbol `protected' in tmpdir/pr21997-1.so\n+#..."
+    },
+    {
+      "sha": "46f6f47dfd31ba5176bce1b483e7a4b5e54a482f",
+      "filename": "ld/testsuite/ld-i386/pr28875.err",
+      "status": "added",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-i386/pr28875.err",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-i386/pr28875.err",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-i386/pr28875.err?ref=ebb191adac4ab45498dec0bfaac62f0a33537ba4",
+      "patch": "@@ -0,0 +1,2 @@\n+.*: tmpdir/pr28875b.o: non-canonical reference to canonical protected function `internal_f' in tmpdir/pr28875.so\n+#..."
+    },
+    {
+      "sha": "d24cf29faac4bf6ce423b5536339ffe6823e52df",
+      "filename": "ld/testsuite/ld-i386/pr28875a.c",
+      "status": "added",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-i386/pr28875a.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-i386/pr28875a.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-i386/pr28875a.c?ref=ebb191adac4ab45498dec0bfaac62f0a33537ba4",
+      "patch": "@@ -0,0 +1,5 @@\n+__attribute__ ((visibility(\"protected\")))\n+void\n+internal_f (void)\n+{\n+}"
+    },
+    {
+      "sha": "2c0381d4252c64be3f31fbcba741adc21b6414da",
+      "filename": "ld/testsuite/ld-i386/pr28875b.c",
+      "status": "added",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-i386/pr28875b.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-i386/pr28875b.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-i386/pr28875b.c?ref=ebb191adac4ab45498dec0bfaac62f0a33537ba4",
+      "patch": "@@ -0,0 +1,7 @@\n+extern void internal_f (void);\n+\n+int\n+main ()\n+{\n+  return (int) &internal_f;\n+}"
+    },
+    {
+      "sha": "e46f1cebeb933a835a7f5600722ee1faa83fc32c",
+      "filename": "ld/testsuite/ld-x86-64/pr21997-1a.err",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-x86-64/pr21997-1a.err",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-x86-64/pr21997-1a.err",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr21997-1a.err?ref=ebb191adac4ab45498dec0bfaac62f0a33537ba4",
+      "patch": "@@ -1,2 +1,2 @@\n-.*relocation R_X86_64_PC32 against protected symbol `protected' can not be used when making a P(D|I)E object; recompile with -fPIE\n+.*: tmpdir/pr21997-1b.o: copy relocation against non-copyable protected symbol `protected' in tmpdir/pr21997-1.so\n #..."
+    },
+    {
+      "sha": "af028b7d5e9c612c268caf583048e4207c3f2aaa",
+      "filename": "ld/testsuite/ld-x86-64/pr21997-1b.err",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-x86-64/pr21997-1b.err",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-x86-64/pr21997-1b.err",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr21997-1b.err?ref=ebb191adac4ab45498dec0bfaac62f0a33537ba4",
+      "patch": "@@ -1,2 +1,2 @@\n-.*relocation R_X86_64_32S against protected symbol `protected' can not be used when making a P(D|I)E object; recompile with -fPIE\n+.*: tmpdir/pr21997-1c.o: copy relocation against non-copyable protected symbol `protected' in tmpdir/pr21997-1.so\n #..."
+    },
+    {
+      "sha": "62dd5b042237a829e23da7502fa6d9633773685d",
+      "filename": "ld/testsuite/ld-x86-64/pr28875-data.err",
+      "status": "added",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-x86-64/pr28875-data.err",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-x86-64/pr28875-data.err",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr28875-data.err?ref=ebb191adac4ab45498dec0bfaac62f0a33537ba4",
+      "patch": "@@ -0,0 +1,2 @@\n+.*: tmpdir/protected-data-1b.o: copy relocation against non-copyable protected symbol `protected_data_1a' in tmpdir/libprotected-data-1b.so\n+#..."
+    },
+    {
+      "sha": "64e961cb3d4771fe726603f2ab3b180dbff9ad05",
+      "filename": "ld/testsuite/ld-x86-64/pr28875-func.err",
+      "status": "added",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-x86-64/pr28875-func.err",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-x86-64/pr28875-func.err",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/pr28875-func.err?ref=ebb191adac4ab45498dec0bfaac62f0a33537ba4",
+      "patch": "@@ -0,0 +1,2 @@\n+.*: tmpdir/protected-func-1b.o: non-canonical reference to canonical protected function `protected_func_1a' in tmpdir/libprotected-func-2b.so\n+#..."
+    },
+    {
+      "sha": "c6d88a97f497cfcac4fefa22e6a8f5502f628736",
+      "filename": "ld/testsuite/ld-x86-64/x86-64.exp",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 10,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-x86-64/x86-64.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ebb191adac4ab45498dec0bfaac62f0a33537ba4/ld/testsuite/ld-x86-64/x86-64.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-x86-64/x86-64.exp?ref=ebb191adac4ab45498dec0bfaac62f0a33537ba4",
+      "patch": "@@ -1381,6 +1381,14 @@ if { [isnative] && [check_compiler_available] } {\n \t    {{readelf -n indirect-extern-access.rd}}  \\\n \t    \"libprotected-func-2b.so\" \\\n \t] \\\n+\t[list \\\n+\t    \"Build protected-func-2 without PIE\" \\\n+\t    \"$NOPIE_LDFLAGS -Wl,--no-as-needed tmpdir/libprotected-func-2b.so\" \\\n+\t    \"$NOPIE_CFLAGS -Wa,-mx86-used-note=yes\" \\\n+\t    { protected-func-1b.c } \\\n+\t    {{error_output \"pr28875-func.err\"}} \\\n+\t    \"protected-func-2\" \\\n+\t] \\\n \t[list \\\n \t    \"Build libprotected-data-1a.so\" \\\n \t    \"-shared -z noindirect-extern-access\" \\\n@@ -1402,7 +1410,7 @@ if { [isnative] && [check_compiler_available] } {\n \t    \"$NOPIE_LDFLAGS -Wl,--no-as-needed tmpdir/libprotected-data-1b.so\" \\\n \t    \"$NOPIE_CFLAGS -Wa,-mx86-used-note=yes\" \\\n \t    { protected-data-1b.c } \\\n-\t    {} \\\n+\t    {{error_output \"pr28875-data.err\"}} \\\n \t    \"protected-data-1\" \\\n \t] \\\n \t[list \\\n@@ -1468,6 +1476,14 @@ if { [isnative] && [check_compiler_available] } {\n \t\t\"-Wa,-mx86-used-note=yes\" \\\n \t\t{ pr25416-5d.s } \\\n \t    ] \\\n+\t    [list \\\n+\t\t\"Build pr21997-1b\" \\\n+\t\t\"$NOPIE_LDFLAGS -Wl,--no-as-needed,-z,notext tmpdir/pr21997-1.so\" \\\n+\t\t\"$NOPIE_CFLAGS -Wa,-mx86-used-note=yes\" \\\n+\t\t{ pr21997-1c.c } \\\n+\t\t{{error_output \"pr21997-1b.err\"}} \\\n+\t\t\"pr21997-1b\" \\\n+\t    ] \\\n \t]\n \n \trun_ld_link_exec_tests [list \\\n@@ -1480,15 +1496,6 @@ if { [isnative] && [check_compiler_available] } {\n \t\t\"pass.out\" \\\n \t\t\"$NOPIE_CFLAGS\" \\\n \t    ] \\\n-\t    [list \\\n-\t\t\"Run pr21997-1b\" \\\n-\t\t\"$NOPIE_LDFLAGS -Wl,--no-as-needed,-z,notext tmpdir/pr21997-1.so\" \\\n-\t\t\"-Wa,-mx86-used-note=yes\" \\\n-\t\t{ pr21997-1c.c } \\\n-\t\t\"pr21997-1b\" \\\n-\t\t\"pass.out\" \\\n-\t\t\"$NOPIE_CFLAGS\" \\\n-\t    ] \\\n \t    [list \\\n \t\t\"Run pr25416-5a (GDesc -> IE -maddress-mode=short)\" \\\n \t\t\"$NOPIE_LDFLAGS -Wl,--no-as-needed tmpdir/pr25416-5b.so\" \\"
+    }
+  ]
+}

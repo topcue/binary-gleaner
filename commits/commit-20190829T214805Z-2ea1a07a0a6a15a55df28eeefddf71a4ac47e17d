@@ -1,0 +1,72 @@
+{
+  "sha": "2ea1a07a0a6a15a55df28eeefddf71a4ac47e17d",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MmVhMWEwN2EwYTZhMTVhNTVkZjI4ZWVlZmRkZjcxYTRhYzQ3ZTE3ZA==",
+  "commit": {
+    "author": {
+      "name": "Sandra Loosemore",
+      "email": "sandra@codesourcery.com",
+      "date": "2019-08-29T21:48:05Z"
+    },
+    "committer": {
+      "name": "Sandra Loosemore",
+      "email": "sandra@codesourcery.com",
+      "date": "2019-08-29T21:48:05Z"
+    },
+    "message": "Run argv0-symlink.exp only on native target and local host.\n\nThis testcase was originally for PR gdb/15415, a problem with the\n\"run\" command expanding symlinks in the name of the program being run.\nIt does not correctly distinguish between files on build, host, and\ntarget, and it is not clear if it would be testing anything useful in\nconfigurations where \"run\" is not being used.\n\n2019-08-29  Sandra Loosemore  <sandra@codesourcery.com>\n\n\t* gdb.base/argv0-symlink.exp: Run only on native target\n\tand local host.",
+    "tree": {
+      "sha": "9e9bbf8e70a1d18cf78d81be642069e6be0f9310",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/9e9bbf8e70a1d18cf78d81be642069e6be0f9310"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/2ea1a07a0a6a15a55df28eeefddf71a4ac47e17d",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2ea1a07a0a6a15a55df28eeefddf71a4ac47e17d",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/2ea1a07a0a6a15a55df28eeefddf71a4ac47e17d",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2ea1a07a0a6a15a55df28eeefddf71a4ac47e17d/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "16d01f9cd49f553a958a69ad3c9f781ebd402da8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/16d01f9cd49f553a958a69ad3c9f781ebd402da8",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/16d01f9cd49f553a958a69ad3c9f781ebd402da8"
+    }
+  ],
+  "stats": {
+    "total": 22,
+    "additions": 22,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "e0991e091a814040793a0af8e1fd9d69127db91d",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2ea1a07a0a6a15a55df28eeefddf71a4ac47e17d/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2ea1a07a0a6a15a55df28eeefddf71a4ac47e17d/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=2ea1a07a0a6a15a55df28eeefddf71a4ac47e17d",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-08-29  Sandra Loosemore  <sandra@codesourcery.com>\n+\n+\t* gdb.base/argv0-symlink.exp: Run only on native target\n+\tand local host.\n+\n 2019-08-29  Tom de Vries  <tdevries@suse.de>\n \n \t* gdb.fortran/info-types.exp: Fix gdb_test regexp to allow more"
+    },
+    {
+      "sha": "33301bd7c33f33ede463196df04bb94a421b05d9",
+      "filename": "gdb/testsuite/gdb.base/argv0-symlink.exp",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 0,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2ea1a07a0a6a15a55df28eeefddf71a4ac47e17d/gdb/testsuite/gdb.base/argv0-symlink.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2ea1a07a0a6a15a55df28eeefddf71a4ac47e17d/gdb/testsuite/gdb.base/argv0-symlink.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/argv0-symlink.exp?ref=2ea1a07a0a6a15a55df28eeefddf71a4ac47e17d",
+      "patch": "@@ -13,6 +13,23 @@\n # You should have received a copy of the GNU General Public License\n # along with this program.  If not, see <http://www.gnu.org/licenses/>.\n \n+# This testcase was originally for PR gdb/15415, a problem with the \"run\"\n+# command expanding symlinks in the name of the program being run.\n+# This test uses pathnames on build to create symbolic links on host and\n+# expects the test program running on target to see those symbolic links.\n+# Therefore, it can't work reliably on anything other than configurations \n+# where build/host/target are all the same.\n+\n+if { ![isnative] } {\n+    unsupported \"argv0-symlink.exp not supported on non-native target\"\n+    return -1\n+}\n+\n+if { [is_remote host] } {\n+    unsupported \"argv0-symlink.exp not supported on remote host\"\n+    return -1\n+}\n+\n standard_testfile\n \n set has_argv0 [gdb_has_argv0]"
+    }
+  ]
+}

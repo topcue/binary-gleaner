@@ -1,0 +1,110 @@
+{
+  "sha": "069057bf0f8f776f7981c94b4e3cbc821342e593",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MDY5MDU3YmYwZjhmNzc2Zjc5ODFjOTRiNGUzY2JjODIxMzQyZTU5Mw==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-06-23T22:22:43Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-06-24T18:15:07Z"
+    },
+    "message": "bfd/riscv: tighten matching rules in riscv_scan\n\nThe following GDB behaviour was observed:\n\n  (gdb) x/1i 0x0001014a\n     0x1014a <main+8>:\tjal\t0x10132 <foo>\n  (gdb) show architecture\n  The target architecture is set automatically (currently riscv:rv32)\n  (gdb) set architecture riscv:rv32\n  The target architecture is assumed to be riscv:rv32\n  (gdb) x/1i 0x0001014a\n     0x1014a <main+8>:\t0x37e5\n  (gdb)\n\nNotice that initially we can disassemble the instruction (it's a\ncompressed jal instruction), but after setting the architecture we can\nno longer disassemble the instruction.\n\nThis is particularly puzzling as GDB initially thought the\narchitecture was 'riscv:rv32', but when we force the architecture to\nbe that, the disassembly stops working.\n\nThis issue was introduced with this commit:\n\n  commit c35d018b1a5ec604e49a807402c4205530b25ca8\n  Date:   Mon Jan 27 15:19:30 2020 -0800\n\n      RISC-V: Fix gdbserver problem with handling arch strings.\n\nIn this commit we try to make riscv_scan handle cases where we see\narchitecture strings like 'riscv:rv32imc' (for example).  Normally\nthis wouldn't match as bfd_default_scan requires an exact match, so we\nextended riscv_scan to ignore trailing characters.\n\nUnfortunately the default riscv arch is called 'riscv', is 64-bit,\nand has its mach type set to 0, which I think is intended to pair with\ncode is riscv-dis.c:riscv_disassemble_insn that tries to guess if we\nare 32 or 64 bit.\n\nWhat happens then is that 'riscv:rv32' is first tested against 'riscv'\nusing bfd_default_scan, this doesn't match, we then compare this to\n'riscv', but allowing trailing characters to be ignored, this matches,\nand our 'riscv:rv32' matches against the default (64-bit)\narchitecture.\n\nThe solution I propose is to prevent the default architecture from\ntaking part in this \"ignore trailing characters\" extra match case,\nonly the more specific 'riscv:rv32' and 'riscv:rv64' get this extra\nmatching.\n\nbfd/ChangeLog:\n\n\t* cpu-riscv.c (riscv_scan): Don't allow shorter matches using the\n\tdefault architecture.",
+    "tree": {
+      "sha": "c901a360840efa3d5329edd3155b37b090f23c69",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c901a360840efa3d5329edd3155b37b090f23c69"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/069057bf0f8f776f7981c94b4e3cbc821342e593",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/069057bf0f8f776f7981c94b4e3cbc821342e593",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/069057bf0f8f776f7981c94b4e3cbc821342e593",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/069057bf0f8f776f7981c94b4e3cbc821342e593/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "fb58f5e9286a7ea5c6f0977595c37f11087f5883",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/fb58f5e9286a7ea5c6f0977595c37f11087f5883",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/fb58f5e9286a7ea5c6f0977595c37f11087f5883"
+    }
+  ],
+  "stats": {
+    "total": 23,
+    "additions": 19,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "de2e917335e49aedc9006c051d2e90c0218a3abc",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/069057bf0f8f776f7981c94b4e3cbc821342e593/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/069057bf0f8f776f7981c94b4e3cbc821342e593/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=069057bf0f8f776f7981c94b4e3cbc821342e593",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-06-24  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* cpu-riscv.c (riscv_scan): Don't allow shorter matches using the\n+\tdefault architecture.\n+\n 2020-06-24  H.J. Lu  <hongjiu.lu@intel.com>\n \n \tPR ld/26083"
+    },
+    {
+      "sha": "22067ab29bec74c1e1f5660370163be9a739273a",
+      "filename": "bfd/cpu-riscv.c",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 4,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/069057bf0f8f776f7981c94b4e3cbc821342e593/bfd/cpu-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/069057bf0f8f776f7981c94b4e3cbc821342e593/bfd/cpu-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/cpu-riscv.c?ref=069057bf0f8f776f7981c94b4e3cbc821342e593",
+      "patch": "@@ -47,10 +47,20 @@ riscv_scan (const struct bfd_arch_info *info, const char *string)\n   if (bfd_default_scan (info, string))\n     return TRUE;\n \n-  /* The string might have extra characters for supported subsets.  So allow\n-     a match that ignores trailing characters in string.  */\n-  if (strncasecmp (string, info->printable_name,\n-\t\t   strlen (info->printable_name)) == 0)\n+  /* The incoming STRING might take the form of riscv:rvXXzzz, where XX is\n+     32 or 64, and zzz are one or more extension characters.  As we\n+     currently only have 3 architectures defined, 'riscv', 'riscv:rv32',\n+     and 'riscv:rv64', we would like to ignore the zzz for the purpose of\n+     matching here.\n+\n+     However, we don't want the default 'riscv' to match over a more\n+     specific 'riscv:rv32' or 'riscv:rv64', so in the case of the default\n+     architecture (with the shorter 'riscv' name) we don't allow any\n+     special matching, but for the 'riscv:rvXX' cases, we allow a match\n+     with any additional trailing characters being ignored.  */\n+  if (!info->the_default\n+      && strncasecmp (string, info->printable_name,\n+                      strlen (info->printable_name)) == 0)\n     return TRUE;\n \n   return FALSE;"
+    }
+  ]
+}

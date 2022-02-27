@@ -1,0 +1,110 @@
+{
+  "sha": "830b67068cebe7db0eb0db3fa19244e03859fae0",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ODMwYjY3MDY4Y2ViZTdkYjBlYjBkYjNmYTE5MjQ0ZTAzODU5ZmFlMA==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2019-07-12T07:53:02Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2019-07-12T07:53:02Z"
+    },
+    "message": "[readline] Fix heap-buffer-overflow in update_line\n\nWhen:\n- building trunk gdb with '-fsanitize=address -lasan',\n- running gdb tests with \"export ASAN_OPTIONS=detect_leaks=0\",\nI run into a heap-buffer-overflow failure for\ngdb.base/utf8-identifiers.exp.\n\nIn more detail, the libasan error report looks like this:\n...\n=================================================================\n==22340==ERROR: AddressSanitizer: heap-buffer-overflow on address\n0x619000054a80 at pc 0x7fcd0306b4c9 bp 0x7fffb1a8d880 sp 0x7fffb1a8d030\nREAD of size 32766 at 0x619000054a80 thread T0\n    #0 0x7fcd0306b4c8  (/usr/lib64/libasan.so.4+0xae4c8)\n    #1 0x15f12a1 in update_line\n/data/gdb_versions/devel/src/readline/display.c:1377\n    #2 0x15f03cb in rl_redisplay\n/data/gdb_versions/devel/src/readline/display.c:1204\n    #3 0x15bf932 in readline_internal_setup\n/data/gdb_versions/devel/src/readline/readline.c:394\n    #4 0x15fe723 in _rl_callback_newline\n/data/gdb_versions/devel/src/readline/callback.c:89\n    #5 0x15fe7ef in rl_callback_handler_install\n/data/gdb_versions/devel/src/readline/callback.c:102\n    #6 0xd7bce6 in gdb_rl_callback_handler_install(char const*)\n/data/gdb_versions/devel/src/gdb/event-top.c:319\n    #7 0xd7c0c6 in display_gdb_prompt(char const*)\n/data/gdb_versions/devel/src/gdb/event-top.c:409\n    #8 0xd7d6c1 in command_line_handler(std::unique_ptr<char,\ngdb::xfree_deleter<char> >&&)\n/data/gdb_versions/devel/src/gdb/event-top.c:776\n    #9 0xd7b92a in gdb_rl_callback_handler\n/data/gdb_versions/devel/src/gdb/event-top.c:217\n    #10 0x15ff479 in rl_callback_read_char\n/data/gdb_versions/devel/src/readline/callback.c:220\n    #11 0xd7b4d5 in gdb_rl_callback_read_char_wrapper_noexcept\n/data/gdb_versions/devel/src/gdb/event-top.c:175\n    #12 0xd7b6b5 in gdb_rl_callback_read_char_wrapper\n/data/gdb_versions/devel/src/gdb/event-top.c:192\n    #13 0xd7c8aa in stdin_event_handler(int, void*)\n/data/gdb_versions/devel/src/gdb/event-top.c:514\n    #14 0xd76ca7 in handle_file_event\n/data/gdb_versions/devel/src/gdb/event-loop.c:731\n    #15 0xd7751f in gdb_wait_for_event\n/data/gdb_versions/devel/src/gdb/event-loop.c:857\n    #16 0xd7547e in gdb_do_one_event()\n/data/gdb_versions/devel/src/gdb/event-loop.c:321\n    #17 0xd75526 in start_event_loop()\n/data/gdb_versions/devel/src/gdb/event-loop.c:370\n    #18 0x101b04c in captured_command_loop\n/data/gdb_versions/devel/src/gdb/main.c:331\n    #19 0x101de73 in captured_main\n/data/gdb_versions/devel/src/gdb/main.c:1173\n    #20 0x101df03 in gdb_main(captured_main_args*)\n/data/gdb_versions/devel/src/gdb/main.c:1188\n    #21 0x872dba in main /data/gdb_versions/devel/src/gdb/gdb.c:32\n    #22 0x7fcd00f2ff49 in __libc_start_main (/lib64/libc.so.6+0x20f49)\n    #23 0x872bc9 in _start (/data/gdb_versions/devel/build/gdb/gdb+0x872bc9)\n\n0x619000054a80 is located 0 bytes to the right of 1024-byte region\n[0x619000054680,0x619000054a80)\nallocated by thread T0 here:\n    #0 0x7fcd03099510 in malloc (/usr/lib64/libasan.so.4+0xdc510)\n    #1 0xae0078 in xmalloc\n/data/gdb_versions/devel/src/gdb/common/common-utils.c:44\n    #2 0x15eaccb in init_line_structures\n/data/gdb_versions/devel/src/readline/display.c:458\n    #3 0x15eb4d8 in rl_redisplay\n/data/gdb_versions/devel/src/readline/display.c:526\n    #4 0x15bf932 in readline_internal_setup\n/data/gdb_versions/devel/src/readline/readline.c:394\n    #5 0x15fe723 in _rl_callback_newline\n/data/gdb_versions/devel/src/readline/callback.c:89\n    #6 0x15fe7ef in rl_callback_handler_install\n/data/gdb_versions/devel/src/readline/callback.c:102\n    #7 0xd7bce6 in gdb_rl_callback_handler_install(char const*)\n/data/gdb_versions/devel/src/gdb/event-top.c:319\n    #8 0xd7c0c6 in display_gdb_prompt(char const*)\n/data/gdb_versions/devel/src/gdb/event-top.c:409\n    #9 0xaa041b in cli_interp_base::pre_command_loop()\n/data/gdb_versions/devel/src/gdb/cli/cli-interp.c:286\n    #10 0xf5342a in interp_pre_command_loop(interp*)\n/data/gdb_versions/devel/src/gdb/interps.c:320\n    #11 0x101b047 in captured_command_loop\n/data/gdb_versions/devel/src/gdb/main.c:328\n    #12 0x101de73 in captured_main\n/data/gdb_versions/devel/src/gdb/main.c:1173\n    #13 0x101df03 in gdb_main(captured_main_args*)\n/data/gdb_versions/devel/src/gdb/main.c:1188\n    #14 0x872dba in main /data/gdb_versions/devel/src/gdb/gdb.c:32\n    #15 0x7fcd00f2ff49 in __libc_start_main (/lib64/libc.so.6+0x20f49)\n\nSUMMARY: AddressSanitizer: heap-buffer-overflow\n(/usr/lib64/libasan.so.4+0xae4c8)\nShadow bytes around the buggy address:\n  0x0c3280002900: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x0c3280002910: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x0c3280002920: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x0c3280002930: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x0c3280002940: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n=>0x0c3280002950:[fa]fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa\n  0x0c3280002960: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa\n  0x0c3280002970: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x0c3280002980: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x0c3280002990: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x0c32800029a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07\n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==22340==ABORTING\n...\n\nI've written an assert in rl_redisplay that formulates the error condition:\n...\n@@ -1387,6 +1389,10 @@ rl_redisplay (void)\n          cpos_adjusted = 0;\n+         assert (last_lmargin + (_rl_screenwidth + visible_wrap_offset)\n+                 <= line_size);\n+         assert (lmargin + (_rl_screenwidth + (lmargin ? 0 : wrap_offset))\n+                 <= line_size);\n          update_line (&visible_line[last_lmargin],\n                       &invisible_line[lmargin],\n                       0,\n                       _rl_screenwidth + visible_wrap_offset,\n                       _rl_screenwidth + (lmargin ? 0 : wrap_offset),\n                       0);\n...\nwhich triggers without needing the address sanitizer (or even an executable),\nlike this:\n...\n$ TERM=dumb gdb -q -ex \"set width 0\"\ngdb: src/display.c:1393: rl_redisplay: Assertion\n`last_lmargin + (_rl_screenwidth + visible_wrap_offset) <= line_size'\nfailed.\nAborted (core dumped)\n...\n\nThe basic problem is this: visible_line and invisible_line have length\nline_size, but the update_line call assumes that line_size is at least\n_rl_screenwidth + 1.  Executing \"set width 0\" sets _rl_screenwidth to 32766 but\ndoesn't affect line_size, which is initialized to 1024.\n\nFix this by ensuring in init_line_structures and rl_redisplay that line_size\nis at least _rl_screenwidth + 1.\n\nTested on x86_64-linux.\n\nReviewed by readline maintainer (\nhttps://sourceware.org/ml/gdb-patches/2019-05/msg00566.html ).\n\nreadline/ChangeLog.gdb:\n\n2019-07-12  Tom de Vries  <tdevries@suse.de>\n\t    Chet Ramey  <chet.ramey@case.edu>\n\n\tPR cli/24514\n\t* readline/display.c (init_line_structures, rl_redisplay): Ensure\n\tline_size is at\tleast _rl_screenwidth + 1.",
+    "tree": {
+      "sha": "4cd161f4d39ace94bcf46a7f5e7b691d69ad4f72",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/4cd161f4d39ace94bcf46a7f5e7b691d69ad4f72"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/830b67068cebe7db0eb0db3fa19244e03859fae0",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/830b67068cebe7db0eb0db3fa19244e03859fae0",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/830b67068cebe7db0eb0db3fa19244e03859fae0",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/830b67068cebe7db0eb0db3fa19244e03859fae0/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "a89fdbdb201764e3989e9113e03a769091d42cce",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a89fdbdb201764e3989e9113e03a769091d42cce",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/a89fdbdb201764e3989e9113e03a769091d42cce"
+    }
+  ],
+  "stats": {
+    "total": 12,
+    "additions": 12,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "e71ee96b36e52f1d4910eabe8bfb53a801c0f31d",
+      "filename": "readline/ChangeLog.gdb",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/830b67068cebe7db0eb0db3fa19244e03859fae0/readline/ChangeLog.gdb",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/830b67068cebe7db0eb0db3fa19244e03859fae0/readline/ChangeLog.gdb",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/readline/ChangeLog.gdb?ref=830b67068cebe7db0eb0db3fa19244e03859fae0",
+      "patch": "@@ -1,3 +1,10 @@\n+2019-07-12  Tom de Vries  <tdevries@suse.de>\n+\t    Chet Ramey  <chet.ramey@case.edu>\n+\n+\tPR cli/24514\n+\t* readline/display.c (init_line_structures, rl_redisplay): Ensure\n+\tline_size is at\tleast _rl_screenwidth + 1.\n+\n 2019-01-31  Alan Hayward  <alan.hayward@arm.com>\n \n \t* config.h.in: Add SOURCE/EXTENSION macros."
+    },
+    {
+      "sha": "842adf5067f06130d98639878a5a38f08c54ac57",
+      "filename": "readline/display.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/830b67068cebe7db0eb0db3fa19244e03859fae0/readline/display.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/830b67068cebe7db0eb0db3fa19244e03859fae0/readline/display.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/readline/display.c?ref=830b67068cebe7db0eb0db3fa19244e03859fae0",
+      "patch": "@@ -450,6 +450,9 @@ init_line_structures (minsize)\n {\n   register int n;\n \n+  if (minsize <= _rl_screenwidth)\t/* XXX - for gdb */\n+    minsize = _rl_screenwidth + 1;\n+\n   if (invisible_line == 0)\t/* initialize it */\n     {\n       if (line_size < minsize)\n@@ -526,6 +529,8 @@ rl_redisplay ()\n       init_line_structures (0);\n       rl_on_new_line ();\n     }\n+  else if (line_size <= _rl_screenwidth)\n+    init_line_structures (_rl_screenwidth + 1);\n \n   /* Draw the line into the buffer. */\n   cpos_buffer_position = -1;"
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "sha": "d1fd641e0b48e75401311528450eb1ddfb3a1fa0",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZDFmZDY0MWUwYjQ4ZTc1NDAxMzExNTI4NDUwZWIxZGRmYjNhMWZhMA==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2020-07-21T19:12:56Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2020-07-21T19:13:21Z"
+    },
+    "message": "gdb: handle undefined properties in ada_discrete_type_{low,high}_bound\n\nThis patch fixes a failure in test `gdb.ada/access_to_packed_array.exp`.\nThe failure was introduced by 8c2e4e0689ea24 (\"gdb: add accessors to\nstruct dynamic_prop\"), but I think it in fact exposed a latent buglet.\n\nNote that to reproduce it, I had to use AdaCore's Ada \"distribution\"\n[1].  The one that comes with my distro doesn't have debug info for the\nstandard library stuff, so the bug wouldn't trigger.\n\nThe bug is that while executing the `maint print symbols` command, we\nare accessing the value of a range type's high bound dynamic prop as a\n\"const\" value (PROP_CONST), when it is actually undefined\n(PROP_UNDEFINED).  It results in this failed assertion:\n\n    /home/simark/src/binutils-gdb/gdb/gdbtypes.h:526: internal-error: LONGEST dynamic_prop::const_val() const: Assertion `m_kind == PROP_CONST' failed.\n\n`ada_discrete_type_high_bound` calls `resolve_dynamic_type`, which\neventually calls `resolve_dynamic_range`.  This one is responsible for\nevaluating a range type's dynamic bounds in the current context and\nreturning static values.  It returns a new range type with these static\nbounds.\n\nThe resulting bounds are typically properties of the PROP_CONST kind.\nBut when it's not possible to evaluate the properties, the properties\nare PROP_UNDEFINED.  In the case we are looking at, it's not possible to\nevaluate the dynamic high bound, which is of type PROP_LOCLIST.  It\nwould require a target with registers and a frame, but we run `maint\nprint symbols` without a live process.\n\n`ada_discrete_type_high_bound` then accesses the high bound\nunconditionally as a const value, which triggers the assert.\n\nNote that the previous code in resolve_dynamic_range (before commit\n8c2e4e0689ea24) did this:\n\n    prop = &TYPE_RANGE_DATA (dyn_range_type)->high;\n    if (dwarf2_evaluate_property (prop, NULL, addr_stack, &value))\n      {\n        high_bound.kind = PROP_CONST;\n        high_bound.data.const_val = value;\n\n        if (TYPE_RANGE_DATA (dyn_range_type)->flag_upper_bound_is_count)\n  \thigh_bound.data.const_val\n  \t  = low_bound.data.const_val + high_bound.data.const_val - 1;\n      }\n    else\n      {\n        high_bound.kind = PROP_UNDEFINED;\n        high_bound.data.const_val = 0;\n      }\n\nThat did not really made sense, setting the kind to `PROP_UNDEFINED` but\nalso setting the `const_val` field.  The `const_val` field is only\nmeaningful if the kind if `PROP_CONST`.  The new code\n(post-8c2e4e0689ea24) simply calls `set_undefined ()`.\n\nFix this by making the caller, `ada_discrete_type_high_bound`, consider\nthat a range high bound could be of kind `PROP_UNDEFINED`, and return\n0 in this case.  I made the same change in ada_discrete_type_low_bound.\nI didn't encounter a problem with this function, but the same could in\ntheory happen there.\n\nReturning 0 here is kind of a lie, but the goal here is just to restore\nthe behavior of pre-8c2e4e0689ea24.\n\nThe output of `maint print symbols` is:\n\n     typedef <ada__exceptions__exception_data__append_info_basic_exception_information__TTnameSP1: range 1 .. 0;\n     record\n         ada__exceptions__exception_data__append_info_basic_exception_information__TTnameSP1: range 1 .. 0;\n     end record;\n\nInstead of `1 .. 0`, which does not make sense, we could say something\nlike `1 .. <dynamic>`.  But that would require more changes than I'm\nwilling to do at the moment.\n\n[1] https://www.adacore.com/download\n\ngdb/ChangeLog:\n\n\tPR ada/26235\n\t* gdbtypes.c (ada_discrete_type_low_bound,\n\tada_discrete_type_high_bound): Handle undefined bounds.\n\nChange-Id: Ia12167e61ef030941c0790f83294f3418e6a7c12",
+    "tree": {
+      "sha": "24b015596600fcbe53cc68ebbe056675a57952ad",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/24b015596600fcbe53cc68ebbe056675a57952ad"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/d1fd641e0b48e75401311528450eb1ddfb3a1fa0",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d1fd641e0b48e75401311528450eb1ddfb3a1fa0",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/d1fd641e0b48e75401311528450eb1ddfb3a1fa0",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d1fd641e0b48e75401311528450eb1ddfb3a1fa0/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "6d3d6e4ba779dc08b134cd1a09b055dbd88dbf8a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6d3d6e4ba779dc08b134cd1a09b055dbd88dbf8a",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/6d3d6e4ba779dc08b134cd1a09b055dbd88dbf8a"
+    }
+  ],
+  "stats": {
+    "total": 38,
+    "additions": 36,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "e6202de248a6d61af210a202d9043d2d6265840c",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d1fd641e0b48e75401311528450eb1ddfb3a1fa0/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d1fd641e0b48e75401311528450eb1ddfb3a1fa0/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=d1fd641e0b48e75401311528450eb1ddfb3a1fa0",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-07-21  Simon Marchi  <simon.marchi@polymtl.ca>\n+\n+\tPR ada/26235\n+\t* gdbtypes.c (ada_discrete_type_low_bound,\n+\tada_discrete_type_high_bound): Handle undefined bounds.\n+\n 2020-07-21  Kamil Rytarowski  <n54@gmx.com>\n \n \t* nbsd-nat.h (nbsd_nat_target::supports_multi_process): New"
+    },
+    {
+      "sha": "2be3fe45b35d6159d3bace8e0a83618b3ec3ed11",
+      "filename": "gdb/ada-lang.c",
+      "status": "modified",
+      "additions": 30,
+      "deletions": 2,
+      "changes": 32,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d1fd641e0b48e75401311528450eb1ddfb3a1fa0/gdb/ada-lang.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d1fd641e0b48e75401311528450eb1ddfb3a1fa0/gdb/ada-lang.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ada-lang.c?ref=d1fd641e0b48e75401311528450eb1ddfb3a1fa0",
+      "patch": "@@ -725,7 +725,21 @@ ada_discrete_type_high_bound (struct type *type)\n   switch (type->code ())\n     {\n     case TYPE_CODE_RANGE:\n-      return type->bounds ()->high.const_val ();\n+      {\n+\tconst dynamic_prop &high = type->bounds ()->high;\n+\n+\tif (high.kind () == PROP_CONST)\n+\t  return high.const_val ();\n+\telse\n+\t  {\n+\t    gdb_assert (high.kind () == PROP_UNDEFINED);\n+\n+\t    /* This happens when trying to evaluate a type's dynamic bound\n+\t       without a live target.  There is nothing relevant for us to\n+\t       return here, so return 0.  */\n+\t    return 0;\n+\t  }\n+      }\n     case TYPE_CODE_ENUM:\n       return TYPE_FIELD_ENUMVAL (type, type->num_fields () - 1);\n     case TYPE_CODE_BOOL:\n@@ -746,7 +760,21 @@ ada_discrete_type_low_bound (struct type *type)\n   switch (type->code ())\n     {\n     case TYPE_CODE_RANGE:\n-      return type->bounds ()->low.const_val ();\n+      {\n+\tconst dynamic_prop &low = type->bounds ()->low;\n+\n+\tif (low.kind () == PROP_CONST)\n+\t  return low.const_val ();\n+\telse\n+\t  {\n+\t    gdb_assert (low.kind () == PROP_UNDEFINED);\n+\n+\t    /* This happens when trying to evaluate a type's dynamic bound\n+\t       without a live target.  There is nothing relevant for us to\n+\t       return here, so return 0.  */\n+\t    return 0;\n+\t  }\n+      }\n     case TYPE_CODE_ENUM:\n       return TYPE_FIELD_ENUMVAL (type, 0);\n     case TYPE_CODE_BOOL:"
+    }
+  ]
+}

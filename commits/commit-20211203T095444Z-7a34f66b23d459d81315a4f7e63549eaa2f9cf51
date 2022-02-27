@@ -1,0 +1,60 @@
+{
+  "sha": "7a34f66b23d459d81315a4f7e63549eaa2f9cf51",
+  "node_id": "C_kwDOANOeidoAKDdhMzRmNjZiMjNkNDU5ZDgxMzE1YTRmN2U2MzU0OWVhYTJmOWNmNTE",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-12-02T11:05:17Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-12-03T09:54:44Z"
+    },
+    "message": "gdb/remote: fix use after free bug\n\nThis commit:\n\n  commit 288712bbaca36bff6578bc839ebcdc3707662f81\n  Date:   Mon Nov 22 15:16:27 2021 +0000\n\n      gdb/remote: use scoped_restore to control starting_up flag\n\nintroduced a use after free bug.  The scoped restore added in the\nabove commit resets a flag within a remote_target's remote_state\nobject.\n\nHowever, in some situations, the remote_target can be unpushed before\nthe error is thrown.  If the only reference to the target is the one\nin the target stack, then unpushing the target will cause the\nremote_target to be deleted, which, in turn, will delete the\nremote_state object.  The scoped restore will then try to reset the\nflag within a deleted object.\n\nThis problem was caught in the gdb.server/server-connect.exp test,\nwhich, when run with the address sanitizer enabled, highlights the\nwrite after free bug described above.\n\nThis commit resolves this issue by adding a new class specifically for\nthe purpose of managing the starting_up flag.  As well as setting, and\nthen clearing the starting_up flag, this new class increments, and\nthen decrements the reference count on the remote_target object.  This\nprevents the remote_target from being deleted until after the flag has\nbeen reset.\n\nThe gdb.server/server-connect.exp now runs cleanly with the address\nsanitizer enabled.",
+    "tree": {
+      "sha": "d5460ae37ecc0d939d082807e7b0816659635821",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/d5460ae37ecc0d939d082807e7b0816659635821"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/7a34f66b23d459d81315a4f7e63549eaa2f9cf51",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7a34f66b23d459d81315a4f7e63549eaa2f9cf51",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/7a34f66b23d459d81315a4f7e63549eaa2f9cf51",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7a34f66b23d459d81315a4f7e63549eaa2f9cf51/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "ba4ba9711a1356909275196c2abfd33f7d0950a6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ba4ba9711a1356909275196c2abfd33f7d0950a6",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/ba4ba9711a1356909275196c2abfd33f7d0950a6"
+    }
+  ],
+  "stats": {
+    "total": 35,
+    "additions": 33,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "ebbc138b40578e3cd667d91d7f7bd4b70808ba9c",
+      "filename": "gdb/remote.c",
+      "status": "modified",
+      "additions": 33,
+      "deletions": 2,
+      "changes": 35,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7a34f66b23d459d81315a4f7e63549eaa2f9cf51/gdb/remote.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7a34f66b23d459d81315a4f7e63549eaa2f9cf51/gdb/remote.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/remote.c?ref=7a34f66b23d459d81315a4f7e63549eaa2f9cf51",
+      "patch": "@@ -4673,6 +4673,38 @@ remote_target::process_initial_stop_replies (int from_tty)\n     }\n }\n \n+/* Mark a remote_target as marking (by setting the starting_up flag within\n+   its remote_state) for the lifetime of this object.  The reference count\n+   on the remote target is temporarily incremented, to prevent the target\n+   being deleted under our feet.  */\n+\n+struct scoped_mark_target_starting\n+{\n+  /* Constructor, TARGET is the target to be marked as starting, its\n+     reference count will be incremented.  */\n+  scoped_mark_target_starting (remote_target *target)\n+    : m_remote_target (target)\n+  {\n+    m_remote_target->incref ();\n+    remote_state *rs = m_remote_target->get_remote_state ();\n+    rs->starting_up = true;\n+  }\n+\n+  /* Destructor, mark the target being worked on as no longer starting, and\n+     decrement the reference count.  */\n+  ~scoped_mark_target_starting ()\n+  {\n+    remote_state *rs = m_remote_target->get_remote_state ();\n+    rs->starting_up = false;\n+    decref_target (m_remote_target);\n+  }\n+\n+private:\n+\n+  /* The target on which we are operating.  */\n+  remote_target *m_remote_target;\n+};\n+\n /* Helper for remote_target::start_remote, start the remote connection and\n    sync state.  Return true if everything goes OK, otherwise, return false.\n    This function exists so that the scoped_restore created within it will\n@@ -4692,8 +4724,7 @@ remote_target::start_remote_1 (int from_tty, int extended_p)\n      Ctrl-C before we're connected and synced up can't interrupt the\n      target.  Instead, it offers to drop the (potentially wedged)\n      connection.  */\n-  scoped_restore restore_starting_up_flag\n-    = make_scoped_restore (&rs->starting_up, true);\n+  scoped_mark_target_starting target_is_starting (this);\n \n   QUIT;\n "
+    }
+  ]
+}

@@ -1,0 +1,396 @@
+{
+  "sha": "3f1b17bbf022a34f92f3dc32d742e4901816708e",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6M2YxYjE3YmJmMDIyYTM0ZjkyZjNkYzMyZDc0MmU0OTAxODE2NzA4ZQ==",
+  "commit": {
+    "author": {
+      "name": "Maciej W. Rozycki",
+      "email": "macro@linux-mips.org",
+      "date": "2020-07-29T19:56:41Z"
+    },
+    "committer": {
+      "name": "Maciej W. Rozycki",
+      "email": "macro@linux-mips.org",
+      "date": "2020-07-29T19:56:41Z"
+    },
+    "message": "MIPS/LD: Set symtab's `sh_info' correctly for IRIX emulations\n\nCorrect ELF linker code so as to set the `sh_info' value of the static\nsymbol table section according to the section symbols vs other symbols\nsplit where required by the selection of the IRIX compatibility mode for\nMIPS target.  Add a `elf_backend_elfsym_local_is_section' hook for that\npurpose, returning TRUE if it is only STB_LOCAL/STT_SECTION symbols that\nare to be considered local for the purpose of this split rather than all\nSTB_LOCAL symbols.\n\nWe do it already in generic ELF code, and have done it since 1993, with\nthe `elf_backend_sym_is_global' hook, affecting GAS and `objcopy', so\nthese tools produce correct ELF output in the IRIX compatibility mode,\nhowever if such output is fed as input to `ld -r', then the linker's\noutput is no longer valid for that mode.  The relevant changes to\ngeneric ELF code are:\n\ncommit 062189c6eab72c7ba1bab1cf30fdb27d67a7d668\nAuthor: Ian Lance Taylor <ian@airs.com>\nDate:   Thu Nov 18 17:12:47 1993 +0000\n\nand:\n\ncommit 6e07e54f1b347f885cc6c021c3fd912c79bdaf55\nAuthor: Ian Lance Taylor <ian@airs.com>\nDate:   Thu Jan 6 20:01:42 1994 +0000\n\n(split across two GIT commits likely due to repository conversion\npeculiarities).\n\nThe `elf_backend_sym_is_global' hook however operates on BFD rather than\nELF symbols, making it unsuitable for the ELF linker as the linker does\nnot convert any symbol tables processed into the BFD format.  Converting\nthe hook to operate on ELF symbols would in principle be possible, but\nit would still require a considerable rewrite of `bfd_elf_final_link' to\nadapt to the interface.\n\nTherefore, especially given that no new use for the IRIX compatibility\nmode is expected, minimize changes made to the ELF linker code and just\nadd an entirely new hook, and wire it in the o32 and n32 MIPS backends\naccordingly; the n64 backend never uses the IRIX compatibility mode.\n\nSince we have no coverage here at all add suitable GAS, LD and `objcopy'\ntest cases to the relevant testsuites to keep these tools consistently\nverified.\n\n\tbfd/\n\t* elf-bfd.h (elf_backend_data): Add\n\t`elf_backend_elfsym_local_is_section' member.\n\t* elfxx-target.h (elf_backend_elfsym_local_is_section): New\n\tmacro.\n\t(elfNN_bed): Add `elf_backend_elfsym_local_is_section' member.\n\t* elflink.c (bfd_elf_final_link): Use it to determine whether\n\tset the `.symtab' section's `sh_info' value to the index of the\n\tfirst non-local or non-section symbol.\n\t* elf32-mips.c (mips_elf32_elfsym_local_is_section): New\n\tfunction.\n\t(elf_backend_elfsym_local_is_section): New macro.\n\t* elfn32-mips.c (mips_elf_n32_elfsym_local_is_section): New\n\tfunction.\n\t(elf_backend_elfsym_local_is_section): New macro.\n\n\tbinutils/\n\t* testsuite/binutils-all/mips/global-local-symtab-o32.d: New\n\ttest.\n\t* testsuite/binutils-all/mips/global-local-symtab-o32t.d: New\n\ttest.\n\t* testsuite/binutils-all/mips/global-local-symtab-n32.d: New\n\ttest.\n\t* testsuite/binutils-all/mips/global-local-symtab-n32t.d: New\n\ttest.\n\t* testsuite/binutils-all/mips/global-local-symtab-n64.d: New\n\ttest.\n\t* testsuite/binutils-all/mips/mips.exp: Run the new tests.\n\n\tgas/\n\t* testsuite/gas/mips/global-local-symtab-o32.d: New test.\n\t* testsuite/gas/mips/global-local-symtab-o32t.d: New test.\n\t* testsuite/gas/mips/global-local-symtab-n32.d: New test.\n\t* testsuite/gas/mips/global-local-symtab-n32t.d: New test.\n\t* testsuite/gas/mips/global-local-symtab-n64.d: New test.\n\t* testsuite/gas/mips/global-local-symtab.s: New test source.\n\t* testsuite/gas/mips/mips.exp: Run the new tests.\n\n\tld/\n\t* testsuite/ld-mips-elf/global-local-symtab-o32.d: New test.\n\t* testsuite/ld-mips-elf/global-local-symtab-o32t.d: New test.\n\t* testsuite/ld-mips-elf/global-local-symtab-n32.d: New test.\n\t* testsuite/ld-mips-elf/global-local-symtab-n32t.d: New test.\n\t* testsuite/ld-mips-elf/global-local-symtab-n64.d: New test.\n\t* testsuite/ld-mips-elf/global-local-symtab.ld: New test linker\n\tscript.\n\t* testsuite/ld-mips-elf/mips-elf.exp: Run the new tests.",
+    "tree": {
+      "sha": "9d2364860d1573e12b4114557e2832f747ca0d9c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/9d2364860d1573e12b4114557e2832f747ca0d9c"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/3f1b17bbf022a34f92f3dc32d742e4901816708e",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3f1b17bbf022a34f92f3dc32d742e4901816708e",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/3f1b17bbf022a34f92f3dc32d742e4901816708e",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3f1b17bbf022a34f92f3dc32d742e4901816708e/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "9811697376b3f1950419ab13b19e2995703b839b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9811697376b3f1950419ab13b19e2995703b839b",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/9811697376b3f1950419ab13b19e2995703b839b"
+    }
+  ],
+  "stats": {
+    "total": 251,
+    "additions": 250,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "63499ef6aeffa3734e032cf51bfef5eb453fce31",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 0,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -1,3 +1,20 @@\n+2020-07-29  Maciej W. Rozycki  <macro@linux-mips.org>\n+\n+\t* elf-bfd.h (elf_backend_data): Add\n+\t`elf_backend_elfsym_local_is_section' member.\n+\t* elfxx-target.h (elf_backend_elfsym_local_is_section): New\n+\tmacro.\n+\t(elfNN_bed): Add `elf_backend_elfsym_local_is_section' member.\n+\t* elflink.c (bfd_elf_final_link): Use it to determine whether\n+\tset the `.symtab' section's `sh_info' value to the index of the\n+\tfirst non-local or non-section symbol.\n+\t* elf32-mips.c (mips_elf32_elfsym_local_is_section): New\n+\tfunction.\n+\t(elf_backend_elfsym_local_is_section): New macro.\n+\t* elfn32-mips.c (mips_elf_n32_elfsym_local_is_section): New\n+\tfunction.\n+\t(elf_backend_elfsym_local_is_section): New macro.\n+\n 2020-07-29  Alan Modra  <amodra@gmail.com>\n \n \t* elflink.c (bfd_elf_final_link): Don't segfault on local dynsyms"
+    },
+    {
+      "sha": "fbfe65a9a9be8fb7b56c7f8cc6743da64e137183",
+      "filename": "bfd/elf-bfd.h",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/bfd/elf-bfd.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/bfd/elf-bfd.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf-bfd.h?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -1402,6 +1402,14 @@ struct elf_backend_data\n   bfd_boolean (*elf_backend_write_section)\n     (bfd *, struct bfd_link_info *, asection *, bfd_byte *);\n \n+  /* This function, if defined, returns TRUE if it is section symbols\n+     only that are considered local for the purpose of partitioning the\n+     symbol table into local and global symbols.  This should be NULL\n+     for most targets, in which case the correct thing will be done.\n+     MIPS ELF, at least on the Irix 5, has special requirements.  */\n+  bfd_boolean (*elf_backend_elfsym_local_is_section)\n+    (bfd *);\n+\n   /* The level of IRIX compatibility we're striving for.\n      MIPS ELF specific function.  */\n   irix_compat_t (*elf_backend_mips_irix_compat)"
+    },
+    {
+      "sha": "b17d51620eae94b5bad1a90d24b198c350614ced",
+      "filename": "bfd/elf32-mips.c",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/bfd/elf32-mips.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/bfd/elf32-mips.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf32-mips.c?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -63,6 +63,8 @@ static bfd_boolean mips_info_to_howto_rela\n   (bfd *, arelent *, Elf_Internal_Rela *);\n static bfd_boolean mips_elf_sym_is_global\n   (bfd *, asymbol *);\n+static bfd_boolean mips_elf32_elfsym_local_is_section\n+  (bfd *);\n static bfd_boolean mips_elf32_object_p\n   (bfd *);\n static bfd_boolean mips_elf_is_local_label_name\n@@ -2284,6 +2286,14 @@ mips_elf_sym_is_global (bfd *abfd ATTRIBUTE_UNUSED, asymbol *sym)\n \t    || bfd_is_und_section (bfd_asymbol_section (sym))\n \t    || bfd_is_com_section (bfd_asymbol_section (sym)));\n }\n+\n+/* Likewise, return TRUE if the symbol table split overall must be\n+   between section symbols and all other symbols.  */\n+static bfd_boolean\n+mips_elf32_elfsym_local_is_section (bfd *abfd)\n+{\n+  return SGI_COMPAT (abfd);\n+}\n \f\n /* Set the right machine number for a MIPS ELF file.  */\n \n@@ -2552,6 +2562,8 @@ static const struct ecoff_debug_swap mips_elf32_ecoff_debug_swap = {\n #define elf_backend_ignore_discarded_relocs \\\n \t\t\t\t\t_bfd_mips_elf_ignore_discarded_relocs\n #define elf_backend_write_section\t_bfd_mips_elf_write_section\n+#define elf_backend_elfsym_local_is_section \\\n+\t\t\t\t\tmips_elf32_elfsym_local_is_section\n #define elf_backend_mips_irix_compat\telf32_mips_irix_compat\n #define elf_backend_mips_rtype_to_howto\tmips_elf32_rtype_to_howto\n #define elf_backend_sort_relocs_p\t_bfd_mips_elf_sort_relocs_p"
+    },
+    {
+      "sha": "32a2d6d7c198b7ee67896f63b1f3ec247b42bfb8",
+      "filename": "bfd/elflink.c",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 1,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/bfd/elflink.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/bfd/elflink.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elflink.c?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -12315,6 +12315,13 @@ bfd_elf_final_link (bfd *abfd, struct bfd_link_info *info)\n \t}\n     }\n \n+  /* On some targets like Irix 5 the symbol split between local and global\n+     ones recorded in the sh_info field needs to be done between section\n+     and all other symbols.  */\n+  if (bed->elf_backend_elfsym_local_is_section\n+      && bed->elf_backend_elfsym_local_is_section (abfd))\n+    symtab_hdr->sh_info = bfd_get_symcount (abfd);\n+\n   /* Allocate some memory to hold information read in from the input\n      files.  */\n   if (max_contents_size != 0)\n@@ -12541,7 +12548,8 @@ bfd_elf_final_link (bfd *abfd, struct bfd_link_info *info)\n      converted to local in a version script.  */\n \n   /* The sh_info field records the index of the first non local symbol.  */\n-  symtab_hdr->sh_info = bfd_get_symcount (abfd);\n+  if (!symtab_hdr->sh_info)\n+    symtab_hdr->sh_info = bfd_get_symcount (abfd);\n \n   if (dynamic\n       && htab->dynsym != NULL"
+    },
+    {
+      "sha": "16febe7d04d793040bb5c3ec0ba0921760e1ee1c",
+      "filename": "bfd/elfn32-mips.c",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/bfd/elfn32-mips.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/bfd/elfn32-mips.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfn32-mips.c?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -72,6 +72,8 @@ static bfd_boolean mips_info_to_howto_rela\n   (bfd *, arelent *, Elf_Internal_Rela *);\n static bfd_boolean mips_elf_sym_is_global\n   (bfd *, asymbol *);\n+static bfd_boolean mips_elf_n32_elfsym_local_is_section\n+  (bfd *);\n static bfd_boolean mips_elf_n32_object_p\n   (bfd *);\n static bfd_boolean elf32_mips_grok_prstatus\n@@ -3844,6 +3846,14 @@ mips_elf_sym_is_global (bfd *abfd ATTRIBUTE_UNUSED, asymbol *sym)\n \t    || bfd_is_und_section (bfd_asymbol_section (sym))\n \t    || bfd_is_com_section (bfd_asymbol_section (sym)));\n }\n+\n+/* Likewise, return TRUE if the symbol table split overall must be\n+   between section symbols and all other symbols.  */\n+static bfd_boolean\n+mips_elf_n32_elfsym_local_is_section (bfd *abfd)\n+{\n+  return SGI_COMPAT (abfd);\n+}\n \f\n /* Set the right machine number for a MIPS ELF file.  */\n \n@@ -4160,6 +4170,8 @@ static const struct ecoff_debug_swap mips_elf32_ecoff_debug_swap = {\n #define elf_backend_ignore_discarded_relocs \\\n \t\t\t\t\t_bfd_mips_elf_ignore_discarded_relocs\n #define elf_backend_write_section\t_bfd_mips_elf_write_section\n+#define elf_backend_elfsym_local_is_section \\\n+\t\t\t\t\tmips_elf_n32_elfsym_local_is_section\n #define elf_backend_mips_irix_compat\telf_n32_mips_irix_compat\n #define elf_backend_mips_rtype_to_howto\tmips_elf_n32_rtype_to_howto\n #define bfd_elf32_bfd_is_target_special_symbol \\"
+    },
+    {
+      "sha": "a137c4681f1dc09cd6c817bcd7d93b72323be09f",
+      "filename": "bfd/elfxx-target.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/bfd/elfxx-target.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/bfd/elfxx-target.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfxx-target.h?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -660,6 +660,9 @@\n #ifndef elf_backend_write_section\n #define elf_backend_write_section\t\tNULL\n #endif\n+#ifndef elf_backend_elfsym_local_is_section\n+#define elf_backend_elfsym_local_is_section\tNULL\n+#endif\n #ifndef elf_backend_mips_irix_compat\n #define elf_backend_mips_irix_compat\t\tNULL\n #endif\n@@ -884,6 +887,7 @@ static struct elf_backend_data elfNN_bed =\n   elf_backend_can_make_lsda_relative_eh_frame,\n   elf_backend_encode_eh_address,\n   elf_backend_write_section,\n+  elf_backend_elfsym_local_is_section,\n   elf_backend_mips_irix_compat,\n   elf_backend_mips_rtype_to_howto,\n   elf_backend_ecoff_debug_swap,"
+    },
+    {
+      "sha": "a5efafc0fea1199a30fb7809a197b59504fc57bc",
+      "filename": "binutils/ChangeLog",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/binutils/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/binutils/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/ChangeLog?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -1,3 +1,17 @@\n+2020-07-29  Maciej W. Rozycki  <macro@linux-mips.org>\n+\n+\t* testsuite/binutils-all/mips/global-local-symtab-o32.d: New\n+\ttest.\n+\t* testsuite/binutils-all/mips/global-local-symtab-o32t.d: New\n+\ttest.\n+\t* testsuite/binutils-all/mips/global-local-symtab-n32.d: New\n+\ttest.\n+\t* testsuite/binutils-all/mips/global-local-symtab-n32t.d: New\n+\ttest.\n+\t* testsuite/binutils-all/mips/global-local-symtab-n64.d: New\n+\ttest.\n+\t* testsuite/binutils-all/mips/mips.exp: Run the new tests.\n+\n 2020-07-28  H.J. Lu  <hongjiu.lu@intel.com>\n \n \tPR binutils/26301"
+    },
+    {
+      "sha": "ef48105afd5eaf0803f8182e0e4816fa55129b5e",
+      "filename": "binutils/testsuite/binutils-all/mips/global-local-symtab-n32.d",
+      "status": "added",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/binutils/testsuite/binutils-all/mips/global-local-symtab-n32.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/binutils/testsuite/binutils-all/mips/global-local-symtab-n32.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/testsuite/binutils-all/mips/global-local-symtab-n32.d?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -0,0 +1,8 @@\n+#PROG: objcopy\n+#DUMPPROG: readelf\n+#name: MIPS global/local symbol table split (n32)\n+#as: -n32 -mno-pdr -mips3\n+#objcopy: -j .data -j .symtab -j .strtab -j .shstrtab\n+#readelf: -S\n+#source: ../../../../gas/testsuite/gas/mips/global-local-symtab.s\n+#dump: global-local-symtab-o32.d"
+    },
+    {
+      "sha": "b44891f067eb9c21ad445c9090855c0285957d2f",
+      "filename": "binutils/testsuite/binutils-all/mips/global-local-symtab-n32t.d",
+      "status": "added",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/binutils/testsuite/binutils-all/mips/global-local-symtab-n32t.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/binutils/testsuite/binutils-all/mips/global-local-symtab-n32t.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/testsuite/binutils-all/mips/global-local-symtab-n32t.d?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -0,0 +1,8 @@\n+#PROG: objcopy\n+#DUMPPROG: readelf\n+#name: MIPS global/local symbol table split (n32)\n+#as: -n32 -mno-pdr -mips3\n+#objcopy: -j .data -j .symtab -j .strtab -j .shstrtab\n+#readelf: -S\n+#source: ../../../../gas/testsuite/gas/mips/global-local-symtab.s\n+#dump: global-local-symtab-o32t.d"
+    },
+    {
+      "sha": "a170d74ce5344c20e656d36afc4d561f7ace065f",
+      "filename": "binutils/testsuite/binutils-all/mips/global-local-symtab-n64.d",
+      "status": "added",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/binutils/testsuite/binutils-all/mips/global-local-symtab-n64.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/binutils/testsuite/binutils-all/mips/global-local-symtab-n64.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/testsuite/binutils-all/mips/global-local-symtab-n64.d?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -0,0 +1,10 @@\n+#PROG: objcopy\n+#DUMPPROG: readelf\n+#name: MIPS global/local symbol table split (n64)\n+#as: -64 -mno-pdr -mips3\n+#objcopy: -j .data -j .symtab -j .strtab -j .shstrtab\n+#readelf: -SW\n+#source: ../../../../gas/testsuite/gas/mips/global-local-symtab.s\n+#...\n+ *\\[ *[0-9]+\\] +\\.symtab +SYMTAB +[0-9a-f]+ +[0-9a-f]+ +[0-9a-f]+ +18 +3 +3 +8\n+#pass"
+    },
+    {
+      "sha": "4e6307e98aefb124271ba06535f1274e3c0376c5",
+      "filename": "binutils/testsuite/binutils-all/mips/global-local-symtab-o32.d",
+      "status": "added",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/binutils/testsuite/binutils-all/mips/global-local-symtab-o32.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/binutils/testsuite/binutils-all/mips/global-local-symtab-o32.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/testsuite/binutils-all/mips/global-local-symtab-o32.d?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -0,0 +1,10 @@\n+#PROG: objcopy\n+#DUMPPROG: readelf\n+#name: MIPS global/local symbol table split (o32)\n+#as: -32 -mno-pdr\n+#objcopy: -j .data -j .symtab -j .strtab -j .shstrtab\n+#readelf: -S\n+#source: ../../../../gas/testsuite/gas/mips/global-local-symtab.s\n+#...\n+ *\\[ *[0-9]+\\] +\\.symtab +SYMTAB +[0-9a-f]+ +[0-9a-f]+ +[0-9a-f]+ +10 +3 +2 +4\n+#pass"
+    },
+    {
+      "sha": "1b2847d4e41b58713fa6bc0ae04a907e4e734814",
+      "filename": "binutils/testsuite/binutils-all/mips/global-local-symtab-o32t.d",
+      "status": "added",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/binutils/testsuite/binutils-all/mips/global-local-symtab-o32t.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/binutils/testsuite/binutils-all/mips/global-local-symtab-o32t.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/testsuite/binutils-all/mips/global-local-symtab-o32t.d?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -0,0 +1,10 @@\n+#PROG: objcopy\n+#DUMPPROG: readelf\n+#name: MIPS global/local symbol table split (o32)\n+#as: -32 -mno-pdr\n+#objcopy: -j .data -j .symtab -j .strtab -j .shstrtab\n+#readelf: -S\n+#source: ../../../../gas/testsuite/gas/mips/global-local-symtab.s\n+#...\n+ *\\[ *[0-9]+\\] +\\.symtab +SYMTAB +[0-9a-f]+ +[0-9a-f]+ +[0-9a-f]+ +10 +3 +3 +4\n+#pass"
+    },
+    {
+      "sha": "eed1dd124895c96eb71c3b32fab1d86ef5661bcd",
+      "filename": "binutils/testsuite/binutils-all/mips/mips.exp",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/binutils/testsuite/binutils-all/mips/mips.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/binutils/testsuite/binutils-all/mips/mips.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/testsuite/binutils-all/mips/mips.exp?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -218,6 +218,7 @@ if {[istarget *-*-openbsd*] } {\n     set abi_asflags(o32) -32\n     set irixemul 1\n }\n+set tmips [expr $irixemul ? {\"\"} : {\"t\"}]\n \n run_dump_test_o32 \"mips-ase-1\"\n run_dump_test_o32 \"mips-ase-2\"\n@@ -247,3 +248,7 @@ run_dump_test_n64 \"mips-note-2r-n64\"\n \n run_dump_test_o32 \"mips-reginfo\"\n run_dump_test_n32 \"mips-reginfo-n32\"\n+\n+run_dump_test_o32 \"global-local-symtab-o32${tmips}\"\n+run_dump_test_n32 \"global-local-symtab-n32${tmips}\"\n+run_dump_test_n64 \"global-local-symtab-n64\""
+    },
+    {
+      "sha": "1da85af7fa89b57a296be46b9a7415f6e0f7e1d4",
+      "filename": "gas/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/gas/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/gas/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/ChangeLog?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -1,3 +1,13 @@\n+2020-07-29  Maciej W. Rozycki  <macro@linux-mips.org>\n+\n+\t* testsuite/gas/mips/global-local-symtab-o32.d: New test.\n+\t* testsuite/gas/mips/global-local-symtab-o32t.d: New test.\n+\t* testsuite/gas/mips/global-local-symtab-n32.d: New test.\n+\t* testsuite/gas/mips/global-local-symtab-n32t.d: New test.\n+\t* testsuite/gas/mips/global-local-symtab-n64.d: New test.\n+\t* testsuite/gas/mips/global-local-symtab.s: New test source.\n+\t* testsuite/gas/mips/mips.exp: Run the new tests.\n+\n 2020-07-28  H.J. Lu  <hongjiu.lu@intel.com>\n \n \tPR gas/26305"
+    },
+    {
+      "sha": "cf7ca7e571bd73b0a07293534e61edf977ca00c7",
+      "filename": "gas/testsuite/gas/mips/global-local-symtab-n32.d",
+      "status": "added",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/gas/testsuite/gas/mips/global-local-symtab-n32.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/gas/testsuite/gas/mips/global-local-symtab-n32.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/mips/global-local-symtab-n32.d?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -0,0 +1,6 @@\n+#DUMPPROG: readelf\n+#readelf: -S\n+#name: MIPS global/local symbol table split (n32)\n+#as: -n32 -mno-pdr -mips3\n+#source: global-local-symtab.s\n+#dump: global-local-symtab-o32.d"
+    },
+    {
+      "sha": "b3010f6e9bc72f3a6c5dadd577ececc6cc04c139",
+      "filename": "gas/testsuite/gas/mips/global-local-symtab-n32t.d",
+      "status": "added",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/gas/testsuite/gas/mips/global-local-symtab-n32t.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/gas/testsuite/gas/mips/global-local-symtab-n32t.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/mips/global-local-symtab-n32t.d?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -0,0 +1,6 @@\n+#DUMPPROG: readelf\n+#readelf: -S\n+#name: MIPS global/local symbol table split (n32)\n+#as: -n32 -mno-pdr -mips3\n+#source: global-local-symtab.s\n+#dump: global-local-symtab-o32t.d"
+    },
+    {
+      "sha": "1255ade26b25bb3e72e20a84301bd06904e2429b",
+      "filename": "gas/testsuite/gas/mips/global-local-symtab-n64.d",
+      "status": "added",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/gas/testsuite/gas/mips/global-local-symtab-n64.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/gas/testsuite/gas/mips/global-local-symtab-n64.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/mips/global-local-symtab-n64.d?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -0,0 +1,8 @@\n+#DUMPPROG: readelf\n+#readelf: -SW\n+#name: MIPS global/local symbol table split (n64)\n+#as: -64 -mno-pdr -mips3\n+#source: global-local-symtab.s\n+#...\n+ *\\[ *[0-9]+\\] +\\.symtab +SYMTAB +[0-9a-f]+ +[0-9a-f]+ +[0-9a-f]+ +18 +8 +8 +8\n+#pass"
+    },
+    {
+      "sha": "4793794a96b19840446c8abcb64abe084cd0ffb6",
+      "filename": "gas/testsuite/gas/mips/global-local-symtab-o32.d",
+      "status": "added",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/gas/testsuite/gas/mips/global-local-symtab-o32.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/gas/testsuite/gas/mips/global-local-symtab-o32.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/mips/global-local-symtab-o32.d?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -0,0 +1,8 @@\n+#DUMPPROG: readelf\n+#readelf: -S\n+#name: MIPS global/local symbol table split (o32)\n+#as: -32 -mno-pdr\n+#source: global-local-symtab.s\n+#...\n+ *\\[ *[0-9]+\\] +\\.symtab +SYMTAB +[0-9a-f]+ +[0-9a-f]+ +[0-9a-f]+ +10 +8 +7 +4\n+#pass"
+    },
+    {
+      "sha": "e16fa66f4217fa813e72695548f972da1b3d799d",
+      "filename": "gas/testsuite/gas/mips/global-local-symtab-o32t.d",
+      "status": "added",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/gas/testsuite/gas/mips/global-local-symtab-o32t.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/gas/testsuite/gas/mips/global-local-symtab-o32t.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/mips/global-local-symtab-o32t.d?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -0,0 +1,8 @@\n+#DUMPPROG: readelf\n+#readelf: -S\n+#name: MIPS global/local symbol table split (o32)\n+#as: -32 -mno-pdr\n+#source: global-local-symtab.s\n+#...\n+ *\\[ *[0-9]+\\] +\\.symtab +SYMTAB +[0-9a-f]+ +[0-9a-f]+ +[0-9a-f]+ +10 +8 +8 +4\n+#pass"
+    },
+    {
+      "sha": "1ac85b32ea284c326d8fc52b269ac43c599f94ff",
+      "filename": "gas/testsuite/gas/mips/global-local-symtab.s",
+      "status": "added",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/gas/testsuite/gas/mips/global-local-symtab.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/gas/testsuite/gas/mips/global-local-symtab.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/mips/global-local-symtab.s?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -0,0 +1,10 @@\n+\t.data\n+\t.globl\tfoo\n+\t.type\tfoo, @object\n+foo:\n+\t.dc.l\t0\n+\t.size\tfoo, . - foo\n+\t.type\tbar, @object\n+bar:\n+\t.dc.l\t0\n+\t.size\tbar, . - bar"
+    },
+    {
+      "sha": "f16d1b1644698ebf97852b8d6892e2896ddc9651",
+      "filename": "gas/testsuite/gas/mips/mips.exp",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/gas/testsuite/gas/mips/mips.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/gas/testsuite/gas/mips/mips.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/mips/mips.exp?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -2092,4 +2092,10 @@ if { [istarget mips*-*-vxworks*] } {\n \n     run_dump_test \"pr14798${imips}\"\n     run_dump_test \"insn-isa-mode\"\n+    run_dump_test \"insn-isa-mode\"\n+    run_dump_test \"global-local-symtab-o32${tmips}\"\n+    if $has_newabi {\n+\trun_dump_test \"global-local-symtab-n32${tmips}\"\n+\trun_dump_test \"global-local-symtab-n64\"\n+    }\n }"
+    },
+    {
+      "sha": "96edfb38b11275f5b5743b570fb1d002b76330fd",
+      "filename": "ld/ChangeLog",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/ld/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/ld/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/ChangeLog?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -1,3 +1,14 @@\n+2020-07-29  Maciej W. Rozycki  <macro@linux-mips.org>\n+\n+\t* testsuite/ld-mips-elf/global-local-symtab-o32.d: New test.\n+\t* testsuite/ld-mips-elf/global-local-symtab-o32t.d: New test.\n+\t* testsuite/ld-mips-elf/global-local-symtab-n32.d: New test.\n+\t* testsuite/ld-mips-elf/global-local-symtab-n32t.d: New test.\n+\t* testsuite/ld-mips-elf/global-local-symtab-n64.d: New test.\n+\t* testsuite/ld-mips-elf/global-local-symtab.ld: New test linker\n+\tscript.\n+\t* testsuite/ld-mips-elf/mips-elf.exp: Run the new tests.\n+\n 2020-07-29  Alan Modra  <amodra@gmail.com>\n \n \t* ldelf.c (ldelf_before_place_orphans): Set SEC_EXCLUDE for"
+    },
+    {
+      "sha": "619295e8b81fcebe796f3f728c24d4fc39877ce6",
+      "filename": "ld/testsuite/ld-mips-elf/global-local-symtab-n32.d",
+      "status": "added",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/ld/testsuite/ld-mips-elf/global-local-symtab-n32.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/ld/testsuite/ld-mips-elf/global-local-symtab-n32.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-mips-elf/global-local-symtab-n32.d?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -0,0 +1,6 @@\n+#name: MIPS global/local symbol table split (n32)\n+#source: ../../../gas/testsuite/gas/mips/global-local-symtab.s\n+#as: -mno-pdr\n+#ld: -r -T global-local-symtab.ld\n+#readelf: -S\n+#dump: global-local-symtab-o32.d"
+    },
+    {
+      "sha": "a87c1d695192888d9debf333b9442e066324cac0",
+      "filename": "ld/testsuite/ld-mips-elf/global-local-symtab-n32t.d",
+      "status": "added",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/ld/testsuite/ld-mips-elf/global-local-symtab-n32t.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/ld/testsuite/ld-mips-elf/global-local-symtab-n32t.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-mips-elf/global-local-symtab-n32t.d?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -0,0 +1,6 @@\n+#name: MIPS global/local symbol table split (n32)\n+#source: ../../../gas/testsuite/gas/mips/global-local-symtab.s\n+#as: -mno-pdr\n+#ld: -r -T global-local-symtab.ld\n+#readelf: -S\n+#dump: global-local-symtab-o32t.d"
+    },
+    {
+      "sha": "b77625cff54a3e05e7075531796ee8b5a3fab21b",
+      "filename": "ld/testsuite/ld-mips-elf/global-local-symtab-n64.d",
+      "status": "added",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/ld/testsuite/ld-mips-elf/global-local-symtab-n64.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/ld/testsuite/ld-mips-elf/global-local-symtab-n64.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-mips-elf/global-local-symtab-n64.d?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -0,0 +1,8 @@\n+#name: MIPS global/local symbol table split (n64)\n+#source: ../../../gas/testsuite/gas/mips/global-local-symtab.s\n+#as: -mno-pdr\n+#ld: -r -T global-local-symtab.ld\n+#readelf: -SW\n+#...\n+ *\\[ *[0-9]+\\] +\\.symtab +SYMTAB +[0-9a-f]+ +[0-9a-f]+ +[0-9a-f]+ +18 +3 +4 +8\n+#pass"
+    },
+    {
+      "sha": "c7e1cd2c714e64e7df03eeafef59158f70592515",
+      "filename": "ld/testsuite/ld-mips-elf/global-local-symtab-o32.d",
+      "status": "added",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/ld/testsuite/ld-mips-elf/global-local-symtab-o32.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/ld/testsuite/ld-mips-elf/global-local-symtab-o32.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-mips-elf/global-local-symtab-o32.d?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -0,0 +1,8 @@\n+#name: MIPS global/local symbol table split (o32)\n+#source: ../../../gas/testsuite/gas/mips/global-local-symtab.s\n+#as: -mno-pdr\n+#ld: -r -T global-local-symtab.ld\n+#readelf: -S\n+#...\n+ *\\[ *[0-9]+\\] +\\.symtab +SYMTAB +[0-9a-f]+ +[0-9a-f]+ +[0-9a-f]+ +10 +3 +2 +4\n+#pass"
+    },
+    {
+      "sha": "612d557f6c3f5616bc96f65b8633fd9b21b9c077",
+      "filename": "ld/testsuite/ld-mips-elf/global-local-symtab-o32t.d",
+      "status": "added",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/ld/testsuite/ld-mips-elf/global-local-symtab-o32t.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/ld/testsuite/ld-mips-elf/global-local-symtab-o32t.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-mips-elf/global-local-symtab-o32t.d?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -0,0 +1,8 @@\n+#name: MIPS global/local symbol table split (o32)\n+#source: ../../../gas/testsuite/gas/mips/global-local-symtab.s\n+#as: -mno-pdr\n+#ld: -r -T global-local-symtab.ld\n+#readelf: -S\n+#...\n+ *\\[ *[0-9]+\\] +\\.symtab +SYMTAB +[0-9a-f]+ +[0-9a-f]+ +[0-9a-f]+ +10 +3 +4 +4\n+#pass"
+    },
+    {
+      "sha": "57ea4dec2522c43c272e63656f26269ee954544f",
+      "filename": "ld/testsuite/ld-mips-elf/global-local-symtab.ld",
+      "status": "added",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/ld/testsuite/ld-mips-elf/global-local-symtab.ld",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/ld/testsuite/ld-mips-elf/global-local-symtab.ld",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-mips-elf/global-local-symtab.ld?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -0,0 +1,8 @@\n+SECTIONS\n+{\n+  .data : { *(.data) }\n+  .symtab : { *(.symtab) }\n+  .strtab : { *(.strtab) }\n+  .shstrtab : { *(.shstrtab) }\n+  /DISCARD/ : { *(*) }\n+}"
+    },
+    {
+      "sha": "4b257c31e659f1f0d1e8d9a80ea61039ec3af9a5",
+      "filename": "ld/testsuite/ld-mips-elf/mips-elf.exp",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3f1b17bbf022a34f92f3dc32d742e4901816708e/ld/testsuite/ld-mips-elf/mips-elf.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3f1b17bbf022a34f92f3dc32d742e4901816708e/ld/testsuite/ld-mips-elf/mips-elf.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-mips-elf/mips-elf.exp?ref=3f1b17bbf022a34f92f3dc32d742e4901816708e",
+      "patch": "@@ -248,6 +248,7 @@ if {[istarget *-*-openbsd*] } {\n     set abi_asflags(o32) -32\n     set irixemul 1\n }\n+set tmips [expr $irixemul ? {\"\"} : {\"t\"}]\n \n if { $linux_gnu } {\n     run_ld_link_tests [list \\\n@@ -1657,3 +1658,8 @@ run_dump_test_n64 \"pic-reloc-7\" [list [list name (microMIPS)] \\\n \t\t\t\t      [list as \"-mmicromips\"]]\n \n run_dump_test_o32 \"reloc-pcrel-r6\"\n+\n+# Global/local symbol table split tests.\n+run_dump_test_o32 \"global-local-symtab-o32${tmips}\"\n+run_dump_test_n32 \"global-local-symtab-n32${tmips}\"\n+run_dump_test_n64 \"global-local-symtab-n64\""
+    }
+  ]
+}

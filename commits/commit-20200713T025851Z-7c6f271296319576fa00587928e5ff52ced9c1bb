@@ -1,0 +1,110 @@
+{
+  "sha": "7c6f271296319576fa00587928e5ff52ced9c1bb",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6N2M2ZjI3MTI5NjMxOTU3NmZhMDA1ODc5MjhlNWZmNTJjZWQ5YzFiYg==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2020-07-13T02:58:51Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2020-07-13T02:58:51Z"
+    },
+    "message": "gdb: make get_discrete_bounds check for non-constant range bounds\n\nThe next patch adds getters to the `dynamic_prop` structure.  These\ngetters validate that the accessed data matches the property kind (for\nexample, to access the `const_val` field, the property must be of kind\n`PROP_CONST`).  It found one instance where we are accessing the\n`const_val` data of a property that has the undefined kind.\n\nThis happens in function `get_discrete_bounds`, and is exposed by test\ngdb.base/ptype.exp, amongst others.  Without this patch, we would get:\n\n    $ ./gdb -q -nx --data-directory=data-directory testsuite/outputs/gdb.base/ptype/ptype -ex \"ptype t_char_array\"\n    Reading symbols from testsuite/outputs/gdb.base/ptype/ptype...\n    type = char [\n    /home/smarchi/src/binutils-gdb/gdb/gdbtypes.h:526: internal-error: LONGEST dynamic_prop::const_val() const: Assertion `m_kind == PROP_CONST' failed.\n    A problem internal to GDB has been detected,\n    further debugging may prove unreliable.\n    Quit this debugging session? (y or n)\n\nThe `get_discrete_bounds` function returns the bounds of a type (not\nonly range types).  For range types, it naturally uses the bound\nproperties that are intrinsic to the range type.  It accesses these\nproperties using TYPE_LOW_BOUND and TYPE_HIGH_BOUND, which assume the\nproperties are defined and have constant values.  This is sometimes not\nthe case, and the passed range type (as in the example above) has an\nundefined high/upper bound.\n\nGiven its current interface (returning two LONGEST values for low and\nhigh), `get_discrete_bounds` can't really work if the range type's\nbounds are not both defined and both constant values.\n\nThis patch changes the function to return -1 (failure to get the bounds)\nif any of the range type's bounds is not a constant value.  It is\nsufficient to fix the issue and it seems to keep the callers happy, at\nleast according to the testsuite.\n\nA bit in `get_array_bounds` could be removed, since\n`get_discrete_bounds` no longer returns 1 if a bound is undefined.\n\ngdb/ChangeLog:\n\n\t* gdbtypes.c (get_discrete_bounds): Return failure if\n\tthe range type's bounds are not both defined and constant\n\tvalues.\n\t(get_array_bounds): Update comment.  Remove undefined bound check.\n\nChange-Id: I047a3beee2c1e275f888cfc4778228339922bde9",
+    "tree": {
+      "sha": "a48617d8e5305d9e79bec46ccd3bb328e30d90da",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/a48617d8e5305d9e79bec46ccd3bb328e30d90da"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/7c6f271296319576fa00587928e5ff52ced9c1bb",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7c6f271296319576fa00587928e5ff52ced9c1bb",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/7c6f271296319576fa00587928e5ff52ced9c1bb",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7c6f271296319576fa00587928e5ff52ced9c1bb/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "599088e3ffa13edcccc68b6d7a39e7488123004a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/599088e3ffa13edcccc68b6d7a39e7488123004a",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/599088e3ffa13edcccc68b6d7a39e7488123004a"
+    }
+  ],
+  "stats": {
+    "total": 36,
+    "additions": 20,
+    "deletions": 16
+  },
+  "files": [
+    {
+      "sha": "162929f4140c7d29d336bc01eef090bfa2c2a389",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7c6f271296319576fa00587928e5ff52ced9c1bb/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7c6f271296319576fa00587928e5ff52ced9c1bb/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=7c6f271296319576fa00587928e5ff52ced9c1bb",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-07-12  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\t* gdbtypes.c (get_discrete_bounds): Return failure if\n+\tthe range type's bounds are not both defined and constant\n+\tvalues.\n+\t(get_array_bounds): Update comment.  Remove undefined bound check.\n+\n 2020-07-12  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* gdbtypes.h (TYPE_RANGE_DATA): Remove.  Update callers to use"
+    },
+    {
+      "sha": "40165563b91a93137ec63e80e52e6528293d679a",
+      "filename": "gdb/gdbtypes.c",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 16,
+      "changes": 29,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7c6f271296319576fa00587928e5ff52ced9c1bb/gdb/gdbtypes.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7c6f271296319576fa00587928e5ff52ced9c1bb/gdb/gdbtypes.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbtypes.c?ref=7c6f271296319576fa00587928e5ff52ced9c1bb",
+      "patch": "@@ -1028,8 +1028,11 @@ has_static_range (const struct range_bounds *bounds)\n \n \n /* Set *LOWP and *HIGHP to the lower and upper bounds of discrete type\n-   TYPE.  Return 1 if type is a range type, 0 if it is discrete (and\n-   bounds will fit in LONGEST), or -1 otherwise.  */\n+   TYPE.\n+\n+   Return 1 if type is a range type with two defined, constant bounds.\n+   Else, return 0 if it is discrete (and bounds will fit in LONGEST).\n+   Else, return -1.  */\n \n int\n get_discrete_bounds (struct type *type, LONGEST *lowp, LONGEST *highp)\n@@ -1038,8 +1041,15 @@ get_discrete_bounds (struct type *type, LONGEST *lowp, LONGEST *highp)\n   switch (type->code ())\n     {\n     case TYPE_CODE_RANGE:\n+      /* This function currently only works for ranges with two defined,\n+         constant bounds.  */\n+      if (type->bounds ()->low.kind () != PROP_CONST\n+\t  || type->bounds ()->high.kind () != PROP_CONST)\n+\treturn -1;\n+\n       *lowp = TYPE_LOW_BOUND (type);\n       *highp = TYPE_HIGH_BOUND (type);\n+\n       if (TYPE_TARGET_TYPE (type)->code () == TYPE_CODE_ENUM)\n \t{\n \t  if (!discrete_position (TYPE_TARGET_TYPE (type), *lowp, lowp)\n@@ -1107,14 +1117,7 @@ get_discrete_bounds (struct type *type, LONGEST *lowp, LONGEST *highp)\n    Save the high bound into HIGH_BOUND if not NULL.\n \n    Return 1 if the operation was successful.  Return zero otherwise,\n-   in which case the values of LOW_BOUND and HIGH_BOUNDS are unmodified.\n-\n-   We now simply use get_discrete_bounds call to get the values\n-   of the low and high bounds.\n-   get_discrete_bounds can return three values:\n-   1, meaning that index is a range,\n-   0, meaning that index is a discrete type,\n-   or -1 for failure.  */\n+   in which case the values of LOW_BOUND and HIGH_BOUNDS are unmodified.  */\n \n int\n get_array_bounds (struct type *type, LONGEST *low_bound, LONGEST *high_bound)\n@@ -1131,12 +1134,6 @@ get_array_bounds (struct type *type, LONGEST *low_bound, LONGEST *high_bound)\n   if (res == -1)\n     return 0;\n \n-  /* Check if the array bounds are undefined.  */\n-  if (res == 1\n-      && ((low_bound && TYPE_ARRAY_LOWER_BOUND_IS_UNDEFINED (type))\n-\t  || (high_bound && TYPE_ARRAY_UPPER_BOUND_IS_UNDEFINED (type))))\n-    return 0;\n-\n   if (low_bound)\n     *low_bound = low;\n "
+    }
+  ]
+}

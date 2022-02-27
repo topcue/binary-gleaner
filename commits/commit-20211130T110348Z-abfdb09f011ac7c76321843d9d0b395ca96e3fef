@@ -1,0 +1,96 @@
+{
+  "sha": "abfdb09f011ac7c76321843d9d0b395ca96e3fef",
+  "node_id": "C_kwDOANOeidoAKGFiZmRiMDlmMDExYWM3Yzc2MzIxODQzZDlkMGIzOTVjYTk2ZTNmZWY",
+  "commit": {
+    "author": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2021-11-30T10:05:13Z"
+    },
+    "committer": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2021-11-30T11:03:48Z"
+    },
+    "message": "RISC-V: The vtype immediate with more than the defined 8 bits are preserved.\n\nAccording the rvv spec,\nhttps://github.com/riscv/riscv-v-spec/blob/master/vtype-format.adoc\n\nThe bits of vtype immediate from 8 to (xlen - 1) should be reserved.\nTherefore, we should also dump the vtype immediate as numbers, when\nthey are set over 8-bits.  I think this is a bug that we used to support\nvediv extension and use the bit 8 and 9 of vtype, but forgot to update\nthe behavior when removing the vediv.\n\nConsider the testcases,\n\nvsetvli  a0, a1,  0x700    # the reserved bit 10, 9 and 8 are used.\nvsetvli  a0, a1,  0x400    # the reserved bit 10 is used.\nvsetvli  a0, a1,  0x300    # the reserved bit 9 and 8 are used.\nvsetvli  a0, a1,  0x100    # the reserved bit 8 is used.\nvsetivli a0, 0xb, 0x300    # the reserved bit 9 and 8 are used.\nvsetivli a0, 0xb, 0x100    # the reserved bit 8 is used.\n\nThe original objdump shows the following result,\n\n0000000000000000 <.text>:\n   0:   7005f557                vsetvli a0,a1,1792\n   4:   4005f557                vsetvli a0,a1,1024\n   8:   3005f557                vsetvli a0,a1,e8,m1,tu,mu\n   c:   1005f557                vsetvli a0,a1,e8,m1,tu,mu\n  10:   f005f557                vsetivli        a0,11,e8,m1,tu,mu\n  14:   d005f557                vsetivli        a0,11,e8,m1,tu,mu\n\nBut in fact the correct result should be,\n\n0000000000000000 <.text>:\n   0:   7005f557                vsetvli a0,a1,1792\n   4:   4005f557                vsetvli a0,a1,1024\n   8:   3005f557                vsetvli a0,a1,768\n   c:   1005f557                vsetvli a0,a1,256\n  10:   f005f557                vsetivli        a0,11,768\n  14:   d005f557                vsetivli        a0,11,256\n\ngas/\n\t* testsuite/gas/riscv/vector-insns.d: Added testcases to\n\ttest the reserved bit 8 to (xlen-1) of vtype.\n\t* testsuite/gas/riscv/vector-insns.s: Likewise.\ninclude/\n\t* opcode/riscv.h: Removed OP_MASK_VTYPE_RES and OP_SH_VTYPE_RES,\n\tsince they are different for operand Vc and Vb.\nopcodes/\n\t* riscv-dis.c (print_insn_args): Updated imm_vtype_res to\n\textract the reserved immediate of vtype correctly.",
+    "tree": {
+      "sha": "1e4a9ea03e6c4084873370a7d83ca7fd4135ce9b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/1e4a9ea03e6c4084873370a7d83ca7fd4135ce9b"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/abfdb09f011ac7c76321843d9d0b395ca96e3fef",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/abfdb09f011ac7c76321843d9d0b395ca96e3fef",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/abfdb09f011ac7c76321843d9d0b395ca96e3fef",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/abfdb09f011ac7c76321843d9d0b395ca96e3fef/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "ee083a9e7cca3f2946a259303b4594d6329602fd",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ee083a9e7cca3f2946a259303b4594d6329602fd",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/ee083a9e7cca3f2946a259303b4594d6329602fd"
+    }
+  ],
+  "stats": {
+    "total": 17,
+    "additions": 14,
+    "deletions": 3
+  },
+  "files": [
+    {
+      "sha": "71764aa1f347d27509c4b57c79b82bd232272406",
+      "filename": "gas/testsuite/gas/riscv/vector-insns.d",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/abfdb09f011ac7c76321843d9d0b395ca96e3fef/gas/testsuite/gas/riscv/vector-insns.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/abfdb09f011ac7c76321843d9d0b395ca96e3fef/gas/testsuite/gas/riscv/vector-insns.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/vector-insns.d?ref=abfdb09f011ac7c76321843d9d0b395ca96e3fef",
+      "patch": "@@ -24,6 +24,12 @@ Disassembly of section .text:\n [ \t]+[0-9a-f]+:[ \t]+c4a5f557[ \t]+vsetivli[ \t]+a0,11,e16,m4,ta,mu\n [ \t]+[0-9a-f]+:[ \t]+c165f557[ \t]+vsetivli[ \t]+a0,11,e32,mf4,tu,mu\n [ \t]+[0-9a-f]+:[ \t]+c9d5f557[ \t]+vsetivli[ \t]+a0,11,e64,mf8,tu,ma\n+[ \t]+[0-9a-f]+:[ \t]+7005f557[ \t]+vsetvli[ \t]+a0,a1,1792\n+[ \t]+[0-9a-f]+:[ \t]+4005f557[ \t]+vsetvli[ \t]+a0,a1,1024\n+[ \t]+[0-9a-f]+:[ \t]+3005f557[ \t]+vsetvli[ \t]+a0,a1,768\n+[ \t]+[0-9a-f]+:[ \t]+1005f557[ \t]+vsetvli[ \t]+a0,a1,256\n+[ \t]+[0-9a-f]+:[ \t]+f005f557[ \t]+vsetivli[ \t]+a0,11,768\n+[ \t]+[0-9a-f]+:[ \t]+d005f557[ \t]+vsetivli[ \t]+a0,11,256\n [ \t]+[0-9a-f]+:[ \t]+02b50207[ \t]+vlm.v[ \t]+v4,\\(a0\\)\n [ \t]+[0-9a-f]+:[ \t]+02b50207[ \t]+vlm.v[ \t]+v4,\\(a0\\)\n [ \t]+[0-9a-f]+:[ \t]+02b50207[ \t]+vlm.v[ \t]+v4,\\(a0\\)"
+    },
+    {
+      "sha": "a4b98d810268f41fd7dbdd69304346d930cfab5e",
+      "filename": "gas/testsuite/gas/riscv/vector-insns.s",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/abfdb09f011ac7c76321843d9d0b395ca96e3fef/gas/testsuite/gas/riscv/vector-insns.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/abfdb09f011ac7c76321843d9d0b395ca96e3fef/gas/testsuite/gas/riscv/vector-insns.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/vector-insns.s?ref=abfdb09f011ac7c76321843d9d0b395ca96e3fef",
+      "patch": "@@ -16,6 +16,13 @@\n \tvsetivli a0, 0xb, e32, mf4, mu\n \tvsetivli a0, 0xb, e64, mf8, tu, ma\n \n+\tvsetvli  a0, a1,  0x700\n+\tvsetvli  a0, a1,  0x400\n+\tvsetvli  a0, a1,  0x300\n+\tvsetvli  a0, a1,  0x100\n+\tvsetivli a0, 0xb, 0x300\n+\tvsetivli a0, 0xb, 0x100\n+\n \tvlm.v v4, (a0)\n \tvlm.v v4, 0(a0)\n \tvle1.v v4, (a0)\t\t# Alias of vlm.v"
+    },
+    {
+      "sha": "14889972abcee2e0d0801f6c4c0c7346fabc9cd1",
+      "filename": "include/opcode/riscv.h",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/abfdb09f011ac7c76321843d9d0b395ca96e3fef/include/opcode/riscv.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/abfdb09f011ac7c76321843d9d0b395ca96e3fef/include/opcode/riscv.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/opcode/riscv.h?ref=abfdb09f011ac7c76321843d9d0b395ca96e3fef",
+      "patch": "@@ -306,8 +306,6 @@ static const char * const riscv_pred_succ[16] =\n #define OP_SH_VTA\t\t6\n #define OP_MASK_VMA\t\t0x1\n #define OP_SH_VMA\t\t7\n-#define OP_MASK_VTYPE_RES\t0x1\n-#define OP_SH_VTYPE_RES\t\t10\n #define OP_MASK_VWD\t\t0x1\n #define OP_SH_VWD\t\t26\n "
+    },
+    {
+      "sha": "d646dd56e64d50e96d45c4f68204fcd9d3e5fbc4",
+      "filename": "opcodes/riscv-dis.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/abfdb09f011ac7c76321843d9d0b395ca96e3fef/opcodes/riscv-dis.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/abfdb09f011ac7c76321843d9d0b395ca96e3fef/opcodes/riscv-dis.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/riscv-dis.c?ref=abfdb09f011ac7c76321843d9d0b395ca96e3fef",
+      "patch": "@@ -328,7 +328,7 @@ print_insn_args (const char *oparg, insn_t l, bfd_vma pc, disassemble_info *info\n \t\tunsigned int imm_vsew = EXTRACT_OPERAND (VSEW, imm);\n \t\tunsigned int imm_vta = EXTRACT_OPERAND (VTA, imm);\n \t\tunsigned int imm_vma = EXTRACT_OPERAND (VMA, imm);\n-\t\tunsigned int imm_vtype_res = EXTRACT_OPERAND (VTYPE_RES, imm);\n+\t\tunsigned int imm_vtype_res = (imm >> 8);\n \n \t\tif (imm_vsew < ARRAY_SIZE (riscv_vsew)\n \t\t    && imm_vlmul < ARRAY_SIZE (riscv_vlmul)"
+    }
+  ]
+}

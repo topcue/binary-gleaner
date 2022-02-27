@@ -1,0 +1,60 @@
+{
+  "sha": "bafae5524e78a85322788d833a719af753ce14a2",
+  "node_id": "C_kwDOANOeidoAKGJhZmFlNTUyNGU3OGE4NTMyMjc4OGQ4MzNhNzE5YWY3NTNjZTE0YTI",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-02-07T17:13:34Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-02-08T09:20:52Z"
+    },
+    "message": "gdb: remove tailing newlines from index_cache_debug calls\n\nI noticed that most of the calls to index_cache_debug include a\ntrailing newline.  As the new debug mechanism already adds a newline,\nthat means all of these debug calls result in a blank line being\nprinted, which I think is a mistake.\n\nRemove all the trailing newlines.\n\nI also reformatted one of the index_cache_debug where a string will\nnow fit onto a single line.\n\nUnless 'set debug index-cache on' is used, there should be no visible\nchange in output after this commit.",
+    "tree": {
+      "sha": "b3b43ee786898568f7d7364cf652c85b1370ef1b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/b3b43ee786898568f7d7364cf652c85b1370ef1b"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/bafae5524e78a85322788d833a719af753ce14a2",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bafae5524e78a85322788d833a719af753ce14a2",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/bafae5524e78a85322788d833a719af753ce14a2",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bafae5524e78a85322788d833a719af753ce14a2/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "30a954525f4e53a9cd50a1a8a6f201c7cf6595c7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/30a954525f4e53a9cd50a1a8a6f201c7cf6595c7",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/30a954525f4e53a9cd50a1a8a6f201c7cf6595c7"
+    }
+  ],
+  "stats": {
+    "total": 20,
+    "additions": 10,
+    "deletions": 10
+  },
+  "files": [
+    {
+      "sha": "fd76917c68bc57ba4fa00f2453ad46beb794578d",
+      "filename": "gdb/dwarf2/index-cache.c",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 10,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bafae5524e78a85322788d833a719af753ce14a2/gdb/dwarf2/index-cache.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bafae5524e78a85322788d833a719af753ce14a2/gdb/dwarf2/index-cache.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/index-cache.c?ref=bafae5524e78a85322788d833a719af753ce14a2",
+      "patch": "@@ -63,15 +63,15 @@ index_cache::set_directory (std::string dir)\n \n   m_dir = std::move (dir);\n \n-  index_cache_debug (\"now using directory %s\\n\", m_dir.c_str ());\n+  index_cache_debug (\"now using directory %s\", m_dir.c_str ());\n }\n \n /* See dwarf-index-cache.h.  */\n \n void\n index_cache::enable ()\n {\n-  index_cache_debug (\"enabling (%s)\\n\", m_dir.c_str ());\n+  index_cache_debug (\"enabling (%s)\", m_dir.c_str ());\n \n   m_enabled = true;\n }\n@@ -81,7 +81,7 @@ index_cache::enable ()\n void\n index_cache::disable ()\n {\n-  index_cache_debug (\"disabling\\n\");\n+  index_cache_debug (\"disabling\");\n \n   m_enabled = false;\n }\n@@ -100,7 +100,7 @@ index_cache::store (dwarf2_per_objfile *per_objfile)\n   const bfd_build_id *build_id = build_id_bfd_get (obj->obfd);\n   if (build_id == nullptr)\n     {\n-      index_cache_debug (\"objfile %s has no build id\\n\",\n+      index_cache_debug (\"objfile %s has no build id\",\n \t\t\t objfile_name (obj));\n       return;\n     }\n@@ -118,7 +118,7 @@ index_cache::store (dwarf2_per_objfile *per_objfile)\n \n       if (dwz_build_id == nullptr)\n \t{\n-\t  index_cache_debug (\"dwz objfile %s has no build id\\n\",\n+\t  index_cache_debug (\"dwz objfile %s has no build id\",\n \t\t\t     dwz->filename ());\n \t  return;\n \t}\n@@ -143,7 +143,7 @@ index_cache::store (dwarf2_per_objfile *per_objfile)\n \t  return;\n \t}\n \n-      index_cache_debug (\"writing index cache for objfile %s\\n\",\n+      index_cache_debug (\"writing index cache for objfile %s\",\n \t\t\t objfile_name (obj));\n \n       /* Write the index itself to the directory, using the build id as the\n@@ -154,8 +154,8 @@ index_cache::store (dwarf2_per_objfile *per_objfile)\n     }\n   catch (const gdb_exception_error &except)\n     {\n-      index_cache_debug (\"couldn't store index cache for objfile \"\n-\t\t\t \"%s: %s\", objfile_name (obj), except.what ());\n+      index_cache_debug (\"couldn't store index cache for objfile %s: %s\",\n+\t\t\t objfile_name (obj), except.what ());\n     }\n }\n \n@@ -195,7 +195,7 @@ index_cache::lookup_gdb_index (const bfd_build_id *build_id,\n \n   try\n     {\n-      index_cache_debug (\"trying to read %s\\n\",\n+      index_cache_debug (\"trying to read %s\",\n \t\t\t filename.c_str ());\n \n       /* Try to map that file.  */\n@@ -211,7 +211,7 @@ index_cache::lookup_gdb_index (const bfd_build_id *build_id,\n     }\n   catch (const gdb_exception_error &except)\n     {\n-      index_cache_debug (\"couldn't read %s: %s\\n\",\n+      index_cache_debug (\"couldn't read %s: %s\",\n \t\t\t filename.c_str (), except.what ());\n     }\n "
+    }
+  ]
+}

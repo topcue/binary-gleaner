@@ -1,0 +1,312 @@
+{
+  "sha": "08ccfccf0ed825be9be2972594d4be4a2207ef13",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MDhjY2ZjY2YwZWQ4MjViZTliZTI5NzI1OTRkNGJlNGEyMjA3ZWYxMw==",
+  "commit": {
+    "author": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2020-06-08T02:54:53Z"
+    },
+    "committer": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2020-06-30T01:54:55Z"
+    },
+    "message": "RISC-V: Support debug and float CSR as the unprivileged ones.\n\nThe unprivileged CSR should be controlled by other specific specs rather\nthan the privileged spec.  For example, the debug CSR should be controlled\nby the debug spec, and the float CSR should be controlled by the float\nspec.  User may use assembler options to choose what the debug and other\nspecs they want, or may encode the versions of specs into the architecture\nstring directly.  Since we haven't decided which one is better, we set the\ndefined and aborted versions of unprivileged CSR to PRIV_SPEC_CLASS_NONE\nin the include/opcode/riscv-opc.h, to tell assembler don't check priv spec\nversions for them.  However, these PRIV_SPEC_CLASS_NONE will be changed\nto FLOAT_SPEC_CLASS_* and DEBUG_SPEC_CLASS_* in the future.\n\n\tgas/\n\t* config/tc-riscv.c (riscv_csr_class_check): Removed.  Move the\n\tchecking into riscv_csr_address.\n\t(riscv_csr_version_check): Likewise.\n\t(riscv_csr_address): New function.  Return the suitable CSR address\n\tafter checking the ISA dependency and versions.  Issue warnings\tif\n\twe find any conflict and -mcsr-check is set.  CSR_CLASS_F and\n\tCSR_CLASS_DEBUG are unprivileged CSR for now, so don't check the\n\tpriv spec versions for them.\n\t(reg_csr_lookup_internal): Call riscv_csr_address to find the\n\tsuitable CSR address.\n\n\t* testsuite/gas/riscv/priv-reg-fail-fext.d: Remove -mpriv-spec=1.11.\n\t* testsuite/gas/riscv/priv-reg-fail-read-only-01.d: Likewise.\n\t* testsuite/gas/riscv/priv-reg-fail-rv32-only.d: Likewise.\n\t* testsuite/gas/riscv/priv-reg-fail-fext.l:  We don't care the\n\tpriv spec warnings here.  These warnings are added by accident.\n\tRemove them and only focus on the ISA dependency warnings.\n\t* testsuite/gas/riscv/priv-reg-fail-rv32-only.l: Likewise.\n\t* testsuite/gas/riscv/priv-reg-fail-read-only-01.l: Likewise.\n\t* testsuite/gas/riscv/priv-reg-fail-version-1p9.l: Updated since\n\tdscratch0 and dscratch1 are regarded as the unprivileged CSR rather\n\tthan the privileged ones.\n\t* testsuite/gas/riscv/priv-reg-fail-version-1p9p1.l: Likewise.\n\t* testsuite/gas/riscv/priv-reg-fail-version-1p10.l: Likewise.\n\t* testsuite/gas/riscv/priv-reg-fail-version-1p11.l: Likewise.\n\t* testsuite/gas/riscv/priv-reg.s: Likewise.  Add missing debug CSR.\n\t* testsuite/gas/riscv/priv-reg-version-1p9.d: Likewise.\n\t* testsuite/gas/riscv/priv-reg-version-1p9p1.d: Likewise.\n\t* testsuite/gas/riscv/priv-reg-version-1p10.d: Likewise.\n\t* testsuite/gas/riscv/priv-reg-version-1p11.d: Likewise.\n\t* testsuite/gas/riscv/csr-dw-regnums.d: Likewise.\n\t* testsuite/gas/riscv/csr-dw-regnums.s: Likewise.\n\n\tinclude/\n\t* opcode/riscv-opc.h: Support the unprivileged CSR.  The versions\n\tof the unprivileged CSR should be PRIV_SPEC_CLASS_NONE for now.\n\t* opcode/riscv.h (enum riscv_csr_class): Add CSR_CLASS_DEBUG.\n\n\topcodes/\n\t* riscv-dis.c (print_insn_args, case 'E'): Updated.  Let the\n\tunprivileged CSR can also be initialized.",
+    "tree": {
+      "sha": "7908da4df49bac7d8959e58fc898780ec47f4154",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/7908da4df49bac7d8959e58fc898780ec47f4154"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/08ccfccf0ed825be9be2972594d4be4a2207ef13",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/08ccfccf0ed825be9be2972594d4be4a2207ef13",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/08ccfccf0ed825be9be2972594d4be4a2207ef13",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/08ccfccf0ed825be9be2972594d4be4a2207ef13/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "83d7d99e75538a1ce6facb2e5fb18f4f37f15991",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/83d7d99e75538a1ce6facb2e5fb18f4f37f15991",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/83d7d99e75538a1ce6facb2e5fb18f4f37f15991"
+    }
+  ],
+  "stats": {
+    "total": 483,
+    "additions": 268,
+    "deletions": 215
+  },
+  "files": [
+    {
+      "sha": "b91d6afe74feaa3d02338e15eaee1e3bdee79e57",
+      "filename": "gas/ChangeLog",
+      "status": "modified",
+      "additions": 34,
+      "deletions": 0,
+      "changes": 34,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/ChangeLog?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -1,3 +1,37 @@\n+2020-06-30  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* config/tc-riscv.c (riscv_csr_class_check): Removed.  Move the\n+\tchecking into riscv_csr_address.\n+\t(riscv_csr_version_check): Likewise.\n+\t(riscv_csr_address): New function.  Return the suitable CSR address\n+\tafter checking the ISA dependency and versions.  Issue warnings if\n+\twe find any conflict and -mcsr-check is set.  CSR_CLASS_F and\n+\tCSR_CLASS_DEBUG are unprivileged CSR for now, so don't check the\n+\tpriv spec versions for them.\n+\t(reg_csr_lookup_internal): Call riscv_csr_address to find the\n+\tsuitable CSR address.\n+\t* testsuite/gas/riscv/priv-reg-fail-fext.d: Remove -mpriv-spec=1.11.\n+\t* testsuite/gas/riscv/priv-reg-fail-read-only-01.d: Likewise.\n+\t* testsuite/gas/riscv/priv-reg-fail-rv32-only.d: Likewise.\n+\t* testsuite/gas/riscv/priv-reg-fail-fext.l:  We don't care the\n+\tpriv spec warnings here.  These warnings are added by accident.\n+\tRemove them and only focus on the ISA dependency warnings.\n+\t* testsuite/gas/riscv/priv-reg-fail-rv32-only.l: Likewise.\n+\t* testsuite/gas/riscv/priv-reg-fail-read-only-01.l: Likewise.\n+\t* testsuite/gas/riscv/priv-reg-fail-version-1p9.l: Updated since\n+\tdscratch0 and dscratch1 are regarded as the unprivileged CSR rather\n+\tthan the privileged ones.\n+\t* testsuite/gas/riscv/priv-reg-fail-version-1p9p1.l: Likewise.\n+\t* testsuite/gas/riscv/priv-reg-fail-version-1p10.l: Likewise.\n+\t* testsuite/gas/riscv/priv-reg-fail-version-1p11.l: Likewise.\n+\t* testsuite/gas/riscv/priv-reg.s: Likewise.  Add missing debug CSR.\n+\t* testsuite/gas/riscv/priv-reg-version-1p9.d: Likewise.\n+\t* testsuite/gas/riscv/priv-reg-version-1p9p1.d: Likewise.\n+\t* testsuite/gas/riscv/priv-reg-version-1p10.d: Likewise.\n+\t* testsuite/gas/riscv/priv-reg-version-1p11.d: Likewise.\n+\t* testsuite/gas/riscv/csr-dw-regnums.d: Likewise.\n+\t* testsuite/gas/riscv/csr-dw-regnums.s: Likewise.\n+\n 2020-06-29  H.J. Lu  <hongjiu.lu@intel.com>\n \n \t* tc-i386.c (build_vex_prefix): Support VEX base opcode length > 1."
+    },
+    {
+      "sha": "28be19894b7cbe30925777e02d1f4a7af4595191",
+      "filename": "gas/config/tc-riscv.c",
+      "status": "modified",
+      "additions": 24,
+      "deletions": 29,
+      "changes": 53,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/config/tc-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/config/tc-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-riscv.c?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -700,53 +700,49 @@ riscv_init_csr_hash (const char *name,\n     pre_entry->next = entry;\n }\n \n-/* Check wether the CSR is valid according to the ISA.  */\n+/* Return the suitable CSR address after checking the ISA dependency and\n+   priv spec versions.  */\n \n-static void\n-riscv_csr_class_check (const char *s,\n-\t\t       enum riscv_csr_class csr_class)\n+static unsigned int\n+riscv_csr_address (const char *csr_name,\n+\t\t   struct riscv_csr_extra *entry)\n {\n+  struct riscv_csr_extra *saved_entry = entry;\n+  enum riscv_csr_class csr_class = entry->csr_class;\n+  bfd_boolean need_check_version = TRUE;\n   bfd_boolean result = TRUE;\n \n-  /* Don't check the ISA dependency when -mcsr-check isn't set.  */\n-  if (!riscv_opts.csr_check)\n-    return;\n-\n   switch (csr_class)\n     {\n     case CSR_CLASS_I:\n       result = riscv_subset_supports (\"i\");\n       break;\n+    case CSR_CLASS_I_32:\n+      result = (xlen == 32 && riscv_subset_supports (\"i\"));\n+      break;\n     case CSR_CLASS_F:\n       result = riscv_subset_supports (\"f\");\n+      need_check_version = FALSE;\n       break;\n-    case CSR_CLASS_I_32:\n-      result = (xlen == 32 && riscv_subset_supports (\"i\"));\n+    case CSR_CLASS_DEBUG:\n+      need_check_version = FALSE;\n       break;\n     default:\n       as_bad (_(\"internal: bad RISC-V CSR class (0x%x)\"), csr_class);\n     }\n \n-  if (!result)\n-    as_warn (_(\"Invalid CSR `%s' for the current ISA\"), s);\n-}\n-\n-/* Check and find the CSR address according to the privilege spec version.  */\n-\n-static void\n-riscv_csr_version_check (const char *csr_name,\n-\t\t\t struct riscv_csr_extra **entryP)\n-{\n-  struct riscv_csr_extra *entry = *entryP;\n+  /* Don't report the ISA conflict when -mcsr-check isn't set.  */\n+  if (riscv_opts.csr_check && !result)\n+    as_warn (_(\"Invalid CSR `%s' for the current ISA\"), csr_name);\n \n   while (entry != NULL)\n     {\n-      if (default_priv_spec >= entry->define_version\n-\t  && default_priv_spec < entry->abort_version)\n+      if (!need_check_version\n+\t  || (default_priv_spec >= entry->define_version\n+\t      && default_priv_spec < entry->abort_version))\n        {\n          /* Find the suitable CSR according to the specific version.  */\n-         *entryP = entry;\n-         return;\n+         return entry->address;\n        }\n       entry = entry->next;\n     }\n@@ -763,6 +759,8 @@ riscv_csr_version_check (const char *csr_name,\n \tas_warn (_(\"Invalid CSR `%s' for the privilege spec `%s'\"),\n \t\t csr_name, priv_name);\n     }\n+\n+  return saved_entry->address;\n }\n \n /* Once the CSR is defined, including the old privilege spec, then we call\n@@ -785,10 +783,7 @@ reg_csr_lookup_internal (const char *s)\n      will regard it as a \"Unknown CSR\" and report error.  If user use number\n      to set the CSR, but over the range (> 0xfff), then assembler will report\n      \"Improper CSR\" error for it.  */\n-  riscv_csr_class_check (s, r->csr_class);\n-  riscv_csr_version_check (s, &r);\n-\n-  return r->address;\n+  return riscv_csr_address (s, r);\n }\n \n static unsigned int"
+    },
+    {
+      "sha": "de17ad81fbde65aa44cb7ce9281f9627bd40e496",
+      "filename": "gas/testsuite/gas/riscv/csr-dw-regnums.d",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 12,
+      "changes": 33,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/csr-dw-regnums.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/csr-dw-regnums.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/csr-dw-regnums.d?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -25,9 +25,6 @@ Contents of the .* section:\n   DW_CFA_offset_extended_sf: r4162 \\(ucause\\) at cfa\\+264\n   DW_CFA_offset_extended_sf: r4163 \\(utval\\) at cfa\\+268\n   DW_CFA_offset_extended_sf: r4164 \\(uip\\) at cfa\\+272\n-  DW_CFA_offset_extended_sf: r4097 \\(fflags\\) at cfa\\+4\n-  DW_CFA_offset_extended_sf: r4098 \\(frm\\) at cfa\\+8\n-  DW_CFA_offset_extended_sf: r4099 \\(fcsr\\) at cfa\\+12\n   DW_CFA_offset_extended_sf: r7168 \\(cycle\\) at cfa\\+12288\n   DW_CFA_offset_extended_sf: r7169 \\(time\\) at cfa\\+12292\n   DW_CFA_offset_extended_sf: r7170 \\(instret\\) at cfa\\+12296\n@@ -232,14 +229,6 @@ Contents of the .* section:\n   DW_CFA_offset_extended_sf: r4925 \\(mhpmevent29\\) at cfa\\+3316\n   DW_CFA_offset_extended_sf: r4926 \\(mhpmevent30\\) at cfa\\+3320\n   DW_CFA_offset_extended_sf: r4927 \\(mhpmevent31\\) at cfa\\+3324\n-  DW_CFA_offset_extended_sf: r6048 \\(tselect\\) at cfa\\+7808\n-  DW_CFA_offset_extended_sf: r6049 \\(tdata1\\) at cfa\\+7812\n-  DW_CFA_offset_extended_sf: r6050 \\(tdata2\\) at cfa\\+7816\n-  DW_CFA_offset_extended_sf: r6051 \\(tdata3\\) at cfa\\+7820\n-  DW_CFA_offset_extended_sf: r6064 \\(dcsr\\) at cfa\\+7872\n-  DW_CFA_offset_extended_sf: r6065 \\(dpc\\) at cfa\\+7876\n-  DW_CFA_offset_extended_sf: r6066 \\(dscratch0\\) at cfa\\+7880\n-  DW_CFA_offset_extended_sf: r6067 \\(dscratch1\\) at cfa\\+7884\n   DW_CFA_offset_extended_sf: r4608 \\(hstatus\\) at cfa\\+2048\n   DW_CFA_offset_extended_sf: r4610 \\(hedeleg\\) at cfa\\+2056\n   DW_CFA_offset_extended_sf: r4611 \\(hideleg\\) at cfa\\+2060\n@@ -258,11 +247,31 @@ Contents of the .* section:\n   DW_CFA_offset_extended_sf: r4997 \\(mdbound\\) at cfa\\+3604\n   DW_CFA_offset_extended_sf: r4897 \\(mscounteren\\) at cfa\\+3204\n   DW_CFA_offset_extended_sf: r4898 \\(mhcounteren\\) at cfa\\+3208\n+  DW_CFA_offset_extended_sf: r4097 \\(fflags\\) at cfa\\+4\n+  DW_CFA_offset_extended_sf: r4098 \\(frm\\) at cfa\\+8\n+  DW_CFA_offset_extended_sf: r4099 \\(fcsr\\) at cfa\\+12\n+  DW_CFA_offset_extended_sf: r6064 \\(dcsr\\) at cfa\\+7872\n+  DW_CFA_offset_extended_sf: r6065 \\(dpc\\) at cfa\\+7876\n+  DW_CFA_offset_extended_sf: r6066 \\(dscratch0\\) at cfa\\+7880\n+  DW_CFA_offset_extended_sf: r6067 \\(dscratch1\\) at cfa\\+7884\n+  DW_CFA_offset_extended_sf: r6048 \\(tselect\\) at cfa\\+7808\n+  DW_CFA_offset_extended_sf: r6049 \\(tdata1\\) at cfa\\+7812\n+  DW_CFA_offset_extended_sf: r6050 \\(tdata2\\) at cfa\\+7816\n+  DW_CFA_offset_extended_sf: r6051 \\(tdata3\\) at cfa\\+7820\n+  DW_CFA_offset_extended_sf: r6052 \\(tinfo\\) at cfa\\+7824\n+  DW_CFA_offset_extended_sf: r6053 \\(tcontrol\\) at cfa\\+7828\n+  DW_CFA_offset_extended_sf: r6056 \\(mcontext\\) at cfa\\+7840\n+  DW_CFA_offset_extended_sf: r6058 \\(scontext\\) at cfa\\+7848\n   DW_CFA_offset_extended_sf: r4163 \\(utval\\) at cfa\\+268\n   DW_CFA_offset_extended_sf: r4419 \\(stval\\) at cfa\\+1292\n   DW_CFA_offset_extended_sf: r4480 \\(satp\\) at cfa\\+1536\n   DW_CFA_offset_extended_sf: r4931 \\(mtval\\) at cfa\\+3340\n   DW_CFA_offset_extended_sf: r4896 \\(mcountinhibit\\) at cfa\\+3200\n   DW_CFA_offset_extended_sf: r6066 \\(dscratch0\\) at cfa\\+7880\n-  DW_CFA_nop\n+  DW_CFA_offset_extended_sf: r6049 \\(tdata1\\) at cfa\\+7812\n+  DW_CFA_offset_extended_sf: r6049 \\(tdata1\\) at cfa\\+7812\n+  DW_CFA_offset_extended_sf: r6049 \\(tdata1\\) at cfa\\+7812\n+  DW_CFA_offset_extended_sf: r6049 \\(tdata1\\) at cfa\\+7812\n+  DW_CFA_offset_extended_sf: r6051 \\(tdata3\\) at cfa\\+7820\n+  DW_CFA_offset_extended_sf: r6051 \\(tdata3\\) at cfa\\+7820\n #..."
+    },
+    {
+      "sha": "ecc801469763bf00674c203d9bc6bd4b13f708f9",
+      "filename": "gas/testsuite/gas/riscv/csr-dw-regnums.s",
+      "status": "modified",
+      "additions": 24,
+      "deletions": 13,
+      "changes": 37,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/csr-dw-regnums.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/csr-dw-regnums.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/csr-dw-regnums.s?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -15,9 +15,6 @@ _start:\n \t.cfi_offset ucause, 264\n \t.cfi_offset utval, 268\n \t.cfi_offset uip, 272\n-\t.cfi_offset fflags, 4\n-\t.cfi_offset frm, 8\n-\t.cfi_offset fcsr, 12\n \t.cfi_offset cycle, 12288\n \t.cfi_offset time, 12292\n \t.cfi_offset instret, 12296\n@@ -222,16 +219,7 @@ _start:\n \t.cfi_offset mhpmevent29, 3316\n \t.cfi_offset mhpmevent30, 3320\n \t.cfi_offset mhpmevent31, 3324\n-\t.cfi_offset tselect, 7808\n-\t.cfi_offset tdata1, 7812\n-\t.cfi_offset tdata2, 7816\n-\t.cfi_offset tdata3, 7820\n-\t.cfi_offset dcsr, 7872\n-\t.cfi_offset dpc, 7876\n-\t.cfi_offset dscratch0, 7880\n-\t.cfi_offset dscratch1, 7884\n-\n-\t# dropped in the current 1.11 priv spec.\n+\t# dropped\n \t.cfi_offset hstatus, 2048\n \t.cfi_offset hedeleg, 2056\n \t.cfi_offset hideleg, 2060\n@@ -250,11 +238,34 @@ _start:\n \t.cfi_offset mdbound, 3604\n \t.cfi_offset mscounteren, 3204\n \t.cfi_offset mhcounteren, 3208\n+\t# unprivileged\n+\t.cfi_offset fflags, 4\n+\t.cfi_offset frm, 8\n+\t.cfi_offset fcsr, 12\n+\t.cfi_offset dcsr, 7872\n+\t.cfi_offset dpc, 7876\n+\t.cfi_offset dscratch0, 7880\n+\t.cfi_offset dscratch1, 7884\n+\t.cfi_offset tselect, 7808\n+\t.cfi_offset tdata1, 7812\n+\t.cfi_offset tdata2, 7816\n+\t.cfi_offset tdata3, 7820\n+\t.cfi_offset tinfo, 7824\n+\t.cfi_offset tcontrol, 7828\n+\t.cfi_offset mcontext, 7840\n+\t.cfi_offset scontext, 7848\n+\t# aliases\n \t.cfi_offset ubadaddr, 268\n \t.cfi_offset sbadaddr, 1292\n \t.cfi_offset sptbr, 1536\n \t.cfi_offset mbadaddr, 3340\n \t.cfi_offset mucounteren, 3200\n \t.cfi_offset dscratch, 7880\n+\t.cfi_offset mcontrol, 7812\n+\t.cfi_offset icount, 7812\n+\t.cfi_offset itrigger, 7812\n+\t.cfi_offset etrigger, 7812\n+\t.cfi_offset textra32, 7820\n+\t.cfi_offset textra64, 7820\n \tnop\n \t.cfi_endproc"
+    },
+    {
+      "sha": "da5356636934b73b397e728faa45e3188506107c",
+      "filename": "gas/testsuite/gas/riscv/priv-reg-fail-fext.d",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-fail-fext.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-fail-fext.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/priv-reg-fail-fext.d?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -1,3 +1,3 @@\n-#as: -march=rv32i -mcsr-check -mpriv-spec=1.11\n+#as: -march=rv32i -mcsr-check\n #source: priv-reg.s\n #warning_output: priv-reg-fail-fext.l"
+    },
+    {
+      "sha": "2ee0daee27d78e571a0f6a7a2f002f5ff6cc50f2",
+      "filename": "gas/testsuite/gas/riscv/priv-reg-fail-fext.l",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 25,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-fail-fext.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-fail-fext.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/priv-reg-fail-fext.l?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -1,29 +1,6 @@\n .*Assembler messages:\n+#...\n .*Warning: Invalid CSR `fflags' for the current ISA\n .*Warning: Invalid CSR `frm' for the current ISA\n .*Warning: Invalid CSR `fcsr' for the current ISA\n-\n-.*Warning: Invalid CSR `ubadaddr' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `sbadaddr' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `sptbr' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mbadaddr' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mucounteren' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `dscratch' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hstatus' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hedeleg' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hideleg' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hie' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `htvec' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hscratch' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hepc' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hcause' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hbadaddr' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hip' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mbase' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mbound' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mibase' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mibound' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mdbase' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mdbound' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mscounteren' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mhcounteren' for the privilege spec `1.11'\n+#..."
+    },
+    {
+      "sha": "ae190c053c6b44a7e01ec7019df13be6b29dd927",
+      "filename": "gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.d",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.d?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -1,3 +1,3 @@\n-#as: -march=rv32if -mcsr-check -mpriv-spec=1.11\n+#as: -march=rv32if -mcsr-check\n #source: priv-reg-fail-read-only-01.s\n #warning_output: priv-reg-fail-read-only-01.l"
+    },
+    {
+      "sha": "305cd1754fac6c4bad7801965050a4d6f411eda2",
+      "filename": "gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.l",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 25,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.l?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -1,4 +1,5 @@\n .*Assembler messages:\n+#...\n .*Warning: Read-only CSR is written `csrw cycle,a1'\n .*Warning: Read-only CSR is written `csrw time,a1'\n .*Warning: Read-only CSR is written `csrw instret,a1'\n@@ -67,28 +68,4 @@\n .*Warning: Read-only CSR is written `csrw marchid,a1'\n .*Warning: Read-only CSR is written `csrw mimpid,a1'\n .*Warning: Read-only CSR is written `csrw mhartid,a1'\n-\n-.*Warning: Invalid CSR `ubadaddr' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `sbadaddr' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `sptbr' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mbadaddr' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mucounteren' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `dscratch' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hstatus' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hedeleg' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hideleg' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hie' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `htvec' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hscratch' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hepc' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hcause' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hbadaddr' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hip' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mbase' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mbound' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mibase' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mibound' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mdbase' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mdbound' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mscounteren' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mhcounteren' for the privilege spec `1.11'\n+#..."
+    },
+    {
+      "sha": "d71b2615c5f1463f347f9a92d070f664f9db4890",
+      "filename": "gas/testsuite/gas/riscv/priv-reg-fail-rv32-only.d",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-fail-rv32-only.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-fail-rv32-only.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/priv-reg-fail-rv32-only.d?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -1,3 +1,3 @@\n-#as: -march=rv64if -mcsr-check -mpriv-spec=1.11\n+#as: -march=rv64if -mcsr-check\n #source: priv-reg.s\n #warning_output: priv-reg-fail-rv32-only.l"
+    },
+    {
+      "sha": "5dec50fbed9d45c73ea407c8bdba8f2d33416187",
+      "filename": "gas/testsuite/gas/riscv/priv-reg-fail-rv32-only.l",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 25,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-fail-rv32-only.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-fail-rv32-only.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/priv-reg-fail-rv32-only.l?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -1,4 +1,5 @@\n .*Assembler messages:\n+#...\n .*Warning: Invalid CSR `cycleh' for the current ISA\n .*Warning: Invalid CSR `timeh' for the current ISA\n .*Warning: Invalid CSR `instreth' for the current ISA\n@@ -64,28 +65,4 @@\n .*Warning: Invalid CSR `mhpmcounter29h' for the current ISA\n .*Warning: Invalid CSR `mhpmcounter30h' for the current ISA\n .*Warning: Invalid CSR `mhpmcounter31h' for the current ISA\n-\n-.*Warning: Invalid CSR `ubadaddr' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `sbadaddr' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `sptbr' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mbadaddr' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mucounteren' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `dscratch' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hstatus' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hedeleg' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hideleg' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hie' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `htvec' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hscratch' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hepc' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hcause' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hbadaddr' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `hip' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mbase' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mbound' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mibase' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mibound' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mdbase' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mdbound' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mscounteren' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `mhcounteren' for the privilege spec `1.11'\n+#..."
+    },
+    {
+      "sha": "983f593fd73130cf7de2619367e9968944b7a602",
+      "filename": "gas/testsuite/gas/riscv/priv-reg-fail-version-1p10.l",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-fail-version-1p10.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-fail-version-1p10.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/priv-reg-fail-version-1p10.l?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -1,7 +1,5 @@\n .*Assembler messages:\n .*Warning: Invalid CSR `mcountinhibit' for the privilege spec `1.10'\n-.*Warning: Invalid CSR `dscratch0' for the privilege spec `1.10'\n-.*Warning: Invalid CSR `dscratch1' for the privilege spec `1.10'\n .*Warning: Invalid CSR `ubadaddr' for the privilege spec `1.10'\n .*Warning: Invalid CSR `sbadaddr' for the privilege spec `1.10'\n .*Warning: Invalid CSR `sptbr' for the privilege spec `1.10'"
+    },
+    {
+      "sha": "0e036e48e9a41847e14d1e6ff874ce9ddb53adcc",
+      "filename": "gas/testsuite/gas/riscv/priv-reg-fail-version-1p11.l",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-fail-version-1p11.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-fail-version-1p11.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/priv-reg-fail-version-1p11.l?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -4,7 +4,6 @@\n .*Warning: Invalid CSR `sptbr' for the privilege spec `1.11'\n .*Warning: Invalid CSR `mbadaddr' for the privilege spec `1.11'\n .*Warning: Invalid CSR `mucounteren' for the privilege spec `1.11'\n-.*Warning: Invalid CSR `dscratch' for the privilege spec `1.11'\n .*Warning: Invalid CSR `hstatus' for the privilege spec `1.11'\n .*Warning: Invalid CSR `hedeleg' for the privilege spec `1.11'\n .*Warning: Invalid CSR `hideleg' for the privilege spec `1.11'"
+    },
+    {
+      "sha": "8a8126a2af6b446df269660f2bcbf0b7cc73b7bc",
+      "filename": "gas/testsuite/gas/riscv/priv-reg-fail-version-1p9p1.l",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-fail-version-1p9p1.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-fail-version-1p9p1.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/priv-reg-fail-version-1p9p1.l?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -26,5 +26,3 @@\n .*Warning: Invalid CSR `pmpaddr14' for the privilege spec `1.9.1'\n .*Warning: Invalid CSR `pmpaddr15' for the privilege spec `1.9.1'\n .*Warning: Invalid CSR `mcountinhibit' for the privilege spec `1.9.1'\n-.*Warning: Invalid CSR `dscratch0' for the privilege spec `1.9.1'\n-.*Warning: Invalid CSR `dscratch1' for the privilege spec `1.9.1'"
+    },
+    {
+      "sha": "3ad8eebe8512b25a759cce481ccebe7e19c40e2d",
+      "filename": "gas/testsuite/gas/riscv/priv-reg-version-1p10.d",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 12,
+      "changes": 34,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-version-1p10.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-version-1p10.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/priv-reg-version-1p10.d?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -16,9 +16,6 @@ Disassembly of section .text:\n [ \t]+[0-9a-f]+:[  \t]+04202573[    \t]+csrr[        \t]+a0,ucause\n [ \t]+[0-9a-f]+:[  \t]+04302573[    \t]+csrr[        \t]+a0,utval\n [ \t]+[0-9a-f]+:[  \t]+04402573[    \t]+csrr[        \t]+a0,uip\n-[ \t]+[0-9a-f]+:[  \t]+00102573[    \t]+frflags[ \t]+a0\n-[ \t]+[0-9a-f]+:[  \t]+00202573[    \t]+frrm[        \t]+a0\n-[ \t]+[0-9a-f]+:[  \t]+00302573[    \t]+frcsr[       \t]+a0\n [ \t]+[0-9a-f]+:[  \t]+c0002573[    \t]+rdcycle[ \t]+a0\n [ \t]+[0-9a-f]+:[  \t]+c0102573[    \t]+rdtime[      \t]+a0\n [ \t]+[0-9a-f]+:[  \t]+c0202573[    \t]+rdinstret[   \t]+a0\n@@ -223,20 +220,11 @@ Disassembly of section .text:\n [ \t]+[0-9a-f]+:[  \t]+33d02573[    \t]+csrr[        \t]+a0,mhpmevent29\n [ \t]+[0-9a-f]+:[  \t]+33e02573[    \t]+csrr[        \t]+a0,mhpmevent30\n [ \t]+[0-9a-f]+:[  \t]+33f02573[    \t]+csrr[        \t]+a0,mhpmevent31\n-[ \t]+[0-9a-f]+:[  \t]+7a002573[    \t]+csrr[        \t]+a0,tselect\n-[ \t]+[0-9a-f]+:[  \t]+7a102573[    \t]+csrr[        \t]+a0,tdata1\n-[ \t]+[0-9a-f]+:[  \t]+7a202573[    \t]+csrr[        \t]+a0,tdata2\n-[ \t]+[0-9a-f]+:[  \t]+7a302573[    \t]+csrr[        \t]+a0,tdata3\n-[ \t]+[0-9a-f]+:[  \t]+7b002573[    \t]+csrr[        \t]+a0,dcsr\n-[ \t]+[0-9a-f]+:[  \t]+7b102573[    \t]+csrr[        \t]+a0,dpc\n-[ \t]+[0-9a-f]+:[  \t]+7b202573[    \t]+csrr[        \t]+a0,dscratch\n-[ \t]+[0-9a-f]+:[  \t]+7b302573[    \t]+csrr[        \t]+a0,0x7b3\n [ \t]+[0-9a-f]+:[  \t]+04302573[    \t]+csrr[        \t]+a0,utval\n [ \t]+[0-9a-f]+:[  \t]+14302573[    \t]+csrr[        \t]+a0,stval\n [ \t]+[0-9a-f]+:[  \t]+18002573[    \t]+csrr[        \t]+a0,satp\n [ \t]+[0-9a-f]+:[  \t]+34302573[    \t]+csrr[        \t]+a0,mtval\n [ \t]+[0-9a-f]+:[  \t]+32002573[    \t]+csrr[        \t]+a0,0x320\n-[ \t]+[0-9a-f]+:[  \t]+7b202573[    \t]+csrr[        \t]+a0,dscratch\n [ \t]+[0-9a-f]+:[  \t]+20002573[    \t]+csrr[        \t]+a0,0x200\n [ \t]+[0-9a-f]+:[  \t]+20202573[    \t]+csrr[        \t]+a0,0x202\n [ \t]+[0-9a-f]+:[  \t]+20302573[    \t]+csrr[        \t]+a0,0x203\n@@ -255,3 +243,25 @@ Disassembly of section .text:\n [ \t]+[0-9a-f]+:[  \t]+38502573[    \t]+csrr[        \t]+a0,0x385\n [ \t]+[0-9a-f]+:[  \t]+32102573[    \t]+csrr[        \t]+a0,0x321\n [ \t]+[0-9a-f]+:[  \t]+32202573[    \t]+csrr[        \t]+a0,0x322\n+[     \t]+[0-9a-f]+:[  \t]+00102573[    \t]+frflags[     \t]+a0\n+[     \t]+[0-9a-f]+:[  \t]+00202573[    \t]+frrm[        \t]+a0\n+[     \t]+[0-9a-f]+:[  \t]+00302573[    \t]+frcsr[       \t]+a0\n+[     \t]+[0-9a-f]+:[  \t]+7b002573[    \t]+csrr[        \t]+a0,dcsr\n+[     \t]+[0-9a-f]+:[  \t]+7b102573[    \t]+csrr[        \t]+a0,dpc\n+[     \t]+[0-9a-f]+:[  \t]+7b202573[    \t]+csrr[        \t]+a0,dscratch0\n+[     \t]+[0-9a-f]+:[  \t]+7b302573[    \t]+csrr[        \t]+a0,dscratch1\n+[     \t]+[0-9a-f]+:[  \t]+7b202573[    \t]+csrr[        \t]+a0,dscratch0\n+[     \t]+[0-9a-f]+:[  \t]+7a002573[    \t]+csrr[        \t]+a0,tselect\n+[     \t]+[0-9a-f]+:[  \t]+7a102573[    \t]+csrr[        \t]+a0,tdata1\n+[     \t]+[0-9a-f]+:[  \t]+7a202573[    \t]+csrr[        \t]+a0,tdata2\n+[     \t]+[0-9a-f]+:[  \t]+7a302573[    \t]+csrr[        \t]+a0,tdata3\n+[     \t]+[0-9a-f]+:[  \t]+7a402573[    \t]+csrr[        \t]+a0,tinfo\n+[     \t]+[0-9a-f]+:[  \t]+7a502573[    \t]+csrr[        \t]+a0,tcontrol\n+[     \t]+[0-9a-f]+:[  \t]+7a802573[    \t]+csrr[        \t]+a0,mcontext\n+[     \t]+[0-9a-f]+:[  \t]+7aa02573[    \t]+csrr[        \t]+a0,scontext\n+[     \t]+[0-9a-f]+:[  \t]+7a102573[    \t]+csrr[        \t]+a0,tdata1\n+[     \t]+[0-9a-f]+:[  \t]+7a102573[    \t]+csrr[        \t]+a0,tdata1\n+[     \t]+[0-9a-f]+:[  \t]+7a102573[    \t]+csrr[        \t]+a0,tdata1\n+[     \t]+[0-9a-f]+:[  \t]+7a102573[    \t]+csrr[        \t]+a0,tdata1\n+[     \t]+[0-9a-f]+:[  \t]+7a302573[    \t]+csrr[        \t]+a0,tdata3\n+[     \t]+[0-9a-f]+:[  \t]+7a302573[    \t]+csrr[        \t]+a0,tdata3"
+    },
+    {
+      "sha": "5824bc5e1f67bd9aba432ff180d74a9b75f9b736",
+      "filename": "gas/testsuite/gas/riscv/priv-reg-version-1p11.d",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 12,
+      "changes": 34,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-version-1p11.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-version-1p11.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/priv-reg-version-1p11.d?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -16,9 +16,6 @@ Disassembly of section .text:\n [     \t]+[0-9a-f]+:[  \t]+04202573[    \t]+csrr[        \t]+a0,ucause\n [     \t]+[0-9a-f]+:[  \t]+04302573[    \t]+csrr[        \t]+a0,utval\n [     \t]+[0-9a-f]+:[  \t]+04402573[    \t]+csrr[        \t]+a0,uip\n-[     \t]+[0-9a-f]+:[  \t]+00102573[    \t]+frflags[     \t]+a0\n-[     \t]+[0-9a-f]+:[  \t]+00202573[    \t]+frrm[        \t]+a0\n-[     \t]+[0-9a-f]+:[  \t]+00302573[    \t]+frcsr[       \t]+a0\n [     \t]+[0-9a-f]+:[  \t]+c0002573[    \t]+rdcycle[     \t]+a0\n [     \t]+[0-9a-f]+:[  \t]+c0102573[    \t]+rdtime[      \t]+a0\n [     \t]+[0-9a-f]+:[  \t]+c0202573[    \t]+rdinstret[   \t]+a0\n@@ -223,20 +220,11 @@ Disassembly of section .text:\n [     \t]+[0-9a-f]+:[  \t]+33d02573[    \t]+csrr[        \t]+a0,mhpmevent29\n [     \t]+[0-9a-f]+:[  \t]+33e02573[    \t]+csrr[        \t]+a0,mhpmevent30\n [     \t]+[0-9a-f]+:[  \t]+33f02573[    \t]+csrr[        \t]+a0,mhpmevent31\n-[     \t]+[0-9a-f]+:[  \t]+7a002573[    \t]+csrr[        \t]+a0,tselect\n-[     \t]+[0-9a-f]+:[  \t]+7a102573[    \t]+csrr[        \t]+a0,tdata1\n-[     \t]+[0-9a-f]+:[  \t]+7a202573[    \t]+csrr[        \t]+a0,tdata2\n-[     \t]+[0-9a-f]+:[  \t]+7a302573[    \t]+csrr[        \t]+a0,tdata3\n-[     \t]+[0-9a-f]+:[  \t]+7b002573[    \t]+csrr[        \t]+a0,dcsr\n-[     \t]+[0-9a-f]+:[  \t]+7b102573[    \t]+csrr[        \t]+a0,dpc\n-[     \t]+[0-9a-f]+:[  \t]+7b202573[    \t]+csrr[        \t]+a0,dscratch0\n-[     \t]+[0-9a-f]+:[  \t]+7b302573[    \t]+csrr[        \t]+a0,dscratch1\n [     \t]+[0-9a-f]+:[  \t]+04302573[    \t]+csrr[        \t]+a0,utval\n [     \t]+[0-9a-f]+:[  \t]+14302573[    \t]+csrr[        \t]+a0,stval\n [     \t]+[0-9a-f]+:[  \t]+18002573[    \t]+csrr[        \t]+a0,satp\n [     \t]+[0-9a-f]+:[  \t]+34302573[    \t]+csrr[        \t]+a0,mtval\n [     \t]+[0-9a-f]+:[  \t]+32002573[    \t]+csrr[        \t]+a0,mcountinhibit\n-[     \t]+[0-9a-f]+:[  \t]+7b202573[    \t]+csrr[        \t]+a0,dscratch0\n [     \t]+[0-9a-f]+:[  \t]+20002573[    \t]+csrr[        \t]+a0,0x200\n [     \t]+[0-9a-f]+:[  \t]+20202573[    \t]+csrr[        \t]+a0,0x202\n [     \t]+[0-9a-f]+:[  \t]+20302573[    \t]+csrr[        \t]+a0,0x203\n@@ -255,3 +243,25 @@ Disassembly of section .text:\n [     \t]+[0-9a-f]+:[  \t]+38502573[    \t]+csrr[        \t]+a0,0x385\n [     \t]+[0-9a-f]+:[  \t]+32102573[    \t]+csrr[        \t]+a0,0x321\n [     \t]+[0-9a-f]+:[  \t]+32202573[    \t]+csrr[        \t]+a0,0x322\n+[     \t]+[0-9a-f]+:[  \t]+00102573[    \t]+frflags[     \t]+a0\n+[     \t]+[0-9a-f]+:[  \t]+00202573[    \t]+frrm[        \t]+a0\n+[     \t]+[0-9a-f]+:[  \t]+00302573[    \t]+frcsr[       \t]+a0\n+[     \t]+[0-9a-f]+:[  \t]+7b002573[    \t]+csrr[        \t]+a0,dcsr\n+[     \t]+[0-9a-f]+:[  \t]+7b102573[    \t]+csrr[        \t]+a0,dpc\n+[     \t]+[0-9a-f]+:[  \t]+7b202573[    \t]+csrr[        \t]+a0,dscratch0\n+[     \t]+[0-9a-f]+:[  \t]+7b302573[    \t]+csrr[        \t]+a0,dscratch1\n+[     \t]+[0-9a-f]+:[  \t]+7b202573[    \t]+csrr[        \t]+a0,dscratch0\n+[     \t]+[0-9a-f]+:[  \t]+7a002573[    \t]+csrr[        \t]+a0,tselect\n+[     \t]+[0-9a-f]+:[  \t]+7a102573[    \t]+csrr[        \t]+a0,tdata1\n+[     \t]+[0-9a-f]+:[  \t]+7a202573[    \t]+csrr[        \t]+a0,tdata2\n+[     \t]+[0-9a-f]+:[  \t]+7a302573[    \t]+csrr[        \t]+a0,tdata3\n+[     \t]+[0-9a-f]+:[  \t]+7a402573[    \t]+csrr[        \t]+a0,tinfo\n+[     \t]+[0-9a-f]+:[  \t]+7a502573[    \t]+csrr[        \t]+a0,tcontrol\n+[     \t]+[0-9a-f]+:[  \t]+7a802573[    \t]+csrr[        \t]+a0,mcontext\n+[     \t]+[0-9a-f]+:[  \t]+7aa02573[    \t]+csrr[        \t]+a0,scontext\n+[     \t]+[0-9a-f]+:[  \t]+7a102573[    \t]+csrr[        \t]+a0,tdata1\n+[     \t]+[0-9a-f]+:[  \t]+7a102573[    \t]+csrr[        \t]+a0,tdata1\n+[     \t]+[0-9a-f]+:[  \t]+7a102573[    \t]+csrr[        \t]+a0,tdata1\n+[     \t]+[0-9a-f]+:[  \t]+7a102573[    \t]+csrr[        \t]+a0,tdata1\n+[     \t]+[0-9a-f]+:[  \t]+7a302573[    \t]+csrr[        \t]+a0,tdata3\n+[     \t]+[0-9a-f]+:[  \t]+7a302573[    \t]+csrr[        \t]+a0,tdata3"
+    },
+    {
+      "sha": "569b9587e29ab8044c09e7eab5d0674263357f05",
+      "filename": "gas/testsuite/gas/riscv/priv-reg-version-1p9p1.d",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 12,
+      "changes": 34,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-version-1p9p1.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg-version-1p9p1.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/priv-reg-version-1p9p1.d?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -16,9 +16,6 @@ Disassembly of section .text:\n [     \t]+[0-9a-f]+:[  \t]+04202573[    \t]+csrr[        \t]+a0,ucause\n [     \t]+[0-9a-f]+:[  \t]+04302573[    \t]+csrr[        \t]+a0,ubadaddr\n [     \t]+[0-9a-f]+:[  \t]+04402573[    \t]+csrr[        \t]+a0,uip\n-[     \t]+[0-9a-f]+:[  \t]+00102573[    \t]+frflags[     \t]+a0\n-[     \t]+[0-9a-f]+:[  \t]+00202573[    \t]+frrm[        \t]+a0\n-[     \t]+[0-9a-f]+:[  \t]+00302573[    \t]+frcsr[       \t]+a0\n [     \t]+[0-9a-f]+:[  \t]+c0002573[    \t]+rdcycle[     \t]+a0\n [     \t]+[0-9a-f]+:[  \t]+c0102573[    \t]+rdtime[      \t]+a0\n [     \t]+[0-9a-f]+:[  \t]+c0202573[    \t]+rdinstret[   \t]+a0\n@@ -223,20 +220,11 @@ Disassembly of section .text:\n [     \t]+[0-9a-f]+:[  \t]+33d02573[    \t]+csrr[        \t]+a0,mhpmevent29\n [     \t]+[0-9a-f]+:[  \t]+33e02573[    \t]+csrr[        \t]+a0,mhpmevent30\n [     \t]+[0-9a-f]+:[  \t]+33f02573[    \t]+csrr[        \t]+a0,mhpmevent31\n-[     \t]+[0-9a-f]+:[  \t]+7a002573[    \t]+csrr[        \t]+a0,tselect\n-[     \t]+[0-9a-f]+:[  \t]+7a102573[    \t]+csrr[        \t]+a0,tdata1\n-[     \t]+[0-9a-f]+:[  \t]+7a202573[    \t]+csrr[        \t]+a0,tdata2\n-[     \t]+[0-9a-f]+:[  \t]+7a302573[    \t]+csrr[        \t]+a0,tdata3\n-[     \t]+[0-9a-f]+:[  \t]+7b002573[    \t]+csrr[        \t]+a0,dcsr\n-[     \t]+[0-9a-f]+:[  \t]+7b102573[    \t]+csrr[        \t]+a0,dpc\n-[     \t]+[0-9a-f]+:[  \t]+7b202573[    \t]+csrr[        \t]+a0,dscratch\n-[     \t]+[0-9a-f]+:[  \t]+7b302573[    \t]+csrr[        \t]+a0,0x7b3\n [     \t]+[0-9a-f]+:[  \t]+04302573[    \t]+csrr[        \t]+a0,ubadaddr\n [     \t]+[0-9a-f]+:[  \t]+14302573[    \t]+csrr[        \t]+a0,sbadaddr\n [     \t]+[0-9a-f]+:[  \t]+18002573[    \t]+csrr[        \t]+a0,sptbr\n [     \t]+[0-9a-f]+:[  \t]+34302573[    \t]+csrr[        \t]+a0,mbadaddr\n [     \t]+[0-9a-f]+:[  \t]+32002573[    \t]+csrr[        \t]+a0,mucounteren\n-[     \t]+[0-9a-f]+:[  \t]+7b202573[    \t]+csrr[        \t]+a0,dscratch\n [     \t]+[0-9a-f]+:[  \t]+20002573[    \t]+csrr[        \t]+a0,hstatus\n [     \t]+[0-9a-f]+:[  \t]+20202573[    \t]+csrr[        \t]+a0,hedeleg\n [     \t]+[0-9a-f]+:[  \t]+20302573[    \t]+csrr[        \t]+a0,hideleg\n@@ -255,3 +243,25 @@ Disassembly of section .text:\n [     \t]+[0-9a-f]+:[  \t]+38502573[    \t]+csrr[        \t]+a0,mdbound\n [     \t]+[0-9a-f]+:[  \t]+32102573[    \t]+csrr[        \t]+a0,mscounteren\n [     \t]+[0-9a-f]+:[  \t]+32202573[    \t]+csrr[        \t]+a0,mhcounteren\n+[     \t]+[0-9a-f]+:[  \t]+00102573[    \t]+frflags[     \t]+a0\n+[     \t]+[0-9a-f]+:[  \t]+00202573[    \t]+frrm[        \t]+a0\n+[     \t]+[0-9a-f]+:[  \t]+00302573[    \t]+frcsr[       \t]+a0\n+[     \t]+[0-9a-f]+:[  \t]+7b002573[    \t]+csrr[        \t]+a0,dcsr\n+[     \t]+[0-9a-f]+:[  \t]+7b102573[    \t]+csrr[        \t]+a0,dpc\n+[     \t]+[0-9a-f]+:[  \t]+7b202573[    \t]+csrr[        \t]+a0,dscratch0\n+[     \t]+[0-9a-f]+:[  \t]+7b302573[    \t]+csrr[        \t]+a0,dscratch1\n+[     \t]+[0-9a-f]+:[  \t]+7b202573[    \t]+csrr[        \t]+a0,dscratch0\n+[     \t]+[0-9a-f]+:[  \t]+7a002573[    \t]+csrr[        \t]+a0,tselect\n+[     \t]+[0-9a-f]+:[  \t]+7a102573[    \t]+csrr[        \t]+a0,tdata1\n+[     \t]+[0-9a-f]+:[  \t]+7a202573[    \t]+csrr[        \t]+a0,tdata2\n+[     \t]+[0-9a-f]+:[  \t]+7a302573[    \t]+csrr[        \t]+a0,tdata3\n+[     \t]+[0-9a-f]+:[  \t]+7a402573[    \t]+csrr[        \t]+a0,tinfo\n+[     \t]+[0-9a-f]+:[  \t]+7a502573[    \t]+csrr[        \t]+a0,tcontrol\n+[     \t]+[0-9a-f]+:[  \t]+7a802573[    \t]+csrr[        \t]+a0,mcontext\n+[     \t]+[0-9a-f]+:[  \t]+7aa02573[    \t]+csrr[        \t]+a0,scontext\n+[     \t]+[0-9a-f]+:[  \t]+7a102573[    \t]+csrr[        \t]+a0,tdata1\n+[     \t]+[0-9a-f]+:[  \t]+7a102573[    \t]+csrr[        \t]+a0,tdata1\n+[     \t]+[0-9a-f]+:[  \t]+7a102573[    \t]+csrr[        \t]+a0,tdata1\n+[     \t]+[0-9a-f]+:[  \t]+7a102573[    \t]+csrr[        \t]+a0,tdata1\n+[     \t]+[0-9a-f]+:[  \t]+7a302573[    \t]+csrr[        \t]+a0,tdata3\n+[     \t]+[0-9a-f]+:[  \t]+7a302573[    \t]+csrr[        \t]+a0,tdata3"
+    },
+    {
+      "sha": "c40d28862b710a698984879a0722c10931ad448b",
+      "filename": "gas/testsuite/gas/riscv/priv-reg.s",
+      "status": "modified",
+      "additions": 30,
+      "deletions": 15,
+      "changes": 45,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/gas/testsuite/gas/riscv/priv-reg.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/priv-reg.s?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -13,10 +13,6 @@\n \tcsr utval\t\t# Added in 1.10\n \tcsr uip\n \n-\tcsr fflags\n-\tcsr frm\n-\tcsr fcsr\n-\n \tcsr cycle\n \tcsr time\n \tcsr instret\n@@ -231,23 +227,12 @@\n \tcsr mhpmevent30\n \tcsr mhpmevent31\n \n-\tcsr tselect\n-\tcsr tdata1\n-\tcsr tdata2\n-\tcsr tdata3\n-\n-\tcsr dcsr\n-\tcsr dpc\n-\tcsr dscratch0\t\t# Added in 1.11\n-\tcsr dscratch1\t\t# Added in 1.11\n-\n \t# Supported in previous priv spec, but dropped now.\n \tcsr ubadaddr\t\t# 0x043 in 1.9.1, but the value is utval since 1.10\n \tcsr sbadaddr\t\t# 0x143 in 1.9.1, but the value is stval since 1.10\n \tcsr sptbr\t\t# 0x180 in 1.9.1, but the value is satp since 1.10\n \tcsr mbadaddr\t\t# 0x343 in 1.9.1, but the value is mtval since 1.10\n \tcsr mucounteren\t\t# 0x320 in 1.9.1, dropped in 1.10, but the value is mcountinhibit since 1.11\n-\tcsr dscratch\t\t# 0x7b2 in 1.10,  but the value is dscratch0 since 1.11\n \n \tcsr hstatus\t\t# 0x200, dropped in 1.10\n \tcsr hedeleg\t\t# 0x202, dropped in 1.10\n@@ -267,3 +252,33 @@\n \tcsr mdbound\t\t# 0x385, dropped in 1.10\n \tcsr mscounteren\t\t# 0x321, dropped in 1.10\n \tcsr mhcounteren\t\t# 0x322, dropped in 1.10\n+\n+\t# Unprivileged CSR which are not controlled by privilege spec.\n+\n+\t# Float\n+\tcsr fflags\n+\tcsr frm\n+\tcsr fcsr\n+\n+\t# Core debug\n+\tcsr dcsr\n+\tcsr dpc\n+\tcsr dscratch0\n+\tcsr dscratch1\n+\tcsr dscratch\t\t# 0x7b2, alias to dscratch0\n+\n+\t# Trigger debug\n+\tcsr tselect\n+\tcsr tdata1\n+\tcsr tdata2\n+\tcsr tdata3\n+\tcsr tinfo\n+\tcsr tcontrol\n+\tcsr mcontext\n+\tcsr scontext\n+\tcsr mcontrol\t\t# 0x7a1, alias to tdata1\n+\tcsr icount\t\t# 0x7a1, alias to tdata1\n+\tcsr itrigger\t\t# 0x7a1, alias to tdata1\n+\tcsr etrigger\t\t# 0x7a1, alias to tdata1\n+\tcsr textra32\t\t# 0x7a3, alias to tdata3\n+\tcsr textra64\t\t# 0x7a3, alias to tdata3"
+    },
+    {
+      "sha": "a9e30ca312662409336d0eb65e4194b97b8efffa",
+      "filename": "include/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/include/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/include/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ChangeLog?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-06-30  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* opcode/riscv-opc.h: Support the unprivileged CSR.  The versions\n+\tof the unprivileged CSR should be PRIV_SPEC_CLASS_NONE for now.\n+\t* opcode/riscv.h (enum riscv_csr_class): Add CSR_CLASS_DEBUG.\n+\n 2020-06-30  Nelson Chu  <nelson.chu@sifive.com>\n \n \t* opcode/riscv-opc.h: Cleanup and remove the unused macros."
+    },
+    {
+      "sha": "158de324856f8363ec8df2698e631b1cd7347263",
+      "filename": "include/opcode/riscv-opc.h",
+      "status": "modified",
+      "additions": 42,
+      "deletions": 24,
+      "changes": 66,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/include/opcode/riscv-opc.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/include/opcode/riscv-opc.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/opcode/riscv-opc.h?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -595,7 +595,7 @@\n #define MASK_CUSTOM3_RD_RS1  0x707f\n #define MATCH_CUSTOM3_RD_RS1_RS2 0x707b\n #define MASK_CUSTOM3_RD_RS1_RS2  0x707f\n-/* CSR addresses (priv spec v1.11).  */\n+/* Privileged CSR addresses (v1.11).  */\n #define CSR_USTATUS 0x0\n #define CSR_UIE 0x4\n #define CSR_UTVEC 0x5\n@@ -604,9 +604,6 @@\n #define CSR_UCAUSE 0x42\n #define CSR_UTVAL 0x43\n #define CSR_UIP 0x44\n-#define CSR_FFLAGS 0x1\n-#define CSR_FRM 0x2\n-#define CSR_FCSR 0x3\n #define CSR_CYCLE 0xc00\n #define CSR_TIME 0xc01\n #define CSR_INSTRET 0xc02\n@@ -811,14 +808,6 @@\n #define CSR_MHPMEVENT29 0x33d\n #define CSR_MHPMEVENT30 0x33e\n #define CSR_MHPMEVENT31 0x33f\n-#define CSR_TSELECT 0x7a0\n-#define CSR_TDATA1 0x7a1\n-#define CSR_TDATA2 0x7a2\n-#define CSR_TDATA3 0x7a3\n-#define CSR_DCSR 0x7b0\n-#define CSR_DPC 0x7b1\n-#define CSR_DSCRATCH0 0x7b2\n-#define CSR_DSCRATCH1 0x7b3\n #define CSR_HSTATUS 0x200\n #define CSR_HEDELEG 0x202\n #define CSR_HIDELEG 0x203\n@@ -837,6 +826,22 @@\n #define CSR_MDBOUND 0x385\n #define CSR_MSCOUNTEREN 0x321\n #define CSR_MHCOUNTEREN 0x322\n+/* Unprivileged CSR addresses.  */\n+#define CSR_FFLAGS 0x1\n+#define CSR_FRM 0x2\n+#define CSR_FCSR 0x3\n+#define CSR_DCSR 0x7b0\n+#define CSR_DPC 0x7b1\n+#define CSR_DSCRATCH0 0x7b2\n+#define CSR_DSCRATCH1 0x7b3\n+#define CSR_TSELECT 0x7a0\n+#define CSR_TDATA1 0x7a1\n+#define CSR_TDATA2 0x7a2\n+#define CSR_TDATA3 0x7a3\n+#define CSR_TINFO 0x7a4\n+#define CSR_TCONTROL 0x7a5\n+#define CSR_MCONTEXT 0x7a8\n+#define CSR_SCONTEXT 0x7aa\n #endif /* RISCV_ENCODING_H.  */\n #ifdef DECLARE_INSN\n DECLARE_INSN(slli_rv32, MATCH_SLLI_RV32, MASK_SLLI_RV32)\n@@ -1124,6 +1129,7 @@ DECLARE_INSN(custom3_rd_rs1, MATCH_CUSTOM3_RD_RS1, MASK_CUSTOM3_RD_RS1)\n DECLARE_INSN(custom3_rd_rs1_rs2, MATCH_CUSTOM3_RD_RS1_RS2, MASK_CUSTOM3_RD_RS1_RS2)\n #endif /* DECLARE_INSN.  */\n #ifdef DECLARE_CSR\n+/* Privileged.  */\n DECLARE_CSR(ustatus, CSR_USTATUS, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n DECLARE_CSR(uie, CSR_UIE, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n DECLARE_CSR(utvec, CSR_UTVEC, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n@@ -1132,9 +1138,6 @@ DECLARE_CSR(uepc, CSR_UEPC, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_\n DECLARE_CSR(ucause, CSR_UCAUSE, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n DECLARE_CSR(utval, CSR_UTVAL, CSR_CLASS_I, PRIV_SPEC_CLASS_1P10, PRIV_SPEC_CLASS_DRAFT)\n DECLARE_CSR(uip, CSR_UIP, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n-DECLARE_CSR(fflags, CSR_FFLAGS, CSR_CLASS_F, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n-DECLARE_CSR(frm, CSR_FRM, CSR_CLASS_F, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n-DECLARE_CSR(fcsr, CSR_FCSR, CSR_CLASS_F, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n DECLARE_CSR(cycle, CSR_CYCLE, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n DECLARE_CSR(time, CSR_TIME, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n DECLARE_CSR(instret, CSR_INSTRET, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n@@ -1339,14 +1342,7 @@ DECLARE_CSR(mhpmevent28, CSR_MHPMEVENT28, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PR\n DECLARE_CSR(mhpmevent29, CSR_MHPMEVENT29, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n DECLARE_CSR(mhpmevent30, CSR_MHPMEVENT30, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n DECLARE_CSR(mhpmevent31, CSR_MHPMEVENT31, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n-DECLARE_CSR(tselect, CSR_TSELECT, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n-DECLARE_CSR(tdata1, CSR_TDATA1, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n-DECLARE_CSR(tdata2, CSR_TDATA2, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n-DECLARE_CSR(tdata3, CSR_TDATA3, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n-DECLARE_CSR(dcsr, CSR_DCSR, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n-DECLARE_CSR(dpc, CSR_DPC, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_DRAFT)\n-DECLARE_CSR(dscratch0, CSR_DSCRATCH0, CSR_CLASS_I, PRIV_SPEC_CLASS_1P11, PRIV_SPEC_CLASS_DRAFT)\n-DECLARE_CSR(dscratch1, CSR_DSCRATCH1, CSR_CLASS_I, PRIV_SPEC_CLASS_1P11, PRIV_SPEC_CLASS_DRAFT)\n+/* Dropped.  */\n DECLARE_CSR(hstatus, CSR_HSTATUS, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_1P10)\n DECLARE_CSR(hedeleg, CSR_HEDELEG, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_1P10)\n DECLARE_CSR(hideleg, CSR_HIDELEG, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_1P10)\n@@ -1365,12 +1361,34 @@ DECLARE_CSR(mdbase, CSR_MDBASE, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CL\n DECLARE_CSR(mdbound, CSR_MDBOUND, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_1P10)\n DECLARE_CSR(mscounteren, CSR_MSCOUNTEREN, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_1P10)\n DECLARE_CSR(mhcounteren, CSR_MHCOUNTEREN, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_1P10)\n+/* Unprivileged.  */\n+DECLARE_CSR(fflags, CSR_FFLAGS, CSR_CLASS_F, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR(frm, CSR_FRM, CSR_CLASS_F, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR(fcsr, CSR_FCSR, CSR_CLASS_F, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR(dcsr, CSR_DCSR, CSR_CLASS_DEBUG, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR(dpc, CSR_DPC, CSR_CLASS_DEBUG, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR(dscratch0, CSR_DSCRATCH0, CSR_CLASS_DEBUG, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR(dscratch1, CSR_DSCRATCH1, CSR_CLASS_DEBUG, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR(tselect, CSR_TSELECT, CSR_CLASS_DEBUG, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR(tdata1, CSR_TDATA1, CSR_CLASS_DEBUG, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR(tdata2, CSR_TDATA2, CSR_CLASS_DEBUG, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR(tdata3, CSR_TDATA3, CSR_CLASS_DEBUG, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR(tinfo, CSR_TINFO, CSR_CLASS_DEBUG, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR(tcontrol, CSR_TCONTROL, CSR_CLASS_DEBUG, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR(mcontext, CSR_MCONTEXT, CSR_CLASS_DEBUG, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR(scontext, CSR_SCONTEXT, CSR_CLASS_DEBUG, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n #endif /* DECLARE_CSR.  */\n #ifdef DECLARE_CSR_ALIAS\n DECLARE_CSR_ALIAS(ubadaddr, CSR_UTVAL, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_1P10)\n DECLARE_CSR_ALIAS(sbadaddr, CSR_STVAL, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_1P10)\n DECLARE_CSR_ALIAS(sptbr, CSR_SATP, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_1P10)\n DECLARE_CSR_ALIAS(mbadaddr, CSR_MTVAL, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_1P10)\n DECLARE_CSR_ALIAS(mucounteren, CSR_MCOUNTINHIBIT, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_1P10)\n-DECLARE_CSR_ALIAS(dscratch, CSR_DSCRATCH0, CSR_CLASS_I, PRIV_SPEC_CLASS_1P9P1, PRIV_SPEC_CLASS_1P11)\n+DECLARE_CSR_ALIAS(dscratch, CSR_DSCRATCH0, CSR_CLASS_DEBUG, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR_ALIAS(mcontrol, CSR_TDATA1, CSR_CLASS_DEBUG, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR_ALIAS(icount, CSR_TDATA1, CSR_CLASS_DEBUG, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR_ALIAS(itrigger, CSR_TDATA1, CSR_CLASS_DEBUG, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR_ALIAS(etrigger, CSR_TDATA1, CSR_CLASS_DEBUG, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR_ALIAS(textra32, CSR_TDATA3, CSR_CLASS_DEBUG, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n+DECLARE_CSR_ALIAS(textra64, CSR_TDATA3, CSR_CLASS_DEBUG, PRIV_SPEC_CLASS_NONE, PRIV_SPEC_CLASS_NONE)\n #endif /* DECLARE_CSR_ALIAS.  */"
+    },
+    {
+      "sha": "5cd75157635b5bb0976071a261ae4fccd26f52a8",
+      "filename": "include/opcode/riscv.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/include/opcode/riscv.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/include/opcode/riscv.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/opcode/riscv.h?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -373,6 +373,7 @@ enum riscv_csr_class\n   CSR_CLASS_I,\n   CSR_CLASS_I_32,      /* rv32 only */\n   CSR_CLASS_F,         /* f-ext only */\n+  CSR_CLASS_DEBUG      /* debug CSR */\n };\n \n /* The current supported privilege spec versions.  */"
+    },
+    {
+      "sha": "a1ec13a04ef909e67f2f9d575e7feef48f4acb02",
+      "filename": "opcodes/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/opcodes/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/opcodes/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/ChangeLog?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-06-30  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* riscv-dis.c (print_insn_args, case 'E'): Updated.  Let the\n+\tunprivileged CSR can also be initialized.\n+\n 2020-06-29  Alan Modra  <amodra@gmail.com>\n \n \t* arm-dis.c: Use C style comments."
+    },
+    {
+      "sha": "655ce4ad0b205434c4206fbc5c285c5df31afd53",
+      "filename": "opcodes/riscv-dis.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 3,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/08ccfccf0ed825be9be2972594d4be4a2207ef13/opcodes/riscv-dis.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/08ccfccf0ed825be9be2972594d4be4a2207ef13/opcodes/riscv-dis.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/riscv-dis.c?ref=08ccfccf0ed825be9be2972594d4be4a2207ef13",
+      "patch": "@@ -377,9 +377,12 @@ print_insn_args (const char *d, insn_t l, bfd_vma pc, disassemble_info *info)\n \t\tif (default_priv_spec == PRIV_SPEC_CLASS_NONE)\n \t\t  default_priv_spec = PRIV_SPEC_CLASS_DRAFT - 1;\n \n-#define DECLARE_CSR(name, num, class, define_version, abort_version) \\\n-\t\tif (default_priv_spec >= define_version\t\t     \\\n-\t\t    && default_priv_spec < abort_version)\t     \\\n+#define DECLARE_CSR(name, num, class, define_version, abort_version)\t\\\n+\t\tif (riscv_csr_hash[num] == NULL \t\t\t\\\n+\t\t    && ((define_version == PRIV_SPEC_CLASS_NONE \t\\\n+\t\t\t && abort_version == PRIV_SPEC_CLASS_NONE)\t\\\n+\t\t\t|| (default_priv_spec >= define_version \t\\\n+\t\t\t    && default_priv_spec < abort_version)))\t\\\n \t\t  riscv_csr_hash[num] = #name;\n #define DECLARE_CSR_ALIAS(name, num, class, define_version, abort_version) \\\n \t\tDECLARE_CSR (name, num, class, define_version, abort_version)"
+    }
+  ]
+}

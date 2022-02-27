@@ -1,0 +1,384 @@
+{
+  "sha": "7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6N2VmMTlhYTYxNmFlZTk4ZjBhNWM3Yzk0OGQwZGI1NmE5ZjNjNWU1Nw==",
+  "commit": {
+    "author": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2020-11-20T09:26:04Z"
+    },
+    "committer": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2020-12-01T07:16:25Z"
+    },
+    "message": "RISC-V: Improve the version parsing for arch string.\n\nKeep the riscv_add_subset to do the same thing, and use a new\nfunction, riscv_parse_add_subset, to cover most of the things\nwhen parsing, including find the default versions for extensions,\nand check whether the versions are valid.  The version 0p0 should\nbe an invalid version, that is the mistake I made before.  This\npatch clarify the version rules as follows,\n\n* We accept any version of extensions set by users, except 0p0.\n* The non-standard x extensions must be set with versions in arch string.\n* If user don't set the versions, or set 0p0 for the extensions, then try\n  to find the supported versions according to the chosen ISA spec.\n  Otherwise, report errors rather than output 0p0 for them.\n\nBesides, we use as_bad rather than as_fatal to report more errors\nfor assembler.\n\n\tbfd/\n\t* elfxx-riscv.c (riscv_lookup_subset): Moved to front.\n\t(riscv_add_subset): Likewise.\n\t(riscv_release_subset_list): Likewise.\n\t(riscv_parse_add_subset): New function.  Find and check the\n\tversions before adding them by riscv_add_subset.\n\t(riscv_parsing_subset_version): Remove use_default_version\n\tand change the version type from unsigned to int.  Set the\n\tversions to RISCV_UNKNOWN_VERSION if we can not find them\n\tin the arch string.\n\t(riscv_parse_std_ext): Updated.\n\t(riscv_parse_prefixed_ext): Updated.  Since we use as_bad\n\trather than as_fatal to report more errors, return NULL\n\tstring if the parsed end_of_version is NULL, too.\n\t(riscv_parse_subset): Use a new boolean, no_conflict, to\n\treport more errors when we have more than one ISA conflicts.\n\n\t* elfxx-riscv.h (RISCV_DONT_CARE_VERSION): Changed to\n\tRISCV_UNKNOWN_VERSION.\n\t(riscv_lookup_subset_version): Removed.\n\t(riscv_parse_subset_t): Updated.\n\n\tgas/\n\t* config/tc-riscv.c (riscv_get_default_ext_version):\n\tChange the version type from unsigned to int.\n\t(riscv_set_arch): Use as_bad rather than as_fatal to\n\treport more errors.\n\n\t* testsuite/gas/riscv/attribute-02.d: Updated since x must be\n\tset with versions.\n\t* testsuite/gas/riscv/attribute-03.d: Likewise.\n\t* testsuite/gas/riscv/march-ok-two-nse.d: Likewise.\n\t* testsuite/gas/riscv/attribute-09.d: zicsr wasn't supported\n\tin the spec 2.2, so choose the newer spec.\n\t* testsuite/gas/riscv/march-fail-base-01.l: Updated since as_bad.\n\t* testsuite/gas/riscv/march-fail-base-02.l: Likewise.\n\t* testsuite/gas/riscv/march-fail-order-std.l: Likewise.\n\t* testsuite/gas/riscv/march-fail-order-x.l: Likewise.\n\t* testsuite/gas/riscv/march-fail-order-z.l: Likewise.\n\t* testsuite/gas/riscv/march-fail-porder.l: Likewise.\n\t* testsuite/gas/riscv/march-fail-rv32ef.l: Likewise.\n\t* testsuite/gas/riscv/march-fail-rv32id.l: Likewise.\n\t* testsuite/gas/riscv/march-fail-rv32iq.l: Likewise.\n\t* testsuite/gas/riscv/march-fail-rv64iq.l: Likewise.\n\t* testsuite/gas/riscv/march-fail-single-char.l: Likewise.\n\t* testsuite/gas/riscv/march-fail-unknown-std.l: Likewise.\n\t* testsuite/gas/riscv/march-fail-unknown.l: Likewise.\n\t* testsuite/gas/riscv/march-fail-uppercase.l: Likewise.\n\t* testsuite/gas/riscv/march-fail-version.l: Likewise.\n\t* testsuite/gas/riscv/march-fail-isa-spec.d: Likewise.\n\t* testsuite/gas/riscv/march-fail-isa-spec.l: Likewise.\n\n\tinclude/\n\t* opcode/riscv.h (riscv_ext_version):\n\tChange the version type from unsigned to int.",
+    "tree": {
+      "sha": "8ff81db254acc00537a32bbc16b79dc8f22889dc",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/8ff81db254acc00537a32bbc16b79dc8f22889dc"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "27a46348cb409fb2d5064c5686625f5323525c27",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/27a46348cb409fb2d5064c5686625f5323525c27",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/27a46348cb409fb2d5064c5686625f5323525c27"
+    }
+  ],
+  "stats": {
+    "total": 473,
+    "additions": 250,
+    "deletions": 223
+  },
+  "files": [
+    {
+      "sha": "807e0046177f0c9392cded23075ef7146765f99c",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,3 +1,25 @@\n+2020-12-01  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* elfxx-riscv.c (riscv_lookup_subset): Moved to front.\n+\t(riscv_add_subset): Likewise.\n+\t(riscv_release_subset_list): Likewise.\n+\t(riscv_parse_add_subset): New function.  Find and check the\n+\tversions before adding them by riscv_add_subset.\n+\t(riscv_parsing_subset_version): Remove use_default_version\n+\tand change the version type from unsigned to int.  Set the\n+\tversions to RISCV_UNKNOWN_VERSION if we can not find them\n+\tin the arch string.\n+\t(riscv_parse_std_ext): Updated.\n+\t(riscv_parse_prefixed_ext): Updated.  Since we use as_bad\n+\trather than as_fatal to report more errors, return NULL\n+\tstring if the parsed end_of_version is NULL, too.\n+\t(riscv_parse_subset): Use a new boolean, no_conflict, to\n+\treport more errors when we have more than one ISA conflicts.\n+\t* elfxx-riscv.h (RISCV_DONT_CARE_VERSION): Changed to\n+\tRISCV_UNKNOWN_VERSION.\n+\t(riscv_lookup_subset_version): Removed.\n+\t(riscv_parse_subset_t): Updated.\n+\n 2020-12-01  Nelson Chu  <nelson.chu@sifive.com>\n \n \t* elfxx-riscv.c (riscv_parse_std_ext): Stop parsing standard"
+    },
+    {
+      "sha": "4ec429ddc9a825b53c9b08615d961cc6356fb6c9",
+      "filename": "bfd/elfxx-riscv.c",
+      "status": "modified",
+      "additions": 146,
+      "deletions": 178,
+      "changes": 324,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/bfd/elfxx-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/bfd/elfxx-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfxx-riscv.c?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1025,6 +1025,96 @@ riscv_elf_add_sub_reloc (bfd *abfd,\n   return bfd_reloc_ok;\n }\n \n+/* Find subset in list, return NULL if not found.  */\n+\n+riscv_subset_t *\n+riscv_lookup_subset (const riscv_subset_list_t *subset_list,\n+\t\t     const char *subset)\n+{\n+  riscv_subset_t *s;\n+\n+  for (s = subset_list->head; s != NULL; s = s->next)\n+    if (strcasecmp (s->name, subset) == 0)\n+      return s;\n+\n+  return NULL;\n+}\n+\n+/* Add extension to the subset list.  */\n+\n+void\n+riscv_add_subset (riscv_subset_list_t *subset_list,\n+\t\t  const char *subset,\n+\t\t  int major,\n+\t\t  int minor)\n+{\n+  riscv_subset_t *s = xmalloc (sizeof *s);\n+\n+  if (subset_list->head == NULL)\n+    subset_list->head = s;\n+\n+  s->name = xstrdup (subset);\n+  s->major_version = major;\n+  s->minor_version = minor;\n+  s->next = NULL;\n+\n+  if (subset_list->tail != NULL)\n+    subset_list->tail->next = s;\n+  subset_list->tail = s;\n+}\n+\n+/* Find the default versions for the extension before adding them to\n+   the subset list, if their versions are RISCV_UNKNOWN_VERSION.\n+   Afterwards, report errors if we can not find their default versions.  */\n+\n+static void\n+riscv_parse_add_subset (riscv_parse_subset_t *rps,\n+\t\t\tconst char *subset,\n+\t\t\tint major,\n+\t\t\tint minor)\n+{\n+  int major_version = major;\n+  int minor_version = minor;\n+\n+  if ((major_version == RISCV_UNKNOWN_VERSION\n+       || minor_version == RISCV_UNKNOWN_VERSION)\n+      && rps->get_default_version != NULL)\n+    rps->get_default_version (subset, &major_version, &minor_version);\n+\n+  if (major_version == RISCV_UNKNOWN_VERSION\n+      || minor_version == RISCV_UNKNOWN_VERSION)\n+    {\n+      if (subset[0] == 'x')\n+\trps->error_handler\n+\t  (_(\"x ISA extension `%s' must be set with the versions\"),\n+\t   subset);\n+      else\n+\trps->error_handler\n+\t  (_(\"cannot find default versions of the ISA extension `%s'\"),\n+\t   subset);\n+      return;\n+    }\n+\n+  riscv_add_subset (rps->subset_list, subset,\n+\t\t    major_version, minor_version);\n+}\n+\n+/* Release subset list.  */\n+\n+void\n+riscv_release_subset_list (riscv_subset_list_t *subset_list)\n+{\n+   while (subset_list->head != NULL)\n+    {\n+      riscv_subset_t *next = subset_list->head->next;\n+      free ((void *)subset_list->head->name);\n+      free (subset_list->head);\n+      subset_list->head = next;\n+    }\n+\n+  subset_list->tail = NULL;\n+}\n+\n /* Parsing extension version.\n \n    Return Value:\n@@ -1034,25 +1124,20 @@ riscv_elf_add_sub_reloc (bfd *abfd,\n      `rps`: Hooks and status for parsing extensions.\n      `march`: Full arch string.\n      `p`: Curent parsing position.\n-     `major_version`: Parsing result of major version, using\n-      default_major_version if version is not present in arch string.\n-     `minor_version`: Parsing result of minor version, set to 0 if version is\n-     not present in arch string, but set to `default_minor_version` if\n-     `major_version` using default_major_version.\n-     `std_ext_p`: True if parsing std extension.\n-     `use_default_version`: Set it to True if we need the default version.  */\n+     `major_version`: Parsed major version.\n+     `minor_version`: Parsed minor version.\n+     `std_ext_p`: True if parsing standard extension.  */\n \n static const char *\n riscv_parsing_subset_version (riscv_parse_subset_t *rps,\n \t\t\t      const char *march,\n \t\t\t      const char *p,\n-\t\t\t      unsigned *major_version,\n-\t\t\t      unsigned *minor_version,\n-\t\t\t      bfd_boolean std_ext_p,\n-\t\t\t      bfd_boolean *use_default_version)\n+\t\t\t      int *major_version,\n+\t\t\t      int *minor_version,\n+\t\t\t      bfd_boolean std_ext_p)\n {\n   bfd_boolean major_p = TRUE;\n-  unsigned version = 0;\n+  int version = 0;\n   char np;\n \n   *major_version = 0;\n@@ -1096,11 +1181,13 @@ riscv_parsing_subset_version (riscv_parse_subset_t *rps,\n   else\n     *minor_version = version;\n \n-  /* We can not find any version in string, need to parse default version.  */\n-  if (use_default_version != NULL\n-      && *major_version == 0\n-      && *minor_version == 0)\n-    *use_default_version = TRUE;\n+  /* We can not find any version in string.  */\n+  if (*major_version == 0 && *minor_version == 0)\n+    {\n+      *major_version = RISCV_UNKNOWN_VERSION;\n+      *minor_version = RISCV_UNKNOWN_VERSION;\n+    }\n+\n   return p;\n }\n \n@@ -1130,9 +1217,8 @@ riscv_parse_std_ext (riscv_parse_subset_t *rps,\n {\n   const char *all_std_exts = riscv_supported_std_ext ();\n   const char *std_exts = all_std_exts;\n-  unsigned major_version = 0;\n-  unsigned minor_version = 0;\n-  bfd_boolean use_default_version = FALSE;\n+  int major_version;\n+  int minor_version;\n   char subset[2] = {0, 0};\n \n   /* First letter must start with i, e or g.  */\n@@ -1141,42 +1227,23 @@ riscv_parse_std_ext (riscv_parse_subset_t *rps,\n       case 'i':\n \tp = riscv_parsing_subset_version (rps, march, ++p,\n \t\t\t\t\t  &major_version,\n-\t\t\t\t\t  &minor_version, TRUE,\n-\t\t\t\t\t  &use_default_version);\n-\t/* Find the default version if needed.  */\n-\tif (use_default_version\n-\t    && rps->get_default_version != NULL)\n-\t  rps->get_default_version (\"i\",\n-\t\t\t\t    &major_version,\n-\t\t\t\t    &minor_version);\n-\triscv_add_subset (rps->subset_list, \"i\",\n-\t\t\t  major_version,\n-\t\t\t  minor_version);\n+\t\t\t\t\t  &minor_version, TRUE);\n+\triscv_parse_add_subset (rps, \"i\",\n+\t\t\t\tmajor_version,\n+\t\t\t\tminor_version);\n \tbreak;\n \n       case 'e':\n \tp = riscv_parsing_subset_version (rps, march, ++p,\n \t\t\t\t\t  &major_version,\n-\t\t\t\t\t  &minor_version, TRUE,\n-\t\t\t\t\t  &use_default_version);\n-\t/* Find the default version if needed.  */\n-\tif (use_default_version\n-\t    && rps->get_default_version != NULL)\n-\t  rps->get_default_version (\"e\",\n-\t\t\t\t    &major_version,\n-\t\t\t\t    &minor_version);\n-\triscv_add_subset (rps->subset_list, \"e\",\n-\t\t\t  major_version,\n-\t\t\t  minor_version);\n-\n+\t\t\t\t\t  &minor_version, TRUE);\n+\triscv_parse_add_subset (rps, \"e\",\n+\t\t\t\tmajor_version,\n+\t\t\t\tminor_version);\n \t/* i-ext must be enabled.  */\n-\tif (rps->get_default_version != NULL)\n-\t  rps->get_default_version (\"i\",\n-\t\t\t\t    &major_version,\n-\t\t\t\t    &minor_version);\n-\triscv_add_subset (rps->subset_list, \"i\",\n-\t\t\t  major_version,\n-\t\t\t  minor_version);\n+\triscv_parse_add_subset (rps, \"i\",\n+\t\t\t\tRISCV_UNKNOWN_VERSION,\n+\t\t\t\tRISCV_UNKNOWN_VERSION);\n \n \tif (*rps->xlen > 32)\n \t  {\n@@ -1192,27 +1259,17 @@ riscv_parse_std_ext (riscv_parse_subset_t *rps,\n \t   skip the setting if user set a version to it.  */\n \tp = riscv_parsing_subset_version (rps, march, ++p,\n \t\t\t\t\t  &major_version,\n-\t\t\t\t\t  &minor_version, TRUE,\n-\t\t\t\t\t  &use_default_version);\n+\t\t\t\t\t  &minor_version, TRUE);\n \t/* i-ext must be enabled.  */\n-\tif (rps->get_default_version != NULL)\n-\t  rps->get_default_version (\"i\",\n-\t\t\t\t    &major_version,\n-\t\t\t\t    &minor_version);\n-\triscv_add_subset (rps->subset_list, \"i\",\n-\t\t\t  major_version,\n-\t\t\t  minor_version);\n-\n+\triscv_parse_add_subset (rps, \"i\",\n+\t\t\t\tRISCV_UNKNOWN_VERSION,\n+\t\t\t\tRISCV_UNKNOWN_VERSION);\n \tfor ( ; *std_exts != 'q'; std_exts++)\n \t  {\n \t    subset[0] = *std_exts;\n-\t    if (rps->get_default_version != NULL)\n-\t      rps->get_default_version (subset,\n-\t\t\t\t\t&major_version,\n-\t\t\t\t\t&minor_version);\n-\t    riscv_add_subset (rps->subset_list, subset,\n-\t\t\t      major_version,\n-\t\t\t      minor_version);\n+\t    riscv_parse_add_subset (rps, subset,\n+\t\t\t\t    RISCV_UNKNOWN_VERSION,\n+\t\t\t\t    RISCV_UNKNOWN_VERSION);\n \t  }\n \tbreak;\n \n@@ -1253,21 +1310,13 @@ riscv_parse_std_ext (riscv_parse_subset_t *rps,\n \t}\n \n       std_exts++;\n-      use_default_version = FALSE;\n       subset[0] = std_ext;\n       p = riscv_parsing_subset_version (rps, march, ++p,\n \t\t\t\t\t&major_version,\n-\t\t\t\t\t&minor_version, TRUE,\n-\t\t\t\t\t&use_default_version);\n-      /* Find the default version if needed.  */\n-      if (use_default_version\n-\t  && rps->get_default_version != NULL)\n-\trps->get_default_version (subset,\n-\t\t\t\t  &major_version,\n-\t\t\t\t  &minor_version);\n-      riscv_add_subset (rps->subset_list, subset,\n-\t\t\tmajor_version,\n-\t\t\tminor_version);\n+\t\t\t\t\t&minor_version, TRUE);\n+      riscv_parse_add_subset (rps, subset,\n+\t\t\t      major_version,\n+\t\t\t      minor_version);\n     }\n \n   return p;\n@@ -1324,11 +1373,10 @@ riscv_parse_prefixed_ext (riscv_parse_subset_t *rps,\n \t\t\t  const char *p,\n \t\t\t  const riscv_parse_config_t *config)\n {\n-  unsigned major_version = 0;\n-  unsigned minor_version = 0;\n+  int major_version;\n+  int minor_version;\n   const char *last_name;\n   riscv_isa_ext_class_t class;\n-  bfd_boolean use_default_version;\n \n   while (*p)\n     {\n@@ -1352,14 +1400,18 @@ riscv_parse_prefixed_ext (riscv_parse_subset_t *rps,\n       while (*++q != '\\0' && *q != '_' && !ISDIGIT (*q))\n \t;\n \n-      use_default_version = FALSE;\n       end_of_version =\n \triscv_parsing_subset_version (rps, march, q,\n \t\t\t\t      &major_version,\n-\t\t\t\t      &minor_version, FALSE,\n-\t\t\t\t      &use_default_version);\n+\t\t\t\t      &minor_version, FALSE);\n       *q = '\\0';\n \n+      if (end_of_version == NULL)\n+\t{\n+\t  free (subset);\n+\t  return NULL;\n+\t}\n+\n       /* Check that the prefix extension is known.\n \t For 'x', anything goes but it cannot simply be 'x'.\n \t For 's', it must be known from a list and cannot simply be 's'.\n@@ -1399,16 +1451,9 @@ riscv_parse_prefixed_ext (riscv_parse_subset_t *rps,\n \t  return NULL;\n \t}\n \n-      /* Find the default version if needed.  */\n-      if (use_default_version\n-         && rps->get_default_version != NULL)\n-       rps->get_default_version (subset,\n-                                 &major_version,\n-                                 &minor_version);\n-      riscv_add_subset (rps->subset_list, subset,\n-\t\t\tmajor_version,\n-\t\t\tminor_version);\n-\n+      riscv_parse_add_subset (rps, subset,\n+\t\t\t      major_version,\n+\t\t\t      minor_version);\n       free (subset);\n       p += end_of_version - subset;\n \n@@ -1529,6 +1574,7 @@ riscv_parse_subset (riscv_parse_subset_t *rps,\n {\n   const char *p;\n   size_t i;\n+  bfd_boolean no_conflict = TRUE;\n \n   for (p = arch; *p != '\\0'; p++)\n     {\n@@ -1595,15 +1641,15 @@ riscv_parse_subset (riscv_parse_subset_t *rps,\n       rps->error_handler\n \t(_(\"-march=%s: rv32e does not support the `f' extension\"),\n \t arch);\n-      return FALSE;\n+      no_conflict = FALSE;\n     }\n \n   if (riscv_lookup_subset (rps->subset_list, \"q\") && *rps->xlen < 64)\n     {\n       rps->error_handler\n \t(_(\"-march=%s: rv32 does not support the `q' extension\"),\n \t arch);\n-      return FALSE;\n+      no_conflict = FALSE;\n     }\n \n   if (riscv_lookup_subset (rps->subset_list, \"d\")\n@@ -1612,7 +1658,7 @@ riscv_parse_subset (riscv_parse_subset_t *rps,\n       rps->error_handler\n \t(_(\"-march=%s: `d' extension requires `f' extension\"),\n \t arch);\n-      return FALSE;\n+      no_conflict = FALSE;\n     }\n \n   if (riscv_lookup_subset (rps->subset_list, \"q\")\n@@ -1621,88 +1667,10 @@ riscv_parse_subset (riscv_parse_subset_t *rps,\n       rps->error_handler\n \t(_(\"-march=%s: `q' extension requires `d' extension\"),\n \t arch);\n-      return FALSE;\n-    }\n-\n-  return TRUE;\n-}\n-\n-/* Add new subset to list.  */\n-\n-void\n-riscv_add_subset (riscv_subset_list_t *subset_list,\n-\t\t  const char *subset,\n-\t\t  int major,\n-\t\t  int minor)\n-{\n-  riscv_subset_t *s = xmalloc (sizeof *s);\n-\n-  if (subset_list->head == NULL)\n-    subset_list->head = s;\n-\n-  s->name = xstrdup (subset);\n-  s->major_version = major;\n-  s->minor_version = minor;\n-  s->next = NULL;\n-\n-  if (subset_list->tail != NULL)\n-    subset_list->tail->next = s;\n-\n-  subset_list->tail = s;\n-}\n-\n-/* Find subset in list without version checking, return NULL if not found.  */\n-\n-riscv_subset_t *\n-riscv_lookup_subset (const riscv_subset_list_t *subset_list,\n-\t\t     const char *subset)\n-{\n-  return riscv_lookup_subset_version\n-    (subset_list, subset,\n-     RISCV_DONT_CARE_VERSION,\n-     RISCV_DONT_CARE_VERSION);\n-}\n-\n-/* Find subset in list with version checking, return NULL if not found.  */\n-\n-riscv_subset_t *\n-riscv_lookup_subset_version (const riscv_subset_list_t *subset_list,\n-\t\t\t     const char *subset,\n-\t\t\t     int major, int minor)\n-{\n-  riscv_subset_t *s;\n-\n-  for (s = subset_list->head; s != NULL; s = s->next)\n-    if (strcasecmp (s->name, subset) == 0)\n-      {\n-\tif ((major != RISCV_DONT_CARE_VERSION)\n-\t    && (s->major_version != major))\n-\t  return NULL;\n-\n-\tif ((minor != RISCV_DONT_CARE_VERSION)\n-\t    && (s->minor_version != minor))\n-\t  return NULL;\n-\n-\treturn s;\n-      }\n-\n-  return NULL;\n-}\n-\n-/* Release subset list.  */\n-\n-void\n-riscv_release_subset_list (riscv_subset_list_t *subset_list)\n-{\n-   while (subset_list->head != NULL)\n-    {\n-      riscv_subset_t *next = subset_list->head->next;\n-      free ((void *)subset_list->head->name);\n-      free (subset_list->head);\n-      subset_list->head = next;\n+      no_conflict = FALSE;\n     }\n \n-  subset_list->tail = NULL;\n+  return no_conflict;\n }\n \n /* Return the number of digits for the input.  */"
+    },
+    {
+      "sha": "45705ce31c24fc581facdeb9613b7a2a86f1792b",
+      "filename": "bfd/elfxx-riscv.h",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 8,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/bfd/elfxx-riscv.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/bfd/elfxx-riscv.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfxx-riscv.h?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -33,7 +33,7 @@ riscv_reloc_type_lookup (bfd *, bfd_reloc_code_real_type);\n extern reloc_howto_type *\n riscv_elf_rtype_to_howto (bfd *, unsigned int r_type);\n \n-#define RISCV_DONT_CARE_VERSION -1\n+#define RISCV_UNKNOWN_VERSION -1\n \n /* The information of architecture attribute.  */\n struct riscv_subset_t\n@@ -64,20 +64,15 @@ extern riscv_subset_t *\n riscv_lookup_subset (const riscv_subset_list_t *,\n \t\t     const char *);\n \n-extern riscv_subset_t *\n-riscv_lookup_subset_version (const riscv_subset_list_t *,\n-\t\t\t     const char *,\n-\t\t\t     int, int);\n-\n typedef struct\n {\n   riscv_subset_list_t *subset_list;\n   void (*error_handler) (const char *,\n \t\t\t ...) ATTRIBUTE_PRINTF_1;\n   unsigned *xlen;\n   void (*get_default_version) (const char *,\n-\t\t\t       unsigned int *,\n-\t\t\t       unsigned int *);\n+\t\t\t       int *,\n+\t\t\t       int *);\n } riscv_parse_subset_t;\n \n extern bfd_boolean"
+    },
+    {
+      "sha": "2b4550976bacd71e1e6448bacfdafbc4cdf7b1db",
+      "filename": "gas/ChangeLog",
+      "status": "modified",
+      "additions": 30,
+      "deletions": 0,
+      "changes": 30,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/ChangeLog?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,3 +1,33 @@\n+2020-12-01  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* config/tc-riscv.c (riscv_get_default_ext_version):\n+\tChange the version type from unsigned to int.\n+\t(riscv_set_arch): Use as_bad rather than as_fatal to\n+\treport more errors.\n+\t* testsuite/gas/riscv/attribute-02.d: Updated since x must be\n+\tset with versions.\n+\t* testsuite/gas/riscv/attribute-03.d: Likewise.\n+\t* testsuite/gas/riscv/march-ok-two-nse.d: Likewise.\n+\t* testsuite/gas/riscv/attribute-09.d: zicsr wasn't supported\n+\tin the spec 2.2, so choose the newer spec.\n+\t* testsuite/gas/riscv/march-fail-base-01.l: Updated since as_bad.\n+\t* testsuite/gas/riscv/march-fail-base-02.l: Likewise.\n+\t* testsuite/gas/riscv/march-fail-order-std.l: Likewise.\n+\t* testsuite/gas/riscv/march-fail-order-x.l: Likewise.\n+\t* testsuite/gas/riscv/march-fail-order-z.l: Likewise.\n+\t* testsuite/gas/riscv/march-fail-porder.l: Likewise.\n+\t* testsuite/gas/riscv/march-fail-rv32ef.l: Likewise.\n+\t* testsuite/gas/riscv/march-fail-rv32id.l: Likewise.\n+\t* testsuite/gas/riscv/march-fail-rv32iq.l: Likewise.\n+\t* testsuite/gas/riscv/march-fail-rv64iq.l: Likewise.\n+\t* testsuite/gas/riscv/march-fail-single-char.l: Likewise.\n+\t* testsuite/gas/riscv/march-fail-unknown-std.l: Likewise.\n+\t* testsuite/gas/riscv/march-fail-unknown.l: Likewise.\n+\t* testsuite/gas/riscv/march-fail-uppercase.l: Likewise.\n+\t* testsuite/gas/riscv/march-fail-version.l: Likewise.\n+\t* testsuite/gas/riscv/march-fail-isa-spec.d: Likewise.\n+\t* testsuite/gas/riscv/march-fail-isa-spec.l: Likewise.\n+\n 2020-12-01  Nelson Chu  <nelson.chu@sifive.com>\n \n \t* testsuite/gas/riscv/march-fail-order-z.d: New testcase, check"
+    },
+    {
+      "sha": "236a85847ed92c1847fb222defc1d53946669198",
+      "filename": "gas/config/tc-riscv.c",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 13,
+      "changes": 23,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/config/tc-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/config/tc-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-riscv.c?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -275,28 +275,25 @@ init_ext_version_hash (const struct riscv_ext_version *table)\n \n static void\n riscv_get_default_ext_version (const char *name,\n-                              unsigned int *major_version,\n-                              unsigned int *minor_version)\n+\t\t\t       int *major_version,\n+\t\t\t       int *minor_version)\n {\n   struct riscv_ext_version *ext;\n \n-  *major_version = 0;\n-  *minor_version = 0;\n-\n   if (name == NULL || default_isa_spec == ISA_SPEC_CLASS_NONE)\n     return;\n \n   ext = (struct riscv_ext_version *) str_hash_find (ext_version_hash, name);\n   while (ext\n-        && ext->name\n-        && strcmp (ext->name, name) == 0)\n+\t && ext->name\n+\t && strcmp (ext->name, name) == 0)\n     {\n       if (ext->isa_spec_class == default_isa_spec)\n-       {\n-         *major_version = ext->major_version;\n-         *minor_version = ext->minor_version;\n-         return;\n-       }\n+\t{\n+\t  *major_version = ext->major_version;\n+\t  *minor_version = ext->minor_version;\n+\t  return;\n+\t}\n       ext++;\n     }\n }\n@@ -308,7 +305,7 @@ riscv_set_arch (const char *s)\n {\n   riscv_parse_subset_t rps;\n   rps.subset_list = &riscv_subsets;\n-  rps.error_handler = as_fatal;\n+  rps.error_handler = as_bad;\n   rps.xlen = &xlen;\n   rps.get_default_version = riscv_get_default_ext_version;\n "
+    },
+    {
+      "sha": "45b89f2d62d095067996b13648cf2875612a760b",
+      "filename": "gas/testsuite/gas/riscv/attribute-02.d",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/attribute-02.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/attribute-02.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/attribute-02.d?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,6 +1,6 @@\n-#as: -march=rv32gxargle -march-attr -misa-spec=2.2\n+#as: -march=rv32gxargle2p0 -march-attr -misa-spec=2.2\n #readelf: -A\n #source: empty.s\n Attribute Section: riscv\n File Attributes\n-  Tag_RISCV_arch: \"rv32i2p0_m2p0_a2p0_f2p0_d2p0_xargle0p0\"\n+  Tag_RISCV_arch: \"rv32i2p0_m2p0_a2p0_f2p0_d2p0_xargle2p0\""
+    },
+    {
+      "sha": "11416d63d2548834859bb62227d6e59c42a0f276",
+      "filename": "gas/testsuite/gas/riscv/attribute-03.d",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/attribute-03.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/attribute-03.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/attribute-03.d?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,6 +1,6 @@\n-#as: -march=rv32gxargle_xfoo -march-attr -misa-spec=2.2\n+#as: -march=rv32gxargle2p0_xfoo3p0 -march-attr -misa-spec=2.2\n #readelf: -A\n #source: empty.s\n Attribute Section: riscv\n File Attributes\n-  Tag_RISCV_arch: \"rv32i2p0_m2p0_a2p0_f2p0_d2p0_xargle0p0_xfoo0p0\"\n+  Tag_RISCV_arch: \"rv32i2p0_m2p0_a2p0_f2p0_d2p0_xargle2p0_xfoo3p0\""
+    },
+    {
+      "sha": "fc87f82c5544fc6063545b622c7e212ebdf21499",
+      "filename": "gas/testsuite/gas/riscv/attribute-09.d",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/attribute-09.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/attribute-09.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/attribute-09.d?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,6 +1,6 @@\n-#as: -march-attr -march=rv32i2p1m_zicsr -misa-spec=2.2\n+#as: -march-attr -march=rv32i2p2m_zicsr -misa-spec=20191213\n #readelf: -A\n #source: empty.s\n Attribute Section: riscv\n File Attributes\n-  Tag_RISCV_arch: \"rv32i2p1_m2p0_zicsr0p0\"\n+  Tag_RISCV_arch: \"rv32i2p2_m2p0_zicsr2p0\""
+    },
+    {
+      "sha": "45d5c9ad98c0f7a217751cdb0596c38e6f8323c0",
+      "filename": "gas/testsuite/gas/riscv/march-fail-base-01.l",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-base-01.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-base-01.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-base-01.l?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,2 +1,2 @@\n .*Assembler messages:\n-.*Fatal error: .*first ISA extension must be `e', `i' or `g'\n+.*Error: .*first ISA extension must be `e', `i' or `g'"
+    },
+    {
+      "sha": "f6a3c1dc51cb8d7b54cd47cb793001edbce0d0e3",
+      "filename": "gas/testsuite/gas/riscv/march-fail-base-02.l",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-base-02.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-base-02.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-base-02.l?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,2 +1,2 @@\n .*Assembler messages:\n-.*Fatal error: .*rv64e is not a valid base ISA\n+.*Error: .*rv64e is not a valid base ISA"
+    },
+    {
+      "sha": "af707e232e251332bb86723749f30285f0ef32e5",
+      "filename": "gas/testsuite/gas/riscv/march-fail-isa-spec.d",
+      "status": "added",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-isa-spec.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-isa-spec.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-isa-spec.d?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -0,0 +1,3 @@\n+#as: -march=rv32iln_zicsr_xargle_xbargle -misa-spec=20191213\n+#source: empty.s\n+#error_output: march-fail-isa-spec.l"
+    },
+    {
+      "sha": "e714ddf7ba907f0dc3a690f88c91f40f83da373f",
+      "filename": "gas/testsuite/gas/riscv/march-fail-isa-spec.l",
+      "status": "added",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-isa-spec.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-isa-spec.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-isa-spec.l?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -0,0 +1,5 @@\n+.*Assembler messages:\n+.*Error: cannot find default versions of the ISA extension `l'\n+.*Error: cannot find default versions of the ISA extension `n'\n+.*Error: x ISA extension `xargle' must be set with the versions\n+.*Error: x ISA extension `xbargle' must be set with the versions"
+    },
+    {
+      "sha": "9e3ce5e8d913b48994c3b75716fc3a2ab1b7ac14",
+      "filename": "gas/testsuite/gas/riscv/march-fail-order-std.l",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-order-std.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-order-std.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-order-std.l?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,2 +1,2 @@\n .*Assembler messages:\n-.*Fatal error: .*standard ISA extension `m' is not in canonical order\n+.*Error: .*standard ISA extension `m' is not in canonical order"
+    },
+    {
+      "sha": "025db146867e504993b7a70f56c8a106ddc649c9",
+      "filename": "gas/testsuite/gas/riscv/march-fail-order-x.l",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-order-x.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-order-x.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-order-x.l?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,2 +1,2 @@\n .*Assembler messages:\n-.*Fatal error: .*x ISA extension `xargle' is not in alphabetical order.  It must come before `xbargle'\n+.*Error: .*x ISA extension `xargle' is not in alphabetical order.  It must come before `xbargle'"
+    },
+    {
+      "sha": "a98c53a279de0acd6f770604cb3262a373f2e405",
+      "filename": "gas/testsuite/gas/riscv/march-fail-order-z.l",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-order-z.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-order-z.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-order-z.l?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,2 +1,2 @@\n .*Assembler messages:\n-.*Fatal error: .*z ISA extension `zicsr' is not in alphabetical order.  It must come before `zifencei'\n+.*Error: .*z ISA extension `zicsr' is not in alphabetical order.  It must come before `zifencei'"
+    },
+    {
+      "sha": "c5496eab4995b9f4c4b6b4ab57acab010fd152ce",
+      "filename": "gas/testsuite/gas/riscv/march-fail-porder.l",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-porder.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-porder.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-porder.l?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,2 +1,2 @@\n .*Assembler messages:\n-.*Fatal error: .*unexpected ISA string at end:.*\n+.*Error: .*unexpected ISA string at end:.*"
+    },
+    {
+      "sha": "e6d93f28fa545254c50e321ba7c66a8b5cd56ce3",
+      "filename": "gas/testsuite/gas/riscv/march-fail-rv32ef.l",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-rv32ef.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-rv32ef.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-rv32ef.l?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,2 +1,2 @@\n .*Assembler messages:\n-.*Fatal error: .*rv32e does not support the `f' extension\n+.*Error: .*rv32e does not support the `f' extension"
+    },
+    {
+      "sha": "c5f990cd73584ed2ba2d6f48065a31b42a5e2611",
+      "filename": "gas/testsuite/gas/riscv/march-fail-rv32id.l",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-rv32id.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-rv32id.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-rv32id.l?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,2 +1,2 @@\n .*Assembler messages:\n-.*Fatal error: .*`d' extension requires `f' extension\n+.*Error: .*`d' extension requires `f' extension"
+    },
+    {
+      "sha": "8143dd441d5f1b3bed4a11ee8e804b5aa73c6d70",
+      "filename": "gas/testsuite/gas/riscv/march-fail-rv32iq.l",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-rv32iq.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-rv32iq.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-rv32iq.l?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,2 +1,3 @@\n .*Assembler messages:\n-.*Fatal error: .*rv32 does not support the `q' extension\n+.*Error: .*rv32 does not support the `q' extension\n+.*Error: .*`q' extension requires `d' extension"
+    },
+    {
+      "sha": "787f46d1ed8b5f9a52fec377c92d8d37d20caacf",
+      "filename": "gas/testsuite/gas/riscv/march-fail-rv64iq.l",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-rv64iq.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-rv64iq.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-rv64iq.l?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,2 +1,2 @@\n .*Assembler messages:\n-.*Fatal error: .*`q' extension requires `d' extension\n+.*Error: .*`q' extension requires `d' extension"
+    },
+    {
+      "sha": "435d0b23a4fbc2a9f5d12f2c6861ddbf2900edd7",
+      "filename": "gas/testsuite/gas/riscv/march-fail-single-char.l",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-single-char.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-single-char.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-single-char.l?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,2 +1,2 @@\n .*Assembler messages:\n-.*Fatal error: .*unknown (s|h|z|x) ISA extension `(s|h|z|x)'\n+.*Error: .*unknown (s|h|z|x) ISA extension `(s|h|z|x)'"
+    },
+    {
+      "sha": "75cdda38942241c216c7772725d3478021d44f49",
+      "filename": "gas/testsuite/gas/riscv/march-fail-unknown-std.l",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-unknown-std.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-unknown-std.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-unknown-std.l?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,2 +1,2 @@\n .*Assembler messages:\n-.*Fatal error: .*unknown standard ISA extension `[^eimafdqiglcbjtpvn]'\n+.*Error: .*unknown standard ISA extension `[^eimafdqiglcbjtpvn]'"
+    },
+    {
+      "sha": "874b8d461ba9808bb221a1327a017112dcb0f00b",
+      "filename": "gas/testsuite/gas/riscv/march-fail-unknown.l",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-unknown.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-unknown.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-unknown.l?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,2 +1,2 @@\n .*Assembler messages:\n-.*Fatal error: .*unknown (s|h|z) ISA extension `(s|h|z)foo'\n+.*Error: .*unknown (s|h|z) ISA extension `(s|h|z)foo'"
+    },
+    {
+      "sha": "14f03d6954afff511a0e5e7c6862daa998ee710b",
+      "filename": "gas/testsuite/gas/riscv/march-fail-uppercase.l",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-uppercase.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-uppercase.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-uppercase.l?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,2 +1,2 @@\n .*Assembler messages:\n-.*Fatal error: .*ISA string cannot contain uppercase letters\n+.*Error: .*ISA string cannot contain uppercase letters"
+    },
+    {
+      "sha": "c7f8a4d5487ce89e126d14a39f253682dda3e405",
+      "filename": "gas/testsuite/gas/riscv/march-fail-version.l",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-version.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-fail-version.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-version.l?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,2 +1,3 @@\n .*Assembler messages:\n-.*Fatal error: .*expect number after `2p'\n+.*Error: cannot find default versions of the ISA extension `p'\n+.*Error: .*expect number after `2p'"
+    },
+    {
+      "sha": "e78cf9dd09bed2a968430b4e7084c36158df236f",
+      "filename": "gas/testsuite/gas/riscv/march-ok-two-nse.d",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-ok-two-nse.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/gas/testsuite/gas/riscv/march-ok-two-nse.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-ok-two-nse.d?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,4 +1,4 @@\n-#as: -march=rv32imafd_xargle_xbargle\n+#as: -march=rv32imafd_xargle2p0_xbargle3p0\n #objdump: -dr\n #source: empty.s\n "
+    },
+    {
+      "sha": "7cda51860c07b9d7000233a8f9104d044ab012d7",
+      "filename": "include/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/include/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/include/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ChangeLog?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-12-01  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* opcode/riscv.h (riscv_ext_version):\n+\tChange the version type from unsigned to int.\n+\n 2020-11-23  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctf-api.h: Style nit: remove () on function names in comments."
+    },
+    {
+      "sha": "94a13803d90f17bead26bb9c7f276ad5cafc9a03",
+      "filename": "include/opcode/riscv.h",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/include/opcode/riscv.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57/include/opcode/riscv.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/opcode/riscv.h?ref=7ef19aa616aee98f0a5c7c948d0db56a9f3c5e57",
+      "patch": "@@ -360,8 +360,8 @@ struct riscv_ext_version\n {\n   const char *name;\n   enum riscv_isa_spec_class isa_spec_class;\n-  unsigned int major_version;\n-  unsigned int minor_version;\n+  int major_version;\n+  int minor_version;\n };\n \n /* All RISC-V CSR belong to one of these classes.  */"
+    }
+  ]
+}

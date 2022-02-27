@@ -1,0 +1,194 @@
+{
+  "sha": "0e26741636bee18321d6743ecee6ae9effd35d1f",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MGUyNjc0MTYzNmJlZTE4MzIxZDY3NDNlY2VlNmFlOWVmZmQzNWQxZg==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-07-16T16:48:12Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2020-07-17T20:15:32Z"
+    },
+    "message": "gdb/riscv: delete target descriptions when gdb exits\n\nIt was pointed out on IRC that the RISC-V target allocates target\ndescriptions and stores them in a global map, and doesn't delete these\ntarget descriptions when GDB shuts down.\n\nThis isn't a particular problem, the total number of target\ndescriptions we can create is very limited so creating these on demand\nand holding them for the entire run on GDB seems reasonable.\n\nHowever, not deleting these objects on GDB exit means extra warnings\nare printed from tools like valgrind, and the address sanitiser,\nmaking it harder to spot real issues.  As it's reasonably easy to have\nGDB correctly delete these objects on exit, lets just do that.\n\nI started by noticing that we already have a target_desc_up type, a\nwrapper around unique_ptr that calls a function that will correctly\ndelete target descriptions, so I want to use that, but....\n\n...that type is declared in gdb/target-descriptions.h.  If I try to\ninclude that file in gdb/arch/riscv.c I run into a problem, that file\nis compiled into both GDB and GDBServer.\n\nOK, I could guard the include with #ifdef, but surely we can do\nbetter.\n\nSo then I decided to move the target_desc_up type into\ngdbsupport/tdesc.h, this is the interface file for generic code shared\nbetween GDB and GDBserver (relating to target descriptions).  The\nactual implementation for the delete function still lives in\ngdb/target-description.c, but now gdb/arch/riscv.c can see the\ndeclaration.  Problem solved....\n\n... but, though RISC-V doesn't use it I've now exposed the\ntarget_desc_up type to gdbserver, so in future someone _might_ start\nusing it, which is fine, except right now there's no definition of the\ndelete function - remember the delete I used is only defined in GDB\ncode.\n\nNo problem, I add an implementation of the delete operator into\ngdbserver/tdesc.cc, and all is good..... except....\n\nI start getting this error from GCC:\n\n  tdesc.cc:109:10: error: deleting object of polymorphic class type \u2018target_desc\u2019 which has non-virtual destructor might cause undefined behavior [-Werror=delete-non-virtual-dtor]\n\nWhich is caused because gdbserver's target_desc type inherits from\ntdesc_element which has a virtual method, and so GCC worries that\ntarget_desc might be used as a base class.\n\nThe solution is to declare gdbserver's target_desc class as final.\nThis is fine so long as we never intent to inherit from\ntarget_desc (in gdbserver).  But if we did then we'd want to make\ntarget_desc's destructor virtual anyway, so the error above would be\nresolved, and there wouldn't be an issue.\n\ngdb/ChangeLog:\n\n\t* arch/riscv.c (riscv_tdesc_cache): Change map type.\n\t(riscv_lookup_target_description): Return pointer out of\n\tunique_ptr.\n\t* target-descriptions.c (allocate_target_description): Add\n\tcomment.\n\t(target_desc_deleter::operator()): Likewise.\n\t* target-descriptions.h (struct target_desc_deleter): Moved to\n\tgdbsupport/tdesc.h.\n\t(target_desc_up): Likewise.\n\ngdbserver/ChangeLog:\n\n\t* tdesc.cc (allocate_target_description): Add header comment.\n\t(target_desc_deleter::operator()): New function.\n\t* tdesc.h (struct target_desc): Declare as final.\n\ngdbsupport/ChangeLog:\n\n\t* tdesc.h (struct target_desc_deleter): Moved here\n\tfrom gdb/target-descriptions.h, extend comment.\n\t(target_desc_up): Likewise.",
+    "tree": {
+      "sha": "73367f923c333e435b585890941435cf5bba00fa",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/73367f923c333e435b585890941435cf5bba00fa"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/0e26741636bee18321d6743ecee6ae9effd35d1f",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0e26741636bee18321d6743ecee6ae9effd35d1f",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/0e26741636bee18321d6743ecee6ae9effd35d1f",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0e26741636bee18321d6743ecee6ae9effd35d1f/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "33176ea7d7234e7e301301cd72d88abc7ab4cb2f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/33176ea7d7234e7e301301cd72d88abc7ab4cb2f",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/33176ea7d7234e7e301301cd72d88abc7ab4cb2f"
+    }
+  ],
+  "stats": {
+    "total": 74,
+    "additions": 58,
+    "deletions": 16
+  },
+  "files": [
+    {
+      "sha": "5a01458a46a44715c9c6622bfee07f2177423471",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0e26741636bee18321d6743ecee6ae9effd35d1f/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0e26741636bee18321d6743ecee6ae9effd35d1f/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=0e26741636bee18321d6743ecee6ae9effd35d1f",
+      "patch": "@@ -1,3 +1,15 @@\n+2020-07-17  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* arch/riscv.c (riscv_tdesc_cache): Change map type.\n+\t(riscv_lookup_target_description): Return pointer out of\n+\tunique_ptr.\n+\t* target-descriptions.c (allocate_target_description): Add\n+\tcomment.\n+\t(target_desc_deleter::operator()): Likewise.\n+\t* target-descriptions.h (struct target_desc_deleter): Moved to\n+\tgdbsupport/tdesc.h.\n+\t(target_desc_up): Likewise.\n+\n 2020-07-17  Tom Tromey  <tromey@adacore.com>\n \n \t* linux-nat.c (linux_nat_target::supports_non_stop)"
+    },
+    {
+      "sha": "e43aafc1c2fb7e9292aed6894e8f1e58d841dc83",
+      "filename": "gdb/arch/riscv.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 3,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0e26741636bee18321d6743ecee6ae9effd35d1f/gdb/arch/riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0e26741636bee18321d6743ecee6ae9effd35d1f/gdb/arch/riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/arch/riscv.c?ref=0e26741636bee18321d6743ecee6ae9effd35d1f",
+      "patch": "@@ -91,18 +91,20 @@ struct riscv_gdbarch_features_hasher\n /* Cache of previously seen target descriptions, indexed by the feature set\n    that created them.  */\n static std::unordered_map<riscv_gdbarch_features,\n-\t\t\t  const target_desc *,\n+\t\t\t  const target_desc_up,\n \t\t\t  riscv_gdbarch_features_hasher> riscv_tdesc_cache;\n \n /* See arch/riscv.h.  */\n \n const target_desc *\n riscv_lookup_target_description (const struct riscv_gdbarch_features features)\n {\n-  /* Lookup in the cache.  */\n+  /* Lookup in the cache.  If we find it then return the pointer out of\n+     the target_desc_up (which is a unique_ptr).  This is safe as the\n+     riscv_tdesc_cache will exist until GDB exits.  */\n   const auto it = riscv_tdesc_cache.find (features);\n   if (it != riscv_tdesc_cache.end ())\n-    return it->second;\n+    return it->second.get ();\n \n   target_desc *tdesc = riscv_create_target_description (features);\n "
+    },
+    {
+      "sha": "20d624c0c6524e76dbd51082ef2f2100eb19e8b6",
+      "filename": "gdb/target-descriptions.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0e26741636bee18321d6743ecee6ae9effd35d1f/gdb/target-descriptions.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0e26741636bee18321d6743ecee6ae9effd35d1f/gdb/target-descriptions.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/target-descriptions.c?ref=0e26741636bee18321d6743ecee6ae9effd35d1f",
+      "patch": "@@ -1206,12 +1206,16 @@ tdesc_create_feature (struct target_desc *tdesc, const char *name)\n   return new_feature;\n }\n \n+/* See gdbsupport/tdesc.h.  */\n+\n struct target_desc *\n allocate_target_description (void)\n {\n   return new target_desc ();\n }\n \n+/* See gdbsupport/tdesc.h.  */\n+\n void\n target_desc_deleter::operator() (struct target_desc *target_desc) const\n {"
+    },
+    {
+      "sha": "66a2c213dc2ff4094ca014b8d1d8cce7f976e554",
+      "filename": "gdb/target-descriptions.h",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 12,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0e26741636bee18321d6743ecee6ae9effd35d1f/gdb/target-descriptions.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0e26741636bee18321d6743ecee6ae9effd35d1f/gdb/target-descriptions.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/target-descriptions.h?ref=0e26741636bee18321d6743ecee6ae9effd35d1f",
+      "patch": "@@ -225,18 +225,6 @@ struct type *tdesc_find_type (struct gdbarch *gdbarch, const char *id);\n int tdesc_register_in_reggroup_p (struct gdbarch *gdbarch, int regno,\n \t\t\t\t  struct reggroup *reggroup);\n \n-\n-/* A deleter adapter for a target desc.  */\n-\n-struct target_desc_deleter\n-{\n-  void operator() (struct target_desc *desc) const;\n-};\n-\n-/* A unique pointer specialization that holds a target_desc.  */\n-\n-typedef std::unique_ptr<target_desc, target_desc_deleter> target_desc_up;\n-\n /* Methods for constructing a target description.  */\n \n void set_tdesc_architecture (struct target_desc *,"
+    },
+    {
+      "sha": "9d615870d17741326ddd9afdc25352e66343e818",
+      "filename": "gdbserver/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0e26741636bee18321d6743ecee6ae9effd35d1f/gdbserver/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0e26741636bee18321d6743ecee6ae9effd35d1f/gdbserver/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/ChangeLog?ref=0e26741636bee18321d6743ecee6ae9effd35d1f",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-07-17  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* tdesc.cc (allocate_target_description): Add header comment.\n+\t(target_desc_deleter::operator()): New function.\n+\t* tdesc.h (struct target_desc): Declare as final.\n+\n 2020-07-13  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* server.cc (handle_query): Use std::vector of"
+    },
+    {
+      "sha": "e639017cc31cac5ea2ba7ba76280fadb170455af",
+      "filename": "gdbserver/tdesc.cc",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0e26741636bee18321d6743ecee6ae9effd35d1f/gdbserver/tdesc.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0e26741636bee18321d6743ecee6ae9effd35d1f/gdbserver/tdesc.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/tdesc.cc?ref=0e26741636bee18321d6743ecee6ae9effd35d1f",
+      "patch": "@@ -93,12 +93,22 @@ init_target_desc (struct target_desc *tdesc,\n #endif\n }\n \n+/* See gdbsupport/tdesc.h.  */\n+\n struct target_desc *\n allocate_target_description (void)\n {\n   return new target_desc ();\n }\n \n+/* See gdbsupport/tdesc.h.  */\n+\n+void\n+target_desc_deleter::operator() (struct target_desc *target_desc) const\n+{\n+  delete target_desc;\n+}\n+\n #ifndef IN_PROCESS_AGENT\n \n static const struct target_desc default_description {};"
+    },
+    {
+      "sha": "681de64d0aa313dc02515ca03c62e0d4105c631b",
+      "filename": "gdbserver/tdesc.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0e26741636bee18321d6743ecee6ae9effd35d1f/gdbserver/tdesc.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0e26741636bee18321d6743ecee6ae9effd35d1f/gdbserver/tdesc.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/tdesc.h?ref=0e26741636bee18321d6743ecee6ae9effd35d1f",
+      "patch": "@@ -27,7 +27,7 @@\n /* A target description.  Inherit from tdesc_feature so that target_desc\n    can be used as tdesc_feature.  */\n \n-struct target_desc : tdesc_element\n+struct target_desc final : tdesc_element\n {\n   /* A vector of elements of register definitions that\n      describe the inferior's register set.  */"
+    },
+    {
+      "sha": "6b555cb97042f55e94b89d68db58f43c5675e328",
+      "filename": "gdbsupport/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0e26741636bee18321d6743ecee6ae9effd35d1f/gdbsupport/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0e26741636bee18321d6743ecee6ae9effd35d1f/gdbsupport/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/ChangeLog?ref=0e26741636bee18321d6743ecee6ae9effd35d1f",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-07-17  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* tdesc.h (struct target_desc_deleter): Moved here\n+\tfrom gdb/target-descriptions.h, extend comment.\n+\t(target_desc_up): Likewise.\n+\n 2020-06-30  Tom Tromey  <tromey@adacore.com>\n \n \tPR build/26183:"
+    },
+    {
+      "sha": "fdc2a6a370884b1c35bf7dfa10571329ff74d0ac",
+      "filename": "gdbsupport/tdesc.h",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0e26741636bee18321d6743ecee6ae9effd35d1f/gdbsupport/tdesc.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0e26741636bee18321d6743ecee6ae9effd35d1f/gdbsupport/tdesc.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/tdesc.h?ref=0e26741636bee18321d6743ecee6ae9effd35d1f",
+      "patch": "@@ -312,6 +312,20 @@ struct tdesc_feature : tdesc_element\n \n typedef std::unique_ptr<tdesc_feature> tdesc_feature_up;\n \n+/* A deleter adapter for a target_desc.  There are different\n+   implementations of this deleter class in gdb and gdbserver because even\n+   though the target_desc name is shared between the two projects, the\n+   actual implementations of target_desc are completely different.  */\n+\n+struct target_desc_deleter\n+{\n+  void operator() (struct target_desc *desc) const;\n+};\n+\n+/* A unique pointer specialization that holds a target_desc.  */\n+\n+typedef std::unique_ptr<target_desc, target_desc_deleter> target_desc_up;\n+\n /* Allocate a new target_desc.  */\n target_desc *allocate_target_description (void);\n "
+    }
+  ]
+}

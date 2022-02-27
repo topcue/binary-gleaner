@@ -1,0 +1,182 @@
+{
+  "sha": "79952e69634bd02029e79676a38915de60052e89",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6Nzk5NTJlNjk2MzRiZDAyMDI5ZTc5Njc2YTM4OTE1ZGU2MDA1MmU4OQ==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-10-30T17:26:15Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-10-30T01:01:12Z"
+    },
+    "message": "Make scoped_restore_current_thread's cdtors exception free (RFC)\n\nIf the remote target closes while we're reading registers/memory for\nrestoring the selected frame in scoped_restore_current_thread's dtor,\nthe corresponding TARGET_CLOSE_ERROR error is swallowed by the\nscoped_restore_current_thread's dtor, because letting exceptions\nescape from a dtor is bad.  It isn't great to lose that errors like\nthat, though.  I've been thinking about how to avoid it, and I came up\nwith this patch.\n\nThe idea here is to make scoped_restore_current_thread's dtor do as\nlittle as possible, to avoid any work that might throw in the first\nplace.  And to do that, instead of having the dtor call\nrestore_selected_frame, which re-finds the previously selected frame,\njust record the frame_id/level of the desired selected frame, and have\nget_selected_frame find the frame the next time it is called.  In\neffect, this implements most of Cagney's suggestion, here:\n\n  /* On demand, create the selected frame and then return it.  If the\n     selected frame can not be created, this function prints then throws\n     an error.  When MESSAGE is non-NULL, use it for the error message,\n     otherwize use a generic error message.  */\n  /* FIXME: cagney/2002-11-28: At present, when there is no selected\n     frame, this function always returns the current (inner most) frame.\n     It should instead, when a thread has previously had its frame\n     selected (but not resumed) and the frame cache invalidated, find\n     and then return that thread's previously selected frame.  */\n  extern struct frame_info *get_selected_frame (const char *message);\n\nThe only thing missing to fully implement that would be to make\nreinit_frame_cache just clear selected_frame instead of calling\nselect_frame(NULL), and the call select_frame(NULL) explicitly in the\nplaces where we really wanted reinit_frame_cache to go back to the\ncurrent frame too.  That can done separately, though, I'm not\nproposing to do that in this patch.\n\nNote that this patch renames restore_selected_frame to\nlookup_selected_frame, and adds a new restore_selected_frame function\nthat doesn't throw, to be paired with the also-new save_selected_frame\nfunction.\n\nThere's a restore_selected_frame function in infrun.c that I think can\nbe replaced by the new one in frame.c.\n\nAlso done in this patch is make the get_selected_frame's parameter be\noptional, so that we don't have to pass down nullptr explicitly all\nover the place.\n\nlookup_selected_frame should really move from thread.c to frame.c, but\nI didn't do that here, just to avoid churn in the patch while it\ncollects comments.  I did make it extern and declared it in frame.h\nalready, preparing for the move.  I will do the move as a follow up\npatch if people agree with this approach.\n\nIncidentally, this patch alone would fix the crashes fixed by the\nprevious patches in the series, because with this,\nscoped_restore_current_thread's constructor doesn't throw either.\n\ngdb/ChangeLog:\n\n\t* blockframe.c (block_innermost_frame): Use get_selected_frame.\n\t* frame.c\n\t(scoped_restore_selected_frame::scoped_restore_selected_frame):\n\tUse save_selected_frame.  Save language as well.\n\t(scoped_restore_selected_frame::~scoped_restore_selected_frame):\n\tUse restore_selected_frame, and restore language as well.\n\t(selected_frame_id, selected_frame_level): New.\n\t(selected_frame): Update comments.\n\t(save_selected_frame, restore_selected_frame): New.\n\t(get_selected_frame): Use lookup_selected_frame.\n\t(get_selected_frame_if_set): Delete.\n\t(select_frame): Record selected_frame_level and selected_frame_id.\n\t* frame.h (scoped_restore_selected_frame) <m_level, m_lang>: New\n\tfields.\n\t(get_selected_frame): Make 'message' parameter optional.\n\t(get_selected_frame_if_set): Delete declaration.\n\t(select_frame): Update comments.\n\t(save_selected_frame, restore_selected_frame)\n\t(lookup_selected_frame): Declare.\n\t* gdbthread.h (scoped_restore_current_thread) <m_lang>: New field.\n\t* infrun.c (struct infcall_control_state) <selected_frame_level>:\n\tNew field.\n\t(save_infcall_control_state): Use save_selected_frame.\n\t(restore_selected_frame): Delete.\n\t(restore_infcall_control_state): Use restore_selected_frame.\n\t* stack.c (select_frame_command_core, frame_command_core): Use\n\tget_selected_frame.\n\t* thread.c (restore_selected_frame): Rename to ...\n\t(lookup_selected_frame): ... this and make extern.  Select the\n\tcurrent frame if the frame level is -1.\n\t(scoped_restore_current_thread::restore): Also restore the\n\tlanguage.\n\t(scoped_restore_current_thread::~scoped_restore_current_thread):\n\tDon't try/catch.\n\t(scoped_restore_current_thread::scoped_restore_current_thread):\n\tSave the language as well.  Use save_selected_frame.\n\nChange-Id: I73fd1cfc40d8513c28e5596383b7ecd8bcfe700f",
+    "tree": {
+      "sha": "74f734787fcea919e5f6166aef3775147e7946a7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/74f734787fcea919e5f6166aef3775147e7946a7"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/79952e69634bd02029e79676a38915de60052e89",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/79952e69634bd02029e79676a38915de60052e89",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/79952e69634bd02029e79676a38915de60052e89",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/79952e69634bd02029e79676a38915de60052e89/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "4dd5c35212cf4685bb14f7709508de22a36e7dc2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4dd5c35212cf4685bb14f7709508de22a36e7dc2",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/4dd5c35212cf4685bb14f7709508de22a36e7dc2"
+    }
+  ],
+  "stats": {
+    "total": 330,
+    "additions": 206,
+    "deletions": 124
+  },
+  "files": [
+    {
+      "sha": "978576ac7c764aa7d374ec76ddcaf2ef538fb6bb",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 39,
+      "deletions": 0,
+      "changes": 39,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/79952e69634bd02029e79676a38915de60052e89/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/79952e69634bd02029e79676a38915de60052e89/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=79952e69634bd02029e79676a38915de60052e89",
+      "patch": "@@ -1,3 +1,42 @@\n+2020-10-30  Pedro Alves  <pedro@palves.net>\n+\n+\t* blockframe.c (block_innermost_frame): Use get_selected_frame.\n+\t* frame.c\n+\t(scoped_restore_selected_frame::scoped_restore_selected_frame):\n+\tUse save_selected_frame.  Save language as well.\n+\t(scoped_restore_selected_frame::~scoped_restore_selected_frame):\n+\tUse restore_selected_frame, and restore language as well.\n+\t(selected_frame_id, selected_frame_level): New.\n+\t(selected_frame): Update comments.\n+\t(save_selected_frame, restore_selected_frame): New.\n+\t(get_selected_frame): Use lookup_selected_frame.\n+\t(get_selected_frame_if_set): Delete.\n+\t(select_frame): Record selected_frame_level and selected_frame_id.\n+\t* frame.h (scoped_restore_selected_frame) <m_level, m_lang>: New\n+\tfields.\n+\t(get_selected_frame): Make 'message' parameter optional.\n+\t(get_selected_frame_if_set): Delete declaration.\n+\t(select_frame): Update comments.\n+\t(save_selected_frame, restore_selected_frame)\n+\t(lookup_selected_frame): Declare.\n+\t* gdbthread.h (scoped_restore_current_thread) <m_lang>: New field.\n+\t* infrun.c (struct infcall_control_state) <selected_frame_level>:\n+\tNew field.\n+\t(save_infcall_control_state): Use save_selected_frame.\n+\t(restore_selected_frame): Delete.\n+\t(restore_infcall_control_state): Use restore_selected_frame.\n+\t* stack.c (select_frame_command_core, frame_command_core): Use\n+\tget_selected_frame.\n+\t* thread.c (restore_selected_frame): Rename to ...\n+\t(lookup_selected_frame): ... this and make extern.  Select the\n+\tcurrent frame if the frame level is -1.\n+\t(scoped_restore_current_thread::restore): Also restore the\n+\tlanguage.\n+\t(scoped_restore_current_thread::~scoped_restore_current_thread):\n+\tDon't try/catch.\n+\t(scoped_restore_current_thread::scoped_restore_current_thread):\n+\tSave the language as well.  Use save_selected_frame.\n+\n 2020-10-29  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* gdbarch.sh (displaced_step_hw_singlestep): Adjust"
+    },
+    {
+      "sha": "80537e0d1f4509b379aa5876907592e87c51b7df",
+      "filename": "gdb/blockframe.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 5,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/79952e69634bd02029e79676a38915de60052e89/gdb/blockframe.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/79952e69634bd02029e79676a38915de60052e89/gdb/blockframe.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/blockframe.c?ref=79952e69634bd02029e79676a38915de60052e89",
+      "patch": "@@ -464,14 +464,10 @@ find_gnu_ifunc_target_type (CORE_ADDR resolver_funaddr)\n struct frame_info *\n block_innermost_frame (const struct block *block)\n {\n-  struct frame_info *frame;\n-\n   if (block == NULL)\n     return NULL;\n \n-  frame = get_selected_frame_if_set ();\n-  if (frame == NULL)\n-    frame = get_current_frame ();\n+  frame_info *frame = get_selected_frame ();\n   while (frame != NULL)\n     {\n       const struct block *frame_block = get_frame_block (frame, NULL);"
+    },
+    {
+      "sha": "bb835e2dbac7f8473a972a689bb294a925dff7e8",
+      "filename": "gdb/frame.c",
+      "status": "modified",
+      "additions": 93,
+      "deletions": 24,
+      "changes": 117,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/79952e69634bd02029e79676a38915de60052e89/gdb/frame.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/79952e69634bd02029e79676a38915de60052e89/gdb/frame.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/frame.c?ref=79952e69634bd02029e79676a38915de60052e89",
+      "patch": "@@ -317,17 +317,15 @@ frame_stash_invalidate (void)\n /* See frame.h  */\n scoped_restore_selected_frame::scoped_restore_selected_frame ()\n {\n-  m_fid = get_frame_id (get_selected_frame (NULL));\n+  m_lang = current_language->la_language;\n+  save_selected_frame (&m_fid, &m_level);\n }\n \n /* See frame.h  */\n scoped_restore_selected_frame::~scoped_restore_selected_frame ()\n {\n-  frame_info *frame = frame_find_by_id (m_fid);\n-  if (frame == NULL)\n-    warning (_(\"Unable to restore previously selected frame.\"));\n-  else\n-    select_frame (frame);\n+  restore_selected_frame (m_fid, m_level);\n+  set_language (m_lang);\n }\n \n /* Flag to control debugging.  */\n@@ -1685,10 +1683,63 @@ get_current_frame (void)\n }\n \n /* The \"selected\" stack frame is used by default for local and arg\n-   access.  May be zero, for no selected frame.  */\n-\n+   access.\n+\n+   The \"single source of truth\" for the selected frame is the\n+   SELECTED_FRAME_ID / SELECTED_FRAME_LEVEL pair.\n+\n+   Frame IDs can be saved/restored across reinitializing the frame\n+   cache, while frame_info pointers can't (frame_info objects are\n+   invalidated).  If we know the corresponding frame_info object, it\n+   is cached in SELECTED_FRAME.\n+\n+   If SELECTED_FRAME_ID / SELECTED_FRAME_LEVEL are null_frame_id / -1,\n+   and the target has stack and is stopped, the selected frame is the\n+   current (innermost) frame.  This means that SELECTED_FRAME_LEVEL is\n+   never 0 and SELECTED_FRAME_ID is never the ID of the innermost\n+   frame.\n+\n+   If SELECTED_FRAME_ID / SELECTED_FRAME_LEVEL are null_frame_id / -1,\n+   and the target has no stack or is executing, then there's no\n+   selected frame.  */\n+static frame_id selected_frame_id = null_frame_id;\n+static int selected_frame_level = -1;\n+\n+/* The cached frame_info object pointing to the selected frame.\n+   Looked up on demand by get_selected_frame.  */\n static struct frame_info *selected_frame;\n \n+/* See frame.h.  */\n+\n+void\n+save_selected_frame (frame_id *frame_id, int *frame_level)\n+  noexcept\n+{\n+  *frame_id = selected_frame_id;\n+  *frame_level = selected_frame_level;\n+}\n+\n+/* See frame.h.  */\n+\n+void\n+restore_selected_frame (frame_id frame_id, int frame_level)\n+  noexcept\n+{\n+  /* save_selected_frame never returns level == 0, so we shouldn't see\n+     it here either.  */\n+  gdb_assert (frame_level != 0);\n+\n+  /* FRAME_ID can be null_frame_id only IFF frame_level is -1.  */\n+  gdb_assert ((frame_level == -1 && !frame_id_p (frame_id))\n+\t      || (frame_level != -1 && frame_id_p (frame_id)));\n+\n+  selected_frame_id = frame_id;\n+  selected_frame_level = frame_level;\n+\n+  /* Will be looked up later by get_selected_frame.  */\n+  selected_frame = nullptr;\n+}\n+\n bool\n has_stack_frames ()\n {\n@@ -1716,9 +1767,7 @@ has_stack_frames ()\n   return true;\n }\n \n-/* Return the selected frame.  Always non-NULL (unless there isn't an\n-   inferior sufficient for creating a frame) in which case an error is\n-   thrown.  */\n+/* See frame.h.  */\n \n struct frame_info *\n get_selected_frame (const char *message)\n@@ -1727,24 +1776,14 @@ get_selected_frame (const char *message)\n     {\n       if (message != NULL && !has_stack_frames ())\n \terror ((\"%s\"), message);\n-      /* Hey!  Don't trust this.  It should really be re-finding the\n-\t last selected frame of the currently selected thread.  This,\n-\t though, is better than nothing.  */\n-      select_frame (get_current_frame ());\n+\n+      lookup_selected_frame (selected_frame_id, selected_frame_level);\n     }\n   /* There is always a frame.  */\n   gdb_assert (selected_frame != NULL);\n   return selected_frame;\n }\n \n-/* If there is a selected frame, return it.  Otherwise, return NULL.  */\n-\n-struct frame_info *\n-get_selected_frame_if_set (void)\n-{\n-  return selected_frame;\n-}\n-\n /* This is a variant of get_selected_frame() which can be called when\n    the inferior does not have a frame; in that case it will return\n    NULL instead of calling error().  */\n@@ -1757,12 +1796,42 @@ deprecated_safe_get_selected_frame (void)\n   return get_selected_frame (NULL);\n }\n \n-/* Select frame FI (or NULL - to invalidate the current frame).  */\n+/* Select frame FI (or NULL - to invalidate the selected frame).  */\n \n void\n select_frame (struct frame_info *fi)\n {\n   selected_frame = fi;\n+  selected_frame_level = frame_relative_level (fi);\n+  if (selected_frame_level == 0)\n+    {\n+      /* Treat the current frame especially -- we want to always\n+\t save/restore it without warning, even if the frame ID changes\n+\t (see lookup_selected_frame).  E.g.:\n+\n+\t  // The current frame is selected, the target had just stopped.\n+\t  {\n+\t    scoped_restore_selected_frame restore_frame;\n+\t    some_operation_that_changes_the_stack ();\n+\t  }\n+\t  // scoped_restore_selected_frame's dtor runs, but the\n+\t  // original frame_id can't be found.  No matter whether it\n+\t  // is found or not, we still end up with the now-current\n+\t  // frame selected.  Warning in lookup_selected_frame in this\n+\t  // case seems pointless.\n+\n+\t Also get_frame_id may access the target's registers/memory,\n+\t and thus skipping get_frame_id optimizes the common case.\n+\n+\t Saving the selected frame this way makes get_selected_frame\n+\t and restore_current_frame return/re-select whatever frame is\n+\t the innermost (current) then.  */\n+      selected_frame_level = -1;\n+      selected_frame_id = null_frame_id;\n+    }\n+  else\n+    selected_frame_id = get_frame_id (fi);\n+\n   /* NOTE: cagney/2002-05-04: FI can be NULL.  This occurs when the\n      frame is being invalidated.  */\n "
+    },
+    {
+      "sha": "f3ec784eec0de07d85dbdc3cb4acbc88081c290f",
+      "filename": "gdb/frame.h",
+      "status": "modified",
+      "additions": 41,
+      "deletions": 10,
+      "changes": 51,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/79952e69634bd02029e79676a38915de60052e89/gdb/frame.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/79952e69634bd02029e79676a38915de60052e89/gdb/frame.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/frame.h?ref=79952e69634bd02029e79676a38915de60052e89",
+      "patch": "@@ -186,8 +186,14 @@ class scoped_restore_selected_frame\n \n private:\n \n-  /* The ID of the previously selected frame.  */\n+  /* The ID and level of the previously selected frame.  */\n   struct frame_id m_fid;\n+  int m_level;\n+\n+  /* Save/restore the language as well, because selecting a frame\n+     changes the current language to the frame's language if \"set\n+     language auto\".  */\n+  enum language m_lang;\n };\n \n /* Methods for constructing and comparing Frame IDs.  */\n@@ -316,24 +322,49 @@ extern bool has_stack_frames ();\n    modifies the target invalidating the frame cache).  */\n extern void reinit_frame_cache (void);\n \n-/* On demand, create the selected frame and then return it.  If the\n-   selected frame can not be created, this function prints then throws\n-   an error.  When MESSAGE is non-NULL, use it for the error message,\n+/* Return the selected frame.  Always returns non-NULL.  If there\n+   isn't an inferior sufficient for creating a frame, an error is\n+   thrown.  When MESSAGE is non-NULL, use it for the error message,\n    otherwise use a generic error message.  */\n /* FIXME: cagney/2002-11-28: At present, when there is no selected\n    frame, this function always returns the current (inner most) frame.\n    It should instead, when a thread has previously had its frame\n    selected (but not resumed) and the frame cache invalidated, find\n    and then return that thread's previously selected frame.  */\n-extern struct frame_info *get_selected_frame (const char *message);\n-\n-/* If there is a selected frame, return it.  Otherwise, return NULL.  */\n-extern struct frame_info *get_selected_frame_if_set (void);\n+extern struct frame_info *get_selected_frame (const char *message = nullptr);\n \n-/* Select a specific frame.  NULL, apparently implies re-select the\n-   inner most frame.  */\n+/* Select a specific frame.  NULL implies re-select the inner most\n+   frame.  */\n extern void select_frame (struct frame_info *);\n \n+/* Save the frame ID and frame level of the selected frame in FRAME_ID\n+   and FRAME_LEVEL, to be restored later with restore_selected_frame.\n+\n+   This is preferred over getting the same info out of\n+   get_selected_frame directly because this function does not create\n+   the selected-frame's frame_info object if it hasn't been created\n+   yet, and thus is more efficient and doesn't throw.  */\n+extern void save_selected_frame (frame_id *frame_id, int *frame_level)\n+  noexcept;\n+\n+/* Restore selected frame as saved with save_selected_frame.\n+\n+   Does not try to find the corresponding frame_info object.  Instead\n+   the next call to get_selected_frame will look it up and cache the\n+   result.\n+\n+   This function does not throw.  It is designed to be safe to called\n+   from the destructors of RAII types.  */\n+extern void restore_selected_frame (frame_id frame_id, int frame_level)\n+  noexcept;\n+\n+/* Lookup the frame_info object for the selected frame FRAME_ID /\n+   FRAME_LEVEL and cache the result.\n+\n+   If FRAME_LEVEL > 0 and the originally selected frame isn't found,\n+   warn and select the innermost (current) frame.  */\n+extern void lookup_selected_frame (frame_id frame_id, int frame_level);\n+\n /* Given a FRAME, return the next (more inner, younger) or previous\n    (more outer, older) frame.  */\n extern struct frame_info *get_prev_frame (struct frame_info *);"
+    },
+    {
+      "sha": "da20dd4b4e18e3f72e933251ddaed212d13e6e90",
+      "filename": "gdb/gdbthread.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/79952e69634bd02029e79676a38915de60052e89/gdb/gdbthread.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/79952e69634bd02029e79676a38915de60052e89/gdb/gdbthread.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbthread.h?ref=79952e69634bd02029e79676a38915de60052e89",
+      "patch": "@@ -673,6 +673,10 @@ class scoped_restore_current_thread\n   frame_id m_selected_frame_id;\n   int m_selected_frame_level;\n   bool m_was_stopped;\n+  /* Save/restore the language as well, because selecting a frame\n+     changes the current language to the frame's language if \"set\n+     language auto\".  */\n+  enum language m_lang;\n };\n \n /* Returns a pointer into the thread_info corresponding to"
+    },
+    {
+      "sha": "b007af057d95e4cf6eb0cce63ea6c8825e033774",
+      "filename": "gdb/infrun.c",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 33,
+      "changes": 40,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/79952e69634bd02029e79676a38915de60052e89/gdb/infrun.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/79952e69634bd02029e79676a38915de60052e89/gdb/infrun.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infrun.c?ref=79952e69634bd02029e79676a38915de60052e89",
+      "patch": "@@ -9003,8 +9003,10 @@ struct infcall_control_state\n   enum stop_stack_kind stop_stack_dummy = STOP_NONE;\n   int stopped_by_random_signal = 0;\n \n-  /* ID if the selected frame when the inferior function call was made.  */\n+  /* ID and level of the selected frame when the inferior function\n+     call was made.  */\n   struct frame_id selected_frame_id {};\n+  int selected_frame_level = -1;\n };\n \n /* Save all of the information associated with the inferior<==>gdb\n@@ -9033,27 +9035,12 @@ save_infcall_control_state ()\n   inf_status->stop_stack_dummy = stop_stack_dummy;\n   inf_status->stopped_by_random_signal = stopped_by_random_signal;\n \n-  inf_status->selected_frame_id = get_frame_id (get_selected_frame (NULL));\n+  save_selected_frame (&inf_status->selected_frame_id,\n+\t\t       &inf_status->selected_frame_level);\n \n   return inf_status;\n }\n \n-static void\n-restore_selected_frame (const frame_id &fid)\n-{\n-  frame_info *frame = frame_find_by_id (fid);\n-\n-  /* If inf_status->selected_frame_id is NULL, there was no previously\n-     selected frame.  */\n-  if (frame == NULL)\n-    {\n-      warning (_(\"Unable to restore previously selected frame.\"));\n-      return;\n-    }\n-\n-  select_frame (frame);\n-}\n-\n /* Restore inferior session state to INF_STATUS.  */\n \n void\n@@ -9081,21 +9068,8 @@ restore_infcall_control_state (struct infcall_control_state *inf_status)\n \n   if (target_has_stack ())\n     {\n-      /* The point of the try/catch is that if the stack is clobbered,\n-         walking the stack might encounter a garbage pointer and\n-         error() trying to dereference it.  */\n-      try\n-\t{\n-\t  restore_selected_frame (inf_status->selected_frame_id);\n-\t}\n-      catch (const gdb_exception_error &ex)\n-\t{\n-\t  exception_fprintf (gdb_stderr, ex,\n-\t\t\t     \"Unable to restore previously selected frame:\\n\");\n-\t  /* Error in restoring the selected frame.  Select the\n-\t     innermost frame.  */\n-\t  select_frame (get_current_frame ());\n-\t}\n+      restore_selected_frame (inf_status->selected_frame_id,\n+\t\t\t      inf_status->selected_frame_level);\n     }\n \n   delete inf_status;"
+    },
+    {
+      "sha": "83c3366a98ed669eb2ad9b94456502b8eca8cb06",
+      "filename": "gdb/stack.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 5,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/79952e69634bd02029e79676a38915de60052e89/gdb/stack.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/79952e69634bd02029e79676a38915de60052e89/gdb/stack.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/stack.c?ref=79952e69634bd02029e79676a38915de60052e89",
+      "patch": "@@ -1842,9 +1842,9 @@ trailing_outermost_frame (int count)\n static void\n select_frame_command_core (struct frame_info *fi, bool ignored)\n {\n-  struct frame_info *prev_frame = get_selected_frame_if_set ();\n+  frame_info *prev_frame = get_selected_frame ();\n   select_frame (fi);\n-  if (get_selected_frame_if_set () != prev_frame)\n+  if (get_selected_frame () != prev_frame)\n     gdb::observers::user_selected_context_changed.notify (USER_SELECTED_FRAME);\n }\n \n@@ -1863,10 +1863,9 @@ select_frame_for_mi (struct frame_info *fi)\n static void\n frame_command_core (struct frame_info *fi, bool ignored)\n {\n-  struct frame_info *prev_frame = get_selected_frame_if_set ();\n-\n+  frame_info *prev_frame = get_selected_frame ();\n   select_frame (fi);\n-  if (get_selected_frame_if_set () != prev_frame)\n+  if (get_selected_frame () != prev_frame)\n     gdb::observers::user_selected_context_changed.notify (USER_SELECTED_FRAME);\n   else\n     print_selected_thread_frame (current_uiout, USER_SELECTED_FRAME);"
+    },
+    {
+      "sha": "193f9d4c44f6c2e14c7a72c4dab192034c7cd30c",
+      "filename": "gdb/thread.c",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 47,
+      "changes": 64,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/79952e69634bd02029e79676a38915de60052e89/gdb/thread.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/79952e69634bd02029e79676a38915de60052e89/gdb/thread.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/thread.c?ref=79952e69634bd02029e79676a38915de60052e89",
+      "patch": "@@ -1325,20 +1325,26 @@ switch_to_thread (process_stratum_target *proc_target, ptid_t ptid)\n   switch_to_thread (thr);\n }\n \n-static void\n-restore_selected_frame (struct frame_id a_frame_id, int frame_level)\n+/* See frame.h.  */\n+\n+void\n+lookup_selected_frame (struct frame_id a_frame_id, int frame_level)\n {\n   struct frame_info *frame = NULL;\n   int count;\n \n-  /* This means there was no selected frame.  */\n+  /* This either means there was no selected frame, or the selected\n+     frame was the current frame.  In either case, select the current\n+     frame.  */\n   if (frame_level == -1)\n     {\n-      select_frame (NULL);\n+      select_frame (get_current_frame ());\n       return;\n     }\n \n-  gdb_assert (frame_level >= 0);\n+  /* select_frame never saves 0 in SELECTED_FRAME_LEVEL, so we\n+     shouldn't see it here.  */\n+  gdb_assert (frame_level > 0);\n \n   /* Restore by level first, check if the frame id is the same as\n      expected.  If that fails, try restoring by frame id.  If that\n@@ -1409,64 +1415,28 @@ scoped_restore_current_thread::restore ()\n       && target_has_stack ()\n       && target_has_memory ())\n     restore_selected_frame (m_selected_frame_id, m_selected_frame_level);\n+\n+  set_language (m_lang);\n }\n \n scoped_restore_current_thread::~scoped_restore_current_thread ()\n {\n   if (!m_dont_restore)\n-    {\n-      try\n-\t{\n-\t  restore ();\n-\t}\n-      catch (const gdb_exception &ex)\n-\t{\n-\t  /* We're in a dtor, there's really nothing else we can do\n-\t     but swallow the exception.  */\n-\t}\n-    }\n+    restore ();\n }\n \n scoped_restore_current_thread::scoped_restore_current_thread ()\n {\n   m_inf = inferior_ref::new_reference (current_inferior ());\n \n+  m_lang = current_language->la_language;\n+\n   if (inferior_ptid != null_ptid)\n     {\n       m_thread = thread_info_ref::new_reference (inferior_thread ());\n \n-      struct frame_info *frame;\n-\n       m_was_stopped = m_thread->state == THREAD_STOPPED;\n-      if (m_was_stopped\n-\t  && target_has_registers ()\n-\t  && target_has_stack ()\n-\t  && target_has_memory ())\n-\t{\n-\t  /* When processing internal events, there might not be a\n-\t     selected frame.  If we naively call get_selected_frame\n-\t     here, then we can end up reading debuginfo for the\n-\t     current frame, but we don't generally need the debuginfo\n-\t     at this point.  */\n-\t  frame = get_selected_frame_if_set ();\n-\t}\n-      else\n-\tframe = NULL;\n-\n-      try\n-\t{\n-\t  m_selected_frame_id = get_frame_id (frame);\n-\t  m_selected_frame_level = frame_relative_level (frame);\n-\t}\n-      catch (const gdb_exception_error &ex)\n-\t{\n-\t  m_selected_frame_id = null_frame_id;\n-\t  m_selected_frame_level = -1;\n-\n-\t  /* Better let this propagate.  */\n-\t  if (ex.error == TARGET_CLOSE_ERROR)\n-\t    throw;\n-\t}\n+      save_selected_frame (&m_selected_frame_id, &m_selected_frame_level);\n     }\n }\n "
+    }
+  ]
+}

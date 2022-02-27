@@ -1,0 +1,72 @@
+{
+  "sha": "24ac169ac5a918cd82b7485935f0c40a094c625e",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MjRhYzE2OWFjNWE5MThjZDgyYjc0ODU5MzVmMGM0MGEwOTRjNjI1ZQ==",
+  "commit": {
+    "author": {
+      "name": "Shahab Vahedi",
+      "email": "shahab@synopsys.com",
+      "date": "2020-02-19T13:56:02Z"
+    },
+    "committer": {
+      "name": "Shahab Vahedi",
+      "email": "shahab@synopsys.com",
+      "date": "2020-02-21T08:59:30Z"
+    },
+    "message": "gdb/testsuite: Regenerate the testglue if it is not in\n\nFor running the  DejaGnu  tests,  some  esoteric  configurations\nmay require a testglue.   This,  for  instance,  is  true  about\ntesting ARC  targets  which  uses  its  own  DejaGnu  board  and\na simulator which does not support returning the program's  exit\ncode.  Therefore, for those  tests  that  use  \"gdb_compile\",  a\n\"gdb_tg.o\"  file  is  compiled  and  linked   into   the   final\nexecutable.\n\nThere  are  tests  that  invoke  \"gdb_compile\"  from   different\ndirectories.   Let's  take  a   look   at   an   example   test:\ngdb.base/fullname.exp.  The purpose of this  test  is  to  build\nthe executable from different directories (absolute vs. relative\nvs.  other) and then check if gdb can handle setting breakpoints\naccordingly.\n\nWhen  \"gdb_compile\"  generates  the  \"gdb_tg.o\",  it  does   not\ndo it again  for  the  same  test.   Although  this  might  seem\nefficient, it can lead to  problems  when  changing  directories\nbefore the next compile:\n\n  gdb compile failed, arc-elf32-gcc: error: gdb_tg.o:\n  No such file or directory\n\nThis patch checks if the wrapper file (\"gdb_tg.o\") is  still  in\nreach and if it is not, it will stimulate  the  regeneration  of\nthe wrapper.\n\nIt is worth mentioning that GCC's  DejaGnu  tests  handle  these\nscenarios as well and they seem to be more efficient in doing so\nby saving the library paths and manipulating them  if  necessary\n[1].  However, for GDB tests, that  require  less  compilations,\nI think the proposed solution should be fine compared to a  more\nfull fledged solution from GCC.  The glue file in  our  case  is\nonly 2 KiB.\n\nLast but not least, I ran the x86_64 tests on an x86_64 host and\nfound no regression.\n\n[1]\nAvid  coders  may  look  for  \"set_ld_library_path_env_vars\"  in\ngcc/testsuite/lib/target-libpath.exp.\n\ngdb/testsuite/ChangeLog:\n\n\t* lib/gdb.exp (gdb_wrapper_init): Reset\n\t\"gdb_wrapper_initialized\" to 0 if \"wrapper_file\" does\n\tnot exist.",
+    "tree": {
+      "sha": "b9fe3b66663c525b292959333cf3770b27f8e6b5",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/b9fe3b66663c525b292959333cf3770b27f8e6b5"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/24ac169ac5a918cd82b7485935f0c40a094c625e",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/24ac169ac5a918cd82b7485935f0c40a094c625e",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/24ac169ac5a918cd82b7485935f0c40a094c625e",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/24ac169ac5a918cd82b7485935f0c40a094c625e/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "22b6cd70430d6bdaa3ae6c01414de8fd1f15a556",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/22b6cd70430d6bdaa3ae6c01414de8fd1f15a556",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/22b6cd70430d6bdaa3ae6c01414de8fd1f15a556"
+    }
+  ],
+  "stats": {
+    "total": 19,
+    "additions": 17,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "6138a18f78226db85e3cd99800aa1629b7626efb",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/24ac169ac5a918cd82b7485935f0c40a094c625e/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/24ac169ac5a918cd82b7485935f0c40a094c625e/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=24ac169ac5a918cd82b7485935f0c40a094c625e",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-02-06  Shahab Vahedi  <shahab@synopsys.com>\n+\n+\t* lib/gdb.exp (gdb_wrapper_init): Reset\n+\t\"gdb_wrapper_initialized\" to 0 if \"wrapper_file\" does\n+\tnot exist.\n+\n 2020-02-20  Tom de Vries  <tdevries@suse.de>\n \n \tPR go/17018"
+    },
+    {
+      "sha": "81518b9646aec164846f39104b80403bdfdc465b",
+      "filename": "gdb/testsuite/lib/gdb.exp",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 2,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/24ac169ac5a918cd82b7485935f0c40a094c625e/gdb/testsuite/lib/gdb.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/24ac169ac5a918cd82b7485935f0c40a094c625e/gdb/testsuite/lib/gdb.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/gdb.exp?ref=24ac169ac5a918cd82b7485935f0c40a094c625e",
+      "patch": "@@ -3577,11 +3577,20 @@ proc gdb_wrapper_init { args } {\n     global gdb_wrapper_flags\n     global gdb_wrapper_target\n \n+    # If the wrapper is initialized but the wrapper file cannot be\n+    # found anymore, the wrapper file must be built again.\n+    if { $gdb_wrapper_initialized == 1 && \\\n+\t    [info exists gdb_wrapper_file] && \\\n+\t    ![file exists $gdb_wrapper_file] } {\n+\tverbose \"reinitializing the wrapper\"\n+\tset gdb_wrapper_initialized 0\n+    }\n+\n     if { $gdb_wrapper_initialized == 1 } { return; }\n \n     if {[target_info exists needs_status_wrapper] && \\\n \t    [target_info needs_status_wrapper] != \"0\"} {\n-\tset result [build_wrapper \"testglue.o\"]\n+\tset result [build_wrapper [standard_output_file \"testglue.o\"]]\n \tif { $result != \"\" } {\n \t    set gdb_wrapper_file [lindex $result 0]\n \t    set gdb_wrapper_flags [lindex $result 1]\n@@ -3831,7 +3840,7 @@ proc gdb_compile {source dest type options} {\n     verbose \"options are $options\"\n     verbose \"source is $source $dest $type $options\"\n \n-    if { $gdb_wrapper_initialized == 0 } { gdb_wrapper_init }\n+    gdb_wrapper_init\n \n     if {[target_info exists needs_status_wrapper] && \\\n \t    [target_info needs_status_wrapper] != \"0\" && \\"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "sha": "2af87c859fe450d4a3a841cf19637a91d53c9486",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MmFmODdjODU5ZmU0NTBkNGEzYTg0MWNmMTk2MzdhOTFkNTNjOTQ4Ng==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2021-05-13T19:27:55Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-05-13T19:29:00Z"
+    },
+    "message": "gdb: call target_follow_exec when \"set follow-exec-mode\" is \"same\"\n\ntarget_follow_exec is currently only called in the \"follow-exec-mode ==\nnew\" branch of follow_exec, not the \"follow-exec-mode == same\" branch.\nI think it would make sense to call it regardless of the mode to let\ntargets do some necessary handling.\n\nThis is needed in the context of rocm-gdb [1], where a target is pushed\non top of the linux-nat target.  On exec, it needs to do some\nbookkeeping, close some file descriptors / handles that were related to\nthe process pre-exec and open some new ones for the process post-exec.\n\nHowever, by looking at the only in-tree implementation of\ntarget_ops::follow_exec, remote_target::follow_exec, I found that it\nwould be useful for the extended-remote target too, to align its\nbehavior with native debugging (although I think that behavior is not\nvery user-friendly, see PR 27745 [2]).\n\nUsing two programs, one (let's call it \"execer\") that execs the other\n(let's call it \"execee\"), with native:\n\n    $ ./gdb -q -nx --data-directory=data-directory ./execer\n    Reading symbols from ./execer...\n    (gdb) r\n    Starting program: /home/simark/build/binutils-gdb/gdb/execer\n    I am execer\n    process 1495622 is executing new program: /home/simark/build/binutils-gdb/gdb/execee\n    I am execee\n    [Inferior 1 (process 1495622) exited normally]\n    (gdb) r\n    Starting program: /home/simark/build/binutils-gdb/gdb/execee\n    I am execee\n    [Inferior 1 (process 1495626) exited normally]\n\nAnd now with gdbserver (some irrelevant output lines removed for brevity):\n\n    $ ./gdbserver --once --multi :1234\n    ...\n\n    $ ./gdb -q -nx --data-directory=data-directory ./execer -ex \"set remote exec-file /home/simark/build/binutils-gdb/gdb/execer\" -ex \"tar ext :1234\"\n    Reading symbols from ./execer...\n    Remote debugging using :1234\n    (gdb) r\n    Starting program: /home/simark/build/binutils-gdb/gdb/execer\n    process 1495724 is executing new program: /home/simark/build/binutils-gdb/gdb/execee\n    [Inferior 1 (process 1495724) exited normally]\n    (gdb) r\n    `target:/home/simark/build/binutils-gdb/gdb/execee' has disappeared; keeping its symbols.\n    Starting program: target:/home/simark/build/binutils-gdb/gdb/execee\n    warning: Build ID mismatch between current exec-file target:/home/simark/build/binutils-gdb/gdb/execee\n    and automatically determined exec-file target:/home/simark/build/binutils-gdb/gdb/execer\n    exec-file-mismatch handling is currently \"ask\"\n    Reading /home/simark/build/binutils-gdb/gdb/execer from remote target...\n    Load new symbol table from \"target:/home/simark/build/binutils-gdb/gdb/execer\"? (y or n)\n\nWhen handling the exec, GDB updates the exec-file of the inferior to be\nthe execee.  This means that a subsequent \"run\" will run the execee, not\nthe original executable (execer).\n\nremote_target::follow_exec is meant to update the \"remote exec-file\",\nwhich is the file on the remote system that will be executed if you\n\"run\" the inferior, to the execee as well.  However, this is not called\nwhen follow-exec-mode is same, because target_follow_exec is not called\nin this branch.  As a result, GDB thinks the inferior is executing\nexecee but the remote side is really executing execer, hence the\nmismatch message.\n\nBy calling target_follow_exec in the \"same\" branch of the follow_exec\nfunction, we ensure that everybody agrees, and we get the same behavior\nwith the extended-remote target as we get with the native target, the\nexecee is executed on the second run:\n\n    $ ./gdbserver --once --multi :1234\n    ...\n\n    $ ./gdb -q -nx --data-directory=data-directory ./execer -ex \"set remote exec-file /home/simark/build/binutils-gdb/gdb/execer\" -ex \"tar ext :1234\"\n    Reading symbols from ./execer...\n    Remote debugging using :1234\n    (gdb) r\n    Starting program: /home/simark/build/binutils-gdb/gdb/execer\n    process 1501445 is executing new program: /home/simark/build/binutils-gdb/gdb/execee\n    [Inferior 1 (process 1501445) exited normally]\n    (gdb) r\n    `target:/home/simark/build/binutils-gdb/gdb/execee' has disappeared; keeping its symbols.\n    Starting program: target:/home/simark/build/binutils-gdb/gdb/execee\n    [Inferior 1 (process 1501447) exited normally]\n    (gdb)\n\nThis scenario is tested in gdb.base/foll-exec-mode.exp, and in fact this\npatch fixes the test for me when using\n--target_board=native-extended-gdbserver.\n\ngdb/ChangeLog:\n\n\t* infrun.c (follow_exec): Call target_follow_fork when\n\tfollow-exec-mode is same.\n\t* target.h (target_follow_fork): Improve doc.\n\n[1] https://github.com/ROCm-Developer-Tools/ROCgdb\n[2] https://sourceware.org/bugzilla/show_bug.cgi?id=27745\n\nChange-Id: I4ee84a875e39bf3f8eaf3e6789a4bfe23a2a430e",
+    "tree": {
+      "sha": "d143b2f59b988b4785b782a16508be00d831f78f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/d143b2f59b988b4785b782a16508be00d831f78f"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/2af87c859fe450d4a3a841cf19637a91d53c9486",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2af87c859fe450d4a3a841cf19637a91d53c9486",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/2af87c859fe450d4a3a841cf19637a91d53c9486",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2af87c859fe450d4a3a841cf19637a91d53c9486/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "bab9eb490b76038ec3283fc8bfcf689cd8af7e42",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bab9eb490b76038ec3283fc8bfcf689cd8af7e42",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/bab9eb490b76038ec3283fc8bfcf689cd8af7e42"
+    }
+  ],
+  "stats": {
+    "total": 14,
+    "additions": 12,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "f0ae77e12181d1374f8a7a7272e3b5654c1ca5ef",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2af87c859fe450d4a3a841cf19637a91d53c9486/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2af87c859fe450d4a3a841cf19637a91d53c9486/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=2af87c859fe450d4a3a841cf19637a91d53c9486",
+      "patch": "@@ -1,3 +1,9 @@\n+2021-05-13  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\t* infrun.c (follow_exec): Call target_follow_fork when\n+\tfollow-exec-mode is same.\n+\t* target.h (target_follow_fork): Improve doc.\n+\n 2021-05-13  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* cli/cli-decode.h (struct cmd_list_element) <pre_show_hook>:"
+    },
+    {
+      "sha": "3e386aa587ca3a27463f176e2330425ddf28b6db",
+      "filename": "gdb/infrun.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2af87c859fe450d4a3a841cf19637a91d53c9486/gdb/infrun.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2af87c859fe450d4a3a841cf19637a91d53c9486/gdb/infrun.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infrun.c?ref=2af87c859fe450d4a3a841cf19637a91d53c9486",
+      "patch": "@@ -1198,6 +1198,7 @@ follow_exec (ptid_t ptid, const char *exec_file_target)\n \t around (its description is later cleared/refetched on\n \t restart).  */\n       target_clear_description ();\n+      target_follow_exec (inf, exec_file_target);\n     }\n \n   gdb_assert (current_program_space == inf->pspace);"
+    },
+    {
+      "sha": "b80cf88db8139745ef85789924cce9f48104fbf4",
+      "filename": "gdb/target.h",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 2,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2af87c859fe450d4a3a841cf19637a91d53c9486/gdb/target.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2af87c859fe450d4a3a841cf19637a91d53c9486/gdb/target.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/target.h?ref=2af87c859fe450d4a3a841cf19637a91d53c9486",
+      "patch": "@@ -1714,8 +1714,11 @@ extern int target_remove_vfork_catchpoint (int pid);\n \n void target_follow_fork (bool follow_child, bool detach_fork);\n \n-/* Handle the target-specific bookkeeping required when the inferior\n-   makes an exec call.  INF is the exec'd inferior.  */\n+/* Handle the target-specific bookkeeping required when the inferior makes an\n+   exec call.  The current inferior is the inferior that has executed the exec\n+   call.  INF is the inferior in which execution continues post-exec.  It is the\n+   same inferior as the current one if \"follow-exec-mode\" is \"same\" but is a new\n+   one if \"follow-exec-mode\" is \"new\".  */\n \n void target_follow_exec (struct inferior *inf, const char *execd_pathname);\n "
+    }
+  ]
+}

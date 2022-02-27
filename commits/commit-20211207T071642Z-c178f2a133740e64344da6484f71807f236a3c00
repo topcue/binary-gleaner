@@ -1,0 +1,110 @@
+{
+  "sha": "c178f2a133740e64344da6484f71807f236a3c00",
+  "node_id": "C_kwDOANOeidoAKGMxNzhmMmExMzM3NDBlNjQzNDRkYTY0ODRmNzE4MDdmMjM2YTNjMDA",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-12-07T07:16:42Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2021-12-07T07:16:42Z"
+    },
+    "message": "[gdb/testsuite] Fix FAIL in gdb.tui/basic.exp\n\nOn openSUSE Leap 15.2 aarch64 I ran into:\n...\nFAIL: gdb.tui/basic.exp: check main is where we expect on the screen\n...\nwhile this is passing on x86_64.\n\nOn x86_64-linux we have at the initial screen dump for \"list -q main\":\n...\n 0 +-/home/vries/gdb_versions/devel/src/gdb/testsuite/gdb.tui/tui-layout.c--+\n 1 |       15     You should have received a copy of the GNU General Public |\n 2 |       16     along with this program.  If not, see <http://www.gnu.org/|\n 3 |       17                                                               |\n 4 |       18  int                                                          |\n 5 |       19  main ()                                                      |\n 6 |       20  {                                                            |\n 7 |       21    return 0;                                                  |\n 8 |       22  }                                                            |\n 9 |       23                                                               |\n...\nbut on aarch64:\n...\n 0 +-/home/tdevries/gdb/src/gdb/testsuite/gdb.tui/tui-layout.c--------------+\n 1 |       16     along with this program.  If not, see <http://www.gnu.org/|\n 2 |       17                                                               |\n 3 |       18  int                                                          |\n 4 |       19  main ()                                                      |\n 5 |       20  {                                                            |\n 6 |       21    return 0;                                                  |\n 7 |       22  }                                                            |\n 8 |       23                                                               |\n 9 |       24                                                               |\n...\n\nThe cause of the diffferent placement is that we have as line number for main\non x86_64:\n...\n$ gdb -q -batch outputs/gdb.tui/basic/basic -ex \"info line main\"\nLine 20 of \"tui-layout.c\" starts at address 0x4004a7 <main> \\\n  and ends at 0x4004ab <main+4>.\n...\nand on aarch64 instead:\n...\n$ gdb -q -batch outputs/gdb.tui/basic/basic -ex \"info line main\"\nLine 21 of \"tui-layout.c\" starts at address 0x4005f4 <main> \\\n  and ends at 0x4005f8 <main+4>.\n...\n\nFix this by using a new source file main-one-line.c, that implements the\nentire main function on a single line, in order to force the compiler to use\nthat line number.\n\nAlso try to do less hard-coding in the test-case.\n\nTested on x86_64-linux and aarch64-linux.",
+    "tree": {
+      "sha": "2605501bc4be4f352fbcb4bd812513fc6a5131e8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/2605501bc4be4f352fbcb4bd812513fc6a5131e8"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/c178f2a133740e64344da6484f71807f236a3c00",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c178f2a133740e64344da6484f71807f236a3c00",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/c178f2a133740e64344da6484f71807f236a3c00",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c178f2a133740e64344da6484f71807f236a3c00/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "545e49f5ee911bbcf55dc3dbeb49b62103b205d4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/545e49f5ee911bbcf55dc3dbeb49b62103b205d4",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/545e49f5ee911bbcf55dc3dbeb49b62103b205d4"
+    }
+  ],
+  "stats": {
+    "total": 64,
+    "additions": 50,
+    "deletions": 14
+  },
+  "files": [
+    {
+      "sha": "afc770f00738369d68b4f191b2659d08a872ad5b",
+      "filename": "gdb/testsuite/gdb.tui/basic.exp",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 14,
+      "changes": 46,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c178f2a133740e64344da6484f71807f236a3c00/gdb/testsuite/gdb.tui/basic.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c178f2a133740e64344da6484f71807f236a3c00/gdb/testsuite/gdb.tui/basic.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.tui/basic.exp?ref=c178f2a133740e64344da6484f71807f236a3c00",
+      "patch": "@@ -17,7 +17,11 @@\n \n tuiterm_env\n \n-standard_testfile tui-layout.c\n+# Use main-one-line.c to get the line info at a predictable location without\n+# resorting to a dwarf assembly test-case.\n+standard_testfile main-one-line.c\n+\n+set main_line [gdb_get_line_number \"int main\"]\n \n if {[build_executable \"failed to prepare\" ${testfile} ${srcfile}] == -1} {\n     return -1\n@@ -34,7 +38,8 @@ gdb_assert {![string match \"No Source Available\" $text]} \\\n     \"initial source listing\"\n \n Term::command \"list -q main\"\n-Term::check_contents \"list -q main\" \"21 *return 0\"\n+set main_re \"int main \\\\(\\\\) { return 0; }\"\n+Term::check_contents \"list -q main\" \"$main_line *$main_re\"\n \n # Get the first source line.\n set line [Term::get_line 1]\n@@ -49,28 +54,40 @@ if {[Term::wait_for [string_to_regexp $line]] \\\n     fail \"scroll up\"\n }\n \n-# Check the horizontal scrolling.  First confirm that 'main ()' is\n-# where we expect it to be.  This relies on the current way we\n-# position source code on the screen, which might change in the\n-# future.  The important part of this test is detecting the left/right\n-# scrolling, not which line main is actually on.\n-set line_num 6\n-set line [Term::get_line $line_num]\n-gdb_assert {[regexp -- \"19\\[\\\\t \\]+main \\\\(\\\\)\" $line]} \\\n+# Get the actual screen line that main is on.\n+set main_screen_line -1\n+for { set i 1 } { $i <= $Term::_cols } { incr i } {\n+    set line [Term::get_line $i]\n+    if { [regexp -- \"$main_line\\[\\\\t \\]+$main_re\" $line] } {\n+\tset main_screen_line $i\n+\tbreak\n+    }\n+}\n+\n+# Confirm that 'main ()' is where we expect it to be.  This relies on the\n+# current way we position source code on the screen, which might change in\n+# the future.\n+gdb_assert { $main_screen_line == 7 } \\\n     \"check main is where we expect on the screen\"\n-set regexp \"19\\[\\\\t \\]+ain \\\\(\\\\)\"\n+if { $main_screen_line == -1 } {\n+    return 0\n+}\n+\n+# Check the horizontal scrolling.\n+set shifted_main_re [string range $main_re 1 end]\n+set regexp \"$main_line\\[\\\\t \\]+$shifted_main_re\"\n # Send a right arrow.\n send_gdb \"\\033\\[C\"\n if {[Term::wait_for $regexp]} {\n     pass \"scroll right\"\n } else {\n     fail \"scroll right\"\n }\n-set line [Term::get_line $line_num]\n+set line [Term::get_line $main_screen_line]\n # Send a down arrow.\n send_gdb \"\\033\\[B\"\n if {[Term::wait_for $regexp] \\\n-\t&& [Term::get_line [expr {$line_num - 1}]] == $line} {\n+\t&& [Term::get_line [expr {$main_screen_line - 1}]] == $line} {\n     pass \"scroll down\"\n } else {\n     fail \"scroll down\"\n@@ -84,7 +101,8 @@ Term::check_contents \"asm window shows main\" \"$hex <main>\"\n Term::check_box \"asm box\" 0 0 80 15\n \n Term::command \"layout split\"\n-Term::check_contents \"split layout contents\" \"21 *return 0.*$hex <main>\"\n+Term::check_contents \"split layout contents\" \\\n+    \"$main_line *$main_re.*$hex <main>\"\n \n Term::check_box \"source box in split layout\" 0 0 80 7\n Term::check_box \"asm box in split layout\" 0 6 80 9"
+    },
+    {
+      "sha": "fb88c667637457b82236992b5a0999a47b50512a",
+      "filename": "gdb/testsuite/gdb.tui/main-one-line.c",
+      "status": "added",
+      "additions": 18,
+      "deletions": 0,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c178f2a133740e64344da6484f71807f236a3c00/gdb/testsuite/gdb.tui/main-one-line.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c178f2a133740e64344da6484f71807f236a3c00/gdb/testsuite/gdb.tui/main-one-line.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.tui/main-one-line.c?ref=c178f2a133740e64344da6484f71807f236a3c00",
+      "patch": "@@ -0,0 +1,18 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2021 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+int main () { return 0; }"
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "sha": "df63178325a5705a609bff94a349162bbb839895",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZGY2MzE3ODMyNWE1NzA1YTYwOWJmZjk0YTM0OTE2MmJiYjgzOTg5NQ==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-08-27T20:03:53Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-08-27T20:03:53Z"
+    },
+    "message": "Fix advance/until and multiple locations (PR gdb/26524)\n\nIf you do \"advance LINESPEC\", and LINESPEC expands to more than one\nlocation, GDB just errors out:\n\n   if (sals.size () != 1)\n     error (_(\"Couldn't get information on specified line.\"));\n\nFor example, advancing to a line in an inlined function, inlined three\ntimes:\n\n (gdb) b 21\n Breakpoint 1 at 0x55555555516f: advance.cc:21. (3 locations)\n (gdb) info breakpoints\n Num     Type           Disp Enb Address            What\n 1       breakpoint     keep y   <MULTIPLE>\n 1.1                         y   0x000055555555516f in inline_func at advance.cc:21\n 1.2                         y   0x000055555555517e in inline_func at advance.cc:21\n 1.3                         y   0x000055555555518d in inline_func at advance.cc:21\n (gdb) advance 21\n Couldn't get information on specified line.\n (gdb)\n\nSimilar issue with the \"until\" command, as it shares the\nimplementation with \"advance\".\n\nSince, as the comment in gdb.base/advance.exp says, \"advance <location>\"\nis really just syntactic sugar for \"tbreak <location>;continue\",\nfix this by making GDB insert a breakpoint at all the resolved\nlocations.\n\nA new testcase is included, which exercises both \"advance\" and\n\"until\", in two different cases expanding to multiple locations:\n\n  - inlined functions\n  - C++ overloads\n\nThis also exercises the inline frames issue fixed by the previous\npatch.\n\ngdb/ChangeLog:\n\n\tPR gdb/26524\n\t* breakpoint.c (until_break_fsm) <location_breakpoint,\n\tcaller_breakpoint>: Delete fields.\n\t<breakpoints>: New field.\n\t<until_break_fsm>: Adjust to save a breakpoint vector instead of\n\ttwo individual breakpoints.\n\t(until_break_fsm::should_stop): Loop over breakpoints in the\n\tbreakpoint vector.\n\t(until_break_fsm::clean_up): Adjust to clear the breakpoints\n\tvector.\n\t(until_break_command): Handle location expanding into multiple\n\tsals.\n\ngdb/testsuite/ChangeLog:\n\n\tPR gdb/26523\n\tPR gdb/26524\n\t* gdb.base/advance-until-multiple-locations.cc: New.\n\t* gdb.base/advance-until-multiple-locations.exp: New.",
+    "tree": {
+      "sha": "df44a2706a8aa07bc3523f6c2948576905387e87",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/df44a2706a8aa07bc3523f6c2948576905387e87"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/df63178325a5705a609bff94a349162bbb839895",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/df63178325a5705a609bff94a349162bbb839895",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/df63178325a5705a609bff94a349162bbb839895",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/df63178325a5705a609bff94a349162bbb839895/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "b2b38aa45ba2eb2e7e4c70689d679c4c467eda73",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b2b38aa45ba2eb2e7e4c70689d679c4c467eda73",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b2b38aa45ba2eb2e7e4c70689d679c4c467eda73"
+    }
+  ],
+  "stats": {
+    "total": 302,
+    "additions": 261,
+    "deletions": 41
+  },
+  "files": [
+    {
+      "sha": "0a1b55fb69ab8a7dc19dfcf27095c733b1de0569",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/df63178325a5705a609bff94a349162bbb839895/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/df63178325a5705a609bff94a349162bbb839895/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=df63178325a5705a609bff94a349162bbb839895",
+      "patch": "@@ -1,3 +1,18 @@\n+2020-08-27  Pedro Alves  <pedro@palves.net>\n+\n+\tPR gdb/26524\n+\t* breakpoint.c (until_break_fsm) <location_breakpoint,\n+\tcaller_breakpoint>: Delete fields.\n+\t<breakpoints>: New field.\n+\t<until_break_fsm>: Adjust to save a breakpoint vector instead of\n+\ttwo individual breakpoints.\n+\t(until_break_fsm::should_stop): Loop over breakpoints in the\n+\tbreakpoint vector.\n+\t(until_break_fsm::clean_up): Adjust to clear the breakpoints\n+\tvector.\n+\t(until_break_command): Handle location expanding into multiple\n+\tsals.\n+\n 2020-08-27  Pedro Alves  <pedro@palves.net>\n \n \tPR gdb/26523"
+    },
+    {
+      "sha": "8f75618bc9d36057aac9fc5a0409a2e1fab6c0b9",
+      "filename": "gdb/breakpoint.c",
+      "status": "modified",
+      "additions": 36,
+      "deletions": 41,
+      "changes": 77,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/df63178325a5705a609bff94a349162bbb839895/gdb/breakpoint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/df63178325a5705a609bff94a349162bbb839895/gdb/breakpoint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/breakpoint.c?ref=df63178325a5705a609bff94a349162bbb839895",
+      "patch": "@@ -10939,20 +10939,15 @@ struct until_break_fsm : public thread_fsm\n   /* The thread that was current when the command was executed.  */\n   int thread;\n \n-  /* The breakpoint set at the destination location.  */\n-  breakpoint_up location_breakpoint;\n-\n-  /* Breakpoint set at the return address in the caller frame.  May be\n-     NULL.  */\n-  breakpoint_up caller_breakpoint;\n+  /* The breakpoint set at the return address in the caller frame,\n+     plus breakpoints at all the destination locations.  */\n+  std::vector<breakpoint_up> breakpoints;\n \n   until_break_fsm (struct interp *cmd_interp, int thread,\n-\t\t   breakpoint_up &&location_breakpoint,\n-\t\t   breakpoint_up &&caller_breakpoint)\n+\t\t   std::vector<breakpoint_up> &&breakpoints)\n     : thread_fsm (cmd_interp),\n       thread (thread),\n-      location_breakpoint (std::move (location_breakpoint)),\n-      caller_breakpoint (std::move (caller_breakpoint))\n+      breakpoints (std::move (breakpoints))\n   {\n   }\n \n@@ -10967,12 +10962,13 @@ struct until_break_fsm : public thread_fsm\n bool\n until_break_fsm::should_stop (struct thread_info *tp)\n {\n-  if (bpstat_find_breakpoint (tp->control.stop_bpstat,\n-\t\t\t      location_breakpoint.get ()) != NULL\n-      || (caller_breakpoint != NULL\n-\t  && bpstat_find_breakpoint (tp->control.stop_bpstat,\n-\t\t\t\t     caller_breakpoint.get ()) != NULL))\n-    set_finished ();\n+  for (const breakpoint_up &bp : breakpoints)\n+    if (bpstat_find_breakpoint (tp->control.stop_bpstat,\n+\t\t\t\tbp.get ()) != NULL)\n+      {\n+\tset_finished ();\n+\tbreak;\n+      }\n \n   return true;\n }\n@@ -10984,8 +10980,7 @@ void\n until_break_fsm::clean_up (struct thread_info *)\n {\n   /* Clean up our temporary breakpoints.  */\n-  location_breakpoint.reset ();\n-  caller_breakpoint.reset ();\n+  breakpoints.clear ();\n   delete_longjmp_breakpoint (thread);\n }\n \n@@ -11023,16 +11018,12 @@ until_break_command (const char *arg, int from_tty, int anywhere)\n        : decode_line_1 (location.get (), DECODE_LINE_FUNFIRSTLINE,\n \t\t\tNULL, NULL, 0));\n \n-  if (sals.size () != 1)\n+  if (sals.empty ())\n     error (_(\"Couldn't get information on specified line.\"));\n \n-  symtab_and_line &sal = sals[0];\n-\n   if (*arg)\n     error (_(\"Junk at end of arguments.\"));\n \n-  resolve_sal_pc (&sal);\n-\n   tp = inferior_thread ();\n   thread = tp->global_num;\n \n@@ -11049,7 +11040,7 @@ until_break_command (const char *arg, int from_tty, int anywhere)\n   /* Keep within the current frame, or in frames called by the current\n      one.  */\n \n-  breakpoint_up caller_breakpoint;\n+  std::vector<breakpoint_up> breakpoints;\n \n   gdb::optional<delete_longjmp_breakpoint_cleanup> lj_deleter;\n \n@@ -11061,10 +11052,11 @@ until_break_command (const char *arg, int from_tty, int anywhere)\n       sal2 = find_pc_line (frame_unwind_caller_pc (frame), 0);\n       sal2.pc = frame_unwind_caller_pc (frame);\n       caller_gdbarch = frame_unwind_caller_arch (frame);\n-      caller_breakpoint = set_momentary_breakpoint (caller_gdbarch,\n-\t\t\t\t\t\t    sal2,\n-\t\t\t\t\t\t    caller_frame_id,\n-\t\t\t\t\t\t    bp_until);\n+\n+      breakpoint_up caller_breakpoint\n+\t= set_momentary_breakpoint (caller_gdbarch, sal2,\n+\t\t\t\t    caller_frame_id, bp_until);\n+      breakpoints.emplace_back (std::move (caller_breakpoint));\n \n       set_longjmp_breakpoint (tp, caller_frame_id);\n       lj_deleter.emplace (thread);\n@@ -11073,21 +11065,24 @@ until_break_command (const char *arg, int from_tty, int anywhere)\n   /* set_momentary_breakpoint could invalidate FRAME.  */\n   frame = NULL;\n \n-  breakpoint_up location_breakpoint;\n-  if (anywhere)\n-    /* If the user told us to continue until a specified location,\n-       we don't specify a frame at which we need to stop.  */\n-    location_breakpoint = set_momentary_breakpoint (frame_gdbarch, sal,\n-\t\t\t\t\t\t    null_frame_id, bp_until);\n-  else\n-    /* Otherwise, specify the selected frame, because we want to stop\n-       only at the very same frame.  */\n-    location_breakpoint = set_momentary_breakpoint (frame_gdbarch, sal,\n-\t\t\t\t\t\t    stack_frame_id, bp_until);\n+  /* If the user told us to continue until a specified location, we\n+     don't specify a frame at which we need to stop.  Otherwise,\n+     specify the selected frame, because we want to stop only at the\n+     very same frame.  */\n+  frame_id stop_frame_id = anywhere ? null_frame_id : stack_frame_id;\n+\n+  for (symtab_and_line &sal : sals)\n+    {\n+      resolve_sal_pc (&sal);\n+\n+      breakpoint_up location_breakpoint\n+\t= set_momentary_breakpoint (frame_gdbarch, sal,\n+\t\t\t\t    stop_frame_id, bp_until);\n+      breakpoints.emplace_back (std::move (location_breakpoint));\n+    }\n \n   tp->thread_fsm = new until_break_fsm (command_interp (), tp->global_num,\n-\t\t\t\t\tstd::move (location_breakpoint),\n-\t\t\t\t\tstd::move (caller_breakpoint));\n+\t\t\t\t\tstd::move (breakpoints));\n \n   if (lj_deleter)\n     lj_deleter->release ();"
+    },
+    {
+      "sha": "6ce2b71b7464e20ad0f668b7625118c701e2c66b",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/df63178325a5705a609bff94a349162bbb839895/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/df63178325a5705a609bff94a349162bbb839895/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=df63178325a5705a609bff94a349162bbb839895",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-08-27  Pedro Alves  <pedro@palves.net>\n+\n+\tPR gdb/26523\n+\tPR gdb/26524\n+\t* gdb.base/advance-until-multiple-locations.cc: New.\n+\t* gdb.base/advance-until-multiple-locations.exp: New.\n+\n 2020-08-27  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t*  gdb.dwarf2/dw2-reg-undefined.exp: Use multi_line."
+    },
+    {
+      "sha": "a90493805fa5617eaf874adea2fe9a317a47a788",
+      "filename": "gdb/testsuite/gdb.base/advance-until-multiple-locations.cc",
+      "status": "added",
+      "additions": 61,
+      "deletions": 0,
+      "changes": 61,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/df63178325a5705a609bff94a349162bbb839895/gdb/testsuite/gdb.base/advance-until-multiple-locations.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/df63178325a5705a609bff94a349162bbb839895/gdb/testsuite/gdb.base/advance-until-multiple-locations.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/advance-until-multiple-locations.cc?ref=df63178325a5705a609bff94a349162bbb839895",
+      "patch": "@@ -0,0 +1,61 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+static inline int __attribute__ ((always_inline))\n+inline_func (int i)\n+{\n+  i++;          /* multiple locations here */\n+  return i;\n+}\n+\n+int global = 0;\n+\n+void\n+ovld_func ()\n+{\n+  global = 1;\n+}\n+\n+void\n+ovld_func (int)\n+{\n+  global = 2;\n+}\n+\n+/* This is a separate function so that we can test that \"until\" stops\n+   at the caller.  */\n+\n+int\n+test ()\n+{\n+  int i = 0;\n+\n+  i = inline_func (i);\n+  i = inline_func (i);\n+  i = inline_func (i);\n+\n+  ovld_func ();\n+  ovld_func (0);\n+\n+  return 0;\n+}\n+\n+int\n+main ()\n+{\n+  return test ();\n+}"
+    },
+    {
+      "sha": "a6a1de6653de2e33f408ee093c2e2d0c84269afc",
+      "filename": "gdb/testsuite/gdb.base/advance-until-multiple-locations.exp",
+      "status": "added",
+      "additions": 142,
+      "deletions": 0,
+      "changes": 142,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/df63178325a5705a609bff94a349162bbb839895/gdb/testsuite/gdb.base/advance-until-multiple-locations.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/df63178325a5705a609bff94a349162bbb839895/gdb/testsuite/gdb.base/advance-until-multiple-locations.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/advance-until-multiple-locations.exp?ref=df63178325a5705a609bff94a349162bbb839895",
+      "patch": "@@ -0,0 +1,142 @@\n+# Copyright 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+# Test 'advance/until LINESPEC' where LINESPEC expands to multiple\n+# locations.\n+\n+standard_testfile .cc\n+\n+if { [skip_cplus_tests] } { continue }\n+\n+if { [prepare_for_testing \"failed to prepare\" ${testfile} ${srcfile} \\\n+\t  {debug c++}] } {\n+    return -1\n+}\n+\n+set lineno [gdb_get_line_number \"multiple locations here\"]\n+\n+# advance/until to an inlined line number, which has been inlined\n+# multiple times, when the program is stopped at the same inlined\n+# function.\n+proc_with_prefix until_advance_lineno_from_inlined {cmd} {\n+    global lineno\n+\n+    if ![runto test] {\n+\tfail \"can't run to test\"\n+\treturn\n+    }\n+\n+    gdb_breakpoint $lineno\n+    gdb_continue_to_breakpoint \"break here\"\n+\n+    set lineno2 [expr $lineno + 1]\n+\n+    gdb_test \"$cmd $lineno2\" \\\n+\t\"inline_func .* at .*:$lineno2.*return i.*\" \\\n+\t\"$cmd line number\"\n+}\n+\n+# advance/until to a line number, which has been inlined multiple\n+# times, when the program is stopped at a non-inlined function.\n+\n+proc_with_prefix until_advance_lineno_from_non_inlined {cmd} {\n+    global lineno\n+\n+    if ![runto test] {\n+\tfail \"can't run to test\"\n+\treturn\n+    }\n+\n+    gdb_test \"$cmd $lineno\" \\\n+\t\"inline_func .* at .*:$lineno.*multiple locations here.*\" \\\n+\t\"$cmd line number\"\n+}\n+\n+# Test advancing to an inlined function, which has been inlined\n+# multiple times.\n+\n+proc_with_prefix until_advance_inline_func {cmd} {\n+    global lineno\n+\n+    if ![runto test] {\n+\tfail \"can't run to test\"\n+\treturn\n+    }\n+\n+    gdb_test \"$cmd inline_func\" \\\n+\t\"inline_func .* at .*:$lineno.*multiple locations here.*\"\n+}\n+\n+# Test advancing to an overloaded function, which is another form of a\n+# linespec expanding to multiple locations.  GDB will stop at the\n+# first overload called.\n+\n+proc_with_prefix advance_overload {} {\n+    global lineno\n+\n+    if ![runto test] {\n+\tfail \"can't run to test\"\n+\treturn\n+    }\n+\n+    # Test that advance stops at the first overload called by the\n+    # program.\n+\n+    gdb_test \"advance ovld_func\" \\\n+\t\"ovld_func .* at .*global = 1.*\" \\\n+\t\"first advance stops at ovld_func()\"\n+\n+    # Now test that advance also stops at the other overload called by\n+    # the program.\n+\n+    # Need to issue the advance twice, because advance also stops upon\n+    # exit from the current stack frame.\n+    gdb_test \"advance ovld_func\" \\\n+\t\"ovld_func \\\\(0\\\\);.*\" \\\n+\t\"second advance stops at caller\"\n+\n+    gdb_test \"advance ovld_func\" \\\n+\t\"ovld_func .* at .*global = 2.*\" \\\n+\t\"third advance stops at ovld_func(int)\"\n+}\n+\n+# Test \"until\" to an overloaded function, which is another form of a\n+# linespec expanding to multiple locations.  Unlike \"advance\", \"until\"\n+# only stops if still in the same frame.  Since the overloaded\n+# function is a different frame, the program should stop at the caller\n+# frame instead.\n+\n+proc_with_prefix until_overload {} {\n+    global lineno\n+\n+    if ![runto test] {\n+\tfail \"can't run to test\"\n+\treturn\n+    }\n+\n+    # ovld_func is a different frame, so it shouldn't cause a stop.\n+    # Instead, the program should stop at the caller frame.\n+    gdb_test \"until ovld_func\" \\\n+\t\"main .* at .*return test \\\\(\\\\);.*\"\n+}\n+\n+foreach_with_prefix cmd {\"until\" \"advance\"} {\n+    until_advance_lineno_from_inlined $cmd\n+    until_advance_lineno_from_non_inlined $cmd\n+    until_advance_inline_func $cmd\n+}\n+\n+advance_overload\n+until_overload"
+    }
+  ]
+}

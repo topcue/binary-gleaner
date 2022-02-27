@@ -1,0 +1,110 @@
+{
+  "sha": "da474da158e09787f2a36f480bfa1b79160a0e91",
+  "node_id": "C_kwDOANOeidoAKGRhNDc0ZGExNThlMDk3ODdmMmEzNmY0ODBiZmExYjc5MTYwYTBlOTE",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2021-09-10T20:42:53Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-09-27T20:55:46Z"
+    },
+    "message": "gdb: don't share aspace/pspace on fork with \"detach-on-fork on\" and \"follow-fork-mode child\"\n\nWe found that when handling forks, two inferiors can unexpectedly share\ntheir program space and address space.  To reproduce:\n\n 1. Using a test program that forks...\n 2. \"set follow-fork-mode child\"\n 3. \"set detach-on-fork on\" (the default)\n 4. run to a breakpoint somewhere after the fork\n\nStep 4 should have created a new inferior:\n\n    (gdb) info inferiors\n      Num  Description       Connection           Executable\n      1    <null>                                 /home/smarchi/build/wt/amd/gdb/fork\n    * 2    process 251425    1 (native)           /home/smarchi/build/wt/amd/gdb/fork\n\nBy inspecting the state of GDB, we can see that the two inferiors now\nshare one program space and one address space:\n\nInferior 1:\n\n    (top-gdb) p inferior_list.m_front.num\n    $2 = 1\n    (top-gdb) p inferior_list.m_front.aspace\n    $3 = (struct address_space *) 0x5595e2520400\n    (top-gdb) p inferior_list.m_front.pspace\n    $4 = (struct program_space *) 0x5595e2520440\n\nInferior 2:\n\n    (top-gdb) p inferior_list.m_front.next.num\n    $5 = 2\n    (top-gdb) p inferior_list.m_front.next.aspace\n    $6 = (struct address_space *) 0x5595e2520400\n    (top-gdb) p inferior_list.m_front.next.pspace\n    $7 = (struct program_space *) 0x5595e2520440\n\nYou can then run inferior 1 again and the two inferiors will still\nerroneously share their spaces, but already at this point this is wrong.\n\nThe cause of the bad {a,p}space sharing is in follow_fork_inferior.\nWhen following the child and detaching from the parent, we just re-use\nthe parent's spaces, rather than cloning them.  When we switch back to\ninferior 1 and run again, we find ourselves with two unrelated inferiors\nsharing spaces.\n\nFix that by creating new spaces for the parent after having moved them\nto the child.  My initial implementation created new spaces for the\nchild instead.  Doing this breaks doing \"next\" over fork().  When \"next\"\nstart, we record the symtab of the starting location.  When the program\nstops, we compare that symtab with the symtab the program has stopped\nat.  If the symtab or the line number has changed, we conclude the\n\"next\" is done.  If we create a new program space for the child and copy\nthe parent's program space to it with clone_program_space, it creates\nnew symtabs for the child as well.  When the child stop, but still on\nthe fork() line, GDB thinks the \"next\" is done because the symtab\npointers no longer match.  In reality they are two symtab instances that\nrepresent the same file.  But moving the spaces to the child and\ncreating new spaces for the parent, we avoid this problem.\n\nNote that the problem described above happens today with \"detach-on-fork\noff\" and \"follow-fork-mode child\", because we create new spaces for the\nchild.  This will have to be addressed later.\n\nTest-wise, improve gdb.base/foll-fork.exp to set a breakpoint that is\nexpected to have a location in each inferiors.  Without the fix, when\nthe two inferiors erroneously share a program space, GDB reports a\nsingle location.\n\nChange-Id: Ifea76e14f87b9f7321fc3a766217061190e71c6e",
+    "tree": {
+      "sha": "db1abf5369ec3f18e8ff2620858adf9dac9b1fda",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/db1abf5369ec3f18e8ff2620858adf9dac9b1fda"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/da474da158e09787f2a36f480bfa1b79160a0e91",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/da474da158e09787f2a36f480bfa1b79160a0e91",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/da474da158e09787f2a36f480bfa1b79160a0e91",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/da474da158e09787f2a36f480bfa1b79160a0e91/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "8188f382a1ce6f8123d03e4a9cf14071f3085587",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8188f382a1ce6f8123d03e4a9cf14071f3085587",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/8188f382a1ce6f8123d03e4a9cf14071f3085587"
+    }
+  ],
+  "stats": {
+    "total": 57,
+    "additions": 48,
+    "deletions": 9
+  },
+  "files": [
+    {
+      "sha": "5fd1ade7c6844a0379aa338748bc1607e9379d11",
+      "filename": "gdb/infrun.c",
+      "status": "modified",
+      "additions": 30,
+      "deletions": 9,
+      "changes": 39,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/da474da158e09787f2a36f480bfa1b79160a0e91/gdb/infrun.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/da474da158e09787f2a36f480bfa1b79160a0e91/gdb/infrun.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/infrun.c?ref=da474da158e09787f2a36f480bfa1b79160a0e91",
+      "patch": "@@ -539,25 +539,46 @@ holding the child stopped.  Try \\\"set detach-on-fork\\\" or \\\n       child_inf->gdbarch = parent_inf->gdbarch;\n       copy_inferior_target_desc_info (child_inf, parent_inf);\n \n-      program_space *parent_pspace = parent_inf->pspace;\n-\n-      /* If this is a vfork child, then the address-space is shared\n-\t with the parent.  If we detached from the parent, then we can\n-\t reuse the parent's program/address spaces.  */\n-      if (has_vforked || detach_fork)\n+      if (has_vforked)\n \t{\n-\t  child_inf->pspace = parent_pspace;\n-\t  child_inf->aspace = child_inf->pspace->aspace;\n+\t  /* If this is a vfork child, then the address-space is shared\n+\t     with the parent.  */\n+\t  child_inf->aspace = parent_inf->aspace;\n+\t  child_inf->pspace = parent_inf->pspace;\n \n \t  exec_on_vfork (child_inf);\n \t}\n+      else if (detach_fork)\n+\t{\n+\t  /* We follow the child and detach from the parent: move the parent's\n+\t     program space to the child.  This simplifies some things, like\n+\t     doing \"next\" over fork() and landing on the expected line in the\n+\t     child (note, that is broken with \"set detach-on-fork off\").\n+\n+\t     Before assigning brand new spaces for the parent, remove\n+\t     breakpoints from it: because the new pspace won't match\n+\t     currently inserted locations, the normal detach procedure\n+\t     wouldn't remove them, and we would leave them inserted when\n+\t     detaching.  */\n+\t  remove_breakpoints_inf (parent_inf);\n+\n+\t  child_inf->aspace = parent_inf->aspace;\n+\t  child_inf->pspace = parent_inf->pspace;\n+\t  parent_inf->aspace = new_address_space ();\n+\t  parent_inf->pspace = new program_space (parent_inf->aspace);\n+\t  clone_program_space (parent_inf->pspace, child_inf->pspace);\n+\n+\t  /* The parent inferior is still the current one, so keep things\n+\t     in sync.  */\n+\t  set_current_program_space (parent_inf->pspace);\n+\t}\n       else\n \t{\n \t  child_inf->aspace = new_address_space ();\n \t  child_inf->pspace = new program_space (child_inf->aspace);\n \t  child_inf->removable = 1;\n \t  child_inf->symfile_flags = SYMFILE_NO_READ;\n-\t  clone_program_space (child_inf->pspace, parent_pspace);\n+\t  clone_program_space (child_inf->pspace, parent_inf->pspace);\n \t}\n     }\n "
+    },
+    {
+      "sha": "7f9e1cf87c6a657a8ccc5945cd414d5e216cc027",
+      "filename": "gdb/testsuite/gdb.base/foll-fork.exp",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 0,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/da474da158e09787f2a36f480bfa1b79160a0e91/gdb/testsuite/gdb.base/foll-fork.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/da474da158e09787f2a36f480bfa1b79160a0e91/gdb/testsuite/gdb.base/foll-fork.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/foll-fork.exp?ref=da474da158e09787f2a36f480bfa1b79160a0e91",
+      "patch": "@@ -181,6 +181,24 @@ proc_with_prefix test_follow_fork { follow-fork-mode detach-on-fork cmd } {\n \t\t\".* set breakpoint here.*\"\n \t}\n     }\n+\n+    # If we end up with two inferiors, verify that they each end up with their\n+    # own program space.  Do this by setting a breakpoint, if we see two\n+    # locations it means there are two program spaces.\n+    if {${detach-on-fork} == \"off\" || ${follow-fork-mode} == \"child\"} {\n+\tset bpnum \"<unset>\"\n+\tgdb_test_multiple \"break callee\" \"break callee\" {\n+\t    -re -wrap \"Breakpoint ($::decimal) at $::hex: callee\\\\. \\\\(2 locations\\\\)\" {\n+\t\tset bpnum $expect_out(1,string)\n+\t\tpass $gdb_test_name\n+\t    }\n+\t}\n+\tgdb_test \"info breakpoints $bpnum\" \\\n+\t    [multi_line \\\n+\t\t\"$bpnum\\\\.1 .* inf 1\" \\\n+\t\t\"$bpnum\\\\.2 .* inf 2\"] \\\n+\t    \"info breakpoints\"\n+    }\n }\n \n set reading_in_symbols_re {(?:\\r\\nReading in symbols for [^\\r\\n]*)?}"
+    }
+  ]
+}

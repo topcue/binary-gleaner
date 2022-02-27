@@ -1,0 +1,170 @@
+{
+  "sha": "6d5944fca682fe97f37e537f78b665ada2400f51",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NmQ1OTQ0ZmNhNjgyZmU5N2YzN2U1MzdmNzhiNjY1YWRhMjQwMGY1MQ==",
+  "commit": {
+    "author": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2019-07-11T15:26:54Z"
+    },
+    "committer": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2019-10-03T16:04:55Z"
+    },
+    "message": "libctf, bfd: fix ctf_bfdopen_ctfsect opening symbol and string sections\n\nThe code in ctf_bfdopen_ctfsect (which is the ultimate place where you\nend up if you use ctf_open to open a CTF file and pull in the ELF string\nand symbol tables) was written before it was possible to actually test\nit, since the linker was not written.  Now it is, it turns out that the\nprevious code was completely nonfunctional: it assumed that you could\nload the symbol table via bfd_section_from_elf_index (...,elf_onesymtab())\nand the string table via bfd_section_from_elf_index on the sh_link.\n\nUnfortunately BFD loads neither of these sections in the conventional\nfashion it uses for most others: the symbol table is immediately\nconverted into internal form (which is useless for our purposes, since\nwe also have to work in the absence of BFD for readelf, etc) and the\nstring table is loaded specially via bfd_elf_get_str_section which is\nprivate to bfd/elf.c.\n\nSo make this function public, export it in elf-bfd.h, and use it from\nlibctf, which does something similar to what bfd_elf_sym_name and\nbfd_elf_string_from_elf_section do.  Similarly, load the symbol table\nmanually using bfd_elf_get_elf_syms and throw away the internal form\nit generates for us (we never use it).\n\nBFD allocates the strtab for us via bfd_alloc, so we can leave BFD to\ndeallocate it: we allocate the symbol table ourselves before calling\nbfd_elf_get_elf_syms, so we still have to free it.\n\nAlso change the rules around what you are allowed to provide: It is\nuseful to provide a string section but no symbol table, because CTF\nsections can legitimately have no function info or data object sections\nwhile relying on the ELF strtab for some of their strings.  So allow\nthat combination.\n\nv4: adjust to upstream changes.  ctf_bfdopen_ctfsect's first parameter\n    is potentially unused again (if BFD is not in use for this link\n    due to not supporting an ELF target).\nv5: fix tabdamage.\n\nbfd/\n\t* elf-bfd.h (bfd_elf_get_str_section): Add.\n\t* elf.c (bfd_elf_get_str_section): No longer static.\n\nlibctf/\n\t* ctf-open-bfd.c: Add <assert.h>.\n\t(ctf_bfdopen_ctfsect): Open string and symbol tables using\n\ttechniques borrowed from bfd_elf_sym_name.\n\t(ctf_new_archive_internal): Improve comment.\n\t* ctf-archive.c (ctf_arc_close): Do not free the ctfi_strsect.\n\t* ctf-open.c (ctf_bufopen): Allow opening with a string section but\n\tno symbol section, but not vice versa.",
+    "tree": {
+      "sha": "eb1e09536e33c9f0760a87bd41f7d0b4ceb6315c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/eb1e09536e33c9f0760a87bd41f7d0b4ceb6315c"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/6d5944fca682fe97f37e537f78b665ada2400f51",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6d5944fca682fe97f37e537f78b665ada2400f51",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/6d5944fca682fe97f37e537f78b665ada2400f51",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6d5944fca682fe97f37e537f78b665ada2400f51/comments",
+  "author": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "9b32cba44ddeb32251092a05f1238d2462eb2345",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9b32cba44ddeb32251092a05f1238d2462eb2345",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/9b32cba44ddeb32251092a05f1238d2462eb2345"
+    }
+  ],
+  "stats": {
+    "total": 120,
+    "additions": 75,
+    "deletions": 45
+  },
+  "files": [
+    {
+      "sha": "42300c111a636d5392d89e89f902da6c1abdf2d8",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6d5944fca682fe97f37e537f78b665ada2400f51/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6d5944fca682fe97f37e537f78b665ada2400f51/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=6d5944fca682fe97f37e537f78b665ada2400f51",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-07-13  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* elf-bfd.h (bfd_elf_get_str_section): Add.\n+\t* elf.c (bfd_elf_get_str_section): No longer static.\n+\n 2019-09-26  Alan Modra  <amodra@gmail.com>\n \n \tPR 24262"
+    },
+    {
+      "sha": "a9e2d3eeaf14301b526b6a84a5ec516be46531f6",
+      "filename": "bfd/elf-bfd.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6d5944fca682fe97f37e537f78b665ada2400f51/bfd/elf-bfd.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6d5944fca682fe97f37e537f78b665ada2400f51/bfd/elf-bfd.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf-bfd.h?ref=6d5944fca682fe97f37e537f78b665ada2400f51",
+      "patch": "@@ -2051,6 +2051,7 @@ extern char *bfd_elf_string_from_elf_section\n extern Elf_Internal_Sym *bfd_elf_get_elf_syms\n   (bfd *, Elf_Internal_Shdr *, size_t, size_t, Elf_Internal_Sym *, void *,\n    Elf_External_Sym_Shndx *);\n+extern char * bfd_elf_get_str_section (bfd *, unsigned int);\n extern const char *bfd_elf_sym_name\n   (bfd *, Elf_Internal_Shdr *, Elf_Internal_Sym *, asection *);\n "
+    },
+    {
+      "sha": "bb994b5aaa380a23df8745412e970585dbfc2c0a",
+      "filename": "bfd/elf.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6d5944fca682fe97f37e537f78b665ada2400f51/bfd/elf.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6d5944fca682fe97f37e537f78b665ada2400f51/bfd/elf.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf.c?ref=6d5944fca682fe97f37e537f78b665ada2400f51",
+      "patch": "@@ -275,7 +275,7 @@ bfd_elf_mkcorefile (bfd *abfd)\n   return elf_tdata (abfd)->core != NULL;\n }\n \n-static char *\n+char *\n bfd_elf_get_str_section (bfd *abfd, unsigned int shindex)\n {\n   Elf_Internal_Shdr **i_shdrp;"
+    },
+    {
+      "sha": "7fa9fc04771c42476b5a13ef0fe9379c2a327f49",
+      "filename": "libctf/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6d5944fca682fe97f37e537f78b665ada2400f51/libctf/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6d5944fca682fe97f37e537f78b665ada2400f51/libctf/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ChangeLog?ref=6d5944fca682fe97f37e537f78b665ada2400f51",
+      "patch": "@@ -1,3 +1,13 @@\n+2019-07-13  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-open-bfd.c: Add <assert.h>.\n+\t(ctf_bfdopen_ctfsect): Open string and symbol tables using\n+\ttechniques borrowed from bfd_elf_sym_name.\n+\t(ctf_new_archive_internal): Improve comment.\n+\t* ctf-archive.c (ctf_arc_close): Do not free the ctfi_strsect.\n+\t* ctf-open.c (ctf_bufopen): Allow opening with a string section but\n+\tno symbol section, but not vice versa.\n+\n 2019-07-08  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctf-impl.h (ctf_file_t): New field ctf_openflags."
+    },
+    {
+      "sha": "a13bac8cd6ae44402cf8669e3c645ddc326cba81",
+      "filename": "libctf/ctf-archive.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6d5944fca682fe97f37e537f78b665ada2400f51/libctf/ctf-archive.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6d5944fca682fe97f37e537f78b665ada2400f51/libctf/ctf-archive.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-archive.c?ref=6d5944fca682fe97f37e537f78b665ada2400f51",
+      "patch": "@@ -405,7 +405,7 @@ ctf_arc_close (ctf_archive_t *arc)\n   else\n     ctf_file_close (arc->ctfi_file);\n   free ((void *) arc->ctfi_symsect.cts_data);\n-  free ((void *) arc->ctfi_strsect.cts_data);\n+  /* Do not free the ctfi_strsect: it is bound to the bfd.  */\n   free (arc->ctfi_data);\n   free (arc);\n }"
+    },
+    {
+      "sha": "6fbbde88529b333fe2abe01602d9795893a126b7",
+      "filename": "libctf/ctf-open-bfd.c",
+      "status": "modified",
+      "additions": 56,
+      "deletions": 42,
+      "changes": 98,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6d5944fca682fe97f37e537f78b665ada2400f51/libctf/ctf-open-bfd.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6d5944fca682fe97f37e537f78b665ada2400f51/libctf/ctf-open-bfd.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-open-bfd.c?ref=6d5944fca682fe97f37e537f78b665ada2400f51",
+      "patch": "@@ -19,6 +19,7 @@\n \n #include <ctf-impl.h>\n #include <stddef.h>\n+#include <assert.h>\n #include <sys/types.h>\n #include <sys/stat.h>\n #include <errno.h>\n@@ -32,8 +33,9 @@\n #include \"elf-bfd.h\"\n \n /* Make a new struct ctf_archive_internal wrapper for a ctf_archive or a\n-   ctf_file.  Closes ARC and/or FP on error.  Arrange to free the SYMSECT and\n-   STRSECT interior on close.  */\n+   ctf_file.  Closes ARC and/or FP on error.  Arrange to free the SYMSECT or\n+   STRSECT, as needed, on close (though the STRSECT interior is bound to the bfd\n+   * and is not actually freed by this machinery).  */\n \n static struct ctf_archive_internal *\n ctf_new_archive_internal (int is_archive, struct ctf_archive *arc,\n@@ -130,50 +132,63 @@ ctf_bfdopen_ctfsect (struct bfd *abfd _libctf_unused_,\n   int is_archive;\n \n #ifdef HAVE_BFD_ELF\n-  asection *sym_asect;\n   ctf_sect_t symsect, strsect;\n+  Elf_Internal_Shdr *strhdr;\n+  Elf_Internal_Shdr *symhdr = &elf_symtab_hdr (abfd);\n+  size_t symcount = symhdr->sh_size / symhdr->sh_entsize;\n+  Elf_Internal_Sym *isymbuf;\n+  bfd_byte *symtab;\n+  const char *strtab = NULL;\n   /* TODO: handle SYMTAB_SHNDX.  */\n \n-  if ((sym_asect = bfd_section_from_elf_index (abfd,\n-\t\t\t\t\t       elf_onesymtab (abfd))) != NULL)\n+  if ((symtab = malloc (symhdr->sh_size)) == NULL)\n     {\n-      Elf_Internal_Shdr *symhdr = &elf_symtab_hdr (abfd);\n-      asection *str_asect = NULL;\n-      bfd_byte *contents;\n-\n-      if (symhdr->sh_link != SHN_UNDEF &&\n-\t  symhdr->sh_link <= elf_numsections (abfd))\n-\tstr_asect = bfd_section_from_elf_index (abfd, symhdr->sh_link);\n+      bfderrstr = \"Cannot malloc symbol table\";\n+      goto err;\n+    }\n \n-      Elf_Internal_Shdr *strhdr = elf_elfsections (abfd)[symhdr->sh_link];\n+  isymbuf = bfd_elf_get_elf_syms (abfd, symhdr, symcount, 0,\n+\t\t\t\t  NULL, symtab, NULL);\n+  free (isymbuf);\n+  if (isymbuf == NULL)\n+    {\n+      bfderrstr = \"Cannot read symbol table\";\n+      goto err_free_sym;\n+    }\n \n-      if (sym_asect && str_asect)\n+  if (elf_elfsections (abfd) != NULL\n+      && symhdr->sh_link < elf_numsections (abfd))\n+    {\n+      strhdr = elf_elfsections (abfd)[symhdr->sh_link];\n+      if (strhdr->contents == NULL)\n \t{\n-\t  if (!bfd_malloc_and_get_section (abfd, str_asect, &contents))\n-\t    {\n-\t      bfderrstr = \"Cannot malloc string table\";\n-\t      free (contents);\n-\t      goto err;\n-\t    }\n-\t  strsect.cts_data = contents;\n-\t  strsect.cts_name = (char *) strsect.cts_data + strhdr->sh_name;\n-\t  strsect.cts_size = bfd_section_size (str_asect);\n-\t  strsect.cts_entsize = strhdr->sh_size;\n-\t  strsectp = &strsect;\n-\n-\t  if (!bfd_malloc_and_get_section (abfd, sym_asect, &contents))\n+\t  if ((strtab = bfd_elf_get_str_section (abfd, symhdr->sh_link)) == NULL)\n \t    {\n-\t      bfderrstr = \"Cannot malloc symbol table\";\n-\t      free (contents);\n-\t      goto err_free_str;\n+\t      bfderrstr = \"Cannot read string table\";\n+\t      goto err_free_sym;\n \t    }\n-\n-\t  symsect.cts_name = (char *) strsect.cts_data + symhdr->sh_name;\n-\t  symsect.cts_entsize = symhdr->sh_size;\n-\t  symsect.cts_size = bfd_section_size (sym_asect);\n-\t  symsect.cts_data = contents;\n-\t  symsectp = &symsect;\n \t}\n+      else\n+\tstrtab = (const char *) strhdr->contents;\n+    }\n+\n+  if (strtab)\n+    {\n+      /* The names here are more or less arbitrary, but there is no point\n+\t thrashing around digging the name out of the shstrtab given that we don't\n+\t use it for anything but debugging.  */\n+\n+      strsect.cts_data = strtab;\n+      strsect.cts_name = \".strtab\";\n+      strsect.cts_size = strhdr->sh_size;\n+      strsectp = &strsect;\n+\n+      assert (symhdr->sh_entsize == get_elf_backend_data (abfd)->s->sizeof_sym);\n+      symsect.cts_name = \".symtab\";\n+      symsect.cts_entsize = symhdr->sh_entsize;\n+      symsect.cts_size = symhdr->sh_size;\n+      symsect.cts_data = symtab;\n+      symsectp = &symsect;\n     }\n #endif\n \n@@ -183,7 +198,7 @@ ctf_bfdopen_ctfsect (struct bfd *abfd _libctf_unused_,\n       is_archive = 1;\n       if ((arc = ctf_arc_bufopen ((void *) ctfsect->cts_data,\n \t\t\t\t  ctfsect->cts_size, errp)) == NULL)\n-\tgoto err_free_sym;\n+\tgoto err_free_str;\n     }\n   else\n     {\n@@ -192,19 +207,18 @@ ctf_bfdopen_ctfsect (struct bfd *abfd _libctf_unused_,\n \t{\n \t  ctf_dprintf (\"ctf_internal_open(): cannot open CTF: %s\\n\",\n \t\t       ctf_errmsg (*errp));\n-\t  goto err_free_sym;\n+\t  goto err_free_str;\n \t}\n     }\n   arci = ctf_new_archive_internal (is_archive, arc, fp, symsectp, strsectp,\n \t\t\t\t   errp);\n \n   if (arci)\n     return arci;\n- err_free_sym:\n+ err_free_str: ;\n #ifdef HAVE_BFD_ELF\n-  free ((void *) symsect.cts_data);\n-err_free_str:\n-  free ((void *) strsect.cts_data);\n+ err_free_sym:\n+  free (symtab);\n #endif\n err: _libctf_unused_;\n   if (bfderrstr)"
+    },
+    {
+      "sha": "51f9edcc3a085076fbe1071b15a8056fe40396b6",
+      "filename": "libctf/ctf-open.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6d5944fca682fe97f37e537f78b665ada2400f51/libctf/ctf-open.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6d5944fca682fe97f37e537f78b665ada2400f51/libctf/ctf-open.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-open.c?ref=6d5944fca682fe97f37e537f78b665ada2400f51",
+      "patch": "@@ -1244,7 +1244,7 @@ ctf_bufopen (const ctf_sect_t *ctfsect, const ctf_sect_t *symsect,\n \n   libctf_init_debug();\n \n-  if (ctfsect == NULL || ((symsect == NULL) != (strsect == NULL)))\n+  if ((ctfsect == NULL) || ((symsect != NULL) && (strsect == NULL)))\n     return (ctf_set_open_errno (errp, EINVAL));\n \n   if (symsect != NULL && symsect->cts_entsize != sizeof (Elf32_Sym) &&"
+    }
+  ]
+}

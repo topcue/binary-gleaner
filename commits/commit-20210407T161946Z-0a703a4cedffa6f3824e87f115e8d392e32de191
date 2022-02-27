@@ -1,0 +1,170 @@
+{
+  "sha": "0a703a4cedffa6f3824e87f115e8d392e32de191",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MGE3MDNhNGNlZGZmYTZmMzgyNGU4N2YxMTVlOGQzOTJlMzJkZTE5MQ==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-01-08T13:07:32Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-04-07T16:19:46Z"
+    },
+    "message": "gdb/fortran: handle dynamic types within arrays and structures\n\nThis commit replaces this patch:\n\n  https://sourceware.org/pipermail/gdb-patches/2021-January/174933.html\n\nwhich was itself a replacement for this patch:\n\n  https://sourceware.org/pipermail/gdb-patches/2020-July/170335.html\n\nThe motivation behind the original patch can be seen in the new test,\nwhich currently gives a GDB session like this:\n\n  (gdb) ptype var8\n  type = Type type6\n      PTR TO -> ( Type type2 :: ptr_1 )\n      PTR TO -> ( Type type2 :: ptr_2 )\n  End Type type6\n  (gdb) ptype var8%ptr_2\n  type = PTR TO -> ( Type type2\n      integer(kind=4) :: spacer\n      Type type1, allocatable :: t2_array(:)\t<------ Issue #1\n  End Type type2 )\n  (gdb) ptype var8%ptr_2%t2_array\n  Cannot access memory at address 0x38\t\t<------ Issue #2\n  (gdb)\n\nIssue #1: Here we see the abstract dynamic type, rather than the\nresolved concrete type.  Though in some cases the user might be\ninterested in the abstract dynamic type, I think that in most cases\nshowing the resolved concrete type will be of more use.  Plus, the\nuser can always figure out the dynamic type (by source code inspection\nif nothing else) given the concrete type, but it is much harder to\nfigure out the concrete type given only the dynamic type.\n\nIssue #2: In this example, GDB evaluates the expression in\nEVAL_AVOID_SIDE_EFFECTS mode (due to ptype).  The value returned for\nvar8%ptr_2 will be a non-lazy, zero value of the correct dynamic\ntype.  However, when GDB asks about the type of t2_array this requires\nGDB to access the value of var8%ptr_2 in order to read the dynamic\nproperties.  As this value was forced to zero (thanks to the use of\nEVAL_AVOID_SIDE_EFFECTS) then GDB ends up accessing memory at a base\nof zero plus some offset.\n\nBoth this patch, and my previous two attempts, have all tried to\nresolve this problem by stopping EVAL_AVOID_SIDE_EFFECTS replacing the\nresult value with a zero value in some cases.\n\nThis new patch is influenced by how Ada handles its tagged typed.\nThere are plenty of examples in ada-lang.c, but one specific case is\nada_structop_operation::evaluate.  When GDB spots that we are dealing\nwith a tagged (dynamic) type, and we're in EVAL_AVOID_SIDE_EFFECTS\nmode, then GDB re-evaluates the child operation in EVAL_NORMAL mode.\n\nThis commit handles two cases like this specifically for Fortran, a\nnew fortran_structop_operation, and the already existing\nfortran_undetermined, which is where we handle array accesses.\n\nIn these two locations we spot when we are dealing with a dynamic type\nand re-evaluate the child operation in EVAL_NORMAL mode so that we\nare able to access the dynamic properties of the type.\n\nThe rest of this commit message is my attempt to record why my\nprevious patches failed.\n\nTo understand my second patch, and why it failed lets consider two\nexpressions, this Fortran expression:\n\n  (gdb) ptype var8%ptr_2%t2_array\t--<A>\n  Operation: STRUCTOP_STRUCT\t\t--(1)\n   Operation: STRUCTOP_STRUCT\t\t--(2)\n    Operation: OP_VAR_VALUE\t\t--(3)\n     Symbol: var8\n     Block: 0x3980ac0\n    String: ptr_2\n   String: t2_array\n\nAnd this C expression:\n\n  (gdb) ptype ptr && ptr->a == 3\t--<B>\n  Operation: BINOP_LOGICAL_AND\t\t--(4)\n   Operation: OP_VAR_VALUE\t\t--(5)\n    Symbol: ptr\n    Block: 0x45a2a00\n   Operation: BINOP_EQUAL\t\t--(6)\n    Operation: STRUCTOP_PTR\t\t--(7)\n     Operation: OP_VAR_VALUE\t\t--(8)\n      Symbol: ptr\n      Block: 0x45a2a00\n     String: a\n    Operation: OP_LONG\t\t\t--(9)\n     Type: int\n     Constant: 0x0000000000000003\n\nIn expression <A> we should assume that t2_array is of dynamic type.\nNothing has dynamic type in expression <B>.\n\nThis is how GDB currently handles expression <A>, in all cases,\nEVAL_AVOID_SIDE_EFFECTS or EVAL_NORMAL, an OP_VAR_VALUE operation\nalways returns the real value of the symbol, this is not forced to a\nzero value even in EVAL_AVOID_SIDE_EFFECTS mode.  This means that (3),\n(5), and (8) will always return a real lazy value for the symbol.\n\nHowever a STRUCTOP_STRUCT will always replace its result with a\nnon-lazy, zero value with the same type as its result.  So (2) will\nlookup the field ptr_2 and create a zero value with that type.  In\nthis case the type is a pointer to a dynamic type.\n\nThen, when we evaluate (1) to figure out the resolved type of\nt2_array, we need to read the types dynamic properties.  These\nproperties are stored in memory relative to the objects base address,\nand the base address is in var8%ptr_2, which we already figured out\nhas the value zero.  GDB then evaluates the DWARF expressions that\ntake the base address, add an offset and dereference.  GDB then ends\nup trying to access addresses like 0x16, 0x8, etc.\n\nTo fix this, I proposed changing STRUCTOP_STRUCT so that instead of\nreturning a zero value we instead returned the actual value\nrepresenting the structure's field in the target.  My thinking was\nthat GDB would not try to access the value's contents unless it needed\nit to resolve a dynamic type.  This belief was incorrect.\n\nConsider expression <B>.  We already know that (5) and (8) will return\nreal values for the symbols being referenced.  The BINOP_LOGICAL_AND,\noperation (4) will evaluate both of its children in\nEVAL_AVOID_SIDE_EFFECTS in order to get the types, this is required\nfor C++ operator lookup.  This means that even if the value of (5)\nwould result in the BINOP_LOGICAL_AND returning false (say, ptr is\nNULL), we still evaluate (6) in EVAL_AVOID_SIDE_EFFECTS mode.\n\nOperation (6) will evaluate both children in EVAL_AVOID_SIDE_EFFECTS\nmode, operation (9) is easy, it just returns a value with the constant\npacked into it, but (7) is where the problem lies.  Currently in GDB\nthis STRUCTOP_STRUCT will always return a non-lazy zero value of the\ncorrect type.\n\nWhen the results of (7) and (9) are back in the BINOP_LOGICAL_AND\noperation (6), the two values are passed to value_equal which performs\nthe comparison and returns a result.  Note, the two things compared\nhere are the immediate value (9), and a non-lazy zero value from (7).\n\nHowever, with my proposed patch operation (7) no longer returns a zero\nvalue, instead it returns a lazy value representing the actual value\nin target memory.  When we call value_equal in (6) this code causes\nGDB to try and fetch the actual value from target memory.  If `ptr` is\nNULL then this will cause GDB to access some invalid address at an\noffset from zero, this will most likely fail, and cause GDB to throw\nan error instead of returning the expected type.\n\nAnd so, we can now describe the problem that we're facing.  The way\nGDB's expression evaluator is currently written we assume, when in\nEVAL_AVOID_SIDE_EFFECTS mode, that any value returned from a child\noperation can safely have its content read without throwing an\nerror.  If child operations start returning real values (instead of\nthe fake zero values), then this is simply not true.\n\nIf we wanted to work around this then we would need to rewrite almost\nall operations (I would guess) so that EVAL_AVOID_SIDE_EFFECTS mode\ndoes not cause evaluation of an operation to try and read the value of\na child operation.  As an example, consider this current GDB code from\neval.c:\n\n  struct value *\n  eval_op_equal (struct type *expect_type, struct expression *exp,\n  \t       enum noside noside, enum exp_opcode op,\n  \t       struct value *arg1, struct value *arg2)\n  {\n    if (binop_user_defined_p (op, arg1, arg2))\n      {\n        return value_x_binop (arg1, arg2, op, OP_NULL, noside);\n      }\n    else\n      {\n        binop_promote (exp->language_defn, exp->gdbarch, &arg1, &arg2);\n        int tem = value_equal (arg1, arg2);\n        struct type *type = language_bool_type (exp->language_defn,\n  \t\t\t\t\t      exp->gdbarch);\n        return value_from_longest (type, (LONGEST) tem);\n      }\n  }\n\nWe could change this function to be this:\n\n  struct value *\n  eval_op_equal (struct type *expect_type, struct expression *exp,\n  \t       enum noside noside, enum exp_opcode op,\n  \t       struct value *arg1, struct value *arg2)\n  {\n    if (binop_user_defined_p (op, arg1, arg2))\n      {\n        return value_x_binop (arg1, arg2, op, OP_NULL, noside);\n      }\n    else\n      {\n        struct type *type = language_bool_type (exp->language_defn,\n  \t\t\t\t\t      exp->gdbarch);\n        if (noside == EVAL_AVOID_SIDE_EFFECTS)\n  \t  return value_zero (type, VALUE_LVAL (arg1));\n        else\n  \t{\n  \t  binop_promote (exp->language_defn, exp->gdbarch, &arg1, &arg2);\n  \t  int tem = value_equal (arg1, arg2);\n  \t  return value_from_longest (type, (LONGEST) tem);\n  \t}\n      }\n  }\n\nNow we don't call value_equal unless we really need to.  However, we\nwould need to make the same, or similar change to almost all\noperations, which would be a big task, and might not be a direction we\nwanted to take GDB in.\n\nSo, for now, I'm proposing we go with the more targeted, Fortran\nspecific solution, that does the minimal required in order to\ncorrectly resolve the dynamic types.\n\ngdb/ChangeLog:\n\n\t* f-exp.h (class fortran_structop_operation): New class.\n\t* f-exp.y (exp): Create fortran_structop_operation instead of the\n\tgeneric structop_operation.\n\t* f-lang.c (fortran_undetermined::evaluate): Re-evaluate\n\texpression as EVAL_NORMAL if the result type was dynamic so we can\n\textract the actual array bounds.\n\t(fortran_structop_operation::evaluate): New function.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.fortran/dynamic-ptype-whatis.exp: New file.\n\t* gdb.fortran/dynamic-ptype-whatis.f90: New file.",
+    "tree": {
+      "sha": "912d299bf22ed3ebedc7e1f00af976149047600b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/912d299bf22ed3ebedc7e1f00af976149047600b"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/0a703a4cedffa6f3824e87f115e8d392e32de191",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0a703a4cedffa6f3824e87f115e8d392e32de191",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/0a703a4cedffa6f3824e87f115e8d392e32de191",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0a703a4cedffa6f3824e87f115e8d392e32de191/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "30ab35866805d5f1251b7f40578ce985dd18d688",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/30ab35866805d5f1251b7f40578ce985dd18d688",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/30ab35866805d5f1251b7f40578ce985dd18d688"
+    }
+  ],
+  "stats": {
+    "total": 337,
+    "additions": 333,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "42d4bf5e0d54274ab5f663e491955750e06fc390",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 0,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0a703a4cedffa6f3824e87f115e8d392e32de191/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0a703a4cedffa6f3824e87f115e8d392e32de191/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=0a703a4cedffa6f3824e87f115e8d392e32de191",
+      "patch": "@@ -1,3 +1,19 @@\n+2021-04-07  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* f-exp.h (class fortran_structop_operation): New class.\n+\t* f-exp.y (exp): Create fortran_structop_operation instead of the\n+\tgeneric structop_operation.\n+\t* f-lang.c (fortran_undetermined::evaluate): Re-evaluate\n+\texpression as EVAL_NORMAL if the result type was dynamic so we can\n+\textract the actual array bounds.\n+\t(fortran_structop_operation::evaluate): New function.\n+\n+2021-04-07  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* eval.c (evaluate_subexp_standard): Remove\n+\tEVAL_AVOID_SIDE_EFFECTS handling from STRUCTOP_STRUCT and\n+\tSTRUCTOP_PTR.\n+\n 2021-04-07  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* valops.c (value_cast): Call value_deeply_equal before performing"
+    },
+    {
+      "sha": "955d1873f51d011ea898284c24b2ab836869b9f0",
+      "filename": "gdb/f-exp.h",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 0,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0a703a4cedffa6f3824e87f115e8d392e32de191/gdb/f-exp.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0a703a4cedffa6f3824e87f115e8d392e32de191/gdb/f-exp.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/f-exp.h?ref=0a703a4cedffa6f3824e87f115e8d392e32de191",
+      "patch": "@@ -273,6 +273,22 @@ class fortran_bound_2arg\n   { return std::get<0> (m_storage); }\n };\n \n+/* Implement STRUCTOP_STRUCT for Fortran.  */\n+class fortran_structop_operation\n+  : public structop_base_operation\n+{\n+public:\n+\n+  using structop_base_operation::structop_base_operation;\n+\n+  value *evaluate (struct type *expect_type,\n+\t\t   struct expression *exp,\n+\t\t   enum noside noside) override;\n+\n+  enum exp_opcode opcode () const override\n+  { return STRUCTOP_STRUCT; }\n+};\n+\n } /* namespace expr */\n \n #endif /* FORTRAN_EXP_H */"
+    },
+    {
+      "sha": "6608831a9a53807692f0225d185a30b8644363c9",
+      "filename": "gdb/f-exp.y",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 4,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0a703a4cedffa6f3824e87f115e8d392e32de191/gdb/f-exp.y",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0a703a4cedffa6f3824e87f115e8d392e32de191/gdb/f-exp.y",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/f-exp.y?ref=0a703a4cedffa6f3824e87f115e8d392e32de191",
+      "patch": "@@ -492,16 +492,16 @@ exp\t:\t'(' type ')' exp  %prec UNARY\n \n exp     :       exp '%' name\n \t\t\t{\n-\t\t\t  pstate->push_new<structop_operation>\n+\t\t\t  pstate->push_new<fortran_structop_operation>\n \t\t\t    (pstate->pop (), copy_name ($3));\n \t\t\t}\n \t;\n \n exp     :       exp '%' name COMPLETE\n \t\t\t{\n \t\t\t  structop_base_operation *op\n-\t\t\t    = new structop_operation (pstate->pop (),\n-\t\t\t\t\t\t      copy_name ($3));\n+\t\t\t    = new fortran_structop_operation (pstate->pop (),\n+\t\t\t\t\t\t\t      copy_name ($3));\n \t\t\t  pstate->mark_struct_expression (op);\n \t\t\t  pstate->push (operation_up (op));\n \t\t\t}\n@@ -510,7 +510,8 @@ exp     :       exp '%' name COMPLETE\n exp     :       exp '%' COMPLETE\n \t\t\t{\n \t\t\t  structop_base_operation *op\n-\t\t\t    = new structop_operation (pstate->pop (), \"\");\n+\t\t\t    = new fortran_structop_operation (pstate->pop (),\n+\t\t\t\t\t\t\t      \"\");\n \t\t\t  pstate->mark_struct_expression (op);\n \t\t\t  pstate->push (operation_up (op));\n \t\t\t}"
+    },
+    {
+      "sha": "7e921b99517c42c707fc9738a7426082bdbfebfa",
+      "filename": "gdb/f-lang.c",
+      "status": "modified",
+      "additions": 40,
+      "deletions": 0,
+      "changes": 40,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0a703a4cedffa6f3824e87f115e8d392e32de191/gdb/f-lang.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0a703a4cedffa6f3824e87f115e8d392e32de191/gdb/f-lang.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/f-lang.c?ref=0a703a4cedffa6f3824e87f115e8d392e32de191",
+      "patch": "@@ -1405,6 +1405,9 @@ fortran_undetermined::evaluate (struct type *expect_type,\n \t\t\t\tenum noside noside)\n {\n   value *callee = std::get<0> (m_storage)->evaluate (nullptr, exp, noside);\n+  if (noside == EVAL_AVOID_SIDE_EFFECTS\n+      && is_dynamic_type (value_type (callee)))\n+    callee = std::get<0> (m_storage)->evaluate (nullptr, exp, EVAL_NORMAL);\n   struct type *type = check_typedef (value_type (callee));\n   enum type_code code = type->code ();\n \n@@ -1490,6 +1493,43 @@ fortran_bound_2arg::evaluate (struct type *expect_type,\n   return fortran_bounds_for_dimension (lbound_p, exp->gdbarch, arg1, arg2);\n }\n \n+/* Implement STRUCTOP_STRUCT for Fortran.  See operation::evaluate in\n+   expression.h for argument descriptions.  */\n+\n+value *\n+fortran_structop_operation::evaluate (struct type *expect_type,\n+\t\t\t\t      struct expression *exp,\n+\t\t\t\t      enum noside noside)\n+{\n+  value *arg1 = std::get<0> (m_storage)->evaluate (nullptr, exp, noside);\n+  const char *str = std::get<1> (m_storage).c_str ();\n+  if (noside == EVAL_AVOID_SIDE_EFFECTS)\n+    {\n+      struct type *type = lookup_struct_elt_type (value_type (arg1), str, 1);\n+\n+      if (type != nullptr && is_dynamic_type (type))\n+\targ1 = std::get<0> (m_storage)->evaluate (nullptr, exp, EVAL_NORMAL);\n+    }\n+\n+  value *elt = value_struct_elt (&arg1, NULL, str, NULL, \"structure\");\n+\n+  if (noside == EVAL_AVOID_SIDE_EFFECTS)\n+    {\n+      struct type *elt_type = value_type (elt);\n+      if (is_dynamic_type (elt_type))\n+\t{\n+\t  const gdb_byte *valaddr = value_contents_for_printing (elt);\n+\t  CORE_ADDR address = value_address (elt);\n+\t  gdb::array_view<const gdb_byte> view\n+\t    = gdb::make_array_view (valaddr, TYPE_LENGTH (elt_type));\n+\t  elt_type = resolve_dynamic_type (elt_type, view, address);\n+\t}\n+      elt = value_zero (elt_type, VALUE_LVAL (elt));\n+    }\n+\n+  return elt;\n+}\n+\n } /* namespace expr */\n \n /* See language.h.  */"
+    },
+    {
+      "sha": "1980315067751e4e5d4d956aa46299581b4a1b1b",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0a703a4cedffa6f3824e87f115e8d392e32de191/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0a703a4cedffa6f3824e87f115e8d392e32de191/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=0a703a4cedffa6f3824e87f115e8d392e32de191",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-04-07  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.fortran/dynamic-ptype-whatis.exp: New file.\n+\t* gdb.fortran/dynamic-ptype-whatis.f90: New file.\n+\n 2021-04-07  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.cp/rvalue-ref-params.cc (f3): New function."
+    },
+    {
+      "sha": "d2ffd6d73f7c865be01549114c0b04c54232c7cb",
+      "filename": "gdb/testsuite/gdb.fortran/dynamic-ptype-whatis.exp",
+      "status": "added",
+      "additions": 158,
+      "deletions": 0,
+      "changes": 158,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0a703a4cedffa6f3824e87f115e8d392e32de191/gdb/testsuite/gdb.fortran/dynamic-ptype-whatis.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0a703a4cedffa6f3824e87f115e8d392e32de191/gdb/testsuite/gdb.fortran/dynamic-ptype-whatis.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.fortran/dynamic-ptype-whatis.exp?ref=0a703a4cedffa6f3824e87f115e8d392e32de191",
+      "patch": "@@ -0,0 +1,158 @@\n+# Copyright 2021 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/> .\n+\n+# Test using whatis and ptype on different configurations of dynamic\n+# types.\n+\n+if {[skip_fortran_tests]} { return -1 }\n+\n+standard_testfile \".f90\"\n+load_lib fortran.exp\n+\n+if {[prepare_for_testing ${testfile}.exp ${testfile} ${srcfile} \\\n+\t {debug f90}]} {\n+    return -1\n+}\n+\n+if {![fortran_runto_main]} {\n+    perror \"Could not run to main.\"\n+    continue\n+}\n+\n+gdb_breakpoint [gdb_get_line_number \"Break Here\"]\n+gdb_continue_to_breakpoint \"Break Here\"\n+\n+gdb_test \"whatis var1\" \"type = real\\\\(kind=4\\\\) \\\\(3\\\\)\"\n+gdb_test \"whatis var2\" \"type = real\\\\(kind=4\\\\), allocatable \\\\(4\\\\)\"\n+gdb_test \"whatis var3\" \"type = Type type1\"\n+gdb_test \"whatis var4\" \"type = Type type2\"\n+gdb_test \"whatis var5\" \"type = Type type3\"\n+gdb_test \"whatis var6\" \"type = Type type4\"\n+gdb_test \"whatis var7\" \"type = Type type5\"\n+gdb_test \"ptype var1\" \"type = real\\\\(kind=4\\\\) \\\\(3\\\\)\"\n+gdb_test \"ptype var2\" \"type = real\\\\(kind=4\\\\), allocatable \\\\(4\\\\)\"\n+gdb_test \"ptype var3\" \\\n+    [ multi_line \"type = Type type1\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: spacer\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: t1_i\" \\\n+\t  \"End Type type1\" ]\n+gdb_test \"ptype var4\" \\\n+    [multi_line \"type = Type type2\" \\\n+\t \"    integer\\\\(kind=4\\\\) :: spacer\" \\\n+\t \"    Type type1, allocatable :: t2_array\\\\(3\\\\)\" \\\n+\t \"End Type type2\"]\n+gdb_test \"ptype var5\" \\\n+    [ multi_line \"type = Type type3\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: spacer\" \\\n+\t  \"    Type type1 :: t3_array\\\\(3\\\\)\"\\\n+\t  \"End Type type3\" ]\n+gdb_test \"ptype var6\" \\\n+    [ multi_line \"type = Type type4\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: spacer\" \\\n+\t  \"    Type type2, allocatable :: t4_array\\\\(3\\\\)\" \\\n+\t  \"End Type type4\" ]\n+gdb_test \"ptype var7\" \\\n+    [ multi_line \"type = Type type5\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: spacer\" \\\n+\t  \"    Type type2 :: t5_array\\\\(4\\\\)\" \\\n+\t  \"End Type type5\" ]\n+gdb_test \"whatis var3%t1_i\" \"type = integer\\\\(kind=4\\\\)\"\n+gdb_test \"whatis var4%t2_array\" \"type = Type type1, allocatable \\\\(3\\\\)\"\n+gdb_test \"whatis var5%t3_array\" \"type = Type type1 \\\\(3\\\\)\"\n+gdb_test \"whatis var6%t4_array\" \"type = Type type2, allocatable \\\\(3\\\\)\"\n+gdb_test \"whatis var7%t5_array\" \"type = Type type2 \\\\(4\\\\)\"\n+gdb_test \"ptype var3%t1_i\" [ multi_line \"type = integer\\\\(kind=4\\\\)\" ]\n+gdb_test \"ptype var4%t2_array\" [ multi_line \"type = Type type1\" \\\n+\t\t\t\t     \"    integer\\\\(kind=4\\\\) :: spacer\" \\\n+\t\t\t\t     \"    integer\\\\(kind=4\\\\) :: t1_i\" \\\n+\t\t\t\t     \"End Type type1, allocatable \\\\(3\\\\)\" ]\n+gdb_test \"ptype var5%t3_array\" [ multi_line \"type = Type type1\" \\\n+\t\t\t\t     \"    integer\\\\(kind=4\\\\) :: spacer\" \\\n+\t\t\t\t     \"    integer\\\\(kind=4\\\\) :: t1_i\" \\\n+\t\t\t\t     \"End Type type1 \\\\(3\\\\)\" ]\n+gdb_test \"ptype var6%t4_array\" \\\n+    [ multi_line \"type = Type type2\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: spacer\" \\\n+\t  \"    Type type1, allocatable :: t2_array\\\\(:\\\\)\" \\\n+\t  \"End Type type2, allocatable \\\\(3\\\\)\" ]\n+gdb_test \"ptype var7%t5_array\" \\\n+    [ multi_line \"type = Type type2\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: spacer\" \\\n+\t  \"    Type type1, allocatable :: t2_array\\\\(:\\\\)\" \\\n+\t  \"End Type type2 \\\\(4\\\\)\" ]\n+gdb_test \"whatis var4%t2_array(1)\" \"type = Type type1\"\n+gdb_test \"whatis var5%t3_array(1)\" \"type = Type type1\"\n+gdb_test \"whatis var6%t4_array(1)\" \"type = Type type2\"\n+gdb_test \"whatis var7%t5_array(1)\" \"type = Type type2\"\n+gdb_test \"ptype var4%t2_array(1)\" \\\n+    [ multi_line \"type = Type type1\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: spacer\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: t1_i\" \\\n+\t  \"End Type type1\" ]\n+gdb_test \"ptype var5%t3_array(1)\" \\\n+    [ multi_line \"type = Type type1\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: spacer\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: t1_i\" \\\n+\t  \"End Type type1\" ]\n+gdb_test \"ptype var6%t4_array(1)\" \\\n+    [ multi_line \"type = Type type2\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: spacer\" \\\n+\t  \"    Type type1, allocatable :: t2_array\\\\(2\\\\)\" \\\n+\t  \"End Type type2\" ]\n+gdb_test \"ptype var7%t5_array(1)\" \\\n+    [ multi_line \"type = Type type2\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: spacer\" \\\n+\t  \"    Type type1, allocatable :: t2_array\\\\(2\\\\)\" \\\n+\t  \"End Type type2\" ]\n+gdb_test \"whatis var4%t2_array(1)%t1_i\" \"type = integer\\\\(kind=4\\\\)\"\n+gdb_test \"whatis var5%t3_array(1)%t1_i\" \"type = integer\\\\(kind=4\\\\)\"\n+gdb_test \"whatis var6%t4_array(1)%t2_array\" \\\n+    \"type = Type type1, allocatable \\\\(2\\\\)\"\n+gdb_test \"whatis var7%t5_array(1)%t2_array\" \\\n+    \"type = Type type1, allocatable \\\\(2\\\\)\"\n+gdb_test \"ptype var4%t2_array(1)%t1_i\" \"type = integer\\\\(kind=4\\\\)\"\n+gdb_test \"ptype var5%t3_array(1)%t1_i\" \"type = integer\\\\(kind=4\\\\)\"\n+gdb_test \"ptype var6%t4_array(1)%t2_array\" \\\n+    [ multi_line \"type = Type type1\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: spacer\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: t1_i\" \\\n+\t  \"End Type type1, allocatable \\\\(2\\\\)\" ]\n+gdb_test \"ptype var7%t5_array(1)%t2_array\" \\\n+    [ multi_line \"type = Type type1\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: spacer\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: t1_i\" \\\n+\t  \"End Type type1, allocatable \\\\(2\\\\)\" ]\n+gdb_test \"whatis var6%t4_array(1)%t2_array(1)\" \\\n+    \"type = Type type1\"\n+gdb_test \"whatis var7%t5_array(1)%t2_array(1)\" \\\n+    \"type = Type type1\"\n+gdb_test \"ptype var6%t4_array(1)%t2_array(1)\" \\\n+    [ multi_line \\\n+\t  \"type = Type type1\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: spacer\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: t1_i\" \\\n+\t  \"End Type type1\" ]\n+gdb_test \"ptype var7%t5_array(1)%t2_array(1)\" \\\n+    [ multi_line \\\n+\t  \"type = Type type1\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: spacer\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: t1_i\" \\\n+\t  \"End Type type1\" ]\n+gdb_test \"ptype var8%ptr_1%t2_array\" \\\n+    [ multi_line \\\n+\t  \"type = Type type1\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: spacer\" \\\n+\t  \"    integer\\\\(kind=4\\\\) :: t1_i\" \\\n+\t  \"End Type type1, allocatable \\\\(3\\\\)\" ]"
+    },
+    {
+      "sha": "e56bf7952dc9a6fd8d16d00392c95599ba3d3fe2",
+      "filename": "gdb/testsuite/gdb.fortran/dynamic-ptype-whatis.f90",
+      "status": "added",
+      "additions": 93,
+      "deletions": 0,
+      "changes": 93,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0a703a4cedffa6f3824e87f115e8d392e32de191/gdb/testsuite/gdb.fortran/dynamic-ptype-whatis.f90",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0a703a4cedffa6f3824e87f115e8d392e32de191/gdb/testsuite/gdb.fortran/dynamic-ptype-whatis.f90",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.fortran/dynamic-ptype-whatis.f90?ref=0a703a4cedffa6f3824e87f115e8d392e32de191",
+      "patch": "@@ -0,0 +1,93 @@\n+! Copyright 2021 Free Software Foundation, Inc.\n+!\n+! This program is free software; you can redistribute it and/or modify\n+! it under the terms of the GNU General Public License as published by\n+! the Free Software Foundation; either version 3 of the License, or\n+! (at your option) any later version.\n+!\n+! This program is distributed in the hope that it will be useful,\n+! but WITHOUT ANY WARRANTY; without even the implied warranty of\n+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+! GNU General Public License for more details.\n+!\n+! You should have received a copy of the GNU General Public License\n+! along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+program main\n+\n+  ! A non-dynamic type.\n+  type type1\n+     integer(kind=4) :: spacer\n+     integer(kind=4) t1_i\n+  end type type1\n+\n+  ! A first dynamic type.  The array is of a static type.\n+  type type2\n+     integer(kind=4) :: spacer\n+     type(type1), allocatable :: t2_array(:)\n+  end type type2\n+\n+  ! Another dynamic type, the array is again a static type.\n+  type type3\n+     integer(kind=4) :: spacer\n+     type(type1), pointer :: t3_array(:)\n+  end type type3\n+\n+  ! A dynamic type, this time the array contains a dynamic type.\n+  type type4\n+     integer(kind=4) :: spacer\n+     type(type2), allocatable :: t4_array(:)\n+  end type type4\n+\n+  ! A static type, the array though contains dynamic types.\n+  type type5\n+     integer(kind=4) :: spacer\n+     type(type2) :: t5_array (4)\n+  end type type5\n+\n+  ! A static type containing pointers to a type that contains a\n+  ! dynamic array.\n+  type type6\n+     type(type2), pointer :: ptr_1\n+     type(type2), pointer :: ptr_2\n+  end type type6\n+\n+  real, dimension(:), pointer :: var1\n+  real, dimension(:), allocatable :: var2\n+  type(type1) :: var3\n+  type(type2), target :: var4\n+  type(type3) :: var5\n+  type(type4) :: var6\n+  type(type5) :: var7\n+  type(type6) :: var8\n+\n+  allocate (var1 (3))\n+\n+  allocate (var2 (4))\n+\n+  allocate (var4%t2_array(3))\n+\n+  allocate (var5%t3_array(3))\n+\n+  allocate (var6%t4_array(3))\n+  allocate (var6%t4_array(1)%t2_array(2))\n+  allocate (var6%t4_array(2)%t2_array(5))\n+  allocate (var6%t4_array(3)%t2_array(4))\n+\n+  allocate (var7%t5_array(1)%t2_array(2))\n+  allocate (var7%t5_array(2)%t2_array(5))\n+  allocate (var7%t5_array(3)%t2_array(4))\n+  allocate (var7%t5_array(4)%t2_array(1))\n+\n+  var8%ptr_1 => var4\n+  var8%ptr_2 => var4\n+\n+  print *, var1\t\t! Break Here\n+  print *, var2\n+  print *, var3\n+  print *, var4%t2_array(1)\n+  print *, var5%t3_array(2)\n+  print *, var6%t4_array(1)%t2_array(1)\n+  print *, var7%t5_array(1)%t2_array(1)\n+\n+end program main"
+    }
+  ]
+}

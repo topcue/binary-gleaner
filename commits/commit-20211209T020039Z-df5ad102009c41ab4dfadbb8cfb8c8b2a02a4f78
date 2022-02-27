@@ -1,0 +1,255 @@
+{
+  "sha": "df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78",
+  "node_id": "C_kwDOANOeidoAKGRmNWFkMTAyMDA5YzQxYWI0ZGZhZGJiOGNmYjhjOGIyYTAyYTRmNzg",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2021-12-01T14:40:03Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2021-12-09T02:00:39Z"
+    },
+    "message": "gdb, gdbserver: detach fork child when detaching from fork parent\n\nWhile working with pending fork events, I wondered what would happen if\nthe user detached an inferior while a thread of that inferior had a\npending fork event.  What happens with the fork child, which is\nptrace-attached by the GDB process (or by GDBserver), but not known to\nthe core?  Sure enough, neither the core of GDB or the target detach the\nchild process, so GDB (or GDBserver) just stays ptrace-attached to the\nprocess.  The result is that the fork child process is stuck, while you\nwould expect it to be detached and run.\n\nMake GDBserver detach of fork children it knows about.  That is done in\nthe generic handle_detach function.  Since a process_info already exists\nfor the child, we can simply call detach_inferior on it.\n\nGDB-side, make the linux-nat and remote targets detach of fork children\nknown because of pending fork events.  These pending fork events can be\nstored in:\n\n - thread_info::pending_waitstatus, if the core has consumed the event\n   but then saved it for later (for example, because it got the event\n   while stopping all threads, to present an all-stop stop on top of a\n   non-stop target)\n - thread_info::pending_follow: if we ran to a \"catch fork\" and we\n   detach at that moment\n\nAdditionally, pending fork events can be in target-specific fields:\n\n - For linux-nat, they can be in lwp_info::status and\n   lwp_info::waitstatus.\n - For the remote target, they could be stored as pending stop replies,\n   saved in `remote_state::notif_state::pending_event`, if not\n   acknowledged yet, or in `remote_state::stop_reply_queue`, if\n   acknowledged.  I followed the model of remove_new_fork_children for\n   this: call remote_notif_get_pending_events to process /\n   acknowledge any unacknowledged notification, then look through\n   stop_reply_queue.\n\nUpdate the gdb.threads/pending-fork-event.exp test (and rename it to\ngdb.threads/pending-fork-event-detach.exp) to try to detach the process\nwhile it is stopped with a pending fork event.  In order to verify that\nthe fork child process is correctly detached and resumes execution\noutside of GDB's control, make that process create a file in the test\noutput directory, and make the test wait $timeout seconds for that file\nto appear (it happens instantly if everything goes well).\n\nThis test catches a bug in linux-nat.c, also reported as PR 28512\n(\"waitstatus.h:300: internal-error: gdb_signal target_waitstatus::sig()\nconst: Assertion `m_kind == TARGET_WAITKIND_STOPPED || m_kind ==\nTARGET_WAITKIND_SIGNALLED' failed.).  When detaching a thread with a\npending event, get_detach_signal unconditionally fetches the signal\nstored in the waitstatus (`tp->pending_waitstatus ().sig ()`).  However,\nthat is only valid if the pending event is of type\nTARGET_WAITKIND_STOPPED, and this is now enforced using assertions (iit\nwould also be valid for TARGET_WAITKIND_SIGNALLED, but that would mean\nthe thread does not exist anymore, so we wouldn't be detaching it).  Add\na condition in get_detach_signal to access the signal number only if the\nwait status is of kind TARGET_WAITKIND_STOPPED, and use GDB_SIGNAL_0\ninstead (since the thread was not stopped with a signal to begin with).\n\nAdd another test, gdb.threads/pending-fork-event-ns.exp, specifically to\nverify that we consider events in pending stop replies in the remote\ntarget.  This test has many threads constantly forking, and we detach\nfrom the program while the program is executing.  That gives us some\nchance that we detach while a fork stop reply is stored in the remote\ntarget.  To verify that we correctly detach all fork children, we ask\nthe parent to exit by sending it a SIGUSR1 signal and have it write a\nfile to the filesystem before exiting.  Because the parent's main thread\njoins the forking threads, and the forking threads wait for their fork\nchildren to exit, if some fork child is not detach by GDB, the parent\nwill not write the file, and the test will time out.  If I remove the\nnew remote_detach_pid calls in remote.c, the test fails eventually if I\nrun it in a loop.\n\nThere is a known limitation: we don't remove breakpoints from the\nchildren before detaching it.  So the children, could hit a trap\ninstruction after being detached and crash.  I know this is wrong, and\nit should be fixed, but I would like to handle that later.  The current\npatch doesn't fix everything, but it's a step in the right direction.\n\nChange-Id: I6d811a56f520e3cb92d5ea563ad38976f92e93dd\nBug: https://sourceware.org/bugzilla/show_bug.cgi?id=28512",
+    "tree": {
+      "sha": "d3e4ea03469af069618f83928fdc275f6d5bfa83",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/d3e4ea03469af069618f83928fdc275f6d5bfa83"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "577d2167bbed078e99fe8b704f936be8ac7cf83d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/577d2167bbed078e99fe8b704f936be8ac7cf83d",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/577d2167bbed078e99fe8b704f936be8ac7cf83d"
+    }
+  ],
+  "stats": {
+    "total": 679,
+    "additions": 592,
+    "deletions": 87
+  },
+  "files": [
+    {
+      "sha": "9d4b05a2167d1cb4b7682818a726c6405682bffd",
+      "filename": "gdb/linux-nat.c",
+      "status": "modified",
+      "additions": 52,
+      "deletions": 1,
+      "changes": 53,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdb/linux-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdb/linux-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/linux-nat.c?ref=df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78",
+      "patch": "@@ -1315,7 +1315,16 @@ get_detach_signal (struct lwp_info *lp)\n       if (target_is_non_stop_p () && !tp->executing ())\n \t{\n \t  if (tp->has_pending_waitstatus ())\n-\t    signo = tp->pending_waitstatus ().sig ();\n+\t    {\n+\t      /* If the thread has a pending event, and it was stopped with a\n+\t         signal, use that signal to resume it.  If it has a pending\n+\t\t event of another kind, it was not stopped with a signal, so\n+\t\t resume it without a signal.  */\n+\t      if (tp->pending_waitstatus ().kind () == TARGET_WAITKIND_STOPPED)\n+\t\tsigno = tp->pending_waitstatus ().sig ();\n+\t      else\n+\t\tsigno = GDB_SIGNAL_0;\n+\t    }\n \t  else\n \t    signo = tp->stop_signal ();\n \t}\n@@ -1367,6 +1376,48 @@ detach_one_lwp (struct lwp_info *lp, int *signo_p)\n \n   gdb_assert (lp->status == 0 || WIFSTOPPED (lp->status));\n \n+  /* If the lwp/thread we are about to detach has a pending fork event,\n+     there is a process GDB is attached to that the core of GDB doesn't know\n+     about.  Detach from it.  */\n+\n+  /* Check in lwp_info::status.  */\n+  if (WIFSTOPPED (lp->status) && linux_is_extended_waitstatus (lp->status))\n+    {\n+      int event = linux_ptrace_get_extended_event (lp->status);\n+\n+      if (event == PTRACE_EVENT_FORK || event == PTRACE_EVENT_VFORK)\n+\t{\n+\t  unsigned long child_pid;\n+\t  int ret = ptrace (PTRACE_GETEVENTMSG, lp->ptid.lwp (), 0, &child_pid);\n+\t  if (ret == 0)\n+\t    detach_one_pid (child_pid, 0);\n+\t  else\n+\t    perror_warning_with_name (_(\"Failed to detach fork child\"));\n+\t}\n+    }\n+\n+  /* Check in lwp_info::waitstatus.  */\n+  if (lp->waitstatus.kind () == TARGET_WAITKIND_VFORKED\n+      || lp->waitstatus.kind () == TARGET_WAITKIND_FORKED)\n+    detach_one_pid (lp->waitstatus.child_ptid ().pid (), 0);\n+\n+\n+  /* Check in thread_info::pending_waitstatus.  */\n+  thread_info *tp = find_thread_ptid (linux_target, lp->ptid);\n+  if (tp->has_pending_waitstatus ())\n+    {\n+      const target_waitstatus &ws = tp->pending_waitstatus ();\n+\n+      if (ws.kind () == TARGET_WAITKIND_VFORKED\n+\t  || ws.kind () == TARGET_WAITKIND_FORKED)\n+\tdetach_one_pid (ws.child_ptid ().pid (), 0);\n+    }\n+\n+  /* Check in thread_info::pending_follow.  */\n+  if (tp->pending_follow.kind () == TARGET_WAITKIND_VFORKED\n+      || tp->pending_follow.kind () == TARGET_WAITKIND_FORKED)\n+    detach_one_pid (tp->pending_follow.child_ptid ().pid (), 0);\n+\n   if (lp->status != 0)\n     linux_nat_debug_printf (\"Pending %s for %s on detach.\",\n \t\t\t    strsignal (WSTOPSIG (lp->status)),"
+    },
+    {
+      "sha": "1f977d57fbaa3852eb1c6af1fbb9c95ad8d39c3f",
+      "filename": "gdb/remote.c",
+      "status": "modified",
+      "additions": 35,
+      "deletions": 4,
+      "changes": 39,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdb/remote.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdb/remote.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/remote.c?ref=df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78",
+      "patch": "@@ -5968,6 +5968,32 @@ remote_target::remote_detach_1 (inferior *inf, int from_tty)\n   if (from_tty && !rs->extended && number_of_live_inferiors (this) == 1)\n     puts_filtered (_(\"Ending remote debugging.\\n\"));\n \n+  /* See if any thread of the inferior we are detaching has a pending fork\n+     status.  In that case, we must detach from the child resulting from\n+     that fork.  */\n+  for (thread_info *thread : inf->non_exited_threads ())\n+    {\n+      const target_waitstatus *ws = thread_pending_fork_status (thread);\n+\n+      if (ws == nullptr)\n+\tcontinue;\n+\n+      remote_detach_pid (ws->child_ptid ().pid ());\n+    }\n+\n+  /* Check also for any pending fork events in the stop reply queue.  */\n+  remote_notif_get_pending_events (&notif_client_stop);\n+  for (stop_reply_up &reply : rs->stop_reply_queue)\n+    {\n+      if (reply->ptid.pid () != pid)\n+\tcontinue;\n+\n+      if (!is_fork_status (reply->ws.kind ()))\n+\tcontinue;\n+\n+      remote_detach_pid (reply->ws.child_ptid ().pid ());\n+    }\n+\n   thread_info *tp = find_thread_ptid (this, inferior_ptid);\n \n   /* Check to see if we are detaching a fork parent.  Note that if we\n@@ -7371,11 +7397,11 @@ remote_target::discard_pending_stop_replies (struct inferior *inf)\n       /* Leave the notification pending, since the server expects that\n \t we acknowledge it with vStopped.  But clear its contents, so\n \t that later on when we acknowledge it, we also discard it.  */\n+      remote_debug_printf\n+\t(\"discarding in-flight notification: ptid: %s, ws: %s\\n\",\n+\t reply->ptid.to_string().c_str(),\n+\t reply->ws.to_string ().c_str ());\n       reply->ws.set_ignore ();\n-\n-      if (remote_debug)\n-\tfprintf_unfiltered (gdb_stdlog,\n-\t\t\t    \"discarded in-flight notification\\n\");\n     }\n \n   /* Discard the stop replies we have already pulled with\n@@ -7386,6 +7412,11 @@ remote_target::discard_pending_stop_replies (struct inferior *inf)\n \t\t\t      {\n \t\t\t\treturn event->ptid.pid () == inf->pid;\n \t\t\t      });\n+  for (auto it = iter; it != rs->stop_reply_queue.end (); ++it)\n+    remote_debug_printf\n+      (\"discarding queued stop reply: ptid: %s, ws: %s\\n\",\n+       reply->ptid.to_string().c_str(),\n+       reply->ws.to_string ().c_str ());\n   rs->stop_reply_queue.erase (iter, rs->stop_reply_queue.end ());\n }\n "
+    },
+    {
+      "sha": "5b9f9940f832b28c6db6c8f892498c52e4a2b67b",
+      "filename": "gdb/testsuite/gdb.threads/pending-fork-event-detach-ns.c",
+      "status": "added",
+      "additions": 114,
+      "deletions": 0,
+      "changes": 114,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdb/testsuite/gdb.threads/pending-fork-event-detach-ns.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdb/testsuite/gdb.threads/pending-fork-event-detach-ns.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/pending-fork-event-detach-ns.c?ref=df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78",
+      "patch": "@@ -0,0 +1,114 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2021 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#include <assert.h>\n+#include <errno.h>\n+#include <poll.h>\n+#include <pthread.h>\n+#include <stdio.h>\n+#include <stdlib.h>\n+#include <string.h>\n+#include <sys/wait.h>\n+#include <unistd.h>\n+\n+#define NUM_FORKING_THREADS 12\n+\n+static pthread_barrier_t barrier;\n+static volatile int should_exit = 0;\n+\n+static void\n+sigusr1_handler (int sig, siginfo_t *siginfo, void *context)\n+{\n+  should_exit = 1;\n+}\n+\n+static void *\n+forking_thread (void *arg)\n+{\n+  /* Wait for all forking threads to have spawned before fork-spamming.  */\n+  pthread_barrier_wait (&barrier);\n+\n+  while (!should_exit)\n+    {\n+      pid_t pid = fork ();\n+      if (pid == 0)\n+\t{\n+\t  /* Child */\n+\t  exit (8);\n+\t}\n+      else\n+\t{\n+\t  /* Parent */\n+\t  int status;\n+\t  int ret = waitpid (pid, &status, 0);\n+\t  assert (ret == pid);\n+\t  assert (WIFEXITED (status));\n+\t  assert (WEXITSTATUS (status) == 8);\n+\t}\n+    }\n+\n+  return NULL;\n+}\n+\n+static void\n+break_here_first (void)\n+{\n+}\n+\n+static pid_t my_pid;\n+\n+int\n+main (void)\n+{\n+  pthread_t forking_threads[NUM_FORKING_THREADS];\n+  int ret;\n+  struct sigaction sa;\n+  int i;\n+\n+  /* Just to make sure we don't run for ever.  */\n+  alarm (30);\n+\n+  my_pid = getpid ();\n+\n+  break_here_first ();\n+\n+  pthread_barrier_init (&barrier, NULL, NUM_FORKING_THREADS);\n+\n+  memset (&sa, 0, sizeof (sa));\n+  sa.sa_sigaction = sigusr1_handler;\n+  ret = sigaction (SIGUSR1, &sa, NULL);\n+  assert (ret == 0);\n+\n+  for (i = 0; i < NUM_FORKING_THREADS; ++i)\n+    {\n+      ret = pthread_create (&forking_threads[i], NULL, forking_thread, NULL);\n+      assert (ret == 0);\n+    }\n+\n+  for (i = 0; i < NUM_FORKING_THREADS; ++i)\n+    {\n+      ret = pthread_join (forking_threads[i], NULL);\n+      assert (ret == 0);\n+    }\n+\n+  FILE *f = fopen (TOUCH_FILE_PATH, \"w\");\n+  assert (f != NULL);\n+  ret = fclose (f);\n+  assert (ret == 0);\n+\n+  return 0;\n+}"
+    },
+    {
+      "sha": "9a3ac835eae0ca55cdc29225eb7f356047be85e9",
+      "filename": "gdb/testsuite/gdb.threads/pending-fork-event-detach-ns.exp",
+      "status": "added",
+      "additions": 121,
+      "deletions": 0,
+      "changes": 121,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdb/testsuite/gdb.threads/pending-fork-event-detach-ns.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdb/testsuite/gdb.threads/pending-fork-event-detach-ns.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/pending-fork-event-detach-ns.exp?ref=df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78",
+      "patch": "@@ -0,0 +1,121 @@\n+# Copyright 2021 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Detach a running program that constantly forks, verify that we correctly\n+# detach all fork children, for which events are pending.\n+#\n+# The strategy is:\n+#\n+#   - Resume a program in background (continue &) with many threads that\n+#     constantly fork and wait for their fork children to exit.\n+#   - Detach the program.  If testing against GDBserver, hope that the detach\n+#     CLI command is processed while there is a stop reply pending in the\n+#     remote target.\n+#   - Signal the parent program to exit, by sending it a SIGUSR1 signal.\n+#   - Have the parent write a flag file to the filesystem just before exiting.\n+#   - If a pending fork child is mistakenly still attached, it will prevent its\n+#     parent thread from waitpid'ing it, preventing the main thread from joining\n+#     it, prevent it from writing the flag file, failing the test.\n+\n+standard_testfile\n+\n+if { [is_remote target] } {\n+    # If the target is remote, write the file in whatever the current working\n+    # directory is, with a somewhat unique name.\n+    set touch_file_path ${testfile}-flag\n+} else {\n+    set touch_file_path [standard_output_file flag]\n+}\n+\n+if { [gdb_compile_pthreads \"${srcdir}/${subdir}/${srcfile}\" \"${binfile}\" \\\n+\texecutable [list debug \"additional_flags=-DTOUCH_FILE_PATH=\\\"$touch_file_path\\\"\"]] != \"\" } {\n+    return\n+}\n+\n+proc do_test { } {\n+    remote_file target delete $::touch_file_path\n+    gdb_assert { ![remote_file target exists $::touch_file_path] } \"file does not exist before test\"\n+\n+    save_vars { ::GDBFLAGS } {\n+\tappend ::GDBFLAGS \" -ex \\\"set non-stop on\\\"\"\n+\tclean_restart $::binfile\n+    }\n+\n+    if { ![runto break_here_first] } {\n+\treturn\n+    }\n+\n+    set pid [get_integer_valueof \"my_pid\" -1]\n+    if { $pid == -1 } {\n+\terror \"could not get inferior pid\"\n+    }\n+\n+    gdb_test_no_output \"set print inferior-events off\"\n+\n+    gdb_test_multiple \"continue &\" \"\" {\n+\t-re \"Continuing.\\r\\n$::gdb_prompt \" {\n+\t    pass $gdb_test_name\n+\t}\n+    }\n+\n+    set wait_time_s 2\n+\n+    if { [info exists ::server_spawn_id] } {\n+\t# Let the program run for 2 seconds, during which it will fork many times.\n+\t# When running against GDBserver, this makes server print a ton of\n+\t# \"Detaching from process X\" message, to the point where its output buffer\n+\t# gets full and it hangs in a write to stdout.  During these 2 seconds,\n+\t# drain the messages from GDBserver to keep that from happening.\n+\tgdb_test_multiple \"\" \"flush server output\" {\n+\t    -timeout $wait_time_s\n+\t    -i $::server_spawn_id\n+\t    -re \".+\" {\n+\t\texp_continue -continue_timer\n+\t    }\n+\n+\t    timeout {\n+\t\tpass $gdb_test_name\n+\t    }\n+\t}\n+    } else {\n+\t# Not using GDBserver, just sleep 2 seconds.\n+\tsleep $wait_time_s\n+    }\n+\n+    gdb_test \"detach\" \"Detaching from program: .*\"\n+\n+    if { [info exists ::server_spawn_id] } {\n+\t# Drain GDBserver's output buffer, in the (unlikely) event that enough\n+\t# messages were output to fill the buffer between the moment we stopped\n+\t# consuming it and the moment GDBserver detached the process.\n+\tgdb_test_multiple \"\" \"\" {\n+\t    -i $::server_spawn_id\n+\t    -re \".+\" {\n+\t\texp_continue\n+\t    }\n+\t    -re \"^$\" {}\n+\t}\n+    }\n+\n+    remote_exec target \"kill -USR1 ${pid}\"\n+    gdb_assert { [target_file_exists_with_timeout $::touch_file_path] } \"file exists after detach\"\n+\n+    # Don't leave random files on the target system.\n+    if { [is_remote target] } {\n+\tremote_file target delete $::touch_file_path\n+    }\n+}\n+\n+do_test"
+    },
+    {
+      "sha": "5536381847b14a9e7ff5210f93ba5aa5e37c70b3",
+      "filename": "gdb/testsuite/gdb.threads/pending-fork-event-detach-touch-file.c",
+      "status": "added",
+      "additions": 26,
+      "deletions": 0,
+      "changes": 26,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdb/testsuite/gdb.threads/pending-fork-event-detach-touch-file.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdb/testsuite/gdb.threads/pending-fork-event-detach-touch-file.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/pending-fork-event-detach-touch-file.c?ref=df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78",
+      "patch": "@@ -0,0 +1,26 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2021 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#include <stdio.h>\n+\n+int\n+main (void)\n+{\n+  FILE *f = fopen (TOUCH_FILE_PATH, \"w\");\n+  fclose (f);\n+  return 0;\n+}"
+    },
+    {
+      "sha": "ecfed98fdfda42c425f46fd336ab51af44c3e180",
+      "filename": "gdb/testsuite/gdb.threads/pending-fork-event-detach.c",
+      "status": "renamed",
+      "additions": 7,
+      "deletions": 3,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdb/testsuite/gdb.threads/pending-fork-event-detach.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdb/testsuite/gdb.threads/pending-fork-event-detach.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/pending-fork-event-detach.c?ref=df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78",
+      "patch": "@@ -32,18 +32,22 @@ break_here (void)\n static void\n do_fork (void)\n {\n-  pthread_barrier_wait (&barrier);\n-\n   while (!release_forking_thread);\n \n   if (FORK_FUNCTION () == 0)\n-    _exit (0);\n+    {\n+      /* We create the file in a separate program that we exec: if FORK_FUNCTION\n+\t is vfork, we shouldn't do anything more than an exec.  */\n+      execl (TOUCH_FILE_BIN, TOUCH_FILE_BIN, NULL);\n+    }\n \n }\n \n static void *\n thread_func (void *p)\n {\n+  pthread_barrier_wait (&barrier);\n+\n #if defined(MAIN_THREAD_FORKS)\n   break_here ();\n #elif defined(OTHER_THREAD_FORKS)",
+      "previous_filename": "gdb/testsuite/gdb.threads/pending-fork-event.c"
+    },
+    {
+      "sha": "433660a07ae38aa8fd1b56c5474fb285fde5bb1b",
+      "filename": "gdb/testsuite/gdb.threads/pending-fork-event-detach.exp",
+      "status": "added",
+      "additions": 139,
+      "deletions": 0,
+      "changes": 139,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdb/testsuite/gdb.threads/pending-fork-event-detach.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdb/testsuite/gdb.threads/pending-fork-event-detach.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/pending-fork-event-detach.exp?ref=df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78",
+      "patch": "@@ -0,0 +1,139 @@\n+# Copyright (C) 2021 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Then, test that if we detach an inferior with a pending fork child, that\n+# child is correctly detached and resumes execution normally.  There are two\n+# kinds of \"pending fork child\" we test:\n+#\n+#   - resulting of a fork catchpoint: we stop at a fork catchpoint and detach.\n+#   - resulting of an all-stop stop on top of a non-stop target, where a fork\n+#     event is saved as a pending wait status.  To test this, we stepi a thread\n+#     while another one forks.  The stepi generally completes at least as fast\n+#     as the fork, so we have a chance that the stop due to the stepi being\n+#     complete is shown to the user while the fork event is saved for later.\n+#\n+# To verify that the child process is detached and resumes execution, we have\n+# it write a file on the filesystem.  If we don't see the file after a certain\n+# delay, it means the child was likely not detached, and the test fails.\n+#\n+# At the same time, this tests that having this pending fork event does not\n+# cause other problems in general.  For example, a buggy GDB / GDBserver combo\n+# would notice the thread of the child process of the (still unprocessed) fork\n+# event, and erroneously create a new inferior for it.  Once fixed, the child\n+# process' thread is hidden by whoever holds the pending fork event.\n+\n+standard_testfile .c -touch-file.c\n+\n+set touch_file_bin $binfile-touch-file\n+\n+if { [is_remote target] } {\n+    # If the target is remote, write the file in whatever the current working\n+    # directory is, with a somewhat unique name.\n+    set touch_file_path ${testfile}-flag\n+} else {\n+    set touch_file_path [standard_output_file flag]\n+}\n+\n+set opts [list debug \"additional_flags=-DTOUCH_FILE_PATH=\\\"$touch_file_path\\\"\"]\n+if { [gdb_compile \"$srcdir/$subdir/$srcfile2\" $touch_file_bin executable $opts] != \"\" } {\n+    return\n+}\n+\n+proc do_test { target-non-stop who_forks fork_function stop_mode } {\n+    set opts [list \\\n+\tdebug \\\n+\t\"additional_flags=-DFORK_FUNCTION=$fork_function\" \\\n+\t\"additional_flags=-DTOUCH_FILE_BIN=\\\"$::touch_file_bin\\\"\"]\n+\n+    # WHO_FORKS says which of the main or other thread calls (v)fork.  The\n+    # thread that does not call (v)fork is the one who tries to step.\n+    if { $who_forks == \"main\" } {\n+\tlappend opts \"additional_flags=-DMAIN_THREAD_FORKS\"\n+\tset this_binfile ${::binfile}-main-${fork_function}\n+    } elseif { $who_forks == \"other\" } {\n+\tlappend opts \"additional_flags=-DOTHER_THREAD_FORKS\"\n+\tset this_binfile ${::binfile}-other-${fork_function}\n+    } else {\n+\terror \"invalid who_forks value: $who_forks\"\n+    }\n+\n+    if { [gdb_compile_pthreads \"$::srcdir/$::subdir/$::srcfile\" $this_binfile executable $opts] != \"\" } {\n+\treturn\n+    }\n+\n+    remote_file target delete $::touch_file_path\n+    gdb_assert { ![remote_file target exists $::touch_file_path] } \"file does not exist before test\"\n+\n+    save_vars { ::GDBFLAGS } {\n+\tappend ::GDBFLAGS \" -ex \\\"maintenance set target-non-stop ${target-non-stop}\\\"\"\n+\tclean_restart $this_binfile\n+    }\n+\n+    if {![runto_main]} {\n+\tfail \"could not run to main\"\n+\treturn\n+    }\n+\n+    # Run until breakpoint in the second thread.\n+    gdb_test \"break break_here\" \"Breakpoint $::decimal.*\"\n+    gdb_continue_to_breakpoint \"thread started\"\n+\n+    # Delete the breakpoint so the thread doesn't do a step-over.\n+    delete_breakpoints\n+\n+    # Let the forking thread make progress during the step.\n+    gdb_test \"p release_forking_thread = 1\" \" = 1\"\n+\n+    # There are two \"pending fork child\" modes we can test here:\n+    #\n+    #   - catch: set up a \"catch fork\" / \"catch vfork\" and run to it.\n+    #   - stepi: stepi the non-forking thread while the forking thread,\n+    #     well, forks.\n+    if { $stop_mode == \"catch\" } {\n+\tgdb_test \"catch fork\"\n+\tgdb_test \"catch vfork\"\n+\tgdb_test \"continue\" \"hit Catchpoint $::decimal.*fork.*\"\n+    } elseif { $stop_mode == \"stepi\" } {\n+\t# stepi the non-forking thread.\n+\tgdb_test \"stepi\"\n+    } else {\n+\terror \"invalid stop_mode value: $stop_mode\"\n+    }\n+\n+    # Make sure there's still a single inferior.\n+    gdb_test \"info inferior\" {\\* 1 [^\\r\\n]+}\n+\n+    gdb_test \"detach\"\n+\n+    # After being detached, the fork child creates file ::TOUCH_FILE_PATH.\n+    # Seeing this file tells us the fork child was detached and executed\n+    # successfully.\n+    gdb_assert { [target_file_exists_with_timeout $::touch_file_path] } \"file exists after detach\"\n+\n+    # Don't leave random files on the target system.\n+    if { [is_remote target] } {\n+\tremote_file target delete $::touch_file_path\n+    }\n+}\n+\n+foreach_with_prefix target-non-stop { auto on off } {\n+    foreach_with_prefix who_forks { main other } {\n+\tforeach_with_prefix fork_function { fork vfork } {\n+\t    foreach_with_prefix stop_mode { stepi catch } {\n+\t\tdo_test ${target-non-stop} $who_forks $fork_function $stop_mode\n+\t    }\n+\t}\n+    }\n+}"
+    },
+    {
+      "sha": "51af07f56bdd20e130d0cd193eb09978b563c36c",
+      "filename": "gdb/testsuite/gdb.threads/pending-fork-event.exp",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 79,
+      "changes": 79,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/577d2167bbed078e99fe8b704f936be8ac7cf83d/gdb/testsuite/gdb.threads/pending-fork-event.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/577d2167bbed078e99fe8b704f936be8ac7cf83d/gdb/testsuite/gdb.threads/pending-fork-event.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/pending-fork-event.exp?ref=577d2167bbed078e99fe8b704f936be8ac7cf83d",
+      "patch": "@@ -1,79 +0,0 @@\n-# Copyright (C) 2021 Free Software Foundation, Inc.\n-\n-# This program is free software; you can redistribute it and/or modify\n-# it under the terms of the GNU General Public License as published by\n-# the Free Software Foundation; either version 3 of the License, or\n-# (at your option) any later version.\n-#\n-# This program is distributed in the hope that it will be useful,\n-# but WITHOUT ANY WARRANTY; without even the implied warranty of\n-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n-# GNU General Public License for more details.\n-#\n-# You should have received a copy of the GNU General Public License\n-# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n-\n-# Test that we handle well, in all-stop, a fork happening in a thread B while\n-# doing a step-like command in a thread A.\n-#\n-# A buggy GDB / GDBserver combo would notice the thread of the child process\n-# of the (still unprocessed) fork event, and erroneously create a new inferior\n-# for it.  Once fixed, the child process' thread is hidden by whoever holds the\n-# pending fork event.\n-\n-standard_testfile\n-\n-proc do_test { target-non-stop who_forks fork_function } {\n-\n-    set opts [list debug \"additional_flags=-DFORK_FUNCTION=$fork_function\"]\n-\n-    # WHO_FORKS says which of the main or other thread calls (v)fork.  The\n-    # thread that does not call (v)fork is the one who tries to step.\n-    if { $who_forks == \"main\" } {\n-\tlappend opts \"additional_flags=-DMAIN_THREAD_FORKS\"\n-\tset this_binfile ${::binfile}-main-${fork_function}\n-    } elseif { $who_forks == \"other\" } {\n-\tlappend opts \"additional_flags=-DOTHER_THREAD_FORKS\"\n-\tset this_binfile ${::binfile}-other-${fork_function}\n-    } else {\n-\terror \"invalid who_forks value: $who_forks\"\n-    }\n-\n-    if { [gdb_compile_pthreads \"$::srcdir/$::subdir/$::srcfile\" $this_binfile executable $opts] != \"\" } {\n-\treturn\n-    }\n-\n-    save_vars { ::GDBFLAGS } {\n-\tappend ::GDBFLAGS \" -ex \\\"maintenance set target-non-stop ${target-non-stop}\\\"\"\n-\tclean_restart $this_binfile\n-    }\n-\n-    if {![runto_main]} {\n-\tfail \"could not run to main\"\n-\treturn\n-    }\n-\n-    # Run until breakpoint in the second thread.\n-    gdb_test \"break break_here\" \"Breakpoint $::decimal.*\"\n-    gdb_continue_to_breakpoint \"thread started\"\n-\n-    # Delete the breakpoint so the thread doesn't do a step-over.\n-    delete_breakpoints\n-\n-    # Let the forking thread make progress during the step.\n-    gdb_test \"p release_forking_thread = 1\" \" = 1\"\n-\n-    # stepi the non-forking thread.\n-    gdb_test \"stepi\"\n-\n-    # Make sure there's still a single inferior.\n-    gdb_test \"info inferior\" {\\* 1 [^\\r\\n]+}\n-}\n-\n-foreach_with_prefix target-non-stop { auto on off } {\n-    foreach_with_prefix who_forks { main other } {\n-\tforeach_with_prefix fork_function { fork vfork } {\n-\t    do_test ${target-non-stop} $who_forks $fork_function\n-\t}\n-    }\n-}"
+    },
+    {
+      "sha": "8b7445b758190909805b3b63a342ba29f3b47ba1",
+      "filename": "gdb/testsuite/lib/gdb.exp",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdb/testsuite/lib/gdb.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdb/testsuite/lib/gdb.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/gdb.exp?ref=df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78",
+      "patch": "@@ -8317,5 +8317,20 @@ proc require { fn arg1 {arg2 \"\"} } {\n     return -code return 0\n }\n \n+# Wait up to ::TIMEOUT seconds for file PATH to exist on the target system.\n+# Return 1 if it does exist, 0 otherwise.\n+\n+proc target_file_exists_with_timeout { path } {\n+    for {set i 0} {$i < $::timeout} {incr i} {\n+\tif { [remote_file target exists $path] } {\n+\t    return 1\n+\t}\n+\n+\tsleep 1\n+    }\n+\n+    return 0\n+}\n+\n # Always load compatibility stuff.\n load_lib future.exp"
+    },
+    {
+      "sha": "87888044c1f8e48a9dd06ff92860d69f48b54a90",
+      "filename": "gdbserver/linux-low.cc",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdbserver/linux-low.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdbserver/linux-low.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-low.cc?ref=df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78",
+      "patch": "@@ -7130,6 +7130,17 @@ linux_process_target::thread_pending_parent (thread_info *thread)\n   return get_lwp_thread (parent);\n }\n \n+thread_info *\n+linux_process_target::thread_pending_child (thread_info *thread)\n+{\n+  lwp_info *child = get_thread_lwp (thread)->pending_child ();\n+\n+  if (child == nullptr)\n+    return nullptr;\n+\n+  return get_lwp_thread (child);\n+}\n+\n /* Default implementation of linux_target_ops method \"set_pc\" for\n    32-bit pc register which is literally named \"pc\".  */\n "
+    },
+    {
+      "sha": "b563537216a6b2cee00c6a2855bc462ff5fa8839",
+      "filename": "gdbserver/linux-low.h",
+      "status": "modified",
+      "additions": 27,
+      "deletions": 0,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdbserver/linux-low.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdbserver/linux-low.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/linux-low.h?ref=df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78",
+      "patch": "@@ -312,6 +312,7 @@ class linux_process_target : public process_stratum_target\n #endif\n \n   thread_info *thread_pending_parent (thread_info *thread) override;\n+  thread_info *thread_pending_child (thread_info *thread) override;\n \n   bool supports_catch_syscall () override;\n \n@@ -750,6 +751,32 @@ struct lwp_info\n     return this->fork_relative;\n   }\n \n+  /* If this LWP is the parent of a fork child we haven't reported to GDB yet,\n+     return that child, else nullptr.  */\n+  lwp_info *pending_child () const\n+  {\n+    if (this->fork_relative == nullptr)\n+      return nullptr;\n+\n+    gdb_assert (this->fork_relative->fork_relative == this);\n+\n+    /* In a fork parent/child relationship, the parent has a status pending and\n+       the child does not, and a thread can only be in one such relationship\n+       at most.  So we can recognize who is the parent based on which one has\n+       a pending status.  */\n+    gdb_assert (!!this->status_pending_p\n+\t\t!= !!this->fork_relative->status_pending_p);\n+\n+    if (!this->status_pending_p)\n+      return nullptr;\n+\n+    const target_waitstatus &ws = this->waitstatus;\n+    gdb_assert (ws.kind () == TARGET_WAITKIND_FORKED\n+\t\t|| ws.kind () == TARGET_WAITKIND_VFORKED);\n+\n+    return this->fork_relative;\n+  }\n+\n   /* Backlink to the parent object.  */\n   struct thread_info *thread = nullptr;\n "
+    },
+    {
+      "sha": "27e2aba01214727631eb29a0dbe1b3434f4f1f3d",
+      "filename": "gdbserver/server.cc",
+      "status": "modified",
+      "additions": 29,
+      "deletions": 0,
+      "changes": 29,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdbserver/server.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdbserver/server.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/server.cc?ref=df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78",
+      "patch": "@@ -1250,6 +1250,35 @@ handle_detach (char *own_buf)\n   /* We'll need this after PROCESS has been destroyed.  */\n   int pid = process->pid;\n \n+  /* If this process has an unreported fork child, that child is not known to\n+     GDB, so GDB won't take care of detaching it.  We must do it here.\n+\n+     Here, we specifically don't want to use \"safe iteration\", as detaching\n+     another process might delete the next thread in the iteration, which is\n+     the one saved by the safe iterator.  We will never delete the currently\n+     iterated on thread, so standard iteration should be safe.  */\n+  for (thread_info *thread : all_threads)\n+    {\n+      /* Only threads that are of the process we are detaching.  */\n+      if (thread->id.pid () != pid)\n+\tcontinue;\n+\n+      /* Only threads that have a pending fork event.  */\n+      thread_info *child = target_thread_pending_child (thread);\n+      if (child == nullptr)\n+\tcontinue;\n+\n+      process_info *fork_child_process = get_thread_process (child);\n+      gdb_assert (fork_child_process != nullptr);\n+\n+      int fork_child_pid = fork_child_process->pid;\n+\n+      if (detach_inferior (fork_child_process) != 0)\n+\twarning (_(\"Failed to detach fork child %s, child of %s\"),\n+\t\t target_pid_to_str (ptid_t (fork_child_pid)).c_str (),\n+\t\t target_pid_to_str (thread->id).c_str ());\n+    }\n+\n   if (detach_inferior (process) != 0)\n     write_enn (own_buf);\n   else"
+    },
+    {
+      "sha": "aa3d42462f5207440233f69449ce8c29bbd09325",
+      "filename": "gdbserver/target.cc",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdbserver/target.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdbserver/target.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/target.cc?ref=df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78",
+      "patch": "@@ -841,6 +841,12 @@ process_stratum_target::thread_pending_parent (thread_info *thread)\n   return nullptr;\n }\n \n+thread_info *\n+process_stratum_target::thread_pending_child (thread_info *thread)\n+{\n+  return nullptr;\n+}\n+\n bool\n process_stratum_target::supports_software_single_step ()\n {"
+    },
+    {
+      "sha": "331a21aa57a33ee1ebc6a5011ecff68855158660",
+      "filename": "gdbserver/target.h",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdbserver/target.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78/gdbserver/target.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/target.h?ref=df5ad102009c41ab4dfadbb8cfb8c8b2a02a4f78",
+      "patch": "@@ -492,6 +492,10 @@ class process_stratum_target\n      else nullptr.  */\n   virtual thread_info *thread_pending_parent (thread_info *thread);\n \n+  /* If THREAD is the parent of a fork child that was not reported to GDB,\n+     return this child, else nullptr.  */\n+  virtual thread_info *thread_pending_child (thread_info *thread);\n+\n   /* Returns true if the target can software single step.  */\n   virtual bool supports_software_single_step ();\n \n@@ -708,6 +712,12 @@ target_thread_pending_parent (thread_info *thread)\n   return the_target->thread_pending_parent (thread);\n }\n \n+static inline thread_info *\n+target_thread_pending_child (thread_info *thread)\n+{\n+  return the_target->thread_pending_child (thread);\n+}\n+\n int read_inferior_memory (CORE_ADDR memaddr, unsigned char *myaddr, int len);\n \n int set_desired_thread ();"
+    }
+  ]
+}

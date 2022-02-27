@@ -1,0 +1,98 @@
+{
+  "sha": "8d2ef06e1c220bcfb133a47b98b6287ccabdb587",
+  "node_id": "C_kwDOANOeidoAKDhkMmVmMDZlMWMyMjBiY2ZiMTMzYTQ3Yjk4YjYyODdjY2FiZGI1ODc",
+  "commit": {
+    "author": {
+      "name": "Nils-Christian Kempke",
+      "email": "nils-christian.kempke@intel.com",
+      "date": "2022-01-17T11:30:05Z"
+    },
+    "committer": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2022-01-31T17:14:47Z"
+    },
+    "message": "gdb, testsuite, fortran: adapt info symbol expected output for intel compilers\n\nInfo symbol is expected to print the symbol table name of a symbol, since\nsymbol lookup happens via the minimal symbol table.  This name\ncorresponds to the linkage name in the full symbol table.\n\nFor gfortran (and maybe others) these names currently have the form\nXXXX.NUMBER where XXXX is the symbol name and NUMBER a compiler\ngenerated appendix for mangling.\nAn example taken from the modified nested-funcs-2.exp would be\n\n~~~~\n$ objdump -t ./outputs/gdb.fortran/nested-funcs-2/nested-funcs-2 | grep \\\nincrement\n00000000000014ab l  F .text  0000000000000095  increment.3883\n000000000000141c l  F .text  000000000000008f  increment_program_global.3881\n~~~~\n\nThis mangled name gets recognized by the Ada demangler/decoder and decoded as\nAda to XXXX (setting the symbol language to Ada).  This leads to output\nof XXXX over XXXX.NUMBER for info symbol on gfortran symbols.\n\nFor ifort and ifx the generated linkage names have the form\nSCOPEA_SCOPEB_XXXX_ which are not recognized by the Ada decoder (or any\nother demangler for that matter) and thus printed as is.\nThe respective objdump in the above case looks like\n\n~~~~\n$ objdump -t ./outputs/gdb.fortran/nested-funcs-2/nested-funcs-2 | grep \\\nincrement\n0000000000403a44 l  F .text  0000000000000074  contains_keyword_IP_increment_\n0000000000403ab8 l  F .text  0000000000000070\ncontains_keyword_IP_increment_program_global_\n~~~~\n\nIn the unmodified testcase this results in 'fails' when ran with the intel\ncompilers:\n\n~~~~\n>> make check RUNTESTFLAGS=\"gdb.fortran/nested-funcs-2.exp \\\nGDBFLAGS='$GDBFLAGS' CC_FOR_TARGET='icpc' F90_FOR_TARGET='ifort'\"\n\n...\n\n                === gdb Summary ===\n\n\\# of expected passes            80\n\\# of unexpected failures        14\n~~~~\n\nNote that there is no Fortran mangling standard.  We keep the gfortran\nbehavior as is and modify the test to reflect ifx and ifort mangled\nnames which fixes above fails.\n\nSigned-off-by: Nils-Christian Kempke <nils-christian.kempke@intel.com>",
+    "tree": {
+      "sha": "e139d8d991ca2116f81877a14edd267d68d34267",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/e139d8d991ca2116f81877a14edd267d68d34267"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/8d2ef06e1c220bcfb133a47b98b6287ccabdb587",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8d2ef06e1c220bcfb133a47b98b6287ccabdb587",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/8d2ef06e1c220bcfb133a47b98b6287ccabdb587",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8d2ef06e1c220bcfb133a47b98b6287ccabdb587/comments",
+  "author": {
+    "login": "NCKempke",
+    "id": 24648109,
+    "node_id": "MDQ6VXNlcjI0NjQ4MTA5",
+    "avatar_url": "https://avatars.githubusercontent.com/u/24648109?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/NCKempke",
+    "html_url": "https://github.com/NCKempke",
+    "followers_url": "https://api.github.com/users/NCKempke/followers",
+    "following_url": "https://api.github.com/users/NCKempke/following{/other_user}",
+    "gists_url": "https://api.github.com/users/NCKempke/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/NCKempke/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/NCKempke/subscriptions",
+    "organizations_url": "https://api.github.com/users/NCKempke/orgs",
+    "repos_url": "https://api.github.com/users/NCKempke/repos",
+    "events_url": "https://api.github.com/users/NCKempke/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/NCKempke/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "f10f8617a302f45dae721eae0cd659911f03d864",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f10f8617a302f45dae721eae0cd659911f03d864",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/f10f8617a302f45dae721eae0cd659911f03d864"
+    }
+  ],
+  "stats": {
+    "total": 29,
+    "additions": 27,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "6009cb65c53abd0016dddfb7a914edd07ac32dd3",
+      "filename": "gdb/testsuite/gdb.fortran/nested-funcs-2.exp",
+      "status": "modified",
+      "additions": 27,
+      "deletions": 2,
+      "changes": 29,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8d2ef06e1c220bcfb133a47b98b6287ccabdb587/gdb/testsuite/gdb.fortran/nested-funcs-2.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8d2ef06e1c220bcfb133a47b98b6287ccabdb587/gdb/testsuite/gdb.fortran/nested-funcs-2.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.fortran/nested-funcs-2.exp?ref=8d2ef06e1c220bcfb133a47b98b6287ccabdb587",
+      "patch": "@@ -50,6 +50,31 @@ proc do_bp_tests {with_src_prefix_p with_nest_prefix_p} {\n \tset nest_prefix \"\"\n     }\n \n+    # Normally, info symbol prints the symbol table name for any fortran\n+    # symbols (since symbol lookup happens via the minimal symbol\n+    # table).  This would correspond to the linkage name in the full symbol\n+    # table.\n+    # For gfortran (and maybe others) these names currently have the form\n+    # XXXX.NUMBER where XXXX is the symbol name and NUMBER a compiler generated\n+    # appendix for mangling.  This mangled name gets recognized by the Ada\n+    # demangler/decoder and decoded as Ada (setting the symbol language to Ada)\n+    # to XXXX.  This leads to the somewhat unexpected output of XXXX over\n+    # XXXX.NUMBER for info symbol.\n+    # For ifort and ifx the generated linkage names have the form\n+    # SCOPEA_SCOPEB_XXXX_ which is not recognized by the Ada demangler and thus\n+    # printed as is.\n+    # Note that there is no Fortran mangling standard.  We keep the\n+    # gfortran behavior as is and extend the test to reflect ifx and ifort\n+    # mangling.\n+    proc get_linkage_name_pattern {symbol_name} {\n+\n+\tif { [test_compiler_info icc*] || [test_compiler_info intel*]} {\n+\t    return \"\\(?:.*_\\)?${symbol_name}_?\"\n+\t} else {\n+\t    return ${symbol_name}\n+\t}\n+    }\n+\n     # Test setting up breakpoints and otherwise examining nested\n     # functions before the program starts.\n     with_test_prefix \"before start\" {\n@@ -68,7 +93,7 @@ proc do_bp_tests {with_src_prefix_p with_nest_prefix_p} {\n \t\t     # is a failure, just a limitation in current GDB.\n \t\t     if { ${with_nest_prefix_p} } {\n \t\t\t gdb_test \"info symbol ${nest_prefix}${function}\" \\\n-\t\t\t     \"${function} in section .*\"\n+\t\t\t     \"[get_linkage_name_pattern ${function}] in section .*\"\n \t\t\t gdb_test \"whatis ${nest_prefix}${function}\" \\\n \t\t\t     \"type = ${type}\"\n \t\t\t gdb_test \"ptype ${nest_prefix}${function}\" \\\n@@ -134,7 +159,7 @@ proc do_bp_tests {with_src_prefix_p with_nest_prefix_p} {\n \t\t set type [lindex $entry 1]\n \t\t with_test_prefix $function {\n \t\t     gdb_test \"info symbol ${nest_prefix}$function\" \\\n-\t\t\t \"$function in section .*\"\n+\t\t\t \"[get_linkage_name_pattern $function] in section .*\"\n \t\t     gdb_test \"whatis ${nest_prefix}$function\" \\\n \t\t\t \"type = ${type}\"\n \t\t     gdb_test \"ptype ${nest_prefix}$function\" \\"
+    }
+  ]
+}

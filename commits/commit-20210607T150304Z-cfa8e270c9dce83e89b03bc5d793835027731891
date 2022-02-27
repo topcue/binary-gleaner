@@ -1,0 +1,110 @@
+{
+  "sha": "cfa8e270c9dce83e89b03bc5d793835027731891",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6Y2ZhOGUyNzBjOWRjZTgzZTg5YjAzYmM1ZDc5MzgzNTAyNzczMTg5MQ==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-06-07T15:03:04Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-06-07T15:03:04Z"
+    },
+    "message": "gdb: set only inferior_ptid in sparc_{fetch,store}_inferior_registers\n\nThe past commit d1e93af64a6b (\"gdb: set current thread in\nsparc_{fetch,collect}_inferior_registers (PR gdb/27147)\") changed\nsparc_fetch_inferior_registers and sparc_store_inferior_registers to\nlook up the thread corresponding to the regcache's ptid and make it the\ncurrent thread.  The reason being that down the call chain, some\nfunctions (like sparc_supply_rwindow) can do some memory reads or write,\nthrough target_read_memory/target_write_memory, and those rely on the\ncurrent global context.\n\nThere is one small problem with this approach: when debugging a\nmulti-threaded program, the regcache for a new thread is created just\nbefore the corresponding thread_info is created.  In fact, the regcache\nis created somewhere during the call to thread_from_lwp, which is\nresponsible for creating the thread_info:\n\n    #8  0x0000010000ab9968 in internal_error (file=0x10000bfca20 \"/home/simark/src/binutils-gdb/gdb/thread.c\", line=1346, fmt=0x10000bfc918 \"%s: Assertion `%s' failed.\") at /home/simark/src/binutils-gdb/gdbsupport/errors.cc:55\n    #9  0x0000010000827f3c in switch_to_thread (thr=0x0) at /home/simark/src/binutils-gdb/gdb/thread.c:1346\n    #10 0x0000010000753444 in sparc_fetch_inferior_registers (proc_target=0x10000fa8cb0 <the_sparc64_linux_nat_target>, regcache=0x10000ff03c0, regnum=-1) at /home/simark/src/binutils-gdb/gdb/sparc-nat.c:175\n    #11 0x000001000075b908 in sparc64_linux_nat_target::fetch_registers (this=0x10000fa8cb0 <the_sparc64_linux_nat_target>, regcache=0x10000ff03c0, regnum=-1) at /home/simark/src/binutils-gdb/gdb/sparc64-linux-nat.c:38\n    #12 0x00000100007fe6f4 in target_ops::fetch_registers (this=0x10000f7feb0 <the_thread_db_target>, arg0=0x10000ff03c0, arg1=-1) at /home/simark/src/binutils-gdb/gdb/target-delegates.c:496\n    #13 0x00000100008162a0 in target_fetch_registers (regcache=0x10000ff03c0, regno=-1) at /home/simark/src/binutils-gdb/gdb/target.c:3287\n    #14 0x000001000060a4bc in ps_lgetregs (ph=0x10001264368, lwpid=458727, gregset=0x7feff97d388) at /home/simark/src/binutils-gdb/gdb/proc-service.c:158\n    #15 0xffff800103e32420 in __td_ta_lookup_th_unique (ta_arg=0x100012d7080, lwpid=<optimized out>, th=0x7feff97d7c8) at td_ta_map_lwp2thr.c:119\n    #16 0xffff800103e32604 in td_ta_map_lwp2thr (ta_arg=0x100012d7080, lwpid=<optimized out>, th=0x7feff97d7c8) at td_ta_map_lwp2thr.c:207\n    #17 0x000001000051fee8 in thread_from_lwp (stopped=0x100011a3650, ptid=...) at /home/simark/src/binutils-gdb/gdb/linux-thread-db.c:415\n    #18 0x0000010000520150 in thread_db_notice_clone (parent=..., child=...) at /home/simark/src/binutils-gdb/gdb/linux-thread-db.c:446\n    #19 0x00000100005068a8 in linux_handle_extended_wait (lp=0x10001230700, status=4479) at /home/simark/src/binutils-gdb/gdb/linux-nat.c:1978\n    #20 0x000001000050a278 in linux_nat_filter_event (lwpid=458724, status=198015) at /home/simark/src/binutils-gdb/gdb/linux-nat.c:2913\n    #21 0x000001000050b818 in linux_nat_wait_1 (ptid=..., ourstatus=0x7feff97e8d0, target_options=...) at /home/simark/src/binutils-gdb/gdb/linux-nat.c:3194\n    #22 0x000001000050ca4c in linux_nat_target::wait (this=0x10000fa8cb0 <the_sparc64_linux_nat_target>, ptid=..., ourstatus=0x7feff97e8d0, target_options=...) at /home/simark/src/binutils-gdb/gdb/linux-nat.c:3432\n    #23 0x00000100005237ec in thread_db_target::wait (this=0x10000f7feb0 <the_thread_db_target>, ptid=..., ourstatus=0x7feff97e8d0, options=...) at /home/simark/src/binutils-gdb/gdb/linux-thread-db.c:1379\n    #24 0x00000100007fa668 in target_wait (ptid=..., status=0x7feff97e8d0, options=...) at /home/simark/src/binutils-gdb/gdb/target.c:2000\n    #25 0x00000100004adb0c in do_target_wait_1 (inf=0x10001173170, ptid=..., status=0x7feff97e8d0, options=...) at /home/simark/src/binutils-gdb/gdb/infrun.c:3464\n    #26 0x00000100004add48 in operator() (__closure=0x7feff97e658, inf=0x10001173170) at /home/simark/src/binutils-gdb/gdb/infrun.c:3527\n    #27 0x00000100004ae15c in do_target_wait (wait_ptid=..., ecs=0x7feff97e8a8, options=...) at /home/simark/src/binutils-gdb/gdb/infrun.c:3540\n    #28 0x00000100004af254 in fetch_inferior_event () at /home/simark/src/binutils-gdb/gdb/infrun.c:3880\n    #29 0x0000010000486ef8 in inferior_event_handler (event_type=INF_REG_EVENT) at /home/simark/src/binutils-gdb/gdb/inf-loop.c:42\n\nThe problem is that while sparc_fetch_inferior_registers runs and is\nasked to read the registers of a given ptid, there isn't a thread_info\nwith that ptid yet.  So, find_thread_ptid returns nullptr, and\nswitch_to_thread gives an internal error.\n\nFix this by only setting inferior_ptid, instead of the whole global\ncontext, as switch_to_thread does.  This is sufficient for\ntarget_read_memory / target_write_memory to work down the line.\n\nIdeally, it would be nice to be able to pass the ptid down the whole\ncall chain and to target_read_memory / target_write_memory, so that this\nsetting of inferior_ptid would not be necessary.  But this is not going\nto happen soon.\n\nThis fixes running a multi-threaded program, which would hit the\ninternal error show in the call stack above.\n\ngdb/ChangeLog:\n\n\tPR gdb/27899\n\t* sparc-nat.c (sparc_fetch_inferior_registers): Set\n\tinferior_ptid instead of using switch_to_thread.\n\t(sparc_store_inferior_registers): Likewise.\n\nChange-Id: I0b6ddb3af9b11f67b10ee46a734fb82ecc6462d5",
+    "tree": {
+      "sha": "9ef7379b961797c5ee9986a7ddf4c5d342f34015",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/9ef7379b961797c5ee9986a7ddf4c5d342f34015"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/cfa8e270c9dce83e89b03bc5d793835027731891",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cfa8e270c9dce83e89b03bc5d793835027731891",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/cfa8e270c9dce83e89b03bc5d793835027731891",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cfa8e270c9dce83e89b03bc5d793835027731891/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "b0e2f96b56b5bbddcd60ca87a0517a460d03dfb4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b0e2f96b56b5bbddcd60ca87a0517a460d03dfb4",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b0e2f96b56b5bbddcd60ca87a0517a460d03dfb4"
+    }
+  ],
+  "stats": {
+    "total": 17,
+    "additions": 11,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "32108023aa276f4755860aaa85a7a19fecc65970",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cfa8e270c9dce83e89b03bc5d793835027731891/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cfa8e270c9dce83e89b03bc5d793835027731891/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=cfa8e270c9dce83e89b03bc5d793835027731891",
+      "patch": "@@ -1,3 +1,10 @@\n+2021-06-07  Simon Marchi  <simon.marchi@polymtl.ca>\n+\n+\tPR gdb/27899\n+\t* sparc-nat.c (sparc_fetch_inferior_registers): Set\n+\tinferior_ptid instead of using switch_to_thread.\n+\t(sparc_store_inferior_registers): Likewise.\n+\n 2021-06-05  Bernd Edlinger  <bernd.edlinger@hotmail.de>\n \n \t* compile/compile.c (scoped_ignore_sigpipe): New helper class."
+    },
+    {
+      "sha": "7f09a60420db28626c051ee583923514a24d6079",
+      "filename": "gdb/sparc-nat.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 6,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/cfa8e270c9dce83e89b03bc5d793835027731891/gdb/sparc-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/cfa8e270c9dce83e89b03bc5d793835027731891/gdb/sparc-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/sparc-nat.c?ref=cfa8e270c9dce83e89b03bc5d793835027731891",
+      "patch": "@@ -170,9 +170,8 @@ sparc_fetch_inferior_registers (process_stratum_target *proc_target,\n \n       /* Deep down, sparc_supply_rwindow reads memory, so needs the global\n \t thread context to be set.  */\n-      thread_info *thread = find_thread_ptid (proc_target, ptid);\n-      scoped_restore_current_thread restore_thread;\n-      switch_to_thread (thread);\n+      scoped_restore restore_inferior_ptid\n+\t= make_scoped_restore (&inferior_ptid, ptid);\n \n       sparc_supply_gregset (sparc_gregmap, regcache, -1, &regs);\n       if (regnum != -1)\n@@ -219,9 +218,8 @@ sparc_store_inferior_registers (process_stratum_target *proc_target,\n \n \t  /* Deep down, sparc_collect_rwindow writes memory, so needs the global\n \t     thread context to be set.  */\n-\t  thread_info *thread = find_thread_ptid (proc_target, ptid);\n-\t  scoped_restore_current_thread restore_thread;\n-\t  switch_to_thread (thread);\n+\t  scoped_restore restore_inferior_ptid\n+\t    = make_scoped_restore (&inferior_ptid, ptid);\n \n \t  sparc_collect_rwindow (regcache, sp, regnum);\n \t}"
+    }
+  ]
+}

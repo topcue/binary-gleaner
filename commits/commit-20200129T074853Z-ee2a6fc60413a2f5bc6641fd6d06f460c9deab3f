@@ -1,0 +1,158 @@
+{
+  "sha": "ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZWUyYTZmYzYwNDEzYTJmNWJjNjY0MWZkNmQwNmY0NjBjOWRlYWIzZg==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-01-29T07:48:53Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-01-29T07:48:53Z"
+    },
+    "message": "[gdb/testsuite] Fix gdb.threads/watchpoint-fork.exp race\n\nI ran into:\n...\nThread 3.1 \"watchpoint-fork\" hit Breakpoint 3, marker () at \\\n  watchpoint-fork-mt.c:42^M\n42      }^M\n(gdb) parent2: 1945^M\n\nFAIL: gdb.threads/watchpoint-fork.exp: child: multithreaded: breakpoint (A) \\\n  after the second fork (timeout)\n...\nThe problem is that the FAILing gdb_test expects '(gdb) ' to be the last thing\nprinted, but the inferior prints something after that.\n\nA similar FAIL is described in the sources in watchpoint-fork-parent.c:\n...\n      printf (\"child%d: %d\\n\", nr, (int) getpid ());\n      /* Delay to get both the \"child%d\" and \"parent%d\" message printed\n      \t without a race breaking expect by its endless wait on `$gdb_prompt$':\n         Breakpoint 3, marker () at watchpoint-fork.c:33\n         33      }\n         (gdb) parent2: 14223  */\n      i = sleep (1);\n...\n\nI noticed that while the executables print output, the output is not verified in\nthe test-case, so it's merely debug output.\n\nFix this by:\n- guarding the prints in the executables (as well as related\n  sleep and setbuf calls) with #if DEBUG, and\n- compiling by default with DEBUG=0.\n\ngdb/testsuite/ChangeLog:\n\n2020-01-29  Tom de Vries  <tdevries@suse.de>\n\n\t* gdb.threads/watchpoint-fork-child.c: Guard prints with #if DEBUG.\n\t* gdb.threads/watchpoint-fork-mt.c: Same.\n\t* gdb.threads/watchpoint-fork-parent.c: Same.\n\t* gdb.threads/watchpoint-fork-st.c: Same.\n\t* gdb.threads/watchpoint-fork.exp: Compile with DEBUG=0.\n\nChange-Id: I63efd4c7771f96b5f5cd87ef2ab36795484ae2be",
+    "tree": {
+      "sha": "ca8d7682a7efb1eff01d29fcf95b5f038df6a4d0",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/ca8d7682a7efb1eff01d29fcf95b5f038df6a4d0"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "ef8f08ca13f6c111cc549a3e13be5c5e2d95ca82",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ef8f08ca13f6c111cc549a3e13be5c5e2d95ca82",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/ef8f08ca13f6c111cc549a3e13be5c5e2d95ca82"
+    }
+  ],
+  "stats": {
+    "total": 33,
+    "additions": 31,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "6559b7de0e6c40d8afcc1d0a145769773152171f",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f",
+      "patch": "@@ -1,3 +1,11 @@\n+2020-01-29  Tom de Vries  <tdevries@suse.de>\n+\n+\t* gdb.threads/watchpoint-fork-child.c: Guard prints with #if DEBUG.\n+\t* gdb.threads/watchpoint-fork-mt.c: Same.\n+\t* gdb.threads/watchpoint-fork-parent.c: Same.\n+\t* gdb.threads/watchpoint-fork-st.c: Same.\n+\t* gdb.threads/watchpoint-fork.exp: Compile with DEBUG=0.\n+\n 2020-01-27  Luis Machado  <luis.machado@linaro.org>\n \n \t* gdb.base/step-over-syscall.exp (setup): Check if we're already"
+    },
+    {
+      "sha": "96860bb95daddd07712340193be0912da60737c8",
+      "filename": "gdb/testsuite/gdb.threads/watchpoint-fork-child.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f/gdb/testsuite/gdb.threads/watchpoint-fork-child.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f/gdb/testsuite/gdb.threads/watchpoint-fork-child.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/watchpoint-fork-child.c?ref=ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f",
+      "patch": "@@ -59,7 +59,9 @@ forkoff (int nr)\n     case -1:\n       assert (0);\n     default:\n+#if DEBUG\n       printf (\"parent%d: %d\\n\", nr, (int) child);\n+#endif\n \n       /* Sleep for a while to possibly get incorrectly ATTACH_THREADed by GDB\n \t tracing the child fork with no longer valid thread/lwp entries of the\n@@ -95,7 +97,9 @@ forkoff (int nr)\n \n       _exit (0);\n     case 0:\n+#if DEBUG\n       printf (\"child%d: %d\\n\", nr, (int) getpid ());\n+#endif\n \n       /* Let the parent signal us about its success.  Be careful of races.  */\n "
+    },
+    {
+      "sha": "7b1bbf4797800b49d470452dcab46e8f6d4b6508",
+      "filename": "gdb/testsuite/gdb.threads/watchpoint-fork-mt.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f/gdb/testsuite/gdb.threads/watchpoint-fork-mt.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f/gdb/testsuite/gdb.threads/watchpoint-fork-mt.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/watchpoint-fork-mt.c?ref=ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f",
+      "patch": "@@ -114,8 +114,10 @@ main (void)\n   int i;\n   void *thread_result;\n \n+#if DEBUG\n   setbuf (stdout, NULL);\n   printf (\"main: %d\\n\", (int) gettid ());\n+#endif\n \n   /* General hardware breakpoints and watchpoints validity.  */\n   marker ();"
+    },
+    {
+      "sha": "2b325b07a8a39c6bda8d378e2dbcdf431b0ff24e",
+      "filename": "gdb/testsuite/gdb.threads/watchpoint-fork-parent.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f/gdb/testsuite/gdb.threads/watchpoint-fork-parent.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f/gdb/testsuite/gdb.threads/watchpoint-fork-parent.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/watchpoint-fork-parent.c?ref=ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f",
+      "patch": "@@ -40,6 +40,7 @@ forkoff (int nr)\n     case -1:\n       assert (0);\n     case 0:\n+#if DEBUG\n       printf (\"child%d: %d\\n\", nr, (int) getpid ());\n       /* Delay to get both the \"child%d\" and \"parent%d\" message printed without\n \t a race breaking expect by its endless wait on `$gdb_prompt$':\n@@ -48,18 +49,21 @@ forkoff (int nr)\n \t (gdb) parent2: 14223  */\n       i = sleep (1);\n       assert (i == 0);\n+#endif\n \n       /* We must not get caught here (against a forgotten breakpoint).  */\n       var++;\n       marker ();\n \n       _exit (exit_code);\n     default:\n+#if DEBUG\n       printf (\"parent%d: %d\\n\", nr, (int) child);\n       /* Delay to get both the \"child%d\" and \"parent%d\" message printed, see\n \t above.  */\n       i = sleep (1);\n       assert (i == 0);\n+#endif\n \n       pid_got = wait (&status);\n       assert (pid_got == child);"
+    },
+    {
+      "sha": "8a7caec8872ec4f3429220caa21e310ca0d81bea",
+      "filename": "gdb/testsuite/gdb.threads/watchpoint-fork-st.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f/gdb/testsuite/gdb.threads/watchpoint-fork-st.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f/gdb/testsuite/gdb.threads/watchpoint-fork-st.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/watchpoint-fork-st.c?ref=ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f",
+      "patch": "@@ -40,8 +40,10 @@ mark_exit (void)\n int\n main (void)\n {\n+#if DEBUG\n   setbuf (stdout, NULL);\n   printf (\"main: %d\\n\", (int) getpid ());\n+#endif\n \n   /* General hardware breakpoints and watchpoints validity.  */\n   marker ();"
+    },
+    {
+      "sha": "6500c0d052099138f2fd5a720ab620bbe99046f5",
+      "filename": "gdb/testsuite/gdb.threads/watchpoint-fork.exp",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 2,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f/gdb/testsuite/gdb.threads/watchpoint-fork.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f/gdb/testsuite/gdb.threads/watchpoint-fork.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/watchpoint-fork.exp?ref=ee2a6fc60413a2f5bc6641fd6d06f460c9deab3f",
+      "patch": "@@ -17,7 +17,11 @@\n \n set testfile watchpoint-fork\n \n+# Set DEBUG to 0 or 1 in sources\n+set debug 0\n+\n proc test {type symbol} {\n+    global debug\n     with_test_prefix \"$type\" {\n \tglobal testfile subdir srcdir gdb_prompt\n \n@@ -30,7 +34,8 @@ proc test {type symbol} {\n \t    set srcfile_main ${testfile}-st.c\n \t    if {[build_executable $testfile.exp $executable \\\n \t\t     [list $srcfile_main ${testfile}-${type}.c] \\\n-\t\t     [list debug additional_flags=-D$symbol]] == -1} {\n+\t\t     [list debug additional_flags=-D$symbol \\\n+\t\t\t  additional_flags=-DDEBUG=$debug]] == -1} {\n \t\treturn -1\n \t    }\n \n@@ -96,7 +101,11 @@ proc test {type symbol} {\n \twith_test_prefix \"multithreaded\" {\n \t    set executable ${testfile}-${type}-mt\n \t    set srcfile_main ${srcdir}/${subdir}/${testfile}-mt.c\n-\t    if { [gdb_compile_pthreads \"${srcfile_main} ${srcfile_type}\" [standard_output_file ${executable}] executable [list debug \"additional_flags=-D$symbol -DTHREAD\"]] != \"\" } {\n+\t    if { [gdb_compile_pthreads \"${srcfile_main} ${srcfile_type}\" \\\n+\t\t      [standard_output_file ${executable}] executable \\\n+\t\t      [list debug \"additional_flags=-D$symbol\" \\\n+\t\t\t   \"additional_flags=-DDEBUG=$debug\" \\\n+\t\t\t   \"-DTHREAD\"]] != \"\" } {\n \t\tuntested \"failed to compile\"\n \t\treturn\n \t    }"
+    }
+  ]
+}

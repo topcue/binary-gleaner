@@ -1,0 +1,60 @@
+{
+  "sha": "b6e05abee333e1cf322efac82bd7032c9d6b0add",
+  "node_id": "C_kwDOANOeidoAKGI2ZTA1YWJlZTMzM2UxY2YzMjJlZmFjODJiZDcwMzJjOWQ2YjBhZGQ",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-12-07T13:22:33Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2022-02-02T16:27:36Z"
+    },
+    "message": "gdb: update the comment on string_to_event_location\n\nThe comment on string_to_event_location is (I believe) out of date.\nThis commit fixes the two issues I see:\n\n  1. This function can't return NULL any more.  The implementation\n  calls string_to_explicit_location which can return NULL, but if this\n  is the case we then call string_to_event_location_basic, which I\n  don't believe can ever return NULL.\n\n  2. I've removed the mention that the returned string is malloc'd,\n  though this is true, now that we return a managed pointer, I believe\n  the source of the memory allocation is irrelevant, and so, shouldn't\n  be discussed in the header comment.\n\nThere should be no user visible changes after this commit.",
+    "tree": {
+      "sha": "bb861934524ef22935400634ed8c5d271e61fc09",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/bb861934524ef22935400634ed8c5d271e61fc09"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/b6e05abee333e1cf322efac82bd7032c9d6b0add",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b6e05abee333e1cf322efac82bd7032c9d6b0add",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/b6e05abee333e1cf322efac82bd7032c9d6b0add",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b6e05abee333e1cf322efac82bd7032c9d6b0add/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "a698397481825193bee128d13f0b232bf66980ce",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a698397481825193bee128d13f0b232bf66980ce",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/a698397481825193bee128d13f0b232bf66980ce"
+    }
+  ],
+  "stats": {
+    "total": 9,
+    "additions": 4,
+    "deletions": 5
+  },
+  "files": [
+    {
+      "sha": "ff21c1c21cc3bdc0c3f63b9a12124618c69891af",
+      "filename": "gdb/location.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 5,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b6e05abee333e1cf322efac82bd7032c9d6b0add/gdb/location.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b6e05abee333e1cf322efac82bd7032c9d6b0add/gdb/location.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/location.h?ref=b6e05abee333e1cf322efac82bd7032c9d6b0add",
+      "patch": "@@ -205,12 +205,11 @@ extern event_location_up\n   copy_event_location (const struct event_location *src);\n \n /* Attempt to convert the input string in *ARGP into an event_location.\n-   ARGP is advanced past any processed input.  Returns an event_location\n-   (malloc'd) if an event location was successfully found in *ARGP,\n-   NULL otherwise.\n+   ARGP is advanced past any processed input.  Always returns a non-nullptr\n+   event_location unique pointer object.\n \n-   This function may call error() if *ARGP looks like properly formed,\n-   but invalid, input, e.g., if it is called with missing argument parameters\n+   This function may call error() if *ARGP looks like properly formed, but\n+   invalid, input, e.g., if it is called with missing argument parameters\n    or invalid options.\n \n    This function is intended to be used by CLI commands and will parse"
+    }
+  ]
+}

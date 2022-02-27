@@ -1,0 +1,91 @@
+{
+  "sha": "fca1f7036a4e9444e790e32e6206d80ef4a0db97",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZmNhMWY3MDM2YTRlOTQ0NGU3OTBlMzJlNjIwNmQ4MGVmNGEwZGI5Nw==",
+  "commit": {
+    "author": {
+      "name": "Chet Ramey",
+      "email": "chet.ramey@case.edu",
+      "date": "2020-02-07T19:56:45Z"
+    },
+    "committer": {
+      "name": "Tom Tromey",
+      "email": "tom@tromey.com",
+      "date": "2020-06-30T21:10:46Z"
+    },
+    "message": "fix problems moving back beyond start of history",
+    "tree": {
+      "sha": "bec86b3604ea3b32601cb03ddd2f2c556ea8d7ca",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/bec86b3604ea3b32601cb03ddd2f2c556ea8d7ca"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/fca1f7036a4e9444e790e32e6206d80ef4a0db97",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/fca1f7036a4e9444e790e32e6206d80ef4a0db97",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/fca1f7036a4e9444e790e32e6206d80ef4a0db97",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/fca1f7036a4e9444e790e32e6206d80ef4a0db97/comments",
+  "author": null,
+  "committer": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "8cfb541ad1edfcc21b28eeb767e66b1001b0a84c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8cfb541ad1edfcc21b28eeb767e66b1001b0a84c",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/8cfb541ad1edfcc21b28eeb767e66b1001b0a84c"
+    }
+  ],
+  "stats": {
+    "total": 7,
+    "additions": 5,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "42005b0c1ec53d4dfb751b0a026b77913cbe1bad",
+      "filename": "readline/readline/misc.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 1,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/fca1f7036a4e9444e790e32e6206d80ef4a0db97/readline/readline/misc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/fca1f7036a4e9444e790e32e6206d80ef4a0db97/readline/readline/misc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/readline/readline/misc.c?ref=fca1f7036a4e9444e790e32e6206d80ef4a0db97",
+      "patch": "@@ -576,6 +576,7 @@ int\n rl_get_previous_history (int count, int key)\n {\n   HIST_ENTRY *old_temp, *temp;\n+  int had_saved_line;\n \n   if (count < 0)\n     return (rl_get_next_history (-count, key));\n@@ -588,6 +589,7 @@ rl_get_previous_history (int count, int key)\n     _rl_history_saved_point = (rl_point == rl_end) ? -1 : rl_point;\n \n   /* If we don't have a line saved, then save this one. */\n+  had_saved_line = _rl_saved_line_for_history != 0;\n   rl_maybe_save_line ();\n \n   /* If the current line has changed, save the changes. */\n@@ -611,7 +613,8 @@ rl_get_previous_history (int count, int key)\n \n   if (temp == 0)\n     {\n-      rl_maybe_unsave_line ();\n+      if (had_saved_line == 0)\n+        _rl_free_saved_history_line ();\n       rl_ding ();\n     }\n   else"
+    },
+    {
+      "sha": "7cbda82ded86fa174ee44dba637d5fa80815bfdc",
+      "filename": "readline/readline/patchlevel",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/fca1f7036a4e9444e790e32e6206d80ef4a0db97/readline/readline/patchlevel",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/fca1f7036a4e9444e790e32e6206d80ef4a0db97/readline/readline/patchlevel",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/readline/readline/patchlevel?ref=fca1f7036a4e9444e790e32e6206d80ef4a0db97",
+      "patch": "@@ -1,3 +1,3 @@\n # Do not edit -- exists only for use by patch\n \n-1\n+2"
+    }
+  ]
+}

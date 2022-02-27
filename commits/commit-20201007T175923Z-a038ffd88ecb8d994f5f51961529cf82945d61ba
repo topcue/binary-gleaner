@@ -1,0 +1,134 @@
+{
+  "sha": "a038ffd88ecb8d994f5f51961529cf82945d61ba",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YTAzOGZmZDg4ZWNiOGQ5OTRmNWY1MTk2MTUyOWNmODI5NDVkNjFiYQ==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2020-10-07T17:58:57Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2020-10-07T17:59:23Z"
+    },
+    "message": "gdb: put user-supplied CFLAGS at the end\n\nGDB currently doesn't build cleanly with clang (a -Wdeprecated-copy-dtor\nerror).  I configured my clang-based GDB build with\nCXXFLAGS=\"-Wno-error=deprecated-copy-dtor\", so I can use it despite that\nproblem.  However, I found that it had no effect.  This is because my\n-Wno-error=Wdeprecated-copy-dtor switch is followed by -Werror in the\ncommand line, which switches back all warnings to be errors.\n\nIf we want the user-supplied C(XX)FLAGS to be able to override flags\nadded by our configure script, the user-supplied C(XX)FLAGS should\nappear after the configure-supplied flags.\n\nThis patch moves the user-supplied CXXFLAGS at the very end of the\ncompilation command line, which fixes the problem described above.  This\nmeans moving it out of INTERNAL_CFLAGS and inlining it in the users of\nINTERNAL_CFLAGS.\n\nI observed the problem when building GDB, but the same problem could\nhappen with GDBserver, so the change is done there too.\n\nIn GDBserver, INTERNAL_CFLAGS is passed when linking\n\ngdb/ChangeLog:\n\n\t* Makefile.in (COMPILE): Add CXXFLAGS.\n\t(INTERNAL_CFLAGS_BASE): Remove CXXFLAGS.\n\t(check-headers): Add CXXFLAGS.\n\ngdbserver/ChangeLog:\n\n\t* Makefile.in (COMPILE): Add CXXFLAGS.\n\t(INTERNAL_CFLAGS_BASE): Remove CXXFLAGS.\n\t(gdbserver$(EXEEXT)): Add CXXFLAGS.\n\t(gdbreplay$(EXEEXT)): Add CXXFLAGS.\n\t($(IPA_LIB)): Add CXXFLAGS.\n\t(IPAGENT_COMPILE): Add CXXFLAGS.\n\nChange-Id: I00e054506695e0e9536095c6d14827e48abd8f69",
+    "tree": {
+      "sha": "54a42c00d35bafa030c466008e22c64beb6499f5",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/54a42c00d35bafa030c466008e22c64beb6499f5"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/a038ffd88ecb8d994f5f51961529cf82945d61ba",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a038ffd88ecb8d994f5f51961529cf82945d61ba",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/a038ffd88ecb8d994f5f51961529cf82945d61ba",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a038ffd88ecb8d994f5f51961529cf82945d61ba/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "8b558efe7a219b10b41810d6b17028a6e511b6c4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8b558efe7a219b10b41810d6b17028a6e511b6c4",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/8b558efe7a219b10b41810d6b17028a6e511b6c4"
+    }
+  ],
+  "stats": {
+    "total": 39,
+    "additions": 33,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "48ab2e044e5a65d664279eb43260ec4661fc930d",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a038ffd88ecb8d994f5f51961529cf82945d61ba/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a038ffd88ecb8d994f5f51961529cf82945d61ba/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=a038ffd88ecb8d994f5f51961529cf82945d61ba",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-10-07  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\t* Makefile.in (COMPILE): Add CXXFLAGS.\n+\t(INTERNAL_CFLAGS_BASE): Remove CXXFLAGS.\n+\t(check-headers): Add CXXFLAGS.\n+\n 2020-10-07  Anton Kolesov  <anton.kolesov@synopsys.com>\n \n \t* arc-linux-tdep.h: New file."
+    },
+    {
+      "sha": "e14d41cef91520a3e4ef41e5e32296656f87ce2e",
+      "filename": "gdb/Makefile.in",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 3,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a038ffd88ecb8d994f5f51961529cf82945d61ba/gdb/Makefile.in",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a038ffd88ecb8d994f5f51961529cf82945d61ba/gdb/Makefile.in",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/Makefile.in?ref=a038ffd88ecb8d994f5f51961529cf82945d61ba",
+      "patch": "@@ -118,9 +118,13 @@ include $(srcdir)/silent-rules.mk\n # GNU make is used.  The overrides implement dependency tracking.\n COMPILE.pre = $(CXX) -x c++ $(CXX_DIALECT)\n COMPILE.post = -c -o $@\n-COMPILE = $(ECHO_CXX) $(COMPILE.pre) $(INTERNAL_CFLAGS) $(COMPILE.post)\n POSTCOMPILE = @true\n \n+# CXXFLAGS is at the very end on purpose, so that user-supplied flags can\n+# override internal flags.\n+COMPILE = $(ECHO_CXX) $(COMPILE.pre) $(INTERNAL_CFLAGS) $(CXXFLAGS) \\\n+\t$(COMPILE.post)\n+\n YACC = @YACC@\n \n # This is used to rebuild ada-lex.c from ada-lex.l.  If the program is\n@@ -598,7 +602,7 @@ INTERNAL_CPPFLAGS = $(CPPFLAGS) @GUILE_CPPFLAGS@ @PYTHON_CPPFLAGS@ \\\n \n # INTERNAL_CFLAGS is the aggregate of all other *CFLAGS macros.\n INTERNAL_CFLAGS_BASE = \\\n-\t$(CXXFLAGS) $(GLOBAL_CFLAGS) $(PROFILE_CFLAGS) \\\n+\t$(GLOBAL_CFLAGS) $(PROFILE_CFLAGS) \\\n \t$(GDB_CFLAGS) $(OPCODES_CFLAGS) $(READLINE_CFLAGS) $(ZLIBINC) \\\n \t$(BFD_CFLAGS) $(INCLUDE_CFLAGS) $(LIBDECNUMBER_CFLAGS) \\\n \t$(INTL_CFLAGS) $(INCGNU) $(INCSUPPORT) $(ENABLE_CFLAGS) \\\n@@ -1712,7 +1716,7 @@ check-headers:\n \t@echo Checking headers.\n \tfor i in $(CHECK_HEADERS) ; do \\\n \t\t$(CXX) $(CXX_DIALECT) -x c++-header -c -fsyntax-only \\\n-\t\t$(INTERNAL_CFLAGS) -include defs.h $(srcdir)/$$i ; \\\n+\t\t$(INTERNAL_CFLAGS) $(CXXFLAGS) -include defs.h $(srcdir)/$$i ; \\\n \tdone\n .PHONY: check-headers\n "
+    },
+    {
+      "sha": "94f1a75b94da6985a7546f244b61bad1a28aeea2",
+      "filename": "gdbserver/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a038ffd88ecb8d994f5f51961529cf82945d61ba/gdbserver/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a038ffd88ecb8d994f5f51961529cf82945d61ba/gdbserver/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/ChangeLog?ref=a038ffd88ecb8d994f5f51961529cf82945d61ba",
+      "patch": "@@ -1,3 +1,12 @@\n+2020-10-07  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\t* Makefile.in (COMPILE): Add CXXFLAGS.\n+\t(INTERNAL_CFLAGS_BASE): Remove CXXFLAGS.\n+\t(gdbserver$(EXEEXT)): Add CXXFLAGS.\n+\t(gdbreplay$(EXEEXT)): Add CXXFLAGS.\n+\t($(IPA_LIB)): Add CXXFLAGS.\n+\t(IPAGENT_COMPILE): Add CXXFLAGS.\n+\n 2020-10-07  Anton Kolesov  <anton.kolesov@synopsys.com>\n \n \t* configure.srv: Support ARC architecture."
+    },
+    {
+      "sha": "c8cfed4819b7133a8c701a399490d40b15c83e64",
+      "filename": "gdbserver/Makefile.in",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 3,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a038ffd88ecb8d994f5f51961529cf82945d61ba/gdbserver/Makefile.in",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a038ffd88ecb8d994f5f51961529cf82945d61ba/gdbserver/Makefile.in",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/Makefile.in?ref=a038ffd88ecb8d994f5f51961529cf82945d61ba",
+      "patch": "@@ -83,9 +83,12 @@ include $(srcdir)/../gdb/silent-rules.mk\n # GNU make is used.  The overrides implement dependency tracking.\n COMPILE.pre = $(CXX) $(CXX_DIALECT)\n COMPILE.post = -c -o $@\n-COMPILE = $(ECHO_CXX) $(COMPILE.pre) $(INTERNAL_CFLAGS) $(COMPILE.post)\n POSTCOMPILE = @true\n \n+# CXXFLAGS is at the very end on purpose, so that user-supplied flags can\n+# override internal flags.\n+COMPILE = $(ECHO_CXX) $(COMPILE.pre) $(INTERNAL_CFLAGS) $(CXXFLAGS) $(COMPILE.post)\n+\n # It is also possible that you will need to add -I/usr/include/sys to the\n # CFLAGS section if your system doesn't have fcntl.h in /usr/include (which\n # is where it should be according to Posix).\n@@ -158,7 +161,7 @@ PTHREAD_LIBS = @PTHREAD_LIBS@\n WIN32APILIBS = @WIN32APILIBS@\n \n # INTERNAL_CFLAGS is the aggregate of all other *CFLAGS macros.\n-INTERNAL_CFLAGS_BASE = ${CXXFLAGS} ${GLOBAL_CFLAGS} \\\n+INTERNAL_CFLAGS_BASE = ${GLOBAL_CFLAGS} \\\n \t${PROFILE_CFLAGS} ${INCLUDE_CFLAGS} ${CPPFLAGS} $(PTHREAD_CFLAGS)\n INTERNAL_WARN_CFLAGS = ${INTERNAL_CFLAGS_BASE} $(WARN_CFLAGS)\n INTERNAL_CFLAGS = ${INTERNAL_WARN_CFLAGS} $(WERROR_CFLAGS) -DGDBSERVER\n@@ -355,6 +358,7 @@ gdbserver$(EXEEXT): $(sort $(OBS)) ${CDEPS} $(LIBGNU) $(LIBIBERTY) \\\n \t\t$(INTL_DEPS) $(GDBSUPPORT)\n \t$(SILENCE) rm -f gdbserver$(EXEEXT)\n \t$(ECHO_CXXLD) $(CC_LD) $(INTERNAL_CFLAGS) $(INTERNAL_LDFLAGS) \\\n+\t\t$(CXXFLAGS) \\\n \t\t-o gdbserver$(EXEEXT) $(OBS) $(GDBSUPPORT) $(LIBGNU) \\\n \t\t$(LIBIBERTY) $(INTL) $(GDBSERVER_LIBS) $(XM_CLIBS) \\\n \t\t$(WIN32APILIBS)\n@@ -363,6 +367,7 @@ gdbreplay$(EXEEXT): $(sort $(GDBREPLAY_OBS)) $(LIBGNU) $(LIBIBERTY) \\\n \t\t$(INTL_DEPS) $(GDBSUPPORT)\n \t$(SILENCE) rm -f gdbreplay$(EXEEXT)\n \t$(ECHO_CXXLD) $(CC_LD) $(INTERNAL_CFLAGS) $(INTERNAL_LDFLAGS) \\\n+\t\t$(CXXFLAGS) \\\n \t\t-o gdbreplay$(EXEEXT) $(GDBREPLAY_OBS) $(XM_CLIBS) \\\n \t\t$(GDBSUPPORT) $(LIBGNU) $(LIBIBERTY) $(INTL) \\\n \t\t$(WIN32APILIBS)\n@@ -390,6 +395,7 @@ $(IPA_LIB): $(sort $(IPA_OBJS)) ${CDEPS}\n \t$(SILENCE) rm -f $(IPA_LIB)\n \t$(ECHO_CXXLD) $(CC_LD) -shared -fPIC -Wl,--soname=$(IPA_LIB) \\\n \t\t-Wl,--no-undefined $(INTERNAL_CFLAGS) $(INTERNAL_LDFLAGS) \\\n+\t\t $(CXXFLAGS) \\\n \t\t-o $(IPA_LIB) ${IPA_OBJS} -ldl -pthread\n \n # Put the proper machine-specific files first, so M-. on a machine\n@@ -485,7 +491,9 @@ IPAGENT_CFLAGS = $(INTERNAL_CFLAGS) $(UST_CFLAGS) \\\n \t-fPIC -DIN_PROCESS_AGENT \\\n \t-fvisibility=hidden\n \n-IPAGENT_COMPILE = $(ECHO_CXX) $(COMPILE.pre) $(IPAGENT_CFLAGS) $(COMPILE.post)\n+# CXXFLAGS is at the very end on purpose, so that user-supplied flags can\n+# override internal flags.\n+IPAGENT_COMPILE = $(ECHO_CXX) $(COMPILE.pre) $(IPAGENT_CFLAGS) $(CXXFLAGS) $(COMPILE.post)\n \n # Rules for special cases.\n "
+    }
+  ]
+}

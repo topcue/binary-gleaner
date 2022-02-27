@@ -1,0 +1,194 @@
+{
+  "sha": "2f6ecaed667d1597c67991224948e0a3da427cc9",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MmY2ZWNhZWQ2NjdkMTU5N2M2Nzk5MTIyNDk0OGUwYTNkYTQyN2NjOQ==",
+  "commit": {
+    "author": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2019-12-13T12:01:12Z"
+    },
+    "committer": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2020-06-26T14:56:39Z"
+    },
+    "message": "libctf, binutils: support CTF archives like objdump\n\nobjdump and readelf have one major CTF-related behavioural difference:\nobjdump can read .ctf sections that contain CTF archives and extract and\ndump their members, while readelf cannot.  Since the linker often emits\nCTF archives, this means that readelf intermittently and (from the\nuser's perspective) randomly fails to read CTF in files that ld emits,\nwith a confusing error message wrongly claiming that the CTF content is\ncorrupt.  This is purely because the archive-opening code in libctf was\nneedlessly tangled up with the BFD code, so readelf couldn't use it.\n\nHere, we disentangle it, moving ctf_new_archive_internal from\nctf-open-bfd.c into ctf-archive.c and merging it with the helper\nfunction in ctf-archive.c it was already using.  We add a new public API\nfunction ctf_arc_bufopen, that looks very like ctf_bufopen but returns\nan archive given suitable section data rather than a ctf_file_t: the\narchive is a ctf_archive_t, so it can be called on raw CTF dictionaries\n(with no archive present) and will return a single-member synthetic\n\"archive\".\n\nThere is a tiny lifetime tweak here: before now, the archive code could\nassume that the symbol section in the ctf_archive_internal wrapper\nstructure was always owned by BFD if it was present and should always be\nfreed: now, the caller can pass one in via ctf_arc_bufopen, wihch has\nthe usual lifetime rules for such sections (caller frees): so we add an\nextra field to track whether this is an internal call from ctf-open-bfd,\nin which case we still free the symbol section.\n\ninclude/\n\t* ctf-api.h (ctf_arc_bufopen): New.\nlibctf/\n\t* ctf-impl.h (ctf_new_archive_internal): Declare.\n\t(ctf_arc_bufopen): Remove.\n\t(ctf_archive_internal) <ctfi_free_symsect>: New.\n\t* ctf-archive.c (ctf_arc_close): Use it.\n\t(ctf_arc_bufopen): Fuse into...\n\t(ctf_new_archive_internal): ... this, moved across from...\n\t* ctf-open-bfd.c: ... here.\n\t(ctf_bfdopen_ctfsect): Use ctf_arc_bufopen.\n\t* libctf.ver: Add it.\nbinutils/\n\t* readelf.c (dump_section_as_ctf): Support .ctf archives using\n\tctf_arc_bufopen.  Automatically load the .ctf member of such\n\tarchives as the parent of all other members, unless specifically\n\toverridden via --ctf-parent.  Split out dumping code into...\n\t(dump_ctf_archive_member): ... here, as in objdump, and call\n\tit once per archive member.\n\t(dump_ctf_indent_lines): Code style fix.",
+    "tree": {
+      "sha": "0ee2edd3637d01e08332ecb6868e5c1ae5336637",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/0ee2edd3637d01e08332ecb6868e5c1ae5336637"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/2f6ecaed667d1597c67991224948e0a3da427cc9",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2f6ecaed667d1597c67991224948e0a3da427cc9",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/2f6ecaed667d1597c67991224948e0a3da427cc9",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2f6ecaed667d1597c67991224948e0a3da427cc9/comments",
+  "author": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "8ffcdf1823d186c94eb3a1781e366a155646140a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8ffcdf1823d186c94eb3a1781e366a155646140a",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/8ffcdf1823d186c94eb3a1781e366a155646140a"
+    }
+  ],
+  "stats": {
+    "total": 291,
+    "additions": 182,
+    "deletions": 109
+  },
+  "files": [
+    {
+      "sha": "95a868ae684c1af8dc92d6890174f352f56ccb01",
+      "filename": "binutils/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2f6ecaed667d1597c67991224948e0a3da427cc9/binutils/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2f6ecaed667d1597c67991224948e0a3da427cc9/binutils/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/ChangeLog?ref=2f6ecaed667d1597c67991224948e0a3da427cc9",
+      "patch": "@@ -1,3 +1,13 @@\n+2020-06-26  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* readelf.c (dump_section_as_ctf): Support .ctf archives using\n+\tctf_arc_bufopen.  Automatically load the .ctf member of such\n+\tarchives as the parent of all other members, unless specifically\n+\toverridden via --ctf-parent.  Split out dumping code into...\n+\t(dump_ctf_archive_member): ... here, as in objdump, and call\n+\tit once per archive member.\n+\t(dump_ctf_indent_lines): Code style fix.\n+\n 2020-06-26  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* configure.ac [--enable-libctf]: New, default yes."
+    },
+    {
+      "sha": "1d7cfbcf03106dcb23e0300364f660f0c2ff695e",
+      "filename": "binutils/readelf.c",
+      "status": "modified",
+      "additions": 76,
+      "deletions": 34,
+      "changes": 110,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2f6ecaed667d1597c67991224948e0a3da427cc9/binutils/readelf.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2f6ecaed667d1597c67991224948e0a3da427cc9/binutils/readelf.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/readelf.c?ref=2f6ecaed667d1597c67991224948e0a3da427cc9",
+      "patch": "@@ -14151,8 +14151,9 @@ shdr_to_ctf_sect (ctf_sect_t *buf, Elf_Internal_Shdr *shdr, Filedata *filedata)\n    it is passed, or a pointer to newly-allocated storage, in which case\n    dump_ctf() will free it when it no longer needs it.  */\n \n-static char *dump_ctf_indent_lines (ctf_sect_names_t sect ATTRIBUTE_UNUSED,\n-\t\t\t\t    char *s, void *arg)\n+static char *\n+dump_ctf_indent_lines (ctf_sect_names_t sect ATTRIBUTE_UNUSED,\n+\t\t       char *s, void *arg)\n {\n   const char *blanks = arg;\n   char *new_s;\n@@ -14162,6 +14163,55 @@ static char *dump_ctf_indent_lines (ctf_sect_names_t sect ATTRIBUTE_UNUSED,\n   return new_s;\n }\n \n+/* Dump one CTF archive member.  */\n+\n+static int\n+dump_ctf_archive_member (ctf_file_t *ctf, const char *name, void *arg)\n+{\n+  ctf_file_t *parent = (ctf_file_t *) arg;\n+  const char *things[] = {\"Header\", \"Labels\", \"Data objects\",\n+\t\t\t  \"Function objects\", \"Variables\", \"Types\", \"Strings\",\n+\t\t\t  \"\"};\n+  const char **thing;\n+  size_t i;\n+\n+  /* Only print out the name of non-default-named archive members.\n+     The name .ctf appears everywhere, even for things that aren't\n+     really archives, so printing it out is liable to be confusing.\n+\n+     The parent, if there is one, is the default-owned archive member:\n+     avoid importing it into itself.  (This does no harm, but looks\n+     confusing.)  */\n+\n+  if (strcmp (name, \".ctf\") != 0)\n+    {\n+      printf (_(\"\\nCTF archive member: %s:\\n\"), name);\n+      ctf_import (ctf, parent);\n+    }\n+\n+  for (i = 0, thing = things; *thing[0]; thing++, i++)\n+    {\n+      ctf_dump_state_t *s = NULL;\n+      char *item;\n+\n+      printf (\"\\n  %s:\\n\", *thing);\n+      while ((item = ctf_dump (ctf, &s, i, dump_ctf_indent_lines,\n+\t\t\t       (void *) \"    \")) != NULL)\n+\t{\n+\t  printf (\"%s\\n\", item);\n+\t  free (item);\n+\t}\n+\n+      if (ctf_errno (ctf))\n+\t{\n+\t  error (_(\"Iteration failed: %s, %s\\n\"), *thing,\n+\t\t ctf_errmsg (ctf_errno (ctf)));\n+\t  return 1;\n+\t}\n+    }\n+  return 0;\n+}\n+\n static bfd_boolean\n dump_section_as_ctf (Elf_Internal_Shdr * section, Filedata * filedata)\n {\n@@ -14175,16 +14225,12 @@ dump_section_as_ctf (Elf_Internal_Shdr * section, Filedata * filedata)\n   ctf_sect_t\t       ctfsect, symsect, strsect, parentsect;\n   ctf_sect_t *\t       symsectp = NULL;\n   ctf_sect_t *\t       strsectp = NULL;\n-  ctf_file_t *\t       ctf = NULL;\n-  ctf_file_t *\t       parent = NULL;\n+  ctf_archive_t *      ctfa = NULL;\n+  ctf_archive_t *      parenta = NULL, *lookparent;\n+  ctf_file_t *         parent = NULL;\n \n-  const char *things[] = {\"Header\", \"Labels\", \"Data objects\",\n-\t\t\t  \"Function objects\", \"Variables\", \"Types\", \"Strings\",\n-\t\t\t  \"\"};\n-  const char **thing;\n   int err;\n   bfd_boolean ret = FALSE;\n-  size_t i;\n \n   shdr_to_ctf_sect (&ctfsect, section, filedata);\n   data = get_section_contents (section, filedata);\n@@ -14243,54 +14289,50 @@ dump_section_as_ctf (Elf_Internal_Shdr * section, Filedata * filedata)\n       parentsect.cts_data = parentdata;\n     }\n \n-  /* Load the CTF file and dump it.  */\n+  /* Load the CTF file and dump it.  It may be a raw CTF section, or an archive:\n+     libctf papers over the difference, so we can pretend it is always an\n+     archive.  Possibly open the parent as well, if one was specified.  */\n \n-  if ((ctf = ctf_bufopen (&ctfsect, symsectp, strsectp, &err)) == NULL)\n+  if ((ctfa = ctf_arc_bufopen (&ctfsect, symsectp, strsectp, &err)) == NULL)\n     {\n       error (_(\"CTF open failure: %s\\n\"), ctf_errmsg (err));\n       goto fail;\n     }\n \n   if (parentdata)\n     {\n-      if ((parent = ctf_bufopen (&parentsect, symsectp, strsectp, &err)) == NULL)\n+      if ((parenta = ctf_arc_bufopen (&parentsect, symsectp, strsectp,\n+\t\t\t\t      &err)) == NULL)\n \t{\n \t  error (_(\"CTF open failure: %s\\n\"), ctf_errmsg (err));\n \t  goto fail;\n \t}\n+      lookparent = parenta;\n+    }\n+  else\n+    lookparent = ctfa;\n \n-      ctf_import (ctf, parent);\n+  /* Assume that the applicable parent archive member is the default one.\n+     (This is what all known implementations are expected to do, if they\n+     put CTFs and their parents in archives together.)  */\n+  if ((parent = ctf_arc_open_by_name (lookparent, NULL, &err)) == NULL)\n+    {\n+      error (_(\"CTF open failure: %s\\n\"), ctf_errmsg (err));\n+      goto fail;\n     }\n \n   ret = TRUE;\n \n   printf (_(\"\\nDump of CTF section '%s':\\n\"),\n \t  printable_section_name (filedata, section));\n \n-  for (i = 0, thing = things; *thing[0]; thing++, i++)\n-    {\n-      ctf_dump_state_t *s = NULL;\n-      char *item;\n-\n-      printf (\"\\n  %s:\\n\", *thing);\n-      while ((item = ctf_dump (ctf, &s, i, dump_ctf_indent_lines,\n-\t\t\t       (void *) \"    \")) != NULL)\n-\t{\n-\t  printf (\"%s\\n\", item);\n-\t  free (item);\n-\t}\n-\n-      if (ctf_errno (ctf))\n-\t{\n-\t  error (_(\"Iteration failed: %s, %s\\n\"), *thing,\n-\t\t   ctf_errmsg (ctf_errno (ctf)));\n-\t  ret = FALSE;\n-\t}\n-    }\n+  if (ctf_archive_iter (ctfa, dump_ctf_archive_member, parent) != 0)\n+    ret = FALSE;\n \n  fail:\n-  ctf_file_close (ctf);\n   ctf_file_close (parent);\n+  ctf_close (ctfa);\n+  ctf_close (parenta);\n   free (parentdata);\n   free (data);\n   free (symdata);"
+    },
+    {
+      "sha": "dc7089ef80a05a9bce1f0c16593f84e4c1d56181",
+      "filename": "include/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2f6ecaed667d1597c67991224948e0a3da427cc9/include/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2f6ecaed667d1597c67991224948e0a3da427cc9/include/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ChangeLog?ref=2f6ecaed667d1597c67991224948e0a3da427cc9",
+      "patch": "@@ -1,3 +1,7 @@\n+2020-06-26  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-api.h (ctf_arc_bufopen): New.\n+\n 2020-06-26  Pat Bernardi  <bernardi@adacore.com>\n \n \t* elf/m68k.h: Add enum for GNU object attribute with floating point"
+    },
+    {
+      "sha": "d6b05bc71fec6907c4f2ba42188e7a34626fb191",
+      "filename": "include/ctf-api.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2f6ecaed667d1597c67991224948e0a3da427cc9/include/ctf-api.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2f6ecaed667d1597c67991224948e0a3da427cc9/include/ctf-api.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ctf-api.h?ref=2f6ecaed667d1597c67991224948e0a3da427cc9",
+      "patch": "@@ -263,6 +263,10 @@ extern void ctf_close (ctf_archive_t *);\n extern ctf_sect_t ctf_getdatasect (const ctf_file_t *);\n extern ctf_archive_t *ctf_get_arc (const ctf_file_t *);\n extern ctf_archive_t *ctf_arc_open (const char *, int *);\n+extern ctf_archive_t *ctf_arc_bufopen (const ctf_sect_t *,\n+\t\t\t\t       const ctf_sect_t *,\n+\t\t\t\t       const ctf_sect_t *,\n+\t\t\t\t       int *);\n extern void ctf_arc_close (ctf_archive_t *);\n extern ctf_file_t *ctf_arc_open_by_name (const ctf_archive_t *,\n \t\t\t\t\t const char *, int *);"
+    },
+    {
+      "sha": "5e473a75cd021878b9d2c68d34c65fc294c15734",
+      "filename": "libctf/ChangeLog",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2f6ecaed667d1597c67991224948e0a3da427cc9/libctf/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2f6ecaed667d1597c67991224948e0a3da427cc9/libctf/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ChangeLog?ref=2f6ecaed667d1597c67991224948e0a3da427cc9",
+      "patch": "@@ -1,3 +1,15 @@\n+2020-06-26  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-impl.h (ctf_new_archive_internal): Declare.\n+\t(ctf_arc_bufopen): Remove.\n+\t(ctf_archive_internal) <ctfi_free_symsect>: New.\n+\t* ctf-archive.c (ctf_arc_close): Use it.\n+\t(ctf_arc_bufopen): Fuse into...\n+\t(ctf_new_archive_internal): ... this, moved across from...\n+\t* ctf-open-bfd.c: ... here.\n+\t(ctf_bfdopen_ctfsect): Use ctf_arc_bufopen.\n+\t* libctf.ver: Add it.\n+\n 2020-06-26  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctf-create.c (ctf_add_forward): Intern in the right namespace."
+    },
+    {
+      "sha": "d27b27ef86c9f31cde139ebe20b72d9800a5820e",
+      "filename": "libctf/ctf-archive.c",
+      "status": "modified",
+      "additions": 63,
+      "deletions": 13,
+      "changes": 76,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2f6ecaed667d1597c67991224948e0a3da427cc9/libctf/ctf-archive.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2f6ecaed667d1597c67991224948e0a3da427cc9/libctf/ctf-archive.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-archive.c?ref=2f6ecaed667d1597c67991224948e0a3da427cc9",
+      "patch": "@@ -343,21 +343,71 @@ search_modent_by_name (const void *key, const void *ent)\n   return strcmp (k, &search_nametbl[le64toh (v->name_offset)]);\n }\n \n-/* A trivial wrapper: open a CTF archive, from data in a buffer (which the\n-   caller must preserve until ctf_arc_close() time).  Returns the archive, or\n-   NULL and an error in *err (if not NULL).  */\n-struct ctf_archive *\n-ctf_arc_bufopen (const void *buf, size_t size _libctf_unused_, int *errp)\n+/* Make a new struct ctf_archive_internal wrapper for a ctf_archive or a\n+   ctf_file.  Closes ARC and/or FP on error.  Arrange to free the SYMSECT or\n+   STRSECT, as needed, on close.  */\n+\n+struct ctf_archive_internal *\n+ctf_new_archive_internal (int is_archive, struct ctf_archive *arc,\n+\t\t\t  ctf_file_t *fp, const ctf_sect_t *symsect,\n+\t\t\t  const ctf_sect_t *strsect,\n+\t\t\t  int *errp)\n {\n-  struct ctf_archive *arc = (struct ctf_archive *) buf;\n+  struct ctf_archive_internal *arci;\n \n-  if (le64toh (arc->ctfa_magic) != CTFA_MAGIC)\n+  if ((arci = calloc (1, sizeof (struct ctf_archive_internal))) == NULL)\n     {\n-      if (errp)\n-\t*errp = ECTF_FMT;\n-      return NULL;\n+      if (is_archive)\n+\tctf_arc_close_internal (arc);\n+      else\n+\tctf_file_close (fp);\n+      return (ctf_set_open_errno (errp, errno));\n     }\n-  return arc;\n+  arci->ctfi_is_archive = is_archive;\n+  if (is_archive)\n+    arci->ctfi_archive = arc;\n+  else\n+    arci->ctfi_file = fp;\n+  if (symsect)\n+     memcpy (&arci->ctfi_symsect, symsect, sizeof (struct ctf_sect));\n+  if (strsect)\n+     memcpy (&arci->ctfi_strsect, strsect, sizeof (struct ctf_sect));\n+  arci->ctfi_free_symsect = 0;\n+\n+  return arci;\n+}\n+\n+/* Open a CTF archive or dictionary from data in a buffer (which the caller must\n+   preserve until ctf_arc_close() time).  Returns the archive, or NULL and an\n+   error in *err (if not NULL).  */\n+ctf_archive_t *\n+ctf_arc_bufopen (const ctf_sect_t *ctfsect, const ctf_sect_t *symsect,\n+\t\t const ctf_sect_t *strsect, int *errp)\n+{\n+  struct ctf_archive *arc = NULL;\n+  int is_archive;\n+  ctf_file_t *fp = NULL;\n+\n+  if (ctfsect->cts_size > sizeof (uint64_t) &&\n+      ((*(uint64_t *) ctfsect->cts_data) == CTFA_MAGIC))\n+    {\n+      /* The archive is mmappable, so this operation is trivial.  */\n+\n+      is_archive = 1;\n+      arc = (struct ctf_archive *) ctfsect->cts_data;\n+    }\n+  else\n+    {\n+      is_archive = 0;\n+      if ((fp = ctf_bufopen (ctfsect, symsect, strsect, errp)) == NULL)\n+\t{\n+\t  ctf_dprintf (\"ctf_internal_open(): cannot open CTF: %s\\n\",\n+\t\t       ctf_errmsg (*errp));\n+\t  return NULL;\n+\t}\n+    }\n+  return ctf_new_archive_internal (is_archive, arc, fp, symsect, strsect,\n+\t\t\t\t   errp);\n }\n \n /* Open a CTF archive.  Returns the archive, or NULL and an error in *err (if\n@@ -436,8 +486,8 @@ ctf_arc_close (ctf_archive_t *arc)\n     ctf_arc_close_internal (arc->ctfi_archive);\n   else\n     ctf_file_close (arc->ctfi_file);\n-  free ((void *) arc->ctfi_symsect.cts_data);\n-  /* Do not free the ctfi_strsect: it is bound to the bfd.  */\n+  if (arc->ctfi_free_symsect)\n+    free ((void *) arc->ctfi_symsect.cts_data);\n   free (arc->ctfi_data);\n   if (arc->ctfi_bfd_close)\n     arc->ctfi_bfd_close (arc);"
+    },
+    {
+      "sha": "ade1a6e7cc453a760061391ea68294f3dd0b97dc",
+      "filename": "libctf/ctf-impl.h",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 1,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2f6ecaed667d1597c67991224948e0a3da427cc9/libctf/ctf-impl.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2f6ecaed667d1597c67991224948e0a3da427cc9/libctf/ctf-impl.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-impl.h?ref=2f6ecaed667d1597c67991224948e0a3da427cc9",
+      "patch": "@@ -309,6 +309,7 @@ struct ctf_archive_internal\n   struct ctf_archive *ctfi_archive;\n   ctf_sect_t ctfi_symsect;\n   ctf_sect_t ctfi_strsect;\n+  int ctfi_free_symsect;\n   void *ctfi_data;\n   bfd *ctfi_abfd;\t\t    /* Optional source of section data.  */\n   void (*ctfi_bfd_close) (struct ctf_archive_internal *);\n@@ -435,8 +436,11 @@ extern void ctf_str_rollback (ctf_file_t *, ctf_snapshot_id_t);\n extern void ctf_str_purge_refs (ctf_file_t *);\n extern ctf_strs_writable_t ctf_str_write_strtab (ctf_file_t *);\n \n+extern struct ctf_archive_internal *ctf_new_archive_internal\n+\t(int is_archive, struct ctf_archive *arc,\n+\t ctf_file_t *fp, const ctf_sect_t *symsect,\n+\t const ctf_sect_t *strsect, int *errp);\n extern struct ctf_archive *ctf_arc_open_internal (const char *, int *);\n-extern struct ctf_archive *ctf_arc_bufopen (const void *, size_t, int *);\n extern void ctf_arc_close_internal (struct ctf_archive *);\n extern void *ctf_set_open_errno (int *, int);\n extern unsigned long ctf_set_errno (ctf_file_t *, int);"
+    },
+    {
+      "sha": "630a158af864eb8a1f209e2ed05da3572a414546",
+      "filename": "libctf/ctf-open-bfd.c",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 61,
+      "changes": 68,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2f6ecaed667d1597c67991224948e0a3da427cc9/libctf/ctf-open-bfd.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2f6ecaed667d1597c67991224948e0a3da427cc9/libctf/ctf-open-bfd.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-open-bfd.c?ref=2f6ecaed667d1597c67991224948e0a3da427cc9",
+      "patch": "@@ -32,40 +32,6 @@\n \n #include \"elf-bfd.h\"\n \n-/* Make a new struct ctf_archive_internal wrapper for a ctf_archive or a\n-   ctf_file.  Closes ARC and/or FP on error.  Arrange to free the SYMSECT or\n-   STRSECT, as needed, on close (though the STRSECT interior is bound to the bfd\n-   * and is not actually freed by this machinery).  */\n-\n-static struct ctf_archive_internal *\n-ctf_new_archive_internal (int is_archive, struct ctf_archive *arc,\n-\t\t\t  ctf_file_t *fp, const ctf_sect_t *symsect,\n-\t\t\t  const ctf_sect_t *strsect,\n-\t\t\t  int *errp)\n-{\n-  struct ctf_archive_internal *arci;\n-\n-  if ((arci = calloc (1, sizeof (struct ctf_archive_internal))) == NULL)\n-    {\n-      if (is_archive)\n-\tctf_arc_close_internal (arc);\n-      else\n-\tctf_file_close (fp);\n-      return (ctf_set_open_errno (errp, errno));\n-    }\n-  arci->ctfi_is_archive = is_archive;\n-  if (is_archive)\n-    arci->ctfi_archive = arc;\n-  else\n-    arci->ctfi_file = fp;\n-  if (symsect)\n-     memcpy (&arci->ctfi_symsect, symsect, sizeof (struct ctf_sect));\n-  if (strsect)\n-     memcpy (&arci->ctfi_strsect, strsect, sizeof (struct ctf_sect));\n-\n-  return arci;\n-}\n-\n /* Free the BFD bits of a CTF file on ctf_arc_close().  */\n \n static void\n@@ -107,6 +73,7 @@ ctf_bfdopen (struct bfd *abfd, int *errp)\n \n   if ((arc = ctf_bfdopen_ctfsect (abfd, &ctfsect, errp)) != NULL)\n     {\n+      /* This frees the cts_data later.  */\n       arc->ctfi_data = (void *) ctfsect.cts_data;\n       return arc;\n     }\n@@ -116,20 +83,16 @@ ctf_bfdopen (struct bfd *abfd, int *errp)\n }\n \n /* Open a CTF file given the specified BFD and CTF section (which may contain a\n-   CTF archive or a file).  Takes ownership of the ctfsect, and frees it\n-   later.  */\n+   CTF archive or a file).  */\n \n ctf_archive_t *\n ctf_bfdopen_ctfsect (struct bfd *abfd _libctf_unused_,\n \t\t     const ctf_sect_t *ctfsect, int *errp)\n {\n-  struct ctf_archive *arc = NULL;\n   ctf_archive_t *arci;\n-  ctf_file_t *fp = NULL;\n   ctf_sect_t *symsectp = NULL;\n   ctf_sect_t *strsectp = NULL;\n   const char *bfderrstr = NULL;\n-  int is_archive;\n \n #ifdef HAVE_BFD_ELF\n   ctf_sect_t symsect, strsect;\n@@ -192,30 +155,13 @@ ctf_bfdopen_ctfsect (struct bfd *abfd _libctf_unused_,\n     }\n #endif\n \n-  if (ctfsect->cts_size > sizeof (uint64_t) &&\n-      ((*(uint64_t *) ctfsect->cts_data) == CTFA_MAGIC))\n-    {\n-      is_archive = 1;\n-      if ((arc = ctf_arc_bufopen ((void *) ctfsect->cts_data,\n-\t\t\t\t  ctfsect->cts_size, errp)) == NULL)\n-\tgoto err_free_str;\n-    }\n-  else\n+  arci = ctf_arc_bufopen (ctfsect, symsectp, strsectp, errp);\n+  if (arci)\n     {\n-      is_archive = 0;\n-      if ((fp = ctf_bufopen (ctfsect, symsectp, strsectp, errp)) == NULL)\n-\t{\n-\t  ctf_dprintf (\"ctf_internal_open(): cannot open CTF: %s\\n\",\n-\t\t       ctf_errmsg (*errp));\n-\t  goto err_free_str;\n-\t}\n+      /* Request freeing of the symsect.  */\n+      arci->ctfi_free_symsect = 1;\n+      return arci;\n     }\n-  arci = ctf_new_archive_internal (is_archive, arc, fp, symsectp, strsectp,\n-\t\t\t\t   errp);\n-\n-  if (arci)\n-    return arci;\n- err_free_str: ;\n #ifdef HAVE_BFD_ELF\n  err_free_sym:\n   free (symtab);"
+    },
+    {
+      "sha": "aad304bc0d9caf9f84e80b848bd09fa3cf9b7be1",
+      "filename": "libctf/libctf.ver",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2f6ecaed667d1597c67991224948e0a3da427cc9/libctf/libctf.ver",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2f6ecaed667d1597c67991224948e0a3da427cc9/libctf/libctf.ver",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/libctf.ver?ref=2f6ecaed667d1597c67991224948e0a3da427cc9",
+      "patch": "@@ -128,6 +128,7 @@ LIBCTF_1.0 {\n \tctf_arc_write;\n \tctf_arc_write_fd;\n \tctf_arc_open;\n+\tctf_arc_bufopen;\n \tctf_arc_close;\n \tctf_arc_open_by_name;\n \tctf_arc_open_by_name_sections;"
+    }
+  ]
+}

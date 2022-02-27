@@ -1,0 +1,182 @@
+{
+  "sha": "791915db4273edbfb1952897cbf4c9745101c0e4",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NzkxOTE1ZGI0MjczZWRiZmIxOTUyODk3Y2JmNGM5NzQ1MTAxYzBlNA==",
+  "commit": {
+    "author": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2019-08-05T10:40:33Z"
+    },
+    "committer": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2019-10-03T16:04:56Z"
+    },
+    "message": "libctf: handle nonrepresentable types at link time\n\nGCC can emit references to type 0 to indicate that this type is one that\nis not representable in the version of CTF it emits (for instance,\nversion 3 cannot encode vector types).  Type 0 is already used in the\nfunction section to indicate padding inserted to skip functions we do\nnot want to encode the type of, so using zero in this way is a good\nextension of the format: but libctf reports such types as ECTF_BADID,\nwhich is indistinguishable from file corruption via links to truly\nnonexistent types with IDs like 0xDEADBEEF etc, which we really do want\nto stop for.\n\nIn particular, this stops all traversals of types dead at this point,\npreventing us from even dumping CTF files containing unrepresentable\ntypes to see what's going on!\n\nSo add a new error, ECTF_NONREPRESENTABLE, which is returned by\nrecursive type resolution when a reference to a zero type is found.  (No\nzero type is ever emitted into the CTF file by GCC, only references to\none).  We can't do much with types that are ultimately nonrepresentable,\nbut we can do enough to keep functioning.\n\nAdjust ctf_add_type to ensure that top-level types of type zero and\nstructure and union members of ultimate type zero are simply skipped\nwithout reporting an error, so we can copy structures and unions that\ncontain nonrepresentable members (skipping them and leaving a hole where\nthey would be, so no consumers downstream of the linker need to worry\nabout this): adjust the dumper so that we dump members of\nnonrepresentable types in a simple form that indicates\nnonrepresentability rather than terminating the dump, and do not falsely\nassume all errors to be -ENOMEM: adjust the linker so that types that\nfail to get added are simply skipped, so that both nonrepresentable\ntypes and outright errors do not terminate the type addition, which\ncould skip many valid types and cause further errors when variables of\nthose types are added.\n\nIn future, when we gain the ability to call back to the linker to report\nlink-time type resolution errors, we should report failures to add all\nbut nonrepresentable types.  But we can't do that yet.\n\nv5: Fix tabdamage.\n\ninclude/\n\t* ctf-api.h (ECTF_NONREPRESENTABLE): New.\nlibctf/\n\t* ctf-types.c (ctf_type_resolve): Return ECTF_NONREPRESENTABLE on\n\ttype zero.\n\t* ctf-create.c (ctf_add_type): Detect and skip nonrepresentable\n\tmembers and types.\n\t(ctf_add_variable): Likewise for variables pointing to them.\n\t* ctf-link.c (ctf_link_one_type): Do not warn for nonrepresentable\n\ttype link failure, but do warn for others.\n\t* ctf-dump.c (ctf_dump_format_type): Likewise.  Do not assume all\n\terrors to be ENOMEM.\n\t(ctf_dump_member): Likewise.\n\t(ctf_dump_type): Likewise.\n\t(ctf_dump_header_strfield): Do not assume all errors to be ENOMEM.\n\t(ctf_dump_header_sectfield): Do not assume all errors to be ENOMEM.\n\t(ctf_dump_header): Likewise.\n\t(ctf_dump_label): likewise.\n\t(ctf_dump_objts): likewise.\n\t(ctf_dump_funcs): likewise.\n\t(ctf_dump_var): likewise.\n\t(ctf_dump_str): Likewise.",
+    "tree": {
+      "sha": "d644af2e1b4a49717f5440514bdd63c06b7402be",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/d644af2e1b4a49717f5440514bdd63c06b7402be"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/791915db4273edbfb1952897cbf4c9745101c0e4",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/791915db4273edbfb1952897cbf4c9745101c0e4",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/791915db4273edbfb1952897cbf4c9745101c0e4",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/791915db4273edbfb1952897cbf4c9745101c0e4/comments",
+  "author": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "fd86991bc5f1d0ff256b396fbb41f0125ed00c17",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/fd86991bc5f1d0ff256b396fbb41f0125ed00c17",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/fd86991bc5f1d0ff256b396fbb41f0125ed00c17"
+    }
+  ],
+  "stats": {
+    "total": 164,
+    "additions": 136,
+    "deletions": 28
+  },
+  "files": [
+    {
+      "sha": "1f9534269e6594b8fe6f852562cf99db2d9171bc",
+      "filename": "include/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/791915db4273edbfb1952897cbf4c9745101c0e4/include/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/791915db4273edbfb1952897cbf4c9745101c0e4/include/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ChangeLog?ref=791915db4273edbfb1952897cbf4c9745101c0e4",
+      "patch": "@@ -1,3 +1,7 @@\n+2019-08-05  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-api.h (ECTF_NONREPRESENTABLE): New.\n+\n 2019-09-23  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctf-api.h: Note the instability of the ctf_link interfaces."
+    },
+    {
+      "sha": "b83ddc7a3bec2e09538c58a10fe5291f07f60719",
+      "filename": "include/ctf-api.h",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/791915db4273edbfb1952897cbf4c9745101c0e4/include/ctf-api.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/791915db4273edbfb1952897cbf4c9745101c0e4/include/ctf-api.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ctf-api.h?ref=791915db4273edbfb1952897cbf4c9745101c0e4",
+      "patch": "@@ -203,7 +203,8 @@ enum\n    ECTF_DUMPSECTUNKNOWN,\t/* Unknown section number in dump.  */\n    ECTF_DUMPSECTCHANGED,\t/* Section changed in middle of dump.  */\n    ECTF_NOTYET,\t\t\t/* Feature not yet implemented.  */\n-   ECTF_INTERNAL\t\t/* Internal error in link.  */\n+   ECTF_INTERNAL,\t\t/* Internal error in link.  */\n+   ECTF_NONREPRESENTABLE\t/* Type not representable in CTF.  */\n   };\n \n /* The CTF data model is inferred to be the caller's data model or the data"
+    },
+    {
+      "sha": "f3e136f21ea9976d850a922adcba18cf6dc4349a",
+      "filename": "libctf/ChangeLog",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/791915db4273edbfb1952897cbf4c9745101c0e4/libctf/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/791915db4273edbfb1952897cbf4c9745101c0e4/libctf/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ChangeLog?ref=791915db4273edbfb1952897cbf4c9745101c0e4",
+      "patch": "@@ -1,3 +1,25 @@\n+2019-08-05  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-types.c (ctf_type_resolve): Return ECTF_NONREPRESENTABLE on\n+\ttype zero.\n+\t* ctf-create.c (ctf_add_type): Detect and skip nonrepresentable\n+\tmembers and types.\n+\t(ctf_add_variable): Likewise for variables pointing to them.\n+\t* ctf-link.c (ctf_link_one_type): Do not warn for nonrepresentable\n+\ttype link failure, but do warn for others.\n+\t* ctf-dump.c (ctf_dump_format_type): Likewise.  Do not assume all\n+\terrors to be ENOMEM.\n+\t(ctf_dump_member): Likewise.\n+\t(ctf_dump_type): Likewise.\n+\t(ctf_dump_header_strfield): Do not assume all errors to be ENOMEM.\n+\t(ctf_dump_header_sectfield): Do not assume all errors to be ENOMEM.\n+\t(ctf_dump_header): Likewise.\n+\t(ctf_dump_label): likewise.\n+\t(ctf_dump_objts): likewise.\n+\t(ctf_dump_funcs): likewise.\n+\t(ctf_dump_var): likewise.\n+\t(ctf_dump_str): Likewise.\n+\n 2019-09-30  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* configure.ac (AC_DISABLE_SHARED): New, like opcodes/."
+    },
+    {
+      "sha": "466777acffb3983f5ca470e050de0ab55508d6e3",
+      "filename": "libctf/ctf-create.c",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 2,
+      "changes": 19,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/791915db4273edbfb1952897cbf4c9745101c0e4/libctf/ctf-create.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/791915db4273edbfb1952897cbf4c9745101c0e4/libctf/ctf-create.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-create.c?ref=791915db4273edbfb1952897cbf4c9745101c0e4",
+      "patch": "@@ -1439,6 +1439,11 @@ ctf_add_variable (ctf_file_t *fp, const char *name, ctf_id_t ref)\n   if (ctf_lookup_by_id (&tmp, ref) == NULL)\n     return -1;\t\t\t/* errno is set for us.  */\n \n+  /* Make sure this type is representable.  */\n+  if ((ctf_type_resolve (fp, ref) == CTF_ERR)\n+      && (ctf_errno (fp) == ECTF_NONREPRESENTABLE))\n+    return -1;\n+\n   if ((dvd = ctf_alloc (sizeof (ctf_dvdef_t))) == NULL)\n     return (ctf_set_errno (fp, EAGAIN));\n \n@@ -1571,6 +1576,10 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n   if ((src_tp = ctf_lookup_by_id (&src_fp, src_type)) == NULL)\n     return (ctf_set_errno (dst_fp, ctf_errno (src_fp)));\n \n+  if ((ctf_type_resolve (src_fp, src_type) == CTF_ERR)\n+      && (ctf_errno (src_fp) == ECTF_NONREPRESENTABLE))\n+    return (ctf_set_errno (dst_fp, ECTF_NONREPRESENTABLE));\n+\n   name = ctf_strptr (src_fp, src_tp->ctt_name);\n   kind = LCTF_INFO_KIND (src_fp, src_tp->ctt_info);\n   flag = LCTF_INFO_ISROOT (src_fp, src_tp->ctt_info);\n@@ -1906,13 +1915,19 @@ ctf_add_type (ctf_file_t *dst_fp, ctf_file_t *src_fp, ctf_id_t src_type)\n \n \t/* Make a final pass through the members changing each dmd_type (a\n \t   src_fp type) to an equivalent type in dst_fp.  We pass through all\n-\t   members, leaving any that fail set to CTF_ERR.  */\n+\t   members, leaving any that fail set to CTF_ERR, unless they fail\n+\t   because they are marking a member of type not representable in this\n+\t   version of CTF, in which case we just want to silently omit them:\n+\t   no consumer can do anything with them anyway.  */\n \tfor (dmd = ctf_list_next (&dtd->dtd_u.dtu_members);\n \t     dmd != NULL; dmd = ctf_list_next (dmd))\n \t  {\n \t    if ((dmd->dmd_type = ctf_add_type (dst_fp, src_fp,\n \t\t\t\t\t       dmd->dmd_type)) == CTF_ERR)\n-\t      errs++;\n+\t      {\n+\t\tif (ctf_errno (dst_fp) != ECTF_NONREPRESENTABLE)\n+\t\t  errs++;\n+\t      }\n \t  }\n \n \tif (errs)"
+    },
+    {
+      "sha": "df08f0b2a7a89b4dc3285fd0869d3df869813923",
+      "filename": "libctf/ctf-dump.c",
+      "status": "modified",
+      "additions": 70,
+      "deletions": 20,
+      "changes": 90,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/791915db4273edbfb1952897cbf4c9745101c0e4/libctf/ctf-dump.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/791915db4273edbfb1952897cbf4c9745101c0e4/libctf/ctf-dump.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-dump.c?ref=791915db4273edbfb1952897cbf4c9745101c0e4",
+      "patch": "@@ -116,7 +116,16 @@ ctf_dump_format_type (ctf_file_t *fp, ctf_id_t id, int flag)\n \n       buf = ctf_type_aname (fp, id);\n       if (!buf)\n-\tgoto oom;\n+\t{\n+\t  if (id == 0 || ctf_errno (fp) == ECTF_NONREPRESENTABLE)\n+\t    {\n+\t      str = ctf_str_append (str, \" (type not represented in CTF)\");\n+\t      ctf_set_errno (fp, ECTF_NOTREF);\n+\t      break;\n+\t    }\n+\n+\t  goto err;\n+\t}\n \n       /* Slices get a different print representation.  */\n \n@@ -156,10 +165,11 @@ ctf_dump_format_type (ctf_file_t *fp, ctf_id_t id, int flag)\n   return str;\n \n  oom:\n+  ctf_set_errno (fp, errno);\n+ err:\n   free (buf);\n   free (str);\n   free (bit);\n-  ctf_set_errno (fp, ENOMEM);\n   return NULL;\n }\n \n@@ -178,7 +188,7 @@ ctf_dump_header_strfield (ctf_file_t *fp, ctf_dump_state_t *state,\n   return 0;\n \n  err:\n-  return (ctf_set_errno (fp, -ENOMEM));\n+  return (ctf_set_errno (fp, errno));\n }\n \n /* Dump one section-offset field from the file header into the cds_items.  */\n@@ -198,7 +208,7 @@ ctf_dump_header_sectfield (ctf_file_t *fp, ctf_dump_state_t *state,\n   return 0;\n \n  err:\n-  return (ctf_set_errno (fp, -ENOMEM));\n+  return (ctf_set_errno (fp, errno));\n }\n \n /* Dump the file header into the cds_items.  */\n@@ -286,7 +296,7 @@ ctf_dump_header (ctf_file_t *fp, ctf_dump_state_t *state)\n \n   return 0;\n  err:\n-  return (ctf_set_errno (fp, -ENOMEM));\n+  return (ctf_set_errno (fp, errno));\n }\n \n /* Dump a single label into the cds_items.  */\n@@ -300,7 +310,7 @@ ctf_dump_label (const char *name, const ctf_lblinfo_t *info,\n   ctf_dump_state_t *state = arg;\n \n   if (asprintf (&str, \"%s -> \", name) < 0)\n-    return (ctf_set_errno (state->cds_fp, ENOMEM));\n+    return (ctf_set_errno (state->cds_fp, errno));\n \n   if ((typestr = ctf_dump_format_type (state->cds_fp, info->ctb_type,\n \t\t\t\t       CTF_ADD_ROOT)) == NULL)\n@@ -350,12 +360,12 @@ ctf_dump_objts (ctf_file_t *fp, ctf_dump_state_t *state)\n       if (sym_name[0] == '\\0')\n \t{\n \t  if (asprintf (&str, \"%lx -> \", (unsigned long) i) < 0)\n-\t    return (ctf_set_errno (fp, ENOMEM));\n+\t    return (ctf_set_errno (fp, errno));\n \t}\n       else\n \t{\n \t  if (asprintf (&str, \"%s (%lx) -> \", sym_name, (unsigned long) i) < 0)\n-\t    return (ctf_set_errno (fp, ENOMEM));\n+\t    return (ctf_set_errno (fp, errno));\n \t}\n \n       /* Variable type.  */\n@@ -384,8 +394,9 @@ ctf_dump_funcs (ctf_file_t *fp, ctf_dump_state_t *state)\n \n   for (i = 0; i < fp->ctf_nsyms; i++)\n     {\n-      char *str ;\n+      char *str;\n       char *bit;\n+      const char *err;\n       const char *sym_name;\n       ctf_funcinfo_t fi;\n       ctf_id_t type;\n@@ -410,7 +421,10 @@ ctf_dump_funcs (ctf_file_t *fp, ctf_dump_state_t *state)\n \n       /* Return type.  */\n       if ((str = ctf_type_aname (state->cds_fp, type)) == NULL)\n-\tgoto err;\n+\t{\n+\t  err = \"look up return type\";\n+\t  goto err;\n+\t}\n \n       str = ctf_str_append (str, \" \");\n \n@@ -434,12 +448,18 @@ ctf_dump_funcs (ctf_file_t *fp, ctf_dump_state_t *state)\n       /* Function arguments.  */\n \n       if (ctf_func_args (state->cds_fp, i, fi.ctc_argc, args) < 0)\n-\tgoto err;\n+\t{\n+\t  err = \"look up argument type\";\n+\t  goto err;\n+\t}\n \n       for (j = 0; j < fi.ctc_argc; j++)\n \t{\n \t  if ((bit = ctf_type_aname (state->cds_fp, args[j])) == NULL)\n-\t    goto err;\n+\t    {\n+\t      err = \"look up argument type name\";\n+\t      goto err;\n+\t    }\n \t  str = ctf_str_append (str, bit);\n \t  if ((j < fi.ctc_argc - 1) || (fi.ctc_flags & CTF_FUNC_VARARG))\n \t    str = ctf_str_append (str, \", \");\n@@ -457,8 +477,11 @@ ctf_dump_funcs (ctf_file_t *fp, ctf_dump_state_t *state)\n     oom:\n       free (args);\n       free (str);\n-      return (ctf_set_errno (fp, ENOMEM));\n+      return (ctf_set_errno (fp, errno));\n     err:\n+      ctf_dprintf (\"Cannot %s dumping function type for symbol 0x%li: %s\\n\",\n+\t\t   err, (unsigned long) i,\n+\t\t   ctf_errmsg (ctf_errno (state->cds_fp)));\n       free (args);\n       free (str);\n       return -1;\t\t/* errno is set for us.  */\n@@ -475,7 +498,7 @@ ctf_dump_var (const char *name, ctf_id_t type, void *arg)\n   ctf_dump_state_t *state = arg;\n \n   if (asprintf (&str, \"%s -> \", name) < 0)\n-    return (ctf_set_errno (state->cds_fp, ENOMEM));\n+    return (ctf_set_errno (state->cds_fp, errno));\n \n   if ((typestr = ctf_dump_format_type (state->cds_fp, type,\n \t\t\t\t       CTF_ADD_ROOT)) == NULL)\n@@ -506,7 +529,21 @@ ctf_dump_member (const char *name, ctf_id_t id, unsigned long offset,\n     *state->cdm_str = ctf_str_append (*state->cdm_str, \"    \");\n \n   if ((typestr = ctf_type_aname (state->cdm_fp, id)) == NULL)\n-    goto oom;\n+    {\n+      if (id == 0 || ctf_errno (state->cdm_fp) == ECTF_NONREPRESENTABLE)\n+\t{\n+\t  if (asprintf (&bit, \"    [0x%lx] (type not represented in CTF)\",\n+\t\t\toffset) < 0)\n+\t    goto oom;\n+\n+\t  *state->cdm_str = ctf_str_append (*state->cdm_str, bit);\n+\t  free (typestr);\n+\t  free (bit);\n+\t  return 0;\n+\t}\n+\n+      goto oom;\n+    }\n \n   if (asprintf (&bit, \"    [0x%lx] (ID 0x%lx) (kind %i) %s %s (aligned at 0x%lx\",\n \t\toffset, id, ctf_type_kind (state->cdm_fp, id), typestr, name,\n@@ -537,25 +574,36 @@ ctf_dump_member (const char *name, ctf_id_t id, unsigned long offset,\n  oom:\n   free (typestr);\n   free (bit);\n-  return (ctf_set_errno (state->cdm_fp, ENOMEM));\n+  return (ctf_set_errno (state->cdm_fp, errno));\n }\n \n /* Dump a single type into the cds_items.  */\n-\n static int\n ctf_dump_type (ctf_id_t id, int flag, void *arg)\n {\n   char *str;\n+  const char *err;\n   ctf_dump_state_t *state = arg;\n   ctf_dump_membstate_t membstate = { &str, state->cds_fp };\n   size_t len;\n \n   if ((str = ctf_dump_format_type (state->cds_fp, id, flag)) == NULL)\n-    goto err;\n+    {\n+      err = \"format type\";\n+      goto err;\n+    }\n \n   str = ctf_str_append (str, \"\\n\");\n   if ((ctf_type_visit (state->cds_fp, id, ctf_dump_member, &membstate)) < 0)\n-    goto err;\n+    {\n+      if (id == 0 || ctf_errno (state->cds_fp) == ECTF_NONREPRESENTABLE)\n+\t{\n+\t  ctf_dump_append (state, str);\n+\t  return 0;\n+\t}\n+      err = \"visit members\";\n+      goto err;\n+    }\n \n   /* Trim off the last linefeed added by ctf_dump_member().  */\n   len = strlen (str);\n@@ -566,6 +614,8 @@ ctf_dump_type (ctf_id_t id, int flag, void *arg)\n   return 0;\n \n  err:\n+  ctf_dprintf (\"Cannot %s dumping type 0x%lx: %s\\n\", err, id,\n+\t       ctf_errmsg (ctf_errno (state->cds_fp)));\n   free (str);\n   return -1;\t\t\t\t/* errno is set for us.  */\n }\n@@ -584,7 +634,7 @@ ctf_dump_str (ctf_file_t *fp, ctf_dump_state_t *state)\n       if (asprintf (&str, \"%lx: %s\",\n \t\t    (unsigned long) (s - fp->ctf_str[CTF_STRTAB_0].cts_strs),\n \t\t    s) < 0)\n-\treturn (ctf_set_errno (fp, ENOMEM));\n+\treturn (ctf_set_errno (fp, errno));\n       ctf_dump_append (state, str);\n       s += strlen (s) + 1;\n     }"
+    },
+    {
+      "sha": "c0adb4bb519a21e1310f631f0bdb2694b5991c91",
+      "filename": "libctf/ctf-error.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/791915db4273edbfb1952897cbf4c9745101c0e4/libctf/ctf-error.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/791915db4273edbfb1952897cbf4c9745101c0e4/libctf/ctf-error.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-error.c?ref=791915db4273edbfb1952897cbf4c9745101c0e4",
+      "patch": "@@ -70,7 +70,8 @@ static const char *const _ctf_errlist[] = {\n   \"Unknown section number in dump\",\t\t     /* ECTF_DUMPSECTUNKNOWN */\n   \"Section changed in middle of dump\",\t\t     /* ECTF_DUMPSECTCHANGED */\n   \"Feature not yet implemented\",\t\t     /* ECTF_NOTYET */\n-  \"Internal error in link\"\t\t\t     /* ECTF_INTERNAL */\n+  \"Internal error in link\",\t\t\t     /* ECTF_INTERNAL */\n+  \"Type not representable in CTF\"\t\t     /* ECTF_NONREPRESENTABLE */\n };\n \n static const int _ctf_nerr = sizeof (_ctf_errlist) / sizeof (_ctf_errlist[0]);"
+    },
+    {
+      "sha": "e2a034841153b39781c5b9a405c792e4f06d3789",
+      "filename": "libctf/ctf-link.c",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 4,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/791915db4273edbfb1952897cbf4c9745101c0e4/libctf/ctf-link.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/791915db4273edbfb1952897cbf4c9745101c0e4/libctf/ctf-link.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-link.c?ref=791915db4273edbfb1952897cbf4c9745101c0e4",
+      "patch": "@@ -348,10 +348,15 @@ ctf_link_one_type (ctf_id_t type, int isroot _libctf_unused_, void *arg_)\n       err = ctf_errno (arg->out_fp);\n       if (err != ECTF_CONFLICT)\n \t{\n-\t  ctf_dprintf (\"Cannot link type %lx from archive member %s, input file %s \"\n-\t\t       \"into output link: %s\\n\", type, arg->arcname, arg->file_name,\n-\t\t       ctf_errmsg (err));\n-\t  return -1;\n+\t  if (err != ECTF_NONREPRESENTABLE)\n+\t    ctf_dprintf (\"Cannot link type %lx from archive member %s, input file %s \"\n+\t\t\t \"into output link: %s\\n\", type, arg->arcname, arg->file_name,\n+\t\t\t ctf_errmsg (err));\n+\t  /* We must ignore this problem or we end up losing future types, then\n+\t     trying to link the variables in, then exploding.  Better to link as\n+\t     much as possible.  XXX when we add a proper link warning\n+\t     infrastructure, we should report the error here!  */\n+\t  return 0;\n \t}\n       ctf_set_errno (arg->out_fp, 0);\n     }\n@@ -364,6 +369,11 @@ ctf_link_one_type (ctf_id_t type, int isroot _libctf_unused_, void *arg_)\n     return 0;\n \n   err = ctf_errno (per_cu_out_fp);\n+  if (err != ECTF_NONREPRESENTABLE)\n+    ctf_dprintf (\"Cannot link type %lx from CTF archive member %s, input file %s \"\n+\t\t \"into output per-CU CTF archive member %s: %s: skipped\\n\", type,\n+\t\t arg->arcname, arg->file_name, arg->arcname,\n+\t\t ctf_errmsg (err));\n   if (err == ECTF_CONFLICT)\n       /* Conflicts are possible at this stage only if a non-ld user has combined\n \t multiple TUs into a single output dictionary.  Even in this case we do not"
+    },
+    {
+      "sha": "9fe4d5a6d73b4fdb46143ca2839cb54bec0f88d2",
+      "filename": "libctf/ctf-types.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/791915db4273edbfb1952897cbf4c9745101c0e4/libctf/ctf-types.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/791915db4273edbfb1952897cbf4c9745101c0e4/libctf/ctf-types.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-types.c?ref=791915db4273edbfb1952897cbf4c9745101c0e4",
+      "patch": "@@ -200,6 +200,9 @@ ctf_type_resolve (ctf_file_t *fp, ctf_id_t type)\n   ctf_file_t *ofp = fp;\n   const ctf_type_t *tp;\n \n+  if (type == 0)\n+    return (ctf_set_errno (ofp, ECTF_NONREPRESENTABLE));\n+\n   while ((tp = ctf_lookup_by_id (&fp, type)) != NULL)\n     {\n       switch (LCTF_INFO_KIND (fp, tp->ctt_info))\n@@ -220,6 +223,8 @@ ctf_type_resolve (ctf_file_t *fp, ctf_id_t type)\n \tdefault:\n \t  return type;\n \t}\n+      if (type == 0)\n+\treturn (ctf_set_errno (ofp, ECTF_NONREPRESENTABLE));\n     }\n \n   return CTF_ERR;\t\t/* errno is set for us.  */"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "sha": "ee077885e5d182d0d9fba090f3505f16f640dff7",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZWUwNzc4ODVlNWQxODJkMGQ5ZmJhMDkwZjM1MDVmMTZmNjQwZGZmNw==",
+  "commit": {
+    "author": {
+      "name": "James Bowman (FTDI-UK)",
+      "email": "james.bowman@ftdichip.com",
+      "date": "2021-08-24T02:16:56Z"
+    },
+    "committer": {
+      "name": "Alan Modra",
+      "email": "amodra@gmail.com",
+      "date": "2021-08-24T11:09:29Z"
+    },
+    "message": "FT32: Remove recursion in ft32_opcode\n\nThe function ft32_opcode used recursion.  This could cause a stack\noverflow.  Replaced with a pair of non-recursive functions.\n\n\tPR 28169\n        * ft32-dis.c: Formatting.\n\t(ft32_opcode1): Split out from..\n\t(ft32_opcode): ..here.",
+    "tree": {
+      "sha": "85fb502c809a2f02e2773350c1c2ce1fd63a3e96",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/85fb502c809a2f02e2773350c1c2ce1fd63a3e96"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ee077885e5d182d0d9fba090f3505f16f640dff7",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ee077885e5d182d0d9fba090f3505f16f640dff7",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ee077885e5d182d0d9fba090f3505f16f640dff7",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ee077885e5d182d0d9fba090f3505f16f640dff7/comments",
+  "author": null,
+  "committer": {
+    "login": "amodra",
+    "id": 6006325,
+    "node_id": "MDQ6VXNlcjYwMDYzMjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6006325?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/amodra",
+    "html_url": "https://github.com/amodra",
+    "followers_url": "https://api.github.com/users/amodra/followers",
+    "following_url": "https://api.github.com/users/amodra/following{/other_user}",
+    "gists_url": "https://api.github.com/users/amodra/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/amodra/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/amodra/subscriptions",
+    "organizations_url": "https://api.github.com/users/amodra/orgs",
+    "repos_url": "https://api.github.com/users/amodra/repos",
+    "events_url": "https://api.github.com/users/amodra/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/amodra/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "ba675877223cae6a9fe52da7f36f25803de2ef5d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ba675877223cae6a9fe52da7f36f25803de2ef5d",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/ba675877223cae6a9fe52da7f36f25803de2ef5d"
+    }
+  ],
+  "stats": {
+    "total": 229,
+    "additions": 115,
+    "deletions": 114
+  },
+  "files": [
+    {
+      "sha": "6c68dea9bc8b357e6e35abc8c1393f5e7780ea72",
+      "filename": "opcodes/ft32-dis.c",
+      "status": "modified",
+      "additions": 115,
+      "deletions": 114,
+      "changes": 229,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ee077885e5d182d0d9fba090f3505f16f640dff7/opcodes/ft32-dis.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ee077885e5d182d0d9fba090f3505f16f640dff7/opcodes/ft32-dis.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/ft32-dis.c?ref=ee077885e5d182d0d9fba090f3505f16f640dff7",
+      "patch": "@@ -33,145 +33,146 @@ static fprintf_ftype fpr;\n static void *stream;\n \n static int\n-sign_extend(int bit, int value)\n+sign_extend (int bit, int value)\n {\n   int onebit = (1 << bit);\n   return (value & (onebit - 1)) - (value & onebit);\n }\n \n static void\n-ft32_opcode(bfd_vma addr ATTRIBUTE_UNUSED,\n-            unsigned int iword,\n-            struct disassemble_info *info)\n+ft32_opcode1 (unsigned int iword,\n+\t      struct disassemble_info *info)\n {\n   const ft32_opc_info_t *oo;\n \n   for (oo = ft32_opc_info; oo->name; oo++)\n     if ((iword & oo->mask) == oo->bits)\n       break;\n \n-  unsigned int sc[2];\n-  if (ft32_decode_shortcode((unsigned int)addr, iword, sc))\n-    {\n-      ft32_opcode(addr, sc[0], info);\n-      fpr (stream, \" ; \");\n-      ft32_opcode(addr, sc[1], info);\n-    }\n-\n   if (oo->name)\n     {\n       int f = oo->fields;\n       int imm;\n \n       fpr (stream, \"%s\", oo->name);\n       if (oo->dw)\n-        {\n-          fpr (stream, \".%c \", \"bsl\"[(iword >> FT32_FLD_DW_BIT) & 3]);\n-        }\n+\tfpr (stream, \".%c \", \"bsl\"[(iword >> FT32_FLD_DW_BIT) & 3]);\n       else\n-        {\n-          fpr (stream, \" \");\n-        }\n+\tfpr (stream, \" \");\n \n       while (f)\n-        {\n-          int lobit = f & -f;\n-          if (f & lobit)\n-            {\n-              switch (lobit)\n-              {\n-              case  FT32_FLD_CBCRCV:\n-                /* imm is {CB, CV}  */\n-                imm = ((iword >> FT32_FLD_CB_BIT) & ((1 << FT32_FLD_CB_SIZ) - 1)) << 4;\n-                imm |= ((iword >> FT32_FLD_CV_BIT) & ((1 << FT32_FLD_CV_SIZ) - 1));\n-                switch (imm)\n-                {\n-                case 0x00: fpr(stream, \"nz\");  break;\n-                case 0x01: fpr(stream, \"z\");   break;\n-                case 0x10: fpr(stream, \"ae\");  break;\n-                case 0x11: fpr(stream, \"b\");   break;\n-                case 0x20: fpr(stream, \"no\");  break;\n-                case 0x21: fpr(stream, \"o\");   break;\n-                case 0x30: fpr(stream, \"ns\");  break;\n-                case 0x31: fpr(stream, \"s\");   break;\n-                case 0x40: fpr(stream, \"lt\");  break;\n-                case 0x41: fpr(stream, \"gte\"); break;\n-                case 0x50: fpr(stream, \"lte\"); break;\n-                case 0x51: fpr(stream, \"gt\");  break;\n-                case 0x60: fpr(stream, \"be\");  break;\n-                case 0x61: fpr(stream, \"a\");   break;\n-                default:   fpr(stream, \"%d,$r30,%d\", (imm >> 4), (imm & 1)); break;\n-                }\n-                break;\n-              case  FT32_FLD_CB:\n-                imm = (iword >> FT32_FLD_CB_BIT) & ((1 << FT32_FLD_CB_SIZ) - 1);\n-                fpr(stream, \"%d\", imm);\n-                break;\n-              case  FT32_FLD_R_D:\n-                fpr(stream, \"$r%d\", (iword >> FT32_FLD_R_D_BIT) & 0x1f);\n-                break;\n-              case  FT32_FLD_CR:\n-                imm = (iword >> FT32_FLD_CR_BIT) & ((1 << FT32_FLD_CR_SIZ) - 1);\n-                fpr(stream, \"$r%d\", 28 + imm);\n-                break;\n-              case  FT32_FLD_CV:\n-                imm = (iword >> FT32_FLD_CV_BIT) & ((1 << FT32_FLD_CV_SIZ) - 1);\n-                fpr(stream, \"%d\", imm);\n-                break;\n-              case  FT32_FLD_R_1:\n-                fpr(stream, \"$r%d\", (iword >> FT32_FLD_R_1_BIT) & 0x1f);\n-                break;\n-              case  FT32_FLD_RIMM:\n-                imm = (iword >> FT32_FLD_RIMM_BIT) & ((1 << FT32_FLD_RIMM_SIZ) - 1);\n-                if (imm & 0x400)\n-                  fpr(stream, \"%d\", sign_extend(9, imm));\n-                else\n-                  fpr(stream, \"$r%d\", imm & 0x1f);\n-                break;\n-              case  FT32_FLD_R_2:\n-                fpr(stream, \"$r%d\", (iword >> FT32_FLD_R_2_BIT) & 0x1f);\n-                break;\n-              case  FT32_FLD_K20:\n-                imm = iword & ((1 << FT32_FLD_K20_SIZ) - 1);\n-                fpr(stream, \"%d\", sign_extend(19, imm));\n-                break;\n-              case  FT32_FLD_PA:\n-                imm = (iword & ((1 << FT32_FLD_PA_SIZ) - 1)) << 2;\n-                info->print_address_func ((bfd_vma) imm, info);\n-                break;\n-              case  FT32_FLD_AA:\n-                imm = iword & ((1 << FT32_FLD_AA_SIZ) - 1);\n-                info->print_address_func ((1 << 23) | (bfd_vma) imm, info);\n-                break;\n-              case  FT32_FLD_K16:\n-                imm = iword & ((1 << FT32_FLD_K16_SIZ) - 1);\n-                fpr(stream, \"%d\", imm);\n-                break;\n-              case  FT32_FLD_K15:\n-                imm = iword & ((1 << FT32_FLD_K15_SIZ) - 1);\n-                fpr(stream, \"%d\", sign_extend(14, imm));\n-                break;\n-              case  FT32_FLD_R_D_POST:\n-                fpr(stream, \"$r%d\", (iword >> FT32_FLD_R_D_BIT) & 0x1f);\n-                break;\n-              case  FT32_FLD_R_1_POST:\n-                fpr(stream, \"$r%d\", (iword >> FT32_FLD_R_1_BIT) & 0x1f);\n-                break;\n-              default:\n-                break;\n-              }\n-              f &= ~lobit;\n-              if (f)\n-                {\n-                  fpr(stream, \",\");\n-                }\n-            }\n-        }\n+\t{\n+\t  int lobit = f & -f;\n+\t  if (f & lobit)\n+\t    {\n+\t      switch (lobit)\n+\t\t{\n+\t\tcase  FT32_FLD_CBCRCV:\n+\t\t  /* imm is {CB, CV}  */\n+\t\t  imm = ((iword >> FT32_FLD_CB_BIT) & ((1 << FT32_FLD_CB_SIZ) - 1)) << 4;\n+\t\t  imm |= ((iword >> FT32_FLD_CV_BIT) & ((1 << FT32_FLD_CV_SIZ) - 1));\n+\t\t  switch (imm)\n+\t\t    {\n+\t\t    case 0x00: fpr (stream, \"nz\");  break;\n+\t\t    case 0x01: fpr (stream, \"z\");   break;\n+\t\t    case 0x10: fpr (stream, \"ae\");  break;\n+\t\t    case 0x11: fpr (stream, \"b\");   break;\n+\t\t    case 0x20: fpr (stream, \"no\");  break;\n+\t\t    case 0x21: fpr (stream, \"o\");   break;\n+\t\t    case 0x30: fpr (stream, \"ns\");  break;\n+\t\t    case 0x31: fpr (stream, \"s\");   break;\n+\t\t    case 0x40: fpr (stream, \"lt\");  break;\n+\t\t    case 0x41: fpr (stream, \"gte\"); break;\n+\t\t    case 0x50: fpr (stream, \"lte\"); break;\n+\t\t    case 0x51: fpr (stream, \"gt\");  break;\n+\t\t    case 0x60: fpr (stream, \"be\");  break;\n+\t\t    case 0x61: fpr (stream, \"a\");   break;\n+\t\t    default:\n+\t\t      fpr (stream, \"%d,$r30,%d\", (imm >> 4), (imm & 1));\n+\t\t      break;\n+\t\t    }\n+\t\t  break;\n+\t\tcase  FT32_FLD_CB:\n+\t\t  imm = (iword >> FT32_FLD_CB_BIT) & ((1 << FT32_FLD_CB_SIZ) - 1);\n+\t\t  fpr (stream, \"%d\", imm);\n+\t\t  break;\n+\t\tcase  FT32_FLD_R_D:\n+\t\t  fpr (stream, \"$r%d\", (iword >> FT32_FLD_R_D_BIT) & 0x1f);\n+\t\t  break;\n+\t\tcase  FT32_FLD_CR:\n+\t\t  imm = (iword >> FT32_FLD_CR_BIT) & ((1 << FT32_FLD_CR_SIZ) - 1);\n+\t\t  fpr (stream, \"$r%d\", 28 + imm);\n+\t\t  break;\n+\t\tcase  FT32_FLD_CV:\n+\t\t  imm = (iword >> FT32_FLD_CV_BIT) & ((1 << FT32_FLD_CV_SIZ) - 1);\n+\t\t  fpr (stream, \"%d\", imm);\n+\t\t  break;\n+\t\tcase  FT32_FLD_R_1:\n+\t\t  fpr (stream, \"$r%d\", (iword >> FT32_FLD_R_1_BIT) & 0x1f);\n+\t\t  break;\n+\t\tcase  FT32_FLD_RIMM:\n+\t\t  imm = (iword >> FT32_FLD_RIMM_BIT) & ((1 << FT32_FLD_RIMM_SIZ) - 1);\n+\t\t  if (imm & 0x400)\n+\t\t    fpr (stream, \"%d\", sign_extend (9, imm));\n+\t\t  else\n+\t\t    fpr (stream, \"$r%d\", imm & 0x1f);\n+\t\t  break;\n+\t\tcase  FT32_FLD_R_2:\n+\t\t  fpr (stream, \"$r%d\", (iword >> FT32_FLD_R_2_BIT) & 0x1f);\n+\t\t  break;\n+\t\tcase  FT32_FLD_K20:\n+\t\t  imm = iword & ((1 << FT32_FLD_K20_SIZ) - 1);\n+\t\t  fpr (stream, \"%d\", sign_extend (19, imm));\n+\t\t  break;\n+\t\tcase  FT32_FLD_PA:\n+\t\t  imm = (iword & ((1 << FT32_FLD_PA_SIZ) - 1)) << 2;\n+\t\t  info->print_address_func ((bfd_vma) imm, info);\n+\t\t  break;\n+\t\tcase  FT32_FLD_AA:\n+\t\t  imm = iword & ((1 << FT32_FLD_AA_SIZ) - 1);\n+\t\t  info->print_address_func ((1 << 23) | (bfd_vma) imm, info);\n+\t\t  break;\n+\t\tcase  FT32_FLD_K16:\n+\t\t  imm = iword & ((1 << FT32_FLD_K16_SIZ) - 1);\n+\t\t  fpr (stream, \"%d\", imm);\n+\t\t  break;\n+\t\tcase  FT32_FLD_K15:\n+\t\t  imm = iword & ((1 << FT32_FLD_K15_SIZ) - 1);\n+\t\t  fpr (stream, \"%d\", sign_extend (14, imm));\n+\t\t  break;\n+\t\tcase  FT32_FLD_R_D_POST:\n+\t\t  fpr (stream, \"$r%d\", (iword >> FT32_FLD_R_D_BIT) & 0x1f);\n+\t\t  break;\n+\t\tcase  FT32_FLD_R_1_POST:\n+\t\t  fpr (stream, \"$r%d\", (iword >> FT32_FLD_R_1_BIT) & 0x1f);\n+\t\t  break;\n+\t\tdefault:\n+\t\t  break;\n+\t\t}\n+\t      f &= ~lobit;\n+\t      if (f)\n+\t\tfpr (stream, \",\");\n+\t    }\n+\t}\n     }\n-    else\n+  else\n+    fpr (stream, \"!\");\n+}\n+\n+static void\n+ft32_opcode (bfd_vma addr ATTRIBUTE_UNUSED,\n+\t     unsigned int iword,\n+\t     struct disassemble_info *info)\n+{\n+  unsigned int sc[2];\n+  if (ft32_decode_shortcode ((unsigned int) addr, iword, sc))\n     {\n-      fpr (stream, \"!\");\n+      ft32_opcode1 (sc[0], info);\n+      fpr (stream, \" ; \");\n+      ft32_opcode1 (sc[1], info);\n     }\n+  else\n+    ft32_opcode1 (iword, info);\n }\n \n int\n@@ -191,7 +192,7 @@ print_insn_ft32 (bfd_vma addr, struct disassemble_info *info)\n \n   fpr (stream, \"%08x \", iword);\n \n-  ft32_opcode(addr, iword, info);\n+  ft32_opcode (addr, iword, info);\n \n   return 4;\n "
+    }
+  ]
+}

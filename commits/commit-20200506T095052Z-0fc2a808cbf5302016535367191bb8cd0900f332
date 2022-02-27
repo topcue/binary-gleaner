@@ -1,0 +1,110 @@
+{
+  "sha": "0fc2a808cbf5302016535367191bb8cd0900f332",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MGZjMmE4MDhjYmY1MzAyMDE2NTM1MzY3MTkxYmI4Y2QwOTAwZjMzMg==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-05-06T09:50:52Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-05-06T09:50:52Z"
+    },
+    "message": "[gdb/testsuite] Fix gdb.base/shlib-call.exp with gcc-8\n\nWhen running test-case gdb.base/shlib-call.exp with gcc-8 instead of gcc-7, we\nhave:\n...\n (gdb) step^M\n-main () at /data/gdb_versions/devel/src/gdb/testsuite/gdb.base/shmain.c:42^M\n-42        g = mainshr1(g);^M\n-(gdb) PASS: gdb.base/shlib-call.exp: step out of shr2 epilogue to main\n+main () at /data/gdb_versions/devel/src/gdb/testsuite/gdb.base/shmain.c:41^M\n+41        g = shr2(g);^M\n+(gdb) FAIL: gdb.base/shlib-call.exp: step out of shr2 epilogue to main\n...\n\nThis is due to the fact that gcc-8 generates more precise line info, making\nthe instruction after the call to shr2 at 0x4008f1:\n...\n  4008e4:  8b 05 aa 07 20 00  mov    0x2007aa(%rip),%eax  # 601094 <g>\n  4008ea:  89 c7              mov    %eax,%edi\n  4008ec:  e8 1f fe ff ff     callq  400710 <shr2@plt>\n  4008f1:  89 05 9d 07 20 00  mov    %eax,0x20079d(%rip)  # 601094 <g>\n...\na \"recommended breakpoint location\":\n...\n  [0x00000287]  Special opcode 187: advance Address by 13 to 0x4008f1 and \\\n    Line by 0 to 41\n...\nso when stepping out of shr2, gdb steps back onto line 41, the line containing\nthe call to shr2.\n\nFix this by detecting this situation and adding an extra step to reach\nline 42.\n\nTested on x86_64-linux.\n\ngdb/testsuite/ChangeLog:\n\n2020-05-06  Tom de Vries  <tdevries@suse.de>\n\n\t* gdb.base/shlib-call.exp: Add extra step to reach shmain.c:42, if\n\tnecessary.",
+    "tree": {
+      "sha": "1c680126b39af32a69a863813805622414b00057",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/1c680126b39af32a69a863813805622414b00057"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/0fc2a808cbf5302016535367191bb8cd0900f332",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0fc2a808cbf5302016535367191bb8cd0900f332",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/0fc2a808cbf5302016535367191bb8cd0900f332",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0fc2a808cbf5302016535367191bb8cd0900f332/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "873dd4273f9742e8e2f36868cd49dc83b6f199f5",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/873dd4273f9742e8e2f36868cd49dc83b6f199f5",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/873dd4273f9742e8e2f36868cd49dc83b6f199f5"
+    }
+  ],
+  "stats": {
+    "total": 16,
+    "additions": 13,
+    "deletions": 3
+  },
+  "files": [
+    {
+      "sha": "b2f90912502fce913c8e89400f1907d7dac77a27",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0fc2a808cbf5302016535367191bb8cd0900f332/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0fc2a808cbf5302016535367191bb8cd0900f332/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=0fc2a808cbf5302016535367191bb8cd0900f332",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-05-06  Tom de Vries  <tdevries@suse.de>\n+\n+\t* gdb.base/shlib-call.exp: Add extra step to reach shmain.c:42, if\n+\tnecessary.\n+\n 2020-05-06  Tom de Vries  <tdevries@suse.de>\n \n \t* lib/unbuffer_output.c (gdb_unbuffer_output): Change return type to"
+    },
+    {
+      "sha": "97e04cdbb5e09838d6b12ae38f9a303bd49d1ef1",
+      "filename": "gdb/testsuite/gdb.base/shlib-call.exp",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 3,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0fc2a808cbf5302016535367191bb8cd0900f332/gdb/testsuite/gdb.base/shlib-call.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0fc2a808cbf5302016535367191bb8cd0900f332/gdb/testsuite/gdb.base/shlib-call.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/shlib-call.exp?ref=0fc2a808cbf5302016535367191bb8cd0900f332",
+      "patch": "@@ -142,9 +142,14 @@ gdb_test_multiple \"step\" \"step out of shr2 to main\" {\n     }\n     -re \".*\\\\\\}.*$gdb_prompt $\" {\n \tpass \"step out of shr2 to main (stopped in shr2 epilogue)\"\n-\tgdb_test \"step\" \\\n-\t    \"main \\\\(\\\\) at.*g = mainshr1\\\\(g\\\\);\" \\\n-\t    \"step out of shr2 epilogue to main\"\n+\tgdb_test_multiple \"step\" \"step out of shr2 epilogue to main\" {\n+\t    -re -wrap \"main \\\\(\\\\) at.*g = mainshr1\\\\(g\\\\);\" {\n+\t\tpass $gdb_test_name\n+\t    }\n+\t    -re -wrap \"main \\\\(\\\\) at.*g = shr2\\\\(g\\\\);\" {\n+\t\tgdb_test \"step\" \"g = mainshr1\\\\(g\\\\);\" $gdb_test_name\n+\t    }\n+\t}\n     }\n }\n     "
+    }
+  ]
+}

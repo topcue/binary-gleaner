@@ -1,0 +1,182 @@
+{
+  "sha": "77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NzdkNzI0YTdlY2RiM2ZhODQ1NTdiMGVlNWM4YjdlYTk0OWNlNTZhNQ==",
+  "commit": {
+    "author": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2021-03-18T12:37:52Z"
+    },
+    "committer": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2021-03-18T12:40:40Z"
+    },
+    "message": "libctf: eliminate dtd_u, part 4: enums\n\nThis is the first tricky one, the first complex multi-entry vlen\ncontaining strings.  To handle this in vlen form, we have to handle\npending refs moving around on realloc.\n\nWe grow vlen regions using a new ctf_grow_vlen function, and iterate\nthrough the existing enums every time a grow happens, telling the string\nmachinery the distance between the old and new vlen region and letting\nit adjust the pending refs accordingly.  (This avoids traversing all\noutstanding refs to find the refs that need adjusting, at the cost of\nhaving to traverse one enum: an obvious major performance win.)\n\nAddition of enums themselves (and also structs/unions later) is a bit\ntrickier than earlier forms, because the type might be being promoted\nfrom a forward, and forwards have no vlen: so we have to spot that and\ncreate it if needed.\n\nSerialization of enums simplifies down to just telling the string\nmachinery about the string refs; all the enum type-lookup code loses all\nits dynamic member lookup complexity entirely.\n\nA new test is added that iterates over (and gets values of) an enum with\nenough members to force a round of vlen growth.\n\nlibctf/ChangeLog\n2021-03-18  Nick Alcock  <nick.alcock@oracle.com>\n\n\t* ctf-impl.h (ctf_dtdef_t) <dtd_vlen_alloc>: New.\n\t(ctf_str_move_pending): Declare.\n\t* ctf-string.c (ctf_str_add_ref_internal): Fix error return.\n\t(ctf_str_move_pending): New.\n\t* ctf-create.c (ctf_grow_vlen): New.\n\t(ctf_dtd_delete): Zero out the vlen_alloc after free.  Free the\n\tvlen later: iterate over it and free enum name refs first.\n\t(ctf_add_generic): Populate dtd_vlen_alloc from vlen.\n\t(ctf_add_enum): populate the vlen; do it by hand if promoting\n\tforwards.\n\t(ctf_add_enumerator): Set up the vlen rather than the dmd.  Expand\n\tit as needed, repointing string refs via ctf_str_move_pending. Add\n\tthe enumerand names as pending strings.\n\t* ctf-serialize.c (ctf_copy_emembers): Remove.\n\t(ctf_emit_type_sect): Copy the vlen into place and ref the\n\tstrings.\n\t* ctf-types.c (ctf_enum_next): The dynamic portion now uses\n\tthe same code as the non-dynamic.\n\t(ctf_enum_name): Likewise.\n\t(ctf_enum_value): Likewise.\n\t* testsuite/libctf-lookup/enum-many-ctf.c: New test.\n\t* testsuite/libctf-lookup/enum-many.lk: New test.",
+    "tree": {
+      "sha": "0758feb039a9f6e4785f552a594d54cf14631c5e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/0758feb039a9f6e4785f552a594d54cf14631c5e"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5/comments",
+  "author": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "986e9e3aa03f854bedacef7fac38fe8f009a416c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/986e9e3aa03f854bedacef7fac38fe8f009a416c",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/986e9e3aa03f854bedacef7fac38fe8f009a416c"
+    }
+  ],
+  "stats": {
+    "total": 399,
+    "additions": 277,
+    "deletions": 122
+  },
+  "files": [
+    {
+      "sha": "fa333d5c2bda49a9816cf66c49354771b0e4afe7",
+      "filename": "libctf/ChangeLog",
+      "status": "modified",
+      "additions": 25,
+      "deletions": 0,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5/libctf/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5/libctf/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ChangeLog?ref=77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5",
+      "patch": "@@ -1,3 +1,28 @@\n+2021-03-18  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-impl.h (ctf_dtdef_t) <dtd_vlen_alloc>: New.\n+\t(ctf_str_move_pending): Declare.\n+\t* ctf-string.c (ctf_str_add_ref_internal): Fix error return.\n+\t(ctf_str_move_pending): New.\n+\t* ctf-create.c (ctf_grow_vlen): New.\n+\t(ctf_dtd_delete): Zero out the vlen_alloc after free.  Free the\n+\tvlen later: iterate over it and free enum name refs first.\n+\t(ctf_add_generic): Populate dtd_vlen_alloc from vlen.\n+\t(ctf_add_enum): populate the vlen; do it by hand if promoting\n+\tforwards.\n+\t(ctf_add_enumerator): Set up the vlen rather than the dmd.  Expand\n+\tit as needed, repointing string refs via ctf_str_move_pending. Add\n+\tthe enumerand names as pending strings.\n+\t* ctf-serialize.c (ctf_copy_emembers): Remove.\n+\t(ctf_emit_type_sect): Copy the vlen into place and ref the\n+\tstrings.\n+\t* ctf-types.c (ctf_enum_next): The dynamic portion now uses\n+\tthe same code as the non-dynamic.\n+\t(ctf_enum_name): Likewise.\n+\t(ctf_enum_value): Likewise.\n+\t* testsuite/libctf-lookup/enum-many-ctf.c: New test.\n+\t* testsuite/libctf-lookup/enum-many.lk: New test.\n+\n 2021-03-18  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctf-hash.c (ctf_dynset_elements): New."
+    },
+    {
+      "sha": "3218e3e31eac3503bad840e5407fa3640e639a5f",
+      "filename": "libctf/ctf-create.c",
+      "status": "modified",
+      "additions": 73,
+      "deletions": 21,
+      "changes": 94,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5/libctf/ctf-create.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5/libctf/ctf-create.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-create.c?ref=77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5",
+      "patch": "@@ -64,6 +64,30 @@ ctf_grow_ptrtab (ctf_dict_t *fp)\n   return 0;\n }\n \n+/* Make sure a vlen has enough space: expand it otherwise.  Unlike the ptrtab,\n+   which grows quite slowly, the vlen grows in big jumps because it is quite\n+   expensive to expand: the caller has to scan the old vlen for string refs\n+   first and remove them, then re-add them afterwards.  The initial size is\n+   more or less arbitrary.  */\n+static int\n+ctf_grow_vlen (ctf_dict_t *fp, ctf_dtdef_t *dtd, size_t vlen)\n+{\n+  unsigned char *old = dtd->dtd_vlen;\n+\n+  if (dtd->dtd_vlen_alloc > vlen)\n+    return 0;\n+\n+  if ((dtd->dtd_vlen = realloc (dtd->dtd_vlen,\n+\t\t\t\tdtd->dtd_vlen_alloc * 2)) == NULL)\n+    {\n+      dtd->dtd_vlen = old;\n+      return (ctf_set_errno (fp, ENOMEM));\n+    }\n+  memset (dtd->dtd_vlen + dtd->dtd_vlen_alloc, 0, dtd->dtd_vlen_alloc);\n+  dtd->dtd_vlen_alloc *= 2;\n+  return 0;\n+}\n+\n /* To create an empty CTF dict, we just declare a zeroed header and call\n    ctf_bufopen() on it.  If ctf_bufopen succeeds, we mark the new dict r/w and\n    initialize the dynamic members.  We start assigning type IDs at 1 because\n@@ -222,17 +246,16 @@ ctf_dtd_delete (ctf_dict_t *fp, ctf_dtdef_t *dtd)\n {\n   ctf_dmdef_t *dmd, *nmd;\n   int kind = LCTF_INFO_KIND (fp, dtd->dtd_data.ctt_info);\n+  size_t vlen = LCTF_INFO_VLEN (fp, dtd->dtd_data.ctt_info);\n   int name_kind = kind;\n   const char *name;\n \n   ctf_dynhash_remove (fp->ctf_dthash, (void *) (uintptr_t) dtd->dtd_type);\n-  free (dtd->dtd_vlen);\n \n   switch (kind)\n     {\n     case CTF_K_STRUCT:\n     case CTF_K_UNION:\n-    case CTF_K_ENUM:\n       for (dmd = ctf_list_next (&dtd->dtd_u.dtu_members);\n \t   dmd != NULL; dmd = nmd)\n \t{\n@@ -242,10 +265,22 @@ ctf_dtd_delete (ctf_dict_t *fp, ctf_dtdef_t *dtd)\n \t  free (dmd);\n \t}\n       break;\n+    case CTF_K_ENUM:\n+      {\n+\tctf_enum_t *en = (ctf_enum_t *) dtd->dtd_vlen;\n+\tsize_t i;\n+\n+\tfor (i = 0; i < vlen; i++)\n+\t  ctf_str_remove_ref (fp, ctf_strraw (fp, en[i].cte_name),\n+\t\t\t      &en[i].cte_name);\n+      }\n+      break;\n     case CTF_K_FORWARD:\n       name_kind = dtd->dtd_data.ctt_type;\n       break;\n     }\n+  free (dtd->dtd_vlen);\n+  dtd->dtd_vlen_alloc = 0;\n \n   if (dtd->dtd_data.ctt_name\n       && (name = ctf_strraw (fp, dtd->dtd_data.ctt_name)) != NULL\n@@ -402,6 +437,9 @@ ctf_rollback (ctf_dict_t *fp, ctf_snapshot_id_t id)\n   return 0;\n }\n \n+/* Note: vlen is the amount of space *allocated* for the vlen.  It may well not\n+   be the amount of space used (yet): the space used is declared in per-kind\n+   fashion in the dtd_data's info word.  */\n static ctf_id_t\n ctf_add_generic (ctf_dict_t *fp, uint32_t flag, const char *name, int kind,\n \t\t size_t vlen, ctf_dtdef_t **rp)\n@@ -428,6 +466,7 @@ ctf_add_generic (ctf_dict_t *fp, uint32_t flag, const char *name, int kind,\n   if ((dtd = calloc (1, sizeof (ctf_dtdef_t))) == NULL)\n     return (ctf_set_errno (fp, EAGAIN));\n \n+  dtd->dtd_vlen_alloc = vlen;\n   if (vlen > 0)\n     {\n       if ((dtd->dtd_vlen = calloc (1, vlen)) == NULL)\n@@ -831,6 +870,7 @@ ctf_add_enum (ctf_dict_t *fp, uint32_t flag, const char *name)\n {\n   ctf_dtdef_t *dtd;\n   ctf_id_t type = 0;\n+  size_t initial_vlen = sizeof (ctf_enum_t) * 16;\n \n   /* Promote root-visible forwards to enums.  */\n   if (name != NULL)\n@@ -839,9 +879,17 @@ ctf_add_enum (ctf_dict_t *fp, uint32_t flag, const char *name)\n   if (type != 0 && ctf_type_kind (fp, type) == CTF_K_FORWARD)\n     dtd = ctf_dtd_lookup (fp, type);\n   else if ((type = ctf_add_generic (fp, flag, name, CTF_K_ENUM,\n-\t\t\t\t    0, &dtd)) == CTF_ERR)\n+\t\t\t\t    initial_vlen, &dtd)) == CTF_ERR)\n     return CTF_ERR;\t\t/* errno is set for us.  */\n \n+  /* Forwards won't have any vlen yet.  */\n+  if (dtd->dtd_vlen_alloc == 0)\n+    {\n+      if ((dtd->dtd_vlen = calloc (1, initial_vlen)) == NULL)\n+\treturn (ctf_set_errno (fp, ENOMEM));\n+      dtd->dtd_vlen_alloc = initial_vlen;\n+    }\n+\n   dtd->dtd_data.ctt_info = CTF_TYPE_INFO (CTF_K_ENUM, flag, 0);\n   dtd->dtd_data.ctt_size = fp->ctf_dmodel->ctd_int;\n \n@@ -956,10 +1004,11 @@ ctf_add_enumerator (ctf_dict_t *fp, ctf_id_t enid, const char *name,\n \t\t    int value)\n {\n   ctf_dtdef_t *dtd = ctf_dtd_lookup (fp, enid);\n-  ctf_dmdef_t *dmd;\n+  unsigned char *old_vlen;\n+  ctf_enum_t *en;\n+  size_t i;\n \n   uint32_t kind, vlen, root;\n-  char *s;\n \n   if (name == NULL)\n     return (ctf_set_errno (fp, EINVAL));\n@@ -980,29 +1029,32 @@ ctf_add_enumerator (ctf_dict_t *fp, ctf_id_t enid, const char *name,\n   if (vlen == CTF_MAX_VLEN)\n     return (ctf_set_errno (fp, ECTF_DTFULL));\n \n-  for (dmd = ctf_list_next (&dtd->dtd_u.dtu_members);\n-       dmd != NULL; dmd = ctf_list_next (dmd))\n+  old_vlen = dtd->dtd_vlen;\n+  if (ctf_grow_vlen (fp, dtd, sizeof (ctf_enum_t) * (vlen + 1)) < 0)\n+    return -1;\t\t\t\t\t/* errno is set for us.  */\n+  en = (ctf_enum_t *) dtd->dtd_vlen;\n+\n+  if (dtd->dtd_vlen != old_vlen)\n     {\n-      if (strcmp (dmd->dmd_name, name) == 0)\n-\treturn (ctf_set_errno (fp, ECTF_DUPLICATE));\n-    }\n+      ptrdiff_t move = (signed char *) dtd->dtd_vlen - (signed char *) old_vlen;\n \n-  if ((dmd = malloc (sizeof (ctf_dmdef_t))) == NULL)\n-    return (ctf_set_errno (fp, EAGAIN));\n+      /* Remove pending refs in the old vlen region and reapply them.  */\n \n-  if ((s = strdup (name)) == NULL)\n-    {\n-      free (dmd);\n-      return (ctf_set_errno (fp, EAGAIN));\n+      for (i = 0; i < vlen; i++)\n+\tctf_str_move_pending (fp, &en[i].cte_name, move);\n     }\n \n-  dmd->dmd_name = s;\n-  dmd->dmd_type = CTF_ERR;\n-  dmd->dmd_offset = 0;\n-  dmd->dmd_value = value;\n+  for (i = 0; i < vlen; i++)\n+    if (strcmp (ctf_strptr (fp, en[i].cte_name), name) == 0)\n+      return (ctf_set_errno (fp, ECTF_DUPLICATE));\n+\n+  en[i].cte_name = ctf_str_add_pending (fp, name, &en[i].cte_name);\n+  en[i].cte_value = value;\n+\n+  if (en[i].cte_name == 0 && name != NULL && name[0] != '\\0')\n+    return -1;\t\t\t\t\t/* errno is set for us. */\n \n   dtd->dtd_data.ctt_info = CTF_TYPE_INFO (kind, root, vlen + 1);\n-  ctf_list_append (&dtd->dtd_u.dtu_members, dmd);\n \n   fp->ctf_flags |= LCTF_DIRTY;\n "
+    },
+    {
+      "sha": "9a82d953ae808b76936147e22f376924272016ef",
+      "filename": "libctf/ctf-impl.h",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5/libctf/ctf-impl.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5/libctf/ctf-impl.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-impl.h?ref=77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5",
+      "patch": "@@ -29,6 +29,7 @@\n #include <sys/types.h>\n #include <stdlib.h>\n #include <stdarg.h>\n+#include <stddef.h>\n #include <stdio.h>\n #include <stdint.h>\n #include <limits.h>\n@@ -192,6 +193,7 @@ typedef struct ctf_dtdef\n   ctf_list_t dtd_list;\t\t/* List forward/back pointers.  */\n   ctf_id_t dtd_type;\t\t/* Type identifier for this definition.  */\n   ctf_type_t dtd_data;\t\t/* Type node, including name.  */\n+  size_t dtd_vlen_alloc;\t/* Total vlen space allocated.  */\n   unsigned char *dtd_vlen;\t/* Variable-length data for this type.  */\n   union\n   {\n@@ -734,6 +736,7 @@ extern void ctf_str_free_atoms (ctf_dict_t *);\n extern uint32_t ctf_str_add (ctf_dict_t *, const char *);\n extern uint32_t ctf_str_add_ref (ctf_dict_t *, const char *, uint32_t *ref);\n extern uint32_t ctf_str_add_pending (ctf_dict_t *, const char *, uint32_t *);\n+extern int ctf_str_move_pending (ctf_dict_t *, uint32_t *, ptrdiff_t);\n extern int ctf_str_add_external (ctf_dict_t *, const char *, uint32_t offset);\n extern void ctf_str_remove_ref (ctf_dict_t *, const char *, uint32_t *ref);\n extern void ctf_str_rollback (ctf_dict_t *, ctf_snapshot_id_t);"
+    },
+    {
+      "sha": "5d94f44b0d02449bffe6ee24436c7f025e2cb937",
+      "filename": "libctf/ctf-serialize.c",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 22,
+      "changes": 39,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5/libctf/ctf-serialize.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5/libctf/ctf-serialize.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-serialize.c?ref=77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5",
+      "patch": "@@ -770,26 +770,6 @@ ctf_copy_lmembers (ctf_dict_t *fp, ctf_dtdef_t *dtd, unsigned char *t)\n   return t;\n }\n \n-static unsigned char *\n-ctf_copy_emembers (ctf_dict_t *fp, ctf_dtdef_t *dtd, unsigned char *t)\n-{\n-  ctf_dmdef_t *dmd = ctf_list_next (&dtd->dtd_u.dtu_members);\n-  ctf_enum_t cte;\n-\n-  for (; dmd != NULL; dmd = ctf_list_next (dmd))\n-    {\n-      ctf_enum_t *copied;\n-\n-      cte.cte_value = dmd->dmd_value;\n-      memcpy (t, &cte, sizeof (cte));\n-      copied = (ctf_enum_t *) t;\n-      ctf_str_add_ref (fp, dmd->dmd_name, &copied->cte_name);\n-      t += sizeof (cte);\n-    }\n-\n-  return t;\n-}\n-\n /* Iterate through the dynamic type definition list and compute the\n    size of the CTF type section.  */\n \n@@ -860,6 +840,7 @@ ctf_emit_type_sect (ctf_dict_t *fp, unsigned char **tptr)\n       size_t len;\n       ctf_stype_t *copied;\n       const char *name;\n+      size_t i;\n \n       if (dtd->dtd_data.ctt_size != CTF_LSIZE_SENT)\n \tlen = sizeof (ctf_stype_t);\n@@ -908,8 +889,22 @@ ctf_emit_type_sect (ctf_dict_t *fp, unsigned char **tptr)\n \t  break;\n \n \tcase CTF_K_ENUM:\n-\t  t = ctf_copy_emembers (fp, dtd, t);\n-\t  break;\n+\t  {\n+\t    ctf_enum_t *dtd_vlen = (struct ctf_enum *) dtd->dtd_vlen;\n+\t    ctf_enum_t *t_vlen = (struct ctf_enum *) t;\n+\n+\t    memcpy (t, dtd->dtd_vlen, sizeof (struct ctf_enum) * vlen);\n+\t    for (i = 0; i < vlen; i++)\n+\t      {\n+\t\tconst char *name = ctf_strraw (fp, dtd_vlen[i].cte_name);\n+\n+\t\tctf_str_add_ref (fp, name, &t_vlen[i].cte_name);\n+\t\tctf_str_add_ref (fp, name, &dtd_vlen[i].cte_name);\n+\t      }\n+\t    t += sizeof (struct ctf_enum) * vlen;\n+\n+\t    break;\n+\t  }\n \t}\n     }\n "
+    },
+    {
+      "sha": "2e98484f2090f64259694a0fe07f4890217fe6a6",
+      "filename": "libctf/ctf-string.c",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 0,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5/libctf/ctf-string.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5/libctf/ctf-string.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-string.c?ref=77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5",
+      "patch": "@@ -19,6 +19,7 @@\n \n #include <ctf-impl.h>\n #include <string.h>\n+#include <assert.h>\n \n /* Convert an encoded CTF string name into a pointer to a C string, using an\n   explicit internal strtab rather than the fp-based one.  */\n@@ -228,6 +229,7 @@ ctf_str_add_ref_internal (ctf_dict_t *fp, const char *str,\n   free (atom);\n   free (aref);\n   free (newstr);\n+  ctf_set_errno (fp, ENOMEM);\n   return NULL;\n }\n \n@@ -288,6 +290,21 @@ ctf_str_add_pending (ctf_dict_t *fp, const char *str, uint32_t *ref)\n   return atom->csa_offset;\n }\n \n+/* Note that a pending ref now located at NEW_REF has moved by BYTES bytes.  */\n+int\n+ctf_str_move_pending (ctf_dict_t *fp, uint32_t *new_ref, ptrdiff_t bytes)\n+{\n+  if (bytes == 0)\n+    return 0;\n+\n+  if (ctf_dynset_insert (fp->ctf_str_pending_ref, (void *) new_ref) < 0)\n+    return (ctf_set_errno (fp, ENOMEM));\n+\n+  ctf_dynset_remove (fp->ctf_str_pending_ref,\n+\t\t     (void *) ((signed char *) new_ref - bytes));\n+  return 0;\n+}\n+\n /* Add an external strtab reference at OFFSET.  Returns zero if the addition\n    failed, nonzero otherwise.  */\n int"
+    },
+    {
+      "sha": "49264ebf5ab2f9d994902596b188ec3ef6a82092",
+      "filename": "libctf/ctf-types.c",
+      "status": "modified",
+      "additions": 31,
+      "deletions": 79,
+      "changes": 110,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5/libctf/ctf-types.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5/libctf/ctf-types.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-types.c?ref=77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5",
+      "patch": "@@ -318,22 +318,13 @@ ctf_enum_next (ctf_dict_t *fp, ctf_id_t type, ctf_next_t **it,\n \n       dtd = ctf_dynamic_type (fp, type);\n       i->ctn_iter_fun = (void (*) (void)) ctf_enum_next;\n-\n-      /* We depend below on the RDWR state indicating whether the DTD-related\n-\t fields or the DMD-related fields have been initialized.  */\n-\n-      assert ((dtd && (fp->ctf_flags & LCTF_RDWR))\n-\t      || (!dtd && (!(fp->ctf_flags & LCTF_RDWR))));\n+      i->ctn_n = LCTF_INFO_VLEN (fp, tp->ctt_info);\n \n       if (dtd == NULL)\n-\t{\n-\t  i->ctn_n = LCTF_INFO_VLEN (fp, tp->ctt_info);\n-\n-\t  i->u.ctn_en = (const ctf_enum_t *) ((uintptr_t) tp +\n-\t\t\t\t\t      i->ctn_increment);\n-\t}\n+\ti->u.ctn_en = (const ctf_enum_t *) ((uintptr_t) tp +\n+\t\t\t\t\t    i->ctn_increment);\n       else\n-\ti->u.ctn_dmd = ctf_list_next (&dtd->dtd_u.dtu_members);\n+\ti->u.ctn_en = (const ctf_enum_t *) dtd->dtd_vlen;\n \n       *it = i;\n     }\n@@ -357,27 +348,14 @@ ctf_enum_next (ctf_dict_t *fp, ctf_id_t type, ctf_next_t **it,\n       return NULL;\n     }\n \n-  if (!(fp->ctf_flags & LCTF_RDWR))\n-    {\n-      if (i->ctn_n == 0)\n-\tgoto end_iter;\n-\n-      name = ctf_strptr (fp, i->u.ctn_en->cte_name);\n-      if (val)\n-\t*val = i->u.ctn_en->cte_value;\n-      i->u.ctn_en++;\n-      i->ctn_n--;\n-    }\n-  else\n-    {\n-      if (i->u.ctn_dmd == NULL)\n-\tgoto end_iter;\n+  if (i->ctn_n == 0)\n+    goto end_iter;\n \n-      name = i->u.ctn_dmd->dmd_name;\n-      if (val)\n-\t*val = i->u.ctn_dmd->dmd_value;\n-      i->u.ctn_dmd = ctf_list_next (i->u.ctn_dmd);\n-    }\n+  name = ctf_strptr (fp, i->u.ctn_en->cte_name);\n+  if (val)\n+    *val = i->u.ctn_en->cte_value;\n+  i->u.ctn_en++;\n+  i->ctn_n--;\n \n   return name;\n \n@@ -1554,43 +1532,32 @@ ctf_enum_name (ctf_dict_t *fp, ctf_id_t type, int value)\n \n   if (LCTF_INFO_KIND (fp, tp->ctt_info) != CTF_K_ENUM)\n     {\n-      (void) ctf_set_errno (ofp, ECTF_NOTENUM);\n+      ctf_set_errno (ofp, ECTF_NOTENUM);\n       return NULL;\n     }\n \n-  (void) ctf_get_ctt_size (fp, tp, NULL, &increment);\n+  ctf_get_ctt_size (fp, tp, NULL, &increment);\n \n   if ((dtd = ctf_dynamic_type (ofp, type)) == NULL)\n-    {\n-      ep = (const ctf_enum_t *) ((uintptr_t) tp + increment);\n-\n-      for (n = LCTF_INFO_VLEN (fp, tp->ctt_info); n != 0; n--, ep++)\n-\t{\n-\t  if (ep->cte_value == value)\n-\t    return (ctf_strptr (fp, ep->cte_name));\n-\t}\n-    }\n+    ep = (const ctf_enum_t *) ((uintptr_t) tp + increment);\n   else\n-    {\n-      ctf_dmdef_t *dmd;\n+    ep = (const ctf_enum_t *) dtd->dtd_vlen;\n \n-      for (dmd = ctf_list_next (&dtd->dtd_u.dtu_members);\n-\t   dmd != NULL; dmd = ctf_list_next (dmd))\n-\t{\n-\t  if (dmd->dmd_value == value)\n-\t    return dmd->dmd_name;\n-\t}\n+  for (n = LCTF_INFO_VLEN (fp, tp->ctt_info); n != 0; n--, ep++)\n+    {\n+      if (ep->cte_value == value)\n+\treturn (ctf_strptr (fp, ep->cte_name));\n     }\n \n-  (void) ctf_set_errno (ofp, ECTF_NOENUMNAM);\n+  ctf_set_errno (ofp, ECTF_NOENUMNAM);\n   return NULL;\n }\n \n /* Convert the specified enum tag name to the corresponding value, if a\n    matching name can be found.  Otherwise CTF_ERR is returned.  */\n \n int\n-ctf_enum_value (ctf_dict_t * fp, ctf_id_t type, const char *name, int *valp)\n+ctf_enum_value (ctf_dict_t *fp, ctf_id_t type, const char *name, int *valp)\n {\n   ctf_dict_t *ofp = fp;\n   const ctf_type_t *tp;\n@@ -1611,39 +1578,24 @@ ctf_enum_value (ctf_dict_t * fp, ctf_id_t type, const char *name, int *valp)\n       return -1;\n     }\n \n-  (void) ctf_get_ctt_size (fp, tp, NULL, &increment);\n-\n-  ep = (const ctf_enum_t *) ((uintptr_t) tp + increment);\n+  ctf_get_ctt_size (fp, tp, NULL, &increment);\n \n   if ((dtd = ctf_dynamic_type (ofp, type)) == NULL)\n-    {\n-      for (n = LCTF_INFO_VLEN (fp, tp->ctt_info); n != 0; n--, ep++)\n-\t{\n-\t  if (strcmp (ctf_strptr (fp, ep->cte_name), name) == 0)\n-\t    {\n-\t      if (valp != NULL)\n-\t\t*valp = ep->cte_value;\n-\t      return 0;\n-\t    }\n-\t}\n-    }\n+    ep = (const ctf_enum_t *) ((uintptr_t) tp + increment);\n   else\n-    {\n-      ctf_dmdef_t *dmd;\n+    ep = (const ctf_enum_t *) dtd->dtd_vlen;\n \n-      for (dmd = ctf_list_next (&dtd->dtd_u.dtu_members);\n-\t   dmd != NULL; dmd = ctf_list_next (dmd))\n+  for (n = LCTF_INFO_VLEN (fp, tp->ctt_info); n != 0; n--, ep++)\n+    {\n+      if (strcmp (ctf_strptr (fp, ep->cte_name), name) == 0)\n \t{\n-\t  if (strcmp (dmd->dmd_name, name) == 0)\n-\t    {\n-\t      if (valp != NULL)\n-\t\t*valp = dmd->dmd_value;\n-\t      return 0;\n-\t    }\n+\t  if (valp != NULL)\n+\t    *valp = ep->cte_value;\n+\t  return 0;\n \t}\n     }\n \n-  (void) ctf_set_errno (ofp, ECTF_NOENUMNAM);\n+  ctf_set_errno (ofp, ECTF_NOENUMNAM);\n   return -1;\n }\n "
+    },
+    {
+      "sha": "f2297d72cdb404af409e7f8e6b083cedfa0541f9",
+      "filename": "libctf/testsuite/libctf-lookup/enum-many-ctf.c",
+      "status": "added",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5/libctf/testsuite/libctf-lookup/enum-many-ctf.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5/libctf/testsuite/libctf-lookup/enum-many-ctf.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-lookup/enum-many-ctf.c?ref=77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5",
+      "patch": "@@ -0,0 +1,10 @@\n+/* Looked up item by item. */\n+enum e { ENUMSAMPLE_1 = 0, ENUMSAMPLE_2 = 1 };\n+\n+/* Looked up via both sorts of iterator in turn.  */\n+enum ie { IE_0 = -10, IE_1, IE_2, IE_3, IE_4, IE_5, IE_6, IE_7, IE_8, IE_9, IE_A, IE_B, IE_C, IE_D, IE_E, IE_F,\n+\t  IE_10, IE_11, IE_12, IE_13, IE_14, IE_15, IE_16, IE_17, IE_18, IE_19, IE_1A, IE_1B, IE_1C, IE_1D, IE_1E, IE_1F,\n+\t  IE_20, IE_21, IE_22, IE_23, IE_24, IE_25, IE_26, IE_27, IE_28, IE_29, IE_2A, IE_2B, IE_2C, IE_2D, IE_2E, IE_2F};\n+\n+enum e foo;\n+enum ie bar;"
+    },
+    {
+      "sha": "17eca66aea3af0b7f0f86afce1879e23b58a826e",
+      "filename": "libctf/testsuite/libctf-lookup/enum-many.lk",
+      "status": "added",
+      "additions": 101,
+      "deletions": 0,
+      "changes": 101,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5/libctf/testsuite/libctf-lookup/enum-many.lk",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5/libctf/testsuite/libctf-lookup/enum-many.lk",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/testsuite/libctf-lookup/enum-many.lk?ref=77d724a7ecdb3fa84557b0ee5c8b7ea949ce56a5",
+      "patch": "@@ -0,0 +1,101 @@\n+# source: enum-many-ctf.c\n+# lookup: enum.c\n+# link: on\n+Enum e enumerand ENUMSAMPLE_1 has value 0\n+Enum e enumerand ENUMSAMPLE_2 has value 1\n+iter test: IE_0 has value -10\n+iter test: IE_1 has value -9\n+iter test: IE_2 has value -8\n+iter test: IE_3 has value -7\n+iter test: IE_4 has value -6\n+iter test: IE_5 has value -5\n+iter test: IE_6 has value -4\n+iter test: IE_7 has value -3\n+iter test: IE_8 has value -2\n+iter test: IE_9 has value -1\n+iter test: IE_A has value 0\n+iter test: IE_B has value 1\n+iter test: IE_C has value 2\n+iter test: IE_D has value 3\n+iter test: IE_E has value 4\n+iter test: IE_F has value 5\n+iter test: IE_10 has value 6\n+iter test: IE_11 has value 7\n+iter test: IE_12 has value 8\n+iter test: IE_13 has value 9\n+iter test: IE_14 has value 10\n+iter test: IE_15 has value 11\n+iter test: IE_16 has value 12\n+iter test: IE_17 has value 13\n+iter test: IE_18 has value 14\n+iter test: IE_19 has value 15\n+iter test: IE_1A has value 16\n+iter test: IE_1B has value 17\n+iter test: IE_1C has value 18\n+iter test: IE_1D has value 19\n+iter test: IE_1E has value 20\n+iter test: IE_1F has value 21\n+iter test: IE_20 has value 22\n+iter test: IE_21 has value 23\n+iter test: IE_22 has value 24\n+iter test: IE_23 has value 25\n+iter test: IE_24 has value 26\n+iter test: IE_25 has value 27\n+iter test: IE_26 has value 28\n+iter test: IE_27 has value 29\n+iter test: IE_28 has value 30\n+iter test: IE_29 has value 31\n+iter test: IE_2A has value 32\n+iter test: IE_2B has value 33\n+iter test: IE_2C has value 34\n+iter test: IE_2D has value 35\n+iter test: IE_2E has value 36\n+iter test: IE_2F has value 37\n+next test: IE_0 has value -10\n+next test: IE_1 has value -9\n+next test: IE_2 has value -8\n+next test: IE_3 has value -7\n+next test: IE_4 has value -6\n+next test: IE_5 has value -5\n+next test: IE_6 has value -4\n+next test: IE_7 has value -3\n+next test: IE_8 has value -2\n+next test: IE_9 has value -1\n+next test: IE_A has value 0\n+next test: IE_B has value 1\n+next test: IE_C has value 2\n+next test: IE_D has value 3\n+next test: IE_E has value 4\n+next test: IE_F has value 5\n+next test: IE_10 has value 6\n+next test: IE_11 has value 7\n+next test: IE_12 has value 8\n+next test: IE_13 has value 9\n+next test: IE_14 has value 10\n+next test: IE_15 has value 11\n+next test: IE_16 has value 12\n+next test: IE_17 has value 13\n+next test: IE_18 has value 14\n+next test: IE_19 has value 15\n+next test: IE_1A has value 16\n+next test: IE_1B has value 17\n+next test: IE_1C has value 18\n+next test: IE_1D has value 19\n+next test: IE_1E has value 20\n+next test: IE_1F has value 21\n+next test: IE_20 has value 22\n+next test: IE_21 has value 23\n+next test: IE_22 has value 24\n+next test: IE_23 has value 25\n+next test: IE_24 has value 26\n+next test: IE_25 has value 27\n+next test: IE_26 has value 28\n+next test: IE_27 has value 29\n+next test: IE_28 has value 30\n+next test: IE_29 has value 31\n+next test: IE_2A has value 32\n+next test: IE_2B has value 33\n+next test: IE_2C has value 34\n+next test: IE_2D has value 35\n+next test: IE_2E has value 36\n+next test: IE_2F has value 37"
+    }
+  ]
+}

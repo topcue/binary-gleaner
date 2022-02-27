@@ -1,0 +1,218 @@
+{
+  "sha": "165f8965d770708f1dee623e308374ac108e6578",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MTY1Zjg5NjVkNzcwNzA4ZjFkZWU2MjNlMzA4Mzc0YWMxMDhlNjU3OA==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2019-07-10T14:54:03Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2019-10-31T23:02:59Z"
+    },
+    "message": "gdb: Add new commands to list module variables and functions\n\nThis patch adds two new commands \"info module functions\" and \"info\nmodule variables\".  These commands list all of the functions and\nvariables grouped by module and then by file.\n\nFor example:\n\n  (gdb) info module functions\n  All functions in all modules:\n\n  Module \"mod1\":\n\n  File /some/path/gdb/testsuite/gdb.fortran/info-types.f90:\n  35:\tvoid mod1::__copy_mod1_M1t1(Type m1t1, Type m1t1);\n  25:\tvoid mod1::sub_m1_a(integer(kind=4));\n  31:\tinteger(kind=4) mod1::sub_m1_b(void);\n\n  Module \"mod2\":\n\n  File /some/path/gdb/testsuite/gdb.fortran/info-types.f90:\n  41:\tvoid mod2::sub_m2_a(integer(kind=4), logical(kind=4));\n  49:\tlogical(kind=4) mod2::sub_m2_b(real(kind=4));\n\nThe new commands take set of flags that allow the output to be\nfiltered, the user can filter by variable/function name, type, or\ncontaining module.\n\nAs GDB doesn't currently track the relationship between a module and\nthe variables or functions within it in the symbol table, so I filter\nbased on the module prefix in order to find the functions or variables\nin each module.  What this makes clear is that a user could get this\nsame information using \"info variables\" and simply provide the prefix\nthemselves, for example:\n\n  (gdb) info module functions -m mod1 _a\n  All functions matching regular expression \"_a\",\n  \tin all modules matching regular expression \"mod1\":\n\n  Module \"mod1\":\n\n  File /some/path/gdb/testsuite/gdb.fortran/info-types.f90:\n  25:\tvoid mod1::sub_m1_a(integer(kind=4));\n\nIs similar to:\n\n  (gdb) info functions mod1::.*_a.*\n  All functions matching regular expression \"mod1::.*_a\":\n\n  File /some/path/gdb/testsuite/gdb.fortran/info-types.f90:\n  25:\tvoid mod1::sub_m1_a(integer(kind=4));\n\nThe benefits I see for a separate command are that the user doesn't\nhave to think (or know) about the module prefix format, nor worry\nabout building a proper regexp.  The user can also easily scan across\nmodules without having to build complex regexps.\n\nThe new function search_module_symbols is extern in this patch despite\nonly being used within symtab.c, this is because a later patch in this\nseries will also be using this function from outside symtab.c.\n\nThis patch is a new implementation of an idea originally worked on by\nMark O'Connor, Chris January, David Lecomber, and Xavier Oro from ARM.\n\ngdb/ChangeLog:\n\n\t* symtab.c (info_module_cmdlist): New variable.\n\t(info_module_command): New function.\n\t(search_module_symbols): New function.\n\t(info_module_subcommand): New function.\n\t(struct info_modules_var_func_options): New struct.\n\t(info_modules_var_func_options_defs): New variable.\n\t(make_info_modules_var_func_options_def_group): New function.\n\t(info_module_functions_command): New function.\n\t(info_module_variables_command): New function.\n\t(info_module_var_func_command_completer): New function.\n\t(_initialize_symtab): Register new 'info module functions' and\n\t'info module variables' commands.\n\t* symtab.h (typedef symbol_search_in_module): New typedef.\n\t(search_module_symbols): Declare new function.\n\t* NEWS: Mention new commands.\n\ngdb/doc/ChangeLog:\n\n\t* gdb.texinfo (Symbols): Document new 'info module variables' and\n\t'info module functions' commands.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.fortran/info-modules.exp: Update expected results, and add\n\tadditional tests for 'info module functinos', and 'info module\n\tvariables'.\n\t* gdb.fortran/info-types.exp: Update expected results.\n\t* gdb.fortran/info-types.f90: Extend testcase with additional\n\tmodule variables and functions.\n\nChange-Id: I8c2960640e2e101b77eff54027d687e21ec22e2b",
+    "tree": {
+      "sha": "ba457b4dbe2fe85bf195d1da7feb22a8bab0abe7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/ba457b4dbe2fe85bf195d1da7feb22a8bab0abe7"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/165f8965d770708f1dee623e308374ac108e6578",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/165f8965d770708f1dee623e308374ac108e6578",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/165f8965d770708f1dee623e308374ac108e6578",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/165f8965d770708f1dee623e308374ac108e6578/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "59c35742fb785b1e454f45c2ace663000bf34f4c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/59c35742fb785b1e454f45c2ace663000bf34f4c",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/59c35742fb785b1e454f45c2ace663000bf34f4c"
+    }
+  ],
+  "stats": {
+    "total": 589,
+    "additions": 586,
+    "deletions": 3
+  },
+  "files": [
+    {
+      "sha": "2bd67260dc72cfc3ed42e60dd294fd9264f9f7b9",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 0,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/165f8965d770708f1dee623e308374ac108e6578/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/165f8965d770708f1dee623e308374ac108e6578/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=165f8965d770708f1dee623e308374ac108e6578",
+      "patch": "@@ -1,3 +1,21 @@\n+2019-10-31  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* symtab.c (info_module_cmdlist): New variable.\n+\t(info_module_command): New function.\n+\t(search_module_symbols): New function.\n+\t(info_module_subcommand): New function.\n+\t(struct info_modules_var_func_options): New struct.\n+\t(info_modules_var_func_options_defs): New variable.\n+\t(make_info_modules_var_func_options_def_group): New function.\n+\t(info_module_functions_command): New function.\n+\t(info_module_variables_command): New function.\n+\t(info_module_var_func_command_completer): New function.\n+\t(_initialize_symtab): Register new 'info module functions' and\n+\t'info module variables' commands.\n+\t* symtab.h (typedef symbol_search_in_module): New typedef.\n+\t(search_module_symbols): Declare new function.\n+\t* NEWS: Mention new commands.\n+\n 2019-10-31  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* dwarf2read.c (dw2_symtab_iter_next): Handle MODULE_DOMAIN."
+    },
+    {
+      "sha": "59895bd68b38f94bd901a9cb846471d6498478b2",
+      "filename": "gdb/NEWS",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/165f8965d770708f1dee623e308374ac108e6578/gdb/NEWS",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/165f8965d770708f1dee623e308374ac108e6578/gdb/NEWS",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/NEWS?ref=165f8965d770708f1dee623e308374ac108e6578",
+      "patch": "@@ -163,6 +163,20 @@ info modules [-q] [REGEXP]\n   Return a list of Fortran modules matching REGEXP, or all modules if\n   no REGEXP is given.\n \n+info module functions [-q] [-m MODULE_REGEXP] [-t TYPE_REGEXP] [REGEXP]\n+  Return a list of functions within all modules, grouped by module.\n+  The list of functions can be restricted with the optional regular\n+  expressions.  MODULE_REGEXP matches against the module name,\n+  TYPE_REGEXP matches against the function type signature, and REGEXP\n+  matches against the function name.\n+\n+info module variables [-q] [-m MODULE_REGEXP] [-t TYPE_REGEXP] [REGEXP]\n+  Return a list of variables within all modules, grouped by module.\n+  The list of variables can be restricted with the optional regular\n+  expressions.  MODULE_REGEXP matches against the module name,\n+  TYPE_REGEXP matches against the variable type, and REGEXP matches\n+  against the variable name.\n+\n * Changed commands\n \n help"
+    },
+    {
+      "sha": "ce89ee444ea157d800a525487d559b4d0c11cb2d",
+      "filename": "gdb/doc/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/165f8965d770708f1dee623e308374ac108e6578/gdb/doc/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/165f8965d770708f1dee623e308374ac108e6578/gdb/doc/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/ChangeLog?ref=165f8965d770708f1dee623e308374ac108e6578",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-10-31  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.texinfo (Symbols): Document new 'info module variables' and\n+\t'info module functions' commands.\n+\n 2019-10-31  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.texinfo (Symbols): Document new 'info modules' command."
+    },
+    {
+      "sha": "70e4be1524402a02a82cadce92fdae2076fb9bce",
+      "filename": "gdb/doc/gdb.texinfo",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 0,
+      "changes": 19,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/165f8965d770708f1dee623e308374ac108e6578/gdb/doc/gdb.texinfo",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/165f8965d770708f1dee623e308374ac108e6578/gdb/doc/gdb.texinfo",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/gdb.texinfo?ref=165f8965d770708f1dee623e308374ac108e6578",
+      "patch": "@@ -18896,6 +18896,25 @@ The optional flag @samp{-q}, which stands for @samp{quiet}, disables\n printing header information and messages explaining why no modules\n have been printed.\n \n+@kindex info module\n+@cindex Fortran modules, information about\n+@cindex functions and variables by Fortran module\n+@cindex module functions and variables\n+@item info module functions @r{[}-q@r{]} @r{[}-m @var{module-regexp}@r{]} @r{[}-t @var{type-regexp}@r{]} @r{[}@var{regexp}@r{]}\n+@itemx info module variables @r{[}-q@r{]} @r{[}-m @var{module-regexp}@r{]} @r{[}-t @var{type-regexp}@r{]} @r{[}@var{regexp}@r{]}\n+List all functions or variables within all Fortran modules.  The set\n+of functions or variables listed can be limited by providing some or\n+all of the optional regular expressions.  If @var{module-regexp} is\n+provided, then only Fortran modules matching @var{module-regexp} will\n+be searched.  Only functions or variables whose type matches the\n+optional regular expression @var{type-regexp} will be listed.  And\n+only functions or variables whose name matches the optional regular\n+expression @var{regexp} will be listed.\n+\n+The optional flag @samp{-q}, which stands for @samp{quiet}, disables\n+printing header information and messages explaining why no functions\n+or variables have been printed.\n+\n @kindex info classes\n @cindex Objective-C, classes and selectors\n @item info classes"
+    },
+    {
+      "sha": "72a54ec1ca0a02c2b96c156bfea5ba4f44a1796b",
+      "filename": "gdb/symtab.c",
+      "status": "modified",
+      "additions": 348,
+      "deletions": 0,
+      "changes": 348,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/165f8965d770708f1dee623e308374ac108e6578/gdb/symtab.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/165f8965d770708f1dee623e308374ac108e6578/gdb/symtab.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/symtab.c?ref=165f8965d770708f1dee623e308374ac108e6578",
+      "patch": "@@ -6340,6 +6340,315 @@ get_msymbol_address (struct objfile *objf, const struct minimal_symbol *minsym)\n \n \f\n \n+/* Hold the sub-commands of 'info module'.  */\n+\n+static struct cmd_list_element *info_module_cmdlist = NULL;\n+\n+/* Implement the 'info module' command, just displays some help text for\n+   the available sub-commands.  */\n+\n+static void\n+info_module_command (const char *args, int from_tty)\n+{\n+  help_list (info_module_cmdlist, \"info module \", class_info, gdb_stdout);\n+}\n+\n+/* See symtab.h.  */\n+\n+std::vector<module_symbol_search>\n+search_module_symbols (const char *module_regexp, const char *regexp,\n+\t\t       const char *type_regexp, search_domain kind)\n+{\n+  std::vector<module_symbol_search> results;\n+\n+  /* Search for all modules matching MODULE_REGEXP.  */\n+  std::vector<symbol_search> modules = search_symbols (module_regexp,\n+\t\t\t\t\t\t       MODULES_DOMAIN,\n+\t\t\t\t\t\t       NULL, 0, NULL,\n+\t\t\t\t\t\t       true);\n+\n+  /* Now search for all symbols of the required KIND matching the required\n+     regular expressions.  We figure out which ones are in which modules\n+     below.  */\n+  std::vector<symbol_search> symbols = search_symbols (regexp, kind,\n+\t\t\t\t\t\t       type_regexp, 0,\n+\t\t\t\t\t\t       NULL, true);\n+\n+  /* Now iterate over all MODULES, checking to see which items from\n+     SYMBOLS are in each module.  */\n+  for (const symbol_search &p : modules)\n+    {\n+      QUIT;\n+\n+      /* This is a module.  */\n+      gdb_assert (p.symbol != nullptr);\n+\n+      std::string prefix = SYMBOL_PRINT_NAME (p.symbol);\n+      prefix += \"::\";\n+\n+      for (const symbol_search &q : symbols)\n+\t{\n+\t  if (q.symbol == nullptr)\n+\t    continue;\n+\n+\t  if (strncmp (SYMBOL_PRINT_NAME (q.symbol), prefix.c_str (),\n+\t\t       prefix.size ()) != 0)\n+\t    continue;\n+\n+\t  results.push_back ({p, q});\n+\t}\n+    }\n+\n+  return results;\n+}\n+\n+/* Implement the core of both 'info module functions' and 'info module\n+   variables'.  */\n+\n+static void\n+info_module_subcommand (bool quiet, const char *module_regexp,\n+\t\t\tconst char *regexp, const char *type_regexp,\n+\t\t\tsearch_domain kind)\n+{\n+  /* Print a header line.  Don't build the header line bit by bit as this\n+     prevents internationalisation.  */\n+  if (!quiet)\n+    {\n+      if (module_regexp == nullptr)\n+\t{\n+\t  if (type_regexp == nullptr)\n+\t    {\n+\t      if (regexp == nullptr)\n+\t\tprintf_filtered ((kind == VARIABLES_DOMAIN\n+\t\t\t\t  ? _(\"All variables in all modules:\")\n+\t\t\t\t  : _(\"All functions in all modules:\")));\n+\t      else\n+\t\tprintf_filtered\n+\t\t  ((kind == VARIABLES_DOMAIN\n+\t\t    ? _(\"All variables matching regular expression\"\n+\t\t\t\" \\\"%s\\\" in all modules:\")\n+\t\t    : _(\"All functions matching regular expression\"\n+\t\t\t\" \\\"%s\\\" in all modules:\")),\n+\t\t   regexp);\n+\t    }\n+\t  else\n+\t    {\n+\t      if (regexp == nullptr)\n+\t\tprintf_filtered\n+\t\t  ((kind == VARIABLES_DOMAIN\n+\t\t    ? _(\"All variables with type matching regular \"\n+\t\t\t\"expression \\\"%s\\\" in all modules:\")\n+\t\t    : _(\"All functions with type matching regular \"\n+\t\t\t\"expression \\\"%s\\\" in all modules:\")),\n+\t\t   type_regexp);\n+\t      else\n+\t\tprintf_filtered\n+\t\t  ((kind == VARIABLES_DOMAIN\n+\t\t    ? _(\"All variables matching regular expression \"\n+\t\t\t\"\\\"%s\\\",\\n\\twith type matching regular \"\n+\t\t\t\"expression \\\"%s\\\" in all modules:\")\n+\t\t    : _(\"All functions matching regular expression \"\n+\t\t\t\"\\\"%s\\\",\\n\\twith type matching regular \"\n+\t\t\t\"expression \\\"%s\\\" in all modules:\")),\n+\t\t   regexp, type_regexp);\n+\t    }\n+\t}\n+      else\n+\t{\n+\t  if (type_regexp == nullptr)\n+\t    {\n+\t      if (regexp == nullptr)\n+\t\tprintf_filtered\n+\t\t  ((kind == VARIABLES_DOMAIN\n+\t\t    ? _(\"All variables in all modules matching regular \"\n+\t\t\t\"expression \\\"%s\\\":\")\n+\t\t    : _(\"All functions in all modules matching regular \"\n+\t\t\t\"expression \\\"%s\\\":\")),\n+\t\t   module_regexp);\n+\t      else\n+\t\tprintf_filtered\n+\t\t  ((kind == VARIABLES_DOMAIN\n+\t\t    ? _(\"All variables matching regular expression \"\n+\t\t\t\"\\\"%s\\\",\\n\\tin all modules matching regular \"\n+\t\t\t\"expression \\\"%s\\\":\")\n+\t\t    : _(\"All functions matching regular expression \"\n+\t\t\t\"\\\"%s\\\",\\n\\tin all modules matching regular \"\n+\t\t\t\"expression \\\"%s\\\":\")),\n+\t\t   regexp, module_regexp);\n+\t    }\n+\t  else\n+\t    {\n+\t      if (regexp == nullptr)\n+\t\tprintf_filtered\n+\t\t  ((kind == VARIABLES_DOMAIN\n+\t\t    ? _(\"All variables with type matching regular \"\n+\t\t\t\"expression \\\"%s\\\"\\n\\tin all modules matching \"\n+\t\t\t\"regular expression \\\"%s\\\":\")\n+\t\t    : _(\"All functions with type matching regular \"\n+\t\t\t\"expression \\\"%s\\\"\\n\\tin all modules matching \"\n+\t\t\t\"regular expression \\\"%s\\\":\")),\n+\t\t   type_regexp, module_regexp);\n+\t      else\n+\t\tprintf_filtered\n+\t\t  ((kind == VARIABLES_DOMAIN\n+\t\t    ? _(\"All variables matching regular expression \"\n+\t\t\t\"\\\"%s\\\",\\n\\twith type matching regular expression \"\n+\t\t\t\"\\\"%s\\\",\\n\\tin all modules matching regular \"\n+\t\t\t\"expression \\\"%s\\\":\")\n+\t\t    : _(\"All functions matching regular expression \"\n+\t\t\t\"\\\"%s\\\",\\n\\twith type matching regular expression \"\n+\t\t\t\"\\\"%s\\\",\\n\\tin all modules matching regular \"\n+\t\t\t\"expression \\\"%s\\\":\")),\n+\t\t   regexp, type_regexp, module_regexp);\n+\t    }\n+\t}\n+      printf_filtered (\"\\n\");\n+    }\n+\n+  /* Find all symbols of type KIND matching the given regular expressions\n+     along with the symbols for the modules in which those symbols\n+     reside.  */\n+  std::vector<module_symbol_search> module_symbols\n+    = search_module_symbols (module_regexp, regexp, type_regexp, kind);\n+\n+  std::sort (module_symbols.begin (), module_symbols.end (),\n+\t     [] (const module_symbol_search &a, const module_symbol_search &b)\n+\t     {\n+\t       if (a.first < b.first)\n+\t\t return true;\n+\t       else if (a.first == b.first)\n+\t\t return a.second < b.second;\n+\t       else\n+\t\t return false;\n+\t     });\n+\n+  const char *last_filename = \"\";\n+  const symbol *last_module_symbol = nullptr;\n+  for (const module_symbol_search &ms : module_symbols)\n+    {\n+      const symbol_search &p = ms.first;\n+      const symbol_search &q = ms.second;\n+\n+      gdb_assert (q.symbol != nullptr);\n+\n+      if (last_module_symbol != p.symbol)\n+\t{\n+\t  printf_filtered (\"\\n\");\n+\t  printf_filtered (_(\"Module \\\"%s\\\":\\n\"),\n+\t\t\t   SYMBOL_PRINT_NAME (p.symbol));\n+\t  last_module_symbol = p.symbol;\n+\t  last_filename = \"\";\n+\t}\n+\n+      print_symbol_info (FUNCTIONS_DOMAIN, q.symbol, q.block,\n+\t\t\t last_filename);\n+      last_filename\n+\t= symtab_to_filename_for_display (symbol_symtab (q.symbol));\n+    }\n+}\n+\n+/* Hold the option values for the 'info module .....' sub-commands.  */\n+\n+struct info_modules_var_func_options\n+{\n+  bool quiet = false;\n+  char *type_regexp = nullptr;\n+  char *module_regexp = nullptr;\n+\n+  ~info_modules_var_func_options ()\n+  {\n+    xfree (type_regexp);\n+    xfree (module_regexp);\n+  }\n+};\n+\n+/* The options used by 'info module variables' and 'info module functions'\n+   commands.  */\n+\n+static const gdb::option::option_def info_modules_var_func_options_defs [] = {\n+  gdb::option::boolean_option_def<info_modules_var_func_options> {\n+    \"q\",\n+    [] (info_modules_var_func_options *opt) { return &opt->quiet; },\n+    nullptr, /* show_cmd_cb */\n+    nullptr /* set_doc */\n+  },\n+\n+  gdb::option::string_option_def<info_modules_var_func_options> {\n+    \"t\",\n+    [] (info_modules_var_func_options *opt) { return &opt->type_regexp; },\n+    nullptr, /* show_cmd_cb */\n+    nullptr /* set_doc */\n+  },\n+\n+  gdb::option::string_option_def<info_modules_var_func_options> {\n+    \"m\",\n+    [] (info_modules_var_func_options *opt) { return &opt->module_regexp; },\n+    nullptr, /* show_cmd_cb */\n+    nullptr /* set_doc */\n+  }\n+};\n+\n+/* Return the option group used by the 'info module ...' sub-commands.  */\n+\n+static inline gdb::option::option_def_group\n+make_info_modules_var_func_options_def_group\n+\t(info_modules_var_func_options *opts)\n+{\n+  return {{info_modules_var_func_options_defs}, opts};\n+}\n+\n+/* Implements the 'info module functions' command.  */\n+\n+static void\n+info_module_functions_command (const char *args, int from_tty)\n+{\n+  info_modules_var_func_options opts;\n+  auto grp = make_info_modules_var_func_options_def_group (&opts);\n+  gdb::option::process_options\n+    (&args, gdb::option::PROCESS_OPTIONS_UNKNOWN_IS_OPERAND, grp);\n+  if (args != nullptr && *args == '\\0')\n+    args = nullptr;\n+\n+  info_module_subcommand (opts.quiet, opts.module_regexp, args,\n+\t\t\t  opts.type_regexp, FUNCTIONS_DOMAIN);\n+}\n+\n+/* Implements the 'info module variables' command.  */\n+\n+static void\n+info_module_variables_command (const char *args, int from_tty)\n+{\n+  info_modules_var_func_options opts;\n+  auto grp = make_info_modules_var_func_options_def_group (&opts);\n+  gdb::option::process_options\n+    (&args, gdb::option::PROCESS_OPTIONS_UNKNOWN_IS_OPERAND, grp);\n+  if (args != nullptr && *args == '\\0')\n+    args = nullptr;\n+\n+  info_module_subcommand (opts.quiet, opts.module_regexp, args,\n+\t\t\t  opts.type_regexp, VARIABLES_DOMAIN);\n+}\n+\n+/* Command completer for 'info module ...' sub-commands.  */\n+\n+static void\n+info_module_var_func_command_completer (struct cmd_list_element *ignore,\n+\t\t\t\t\tcompletion_tracker &tracker,\n+\t\t\t\t\tconst char *text,\n+\t\t\t\t\tconst char * /* word */)\n+{\n+\n+  const auto group = make_info_modules_var_func_options_def_group (nullptr);\n+  if (gdb::option::complete_options\n+      (tracker, &text, gdb::option::PROCESS_OPTIONS_UNKNOWN_IS_OPERAND, group))\n+    return;\n+\n+  const char *word = advance_to_expression_complete_word_point (tracker, text);\n+  symbol_completer (ignore, tracker, text, word);\n+}\n+\n+\f\n+\n void\n _initialize_symtab (void)\n {\n@@ -6402,6 +6711,45 @@ Options:\\n\\\n \t\t_(\"All module names, or those matching REGEXP.\"));\n   set_cmd_completer_handle_brkchars (c, info_types_command_completer);\n \n+  add_prefix_cmd (\"module\", class_info, info_module_command, _(\"\\\n+Print information about modules.\"),\n+\t\t  &info_module_cmdlist, \"info module \",\n+\t\t  0, &infolist);\n+\n+  c = add_cmd (\"functions\", class_info, info_module_functions_command, _(\"\\\n+Display functions arranged by modules.\\n\\\n+Usage: info module functions [-q] [-m MODREGEXP] [-t TYPEREGEXP] [REGEXP]\\n\\\n+Print a summary of all functions within each Fortran module, grouped by\\n\\\n+module and file.  For each function the line on which the function is\\n\\\n+defined is given along with the type signature and name of the function.\\n\\\n+\\n\\\n+If REGEXP is provided then only functions whose name matches REGEXP are\\n\\\n+listed.  If MODREGEXP is provided then only functions in modules matching\\n\\\n+MODREGEXP are listed.  If TYPEREGEXP is given then only functions whose\\n\\\n+type signature matches TYPEREGEXP are listed.\\n\\\n+\\n\\\n+The -q flag suppresses printing some header information.\"),\n+\t       &info_module_cmdlist);\n+  set_cmd_completer_handle_brkchars\n+    (c, info_module_var_func_command_completer);\n+\n+  c = add_cmd (\"variables\", class_info, info_module_variables_command, _(\"\\\n+Display variables arranged by modules.\\n\\\n+Usage: info module variables [-q] [-m MODREGEXP] [-t TYPEREGEXP] [REGEXP]\\n\\\n+Print a summary of all variables within each Fortran module, grouped by\\n\\\n+module and file.  For each variable the line on which the variable is\\n\\\n+defined is given along with the type and name of the variable.\\n\\\n+\\n\\\n+If REGEXP is provided then only variables whose name matches REGEXP are\\n\\\n+listed.  If MODREGEXP is provided then only variables in modules matching\\n\\\n+MODREGEXP are listed.  If TYPEREGEXP is given then only variables whose\\n\\\n+type matches TYPEREGEXP are listed.\\n\\\n+\\n\\\n+The -q flag suppresses printing some header information.\"),\n+\t       &info_module_cmdlist);\n+  set_cmd_completer_handle_brkchars\n+    (c, info_module_var_func_command_completer);\n+\n   add_com (\"rbreak\", class_breakpoint, rbreak_command,\n \t   _(\"Set a breakpoint for all functions matching REGEXP.\"));\n "
+    },
+    {
+      "sha": "eac44aee15657ca7e78ed5e2ff7f242abbee86d4",
+      "filename": "gdb/symtab.h",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 0,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/165f8965d770708f1dee623e308374ac108e6578/gdb/symtab.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/165f8965d770708f1dee623e308374ac108e6578/gdb/symtab.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/symtab.h?ref=165f8965d770708f1dee623e308374ac108e6578",
+      "patch": "@@ -2072,6 +2072,22 @@ extern std::vector<symbol_search> search_symbols (const char *,\n \t\t\t\t\t\t  int,\n \t\t\t\t\t\t  const char **,\n \t\t\t\t\t\t  bool);\n+\n+/* When searching for Fortran symbols within modules (functions/variables)\n+   we return a vector of this type.  The first item in the pair is the\n+   module symbol, and the second item is the symbol for the function or\n+   variable we found.  */\n+typedef std::pair<symbol_search, symbol_search> module_symbol_search;\n+\n+/* Searches the symbols to find function and variables symbols (depending\n+   on KIND) within Fortran modules.  The MODULE_REGEXP matches against the\n+   name of the module, REGEXP matches against the name of the symbol within\n+   the module, and TYPE_REGEXP matches against the type of the symbol\n+   within the module.  */\n+extern std::vector<module_symbol_search> search_module_symbols\n+\t(const char *module_regexp, const char *regexp,\n+\t const char *type_regexp, search_domain kind);\n+\n extern bool treg_matches_sym_type_name (const compiled_regex &treg,\n \t\t\t\t\tconst struct symbol *sym);\n "
+    },
+    {
+      "sha": "4d1eecdb5c0723470b63f9c8a2c808d60402b3da",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/165f8965d770708f1dee623e308374ac108e6578/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/165f8965d770708f1dee623e308374ac108e6578/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=165f8965d770708f1dee623e308374ac108e6578",
+      "patch": "@@ -1,3 +1,12 @@\n+2019-10-31  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.fortran/info-modules.exp: Update expected results, and add\n+\tadditional tests for 'info module functinos', and 'info module\n+\tvariables'.\n+\t* gdb.fortran/info-types.exp: Update expected results.\n+\t* gdb.fortran/info-types.f90: Extend testcase with additional\n+\tmodule variables and functions.\n+\n 2019-10-31  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.fortran/info-modules.exp: New file."
+    },
+    {
+      "sha": "43570066d2f7db3b6673f964da00d7944b23c75b",
+      "filename": "gdb/testsuite/gdb.fortran/info-modules.exp",
+      "status": "modified",
+      "additions": 122,
+      "deletions": 1,
+      "changes": 123,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/165f8965d770708f1dee623e308374ac108e6578/gdb/testsuite/gdb.fortran/info-modules.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/165f8965d770708f1dee623e308374ac108e6578/gdb/testsuite/gdb.fortran/info-modules.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.fortran/info-modules.exp?ref=165f8965d770708f1dee623e308374ac108e6578",
+      "patch": "@@ -13,7 +13,8 @@\n # You should have received a copy of the GNU General Public License\n # along with this program.  If not, see <http://www.gnu.org/licenses/>.\n \n-# This file tests 'info modules'.\n+# This file tests 'info modules', 'info module functions', and 'info\n+# module variables'.\n \n load_lib \"fortran.exp\"\n \n@@ -31,6 +32,12 @@ if { ![runto MAIN__] } {\n     continue\n }\n \n+set logical4 [fortran_logical4]\n+set integer4 [fortran_int4]\n+set real4 [fortran_real4]\n+\n+# Test 'info modules' command.\n+\n gdb_test \"info modules\" \\\n     [multi_line \\\n \t \"All defined modules:\" \\\n@@ -64,3 +71,117 @@ gdb_test \"info modules mod\" \\\n \t \"\" \\\n \t \"File .*${srcfile}:\" \\\n \t \"16:\\[\\t \\]+mod1\" ]\n+\n+# Test 'info module functions'.\n+\n+gdb_test \"info module functions\" \\\n+    [multi_line \\\n+\t \"All functions in all modules:\" \\\n+\t \"\" \\\n+\t \"Module \\\"mod2\\\":\" \\\n+\t \"\" \\\n+\t \"File .*${srcfile2}:\" \\\n+\t \"22:\\[\\t \\]+void mod2::sub_m2_a\\\\(${integer4}, ${logical4}\\\\);\" \\\n+\t \"30:\\[\\t \\]+${logical4} mod2::sub_m2_b\\\\(${real4}\\\\);\" \\\n+\t \"\" \\\n+\t \"Module \\\"mod1\\\":\" \\\n+\t \"\" \\\n+\t \"File .*${srcfile}:\" \\\n+\t \"35:\\[\\t \\]+void mod1::__copy_mod1_M1t1\\\\(Type m1t1, Type m1t1\\\\);\" \\\n+\t \"25:\\[\\t \\]+void mod1::sub_m1_a\\\\(${integer4}\\\\);\" \\\n+\t \"31:\\[\\t \\]+${integer4} mod1::sub_m1_b\\\\(void\\\\);\" ]\n+\n+gdb_test \"info module functions -m mod1\" \\\n+    [multi_line \\\n+\t \"All functions in all modules matching regular expression \\\"mod1\\\":\" \\\n+\t \"\" \\\n+\t \"Module \\\"mod1\\\":\" \\\n+\t \"\" \\\n+\t \"File .*:\" \\\n+\t \"35:\\[\\t \\]+void mod1::__copy_mod1_M1t1\\\\(Type m1t1, Type m1t1\\\\);\" \\\n+\t \"25:\\[\\t \\]+void mod1::sub_m1_a\\\\(${integer4}\\\\);\" \\\n+\t \"31:\\[\\t \\]+${integer4} mod1::sub_m1_b\\\\(void\\\\);\" ]\n+\n+gdb_test \"info module functions -t integer\" \\\n+    [multi_line \\\n+\t \"All functions with type matching regular expression \\\"integer\\\" in all modules:\" \\\n+\t \"\" \\\n+\t \"Module \\\"mod2\\\":\" \\\n+\t \"\" \\\n+\t \"File .*${srcfile2}:\" \\\n+\t \"22:\\[\\t \\]+void mod2::sub_m2_a\\\\(${integer4}, ${logical4}\\\\);\" \\\n+\t \"\" \\\n+\t \"Module \\\"mod1\\\":\" \\\n+\t \"\" \\\n+\t \"File .*${srcfile}:\" \\\n+\t \"25:\\[\\t \\]+void mod1::sub_m1_a\\\\(${integer4}\\\\);\" \\\n+\t \"31:\\[\\t \\]+${integer4} mod1::sub_m1_b\\\\(void\\\\);\" ]\n+\n+# Test 'info module variables'.\n+\n+gdb_test \"info module variables\" \\\n+    [multi_line \\\n+\t \"All variables in all modules:\" \\\n+\t \"\" \\\n+\t \"Module \\\"mod2\\\":\" \\\n+\t \"\" \\\n+\t \"File .*${srcfile2}:\" \\\n+\t \"19:\\[\\t \\]+${integer4} mod2::mod2_var_1;\" \\\n+\t \"20:\\[\\t \\]+${real4} mod2::mod2_var_2;\" \\\n+\t \"\" \\\n+\t \"Module \\\"mod1\\\":\" \\\n+\t \"\" \\\n+\t \"File .*${srcfile}:\" \\\n+\t \"35:\\[\\t \\]+Type m1t1 mod1::__def_init_mod1_M1t1;\" \\\n+\t \"35:\\[\\t \\]+Type __vtype_mod1_M1t1 mod1::__vtab_mod1_M1t1;\" \\\n+\t \"21:\\[\\t \\]+${real4} mod1::mod1_var_1;\" \\\n+\t \"22:\\[\\t \\]+${integer4} mod1::mod1_var_2;\" ]\n+\n+gdb_test \"info module variables -t real\" \\\n+    [multi_line \\\n+\t \"All variables with type matching regular expression \\\"real\\\" in all modules:\" \\\n+\t \"\" \\\n+\t \"Module \\\"mod2\\\":\" \\\n+\t \"\" \\\n+\t \"File .*:\" \\\n+\t \"20:\\[\\t \\]+${real4} mod2::mod2_var_2;\" \\\n+\t \"\" \\\n+\t \"Module \\\"mod1\\\":\" \\\n+\t \"\" \\\n+\t \"File .*:\" \\\n+\t \"21:\\[\\t \\]+${real4} mod1::mod1_var_1;\" ]\n+\n+gdb_test \"info module variables -m mod2\" \\\n+    [multi_line \\\n+\t \"All variables in all modules matching regular expression \\\"mod2\\\":\" \\\n+\t \"\" \\\n+\t \"Module \\\"mod2\\\":\" \\\n+\t \"\" \\\n+\t \"File .*${srcfile2}:\" \\\n+\t \"19:\\[\\t \\]+${integer4} mod2::mod2_var_1;\" \\\n+\t \"20:\\[\\t \\]+${real4} mod2::mod2_var_2;\" ]\n+\n+gdb_test \"info module variables -m mod2 -t real\" \\\n+    [multi_line \\\n+\t \"All variables with type matching regular expression \\\"real\\\"\" \\\n+\t \"\tin all modules matching regular expression \\\"mod2\\\":\" \\\n+\t \"\" \\\n+\t \"Module \\\"mod2\\\":\" \\\n+\t \"\" \\\n+\t \"File .*${srcfile2}:\" \\\n+\t \"20:\\[\\t \\]+${real4} mod2::mod2_var_2;\" ]\n+\n+gdb_test \"info module variables _1\" \\\n+    [multi_line \\\n+\t \"All variables matching regular expression \\\"_1\\\" in all modules:\" \\\n+\t \"\" \\\n+\t \"Module \\\"mod2\\\":\" \\\n+\t \"\" \\\n+\t \"File .*:\" \\\n+\t \"19:\\[\\t \\]+${integer4} mod2::mod2_var_1;\" \\\n+\t \"\" \\\n+\t \"Module \\\"mod1\\\":\" \\\n+\t \"\" \\\n+\t \"File .*:\" \\\n+\t \"21:\\[\\t \\]+${real4} mod1::mod1_var_1;\" ]\n+"
+    },
+    {
+      "sha": "3fe2259da495e76db5bd955b40d3e36b6fece8dd",
+      "filename": "gdb/testsuite/gdb.fortran/info-types-2.f90",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 0,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/165f8965d770708f1dee623e308374ac108e6578/gdb/testsuite/gdb.fortran/info-types-2.f90",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/165f8965d770708f1dee623e308374ac108e6578/gdb/testsuite/gdb.fortran/info-types-2.f90",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.fortran/info-types-2.f90?ref=165f8965d770708f1dee623e308374ac108e6578",
+      "patch": "@@ -17,4 +17,20 @@\n ! mod2 is defined.\n module mod2\n   integer :: mod2_var_1 = 123\n+  real, parameter :: mod2_var_2 = 0.5\n+contains\n+  subroutine sub_m2_a(a, b)\n+    integer :: a\n+    logical :: b\n+    print*, \"sub_m2_a = \", abc\n+    print*, \"a = \", a\n+    print*, \"b = \", b\n+  end subroutine sub_m2_a\n+\n+  logical function sub_m2_b(x)\n+    real :: x\n+    print*, \"sub_m2_b = \", cde\n+    print*, \"x = \", x\n+    sub_m2_b = .true.\n+  end function sub_m2_b\n end module mod2"
+    },
+    {
+      "sha": "324b4e01296acb5949763122b50cd8850fc163d4",
+      "filename": "gdb/testsuite/gdb.fortran/info-types.exp",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/165f8965d770708f1dee623e308374ac108e6578/gdb/testsuite/gdb.fortran/info-types.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/165f8965d770708f1dee623e308374ac108e6578/gdb/testsuite/gdb.fortran/info-types.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.fortran/info-types.exp?ref=165f8965d770708f1dee623e308374ac108e6578",
+      "patch": "@@ -35,6 +35,7 @@ set integer4 [fortran_int4]\n set integer8 [fortran_int8]\n set logical4 [fortran_logical4]\n set character1 [fortran_character1]\n+set real4 [fortran_real4]\n \n gdb_test \"info types\" \\\n     [multi_line \\\n@@ -45,7 +46,8 @@ gdb_test \"info types\" \\\n \t \"\\[\\t \\]+${integer4}\" \\\n \t \"(\\[\\t \\]+${integer8}\" \\\n \t \")?\\[\\t \\]+${logical4}\" \\\n-\t \"(20:\\[\\t \\]+Type __vtype_mod1_M1t1;\" \\\n+\t \"(35:\\[\\t \\]+Type __vtype_mod1_M1t1;\" \\\n \t \")?$decimal:\\[\\t \\]+Type m1t1;\" \\\n-\t \"22:\\[\\t \\]+Type s1;(\" \\\n+\t \"\\[\\t \\]+${real4}\" \\\n+\t \"37:\\[\\t \\]+Type s1;(\" \\\n \t \".*)?\"]"
+    },
+    {
+      "sha": "d3513aca3041cba451ee15fbf39d49536580d808",
+      "filename": "gdb/testsuite/gdb.fortran/info-types.f90",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/165f8965d770708f1dee623e308374ac108e6578/gdb/testsuite/gdb.fortran/info-types.f90",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/165f8965d770708f1dee623e308374ac108e6578/gdb/testsuite/gdb.fortran/info-types.f90",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.fortran/info-types.f90?ref=165f8965d770708f1dee623e308374ac108e6578",
+      "patch": "@@ -17,6 +17,21 @@ module mod1\n   type :: m1t1\n      integer :: b\n   end type m1t1\n+\n+  real :: mod1_var_1 = 1.0\n+  integer, parameter :: mod1_var_2 = 456\n+\n+contains\n+  subroutine sub_m1_a(arg)\n+    integer :: arg\n+    print*, \"sub_m1_a\"\n+    print*, \"arg = \", arg\n+  end subroutine sub_m1_a\n+\n+  integer function sub_m1_b()\n+    print*, \"sub_m1_b\"\n+    sub_m1_b = 3\n+  end function sub_m1_b\n end module mod1\n \n program info_types_test"
+    }
+  ]
+}

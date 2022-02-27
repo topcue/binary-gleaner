@@ -1,0 +1,110 @@
+{
+  "sha": "0c0adcc52478ebb707ed780173e18262df6eab7e",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MGMwYWRjYzUyNDc4ZWJiNzA3ZWQ3ODAxNzNlMTgyNjJkZjZlYWI3ZQ==",
+  "commit": {
+    "author": {
+      "name": "Alan Modra",
+      "email": "amodra@gmail.com",
+      "date": "2020-01-12T21:42:18Z"
+    },
+    "committer": {
+      "name": "Alan Modra",
+      "email": "amodra@gmail.com",
+      "date": "2020-01-13T01:42:05Z"
+    },
+    "message": "Memory leaks and ineffective bounds checking in wasm_scan\n\nIt's always a bad idea to perform arithmetic on an unknown value read\nfrom an object file before comparing against bounds.  Code like the\nfollowing attempting to bounds check \"len\", a 64-bit value, isn't\neffective because the pointer arithmetic ignores the high 32 bits when\ncompiled for a 32-bit host.\n\n      READ_LEB128 (len, p, end);\n      if (p + len < p || p + len > end)\n        goto error_return;\n\nInstead, perform any arithmetic on known values where we don't need to\nworry about overflows:\n\n      READ_LEB128 (len, p, end);\n      if (len > (size_t) (end - p))\n        goto error_return;\n\nI'll note that this check does do things the right way:\n\n  READ_LEB128 (symcount, p, end);\n  /* Sanity check: each symbol has at least two bytes.  */\n  if (symcount > payload_size / 2)\n    return FALSE;\n\n\"symcount * 2 > payload_size\" would be wrong since the multiply could\noverflow.\n\n\t* wasm-module.c (wasm_scan_name_function_section): Formatting.\n\tDelete asect name check.  Move asect NULL check to wasm_object_p.\n\tCorrect bounds check of sizes against end.  Replace uses of\n\tbfd_zalloc with bfd_alloc, zeroing only necessary bytes.  Use\n\tjust one bfd_release.\n\t(wasm_scan): Don't use malloc/strdup for section names,\n\tbfd_alloc instead.  Simplify code prefixing section name.\n\tFormatting.  Don't attempt to free memory here..\n\t(wasm_object_p): ..do so here.  Formatting.",
+    "tree": {
+      "sha": "ca374cabe55e1317f9eb1e0c07d92d8f2f66f771",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/ca374cabe55e1317f9eb1e0c07d92d8f2f66f771"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/0c0adcc52478ebb707ed780173e18262df6eab7e",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0c0adcc52478ebb707ed780173e18262df6eab7e",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/0c0adcc52478ebb707ed780173e18262df6eab7e",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0c0adcc52478ebb707ed780173e18262df6eab7e/comments",
+  "author": {
+    "login": "amodra",
+    "id": 6006325,
+    "node_id": "MDQ6VXNlcjYwMDYzMjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6006325?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/amodra",
+    "html_url": "https://github.com/amodra",
+    "followers_url": "https://api.github.com/users/amodra/followers",
+    "following_url": "https://api.github.com/users/amodra/following{/other_user}",
+    "gists_url": "https://api.github.com/users/amodra/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/amodra/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/amodra/subscriptions",
+    "organizations_url": "https://api.github.com/users/amodra/orgs",
+    "repos_url": "https://api.github.com/users/amodra/repos",
+    "events_url": "https://api.github.com/users/amodra/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/amodra/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "amodra",
+    "id": 6006325,
+    "node_id": "MDQ6VXNlcjYwMDYzMjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6006325?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/amodra",
+    "html_url": "https://github.com/amodra",
+    "followers_url": "https://api.github.com/users/amodra/followers",
+    "following_url": "https://api.github.com/users/amodra/following{/other_user}",
+    "gists_url": "https://api.github.com/users/amodra/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/amodra/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/amodra/subscriptions",
+    "organizations_url": "https://api.github.com/users/amodra/orgs",
+    "repos_url": "https://api.github.com/users/amodra/repos",
+    "events_url": "https://api.github.com/users/amodra/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/amodra/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "5496abe1c5c31aa6648e8fdb15e4122025bcabfe",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5496abe1c5c31aa6648e8fdb15e4122025bcabfe",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/5496abe1c5c31aa6648e8fdb15e4122025bcabfe"
+    }
+  ],
+  "stats": {
+    "total": 112,
+    "additions": 56,
+    "deletions": 56
+  },
+  "files": [
+    {
+      "sha": "70944d3c80da115dcd94201240e28bd4b7521734",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0c0adcc52478ebb707ed780173e18262df6eab7e/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0c0adcc52478ebb707ed780173e18262df6eab7e/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=0c0adcc52478ebb707ed780173e18262df6eab7e",
+      "patch": "@@ -1,3 +1,15 @@\n+2020-01-13  Alan Modra  <amodra@gmail.com>\n+\n+\t* wasm-module.c (wasm_scan_name_function_section): Formatting.\n+\tDelete asect name check.  Move asect NULL check to wasm_object_p.\n+\tCorrect bounds check of sizes against end.  Replace uses of\n+\tbfd_zalloc with bfd_alloc, zeroing only necessary bytes.  Use\n+\tjust one bfd_release.\n+\t(wasm_scan): Don't use malloc/strdup for section names,\n+\tbfd_alloc instead.  Simplify code prefixing section name.\n+\tFormatting.  Don't attempt to free memory here..\n+\t(wasm_object_p): ..do so here.\n+\n 2020-01-10  Szabolcs Nagy  <szabolcs.nagy@arm.com>\n \n \tPR ld/22269"
+    },
+    {
+      "sha": "e62f842e12c07f7f6f6cfa96f884b02d746a6cc5",
+      "filename": "bfd/wasm-module.c",
+      "status": "modified",
+      "additions": 44,
+      "deletions": 56,
+      "changes": 100,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/0c0adcc52478ebb707ed780173e18262df6eab7e/bfd/wasm-module.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/0c0adcc52478ebb707ed780173e18262df6eab7e/bfd/wasm-module.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/wasm-module.c?ref=0c0adcc52478ebb707ed780173e18262df6eab7e",
+      "patch": "@@ -246,16 +246,10 @@ wasm_scan_name_function_section (bfd *abfd, sec_ptr asect)\n   asymbol *symbols = NULL;\n   sec_ptr space_function_index;\n \n-  if (! asect)\n-    return FALSE;\n-\n-  if (strcmp (asect->name, WASM_NAME_SECTION) != 0)\n-    return FALSE;\n-\n   p = asect->contents;\n   end = asect->contents + asect->size;\n \n-  if (! p)\n+  if (!p)\n     return FALSE;\n \n   while (p < end)\n@@ -272,7 +266,7 @@ wasm_scan_name_function_section (bfd *abfd, sec_ptr asect)\n \n       READ_LEB128 (payload_size, p, end);\n \n-      if (p > p + payload_size)\n+      if (payload_size > (size_t) (end - p))\n \treturn FALSE;\n \n       p += payload_size;\n@@ -283,33 +277,32 @@ wasm_scan_name_function_section (bfd *abfd, sec_ptr asect)\n \n   READ_LEB128 (payload_size, p, end);\n \n-  if (p > p + payload_size)\n-    return FALSE;\n-\n-  if (p + payload_size > end)\n+  if (payload_size > (size_t) (end - p))\n     return FALSE;\n \n   end = p + payload_size;\n \n   READ_LEB128 (symcount, p, end);\n \n   /* Sanity check: each symbol has at least two bytes.  */\n-  if (symcount > payload_size/2)\n+  if (symcount > payload_size / 2)\n     return FALSE;\n \n   tdata->symcount = symcount;\n \n-  space_function_index = bfd_make_section_with_flags\n-    (abfd, WASM_SECTION_FUNCTION_INDEX, SEC_READONLY | SEC_CODE);\n+  space_function_index\n+    = bfd_make_section_with_flags (abfd, WASM_SECTION_FUNCTION_INDEX,\n+\t\t\t\t   SEC_READONLY | SEC_CODE);\n \n-  if (! space_function_index)\n-    space_function_index = bfd_get_section_by_name (abfd, WASM_SECTION_FUNCTION_INDEX);\n+  if (!space_function_index)\n+    space_function_index\n+      = bfd_get_section_by_name (abfd, WASM_SECTION_FUNCTION_INDEX);\n \n-  if (! space_function_index)\n+  if (!space_function_index)\n     return FALSE;\n \n-  symbols = bfd_zalloc (abfd, tdata->symcount * sizeof (asymbol));\n-  if (! symbols)\n+  symbols = bfd_alloc2 (abfd, tdata->symcount, sizeof (asymbol));\n+  if (!symbols)\n     return FALSE;\n \n   for (symcount = 0; p < end && symcount < tdata->symcount; symcount++)\n@@ -322,14 +315,15 @@ wasm_scan_name_function_section (bfd *abfd, sec_ptr asect)\n       READ_LEB128 (idx, p, end);\n       READ_LEB128 (len, p, end);\n \n-      if (p + len < p || p + len > end)\n+      if (len > (size_t) (end - p))\n \tgoto error_return;\n \n-      name = bfd_zalloc (abfd, len + 1);\n-      if (! name)\n+      name = bfd_alloc (abfd, len + 1);\n+      if (!name)\n \tgoto error_return;\n \n       memcpy (name, p, len);\n+      name[len] = 0;\n       p += len;\n \n       sym = &symbols[symcount];\n@@ -350,8 +344,6 @@ wasm_scan_name_function_section (bfd *abfd, sec_ptr asect)\n   return TRUE;\n \n  error_return:\n-  while (symcount)\n-    bfd_release (abfd, (void *)symbols[--symcount].name);\n   bfd_release (abfd, symbols);\n   return FALSE;\n }\n@@ -386,13 +378,12 @@ wasm_scan (bfd *abfd)\n   bfd_vma vma = 0x80000000;\n   int section_code;\n   unsigned int bytes_read;\n-  char *name = NULL;\n   asection *bfdsec;\n \n   if (bfd_seek (abfd, (file_ptr) 0, SEEK_SET) != 0)\n     goto error_return;\n \n-  if (! wasm_read_header (abfd, &error))\n+  if (!wasm_read_header (abfd, &error))\n     goto error_return;\n \n   while ((section_code = wasm_read_byte (abfd, &error)) != EOF)\n@@ -401,14 +392,13 @@ wasm_scan (bfd *abfd)\n \t{\n \t  const char *sname = wasm_section_code_to_name (section_code);\n \n-\t  if (! sname)\n+\t  if (!sname)\n \t    goto error_return;\n \n-\t  name = strdup (sname);\n-\t  bfdsec = bfd_make_section_anyway_with_flags (abfd, name, SEC_HAS_CONTENTS);\n+\t  bfdsec = bfd_make_section_anyway_with_flags (abfd, sname,\n+\t\t\t\t\t\t       SEC_HAS_CONTENTS);\n \t  if (bfdsec == NULL)\n \t    goto error_return;\n-\t  name = NULL;\n \n \t  bfdsec->vma = vma;\n \t  bfdsec->lma = vma;\n@@ -423,9 +413,9 @@ wasm_scan (bfd *abfd)\n \t  bfd_vma payload_len;\n \t  file_ptr section_start;\n \t  bfd_vma namelen;\n+\t  char *name;\n \t  char *prefix = WASM_SECTION_PREFIX;\n-\t  char *p;\n-\t  int ret;\n+\t  size_t prefixlen = strlen (prefix);\n \n \t  payload_len = wasm_read_leb128 (abfd, &error, &bytes_read, FALSE);\n \t  if (error)\n@@ -434,21 +424,18 @@ wasm_scan (bfd *abfd)\n \t  namelen = wasm_read_leb128 (abfd, &error, &bytes_read, FALSE);\n \t  if (error || namelen > payload_len)\n \t    goto error_return;\n-\t  name = bfd_zmalloc (namelen + strlen (prefix) + 1);\n-\t  if (! name)\n-\t    goto error_return;\n-\t  p = name;\n-\t  ret = sprintf (p, \"%s\", prefix);\n-\t  if (ret < 0 || (bfd_vma) ret != strlen (prefix))\n+\t  name = bfd_alloc (abfd, namelen + prefixlen + 1);\n+\t  if (!name)\n \t    goto error_return;\n-\t  p += ret;\n-\t  if (bfd_bread (p, namelen, abfd) != namelen)\n+\t  memcpy (name, prefix, prefixlen);\n+\t  if (bfd_bread (name + prefixlen, namelen, abfd) != namelen)\n \t    goto error_return;\n+\t  name[prefixlen + namelen] = 0;\n \n-\t  bfdsec = bfd_make_section_anyway_with_flags (abfd, name, SEC_HAS_CONTENTS);\n+\t  bfdsec = bfd_make_section_anyway_with_flags (abfd, name,\n+\t\t\t\t\t\t       SEC_HAS_CONTENTS);\n \t  if (bfdsec == NULL)\n \t    goto error_return;\n-\t  name = NULL;\n \n \t  bfdsec->vma = vma;\n \t  bfdsec->lma = vma;\n@@ -459,8 +446,8 @@ wasm_scan (bfd *abfd)\n \n       if (bfdsec->size != 0)\n \t{\n-\t  bfdsec->contents = bfd_zalloc (abfd, bfdsec->size);\n-\t  if (! bfdsec->contents)\n+\t  bfdsec->contents = bfd_alloc (abfd, bfdsec->size);\n+\t  if (!bfdsec->contents)\n \t    goto error_return;\n \n \t  if (bfd_bread (bfdsec->contents, bfdsec->size, abfd) != bfdsec->size)\n@@ -478,12 +465,6 @@ wasm_scan (bfd *abfd)\n   return TRUE;\n \n  error_return:\n-  if (name)\n-    free (name);\n-\n-  for (bfdsec = abfd->sections; bfdsec; bfdsec = bfdsec->next)\n-    free ((void *) bfdsec->name);\n-\n   return FALSE;\n }\n \n@@ -750,23 +731,30 @@ static const bfd_target *\n wasm_object_p (bfd *abfd)\n {\n   bfd_boolean error;\n+  asection *s;\n \n   if (bfd_seek (abfd, (file_ptr) 0, SEEK_SET) != 0)\n     return NULL;\n \n-  if (! wasm_read_header (abfd, &error))\n+  if (!wasm_read_header (abfd, &error))\n     {\n       bfd_set_error (bfd_error_wrong_format);\n       return NULL;\n     }\n \n-  if (! wasm_mkobject (abfd) || ! wasm_scan (abfd))\n+  if (!wasm_mkobject (abfd))\n     return NULL;\n \n-  if (! bfd_default_set_arch_mach (abfd, bfd_arch_wasm32, 0))\n-    return NULL;\n+  if (!wasm_scan (abfd)\n+      || !bfd_default_set_arch_mach (abfd, bfd_arch_wasm32, 0))\n+    {\n+      bfd_release (abfd, abfd->tdata.any);\n+      abfd->tdata.any = NULL;\n+      return NULL;\n+    }\n \n-  if (wasm_scan_name_function_section (abfd, bfd_get_section_by_name (abfd, WASM_NAME_SECTION)))\n+  s = bfd_get_section_by_name (abfd, WASM_NAME_SECTION);\n+  if (s != NULL && wasm_scan_name_function_section (abfd, s))\n     abfd->flags |= HAS_SYMS;\n \n   return abfd->xvec;"
+    }
+  ]
+}

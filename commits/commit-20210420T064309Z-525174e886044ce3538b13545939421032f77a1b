@@ -1,0 +1,134 @@
+{
+  "sha": "525174e886044ce3538b13545939421032f77a1b",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NTI1MTc0ZTg4NjA0NGNlMzUzOGIxMzU0NTkzOTQyMTAzMmY3N2ExYg==",
+  "commit": {
+    "author": {
+      "name": "Felix Willgerodt",
+      "email": "felix.willgerodt@intel.com",
+      "date": "2021-04-20T06:43:08Z"
+    },
+    "committer": {
+      "name": "Felix Willgerodt",
+      "email": "felix.willgerodt@intel.com",
+      "date": "2021-04-20T06:43:09Z"
+    },
+    "message": "gdb: Allow address space qualifier parsing in C++.\n\nThe goal of this patch is to allow target dependent address space qualifiers\nin the C++ expression parser.  This can be useful for memory examination on\ntargets that actually use different address spaces in hardware without\nhaving to deep-dive into implementation details of the whole solution.\n\nGDB uses the @ symbol to parse address space qualifiers.  The only current\nuser that I am aware of is the __flash support for avr, which was added in\n\"Add support for the __flash qualifier on AVR\"\n(487d975399dfcb2bb2f0998a7d12bd62acdd9fa1)\nand only works for C.\n\nOne use-case of the AVR patch is:\n\n~~~\nconst __flash char data_in_flash = 0xab;\n\nint\nmain (void)\n{\n  const __flash char *pointer_to_flash = &data_in_flash;\n}\n~~~\n\n~~~\n(gdb) print pointer_to_flash\n$1 = 0x1e8 <data_in_flash> \"\\253\"\n(gdb) print/x *pointer_to_flash\n$2 = 0xab\n(gdb) x/x pointer_to_flash\n0x1e8 <data_in_flash>: 0xXXXXXXab\n(gdb)\n(gdb) p/x *(char* @flash) pointer_to_flash\n$3 = 0xab\n~~~\n\nI want to enable a similar usage of e.g. @local in C++.\n\nBefore this patch (using \"set debug parser on\"):\n\n~~~\n(gdb) p *(int* @local) 0x1234\n(...)\nReading a token: Next token is token '@' ()\nShifting token '@' ()\nEntering state 46\nReading a token: Next token is token UNKNOWN_CPP_NAME (ssym<name=local, sym=(null), field_of_this=0>)\nA syntax error in expression, near `local) &x'.\n~~~\n\nAfter:\n~~~\n(gdb) p *(int* @local) 0x1234\n(...)\nReading a token: Next token is token '@' ()\nShifting token '@' ()\nEntering state 46\nReading a token: Next token is token UNKNOWN_CPP_NAME (ssym<name=local, sym=(null), field_of_this=0>)\nShifting token UNKNOWN_CPP_NAME (ssym<name=local, sym=(null), field_of_this=0>)\nEntering state 121\nReducing stack by rule 278 (line 1773):\n   $1 = token UNKNOWN_CPP_NAME (ssym<name=local, sym=(null), field_of_this=0>)\n-> $$ = nterm name ()\nStack now 0 49 52 76 222 337 46\nEntering state 167\nReducing stack by rule 131 (line 1225):\n   $1 = token '@' ()\n   $2 = nterm name ()\nUnknown address space specifier: \"local\"\n~~~\n\nThe \"Unknown address space qualifier\" is the right behaviour, as I ran this\non a target that doesn't have multiple address spaces and therefore obviously\nno support for such qualifiers.\n\ngdb/ChangeLog:\n2021-04-20  Felix Willgerodt  <felix.willgerodt@intel.com>\n\n\t* c-exp.y (single_qualifier): Handle UNKNOWN_CPP_NAME.\n\ngdb/testsuite/ChangeLog:\n2021-04-20  Felix Willgerodt  <felix.willgerodt@intel.com>\n\n\t* gdb.base/address_space_qualifier.exp: New file.",
+    "tree": {
+      "sha": "eab6e8bf24f68745a3c84781b158a08bc2fa33cf",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/eab6e8bf24f68745a3c84781b158a08bc2fa33cf"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/525174e886044ce3538b13545939421032f77a1b",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/525174e886044ce3538b13545939421032f77a1b",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/525174e886044ce3538b13545939421032f77a1b",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/525174e886044ce3538b13545939421032f77a1b/comments",
+  "author": {
+    "login": "felix-willgerodt",
+    "id": 68062808,
+    "node_id": "MDQ6VXNlcjY4MDYyODA4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/68062808?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/felix-willgerodt",
+    "html_url": "https://github.com/felix-willgerodt",
+    "followers_url": "https://api.github.com/users/felix-willgerodt/followers",
+    "following_url": "https://api.github.com/users/felix-willgerodt/following{/other_user}",
+    "gists_url": "https://api.github.com/users/felix-willgerodt/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/felix-willgerodt/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/felix-willgerodt/subscriptions",
+    "organizations_url": "https://api.github.com/users/felix-willgerodt/orgs",
+    "repos_url": "https://api.github.com/users/felix-willgerodt/repos",
+    "events_url": "https://api.github.com/users/felix-willgerodt/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/felix-willgerodt/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "felix-willgerodt",
+    "id": 68062808,
+    "node_id": "MDQ6VXNlcjY4MDYyODA4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/68062808?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/felix-willgerodt",
+    "html_url": "https://github.com/felix-willgerodt",
+    "followers_url": "https://api.github.com/users/felix-willgerodt/followers",
+    "following_url": "https://api.github.com/users/felix-willgerodt/following{/other_user}",
+    "gists_url": "https://api.github.com/users/felix-willgerodt/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/felix-willgerodt/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/felix-willgerodt/subscriptions",
+    "organizations_url": "https://api.github.com/users/felix-willgerodt/orgs",
+    "repos_url": "https://api.github.com/users/felix-willgerodt/repos",
+    "events_url": "https://api.github.com/users/felix-willgerodt/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/felix-willgerodt/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "66d6b8522e76c158d1224837650674d5c3eff17f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/66d6b8522e76c158d1224837650674d5c3eff17f",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/66d6b8522e76c158d1224837650674d5c3eff17f"
+    }
+  ],
+  "stats": {
+    "total": 48,
+    "additions": 48,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "8692c0f8c4331821b02610c5c1ffd53d1d749426",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/525174e886044ce3538b13545939421032f77a1b/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/525174e886044ce3538b13545939421032f77a1b/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=525174e886044ce3538b13545939421032f77a1b",
+      "patch": "@@ -1,3 +1,7 @@\n+2021-04-20  Felix Willgerodt  <felix.willgerodt@intel.com>\n+\n+\t* c-exp.y (single_qualifier): Handle UNKNOWN_CPP_NAME.\n+\n 2021-04-19  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* producer.c: Replace 'regex' include with 'gdb_regex.h'."
+    },
+    {
+      "sha": "3e416f4e2c7dcb0ebef4cfbbb55a6e143e1362bd",
+      "filename": "gdb/c-exp.y",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/525174e886044ce3538b13545939421032f77a1b/gdb/c-exp.y",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/525174e886044ce3538b13545939421032f77a1b/gdb/c-exp.y",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/c-exp.y?ref=525174e886044ce3538b13545939421032f77a1b",
+      "patch": "@@ -1267,6 +1267,11 @@ single_qualifier:\n \t\t  cpstate->type_stack.insert (pstate,\n \t\t\t\t\t      copy_name ($2.stoken).c_str ());\n \t\t}\n+\t|\t'@' UNKNOWN_CPP_NAME\n+\t\t{\n+\t\t  cpstate->type_stack.insert (pstate,\n+\t\t\t\t\t      copy_name ($2.stoken).c_str ());\n+\t\t}\n \t;\n \n qualifier_seq_noopt:"
+    },
+    {
+      "sha": "68e466525810f3f87d3f133ebf7603f23935c169",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/525174e886044ce3538b13545939421032f77a1b/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/525174e886044ce3538b13545939421032f77a1b/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=525174e886044ce3538b13545939421032f77a1b",
+      "patch": "@@ -1,3 +1,7 @@\n+2021-04-20  Felix Willgerodt  <felix.willgerodt@intel.com>\n+\n+\t* gdb.base/address_space_qualifier.exp: New file.\n+\n 2021-04-19  Tom Tromey  <tromey@adacore.com>\n \n \tPR gdb/27742:"
+    },
+    {
+      "sha": "b8209dc565b4adbaaed6ffb6817f0659b890576a",
+      "filename": "gdb/testsuite/gdb.base/address_space_qualifier.exp",
+      "status": "added",
+      "additions": 35,
+      "deletions": 0,
+      "changes": 35,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/525174e886044ce3538b13545939421032f77a1b/gdb/testsuite/gdb.base/address_space_qualifier.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/525174e886044ce3538b13545939421032f77a1b/gdb/testsuite/gdb.base/address_space_qualifier.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/address_space_qualifier.exp?ref=525174e886044ce3538b13545939421032f77a1b",
+      "patch": "@@ -0,0 +1,35 @@\n+# Copyright 2021 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+# Regression test for expression evaluation of address space qualifiers\n+# in C and C++.\n+\n+gdb_exit\n+gdb_start\n+gdb_reinitialize_dir $srcdir/$subdir\n+\n+gdb_test_no_output \"set language c\"\n+\n+with_test_prefix \"C\" {\n+\tgdb_test \"p *(@somerandomqualifiername int *) 0x12345678\" \\\n+\t\t\"Unknown address space specifier: \\\"somerandomqualifiername\\\"\"\n+}\n+\n+gdb_test_no_output \"set language c++\"\n+\n+with_test_prefix \"C++\" {\n+\tgdb_test \"p *(@somerandomqualifiername int *) 0x12345678\" \\\n+\t\t\"Unknown address space specifier: \\\"somerandomqualifiername\\\"\"\n+}"
+    }
+  ]
+}

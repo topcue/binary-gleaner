@@ -1,0 +1,134 @@
+{
+  "sha": "7cee18263c234073bfe88cbc962b1fc68509df82",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6N2NlZTE4MjYzYzIzNDA3M2JmZTg4Y2JjOTYyYjFmYzY4NTA5ZGY4Mg==",
+  "commit": {
+    "author": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2019-06-19T11:34:56Z"
+    },
+    "committer": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2019-06-21T12:04:02Z"
+    },
+    "message": "libctf: endianness fixes\n\nTesting of the first code to generate CTF_K_SLICEs on big-endian\nrevealed a bunch of new problems in this area.  Most importantly, the\ntrick we did earlier to avoid wasting two bytes on padding in the\nctf_slice_t is best avoided: because it leads to the whole file after\nthat point no longer being naturally aligned, all multibyte accesses\nfrom then on must use memmove() to avoid unaligned access on platforms\nwhere that is fatal.  In future, this is planned, but for now we are\nstill doing direct access in many places, so we must revert to making\nctf_slice_t properly aligned for storage in an array.\n\nRather than wasting bytes on padding, we boost the size of cts_offset\nand cts_bits.  This is still a waste of space (we cannot have offsets or\nbits in bitfields > 256) but it cannot be avoided for now, and slices\nare not so common that this will be a serious problem.\n\nA possibly-worse endianness problem fixed at the same time involves\na codepath used only for foreign-endian, uncompressed CTF files, where\nwe were not copying the actual CTF data into the buffer, leading to\nlibctf reading only zeroes (or, possibly, uninitialized garbage).\n\nFinally, when we read in a CTF file, we copy the header and work from\nthe copy.  We were flipping the endianness of the header copy, and of\nthe body of the file buffer, but not of the header in the file buffer\nitself: so if we write the file back out again we end up with an\nunreadable frankenfile with header and body of different endiannesses.\nFix by flipping both copies of the header.\n\ninclude/\n\t* ctf.h (ctf_slice_t): Make cts_offset and cts_bits unsigned\n\tshort, so following structures are properly aligned.\n\nlibctf/\n\t* ctf-open.c (get_vbytes_common): Return the new slice size.\n\t(ctf_bufopen): Flip the endianness of the CTF-section header copy.\n\tRemember to copy in the CTF data when opening an uncompressed\n\tforeign-endian CTF file.  Prune useless variable manipulation.",
+    "tree": {
+      "sha": "4643c2301260d63c5c378c20dee26ec477044b10",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/4643c2301260d63c5c378c20dee26ec477044b10"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/7cee18263c234073bfe88cbc962b1fc68509df82",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7cee18263c234073bfe88cbc962b1fc68509df82",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/7cee18263c234073bfe88cbc962b1fc68509df82",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7cee18263c234073bfe88cbc962b1fc68509df82/comments",
+  "author": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "0b4fa56e07639ed28cbbcd890868e01a82a5e45c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0b4fa56e07639ed28cbbcd890868e01a82a5e45c",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/0b4fa56e07639ed28cbbcd890868e01a82a5e45c"
+    }
+  ],
+  "stats": {
+    "total": 40,
+    "additions": 30,
+    "deletions": 10
+  },
+  "files": [
+    {
+      "sha": "81b667066856334456f40ecb279d11d698e5f1b4",
+      "filename": "include/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7cee18263c234073bfe88cbc962b1fc68509df82/include/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7cee18263c234073bfe88cbc962b1fc68509df82/include/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ChangeLog?ref=7cee18263c234073bfe88cbc962b1fc68509df82",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-06-19  Nick Alcock <nick.alcock@oracle.com>\n+\n+\t* ctf.h (ctf_slice_t): Make cts_offset and cts_bits unsigned\n+\tshort, so following structures are properly aligned.\n+\n 2019-06-14  Szabolcs Nagy  <szabolcs.nagy@arm.com>\n \n \t* elf/aarch64.h (R_AARCH64_P32_MOVW_PREL_G0): Define."
+    },
+    {
+      "sha": "2b357816bafbfee21a91d08decc6d15ae1f6da03",
+      "filename": "include/ctf.h",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 3,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7cee18263c234073bfe88cbc962b1fc68509df82/include/ctf.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7cee18263c234073bfe88cbc962b1fc68509df82/include/ctf.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ctf.h?ref=7cee18263c234073bfe88cbc962b1fc68509df82",
+      "patch": "@@ -430,13 +430,17 @@ union\n    ctt_type, which must be a type which has an encoding (fp, int, or enum).  We\n    also store the referenced type in here, because it is easier to keep the\n    ctt_size correct for the slice than to shuffle the size into here and keep\n-   the ctt_type where it is for other types.  */\n+   the ctt_type where it is for other types.\n+\n+   In a future version, where we loosen requirements on alignment in the CTF\n+   file, the cts_offset and cts_bits will be chars: but for now they must be\n+   shorts or everything after a slice will become unaligned.  */\n \n typedef struct ctf_slice\n {\n   uint32_t cts_type;\n-  unsigned char cts_offset;\n-  unsigned char cts_bits;\n+  unsigned short cts_offset;\n+  unsigned short cts_bits;\n } ctf_slice_t;\n \n typedef struct ctf_array_v1"
+    },
+    {
+      "sha": "0d55ea0776083aaceecf108b2a572207c8244486",
+      "filename": "libctf/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7cee18263c234073bfe88cbc962b1fc68509df82/libctf/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7cee18263c234073bfe88cbc962b1fc68509df82/libctf/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ChangeLog?ref=7cee18263c234073bfe88cbc962b1fc68509df82",
+      "patch": "@@ -1,3 +1,10 @@\n+2019-06-19  Nick Alcock <nick.alcock@oracle.com>\n+\n+\t* ctf-open.c (get_vbytes_common): Return the new slice size.\n+\t(ctf_bufopen): Flip the endianness of the CTF-section header copy.\n+\tRemember to copy in the CTF data when opening an uncompressed\n+\tforeign-endian CTF file.  Prune useless variable manipulation.\n+\n 2019-06-19  Nick Alcock <nick.alcock@oracle.com>\n \n \t* ctf-open.c (ctf_types): Fail when unidentified type kinds are"
+    },
+    {
+      "sha": "777a6b5ca63ac6dcfcd8a2da59965acdd06a467b",
+      "filename": "libctf/ctf-open.c",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 7,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7cee18263c234073bfe88cbc962b1fc68509df82/libctf/ctf-open.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7cee18263c234073bfe88cbc962b1fc68509df82/libctf/ctf-open.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-open.c?ref=7cee18263c234073bfe88cbc962b1fc68509df82",
+      "patch": "@@ -150,8 +150,7 @@ get_vbytes_common (unsigned short kind, ssize_t size _libctf_unused_,\n     case CTF_K_FLOAT:\n       return (sizeof (uint32_t));\n     case CTF_K_SLICE:\n-      return (offsetof (ctf_slice_t, cts_bits) +\n-\t      sizeof (((ctf_slice_t *)0)->cts_bits));\n+      return (sizeof (ctf_slice_t));\n     case CTF_K_ENUM:\n       return (sizeof (ctf_enum_t) * vlen);\n     case CTF_K_FORWARD:\n@@ -1208,7 +1207,7 @@ ctf_bufopen (const ctf_sect_t *ctfsect, const ctf_sect_t *symsect,\n   const ctf_preamble_t *pp;\n   ctf_header_t hp;\n   ctf_file_t *fp;\n-  void *buf, *base;\n+  void *base;\n   size_t size, hdrsz;\n   int foreign_endian = 0;\n   int err;\n@@ -1317,6 +1316,7 @@ ctf_bufopen (const ctf_sect_t *ctfsect, const ctf_sect_t *symsect,\n       uLongf dstlen;\n       const void *src;\n       int rc = Z_OK;\n+      void *buf;\n \n       if ((base = ctf_alloc (size + hdrsz)) == NULL)\n \treturn (ctf_set_open_errno (errp, ECTF_ZALLOC));\n@@ -1349,12 +1349,16 @@ ctf_bufopen (const ctf_sect_t *ctfsect, const ctf_sect_t *symsect,\n     {\n       if ((base = ctf_alloc (size + hdrsz)) == NULL)\n \treturn (ctf_set_open_errno (errp, ECTF_ZALLOC));\n+      memcpy (base, ctfsect->cts_data, size + hdrsz);\n     }\n   else\n-    {\n-      base = (void *) ctfsect->cts_data;\n-      buf = (unsigned char *) base + hdrsz;\n-    }\n+    base = (void *) ctfsect->cts_data;\n+\n+  /* Flip the endianness of the copy of the header in the section, to avoid\n+     ending up with a partially-endian-flipped file.  */\n+\n+  if (foreign_endian)\n+    flip_header ((ctf_header_t *) base);\n \n   /* Once we have uncompressed and validated the CTF data buffer, we can\n      proceed with allocating a ctf_file_t and initializing it."
+    }
+  ]
+}

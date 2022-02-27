@@ -1,0 +1,134 @@
+{
+  "sha": "547ce8f00b4ef826bdc9bf9a74f119fe9768852e",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NTQ3Y2U4ZjAwYjRlZjgyNmJkYzliZjlhNzRmMTE5ZmU5NzY4ODUyZQ==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-08-15T08:19:13Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-08-15T08:19:13Z"
+    },
+    "message": "[gdb/backtrace] Fix printing of fortran string args\n\nWhen running test-case gdb.fortran/mixed-lang-stack.exp, it passes, but we\nfind in gdb.log:\n...\n (gdb) bt^M\n   ...\n #7  0x000000000040113c in mixed_func_1b (a=1, b=2, c=3, d=(4,5), \\\n   e=<error reading variable: value requires 140737488341744 bytes, which \\\n   is more than max-value-size>, g=..., _e=6) at mixed-lang-stack.f90:87^M\n...\nwhile a bit later in gdb.log, we have instead for the same frame (after\nadding a gdb_test_no_output \"set print frame-arguments all\" to prevent\ngetting \"e=...\"):\n...\n (gdb) up^M\n #7  0x000000000040113c in mixed_func_1b (a=1, b=2, c=3, d=(4,5), \\\n   e='abcdef', g=( a = 1.5, b = 2.5 ), _e=6) at mixed-lang-stack.f90:87^M\n...\n\nThe difference is that in the latter case, we print the frame while it's\nselected, while in the former, it's not.\n\nThe problem is that while trying to resolve the dynamic type of e in\nresolve_dynamic_type, we call dwarf2_evaluate_property with a frame == NULL\nargument, and then use the selected frame as the context in which to evaluate\nthe dwarf property, effectively evaluating a DW_OP_fbreg operation in the\nwrong frame context.\n\nFix this by temporarily selecting the frame of which we're trying to print the\narguments in print_frame_args, borrowing code from print_frame_local_vars that\nwas added to fix a similar issue in commit 16c3b12f19 \"error/internal-error\nprinting local variable during \"bt full\".\n\nBuild and tested on x86_64-linux.\n\ngdb/ChangeLog:\n\n2020-08-15  Tom de Vries  <tdevries@suse.de>\n\n\tPR backtrace/26390\n\t* stack.c (print_frame_args): Temporarily set the selected\n\tframe to FRAME while printing the frame's arguments.\n\ngdb/testsuite/ChangeLog:\n\n2020-08-15  Tom de Vries  <tdevries@suse.de>\n\n\tPR backtrace/26390\n\t* gdb.fortran/mixed-lang-stack.exp: Call bt with -frame-arguments all.\n\tUpdate expected pattern.",
+    "tree": {
+      "sha": "8d04f99d98e015cfedf5a2a9c7b2960571959273",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/8d04f99d98e015cfedf5a2a9c7b2960571959273"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/547ce8f00b4ef826bdc9bf9a74f119fe9768852e",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/547ce8f00b4ef826bdc9bf9a74f119fe9768852e",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/547ce8f00b4ef826bdc9bf9a74f119fe9768852e",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/547ce8f00b4ef826bdc9bf9a74f119fe9768852e/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "10885e2436ad1b50c26effb1cead20c06c9320c3",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/10885e2436ad1b50c26effb1cead20c06c9320c3",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/10885e2436ad1b50c26effb1cead20c06c9320c3"
+    }
+  ],
+  "stats": {
+    "total": 48,
+    "additions": 35,
+    "deletions": 13
+  },
+  "files": [
+    {
+      "sha": "9cc7e44cba787e86b173f186d5d24758831c196b",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/547ce8f00b4ef826bdc9bf9a74f119fe9768852e/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/547ce8f00b4ef826bdc9bf9a74f119fe9768852e/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=547ce8f00b4ef826bdc9bf9a74f119fe9768852e",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-08-15  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR backtrace/26390\n+\t* stack.c (print_frame_args): Temporarily set the selected\n+\tframe to FRAME while printing the frame's arguments.\n+\n 2020-08-14  Pedro Franco de Carvalho  <pedromfc@linux.ibm.com>\n \n \tPR breakpoints/26385"
+    },
+    {
+      "sha": "616b629e208e6893025de7d3c3e2f5fd855426fa",
+      "filename": "gdb/stack.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/547ce8f00b4ef826bdc9bf9a74f119fe9768852e/gdb/stack.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/547ce8f00b4ef826bdc9bf9a74f119fe9768852e/gdb/stack.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/stack.c?ref=547ce8f00b4ef826bdc9bf9a74f119fe9768852e",
+      "patch": "@@ -744,6 +744,12 @@ print_frame_args (const frame_print_options &fp_opts,\n     = (print_names\n        && fp_opts.print_frame_arguments != print_frame_arguments_none);\n \n+  /* Temporarily change the selected frame to the given FRAME.\n+     This allows routines that rely on the selected frame instead\n+     of being given a frame as parameter to use the correct frame.  */\n+  scoped_restore_selected_frame restore_selected_frame;\n+  select_frame (frame);\n+\n   if (func)\n     {\n       const struct block *b = SYMBOL_BLOCK_VALUE (func);"
+    },
+    {
+      "sha": "54a0ab568e247eba2c015d694e8bbc71096d5f5a",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/547ce8f00b4ef826bdc9bf9a74f119fe9768852e/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/547ce8f00b4ef826bdc9bf9a74f119fe9768852e/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=547ce8f00b4ef826bdc9bf9a74f119fe9768852e",
+      "patch": "@@ -1,3 +1,9 @@\n+2020-08-15  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR backtrace/26390\n+\t* gdb.fortran/mixed-lang-stack.exp: Call bt with -frame-arguments all.\n+\tUpdate expected pattern.\n+\n 2020-08-13  Pedro Alves  <pedro@palves.net>\n \n \t* gdb.fortran/complex.exp: Check skip_fortran_tests."
+    },
+    {
+      "sha": "edf2508537dda9332003e5de6cf59538685565d2",
+      "filename": "gdb/testsuite/gdb.fortran/mixed-lang-stack.exp",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 13,
+      "changes": 30,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/547ce8f00b4ef826bdc9bf9a74f119fe9768852e/gdb/testsuite/gdb.fortran/mixed-lang-stack.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/547ce8f00b4ef826bdc9bf9a74f119fe9768852e/gdb/testsuite/gdb.fortran/mixed-lang-stack.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.fortran/mixed-lang-stack.exp?ref=547ce8f00b4ef826bdc9bf9a74f119fe9768852e",
+      "patch": "@@ -59,19 +59,23 @@ proc run_tests { lang } {\n \t}\n \n \t# Check the backtrace.\n-\tset bt_stack [multi_line \\\n-\t\t\t  \"#0\\\\s+breakpt \\\\(\\\\) at \\[^\\r\\n\\]+\" \\\n-\t\t\t  \"#1\\\\s+$hex in mixed_func_1h \\\\(\\\\) at \\[^\\r\\n\\]+\" \\\n-\t\t\t  \"#2\\\\s+$hex in mixed_func_1g \\\\(obj=\\\\.\\\\.\\\\.\\\\) at \\[^\\r\\n\\]+\" \\\n-\t\t\t  \"#3\\\\s+$hex in mixed_func_1f \\\\(\\\\) at \\[^\\r\\n\\]+\" \\\n-\t\t\t  \"#4\\\\s+$hex in mixed_func_1e \\\\(\\\\) at \\[^\\r\\n\\]+\" \\\n-\t\t\t  \"#5\\\\s+$hex in mixed_func_1d \\\\(\\[^\\r\\n\\]+\\\\) at \\[^\\r\\n\\]+\" \\\n-\t\t\t  \"#6\\\\s+$hex in mixed_func_1c \\\\(\\[^\\r\\n\\]+\\\\) at \\[^\\r\\n\\]+\" \\\n-\t\t\t  \"#7\\\\s+$hex in mixed_func_1b \\\\(\\[^\\r\\n\\]+\\\\) at \\[^\\r\\n\\]+\" \\\n-\t\t\t  \"#8\\\\s+$hex in mixed_func_1a \\\\(\\\\) at \\[^\\r\\n\\]+\" \\\n-\t\t\t  \"#9\\\\s+$hex in mixed_stack_main \\\\(\\\\) at \\[^\\r\\n\\]+\" \\\n-\t\t\t  \"#10\\\\s+$hex in main \\\\(\\[^\\r\\n\\]+\\\\) at .*\" ]\n-\tgdb_test \"bt\" $bt_stack\n+\tset e_arg \"\\['\\\"\\]abcdef\\['\\\"\\]\"\n+\tset 1b_args \"\\[^\\r\\n\\]+$e_arg\\[^\\r\\n\\]+\"\n+\tset 1g_args \"obj=\\[^\\r\\n\\]+\"\n+\tset bt_stack \\\n+\t    [multi_line \\\n+\t\t \"#0\\\\s+breakpt \\\\(\\\\) at \\[^\\r\\n\\]+\" \\\n+\t\t \"#1\\\\s+$hex in mixed_func_1h \\\\(\\\\) at \\[^\\r\\n\\]+\" \\\n+\t\t \"#2\\\\s+$hex in mixed_func_1g \\\\($1g_args\\\\) at \\[^\\r\\n\\]+\" \\\n+\t\t \"#3\\\\s+$hex in mixed_func_1f \\\\(\\\\) at \\[^\\r\\n\\]+\" \\\n+\t\t \"#4\\\\s+$hex in mixed_func_1e \\\\(\\\\) at \\[^\\r\\n\\]+\" \\\n+\t\t \"#5\\\\s+$hex in mixed_func_1d \\\\(\\[^\\r\\n\\]+\\\\) at \\[^\\r\\n\\]+\" \\\n+\t\t \"#6\\\\s+$hex in mixed_func_1c \\\\(\\[^\\r\\n\\]+\\\\) at \\[^\\r\\n\\]+\" \\\n+\t\t \"#7\\\\s+$hex in mixed_func_1b \\\\($1b_args\\\\) at \\[^\\r\\n\\]+\" \\\n+\t\t \"#8\\\\s+$hex in mixed_func_1a \\\\(\\\\) at \\[^\\r\\n\\]+\" \\\n+\t\t \"#9\\\\s+$hex in mixed_stack_main \\\\(\\\\) at \\[^\\r\\n\\]+\" \\\n+\t\t \"#10\\\\s+$hex in main \\\\(\\[^\\r\\n\\]+\\\\) at .*\" ]\n+\tgdb_test \"bt -frame-arguments all\" $bt_stack\n \n \t# Check the language for frame #0.\n \tgdb_test \"info frame\" \"source language fortran\\..*\" \\"
+    }
+  ]
+}

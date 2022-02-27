@@ -1,0 +1,72 @@
+{
+  "sha": "ae9aa73767ca46f34ee6ea915bdf13b77d058d4d",
+  "node_id": "C_kwDOANOeidoAKGFlOWFhNzM3NjdjYTQ2ZjM0ZWU2ZWE5MTViZGYxM2I3N2QwNThkNGQ",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-11-29T13:52:40Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-11-30T13:05:57Z"
+    },
+    "message": "gdb/testsuite: check the python module is available before using it\n\nThe gdb.python/py-inferior-leak.exp test makes use of the tracemalloc\nmodule.  When running the Python tests with a GDB built against Python\n2 I ran into a test failure due to the tracemalloc module not being\navailable.\n\nThis commit adds a new helper function to lib/gdb-python.exp that\nchecks if a named module is available.  Using this we can then skip\nthe py-inferior-leak.exp test when the tracemalloc module is not\navailable.",
+    "tree": {
+      "sha": "877c64847db60e0e365500e558b722fc0eaa3deb",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/877c64847db60e0e365500e558b722fc0eaa3deb"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ae9aa73767ca46f34ee6ea915bdf13b77d058d4d",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ae9aa73767ca46f34ee6ea915bdf13b77d058d4d",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ae9aa73767ca46f34ee6ea915bdf13b77d058d4d",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ae9aa73767ca46f34ee6ea915bdf13b77d058d4d/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "1527fe5f584c71dbf006c6646fe2ff729d7b2b48",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1527fe5f584c71dbf006c6646fe2ff729d7b2b48",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/1527fe5f584c71dbf006c6646fe2ff729d7b2b48"
+    }
+  ],
+  "stats": {
+    "total": 31,
+    "additions": 31,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "15d742391de57078ad5e852011c442afa4ab86a0",
+      "filename": "gdb/testsuite/gdb.python/py-inferior-leak.exp",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae9aa73767ca46f34ee6ea915bdf13b77d058d4d/gdb/testsuite/gdb.python/py-inferior-leak.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae9aa73767ca46f34ee6ea915bdf13b77d058d4d/gdb/testsuite/gdb.python/py-inferior-leak.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.python/py-inferior-leak.exp?ref=ae9aa73767ca46f34ee6ea915bdf13b77d058d4d",
+      "patch": "@@ -25,6 +25,12 @@ clean_restart\n # Skip all tests if Python scripting is not enabled.\n if { [skip_python_tests] } { continue }\n \n+# Skip this test if the tracemalloc module is not available.\n+if { ![gdb_py_module_available \"tracemalloc\"] } {\n+    unsupported \"tracemalloc module not available\"\n+    continue\n+}\n+\n set pyfile [gdb_remote_download host ${srcdir}/${subdir}/${testfile}.py]\n \n # Source the Python script, this runs the test (which is written"
+    },
+    {
+      "sha": "60931fec28aaac15bea7e028f0a08b00bdc35ad6",
+      "filename": "gdb/testsuite/lib/gdb-python.exp",
+      "status": "modified",
+      "additions": 25,
+      "deletions": 0,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae9aa73767ca46f34ee6ea915bdf13b77d058d4d/gdb/testsuite/lib/gdb-python.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae9aa73767ca46f34ee6ea915bdf13b77d058d4d/gdb/testsuite/lib/gdb-python.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/gdb-python.exp?ref=ae9aa73767ca46f34ee6ea915bdf13b77d058d4d",
+      "patch": "@@ -51,3 +51,28 @@ proc get_python_valueof { exp default {test \"\"} } {\n     }\n     return ${val}\n }\n+\n+# Return true if Python module NAME is available, otherwise, return\n+# false.\n+\n+proc gdb_py_module_available { name } {\n+    set available \"unknown\"\n+    gdb_test_multiple \"python import ${name}\" \"\" {\n+\t-re -wrap \"ModuleNotFoundError: No module named '${name}'.*\" {\n+\t    set available false\n+\t}\n+\t-re -wrap \"ImportError: No module named ${name}.*\" {\n+\t    set available false\n+\t}\n+\t-re -wrap \"python import ${name}\" {\n+\t    set available true\n+\t}\n+    }\n+\n+    if { $available == \"unknown\" } {\n+\tperror \"unexpected output from python import\"\n+\tset available false\n+    }\n+\n+    return ${available}\n+}"
+    }
+  ]
+}

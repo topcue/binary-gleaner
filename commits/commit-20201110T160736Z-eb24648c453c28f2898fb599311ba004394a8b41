@@ -1,0 +1,72 @@
+{
+  "sha": "eb24648c453c28f2898fb599311ba004394a8b41",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZWIyNDY0OGM0NTNjMjhmMjg5OGZiNTk5MzExYmEwMDQzOTRhOGI0MQ==",
+  "commit": {
+    "author": {
+      "name": "Gary Benson",
+      "email": "gbenson@redhat.com",
+      "date": "2020-11-10T16:07:36Z"
+    },
+    "committer": {
+      "name": "Gary Benson",
+      "email": "gbenson@redhat.com",
+      "date": "2020-11-10T16:07:36Z"
+    },
+    "message": "Fix gdb.cp/step-and-next-inline.exp with Clang\n\nClang fails to compile gdb.cp/step-and-next-inline.cc, with the\nfollowing error:\n\n  clang-12: error: unknown argument: '-gstatement-frontiers'\n  compiler exited with status 1\n\nThis commit fixes the testcase by only passing -gstatement-frontiers\nwhen building with GCC.  This commit also alters two checks marked as\nknown failures, to mark them as known failures only when built using\nGCC.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.cp/step-and-next-inline.exp: Only require\n\t-gstatement-frontiers when building with GCC.\n\tOnly setup KFAIL's for GCC issues when using\n\ta GCC-built executable.",
+    "tree": {
+      "sha": "a19c2c9d7bdf9221f07702c6f2a678e12c9e4adb",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/a19c2c9d7bdf9221f07702c6f2a678e12c9e4adb"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/eb24648c453c28f2898fb599311ba004394a8b41",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/eb24648c453c28f2898fb599311ba004394a8b41",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/eb24648c453c28f2898fb599311ba004394a8b41",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/eb24648c453c28f2898fb599311ba004394a8b41/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "1f57314183549008c065ad2240598d2b0f0ff56b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1f57314183549008c065ad2240598d2b0f0ff56b",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/1f57314183549008c065ad2240598d2b0f0ff56b"
+    }
+  ],
+  "stats": {
+    "total": 27,
+    "additions": 23,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "863dcc43463548aa8bec50de469582b49068315d",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/eb24648c453c28f2898fb599311ba004394a8b41/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/eb24648c453c28f2898fb599311ba004394a8b41/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=eb24648c453c28f2898fb599311ba004394a8b41",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-11-10  Gary Benson <gbenson@redhat.com>\n+\n+\t* gdb.cp/step-and-next-inline.exp: Only require\n+\t-gstatement-frontiers when building with GCC.\n+\tOnly setup KFAIL's for GCC issues when using\n+\ta GCC-built executable.\n+\n 2020-11-06  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.base/debug-expr.c: Add extra function to allow for an"
+    },
+    {
+      "sha": "43a7101150c9d0d2fb51aaa4e5f0efd237abf28f",
+      "filename": "gdb/testsuite/gdb.cp/step-and-next-inline.exp",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 4,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/eb24648c453c28f2898fb599311ba004394a8b41/gdb/testsuite/gdb.cp/step-and-next-inline.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/eb24648c453c28f2898fb599311ba004394a8b41/gdb/testsuite/gdb.cp/step-and-next-inline.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.cp/step-and-next-inline.exp?ref=eb24648c453c28f2898fb599311ba004394a8b41",
+      "patch": "@@ -15,7 +15,12 @@\n \n standard_testfile .cc\n \n-if { ![supports_statement_frontiers] } {\n+if [get_compiler_info \"c++\"] {\n+    unsupported \"couldn't find a valid c++ compiler\"\n+    return -1\n+}\n+\n+if {[test_compiler_info gcc*] && ![supports_statement_frontiers] } {\n     return -1\n }\n \n@@ -31,7 +36,10 @@ proc do_test { use_header } {\n \treturn\n     }\n \n-    set options {c++ debug nowarnings optimize=-O2\\ -gstatement-frontiers}\n+    set options {c++ debug nowarnings optimize=-O2}\n+    if { [supports_statement_frontiers] } {\n+\tlappend options -gstatement-frontiers\n+    }\n     if { $use_header } {\n \tlappend options additional_flags=-DUSE_NEXT_INLINE_H\n \tset executable \"$testfile-with-header\"\n@@ -65,14 +73,18 @@ proc do_test { use_header } {\n     # that some easier heuristic could be figured out).  Still, it is\n     # not certain that the first failure wouldn't also be fixed by\n     # having location view support, so for now it is tagged as such.\n-    if {!$use_header} { setup_kfail \"*-*-*\" symtab/25507 }\n+    if {[test_compiler_info gcc*] && !$use_header} {\n+\tsetup_kfail \"*-*-*\" symtab/25507\n+    }\n     gdb_test \"next\" \".*TREE_TYPE.*\" \"next step 1\"\n     gdb_test \"bt\" \"\\\\s*\\\\#0\\\\s+get_alias_set\\[^\\r\\]*${srcfile}:.*\" \\\n \t\"not in inline 2\"\n     gdb_test \"next\" \".*TREE_TYPE.*\" \"next step 2\"\n     gdb_test \"bt\" \"\\\\s*\\\\#0\\\\s+get_alias_set\\[^\\r\\]*${srcfile}:.*\" \\\n \t\"not in inline 3\"\n-    if {!$use_header} { setup_kfail \"*-*-*\" symtab/25507 }\n+    if {[test_compiler_info gcc*] && !$use_header} {\n+\tsetup_kfail \"*-*-*\" symtab/25507\n+    }\n     gdb_test \"next\" \".*TREE_TYPE.*\" \"next step 3\"\n     gdb_test \"bt\" \"\\\\s*\\\\#0\\\\s+get_alias_set\\[^\\r\\]*${srcfile}:.*\" \\\n \t\"not in inline 4\""
+    }
+  ]
+}

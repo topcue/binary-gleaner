@@ -1,0 +1,146 @@
+{
+  "sha": "efb763a5ea351f9d865cbe491909f03472ebf2d6",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZWZiNzYzYTVlYTM1MWY5ZDg2NWNiZTQ5MTkwOWYwMzQ3MmViZjJkNg==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2020-06-17T18:48:46Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2020-06-17T18:49:33Z"
+    },
+    "message": "gdb: check for partial symtab presence in dwarf2_initialize_objfile\n\nThis patch fixes an internal error that is triggered when loading the\nsame binary twice with the index-cache on:\n\n    $ ./gdb -q -nx --data-directory=data-directory\n    (gdb) set index-cache on\n    (gdb) shell mktemp -d\n    /tmp/tmp.BLgouVoPq4\n    (gdb) set index-cache directory /tmp/tmp.BLgouVoPq4\n    (gdb) file a.out\n    Reading symbols from a.out...\n    (gdb) file a.out\n    Load new symbol table from \"a.out\"? (y or n) y\n    Reading symbols from a.out...\n    /home/smarchi/src/binutils-gdb/gdb/dwarf2/read.c:2540: internal-error: void create_cus_from_index(dwarf2_per_bfd*, const gdb_byte*, offset_type, const gdb_byte*, offset_type): Assertion `per_bfd->all_comp_units.empty ()' failed.\n    A problem internal to GDB has been detected,\n    further debugging may prove unreliable.\n    Quit this debugging session? (y or n)\n\nThis is what happens:\n\n1. We load the binary the first time, partial symtabs are created,\n   per_bfd->all_comp_units is filled from those.\n2. Because index-cache is on, we also generate an index in the cache.\n3. We load the binary a second time, in dwarf2_initialize_objfile we\n   check: was an index already loaded for this BFD?  No, so we try to\n   read the index and fill the per-bfd using it.  We do find an index,\n   it's in the cache.\n4. The function create_cus_from_index asserts (rightfully) that\n   per_cu->all_comp_units is empty, and the assertion fails.\n\nThis assertion verifies that we are not reading an index for a BFD for\nwhich we have already built partial symtabs or read another index.\n\nThe index-cache gives a situation that isn't currently accounted for: a\nBFD for which we have built the partial symtabs the first time, but has\nan index the second time.\n\nThis patch addresses it by checking for the presence of partial symtabs\nin dwarf2_initialize_objfile.  If there are, we don't try reading the\nindex.\n\ngdb/ChangeLog:\n\n\t* dwarf2/read.c (dwarf2_initialize_objfile): Check for presence\n\tof partial symtabs.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.base/index-cache-load-twice.c: New.\n\t* gdb.base/index-cache-load-twice.exp: New.\n\nChange-Id: Ie05474c44823fcdff852b73170dd28dfd66cb6a2",
+    "tree": {
+      "sha": "6f6688b9a07c55804ca77b75706638fcf8f53acd",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/6f6688b9a07c55804ca77b75706638fcf8f53acd"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/efb763a5ea351f9d865cbe491909f03472ebf2d6",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/efb763a5ea351f9d865cbe491909f03472ebf2d6",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/efb763a5ea351f9d865cbe491909f03472ebf2d6",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/efb763a5ea351f9d865cbe491909f03472ebf2d6/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "2951f6c068f961a2ea1de892fc82cf0229af67da",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2951f6c068f961a2ea1de892fc82cf0229af67da",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/2951f6c068f961a2ea1de892fc82cf0229af67da"
+    }
+  ],
+  "stats": {
+    "total": 82,
+    "additions": 82,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "faf7b10b2f7512b18f9cb747b70ab8aac31dccbe",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/efb763a5ea351f9d865cbe491909f03472ebf2d6/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/efb763a5ea351f9d865cbe491909f03472ebf2d6/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=efb763a5ea351f9d865cbe491909f03472ebf2d6",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-06-15  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\t* dwarf2/read.c (dwarf2_initialize_objfile): Check for presence\n+\tof partial symtabs.\n+\n 2020-06-17  Simon Marchi  <simon.marchi@efficios.com>\n \n \t* regformats/reg-arm.dat: Remove."
+    },
+    {
+      "sha": "4dc9ad6c99bc09dcf23daae1961a66fa24b10b69",
+      "filename": "gdb/dwarf2/read.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/efb763a5ea351f9d865cbe491909f03472ebf2d6/gdb/dwarf2/read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/efb763a5ea351f9d865cbe491909f03472ebf2d6/gdb/dwarf2/read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2/read.c?ref=efb763a5ea351f9d865cbe491909f03472ebf2d6",
+      "patch": "@@ -6027,6 +6027,14 @@ dwarf2_initialize_objfile (struct objfile *objfile, dw_index_kind *index_kind)\n       return true;\n     }\n \n+  /* There might already be partial symtabs built for this BFD.  This happens\n+     when loading the same binary twice with the index-cache enabled.  If so,\n+     don't try to read an index.  The objfile / per_objfile initialization will\n+     be completed in dwarf2_build_psymtabs, in the standard partial symtabs\n+     code path.  */\n+  if (per_bfd->partial_symtabs != nullptr)\n+    return false;\n+\n   if (dwarf2_read_debug_names (per_objfile))\n     {\n       *index_kind = dw_index_kind::DEBUG_NAMES;"
+    },
+    {
+      "sha": "5d7671915aa2aa7dc06ac226941a3c274e5b85c3",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/efb763a5ea351f9d865cbe491909f03472ebf2d6/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/efb763a5ea351f9d865cbe491909f03472ebf2d6/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=efb763a5ea351f9d865cbe491909f03472ebf2d6",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-06-15  Simon Marchi  <simon.marchi@efficios.com>\n+\n+\t* gdb.base/index-cache-load-twice.c: New.\n+\t* gdb.base/index-cache-load-twice.exp: New.\n+\n 2020-06-17  Keith Seitz  <keiths@redhat.com>\n \n \t* gdb.deuginfod/fetch_src_and_symbols.exp: Pass INTERNAL_GDBFLAGS"
+    },
+    {
+      "sha": "9d7b2f1a4c28b1c5298708fddf4c8c8ed2f11675",
+      "filename": "gdb/testsuite/gdb.base/index-cache-load-twice.c",
+      "status": "added",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/efb763a5ea351f9d865cbe491909f03472ebf2d6/gdb/testsuite/gdb.base/index-cache-load-twice.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/efb763a5ea351f9d865cbe491909f03472ebf2d6/gdb/testsuite/gdb.base/index-cache-load-twice.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/index-cache-load-twice.c?ref=efb763a5ea351f9d865cbe491909f03472ebf2d6",
+      "patch": "@@ -0,0 +1,22 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+int\n+main (void)\n+{\n+  return 0;\n+}"
+    },
+    {
+      "sha": "5646062699d885bc8a3f7cc11bb2f06e5fbf9dae",
+      "filename": "gdb/testsuite/gdb.base/index-cache-load-twice.exp",
+      "status": "added",
+      "additions": 42,
+      "deletions": 0,
+      "changes": 42,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/efb763a5ea351f9d865cbe491909f03472ebf2d6/gdb/testsuite/gdb.base/index-cache-load-twice.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/efb763a5ea351f9d865cbe491909f03472ebf2d6/gdb/testsuite/gdb.base/index-cache-load-twice.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/index-cache-load-twice.exp?ref=efb763a5ea351f9d865cbe491909f03472ebf2d6",
+      "patch": "@@ -0,0 +1,42 @@\n+#   Copyright 2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# This test checks that loading a file twice with the index cache enabled does\n+# not crash.\n+\n+standard_testfile\n+\n+lassign [remote_exec host mktemp -d] ret cache_dir\n+\n+# The output of mktemp contains an end of line, remove it.\n+set cache_dir [string trimright $cache_dir \\r\\n]\n+\n+if { $ret != 0 } {\n+    fail \"couldn't create temporary cache dir\"\n+    return\n+}\n+\n+save_vars { GDBFLAGS } {\n+    set GDBFLAGS \"$GDBFLAGS -iex \\\"set index-cache directory $cache_dir\\\"\"\n+    set GDBFLAGS \"$GDBFLAGS -iex \\\"set index-cache on\\\"\"\n+\n+    if { [prepare_for_testing \"failed to prepare\" $testfile $srcfile \\\n+\t  {debug additional_flags=-Wl,--build-id}] } {\n+\treturn\n+    }\n+\n+    # This file command would generate an internal error.\n+    gdb_file_cmd [standard_output_file $testfile]\n+}"
+    }
+  ]
+}

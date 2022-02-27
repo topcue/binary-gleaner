@@ -1,0 +1,187 @@
+{
+  "sha": "666318230c54a348763927c80d085542d9890c42",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NjY2MzE4MjMwYzU0YTM0ODc2MzkyN2M4MGQwODU1NDJkOTg5MGM0Mg==",
+  "commit": {
+    "author": {
+      "name": "Christian Eggers",
+      "email": "ceggers@gmx.de",
+      "date": "2020-03-02T20:17:00Z"
+    },
+    "committer": {
+      "name": "Alan Modra",
+      "email": "amodra@gmail.com",
+      "date": "2020-03-13T05:18:01Z"
+    },
+    "message": "Fix several mix up between octets and bytes in ELF program headers\n\nFixes additional locations not handled in the first patch.\n\nWhen converting between addresses in ELF headers [octets] and bfd\nLMA/VMA [bytes], the number of octets per byte needs to be incorporated.\n\ninclude/\n\t* bfdlink.h (struct bfd_link_order): Add unit (bytes/octets) to\n\toffset and size members.\n\t* elf/internal.h (struct elf_internal_phdr): Likewise for\n\tp_align member.\n\t(struct elf_segment_map): Likewise for p_paddr and p_size\n\tmembers\nbfd/\n\t* bfd.c (bfd_record_phdr): New local \"opb\".  Fix assignment of\n\t\"p_paddr\" from \"at\".\n\t* elfcode.h (bfd_from_remote_memory): Add units to several\n\tparameters.  New local \"opb\".  Fix usage of p_align.  Fix\n\tcalculation of \"localbase\" from \"ehdr_vma\" and \"p_vaddr\".  Fix\n\tcall of target_read_memory.\n\t* elflink.c (elf_fixup_link_order): Fix scope of \"s\" local.  Fix\n\tcalculation of \"offset\" and \"output_offset\".\n\t(bfd_elf_final_link): New local \"opb\".  Fix calculation of \"size\"\n\tfrom \"offset\" and fix calculation of \"end\" from \"vma+size\".  Fix\n\tcomparison between \"sh_addr\" and \"vma\"/\"output_offset\".\n\t(bfd_elf_discard_info): Fix calculation of \"eh_alignment\".\n\t* elf-bfd.h (struct elf_link_hash_table): Add unit to tls_size\n\tmember.\n\t* elf.c (_bfd_elf_map_sections_to_segments): Add unit (bytes/\n\toctets) to \"wrap_to2 and \"phdr_size\" locals.  Fix calculation of\n\t\"wrap_to\" value.  Add unit (bytes) to phdr_lma variable.  Fix\n\tassignment of p_paddr from phdr_lma.  Fix comparison between\n\t\"lma+size\" and \"next->lma\".\n\t(elf_sort_segments): Fix assignment from p_paddr to lma.\n\t(assign_file_positions_for_load_sections): Add unit (bytes) to\n\tlocal \"align\".  Fix calculation of local \"off_adjust\".  Fix\n\tcalculation of local \"filehdr_vaddr\".\n\t(assign_file_positions_for_non_load_sections): New local \"opb\".\n\tFix calculation of \"end\" from \"p_size\". Fix comparison between\n\t\"vma+SECTION_SIZE\" and \"start\".  Fix calculation of \"p_memsz\"\n\tfrom \"end\" and \"p_vaddr\".\n\t(rewrite_elf_program_header): Fix comparison between p_vaddr and\n\tvma.  Fix assignment to p_paddr from lma.  Fix comparison between\n\tp_paddr and lma.  Fix assignment to p_paddr from lma.\n\t* merge.c (sec_merge_emit): New local \"opb\". Convert\n\t\"alignment_power\" to octets.\n\t(_bfd_add_merge_section): New locals \"alignment_power\" and\n\t\"opb\".  Fix comparison between \"alignment_power\" and\n\t\"sizeof(align)\".\n\t(_bfd_merge_sections): New local \"opb\".  Divide size by opb\n\tbefore checking align mask.",
+    "tree": {
+      "sha": "8156ad937b488fb6a4377ade6beb0f1db36b0b7d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/8156ad937b488fb6a4377ade6beb0f1db36b0b7d"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/666318230c54a348763927c80d085542d9890c42",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/666318230c54a348763927c80d085542d9890c42",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/666318230c54a348763927c80d085542d9890c42",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/666318230c54a348763927c80d085542d9890c42/comments",
+  "author": null,
+  "committer": {
+    "login": "amodra",
+    "id": 6006325,
+    "node_id": "MDQ6VXNlcjYwMDYzMjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6006325?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/amodra",
+    "html_url": "https://github.com/amodra",
+    "followers_url": "https://api.github.com/users/amodra/followers",
+    "following_url": "https://api.github.com/users/amodra/following{/other_user}",
+    "gists_url": "https://api.github.com/users/amodra/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/amodra/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/amodra/subscriptions",
+    "organizations_url": "https://api.github.com/users/amodra/orgs",
+    "repos_url": "https://api.github.com/users/amodra/repos",
+    "events_url": "https://api.github.com/users/amodra/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/amodra/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "502794d4321dc17d5c9fb591bedc8761118b2943",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/502794d4321dc17d5c9fb591bedc8761118b2943",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/502794d4321dc17d5c9fb591bedc8761118b2943"
+    }
+  ],
+  "stats": {
+    "total": 202,
+    "additions": 133,
+    "deletions": 69
+  },
+  "files": [
+    {
+      "sha": "f5ad233ffa1e0a6992e99764a5bae6e199cd9ffe",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 40,
+      "deletions": 0,
+      "changes": 40,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/666318230c54a348763927c80d085542d9890c42/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/666318230c54a348763927c80d085542d9890c42/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=666318230c54a348763927c80d085542d9890c42",
+      "patch": "@@ -1,3 +1,43 @@\n+2020-03-13  Christian Eggers  <ceggers@gmx.de>\n+\n+\t* bfd.c (bfd_record_phdr): New local \"opb\".  Fix assignment of\n+\t\"p_paddr\" from \"at\".\n+\t* elfcode.h (bfd_from_remote_memory): Add units to several\n+\tparameters.  New local \"opb\".  Fix usage of p_align.  Fix\n+\tcalculation of \"localbase\" from \"ehdr_vma\" and \"p_vaddr\".  Fix\n+\tcall of target_read_memory.\n+\t* elflink.c (elf_fixup_link_order): Fix scope of \"s\" local.  Fix\n+\tcalculation of \"offset\" and \"output_offset\".\n+\t(bfd_elf_final_link): New local \"opb\".  Fix calculation of \"size\"\n+\tfrom \"offset\" and fix calculation of \"end\" from \"vma+size\".  Fix\n+\tcomparison between \"sh_addr\" and \"vma\"/\"output_offset\".\n+\t(bfd_elf_discard_info): Fix calculation of \"eh_alignment\".\n+\t* elf-bfd.h (struct elf_link_hash_table): Add unit to tls_size\n+\tmember.\n+\t* elf.c (_bfd_elf_map_sections_to_segments): Add unit (bytes/\n+\toctets) to \"wrap_to2 and \"phdr_size\" locals.  Fix calculation of\n+\t\"wrap_to\" value.  Add unit (bytes) to phdr_lma variable.  Fix\n+\tassignment of p_paddr from phdr_lma.  Fix comparison between\n+\t\"lma+size\" and \"next->lma\".\n+\t(elf_sort_segments): Fix assignment from p_paddr to lma.\n+\t(assign_file_positions_for_load_sections): Add unit (bytes) to\n+\tlocal \"align\".  Fix calculation of local \"off_adjust\".  Fix\n+\tcalculation of local \"filehdr_vaddr\".\n+\t(assign_file_positions_for_non_load_sections): New local \"opb\".\n+\tFix calculation of \"end\" from \"p_size\". Fix comparison between\n+\t\"vma+SECTION_SIZE\" and \"start\".  Fix calculation of \"p_memsz\"\n+\tfrom \"end\" and \"p_vaddr\".\n+\t(rewrite_elf_program_header): Fix comparison between p_vaddr and\n+\tvma.  Fix assignment to p_paddr from lma.  Fix comparison between\n+\tp_paddr and lma.  Fix assignment to p_paddr from lma.\n+\t* merge.c (sec_merge_emit): New local \"opb\". Convert\n+\t\"alignment_power\" to octets.\n+\t(_bfd_add_merge_section): New locals \"alignment_power\" and\n+\t\"opb\".  Fix comparison between \"alignment_power\" and\n+\t\"sizeof(align)\".\n+\t(_bfd_merge_sections): New local \"opb\".  Divide size by opb\n+\tbefore checking align mask.\n+\n 2020-03-13  Christian Eggers  <ceggers@gmx.de>\n \n \t* elf.c (_bfd_elf_make_section_from_shdr): Introduce new temp"
+    },
+    {
+      "sha": "100359ccfe6961c8f77f767eac2bbd80035a73d3",
+      "filename": "bfd/bfd.c",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 2,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/666318230c54a348763927c80d085542d9890c42/bfd/bfd.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/666318230c54a348763927c80d085542d9890c42/bfd/bfd.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/bfd.c?ref=666318230c54a348763927c80d085542d9890c42",
+      "patch": "@@ -2168,14 +2168,15 @@ bfd_record_phdr (bfd *abfd,\n \t\t bfd_boolean flags_valid,\n \t\t flagword flags,\n \t\t bfd_boolean at_valid,\n-\t\t bfd_vma at,\n+\t\t bfd_vma at,  /* Bytes.  */\n \t\t bfd_boolean includes_filehdr,\n \t\t bfd_boolean includes_phdrs,\n \t\t unsigned int count,\n \t\t asection **secs)\n {\n   struct elf_segment_map *m, **pm;\n   size_t amt;\n+  unsigned int opb = bfd_octets_per_byte (abfd, NULL);\n \n   if (bfd_get_flavour (abfd) != bfd_target_elf_flavour)\n     return TRUE;\n@@ -2188,7 +2189,7 @@ bfd_record_phdr (bfd *abfd,\n \n   m->p_type = type;\n   m->p_flags = flags;\n-  m->p_paddr = at;\n+  m->p_paddr = at * opb;\n   m->p_flags_valid = flags_valid;\n   m->p_paddr_valid = at_valid;\n   m->includes_filehdr = includes_filehdr;"
+    },
+    {
+      "sha": "d4ac5152dfe9a13e50eac3aca82157db57f25ec0",
+      "filename": "bfd/elf-bfd.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/666318230c54a348763927c80d085542d9890c42/bfd/elf-bfd.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/666318230c54a348763927c80d085542d9890c42/bfd/elf-bfd.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf-bfd.h?ref=666318230c54a348763927c80d085542d9890c42",
+      "patch": "@@ -635,7 +635,7 @@ struct elf_link_hash_table\n \n   /* Cached first output tls section and size of PT_TLS segment.  */\n   asection *tls_sec;\n-  bfd_size_type tls_size;\n+  bfd_size_type tls_size;  /* Bytes.  */\n \n   /* A linked list of dynamic BFD's loaded in the link.  */\n   struct elf_link_loaded_list *dyn_loaded;"
+    },
+    {
+      "sha": "2d0001b46395ef3ad4a206628a1532e5b188cb29",
+      "filename": "bfd/elf.c",
+      "status": "modified",
+      "additions": 27,
+      "deletions": 27,
+      "changes": 54,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/666318230c54a348763927c80d085542d9890c42/bfd/elf.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/666318230c54a348763927c80d085542d9890c42/bfd/elf.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf.c?ref=666318230c54a348763927c80d085542d9890c42",
+      "patch": "@@ -4672,8 +4672,8 @@ _bfd_elf_map_sections_to_segments (bfd *abfd, struct bfd_link_info *info)\n       asection *first_mbind = NULL;\n       asection *dynsec, *eh_frame_hdr;\n       size_t amt;\n-      bfd_vma addr_mask, wrap_to = 0;\n-      bfd_size_type phdr_size;\n+      bfd_vma addr_mask, wrap_to = 0;  /* Bytes.  */\n+      bfd_size_type phdr_size;  /* Octets/bytes.  */\n       unsigned int opb = bfd_octets_per_byte (abfd, NULL);\n \n       /* Select the allocated sections, and sort them.  */\n@@ -4701,8 +4701,8 @@ _bfd_elf_map_sections_to_segments (bfd *abfd, struct bfd_link_info *info)\n \t      sections[i] = s;\n \t      ++i;\n \t      /* A wrapping section potentially clashes with header.  */\n-\t      if (((s->lma + s->size) & addr_mask) < (s->lma & addr_mask))\n-\t\twrap_to = (s->lma + s->size) & addr_mask;\n+\t      if (((s->lma + s->size / opb) & addr_mask) < (s->lma & addr_mask))\n+\t\twrap_to = (s->lma + s->size / opb) & addr_mask;\n \t    }\n \t}\n       BFD_ASSERT (i <= bfd_count_sections (abfd));\n@@ -4786,7 +4786,7 @@ _bfd_elf_map_sections_to_segments (bfd *abfd, struct bfd_link_info *info)\n \t program headers we will need.  */\n       if (phdr_in_segment && count > 0)\n \t{\n-\t  bfd_vma phdr_lma;\n+\t  bfd_vma phdr_lma;  /* Bytes.  */\n \t  bfd_boolean separate_phdr = FALSE;\n \n \t  phdr_lma = (sections[0]->lma - phdr_size) & addr_mask & -maxpagesize;\n@@ -4826,7 +4826,7 @@ _bfd_elf_map_sections_to_segments (bfd *abfd, struct bfd_link_info *info)\n \t      m = make_mapping (abfd, sections, 0, 0, phdr_in_segment);\n \t      if (m == NULL)\n \t\tgoto error_return;\n-\t      m->p_paddr = phdr_lma;\n+\t      m->p_paddr = phdr_lma * opb;\n \t      m->p_vaddr_offset\n \t\t= (sections[0]->vma - phdr_size) & addr_mask & -maxpagesize;\n \t      m->p_paddr_valid = 1;\n@@ -5014,7 +5014,7 @@ _bfd_elf_map_sections_to_segments (bfd *abfd, struct bfd_link_info *info)\n \t\t  if (s2->next->alignment_power == alignment_power\n \t\t      && (s2->next->flags & SEC_LOAD) != 0\n \t\t      && elf_section_type (s2->next) == SHT_NOTE\n-\t\t      && align_power (s2->lma + s2->size,\n+\t\t      && align_power (s2->lma + s2->size / opb,\n \t\t\t\t      alignment_power)\n \t\t      == s2->next->lma)\n \t\t    count++;\n@@ -5312,15 +5312,17 @@ elf_sort_segments (const void *arg1, const void *arg2)\n     return m1->no_sort_lma ? -1 : 1;\n   if (m1->p_type == PT_LOAD && !m1->no_sort_lma)\n     {\n-      bfd_vma lma1, lma2;\n+      unsigned int opb = bfd_octets_per_byte (m1->sections[0]->owner,\n+\t\t\t\t\t      m1->sections[0]);\n+      bfd_vma lma1, lma2;  /* Bytes.  */\n       lma1 = 0;\n       if (m1->p_paddr_valid)\n-\tlma1 = m1->p_paddr;\n+\tlma1 = m1->p_paddr / opb;\n       else if (m1->count != 0)\n \tlma1 = m1->sections[0]->lma + m1->p_vaddr_offset;\n       lma2 = 0;\n       if (m2->p_paddr_valid)\n-\tlma2 = m2->p_paddr;\n+\tlma2 = m2->p_paddr / opb;\n       else if (m2->count != 0)\n \tlma2 = m2->sections[0]->lma + m2->p_vaddr_offset;\n       if (lma1 != lma2)\n@@ -5591,7 +5593,7 @@ assign_file_positions_for_load_sections (bfd *abfd,\n       if (p->p_type == PT_LOAD\n \t  && m->count > 0)\n \t{\n-\t  bfd_size_type align;\n+\t  bfd_size_type align;  /* Bytes.  */\n \t  unsigned int align_power = 0;\n \n \t  if (m->p_align_valid)\n@@ -5628,7 +5630,7 @@ assign_file_positions_for_load_sections (bfd *abfd,\n \t\tbreak;\n \t      }\n \n-\t  off_adjust = vma_page_aligned_bias (p->p_vaddr, off, align);\n+\t  off_adjust = vma_page_aligned_bias (p->p_vaddr, off, align * opb);\n \n \t  /* Broken hardware and/or kernel require that files do not\n \t     map the same page with different permissions on some hppa\n@@ -5995,7 +5997,7 @@ assign_file_positions_for_load_sections (bfd *abfd,\n \t      || hash->root.type == bfd_link_hash_common))\n \t{\n \t  asection *s = NULL;\n-\t  bfd_vma filehdr_vaddr = phdrs[phdr_load_seg->idx].p_vaddr;\n+\t  bfd_vma filehdr_vaddr = phdrs[phdr_load_seg->idx].p_vaddr / opb;\n \n \t  if (phdr_load_seg->count != 0)\n \t    /* The segment contains sections, so use the first one.  */\n@@ -6072,6 +6074,7 @@ assign_file_positions_for_non_load_sections (bfd *abfd,\n   Elf_Internal_Phdr *p;\n   struct elf_segment_map *m;\n   file_ptr off;\n+  unsigned int opb = bfd_octets_per_byte (abfd, NULL);\n \n   i_shdrpp = elf_elfsections (abfd);\n   end_hdrpp = i_shdrpp + elf_numsections (abfd);\n@@ -6138,7 +6141,7 @@ assign_file_positions_for_non_load_sections (bfd *abfd,\n     {\n       if (p->p_type == PT_GNU_RELRO)\n \t{\n-\t  bfd_vma start, end;\n+\t  bfd_vma start, end;  /* Bytes.  */\n \t  bfd_boolean ok;\n \n \t  if (link_info != NULL)\n@@ -6154,7 +6157,7 @@ assign_file_positions_for_non_load_sections (bfd *abfd,\n \t      if (!m->p_size_valid)\n \t\tabort ();\n \t      start = m->sections[0]->vma;\n-\t      end = start + m->p_size;\n+\t      end = start + m->p_size / opb;\n \t    }\n \t  else\n \t    {\n@@ -6179,7 +6182,7 @@ assign_file_positions_for_non_load_sections (bfd *abfd,\n \t\t      && lm->count != 0\n \t\t      && (lm->sections[lm->count - 1]->vma\n \t\t\t  + (!IS_TBSS (lm->sections[lm->count - 1])\n-\t\t\t     ? lm->sections[lm->count - 1]->size\n+\t\t\t     ? lm->sections[lm->count - 1]->size / opb\n \t\t\t     : 0)) > start\n \t\t      && lm->sections[0]->vma < end)\n \t\t    break;\n@@ -6199,13 +6202,10 @@ assign_file_positions_for_non_load_sections (bfd *abfd,\n \n \t\t  if (i < lm->count)\n \t\t    {\n-\t\t      unsigned int opb = bfd_octets_per_byte (abfd,\n-\t\t\t\t\t\t\t      lm->sections[i]);\n-\n \t\t      p->p_vaddr = lm->sections[i]->vma * opb;\n \t\t      p->p_paddr = lm->sections[i]->lma * opb;\n \t\t      p->p_offset = lm->sections[i]->filepos;\n-\t\t      p->p_memsz = end - p->p_vaddr;\n+\t\t      p->p_memsz = end * opb - p->p_vaddr;\n \t\t      p->p_filesz = p->p_memsz;\n \n \t\t      /* The RELRO segment typically ends a few bytes\n@@ -7188,8 +7188,8 @@ rewrite_elf_program_header (bfd *ibfd, bfd *obfd)\n \t\t\t\t   + (map->includes_phdrs\n \t\t\t\t      ? iehdr->e_phnum * iehdr->e_phentsize\n \t\t\t\t      : 0),\n-\t\t\t\t   output_section->alignment_power)\n-\t\t      == output_section->vma))\n+\t\t\t\t   output_section->alignment_power * opb)\n+\t\t      == (output_section->vma * opb)))\n \t\tmap->p_paddr = segment->p_vaddr;\n \n \t      /* Match up the physical address of the segment with the\n@@ -7257,7 +7257,7 @@ rewrite_elf_program_header (bfd *ibfd, bfd *obfd)\n \t  if (matching_lma == NULL)\n \t    matching_lma = suggested_lma;\n \n-\t  map->p_paddr = matching_lma->lma;\n+\t  map->p_paddr = matching_lma->lma * opb;\n \n \t  /* Offset the segment physical address from the lma\n \t     to allow for space taken up by elf headers.  */\n@@ -7285,7 +7285,7 @@ rewrite_elf_program_header (bfd *ibfd, bfd *obfd)\n \t\t the same alignment.  */\n \t      if (segment->p_align != 0 && segment->p_align < align)\n \t\talign = segment->p_align;\n-\t      map->p_paddr &= -align;\n+\t      map->p_paddr &= -(align * opb);\n \t    }\n \t}\n \n@@ -7329,8 +7329,8 @@ rewrite_elf_program_header (bfd *ibfd, bfd *obfd)\n \t\t\t\t       + (map->includes_phdrs\n \t\t\t\t\t  ? iehdr->e_phnum * iehdr->e_phentsize\n \t\t\t\t\t  : 0),\n-\t\t\t\t       output_section->alignment_power)\n-\t\t\t  != output_section->lma)\n+\t\t\t\t       output_section->alignment_power * opb)\n+\t\t\t  != output_section->lma * opb)\n \t\t\tgoto sorry;\n \t\t    }\n \t\t  else\n@@ -7396,7 +7396,7 @@ rewrite_elf_program_header (bfd *ibfd, bfd *obfd)\n \t      map->p_type = segment->p_type;\n \t      map->p_flags = segment->p_flags;\n \t      map->p_flags_valid = 1;\n-\t      map->p_paddr = suggested_lma->lma;\n+\t      map->p_paddr = suggested_lma->lma * opb;\n \t      map->p_paddr_valid = p_paddr_valid;\n \t      map->includes_filehdr = 0;\n \t      map->includes_phdrs = 0;"
+    },
+    {
+      "sha": "7745c537658fc41a962cf5d195ac15566adcfec4",
+      "filename": "bfd/elfcode.h",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 13,
+      "changes": 28,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/666318230c54a348763927c80d085542d9890c42/bfd/elfcode.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/666318230c54a348763927c80d085542d9890c42/bfd/elfcode.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfcode.h?ref=666318230c54a348763927c80d085542d9890c42",
+      "patch": "@@ -1664,10 +1664,11 @@ elf_debug_file (Elf_Internal_Ehdr *ehdrp)\n bfd *\n NAME(_bfd_elf,bfd_from_remote_memory)\n   (bfd *templ,\n-   bfd_vma ehdr_vma,\n-   bfd_size_type size,\n-   bfd_vma *loadbasep,\n+   bfd_vma ehdr_vma    /* Bytes.  */,\n+   bfd_size_type size  /* Octets.  */,\n+   bfd_vma *loadbasep  /* Bytes.  */,\n    int (*target_read_memory) (bfd_vma, bfd_byte *, bfd_size_type))\n+                          /* (Bytes  ,           , octets       ).  */\n {\n   Elf_External_Ehdr x_ehdr;\t/* Elf file header, external form */\n   Elf_Internal_Ehdr i_ehdr;\t/* Elf file header, internal form */\n@@ -1680,9 +1681,10 @@ NAME(_bfd_elf,bfd_from_remote_memory)\n   unsigned int i;\n   bfd_vma high_offset;\n   bfd_vma shdr_end;\n-  bfd_vma loadbase;\n+  bfd_vma loadbase;  /* Bytes.  */\n   char *filename;\n   size_t amt;\n+  unsigned int opb = bfd_octets_per_byte (templ, NULL);\n \n   /* Read in the ELF header in external format.  */\n   err = target_read_memory (ehdr_vma, (bfd_byte *) &x_ehdr, sizeof x_ehdr);\n@@ -1780,17 +1782,17 @@ NAME(_bfd_elf,bfd_from_remote_memory)\n \t     header sits, then we can figure out the loadbase.  */\n \t  if (first_phdr == NULL)\n \t    {\n-\t      bfd_vma p_offset = i_phdrs[i].p_offset;\n-\t      bfd_vma p_vaddr = i_phdrs[i].p_vaddr;\n+\t      bfd_vma p_offset = i_phdrs[i].p_offset;  /* Octets.  */\n+\t      bfd_vma p_vaddr = i_phdrs[i].p_vaddr;    /* Octets.  */\n \n \t      if (i_phdrs[i].p_align > 1)\n \t\t{\n-\t\t  p_offset &= -i_phdrs[i].p_align;\n-\t\t  p_vaddr &= -i_phdrs[i].p_align;\n+\t\t  p_offset &= -(i_phdrs[i].p_align * opb);\n+\t\t  p_vaddr &= -(i_phdrs[i].p_align * opb);\n \t\t}\n \t      if (p_offset == 0)\n \t\t{\n-\t\t  loadbase = ehdr_vma - p_vaddr;\n+\t\t  loadbase = ehdr_vma - p_vaddr / opb;\n \t\t  first_phdr = &i_phdrs[i];\n \t\t}\n \t    }\n@@ -1846,9 +1848,9 @@ NAME(_bfd_elf,bfd_from_remote_memory)\n   for (i = 0; i < i_ehdr.e_phnum; ++i)\n     if (i_phdrs[i].p_type == PT_LOAD)\n       {\n-\tbfd_vma start = i_phdrs[i].p_offset;\n-\tbfd_vma end = start + i_phdrs[i].p_filesz;\n-\tbfd_vma vaddr = i_phdrs[i].p_vaddr;\n+\tbfd_vma start = i_phdrs[i].p_offset;         /* Octets.  */\n+\tbfd_vma end = start + i_phdrs[i].p_filesz;   /* Octets.  */\n+\tbfd_vma vaddr = i_phdrs[i].p_vaddr;          /* Octets.  */\n \n \t/* Extend the beginning of the first pt_load to cover file\n \t   header and program headers, if we proved earlier that its\n@@ -1861,7 +1863,7 @@ NAME(_bfd_elf,bfd_from_remote_memory)\n \t/* Extend the end of the last pt_load to cover section headers.  */\n \tif (last_phdr == &i_phdrs[i])\n \t  end = high_offset;\n-\terr = target_read_memory (loadbase + vaddr,\n+\terr = target_read_memory (loadbase + vaddr / opb,\n \t\t\t\t  contents + start, end - start);\n \tif (err)\n \t  {"
+    },
+    {
+      "sha": "5852844498aa985fe2916f9a9def9809866ef50b",
+      "filename": "bfd/elflink.c",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 13,
+      "changes": 31,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/666318230c54a348763927c80d085542d9890c42/bfd/elflink.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/666318230c54a348763927c80d085542d9890c42/bfd/elflink.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elflink.c?ref=666318230c54a348763927c80d085542d9890c42",
+      "patch": "@@ -11566,8 +11566,8 @@ elf_fixup_link_order (bfd *abfd, asection *o)\n   struct bfd_link_order *p;\n   bfd *sub;\n   struct bfd_link_order **sections;\n-  asection *s, *other_sec, *linkorder_sec;\n-  bfd_vma offset;\n+  asection *other_sec, *linkorder_sec;\n+  bfd_vma offset;  /* Octets.  */\n \n   other_sec = NULL;\n   linkorder_sec = NULL;\n@@ -11577,7 +11577,7 @@ elf_fixup_link_order (bfd *abfd, asection *o)\n     {\n       if (p->type == bfd_indirect_link_order)\n \t{\n-\t  s = p->u.indirect.section;\n+\t  asection *s = p->u.indirect.section;\n \t  sub = s->owner;\n \t  if ((s->flags & SEC_LINKER_CREATED) == 0\n \t      && bfd_get_flavour (sub) == bfd_target_elf_flavour\n@@ -11632,11 +11632,12 @@ elf_fixup_link_order (bfd *abfd, asection *o)\n   for (n = 0; n < seen_linkorder; n++)\n     {\n       bfd_vma mask;\n-      s = sections[n]->u.indirect.section;\n-      mask = ~(bfd_vma) 0 << s->alignment_power;\n+      asection *s = sections[n]->u.indirect.section;\n+      unsigned int opb = bfd_octets_per_byte (abfd, s);\n+\n+      mask = ~(bfd_vma) 0 << s->alignment_power * opb;\n       offset = (offset + ~mask) & mask;\n-      s->output_offset = offset / bfd_octets_per_byte (abfd, s);\n-      sections[n]->offset = offset;\n+      sections[n]->offset = s->output_offset = offset / opb;\n       offset += sections[n]->size;\n     }\n \n@@ -12247,24 +12248,25 @@ bfd_elf_final_link (bfd *abfd, struct bfd_link_info *info)\n \n   if (htab->tls_sec)\n     {\n-      bfd_vma base, end = 0;\n+      bfd_vma base, end = 0;  /* Both bytes.  */\n       asection *sec;\n \n       for (sec = htab->tls_sec;\n \t   sec && (sec->flags & SEC_THREAD_LOCAL);\n \t   sec = sec->next)\n \t{\n \t  bfd_size_type size = sec->size;\n+\t  unsigned int opb = bfd_octets_per_byte (abfd, sec);\n \n \t  if (size == 0\n \t      && (sec->flags & SEC_HAS_CONTENTS) == 0)\n \t    {\n \t      struct bfd_link_order *ord = sec->map_tail.link_order;\n \n \t      if (ord != NULL)\n-\t\tsize = ord->offset + ord->size;\n+\t\tsize = ord->offset * opb + ord->size;\n \t    }\n-\t  end = sec->vma + size;\n+\t  end = sec->vma + size / opb;\n \t}\n       base = htab->tls_sec->vma;\n       /* Only align end of TLS section if static TLS doesn't have special\n@@ -12777,6 +12779,8 @@ bfd_elf_final_link (bfd *abfd, struct bfd_link_info *info)\n \n \t      if (bed->dtrel_excludes_plt && htab->srelplt != NULL)\n \t\t{\n+\t\t  unsigned int opb = bfd_octets_per_byte (abfd, o);\n+\n \t\t  /* Don't count procedure linkage table relocs in the\n \t\t     overall reloc count.  */\n \t\t  sh_size -= htab->srelplt->size;\n@@ -12796,7 +12800,7 @@ bfd_elf_final_link (bfd *abfd, struct bfd_link_info *info)\n \t\t  /* If .rela.plt is the first .rela section, exclude\n \t\t     it from DT_RELA.  */\n \t\t  else if (sh_addr == (htab->srelplt->output_section->vma\n-\t\t\t\t       + htab->srelplt->output_offset))\n+\t\t\t\t       + htab->srelplt->output_offset) * opb)\n \t\t    sh_addr += htab->srelplt->size;\n \t\t}\n \n@@ -14251,7 +14255,7 @@ bfd_elf_discard_info (bfd *output_bfd, struct bfd_link_info *info)\n     {\n       asection *i;\n       int eh_changed = 0;\n-      unsigned int eh_alignment;\n+      unsigned int eh_alignment;  /* Octets.  */\n \n       for (i = o->map_head.s; i != NULL; i = i->map_head.s)\n \t{\n@@ -14278,7 +14282,8 @@ bfd_elf_discard_info (bfd *output_bfd, struct bfd_link_info *info)\n \t  fini_reloc_cookie_for_section (&cookie, i);\n \t}\n \n-      eh_alignment = 1 << o->alignment_power;\n+      eh_alignment = ((1 << o->alignment_power)\n+\t\t      * bfd_octets_per_byte (output_bfd, o));\n       /* Skip over zero terminator, and prevent empty sections from\n \t adding alignment padding at the end.  */\n       for (i = o->map_tail.s; i != NULL; i = i->map_tail.s)"
+    },
+    {
+      "sha": "0c6f7a10d3d8c67946e26be3880d1f2e1c75e531",
+      "filename": "bfd/merge.c",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 8,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/666318230c54a348763927c80d085542d9890c42/bfd/merge.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/666318230c54a348763927c80d085542d9890c42/bfd/merge.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/merge.c?ref=666318230c54a348763927c80d085542d9890c42",
+      "patch": "@@ -292,8 +292,9 @@ sec_merge_emit (bfd *abfd, struct sec_merge_hash_entry *entry,\n   asection *sec = secinfo->sec;\n   char *pad = NULL;\n   bfd_size_type off = 0;\n-  int alignment_power = sec->output_section->alignment_power;\n-  bfd_size_type pad_len;\n+  unsigned int opb = bfd_octets_per_byte (abfd, sec);\n+  int alignment_power = sec->output_section->alignment_power * opb;\n+  bfd_size_type pad_len;  /* Octets.  */\n \n   /* FIXME: If alignment_power is 0 then really we should scan the\n      entry list for the largest required alignment and use that.  */\n@@ -364,9 +365,11 @@ _bfd_add_merge_section (bfd *abfd, void **psinfo, asection *sec,\n {\n   struct sec_merge_info *sinfo;\n   struct sec_merge_sec_info *secinfo;\n-  unsigned int align;\n+  unsigned int alignment_power;  /* Octets.  */\n+  unsigned int align;            /* Octets.  */\n   bfd_size_type amt;\n   bfd_byte *contents;\n+  unsigned int opb = bfd_octets_per_byte (abfd, sec);\n \n   if ((abfd->flags & DYNAMIC) != 0\n       || (sec->flags & SEC_MERGE) == 0)\n@@ -389,10 +392,11 @@ _bfd_add_merge_section (bfd *abfd, void **psinfo, asection *sec,\n #ifndef CHAR_BIT\n #define CHAR_BIT 8\n #endif\n-  if (sec->alignment_power >= sizeof (align) * CHAR_BIT)\n+  alignment_power = sec->alignment_power * opb;\n+  if (alignment_power >= sizeof (align) * CHAR_BIT)\n     return TRUE;\n \n-  align = 1u << sec->alignment_power;\n+  align = 1u << alignment_power;\n   if ((sec->entsize < align\n        && ((sec->entsize & (sec->entsize - 1))\n \t   || !(sec->flags & SEC_STRINGS)))\n@@ -739,7 +743,7 @@ _bfd_merge_sections (bfd *abfd,\n   for (sinfo = (struct sec_merge_info *) xsinfo; sinfo; sinfo = sinfo->next)\n     {\n       struct sec_merge_sec_info *secinfo;\n-      bfd_size_type align;\n+      bfd_size_type align;  /* Bytes.  */\n \n       if (! sinfo->chain)\n \tcontinue;\n@@ -764,8 +768,10 @@ _bfd_merge_sections (bfd *abfd,\n \t      return FALSE;\n \t    if (align)\n \t      {\n+\t\tunsigned int opb = bfd_octets_per_byte (abfd, secinfo->sec);\n+\n \t\talign = (bfd_size_type) 1 << secinfo->sec->alignment_power;\n-\t\tif ((secinfo->sec->size & (align - 1)) != 0)\n+\t\tif (((secinfo->sec->size / opb) & (align - 1)) != 0)\n \t\t  align = 0;\n \t      }\n \t  }\n@@ -782,7 +788,7 @@ _bfd_merge_sections (bfd *abfd,\n       else\n \t{\n \t  struct sec_merge_hash_entry *e;\n-\t  bfd_size_type size = 0;\n+\t  bfd_size_type size = 0;  /* Octets.  */\n \n \t  /* Things are much simpler for non-strings.\n \t     Just assign them slots in the section.  */"
+    },
+    {
+      "sha": "2fefb460c9538ee09ae2c7541b5df648c45659c8",
+      "filename": "include/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/666318230c54a348763927c80d085542d9890c42/include/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/666318230c54a348763927c80d085542d9890c42/include/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ChangeLog?ref=666318230c54a348763927c80d085542d9890c42",
+      "patch": "@@ -1,3 +1,12 @@\n+2020-03-13  Christian Eggers  <ceggers@gmx.de>\n+\n+\t* bfdlink.h (struct bfd_link_order): Add unit (bytes/octets) to\n+\toffset and size members.\n+\t* elf/internal.h (struct elf_internal_phdr): Likewise for\n+\tp_align member.\n+\t(struct elf_segment_map): Likewise for p_paddr and p_size\n+\tmembers\n+\n 2020-03-13  Christian Eggers  <ceggers@gmx.de>\n \n \t* elf/internal.h (struct elf_internal_phdr): Add unit (octets)"
+    },
+    {
+      "sha": "40a6d4d40a6c1ac7a6739f9320dffc2f7ee2c2df",
+      "filename": "include/bfdlink.h",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/666318230c54a348763927c80d085542d9890c42/include/bfdlink.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/666318230c54a348763927c80d085542d9890c42/include/bfdlink.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/bfdlink.h?ref=666318230c54a348763927c80d085542d9890c42",
+      "patch": "@@ -801,9 +801,9 @@ struct bfd_link_order\n   struct bfd_link_order *next;\n   /* Type of link_order.  */\n   enum bfd_link_order_type type;\n-  /* Offset within output section.  */\n+  /* Offset within output section in bytes.  */\n   bfd_vma offset;\n-  /* Size within output section.  */\n+  /* Size within output section in octets.  */\n   bfd_size_type size;\n   /* Type specific information.  */\n   union"
+    },
+    {
+      "sha": "9692028eed3ea49b9c67ee8df533fbb2cb0e3f3e",
+      "filename": "include/elf/internal.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 3,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/666318230c54a348763927c80d085542d9890c42/include/elf/internal.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/666318230c54a348763927c80d085542d9890c42/include/elf/internal.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/elf/internal.h?ref=666318230c54a348763927c80d085542d9890c42",
+      "patch": "@@ -91,7 +91,8 @@ struct elf_internal_phdr {\n   bfd_vma\tp_paddr;\t     /* Segment physical address in octets.  */\n   bfd_vma\tp_filesz;\t     /* Segment size in file in octets.  */\n   bfd_vma\tp_memsz;\t     /* Segment size in memory in octets.  */\n-  bfd_vma\tp_align;\t     /* Segment alignment, file & memory.  */\n+  bfd_vma\tp_align;\t     /* Segment alignment in bytes, file\n+\t\t\t\t\t& memory */\n };\n \n typedef struct elf_internal_phdr Elf_Internal_Phdr;\n@@ -266,13 +267,13 @@ struct elf_segment_map\n   unsigned long p_type;\n   /* Program segment flags.  */\n   unsigned long p_flags;\n-  /* Program segment physical address.  */\n+  /* Program segment physical address in octets.  */\n   bfd_vma p_paddr;\n   /* Program segment virtual address offset from section vma in bytes.  */\n   bfd_vma p_vaddr_offset;\n   /* Program segment alignment.  */\n   bfd_vma p_align;\n-  /* Segment size in file and memory */\n+  /* Segment size in file and memory in octets.  */\n   bfd_vma p_size;\n   /* Whether the p_flags field is valid; if not, the flags are based\n      on the section flags.  */"
+    }
+  ]
+}

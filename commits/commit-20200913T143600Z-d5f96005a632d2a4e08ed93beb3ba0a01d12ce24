@@ -1,0 +1,146 @@
+{
+  "sha": "d5f96005a632d2a4e08ed93beb3ba0a01d12ce24",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZDVmOTYwMDVhNjMyZDJhNGUwOGVkOTNiZWIzYmEwYTAxZDEyY2UyNA==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-09-13T14:36:00Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-09-13T14:36:00Z"
+    },
+    "message": "Move \"register\" test out of classes.exp to a separate testcase\n\nThe gdb.cp/classes.exp testcase has one test that tries to exercise\nthe case of calling a method on a variable that has been put in a\nregister.\n\nSee the declaration of small in classes.cc:\n\n/* Try to get the compiler to allocate a class in a register.  */\nclass small {\n public:\n  int x;\n  int method ();\n};\n\nand the comment in classes.exp:\n\n    # This class is so small that an instance of it can fit in a register.\n    # When gdb tries to call a method, it gets embarrassed about taking\n    # the address of a register.\n    #\n    # TODO: I think that message should be a PASS, not an XFAIL.\n    # gdb prints an informative message and declines to do something\n    # impossible.\n    #\n    # The method call actually succeeds if the compiler allocates very\n    # small classes in memory instead of registers.  So this test does\n    # not tell us anything interesting if the call succeeds.\n    #\n    # -- chastain 2003-12-31\n\nAnd these comments:\n\n https://gcc.gnu.org/legacy-ml/gcc/2010-05/msg00116.html\n https://gcc.gnu.org/legacy-ml/gcc/2010-05/msg00117.html\n\n \"register keyword has other uses, e.g. for -O0 code variables\n declared with register keyword can be put into registers, while\n variables declared without it always get stack slots.\"\n\n \"I think it does, without optimization.  There's some unique GDB\n tests that use this.  It causes them to be live between statements in\n a machine register instead of always stored in stack slots.\"\n\nThe \"register\" keyword seems to be ignored by the compiler nowadays\neven at -O0, though.  With or without the register keyword, the\nvariable is given a stack slot, at least on x86-64 with GCC 9.\n\nHowever, if we use the GCC extension to put the variable\nin a specific variable:\n\n https://gcc.gnu.org/onlinedocs/gcc-10.2.0/gcc/Local-Register-Variables.html#Local-Register-Variables\n\n diff --git c/gdb/testsuite/gdb.cp/classes.cc w/gdb/testsuite/gdb.cp/classes.cc\n index 5ea360e4d06..6dcf34689b8 100644\n --- c/gdb/testsuite/gdb.cp/classes.cc\n +++ w/gdb/testsuite/gdb.cp/classes.cc\n @@ -629,7 +629,7 @@ register_class ()\n    /* We don't call any methods for v, so gcc version cygnus-2.3.3-930220\n       might put this variable in a register.  This is a lose, though, because\n       it means that GDB can't call any methods for that variable.  */\n -  register small v;\n +  register small v asm (\"rax\");\n\nthen it works, and we get an XFAIL:\n\n print v.method ()\n Address requested for identifier \"v\" which is in register $rax\n (gdb) XFAIL: gdb.cp/classes.exp: calling method for small class (PRMS 2972)\n\nI think that what we should do here is move this test into its own\nfile, use that GCC syntax to force it to a register, and do as the\ncomment says -- issue a pass instead of an XFAIL.\n\nThat's what this commit does.\n\nNote that we don't need -Wno-deprecated-register (nor -Wno-register)\nanymore in the new testcase, because GNU register-asm local variables\ndon't trigger the warning, with either GCC or Clang.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.cp/classes.exp: No longer pass -Wno-deprecated-register.\n\t(do_tests): Remove \"calling method for small class\" test.\n\t* gdb.cp/classes.cc (class small, small::method, marker_reg1)\n\t(register_class): Delete.\n\t(main): Don't call register_class.\n\t* gdb.cp/call-method-register.exp: New file, based on bits removed\n\tfrom classes.exp.\n\t* gdb.cp/call-method-register.cc: New file, based on bits removed\n\tfrom classes.cc.",
+    "tree": {
+      "sha": "5d04a944fb08aa39cf4cc21194b642fd8877a6f2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/5d04a944fb08aa39cf4cc21194b642fd8877a6f2"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/d5f96005a632d2a4e08ed93beb3ba0a01d12ce24",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d5f96005a632d2a4e08ed93beb3ba0a01d12ce24",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/d5f96005a632d2a4e08ed93beb3ba0a01d12ce24",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d5f96005a632d2a4e08ed93beb3ba0a01d12ce24/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "77f2120b200be6cabbf6f610942fc1173a8df6d3",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/77f2120b200be6cabbf6f610942fc1173a8df6d3",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/77f2120b200be6cabbf6f610942fc1173a8df6d3"
+    }
+  ],
+  "stats": {
+    "total": 208,
+    "additions": 136,
+    "deletions": 72
+  },
+  "files": [
+    {
+      "sha": "cd93827a9a40833604a0e79f4740bb123ae1063d",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d5f96005a632d2a4e08ed93beb3ba0a01d12ce24/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d5f96005a632d2a4e08ed93beb3ba0a01d12ce24/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=d5f96005a632d2a4e08ed93beb3ba0a01d12ce24",
+      "patch": "@@ -1,3 +1,15 @@\n+2020-09-13  Pedro Alves  <pedro@palves.net>\n+\n+\t* gdb.cp/classes.exp: No longer pass -Wno-deprecated-register.\n+\t(do_tests): Remove \"calling method for small class\" test.\n+\t* gdb.cp/classes.cc (class small, small::method, marker_reg1)\n+\t(register_class): Delete.\n+\t(main): Don't call register_class.\n+\t* gdb.cp/call-method-register.exp: New file, based on bits removed\n+\tfrom classes.exp.\n+\t* gdb.cp/call-method-register.cc: New file, based on bits removed\n+\tfrom classes.cc.\n+\n 2020-09-13  Pedro Alves  <pedro@palves.net>\n \n \t* gdb.base/msym-bp-2.c: New."
+    },
+    {
+      "sha": "2beed47c13d653c8e09bad111bb877b15c88bcad",
+      "filename": "gdb/testsuite/gdb.cp/call-method-register.cc",
+      "status": "added",
+      "additions": 66,
+      "deletions": 0,
+      "changes": 66,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d5f96005a632d2a4e08ed93beb3ba0a01d12ce24/gdb/testsuite/gdb.cp/call-method-register.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d5f96005a632d2a4e08ed93beb3ba0a01d12ce24/gdb/testsuite/gdb.cp/call-method-register.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.cp/call-method-register.cc?ref=d5f96005a632d2a4e08ed93beb3ba0a01d12ce24",
+      "patch": "@@ -0,0 +1,66 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 1993-2020 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#if defined __x86_64__\n+# define ASM_REG \"rax\"\n+#elif defined __i386__\n+# define ASM_REG \"eax\"\n+#else\n+# error \"port me\"\n+#endif\n+\n+/* A class small enough that it fits in a register.  */\n+struct small\n+{\n+  int x;\n+  int method ();\n+};\n+\n+int\n+small::method ()\n+{\n+  return x + 5;\n+}\n+\n+int\n+register_class ()\n+{\n+  /* Given the use of the GNU register-asm local variables extension,\n+     the compiler puts this variable in a register.  This means that\n+     GDB can't call any methods for this variable, which is what we\n+     want to test.  */\n+  register small v asm (ASM_REG);\n+\n+  int i;\n+\n+  /* Perform a computation sufficiently complicated that optimizing\n+     compilers won't optimize out the variable.  If some compiler\n+     constant-folds this whole loop, maybe using a parameter to this\n+     function here would help.  */\n+  v.x = 0;\n+  for (i = 0; i < 13; ++i)\n+    v.x += i;\n+  --v.x; /* v.x is now 77 */\n+  return v.x + 5; /* set breakpoint here */\n+}\n+\n+int\n+main ()\n+{\n+  register_class ();\n+  return 0;\n+}"
+    },
+    {
+      "sha": "d12f0ef86b9da1a2f0fd6318dce6cb053e744b3e",
+      "filename": "gdb/testsuite/gdb.cp/call-method-register.exp",
+      "status": "added",
+      "additions": 57,
+      "deletions": 0,
+      "changes": 57,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d5f96005a632d2a4e08ed93beb3ba0a01d12ce24/gdb/testsuite/gdb.cp/call-method-register.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d5f96005a632d2a4e08ed93beb3ba0a01d12ce24/gdb/testsuite/gdb.cp/call-method-register.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.cp/call-method-register.exp?ref=d5f96005a632d2a4e08ed93beb3ba0a01d12ce24",
+      "patch": "@@ -0,0 +1,57 @@\n+# Copyright 1992-2020 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test callling a method on a variable that has been put in a\n+# register.\n+\n+if { [skip_cplus_tests] } { continue }\n+\n+load_lib \"cp-support.exp\"\n+\n+standard_testfile .cc\n+\n+if {[prepare_for_testing \"failed to prepare\" $testfile $srcfile {debug c++}]} {\n+    return -1\n+}\n+\n+proc test_call_register_class {} {\n+    global gdb_prompt\n+\n+    if ![runto_main] {\n+\tfail \"couldn't run to main\"\n+\treturn\n+    }\n+\n+    set bp_location [gdb_get_line_number \"set breakpoint here\"]\n+    gdb_breakpoint $bp_location\n+    gdb_continue_to_breakpoint \"break here\"\n+\n+    # This class is so small that an instance of it can fit in a register.\n+    # When gdb tries to call a method, it gets embarrassed about taking\n+    # the address of a register.\n+    #\n+    # That message is a PASS, not an XFAIL, because gdb prints an\n+    # informative message and declines to do something impossible.\n+    #\n+    # The method call actually succeeds if the compiler allocates very\n+    # small classes in memory instead of registers.  If that happens,\n+    # it's a FAIL, because the testcase is written in a form such that\n+    # it should not happen.\n+    gdb_test \"print v.method ()\" \\\n+\t\"Address requested for identifier \\\"v\\\" which is in register .*\" \\\n+\t\"call method on register local\"\n+}\n+\n+test_call_register_class"
+    },
+    {
+      "sha": "e8bac54fc17bd469574b81fc936d89f5759f5524",
+      "filename": "gdb/testsuite/gdb.cp/classes.cc",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 37,
+      "changes": 37,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d5f96005a632d2a4e08ed93beb3ba0a01d12ce24/gdb/testsuite/gdb.cp/classes.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d5f96005a632d2a4e08ed93beb3ba0a01d12ce24/gdb/testsuite/gdb.cp/classes.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.cp/classes.cc?ref=d5f96005a632d2a4e08ed93beb3ba0a01d12ce24",
+      "patch": "@@ -532,19 +532,6 @@ typedef struct {\n } tagless_struct;\n tagless_struct v_tagless;\n \n-/* Try to get the compiler to allocate a class in a register.  */\n-class small {\n- public:\n-  int x;\n-  int method ();\n-};\n-\n-int\n-small::method ()\n-{\n-  return x + 5;\n-}\n-\n class class_with_typedefs\n {\n public:\n@@ -621,29 +608,6 @@ struct struct_with_private_typedef\n   INT b;\n };\n \n-void marker_reg1 () {}\n-\n-int\n-register_class ()\n-{\n-  /* We don't call any methods for v, so gcc version cygnus-2.3.3-930220\n-     might put this variable in a register.  This is a lose, though, because\n-     it means that GDB can't call any methods for that variable.  */\n-  register small v;\n-\n-  int i;\n-\n-  /* Perform a computation sufficiently complicated that optimizing compilers\n-     won't optimized out the variable.  If some compiler constant-folds this\n-     whole loop, maybe using a parameter to this function here would help.  */\n-  v.x = 0;\n-  for (i = 0; i < 13; ++i)\n-    v.x += i;\n-  --v.x; /* v.x is now 77 */\n-  marker_reg1 ();\n-  return v.x + 5;\n-}\n-\n void dummy()\n {\n   v_bool = true;\n@@ -686,7 +650,6 @@ main()\n   inheritance1 ();\n   inheritance3 ();\n   enums1 ();\n-  register_class ();\n \n   /* FIXME: pmi gets optimized out.  Need to do some more computation with\n      it or something.  (No one notices, because the test is xfail'd anyway,"
+    },
+    {
+      "sha": "ae4bf13bb5079058c2cab090fa1972de4135a47f",
+      "filename": "gdb/testsuite/gdb.cp/classes.exp",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 35,
+      "changes": 36,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d5f96005a632d2a4e08ed93beb3ba0a01d12ce24/gdb/testsuite/gdb.cp/classes.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d5f96005a632d2a4e08ed93beb3ba0a01d12ce24/gdb/testsuite/gdb.cp/classes.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.cp/classes.exp?ref=d5f96005a632d2a4e08ed93beb3ba0a01d12ce24",
+      "patch": "@@ -24,8 +24,7 @@ load_lib \"cp-support.exp\"\n \n standard_testfile .cc\n \n-if {[prepare_for_testing \"failed to prepare\" $testfile $srcfile \\\n-\t {debug c++ additional_flags=-Wno-deprecated-register}]} {\n+if {[prepare_for_testing \"failed to prepare\" $testfile $srcfile {debug c++}]} {\n     return -1\n }\n \n@@ -650,39 +649,6 @@ proc do_tests {} {\n \n     # Now some random tests that were just thrown in here.\n \n-    gdb_breakpoint marker_reg1\n-    gdb_test \"continue\" \".*Breakpoint .* marker_reg1.*\" \"\"\n-    gdb_test \"finish\" \"Run till exit from.*\" \"finish from marker_reg1\"\n-\n-    # This class is so small that an instance of it can fit in a register.\n-    # When gdb tries to call a method, it gets embarrassed about taking\n-    # the address of a register.\n-    #\n-    # TODO: I think that message should be a PASS, not an XFAIL.\n-    # gdb prints an informative message and declines to do something\n-    # impossible.\n-    #\n-    # The method call actually succeeds if the compiler allocates very\n-    # small classes in memory instead of registers.  So this test does\n-    # not tell us anything interesting if the call succeeds.\n-    #\n-    # -- chastain 2003-12-31\n-    gdb_test_multiple \"print v.method ()\" \"calling method for small class\" {\n-\t-re \"\\\\$\\[0-9\\]+ = 82$nl$gdb_prompt $\" {\n-\t    # gcc 3.3.2 -gdwarf-2\n-\t    # gcc HEAD 2003-12-28 21:08:30 UTC -gdwarf-2\n-\t    # gcc 3.3.2 -gstabs+\n-\t    # gcc HEAD 2003-12-28 21:08:30 UTC -gstabs+\n-\t    pass \"calling method for small class\"\n-\t}\n-\t-re \"Address requested for identifier \\\"v\\\" which is in register .*$nl$gdb_prompt $\" {\n-\t    # gcc 2.95.3 -gdwarf-2\n-\t    # gcc 2.95.3 -gstabs+\n-\t    setup_xfail \"*-*-*\" 2972\n-\t    fail \"calling method for small class\"\n-\t}\n-    }\n-\n     gdb_test \"print base1::Base1\" \"<.*Base1.*>\" \"print ctor of typedef class\"\n     gdb_test \"print base1::~Base1\" \"<.*~Base1(\\\\(\\\\))?>\" \\\n \t\"print dtor of typedef class\""
+    }
+  ]
+}

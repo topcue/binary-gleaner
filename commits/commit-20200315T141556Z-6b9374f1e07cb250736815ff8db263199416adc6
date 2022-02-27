@@ -1,0 +1,110 @@
+{
+  "sha": "6b9374f1e07cb250736815ff8db263199416adc6",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NmI5Mzc0ZjFlMDdjYjI1MDczNjgxNWZmOGRiMjYzMTk5NDE2YWRjNg==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-03-15T14:15:56Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-03-15T14:15:56Z"
+    },
+    "message": "[gdb/testsuite] Fix solib-list.exp test-case for exec with debug-info\n\nSince commit a2fedca99c \"Implement 'set/show exec-file-mismatch'.\", I see the\nfollowing regression on openSUSE Leap 15.1:\n...\nFAIL: gdb.server/solib-list.exp: non-stop 0: target remote \\\n  (got interactive prompt)\nFAIL: gdb.server/solib-list.exp: non-stop 1: target remote \\\n  (got interactive prompt)\n...\n\nThe first FAIL in more detail:\n...\n(gdb) PASS: gdb.server/solib-list.exp: non-stop 0: file binfile\ntarget remote localhost:2346\nRemote debugging using localhost:2346\nwarning: Mismatch between current exec-file /data/gdb_versions/devel/build/\\\n  gdb/testsuite/outputs/gdb.server/solib-list/solib-list\nand automatically determined exec-file /lib64/ld-2.26.so\nexec-file-mismatch handling is currently \"ask\"\nLoad new symbol table from \"/lib64/ld-2.26.so\"? (y or n) n\nwarning: loading /lib64/ld-2.26.so Not confirmed.\nReading /lib64/ld-linux-x86-64.so.2 from remote target...\nwarning: File transfers from remote targets can be slow. \\\n  Use \"set sysroot\" to access files locally instead.\nReading /lib64/ld-linux-x86-64.so.2 from remote target...\nReading symbols from target:/lib64/ld-linux-x86-64.so.2...\nReading /lib64/ld-2.26.so-2.26-lp151.18.7.x86_64.debug from remote target...\nReading /lib64/.debug/ld-2.26.so-2.26-lp151.18.7.x86_64.debug from remote \\\n  target...\nReading /data/gdb_versions/devel/install/lib64/debug//lib64/\\\n  ld-2.26.so-2.26-lp151.18.7.x86_64.debug from remote target...\nReading /data/gdb_versions/devel/install/lib64/debug/lib64/\\\n  /ld-2.26.so-2.26-lp151.18.7.x86_64.debug from remote target...\nReading target:/data/gdb_versions/devel/install/lib64/debug/lib64/\\\n  /ld-2.26.so-2.26-lp151.18.7.x86_64.debug from remote target...\n(No debugging symbols found in target:/lib64/ld-linux-x86-64.so.2)\n0x00007ffff7dd7ea0 in ?? ()\n(gdb) FAIL: gdb.server/solib-list.exp: non-stop 0: target remote (got \\\n  interactive prompt)\n...\n\nThe commit introduces the \"Load new symbol table from\" question, and\ngdb_test_multiple defaults to answering \"no\" and reporting the\n\"got interactive prompt\" FAIL.\n\nThis FAIL is not seen on f.i. debian 10.2.  The difference originates from the\nfact that the solib-list executable has debug-info in the openSUSE case, while\nit doesn't in the debian case.\n\nWe can prevent the failure on openSUSE by stripping the executable from\ndebug-info:\n...\n+ exec strip --strip-debug ${binfile}\n...\n\nThe difference in behaviour is a bug or improvement opportunity in the\nexec-file-mismatch, filed as PR25475.\n\nThis patch fixes the FAIL by handling the question in the test-case.\n\nTested on x86_64-linux.\n\nTested on x86_64-linux with the gdbserver part of the patch introducing the\ntest-case reverted to ensure that this still FAILs.\n\ngdb/testsuite/ChangeLog:\n\n2020-03-15  Tom de Vries  <tdevries@suse.de>\n\n\t* gdb.server/solib-list.exp: Handle\n\t'Load new symbol table from \"/lib64/ld-2.26.so\"? (y or n)'.",
+    "tree": {
+      "sha": "b775b0b57d8e63a3310dfba1afd8648c16cfbd8d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/b775b0b57d8e63a3310dfba1afd8648c16cfbd8d"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/6b9374f1e07cb250736815ff8db263199416adc6",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6b9374f1e07cb250736815ff8db263199416adc6",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/6b9374f1e07cb250736815ff8db263199416adc6",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6b9374f1e07cb250736815ff8db263199416adc6/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "eaeaf44cfdc9a4096a0dd52fa0606f29d4bfd48e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/eaeaf44cfdc9a4096a0dd52fa0606f29d4bfd48e",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/eaeaf44cfdc9a4096a0dd52fa0606f29d4bfd48e"
+    }
+  ],
+  "stats": {
+    "total": 22,
+    "additions": 20,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "9387c686a05712b81e5de34b96625fa3a100c59b",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6b9374f1e07cb250736815ff8db263199416adc6/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6b9374f1e07cb250736815ff8db263199416adc6/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=6b9374f1e07cb250736815ff8db263199416adc6",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-03-15  Tom de Vries  <tdevries@suse.de>\n+\n+\t* gdb.server/solib-list.exp: Handle\n+\t'Load new symbol table from \"/lib64/ld-2.26.so\"? (y or n)'.\n+\n 2020-03-15  Tom de Vries  <tdevries@suse.de>\n \n \t* gdb.base/maint.exp: Use exp_continue in long lines for \"maint print"
+    },
+    {
+      "sha": "6f077c6a664ecb379f7ae05ba520bcf1faece42f",
+      "filename": "gdb/testsuite/gdb.server/solib-list.exp",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 2,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6b9374f1e07cb250736815ff8db263199416adc6/gdb/testsuite/gdb.server/solib-list.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6b9374f1e07cb250736815ff8db263199416adc6/gdb/testsuite/gdb.server/solib-list.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.server/solib-list.exp?ref=6b9374f1e07cb250736815ff8db263199416adc6",
+      "patch": "@@ -92,10 +92,23 @@ foreach nonstop { 0 1 } { with_test_prefix \"non-stop $nonstop\" {\n \t     {(Are you sure you want to change the file|Load new symbol table from \".*\")\\? \\(y or n\\) } \"y\"\n \n     set test \"target $gdbserver_protocol\"\n+    set ok 0\n     gdb_test_multiple \"target $gdbserver_protocol $gdbserver_gdbport\" $test {\n-\t-re \"Remote debugging using .*\\r\\n$gdb_prompt \" {\n+\t-re \"Remote debugging using\" {\n+\t    set ok 1\n+\t    exp_continue\n+\t}\n+\t-re {.*Load new symbol table from \".*\"\\? \\(y or n\\) } {\n+\t    send_gdb \"y\\n\" answer\n+\t    exp_continue\n+\t}\n+\t-re \".*\\r\\n$gdb_prompt \" {\n \t    # Do not anchor end, there may be more output in non-stop mode.\n-\t    pass $test\n+\t    if ($ok) {\n+\t\tpass $test\n+\t    } else {\n+\t\tfail $test\n+\t    }\n \t}\n     }\n "
+    }
+  ]
+}

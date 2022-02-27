@@ -1,0 +1,110 @@
+{
+  "sha": "f80cb3b46ae19c6a7c39916916374410f5cc37bc",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZjgwY2IzYjQ2YWUxOWM2YTdjMzk5MTY5MTYzNzQ0MTBmNWNjMzdiYw==",
+  "commit": {
+    "author": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-04-24T09:31:06Z"
+    },
+    "committer": {
+      "name": "Tom de Vries",
+      "email": "tdevries@suse.de",
+      "date": "2020-04-24T09:31:06Z"
+    },
+    "message": "[gdb/contrib] Use temp dir for gdb-add-index in cc-with-tweaks.sh\n\nWhen running test-case gdb.dwarf2/gdb-index.exp cleanly by issuing this\ncommand:\n...\n$ rm -Rf build/gdb/testsuite/outputs/gdb.dwarf2/gdb-index\n...\nbefore running, it passes both with native and target board\ncc-with-gdb-index.\n\nBut when we run the test-case first with native and then with\ncc-with-gdb-index without intermediate cleanup, we get instead:\n...\n Running src/gdb/testsuite/gdb.dwarf2/gdb-index.exp ...\n gdb compile failed, cc-with-tweaks.sh: Index file \\\n   build/gdb/testsuite/outputs/gdb.dwarf2/gdb-index/gdb-index.gdb-index \\\n   exists, won't clobber.\n\n                 === gdb Summary ===\n\n # of untested testcases         1\n...\n\nWhat happens is that the native run produces a file\nbuild/gdb/testsuite/outputs/gdb.dwarf2/gdb-index/gdb-index.gdb-index, which\ncauses gdb/contrib/cc-with-tweaks.sh to hit this code:\n...\nindex_file=\"${output_file}.gdb-index\"\nif [ \"$want_index\" = true ] && [ -f \"$index_file\" ]\nthen\n    echo \"$myname: Index file $index_file exists, won't clobber.\" >&2\n    exit 1\nfi\n...\n\nThe gdb-add-index script has a problem that it uses temp files alongside the\nexecutable, filed as PR25843.\n\nThe code in cc-with-tweaks.sh attempts to detect the case that creating such a\ntemp file would overwrite an pre-existing file.  It however does this only for\na single file, while gdb-add-index uses more temporary files:\n- <exec>.gdb-index\n- <exec>.debug_names\n- <exec>.debug_str\n- <exec>.debug_str.merge\n- <exec>.debug_str.err\n\nFix this by working around PR25843 in a more generic way:\n- move the executable into a temp directory\n- execute gdb-add-index, allowing it to create any temp file alongside the\n  executable in the temp directory\n- move the executable back to the original location\n\nTested on x86_64-linux, with target board cc-with-debug-index.\n\ngdb/ChangeLog:\n\n2020-04-24  Tom de Vries  <tdevries@suse.de>\n\n\t* contrib/cc-with-tweaks.sh: Remove <exec>.gdb-index file handling.\n\tRun gdb-add-index inside temp dir.",
+    "tree": {
+      "sha": "6a95aee1f661b212d9c2614759cc3d683476b397",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/6a95aee1f661b212d9c2614759cc3d683476b397"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/f80cb3b46ae19c6a7c39916916374410f5cc37bc",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f80cb3b46ae19c6a7c39916916374410f5cc37bc",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/f80cb3b46ae19c6a7c39916916374410f5cc37bc",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f80cb3b46ae19c6a7c39916916374410f5cc37bc/comments",
+  "author": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "vries",
+    "id": 4057235,
+    "node_id": "MDQ6VXNlcjQwNTcyMzU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/4057235?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vries",
+    "html_url": "https://github.com/vries",
+    "followers_url": "https://api.github.com/users/vries/followers",
+    "following_url": "https://api.github.com/users/vries/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vries/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vries/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vries/subscriptions",
+    "organizations_url": "https://api.github.com/users/vries/orgs",
+    "repos_url": "https://api.github.com/users/vries/repos",
+    "events_url": "https://api.github.com/users/vries/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vries/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "2482f30615136c7ed2082561f8e9dba48ee3ee25",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2482f30615136c7ed2082561f8e9dba48ee3ee25",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/2482f30615136c7ed2082561f8e9dba48ee3ee25"
+    }
+  ],
+  "stats": {
+    "total": 19,
+    "additions": 10,
+    "deletions": 9
+  },
+  "files": [
+    {
+      "sha": "c2dc2b6ba807ae91e039f9aaf6ae7aa0e5924fc5",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f80cb3b46ae19c6a7c39916916374410f5cc37bc/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f80cb3b46ae19c6a7c39916916374410f5cc37bc/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=f80cb3b46ae19c6a7c39916916374410f5cc37bc",
+      "patch": "@@ -1,3 +1,8 @@\n+2020-04-24  Tom de Vries  <tdevries@suse.de>\n+\n+\t* contrib/cc-with-tweaks.sh: Remove <exec>.gdb-index file handling.\n+\tRun gdb-add-index inside temp dir.\n+\n 2020-04-23  Tom Tromey  <tromey@adacore.com>\n \n \t* windows-tdep.c (is_linked_with_cygwin_dll): Always update \"iter\""
+    },
+    {
+      "sha": "2998a9d2180a976e021fff3169821b3fc7fb1052",
+      "filename": "gdb/contrib/cc-with-tweaks.sh",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 9,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f80cb3b46ae19c6a7c39916916374410f5cc37bc/gdb/contrib/cc-with-tweaks.sh",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f80cb3b46ae19c6a7c39916916374410f5cc37bc/gdb/contrib/cc-with-tweaks.sh",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/contrib/cc-with-tweaks.sh?ref=f80cb3b46ae19c6a7c39916916374410f5cc37bc",
+      "patch": "@@ -144,13 +144,6 @@ then\n     exit $?\n fi\n \n-index_file=\"${output_file}.gdb-index\"\n-if [ \"$want_index\" = true ] && [ -f \"$index_file\" ]\n-then\n-    echo \"$myname: Index file $index_file exists, won't clobber.\" >&2\n-    exit 1\n-fi\n-\n output_dir=\"${output_file%/*}\"\n [ \"$output_dir\" = \"$output_file\" ] && output_dir=\".\"\n \n@@ -176,12 +169,16 @@ if [ \"$want_objcopy_compress\" = true ]; then\n fi\n \n if [ \"$want_index\" = true ]; then\n+    get_tmpdir\n+    mv \"$output_file\" \"$tmpdir\"\n+    tmpfile=\"$tmpdir/$(basename $output_file)\"\n     # Filter out these messages which would stop dejagnu testcase run:\n     # echo \"$myname: No index was created for $file\" 1>&2\n     # echo \"$myname: [Was there no debuginfo? Was there already an index?]\" 1>&2\n-    GDB=$GDB $GDB_ADD_INDEX $index_options \"$output_file\" 2>&1 \\\n+    GDB=$GDB $GDB_ADD_INDEX $index_options \"$tmpfile\" 2>&1 \\\n \t| grep -v \"^${GDB_ADD_INDEX##*/}: \" >&2\n     rc=${PIPESTATUS[0]}\n+    mv \"$tmpfile\" \"$output_file\"\n     [ $rc != 0 ] && exit $rc\n fi\n \n@@ -237,5 +234,4 @@ if [ \"$want_dwp\" = true ]; then\n     fi\n fi\n \n-rm -f \"$index_file\"\n exit $rc"
+    }
+  ]
+}

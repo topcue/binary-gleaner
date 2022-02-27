@@ -1,0 +1,146 @@
+{
+  "sha": "d8c06f22a38c849ae1d4488e6e4a7b0c780869b8",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZDhjMDZmMjJhMzhjODQ5YWUxZDQ0ODhlNmU0YTdiMGM3ODA4NjliOA==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2019-09-10T14:24:28Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2019-10-03T15:12:02Z"
+    },
+    "message": "gdb: Don't ignore all SIGSTOP when the signal handler is set to pass\n\nIt was observed that in a multi-threaded application on GNU/Linux,\nthat if the user has set the SIGSTOP to be pass (using GDB's handle\ncommand) then the inferior would hang upon hitting a breakpoint.\n\nWhat happens is that when a thread hits the breakpoint GDB tries to\nstop all of the other threads by sending them a SIGSTOP and setting\nthe stop_requested flag in the target_ops structure - this can be seen\nin infrun.c:stop_all_threads.\n\nGDB then waits for all of the other threads to stop.\n\nWhen the SIGSTOP event arrives we eventually end up in\nlinux-nat.c:linux_nat_filter_event, which has the job of deciding if\nthe event we're looking at (the SIGSTOP arriving in this case) is\nsomething that should be reported back to the core of GDB.\n\nOne of the final actions of this function is to check if we stopped\ndue to a signal, and if we did, and the signal has been set to 'pass'\nby the user then we ignore the event and resume the thread.\n\nThis code already has some conditions in place that mean the event is\nreported to GDB even if the signal is in the set of signals to be\npassed to the inferior.\n\nIn this commit I extend this condition such that:\n\n  If the signal is a SIGSTOP, and the thread's stop_requested flag is\n  set (indicating we're waiting for the thread to stop with a SIGSTOP)\n  then we should report this SIGSTOP to GDB and not pass it to the\n  inferior.\n\nWith this change in place the test now passes.  Regression tested on\nx86-64 GNU/Linux with no regressions.\n\ngdb/ChangeLog:\n\n\t* linux-nat.c (linux_nat_filter_event): Don't ignore SIGSTOP if we\n\thave just sent the thread a SIGSTOP and are waiting for it to\n\tarrive.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.threads/stop-with-handle.c: New file.\n\t* gdb.threads/stop-with-handle.exp: New file.",
+    "tree": {
+      "sha": "f6b6660985dc458b2b62ce45ee3c7e5776aa19c5",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f6b6660985dc458b2b62ce45ee3c7e5776aa19c5"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/d8c06f22a38c849ae1d4488e6e4a7b0c780869b8",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d8c06f22a38c849ae1d4488e6e4a7b0c780869b8",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/d8c06f22a38c849ae1d4488e6e4a7b0c780869b8",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d8c06f22a38c849ae1d4488e6e4a7b0c780869b8/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "3a56ed8668f57bbec6b769a862131d769d2fceb7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3a56ed8668f57bbec6b769a862131d769d2fceb7",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/3a56ed8668f57bbec6b769a862131d769d2fceb7"
+    }
+  ],
+  "stats": {
+    "total": 141,
+    "additions": 140,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "534e9ffb7c8c92d5881aa67819d72b694048a2ad",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d8c06f22a38c849ae1d4488e6e4a7b0c780869b8/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d8c06f22a38c849ae1d4488e6e4a7b0c780869b8/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=d8c06f22a38c849ae1d4488e6e4a7b0c780869b8",
+      "patch": "@@ -1,3 +1,9 @@\n+2019-10-03  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* linux-nat.c (linux_nat_filter_event): Don't ignore SIGSTOP if we\n+\thave just sent the thread a SIGSTOP and are waiting for it to\n+\tarrive.\n+\n 2019-10-03  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* btrace.c (btrace_add_pc): Remove whitespace before the template"
+    },
+    {
+      "sha": "0a8ea5b8de84411bf18a51bfc3dec58a4c4863c7",
+      "filename": "gdb/linux-nat.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 1,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d8c06f22a38c849ae1d4488e6e4a7b0c780869b8/gdb/linux-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d8c06f22a38c849ae1d4488e6e4a7b0c780869b8/gdb/linux-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/linux-nat.c?ref=d8c06f22a38c849ae1d4488e6e4a7b0c780869b8",
+      "patch": "@@ -3146,9 +3146,12 @@ linux_nat_filter_event (int lwpid, int status)\n \n       /* When using hardware single-step, we need to report every signal.\n \t Otherwise, signals in pass_mask may be short-circuited\n-\t except signals that might be caused by a breakpoint.  */\n+\t except signals that might be caused by a breakpoint, or SIGSTOP\n+\t if we sent the SIGSTOP and are waiting for it to arrive.  */\n       if (!lp->step\n \t  && WSTOPSIG (status) && sigismember (&pass_mask, WSTOPSIG (status))\n+\t  && (WSTOPSIG (status) != SIGSTOP\n+\t      || !find_thread_ptid (lp->ptid)->stop_requested)\n \t  && !linux_wstatus_maybe_breakpoint (status))\n \t{\n \t  linux_resume_one_lwp (lp, lp->step, signo);"
+    },
+    {
+      "sha": "867db0539250916be8ce5f9327b44efa7ed4c9af",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d8c06f22a38c849ae1d4488e6e4a7b0c780869b8/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d8c06f22a38c849ae1d4488e6e4a7b0c780869b8/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=d8c06f22a38c849ae1d4488e6e4a7b0c780869b8",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-10-03  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.threads/stop-with-handle.c: New file.\n+\t* gdb.threads/stop-with-handle.exp: New file.\n+\n 2019-10-03  Tom de Vries  <tdevries@suse.de>\n \n \tPR testsuite/25059"
+    },
+    {
+      "sha": "335676b0999251703be3eb888598e37af4a850c7",
+      "filename": "gdb/testsuite/gdb.threads/stop-with-handle.c",
+      "status": "added",
+      "additions": 74,
+      "deletions": 0,
+      "changes": 74,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d8c06f22a38c849ae1d4488e6e4a7b0c780869b8/gdb/testsuite/gdb.threads/stop-with-handle.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d8c06f22a38c849ae1d4488e6e4a7b0c780869b8/gdb/testsuite/gdb.threads/stop-with-handle.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/stop-with-handle.c?ref=d8c06f22a38c849ae1d4488e6e4a7b0c780869b8",
+      "patch": "@@ -0,0 +1,74 @@\n+/* This testcase is part of GDB, the GNU debugger.\n+\n+   Copyright 2019 Free Software Foundation, Inc.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#include <stdio.h>\n+#include <pthread.h>\n+#include <unistd.h>\n+\n+/* A place to record the thread.  */\n+pthread_t the_thread;\n+\n+/* The worker thread just spins forever.  */\n+void*\n+thread_worker (void *payload)\n+{\n+  while (1)\n+    {\n+      sleep (1);\n+    }\n+\n+  return NULL;\n+}\n+\n+/* Create a worker thread.  */\n+int\n+spawn_thread ()\n+{\n+  if (pthread_create (&the_thread, NULL, thread_worker, NULL))\n+    {\n+      fprintf (stderr, \"Unable to create thread.\\n\");\n+      return 0;\n+    }\n+  return 1;\n+}\n+\n+/* A place for GDB to place a breakpoint.   */\n+void __attribute__((used))\n+breakpt ()\n+{\n+  /* Nothing.  */\n+}\n+\n+/* Create a worker thread that just spins forever, then enter a loop\n+   periodically calling the BREAKPT function.  */\n+int\n+main()\n+{\n+  /* Ensure we stop if GDB crashes and DejaGNU fails to kill us.  */\n+  alarm (10);\n+\n+  spawn_thread ();\n+\n+  while (1)\n+    {\n+      sleep (1);\n+\n+      breakpt ();\n+    }\n+\n+  return 0;\n+}"
+    },
+    {
+      "sha": "ad69ec1d2ea986352b8e39365eae2a9f28cfef0a",
+      "filename": "gdb/testsuite/gdb.threads/stop-with-handle.exp",
+      "status": "added",
+      "additions": 51,
+      "deletions": 0,
+      "changes": 51,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d8c06f22a38c849ae1d4488e6e4a7b0c780869b8/gdb/testsuite/gdb.threads/stop-with-handle.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d8c06f22a38c849ae1d4488e6e4a7b0c780869b8/gdb/testsuite/gdb.threads/stop-with-handle.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.threads/stop-with-handle.exp?ref=d8c06f22a38c849ae1d4488e6e4a7b0c780869b8",
+      "patch": "@@ -0,0 +1,51 @@\n+# Copyright 2019 Free Software Foundation, Inc.\n+#\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# This test covers a case where SIGSTOP has been configured to be\n+# passed to the target with GDB's 'handle' command, and then a\n+# multi-threaded inferior encounters an event that causes all theads\n+# to be stopped.\n+#\n+# The problem that (used) to exist was that GDB would see the SIGSTOP,\n+# but decide to ignore the signal based on the handle table.\n+\n+standard_testfile\n+\n+if {[prepare_for_testing \"failed to prepare\" \\\n+\t \"${testfile}\" \"${srcfile}\" {debug pthreads}]} {\n+    return -1\n+}\n+\n+if ![runto_main] then {\n+    fail \"can't run to main\"\n+    return 0\n+}\n+\n+# Have SIGSTOP sent to the inferior.\n+gdb_test \"handle SIGSTOP nostop noprint pass\" \\\n+    [multi_line \\\n+\t \"Signal\\[ \\t\\]+Stop\\[ \\t\\]+Print\\[ \\t\\]+Pass to program\\[ \\t\\]+Description\" \\\n+\t \"SIGSTOP\\[ \\t\\]+No\\[ \\t\\]+No\\[ \\t\\]+Yes\\[ \\t\\]+Stopped \\\\(signal\\\\)\"]\n+\n+# Create a breakpoint, and when we hit it automatically finish the\n+# current frame.\n+gdb_breakpoint breakpt\n+\n+# When the bug triggers this continue never completes.  GDB hits the\n+# breakpoint in thread 1, and then tries to stop the second thread by\n+# sending it SIGSTOP.  GDB sees the SIGSTOP arrive in thread 2 but\n+# incorrect decides to pass the SIGSTOP to the thread rather than\n+# bringing the thread to a stop.\n+gdb_continue_to_breakpoint breakpt"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "sha": "3922b302645fda04da42a5279399578ae2f6206c",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MzkyMmIzMDI2NDVmZGEwNGRhNDJhNTI3OTM5OTU3OGFlMmY2MjA2Yw==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "palves@redhat.com",
+      "date": "2020-06-18T20:28:37Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "palves@redhat.com",
+      "date": "2020-06-18T22:18:36Z"
+    },
+    "message": "Decouple inferior_ptid/inferior_thread(); dup ptids in thread list (PR 25412)\n\nIn PR 25412, Simon noticed that after the multi-target series, the\ntid-reuse.exp testcase manages to create a duplicate thread in the\nthread list.  Or rather, two threads with the same PTID.\n\nadd_thread_silent has code in place to detect the case of a new thread\nreusing some older thread's ptid, but it doesn't work correctly\nanymore when the old thread is NOT the current thread and it has a\nrefcount higher than 0.  Either condition prevents a thread from being\ndeleted, but the refcount case wasn't being considered.  I think the\nreason that case wasn't considered is that that code predates\nthread_info refcounting.  Back when it was originally written,\ndelete_thread always deleted the thread.\n\nThat add_thread_silent code in question has some now-unnecessary\nwarts, BTW.  For instance, this:\n\n  /* Make switch_to_thread not read from the thread.  */\n  new_thr->state = THREAD_EXITED;\n\n... used to be required because switch_to_thread would update\n'stop_pc' otherwise.  I.e., it would read registers from an exited\nthread otherwise.  switch_to_thread no longer reads the stop_pc, since:\n\n  commit f2ffa92bbce9dd5fbedc138ac2a3bc8a88327d09\n  Author:     Pedro Alves <palves@redhat.com>\n  AuthorDate: Thu Jun 28 20:18:24 2018 +0100\n\n      gdb: Eliminate the 'stop_pc' global\n\nAlso, if the ptid of the now-gone current thread is reused, we\ncurrently return from add_thread_silent with the current thread\npointing at the _new_ thread.  Either pointing at the old thread, or\nat no thread selected would be reasonable.  But pointing at an\nunrelated thread (the new thread that happens to reuse the ptid) is\njust broken.  Seems like I was the one who wrote it like that but I\nhave no clue why, FWIW.\n\nCurrently, an exited thread kept in the thread list still holds its\noriginal ptid.  The idea was that we need the ptid to be able to\ntemporarily switch to another thread and then switch back to the\noriginal thread, because thread switching is really inferior_ptid\nswitching.  Switching back to the original thread requires a ptid\nlookup.\n\nNow, in order to avoid exited threads with the same ptid as a live\nthread in the same thread list, one thing I considered (and tried) was\nto change an exited thread's ptid to minus_one_ptid.  However, with\nthat, there's a case that we won't handle well, which is if we end up\nwith more than one exited thread in the list, since then all exited\nthreads will all have the same ptid.  Since inferior_thread() relies\non inferior_ptid, may well return the wrong thread.\n\nMy next attempt to address this, was to switch an exited thread's ptid\nto a globally unique \"exited\" ptid, which is a ptid with pid == -1 and\ntid == 'the thread's global GDB thread number'.  Note that GDB assumes\nthat the GDB global thread number is monotonically increasing and\ndoesn't wrap around.  (We should probably make GDB thread numbers\n64-bit to prevent that happening in practice; they're currently signed\n32-bit.)  This attempt went a long way, but still ran into a number of\nissues.  It was a major hack too, obviously.\n\nMy next attempt is the one that I'm proposing, which is to bite the\nbullet and break the connection between inferior_ptid and\ninferior_thread(), aka the current thread.  I.e., make the current\nthread be a global thread_info pointer that is written to directly by\nswitch_to_thread, etc., and making inferior_thread() return that\npointer, instead of having inferior_thread() lookup up the\ninferior_ptid thread, by ptid_t.  You can look at this as a\ncontinuation of the effort of using more thread_info pointers instead\nof ptids when possible.\n\nBy making the current thread a global thread_info pointer, we can make\nswitch_to_thread simply write to the global thread pointer, which\nmakes scoped_restore_current_thread able to restore back to an exited\nthread without relying on unrelyable ptid look ups.  I.e., this makes\nit not a real problem to have more than one thread with the same ptid\nin the thread list.  There will always be only one live thread with a\ngiven ptid, so code that looks up a live thread by ptid will always be\nable to find the right one.\n\nThis change required auditing the whole codebase for places where we\nwere writing to inferior_ptid directly to change the current thread,\nand change them to use switch_to_thread instead or one of its\nsiblings, because otherwise inferior_thread() would return a thread\nunrelated to the changed-to inferior_ptid.  That was all (hopefully)\ndone in previous patches.\n\nAfter this, inferior_ptid is mainly used by target backend code.  It\nis also relied on by a number of target methods.  E.g., the\ntarget_resume interface and the memory reading routines -- we still\nneed it there because we need to be able to access memory off of\nprocesses for which we don't have a corresponding inferior/thread\nobject, like when handling forks.  Maybe we could pass down a context\nexplicitly to target_read_memory, etc.\n\ngdb/ChangeLog:\n2020-06-18  Pedro Alves  <palves@redhat.com>\n\n\tPR gdb/25412\n\t* gdbthread.h (delete_thread, delete_thread_silent)\n\t(find_thread_ptid): Update comments.\n\t* thread.c (current_thread_): New global.\n\t(is_current_thread): Move higher, and reimplement.\n\t(inferior_thread): Reimplement.\n\t(set_thread_exited): Use bool.  Add assertions.\n\t(add_thread_silent): Simplify thread-reuse handling by always\n\tcalling delete_thread.\n\t(delete_thread): Remove intro comment.\n\t(find_thread_ptid): Skip exited threads.\n\t(switch_to_thread_no_regs): Write to current_thread_.\n\t(switch_to_no_thread): Check CURRENT_THREAD_ instead of\n\tINFERIOR_PTID.  Clear current_thread_.",
+    "tree": {
+      "sha": "55eafc3f358cbf2e00c309e6734263316ce239fc",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/55eafc3f358cbf2e00c309e6734263316ce239fc"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/3922b302645fda04da42a5279399578ae2f6206c",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3922b302645fda04da42a5279399578ae2f6206c",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/3922b302645fda04da42a5279399578ae2f6206c",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/3922b302645fda04da42a5279399578ae2f6206c/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "6dbdab44e57d21c895ef60246d0e7aadb3c076a4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6dbdab44e57d21c895ef60246d0e7aadb3c076a4",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/6dbdab44e57d21c895ef60246d0e7aadb3c076a4"
+    }
+  ],
+  "stats": {
+    "total": 131,
+    "additions": 59,
+    "deletions": 72
+  },
+  "files": [
+    {
+      "sha": "ff1fd7f405630a4fd7bf45c6ddbcd7a36ecdcc30",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 0,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3922b302645fda04da42a5279399578ae2f6206c/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3922b302645fda04da42a5279399578ae2f6206c/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=3922b302645fda04da42a5279399578ae2f6206c",
+      "patch": "@@ -1,3 +1,20 @@\n+2020-06-18  Pedro Alves  <palves@redhat.com>\n+\n+\tPR gdb/25412\n+\t* gdbthread.h (delete_thread, delete_thread_silent)\n+\t(find_thread_ptid): Update comments.\n+\t* thread.c (current_thread_): New global.\n+\t(is_current_thread): Move higher, and reimplement.\n+\t(inferior_thread): Reimplement.\n+\t(set_thread_exited): Use bool.  Add assertions.\n+\t(add_thread_silent): Simplify thread-reuse handling by always\n+\tcalling delete_thread.\n+\t(delete_thread): Remove intro comment.\n+\t(find_thread_ptid): Skip exited threads.\n+\t(switch_to_thread_no_regs): Write to current_thread_.\n+\t(switch_to_no_thread): Check CURRENT_THREAD_ instead of\n+\tINFERIOR_PTID.  Clear current_thread_.\n+\n 2020-06-18  Pedro Alves  <palves@redhat.com>\n \n \t* aix-thread.c (pd_update): Use switch_to_thread."
+    },
+    {
+      "sha": "0166b2000fb14291fa3d1e2113410b1a5de849f9",
+      "filename": "gdb/gdbthread.h",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 8,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3922b302645fda04da42a5279399578ae2f6206c/gdb/gdbthread.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3922b302645fda04da42a5279399578ae2f6206c/gdb/gdbthread.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/gdbthread.h?ref=3922b302645fda04da42a5279399578ae2f6206c",
+      "patch": "@@ -415,12 +415,13 @@ extern struct thread_info *add_thread_with_info (process_stratum_target *targ,\n \t\t\t\t\t\t ptid_t ptid,\n \t\t\t\t\t\t private_thread_info *);\n \n-/* Delete an existing thread list entry.  */\n+/* Delete thread THREAD and notify of thread exit.  If the thread is\n+   currently not deletable, don't actually delete it but still tag it\n+   as exited and do the notification.  */\n extern void delete_thread (struct thread_info *thread);\n \n-/* Delete an existing thread list entry, and be quiet about it.  Used\n-   after the process this thread having belonged to having already\n-   exited, for example.  */\n+/* Like delete_thread, but be quiet about it.  Used when the process\n+   this thread belonged to has already exited, for example.  */\n extern void delete_thread_silent (struct thread_info *thread);\n \n /* Delete a step_resume_breakpoint from the thread database.  */\n@@ -460,15 +461,15 @@ extern bool in_thread_list (process_stratum_target *targ, ptid_t ptid);\n    global id, not the system's).  */\n extern int valid_global_thread_id (int global_id);\n \n-/* Find thread PTID of inferior INF.  */\n+/* Find (non-exited) thread PTID of inferior INF.  */\n extern thread_info *find_thread_ptid (inferior *inf, ptid_t ptid);\n \n-/* Search function to lookup a thread by 'pid'.  */\n+/* Search function to lookup a (non-exited) thread by 'ptid'.  */\n extern struct thread_info *find_thread_ptid (process_stratum_target *targ,\n \t\t\t\t\t     ptid_t ptid);\n \n-/* Search function to lookup a thread by 'ptid'.  Only searches in\n-   threads of INF.  */\n+/* Search function to lookup a (non-exited) thread by 'ptid'.  Only\n+   searches in threads of INF.  */\n extern struct thread_info *find_thread_ptid (inferior *inf, ptid_t ptid);\n \n /* Find thread by GDB global thread ID.  */"
+    },
+    {
+      "sha": "f0722d358888550d5786a3ff532717e07cf92846",
+      "filename": "gdb/thread.c",
+      "status": "modified",
+      "additions": 33,
+      "deletions": 64,
+      "changes": 97,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/3922b302645fda04da42a5279399578ae2f6206c/gdb/thread.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/3922b302645fda04da42a5279399578ae2f6206c/gdb/thread.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/thread.c?ref=3922b302645fda04da42a5279399578ae2f6206c",
+      "patch": "@@ -55,6 +55,9 @@\n \n static int highest_thread_num;\n \n+/* The current/selected thread.  */\n+static thread_info *current_thread_;\n+\n /* RAII type used to increase / decrease the refcount of each thread\n    in a given list of threads.  */\n \n@@ -78,13 +81,19 @@ class scoped_inc_dec_ref\n   const std::vector<thread_info *> &m_thrds;\n };\n \n+/* Returns true if THR is the current thread.  */\n+\n+static bool\n+is_current_thread (const thread_info *thr)\n+{\n+  return thr == current_thread_;\n+}\n \n struct thread_info*\n inferior_thread (void)\n {\n-  struct thread_info *tp = find_thread_ptid (current_inferior (), inferior_ptid);\n-  gdb_assert (tp);\n-  return tp;\n+  gdb_assert (current_thread_ != nullptr);\n+  return current_thread_;\n }\n \n /* Delete the breakpoint pointed at by BP_P, if there's one.  */\n@@ -194,7 +203,7 @@ clear_thread_inferior_resources (struct thread_info *tp)\n /* Set the TP's state as exited.  */\n \n static void\n-set_thread_exited (thread_info *tp, int silent)\n+set_thread_exited (thread_info *tp, bool silent)\n {\n   /* Dead threads don't need to step-over.  Remove from queue.  */\n   if (tp->step_over_next != NULL)\n@@ -245,7 +254,12 @@ new_thread (struct inferior *inf, ptid_t ptid)\n       struct thread_info *last;\n \n       for (last = inf->thread_list; last->next != NULL; last = last->next)\n-\t;\n+\tgdb_assert (ptid != last->ptid\n+\t\t    || last->state == THREAD_EXITED);\n+\n+      gdb_assert (ptid != last->ptid\n+\t\t  || last->state == THREAD_EXITED);\n+\n       last->next = tp;\n     }\n \n@@ -255,51 +269,15 @@ new_thread (struct inferior *inf, ptid_t ptid)\n struct thread_info *\n add_thread_silent (process_stratum_target *targ, ptid_t ptid)\n {\n-  inferior *inf;\n-\n-  thread_info *tp = find_thread_ptid (targ, ptid);\n-  if (tp)\n-    /* Found an old thread with the same id.  It has to be dead,\n-       otherwise we wouldn't be adding a new thread with the same id.\n-       The OS is reusing this id --- delete it, and recreate a new\n-       one.  */\n-    {\n-      /* In addition to deleting the thread, if this is the current\n-\t thread, then we need to take care that delete_thread doesn't\n-\t really delete the thread if it is inferior_ptid.  Create a\n-\t new template thread in the list with an invalid ptid, switch\n-\t to it, delete the original thread, reset the new thread's\n-\t ptid, and switch to it.  */\n-\n-      if (inferior_ptid == ptid)\n-\t{\n-\t  thread_info *new_thr = new_thread (tp->inf, null_ptid);\n-\n-\t  /* Make switch_to_thread not read from the thread.  */\n-\t  new_thr->state = THREAD_EXITED;\n-\t  switch_to_no_thread ();\n-\n-\t  /* Now we can delete it.  */\n-\t  delete_thread (tp);\n-\n-\t  /* Now reset its ptid, and reswitch inferior_ptid to it.  */\n-\t  new_thr->ptid = ptid;\n-\t  new_thr->state = THREAD_STOPPED;\n-\t  switch_to_thread (new_thr);\n-\n-\t  gdb::observers::new_thread.notify (new_thr);\n-\n-\t  /* All done.  */\n-\t  return new_thr;\n-\t}\n+  inferior *inf = find_inferior_ptid (targ, ptid);\n \n-      inf = tp->inf;\n-\n-      /* Just go ahead and delete it.  */\n-      delete_thread (tp);\n-    }\n-  else\n-    inf = find_inferior_ptid (targ, ptid);\n+  /* We may have an old thread with the same id in the thread list.\n+     If we do, it must be dead, otherwise we wouldn't be adding a new\n+     thread with the same id.  The OS is reusing this id --- delete\n+     the old thread, and create a new one.  */\n+  thread_info *tp = find_thread_ptid (inf, ptid);\n+  if (tp != nullptr)\n+    delete_thread (tp);\n \n   tp = new_thread (inf, ptid);\n   gdb::observers::new_thread.notify (tp);\n@@ -349,14 +327,6 @@ thread_info::~thread_info ()\n   xfree (this->name);\n }\n \n-/* Returns true if THR is the current thread.  */\n-\n-static bool\n-is_current_thread (const thread_info *thr)\n-{\n-  return thr->inf == current_inferior () && thr->ptid == inferior_ptid;\n-}\n-\n /* See gdbthread.h.  */\n \n bool\n@@ -482,10 +452,7 @@ delete_thread_1 (thread_info *thr, bool silent)\n   delete tp;\n }\n \n-/* Delete thread THREAD and notify of thread exit.  If this is the\n-   current thread, don't actually delete it, but tag it as exited and\n-   do the notification.  If this is the user selected thread, clear\n-   it.  */\n+/* See gdbthread.h.  */\n \n void\n delete_thread (thread_info *thread)\n@@ -535,7 +502,7 @@ find_thread_ptid (process_stratum_target *targ, ptid_t ptid)\n struct thread_info *\n find_thread_ptid (inferior *inf, ptid_t ptid)\n {\n-  for (thread_info *tp : inf->threads ())\n+  for (thread_info *tp : inf->non_exited_threads ())\n     if (tp->ptid == ptid)\n       return tp;\n \n@@ -1317,17 +1284,19 @@ switch_to_thread_no_regs (struct thread_info *thread)\n   set_current_program_space (inf->pspace);\n   set_current_inferior (inf);\n \n-  inferior_ptid = thread->ptid;\n+  current_thread_ = thread;\n+  inferior_ptid = current_thread_->ptid;\n }\n \n /* See gdbthread.h.  */\n \n void\n switch_to_no_thread ()\n {\n-  if (inferior_ptid == null_ptid)\n+  if (current_thread_ == nullptr)\n     return;\n \n+  current_thread_ = nullptr;\n   inferior_ptid = null_ptid;\n   reinit_frame_cache ();\n }"
+    }
+  ]
+}

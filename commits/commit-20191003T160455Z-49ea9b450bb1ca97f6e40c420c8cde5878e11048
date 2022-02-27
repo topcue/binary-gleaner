@@ -1,0 +1,170 @@
+{
+  "sha": "49ea9b450bb1ca97f6e40c420c8cde5878e11048",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NDllYTliNDUwYmIxY2E5N2Y2ZTQwYzQyMGM4Y2RlNTg3OGUxMTA0OA==",
+  "commit": {
+    "author": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2019-07-20T13:44:44Z"
+    },
+    "committer": {
+      "name": "Nick Alcock",
+      "email": "nick.alcock@oracle.com",
+      "date": "2019-10-03T16:04:55Z"
+    },
+    "message": "libctf: add CU-mapping machinery\n\nOnce the deduplicator is capable of actually detecting conflicting types\nwith the same name (i.e., not yet) we will place such conflicting types,\nand types that depend on them, into CTF dictionaries that are the child\nof the main dictionary we usually emit: currently, this will lead to the\n.ctf section becoming a CTF archive rather than a single dictionary,\nwith the default-named archive member (_CTF_SECTION, or NULL) being the\nmain shared dictionary with most of the types in it.\n\nBy default, the sections are named after the compilation unit they come\nfrom (complete path and all), with the cuname field in the CTF header\nproviding further evidence of the name without requiring the caller to\nengage in tiresome parsing.  But some callers may not wish the mapping\nfrom input CU to output sub-dictionary to be purely CU-based.\n\nThe machinery here allows this to be freely changed, in two ways:\n\n - callers can call ctf_link_add_cu_mapping to specify that a single\n   input compilation unit should have its types placed in some other CU\n   if they conflict: the CU will always be created, even if empty, so\n   the consuming program can depend on its existence.  You can map\n   multiple input CUs to one output CU to force all their types to be\n   merged together: if some of *those* types conflict, the behaviour is\n   currently unspecified (the new deduplicator will specify it).\n\n - callers can call ctf_link_set_memb_name_changer to provide a function\n   which is passed every CTF sub-dictionary name in turn (including\n   _CTF_SECTION) and can return a new name, or NULL if no change is\n   desired.  The mapping from input to output names should not map two\n   input names to the same output name: if this happens, the two are not\n   merged but will result in an archive with two members with the same\n   name (technically valid, but it's hard to access the second\n   same-named member: you have to do an iteration over archive members).\n\nThis is used by the kernel's ctfarchive machinery (not yet upstream) to\nencode CTF under member names like {module name}.ctf rather than\n.ctf.CU, but it is anticipated that other large projects may wish to\nhave their own storage for CTF outside of .ctf sections and may wish to\nhave new naming schemes that suit their special-purpose consumers.\n\nNew in v3.\nv4: check for strdup failure.\nv5: fix tabdamage.\n\ninclude/\n\t* ctf-api.h (ctf_link_add_cu_mapping): New.\n\t(ctf_link_memb_name_changer_f): New.\n\t(ctf_link_set_memb_name_changer): New.\n\nlibctf/\n\t* ctf-impl.h (ctf_file_t) <ctf_link_cu_mappping>: New.\n\t<ctf_link_memb_name_changer>: Likewise.\n\t<ctf_link_memb_name_changer_arg>: Likewise.\n\t* ctf-create.c (ctf_update): Update accordingly.\n\t* ctf-open.c (ctf_file_close): Likewise.\n\t* ctf-link.c (ctf_create_per_cu): Apply the cu mapping.\n\t(ctf_link_add_cu_mapping): New.\n\t(ctf_link_set_memb_name_changer): Likewise.\n\t(ctf_change_parent_name): New.\n\t(ctf_name_list_accum_cb_arg_t) <dynames>: New, storage for names\n\tallocated by the caller's ctf_link_memb_name_changer.\n\t<ndynames>: Likewise.\n\t(ctf_accumulate_archive_names): Call the ctf_link_memb_name_changer.\n\t(ctf_link_write): Likewise (for _CTF_SECTION only): also call\n\tctf_change_parent_name.  Free any resulting names.",
+    "tree": {
+      "sha": "33914fe0e0eace6eeeebb728fc78e447121e2450",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/33914fe0e0eace6eeeebb728fc78e447121e2450"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/49ea9b450bb1ca97f6e40c420c8cde5878e11048",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/49ea9b450bb1ca97f6e40c420c8cde5878e11048",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/49ea9b450bb1ca97f6e40c420c8cde5878e11048",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/49ea9b450bb1ca97f6e40c420c8cde5878e11048/comments",
+  "author": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "nickalcock",
+    "id": 6503005,
+    "node_id": "MDQ6VXNlcjY1MDMwMDU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6503005?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickalcock",
+    "html_url": "https://github.com/nickalcock",
+    "followers_url": "https://api.github.com/users/nickalcock/followers",
+    "following_url": "https://api.github.com/users/nickalcock/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickalcock/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickalcock/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickalcock/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickalcock/orgs",
+    "repos_url": "https://api.github.com/users/nickalcock/repos",
+    "events_url": "https://api.github.com/users/nickalcock/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickalcock/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "eabb7154df3e97e9d808a8673953cc1ce708f3d4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/eabb7154df3e97e9d808a8673953cc1ce708f3d4",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/eabb7154df3e97e9d808a8673953cc1ce708f3d4"
+    }
+  ],
+  "stats": {
+    "total": 214,
+    "additions": 210,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "ce7c17377a09bc9a204a8f13771fed45b0084524",
+      "filename": "include/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/49ea9b450bb1ca97f6e40c420c8cde5878e11048/include/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/49ea9b450bb1ca97f6e40c420c8cde5878e11048/include/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ChangeLog?ref=49ea9b450bb1ca97f6e40c420c8cde5878e11048",
+      "patch": "@@ -1,3 +1,9 @@\n+2019-07-30  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-api.h (ctf_link_add_cu_mapping): New.\n+\t(ctf_link_memb_name_changer_f): New.\n+\t(ctf_link_set_memb_name_changer): New.\n+\n 2019-07-13  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctf-api.h (ECTF_INTERNAL): New."
+    },
+    {
+      "sha": "4ac5fea8bc697420674d6cffca6d7d92a5d8fcf7",
+      "filename": "include/ctf-api.h",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/49ea9b450bb1ca97f6e40c420c8cde5878e11048/include/ctf-api.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/49ea9b450bb1ca97f6e40c420c8cde5878e11048/include/ctf-api.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ctf-api.h?ref=49ea9b450bb1ca97f6e40c420c8cde5878e11048",
+      "patch": "@@ -421,6 +421,16 @@ extern int ctf_link_shuffle_syms (ctf_file_t *, ctf_link_iter_symbol_f *,\n extern unsigned char *ctf_link_write (ctf_file_t *, size_t *size,\n \t\t\t\t      size_t threshold);\n \n+/* Specialist linker functions.  These functions are not used by ld, but can be\n+   used by other prgorams making use of the linker machinery for other purposes\n+   to customize its output.  */\n+extern int ctf_link_add_cu_mapping (ctf_file_t *, const char *from,\n+\t\t\t\t    const char *to);\n+typedef char *ctf_link_memb_name_changer_f (ctf_file_t *,\n+\t\t\t\t\t    const char *, void *);\n+extern void ctf_link_set_memb_name_changer\n+  (ctf_file_t *, ctf_link_memb_name_changer_f *, void *);\n+\n extern void ctf_setdebug (int debug);\n extern int ctf_getdebug (void);\n "
+    },
+    {
+      "sha": "b2726488cb63d54ee3b4fd2ccf2f2fab780f0bda",
+      "filename": "libctf/ChangeLog",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 0,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/49ea9b450bb1ca97f6e40c420c8cde5878e11048/libctf/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/49ea9b450bb1ca97f6e40c420c8cde5878e11048/libctf/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ChangeLog?ref=49ea9b450bb1ca97f6e40c420c8cde5878e11048",
+      "patch": "@@ -1,3 +1,21 @@\n+2019-07-30  Nick Alcock  <nick.alcock@oracle.com>\n+\n+\t* ctf-impl.h (ctf_file_t) <ctf_link_cu_mappping>: New.\n+\t<ctf_link_memb_name_changer>: Likewise.\n+\t<ctf_link_memb_name_changer_arg>: Likewise.\n+\t* ctf-create.c (ctf_update): Update accordingly.\n+\t* ctf-open.c (ctf_file_close): Likewise.\n+\t* ctf-link.c (ctf_create_per_cu): Apply the cu mapping.\n+\t(ctf_link_add_cu_mapping): New.\n+\t(ctf_link_set_memb_name_changer): Likewise.\n+\t(ctf_change_parent_name): New.\n+\t(ctf_name_list_accum_cb_arg_t) <dynames>: New, storage for names\n+\tallocated by the caller's ctf_link_memb_name_changer.\n+\t<ndynames>: Likewise.\n+\t(ctf_accumulate_archive_names): Call the ctf_link_memb_name_changer.\n+\t(ctf_link_write): Likewise (for _CTF_SECTION only): also call\n+\tctf_change_parent_name.  Free any resulting names.\n+\n 2019-07-13  Nick Alcock  <nick.alcock@oracle.com>\n \n \t* ctf-link.c (ctf_create_per_cu): New, refactored out of..."
+    },
+    {
+      "sha": "19da29c5db9da4bbe1bd0989f8451143a5a03f52",
+      "filename": "libctf/ctf-create.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/49ea9b450bb1ca97f6e40c420c8cde5878e11048/libctf/ctf-create.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/49ea9b450bb1ca97f6e40c420c8cde5878e11048/libctf/ctf-create.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-create.c?ref=49ea9b450bb1ca97f6e40c420c8cde5878e11048",
+      "patch": "@@ -473,7 +473,10 @@ ctf_update (ctf_file_t *fp)\n   nfp->ctf_link_inputs = fp->ctf_link_inputs;\n   nfp->ctf_link_outputs = fp->ctf_link_outputs;\n   nfp->ctf_syn_ext_strtab = fp->ctf_syn_ext_strtab;\n+  nfp->ctf_link_cu_mapping = fp->ctf_link_cu_mapping;\n   nfp->ctf_link_type_mapping = fp->ctf_link_type_mapping;\n+  nfp->ctf_link_memb_name_changer = fp->ctf_link_memb_name_changer;\n+  nfp->ctf_link_memb_name_changer_arg = fp->ctf_link_memb_name_changer_arg;\n \n   nfp->ctf_snapshot_lu = fp->ctf_snapshots;\n \n@@ -486,6 +489,7 @@ ctf_update (ctf_file_t *fp)\n   fp->ctf_link_inputs = NULL;\n   fp->ctf_link_outputs = NULL;\n   fp->ctf_syn_ext_strtab = NULL;\n+  fp->ctf_link_cu_mapping = NULL;\n   fp->ctf_link_type_mapping = NULL;\n \n   fp->ctf_dvhash = NULL;"
+    },
+    {
+      "sha": "554b1872cbf48342a0b7e3a5947d7214c4a4f9ec",
+      "filename": "libctf/ctf-impl.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/49ea9b450bb1ca97f6e40c420c8cde5878e11048/libctf/ctf-impl.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/49ea9b450bb1ca97f6e40c420c8cde5878e11048/libctf/ctf-impl.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-impl.h?ref=49ea9b450bb1ca97f6e40c420c8cde5878e11048",
+      "patch": "@@ -281,6 +281,10 @@ struct ctf_file\n   ctf_dynhash_t *ctf_link_inputs; /* Inputs to this link.  */\n   ctf_dynhash_t *ctf_link_outputs; /* Additional outputs from this link.  */\n   ctf_dynhash_t *ctf_link_type_mapping; /* Map input types to output types.  */\n+  ctf_dynhash_t *ctf_link_cu_mapping;\t/* Map CU names to CTF dict names.  */\n+  /* Allow the caller to Change the name of link archive members.  */\n+  ctf_link_memb_name_changer_f *ctf_link_memb_name_changer;\n+  void *ctf_link_memb_name_changer_arg; /* Argument for it.  */\n   char *ctf_tmp_typeslice;\t  /* Storage for slicing up type names.  */\n   size_t ctf_tmp_typeslicelen;\t  /* Size of the typeslice.  */\n   void *ctf_specific;\t\t  /* Data for ctf_get/setspecific().  */"
+    },
+    {
+      "sha": "28c21132607faa56730a55d866a5f9c8d27790a3",
+      "filename": "libctf/ctf-link.c",
+      "status": "modified",
+      "additions": 167,
+      "deletions": 4,
+      "changes": 171,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/49ea9b450bb1ca97f6e40c420c8cde5878e11048/libctf/ctf-link.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/49ea9b450bb1ca97f6e40c420c8cde5878e11048/libctf/ctf-link.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-link.c?ref=49ea9b450bb1ca97f6e40c420c8cde5878e11048",
+      "patch": "@@ -182,9 +182,26 @@ static ctf_file_t *\n ctf_create_per_cu (ctf_file_t *fp, const char *filename, const char *cuname)\n {\n   ctf_file_t *cu_fp;\n+  const char *ctf_name = NULL;\n   char *dynname = NULL;\n \n-  if ((cu_fp = ctf_dynhash_lookup (fp->ctf_link_outputs, filename)) == NULL)\n+  /* First, check the mapping table and translate the per-CU name we use\n+     accordingly.  We check both the input filename and the CU name.  Only if\n+     neither are set do we fall back to the input filename as the per-CU\n+     dictionary name.  We prefer the filename because this is easier for likely\n+     callers to determine.  */\n+\n+  if (fp->ctf_link_cu_mapping)\n+    {\n+      if (((ctf_name = ctf_dynhash_lookup (fp->ctf_link_cu_mapping, filename)) == NULL) &&\n+\t  ((ctf_name = ctf_dynhash_lookup (fp->ctf_link_cu_mapping, cuname)) == NULL))\n+\tctf_name = filename;\n+    }\n+\n+  if (ctf_name == NULL)\n+    ctf_name = filename;\n+\n+  if ((cu_fp = ctf_dynhash_lookup (fp->ctf_link_outputs, ctf_name)) == NULL)\n     {\n       int err;\n \n@@ -197,7 +214,7 @@ ctf_create_per_cu (ctf_file_t *fp, const char *filename, const char *cuname)\n \t  return NULL;\n \t}\n \n-      if ((dynname = strdup (filename)) == NULL)\n+      if ((dynname = strdup (ctf_name)) == NULL)\n \tgoto oom;\n       if (ctf_dynhash_insert (fp->ctf_link_outputs, dynname, cu_fp) < 0)\n \tgoto oom;\n@@ -215,6 +232,79 @@ ctf_create_per_cu (ctf_file_t *fp, const char *filename, const char *cuname)\n   return NULL;\n }\n \n+/* Add a mapping directing that the CU named FROM should have its\n+   conflicting/non-duplicate types (depending on link mode) go into a container\n+   named TO.  Many FROMs can share a TO: in this case, the effect on conflicting\n+   types is not yet defined (but in time an auto-renaming algorithm will be\n+   added: ugly, but there is really no right thing one can do in this\n+   situation).\n+\n+   We forcibly add a container named TO in every case, even though it may well\n+   wind up empty, because clients that use this facility usually expect to find\n+   every TO container present, even if empty, and malfunction otherwise.  */\n+\n+int\n+ctf_link_add_cu_mapping (ctf_file_t *fp, const char *from, const char *to)\n+{\n+  int err;\n+  char *f, *t;\n+\n+  if (fp->ctf_link_cu_mapping == NULL)\n+    fp->ctf_link_cu_mapping = ctf_dynhash_create (ctf_hash_string,\n+\t\t\t\t\t\t  ctf_hash_eq_string, free,\n+\t\t\t\t\t\t  free);\n+  if (fp->ctf_link_cu_mapping == NULL)\n+    return ctf_set_errno (fp, ENOMEM);\n+\n+  if (fp->ctf_link_outputs == NULL)\n+    fp->ctf_link_outputs = ctf_dynhash_create (ctf_hash_string,\n+\t\t\t\t\t       ctf_hash_eq_string, free,\n+\t\t\t\t\t       ctf_file_close_thunk);\n+\n+  if (fp->ctf_link_outputs == NULL)\n+    return ctf_set_errno (fp, ENOMEM);\n+\n+  f = strdup (from);\n+  t = strdup (to);\n+  if (!f || !t)\n+    goto oom;\n+\n+  if (ctf_create_per_cu (fp, t, t) == NULL)\n+    goto oom_noerrno;\t\t\t\t/* Errno is set for us.  */\n+\n+  err = ctf_dynhash_insert (fp->ctf_link_cu_mapping, f, t);\n+  if (err)\n+    {\n+      ctf_set_errno (fp, err);\n+      goto oom_noerrno;\n+    }\n+\n+  return 0;\n+\n+ oom:\n+  ctf_set_errno (fp, errno);\n+ oom_noerrno:\n+  free (f);\n+  free (t);\n+  return -1;\n+}\n+\n+/* Set a function which is called to transform the names of archive members.\n+   This is useful for applying regular transformations to many names, where\n+   ctf_link_add_cu_mapping applies arbitrarily irregular changes to single\n+   names.  The member name changer is applied at ctf_link_write time, so it\n+   cannot conflate multiple CUs into one the way ctf_link_add_cu_mapping can.\n+   The changer function accepts a name and should return a new\n+   dynamically-allocated name, or NULL if the name should be left unchanged.  */\n+void\n+ctf_link_set_memb_name_changer (ctf_file_t *fp,\n+\t\t\t\tctf_link_memb_name_changer_f *changer,\n+\t\t\t\tvoid *arg)\n+{\n+  fp->ctf_link_memb_name_changer = changer;\n+  fp->ctf_link_memb_name_changer_arg = arg;\n+}\n+\n typedef struct ctf_link_in_member_cb_arg\n {\n   ctf_file_t *out_fp;\n@@ -266,7 +356,7 @@ ctf_link_one_type (ctf_id_t type, int isroot _libctf_unused_, void *arg_)\n       ctf_set_errno (arg->out_fp, 0);\n     }\n \n-  if ((per_cu_out_fp = ctf_create_per_cu (arg->out_fp, arg->arcname,\n+  if ((per_cu_out_fp = ctf_create_per_cu (arg->out_fp, arg->file_name,\n \t\t\t\t\t  arg->cu_name)) == NULL)\n     return -1;\t\t\t\t\t/* Errno is set for us.  */\n \n@@ -347,7 +437,7 @@ ctf_link_one_variable (const char *name, ctf_id_t type, void *arg_)\n      type only present in the child.  Try adding to the child, creating if need\n      be.  */\n \n-  if ((per_cu_out_fp = ctf_create_per_cu (arg->out_fp, arg->arcname,\n+  if ((per_cu_out_fp = ctf_create_per_cu (arg->out_fp, arg->file_name,\n \t\t\t\t\t  arg->cu_name)) == NULL)\n     return -1;\t\t\t\t\t/* Errno is set for us.  */\n \n@@ -589,6 +679,8 @@ typedef struct ctf_name_list_accum_cb_arg\n   ctf_file_t *fp;\n   ctf_file_t **files;\n   size_t i;\n+  char **dynames;\n+  size_t ndynames;\n } ctf_name_list_accum_cb_arg_t;\n \n /* Accumulate the names and a count of the names in the link output hash,\n@@ -622,12 +714,51 @@ ctf_accumulate_archive_names (void *key, void *value, void *arg_)\n       ctf_set_errno (arg->fp, ENOMEM);\n       return;\n     }\n+\n+  /* Allow the caller to get in and modify the name at the last minute.  If the\n+     caller *does* modify the name, we have to stash away the new name the\n+     caller returned so we can free it later on.  (The original name is the key\n+     of the ctf_link_outputs hash and is freed by the dynhash machinery.)  */\n+\n+  if (fp->ctf_link_memb_name_changer)\n+    {\n+      char **dynames;\n+      char *dyname;\n+      void *nc_arg = fp->ctf_link_memb_name_changer_arg;\n+\n+      dyname = fp->ctf_link_memb_name_changer (fp, name, nc_arg);\n+\n+      if (dyname != NULL)\n+\t{\n+\t  if ((dynames = realloc (arg->dynames,\n+\t\t\t\t  sizeof (char *) * ++(arg->ndynames))) == NULL)\n+\t    {\n+\t      (arg->ndynames)--;\n+\t      ctf_set_errno (arg->fp, ENOMEM);\n+\t      return;\n+\t    }\n+\t    arg->dynames = dynames;\n+\t    name = (const char *) dyname;\n+\t}\n+    }\n+\n   arg->names = names;\n   arg->names[(arg->i) - 1] = (char *) name;\n   arg->files = files;\n   arg->files[(arg->i) - 1] = fp;\n }\n \n+/* Change the name of the parent CTF section, if the name transformer has got to\n+   it.  */\n+static void\n+ctf_change_parent_name (void *key _libctf_unused_, void *value, void *arg)\n+{\n+  ctf_file_t *fp = (ctf_file_t *) value;\n+  const char *name = (const char *) arg;\n+\n+  ctf_parent_name_set (fp, name);\n+}\n+\n /* Write out a CTF archive (if there are per-CU CTF files) or a CTF file\n    (otherwise) into a new dynamically-allocated string, and return it.\n    Members with sizes above THRESHOLD are compressed.  */\n@@ -636,6 +767,7 @@ ctf_link_write (ctf_file_t *fp, size_t *size, size_t threshold)\n {\n   ctf_name_list_accum_cb_arg_t arg;\n   char **names;\n+  char *transformed_name = NULL;\n   ctf_file_t **files;\n   FILE *f = NULL;\n   int err;\n@@ -675,7 +807,22 @@ ctf_link_write (ctf_file_t *fp, size_t *size, size_t threshold)\n     }\n   arg.names = names;\n   memmove (&(arg.names[1]), arg.names, sizeof (char *) * (arg.i));\n+\n   arg.names[0] = (char *) _CTF_SECTION;\n+  if (fp->ctf_link_memb_name_changer)\n+    {\n+      void *nc_arg = fp->ctf_link_memb_name_changer_arg;\n+\n+      transformed_name = fp->ctf_link_memb_name_changer (fp, _CTF_SECTION,\n+\t\t\t\t\t\t\t nc_arg);\n+\n+      if (transformed_name != NULL)\n+\t{\n+\t  arg.names[0] = transformed_name;\n+\t  ctf_dynhash_iter (fp->ctf_link_outputs, ctf_change_parent_name,\n+\t\t\t    transformed_name);\n+\t}\n+    }\n \n   if ((files = realloc (arg.files,\n \t\t\tsizeof (struct ctf_file *) * (arg.i + 1))) == NULL)\n@@ -736,6 +883,14 @@ ctf_link_write (ctf_file_t *fp, size_t *size, size_t threshold)\n   *size = fsize;\n   free (arg.names);\n   free (arg.files);\n+  free (transformed_name);\n+  if (arg.ndynames)\n+    {\n+      size_t i;\n+      for (i = 0; i < arg.ndynames; i++)\n+\tfree (arg.dynames[i]);\n+      free (arg.dynames);\n+    }\n   return buf;\n \n  err_no:\n@@ -746,6 +901,14 @@ ctf_link_write (ctf_file_t *fp, size_t *size, size_t threshold)\n     fclose (f);\n   free (arg.names);\n   free (arg.files);\n+  free (transformed_name);\n+  if (arg.ndynames)\n+    {\n+      size_t i;\n+      for (i = 0; i < arg.ndynames; i++)\n+\tfree (arg.dynames[i]);\n+      free (arg.dynames);\n+    }\n   ctf_dprintf (\"Cannot write archive in link: %s failure: %s\\n\", errloc,\n \t       ctf_errmsg (ctf_errno (fp)));\n   return NULL;"
+    },
+    {
+      "sha": "2e1913bb3738c0689e10405f4264e3ed6bee80bb",
+      "filename": "libctf/ctf-open.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/49ea9b450bb1ca97f6e40c420c8cde5878e11048/libctf/ctf-open.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/49ea9b450bb1ca97f6e40c420c8cde5878e11048/libctf/ctf-open.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/libctf/ctf-open.c?ref=49ea9b450bb1ca97f6e40c420c8cde5878e11048",
+      "patch": "@@ -1628,6 +1628,7 @@ ctf_file_close (ctf_file_t *fp)\n   ctf_dynhash_destroy (fp->ctf_link_inputs);\n   ctf_dynhash_destroy (fp->ctf_link_outputs);\n   ctf_dynhash_destroy (fp->ctf_link_type_mapping);\n+  ctf_dynhash_destroy (fp->ctf_link_cu_mapping);\n \n   ctf_free (fp->ctf_sxlate);\n   ctf_free (fp->ctf_txlate);"
+    }
+  ]
+}

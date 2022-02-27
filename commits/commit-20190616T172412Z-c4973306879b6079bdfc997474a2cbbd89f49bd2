@@ -1,0 +1,182 @@
+{
+  "sha": "c4973306879b6079bdfc997474a2cbbd89f49bd2",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YzQ5NzMzMDY4NzliNjA3OWJkZmM5OTc0NzRhMmNiYmQ4OWY0OWJkMg==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2019-06-16T14:13:56Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2019-06-16T17:24:12Z"
+    },
+    "message": "Write index for dwz -m file\n\nPR 24445 (\"dwz multifile index not written to index cache\") exposed the\nfact that we are not doing things right when we generate an index for an\nobject file that has is linked to a dwz file.  The same happens whether\nthe index is generated with the intent of populating the index cache or\nusing the save gdb-index command.\n\nThe problem can be observed when running these tests with the\ncc-with-dwz-m board:\n\n    FAIL: gdb.base/index-cache.exp: test_cache_enabled_hit: check index-cache stats\n    FAIL: gdb.dwarf2/gdb-index.exp: index used\n    FAIL: gdb.dwarf2/gdb-index.exp: index used after symbol reloading\n\nWhen generating the index for such file and inspecting the CU list of the\nresulting index (with readelf --debug-dump=gdb_index), we can see something\nlike:\n\n    CU table:\n    [  0] 0x0 - 0xb9\n    [  1] 0x0 - 0x44\n\nThis is supposed to be a sorted list of the ranges of all CUs in the\nfile this index represents, so already having some overlap is a red\nflag.  It turns out that we save the ranges of CUs coming from both the\nmain file and the dwz file in the same index.\n\nAfter digging a little bit, it became quite obvious that the index in\nthe main file should only list the CUs present in the main file, and a\nseparate index should be generated for the dwz file, listing the CUs\npresent in that file.\n\nFirst, that's what happens if you run dwz on a file that already has a\nGDB index embedded.  Second, dwarf2read.c has code to read an index from\na dwz file.  The index in the dwz file is actually required to be\npresent, if the main file has an index.\n\nSo this patch changes write_psymtabs_to_index to generate an index for\nthe dwz file, if present.  That index only contains a CU list, just like\nwhat the dwz tool does when processing a file that already contains an\nindex.\n\nSome notes about the implementation:\n\n- The file management (creating a temp file, make sure it's\n  close/removed on error - in the right order) is a bit heavy in\n  write_psymtabs_to_index, and I needed to add a third file.  I factored\n  this pattern in a separate class, index_wip_file.\n- It became a bit tedious to keep the call to assert_file_size in\n  write_psymtabs_to_index, write_gdbindex would have had to return two\n  sizes.  Instead, I moved the calls to assert_file_size where the file\n  is written.  The downside is that we lose the filename at this point,\n  but it was only used for the very improbable case of ftell failing, so\n  I think it's not a problem.\n- The actual writing of the index file is factored out to\n  write_gdbindex_1, so it can be re-used for both index files.\n- While the \"save gdb-index\" command will now write two .gdb-index\n  files, this patch does not update the gdb-add-index.sh script, this\n  will come in a later patch.\n\ngdb/ChangeLog:\n\nYYYY-MM-DD  Simon Marchi  <simon.marchi@efficios.com>\n\n\tPR gdb/24445\n\t* dwarf-index-write.h (write_psymtabs_to_index): Add\n\tdwz_basename parameter.\n\t* dwarf-index-write.c (write_gdbindex): Move file writing to\n\twrite_gdbindex_1.  Change return type void.\n\t(assert_file_size): Move up, remove filename parameter.\n\t(write_gdbindex_1): New function.\n\t(write_debug_names): Change return type to void, call\n\tassert_file_size.\n\t(struct index_wip_file): New struct.\n\t(write_psymtabs_to_index): Add dwz_basename parameter.  Move\n\tfile logic to index_wip_file.  Write index for dwz file if\n\tneeded.\n\t(save_gdb_index_command): Pass basename of dwz file, if present.\n\t* dwarf-index-cache.c (index_cache::store): Obtain and pass\n\tbuild-id of dwz file, if present.\n\t* dwarf2read.c (struct dwz_file): Move to dwarf2read.h.\n\t(dwarf2_get_dwz_file): Likewise.\n\t* dwarf2read.h (struct dwz_file): Move from dwarf2read.c.\n\t(dwarf2_get_dwz_file): Likewise.\n\ngdb/testsuite/ChangeLog:\n\nYYYY-MM-DD  Tom de Vries  <tdevries@suse.de>\n\n\tPR gdb/24445\n\t* gdb.dwarf2/gdb-index.exp (add_gdb_index): Update dwz file with\n\tgenerated index.",
+    "tree": {
+      "sha": "9018c63f5183c2466484f4c0602e9b6e04af5826",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/9018c63f5183c2466484f4c0602e9b6e04af5826"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/c4973306879b6079bdfc997474a2cbbd89f49bd2",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c4973306879b6079bdfc997474a2cbbd89f49bd2",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/c4973306879b6079bdfc997474a2cbbd89f49bd2",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c4973306879b6079bdfc997474a2cbbd89f49bd2/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "395f9c911460b3e868c0b700e831c7f92746fad7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/395f9c911460b3e868c0b700e831c7f92746fad7",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/395f9c911460b3e868c0b700e831c7f92746fad7"
+    }
+  ],
+  "stats": {
+    "total": 430,
+    "additions": 280,
+    "deletions": 150
+  },
+  "files": [
+    {
+      "sha": "ef62a4e62954928277bdc4af55a214a824d20ba5",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 23,
+      "deletions": 0,
+      "changes": 23,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c4973306879b6079bdfc997474a2cbbd89f49bd2/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c4973306879b6079bdfc997474a2cbbd89f49bd2/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=c4973306879b6079bdfc997474a2cbbd89f49bd2",
+      "patch": "@@ -1,3 +1,26 @@\n+2019-06-16  Simon Marchi  <simon.marchi@polymtl.ca>\n+\n+\tPR gdb/24445\n+\t* dwarf-index-write.h (write_psymtabs_to_index): Add\n+\tdwz_basename parameter.\n+\t* dwarf-index-write.c (write_gdbindex): Move file writing to\n+\twrite_gdbindex_1.  Change return type void.\n+\t(assert_file_size): Move up, remove filename parameter.\n+\t(write_gdbindex_1): New function.\n+\t(write_debug_names): Change return type to void, call\n+\tassert_file_size.\n+\t(struct index_wip_file): New struct.\n+\t(write_psymtabs_to_index): Add dwz_basename parameter.  Move\n+\tfile logic to index_wip_file.  Write index for dwz file if\n+\tneeded.\n+\t(save_gdb_index_command): Pass basename of dwz file, if present.\n+\t* dwarf-index-cache.c (index_cache::store): Obtain and pass\n+\tbuild-id of dwz file, if present.\n+\t* dwarf2read.c (struct dwz_file): Move to dwarf2read.h.\n+\t(dwarf2_get_dwz_file): Likewise.\n+\t* dwarf2read.h (struct dwz_file): Move from dwarf2read.c.\n+\t(dwarf2_get_dwz_file): Likewise.\n+\n 2019-06-16  Tom Tromey  <tom@tromey.com>\n \n \t* coffread.c (process_coff_symbol): Use xstrdup."
+    },
+    {
+      "sha": "d01790149351187f0b220d69eed081658c47c81a",
+      "filename": "gdb/dwarf-index-cache.c",
+      "status": "modified",
+      "additions": 27,
+      "deletions": 4,
+      "changes": 31,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c4973306879b6079bdfc997474a2cbbd89f49bd2/gdb/dwarf-index-cache.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c4973306879b6079bdfc997474a2cbbd89f49bd2/gdb/dwarf-index-cache.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf-index-cache.c?ref=c4973306879b6079bdfc997474a2cbbd89f49bd2",
+      "patch": "@@ -93,6 +93,7 @@ index_cache::store (struct dwarf2_per_objfile *dwarf2_per_objfile)\n   if (!enabled ())\n     return;\n \n+  /* Get build id of objfile.  */\n   const bfd_build_id *build_id = build_id_bfd_get (obj->obfd);\n   if (build_id == nullptr)\n     {\n@@ -102,14 +103,35 @@ index_cache::store (struct dwarf2_per_objfile *dwarf2_per_objfile)\n       return;\n     }\n \n+  std::string build_id_str = build_id_to_string (build_id);\n+\n+  /* Get build id of dwz file, if present.  */\n+  gdb::optional<std::string> dwz_build_id_str;\n+  const dwz_file *dwz = dwarf2_get_dwz_file (dwarf2_per_objfile);\n+  const char *dwz_build_id_ptr = NULL;\n+\n+  if (dwz != nullptr)\n+    {\n+      const bfd_build_id *dwz_build_id = build_id_bfd_get (dwz->dwz_bfd.get ());\n+\n+      if (dwz_build_id == nullptr)\n+\t{\n+\t  if (debug_index_cache)\n+\t    printf_unfiltered (\"index cache: dwz objfile %s has no build id\\n\",\n+\t\t\t       dwz->filename ());\n+\t  return;\n+\t}\n+\n+      dwz_build_id_str = build_id_to_string (dwz_build_id);\n+      dwz_build_id_ptr = dwz_build_id_str->c_str ();\n+    }\n+\n   if (m_dir.empty ())\n     {\n       warning (_(\"The index cache directory name is empty, skipping store.\"));\n       return;\n     }\n \n-  std::string build_id_str = build_id_to_string (build_id);\n-\n   try\n     {\n       /* Try to create the containing directory.  */\n@@ -122,12 +144,13 @@ index_cache::store (struct dwarf2_per_objfile *dwarf2_per_objfile)\n \n       if (debug_index_cache)\n         printf_unfiltered (\"index cache: writing index cache for objfile %s\\n\",\n-\t\t\t objfile_name (obj));\n+\t\t\t   objfile_name (obj));\n \n       /* Write the index itself to the directory, using the build id as the\n          filename.  */\n       write_psymtabs_to_index (dwarf2_per_objfile, m_dir.c_str (),\n-\t\t\t       build_id_str.c_str (), dw_index_kind::GDB_INDEX);\n+\t\t\t       build_id_str.c_str (), dwz_build_id_ptr,\n+\t\t\t       dw_index_kind::GDB_INDEX);\n     }\n   catch (const gdb_exception_error &except)\n     {"
+    },
+    {
+      "sha": "9979ae44402fd7a6e3766f3c5bc59443cd48f35a",
+      "filename": "gdb/dwarf-index-write.c",
+      "status": "modified",
+      "additions": 160,
+      "deletions": 112,
+      "changes": 272,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c4973306879b6079bdfc997474a2cbbd89f49bd2/gdb/dwarf-index-write.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c4973306879b6079bdfc997474a2cbbd89f49bd2/gdb/dwarf-index-write.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf-index-write.c?ref=c4973306879b6079bdfc997474a2cbbd89f49bd2",
+      "patch": "@@ -1289,15 +1289,81 @@ psyms_seen_size (struct dwarf2_per_objfile *dwarf2_per_objfile)\n   return psyms_count / 4;\n }\n \n-/* Write new .gdb_index section for OBJFILE into OUT_FILE.\n-   Return how many bytes were expected to be written into OUT_FILE.  */\n+/* Assert that FILE's size is EXPECTED_SIZE.  Assumes file's seek\n+   position is at the end of the file.  */\n \n-static size_t\n-write_gdbindex (struct dwarf2_per_objfile *dwarf2_per_objfile, FILE *out_file)\n+static void\n+assert_file_size (FILE *file, size_t expected_size)\n+{\n+  const auto file_size = ftell (file);\n+  if (file_size == -1)\n+    perror_with_name ((\"ftell\"));\n+  gdb_assert (file_size == expected_size);\n+}\n+\n+/* Write a gdb index file to OUT_FILE from all the sections passed as\n+   arguments.  */\n+\n+static void\n+write_gdbindex_1 (FILE *out_file,\n+\t\t  const data_buf &cu_list,\n+\t\t  const data_buf &types_cu_list,\n+\t\t  const data_buf &addr_vec,\n+\t\t  const data_buf &symtab_vec,\n+\t\t  const data_buf &constant_pool)\n+{\n+  data_buf contents;\n+  const offset_type size_of_header = 6 * sizeof (offset_type);\n+  offset_type total_len = size_of_header;\n+\n+  /* The version number.  */\n+  contents.append_data (MAYBE_SWAP (8));\n+\n+  /* The offset of the CU list from the start of the file.  */\n+  contents.append_data (MAYBE_SWAP (total_len));\n+  total_len += cu_list.size ();\n+\n+  /* The offset of the types CU list from the start of the file.  */\n+  contents.append_data (MAYBE_SWAP (total_len));\n+  total_len += types_cu_list.size ();\n+\n+  /* The offset of the address table from the start of the file.  */\n+  contents.append_data (MAYBE_SWAP (total_len));\n+  total_len += addr_vec.size ();\n+\n+  /* The offset of the symbol table from the start of the file.  */\n+  contents.append_data (MAYBE_SWAP (total_len));\n+  total_len += symtab_vec.size ();\n+\n+  /* The offset of the constant pool from the start of the file.  */\n+  contents.append_data (MAYBE_SWAP (total_len));\n+  total_len += constant_pool.size ();\n+\n+  gdb_assert (contents.size () == size_of_header);\n+\n+  contents.file_write (out_file);\n+  cu_list.file_write (out_file);\n+  types_cu_list.file_write (out_file);\n+  addr_vec.file_write (out_file);\n+  symtab_vec.file_write (out_file);\n+  constant_pool.file_write (out_file);\n+\n+  assert_file_size (out_file, total_len);\n+}\n+\n+/* Write contents of a .gdb_index section for OBJFILE into OUT_FILE.\n+   If OBJFILE has an associated dwz file, write contents of a .gdb_index\n+   section for that dwz file into DWZ_OUT_FILE.  If OBJFILE does not have an\n+   associated dwz file, DWZ_OUT_FILE must be NULL.  */\n+\n+static void\n+write_gdbindex (struct dwarf2_per_objfile *dwarf2_per_objfile, FILE *out_file,\n+\t\tFILE *dwz_out_file)\n {\n   struct objfile *objfile = dwarf2_per_objfile->objfile;\n   mapped_symtab symtab;\n-  data_buf cu_list;\n+  data_buf objfile_cu_list;\n+  data_buf dwz_cu_list;\n \n   /* While we're scanning CU's create a table that maps a psymtab pointer\n      (which is what addrmap records) to its index (which is what is recorded\n@@ -1331,6 +1397,10 @@ write_gdbindex (struct dwarf2_per_objfile *dwarf2_per_objfile, FILE *out_file)\n       const auto insertpair = cu_index_htab.emplace (psymtab, i);\n       gdb_assert (insertpair.second);\n \n+      /* The all_comp_units list contains CUs read from the objfile as well as\n+\t from the eventual dwz file.  We need to place the entry in the\n+\t corresponding index.  */\n+      data_buf &cu_list = per_cu->is_dwz ? dwz_cu_list : objfile_cu_list;\n       cu_list.append_uint (8, BFD_ENDIAN_LITTLE,\n \t\t\t   to_underlying (per_cu->sect_off));\n       cu_list.append_uint (8, BFD_ENDIAN_LITTLE, per_cu->length);\n@@ -1361,43 +1431,13 @@ write_gdbindex (struct dwarf2_per_objfile *dwarf2_per_objfile, FILE *out_file)\n   data_buf symtab_vec, constant_pool;\n   write_hash_table (&symtab, symtab_vec, constant_pool);\n \n-  data_buf contents;\n-  const offset_type size_of_contents = 6 * sizeof (offset_type);\n-  offset_type total_len = size_of_contents;\n-\n-  /* The version number.  */\n-  contents.append_data (MAYBE_SWAP (8));\n-\n-  /* The offset of the CU list from the start of the file.  */\n-  contents.append_data (MAYBE_SWAP (total_len));\n-  total_len += cu_list.size ();\n-\n-  /* The offset of the types CU list from the start of the file.  */\n-  contents.append_data (MAYBE_SWAP (total_len));\n-  total_len += types_cu_list.size ();\n+  write_gdbindex_1(out_file, objfile_cu_list, types_cu_list, addr_vec,\n+\t\t   symtab_vec, constant_pool);\n \n-  /* The offset of the address table from the start of the file.  */\n-  contents.append_data (MAYBE_SWAP (total_len));\n-  total_len += addr_vec.size ();\n-\n-  /* The offset of the symbol table from the start of the file.  */\n-  contents.append_data (MAYBE_SWAP (total_len));\n-  total_len += symtab_vec.size ();\n-\n-  /* The offset of the constant pool from the start of the file.  */\n-  contents.append_data (MAYBE_SWAP (total_len));\n-  total_len += constant_pool.size ();\n-\n-  gdb_assert (contents.size () == size_of_contents);\n-\n-  contents.file_write (out_file);\n-  cu_list.file_write (out_file);\n-  types_cu_list.file_write (out_file);\n-  addr_vec.file_write (out_file);\n-  symtab_vec.file_write (out_file);\n-  constant_pool.file_write (out_file);\n-\n-  return total_len;\n+  if (dwz_out_file != NULL)\n+    write_gdbindex_1 (dwz_out_file, dwz_cu_list, {}, {}, {}, {});\n+  else\n+    gdb_assert (dwz_cu_list.empty ());\n }\n \n /* DWARF-5 augmentation string for GDB's DW_IDX_GNU_* extension.  */\n@@ -1407,7 +1447,7 @@ static const gdb_byte dwarf5_gdb_augmentation[] = { 'G', 'D', 'B', 0 };\n    needed addition to .debug_str section to OUT_FILE_STR.  Return how\n    many bytes were expected to be written into OUT_FILE.  */\n \n-static size_t\n+static void\n write_debug_names (struct dwarf2_per_objfile *dwarf2_per_objfile,\n \t\t   FILE *out_file, FILE *out_file_str)\n {\n@@ -1528,26 +1568,69 @@ write_debug_names (struct dwarf2_per_objfile *dwarf2_per_objfile,\n   types_cu_list.file_write (out_file);\n   nametable.file_write (out_file, out_file_str);\n \n-  return expected_bytes;\n+  assert_file_size (out_file, expected_bytes);\n }\n \n-/* Assert that FILE's size is EXPECTED_SIZE.  Assumes file's seek\n-   position is at the end of the file.  */\n+/* This represents an index file being written (work-in-progress).\n \n-static void\n-assert_file_size (FILE *file, const char *filename, size_t expected_size)\n+   The data is initially written to a temporary file.  When the finalize method\n+   is called, the file is closed and moved to its final location.\n+\n+   On failure (if this object is being destroyed with having called finalize),\n+   the temporary file is closed and deleted.  */\n+\n+struct index_wip_file\n {\n-  const auto file_size = ftell (file);\n-  if (file_size == -1)\n-    error (_(\"Can't get `%s' size\"), filename);\n-  gdb_assert (file_size == expected_size);\n-}\n+  index_wip_file (const char *dir, const char *basename,\n+\t\t  const char *suffix)\n+  {\n+    filename = (std::string (dir) + SLASH_STRING + basename\n+    \t\t+ suffix);\n+\n+    filename_temp = make_temp_filename (filename);\n+\n+    scoped_fd out_file_fd (gdb_mkostemp_cloexec (filename_temp.data (),\n+\t\t\t\t\t\t O_BINARY));\n+    if (out_file_fd.get () == -1)\n+      perror_with_name ((\"mkstemp\"));\n+\n+    out_file = out_file_fd.to_file (\"wb\");\n+\n+    if (out_file == nullptr)\n+      error (_(\"Can't open `%s' for writing\"), filename_temp.data ());\n+\n+    unlink_file.emplace (filename_temp.data ());\n+  }\n+\n+  void finalize ()\n+  {\n+    /* We want to keep the file.  */\n+    unlink_file->keep ();\n+\n+    /* Close and move the str file in place.  */\n+    unlink_file.reset ();\n+    if (rename (filename_temp.data (), filename.c_str ()) != 0)\n+      perror_with_name ((\"rename\"));\n+  }\n+\n+  std::string filename;\n+  gdb::char_vector filename_temp;\n+\n+  /* Order matters here; we want FILE to be closed before\n+     FILENAME_TEMP is unlinked, because on MS-Windows one cannot\n+     delete a file that is still open.  So, we wrap the unlinker in an\n+     optional and emplace it once we know the file name.  */\n+  gdb::optional<gdb::unlinker> unlink_file;\n+\n+  gdb_file_up out_file;\n+};\n \n /* See dwarf-index-write.h.  */\n \n void\n write_psymtabs_to_index (struct dwarf2_per_objfile *dwarf2_per_objfile,\n \t\t\t const char *dir, const char *basename,\n+\t\t\t const char *dwz_basename,\n \t\t\t dw_index_kind index_kind)\n {\n   struct objfile *objfile = dwarf2_per_objfile->objfile;\n@@ -1566,74 +1649,33 @@ write_psymtabs_to_index (struct dwarf2_per_objfile *dwarf2_per_objfile,\n   if (stat (objfile_name (objfile), &st) < 0)\n     perror_with_name (objfile_name (objfile));\n \n-  std::string filename (std::string (dir) + SLASH_STRING + basename\n-\t\t\t+ (index_kind == dw_index_kind::DEBUG_NAMES\n-\t\t\t   ? INDEX5_SUFFIX : INDEX4_SUFFIX));\n-  gdb::char_vector filename_temp = make_temp_filename (filename);\n+  const char *index_suffix = (index_kind == dw_index_kind::DEBUG_NAMES\n+\t\t\t      ? INDEX5_SUFFIX : INDEX4_SUFFIX);\n \n-  /* Order matters here; we want FILE to be closed before\n-     FILENAME_TEMP is unlinked, because on MS-Windows one cannot\n-     delete a file that is still open.  So, we wrap the unlinker in an\n-     optional and emplace it once we know the file name.  */\n-  gdb::optional<gdb::unlinker> unlink_file;\n-  scoped_fd out_file_fd (gdb_mkostemp_cloexec (filename_temp.data (),\n-\t\t\t\t\t       O_BINARY));\n-  if (out_file_fd.get () == -1)\n-    perror_with_name ((\"mkstemp\"));\n+  index_wip_file objfile_index_wip (dir, basename, index_suffix);\n+  gdb::optional<index_wip_file> dwz_index_wip;\n \n-  gdb_file_up out_file = out_file_fd.to_file (\"wb\");\n-  if (out_file == nullptr)\n-    error (_(\"Can't open `%s' for writing\"), filename_temp.data ());\n-\n-  unlink_file.emplace (filename_temp.data ());\n+  if (dwz_basename != NULL)\n+      dwz_index_wip.emplace (dir, dwz_basename, index_suffix);\n \n   if (index_kind == dw_index_kind::DEBUG_NAMES)\n     {\n-      std::string filename_str (std::string (dir) + SLASH_STRING\n-\t\t\t\t+ basename + DEBUG_STR_SUFFIX);\n-      gdb::char_vector filename_str_temp = make_temp_filename (filename_str);\n-\n-      /* As above, arrange to unlink the file only after the file\n-\t descriptor has been closed.  */\n-      gdb::optional<gdb::unlinker> unlink_file_str;\n-      scoped_fd out_file_str_fd\n-\t(gdb_mkostemp_cloexec (filename_str_temp.data (), O_BINARY));\n-      if (out_file_str_fd.get () == -1)\n-        perror_with_name ((\"mkstemp\"));\n-\n-      gdb_file_up out_file_str = out_file_str_fd.to_file (\"wb\");\n-      if (out_file_str == nullptr)\n-\terror (_(\"Can't open `%s' for writing\"), filename_str_temp.data ());\n-\n-      unlink_file_str.emplace (filename_str_temp.data ());\n-\n-      const size_t total_len\n-\t= write_debug_names (dwarf2_per_objfile, out_file.get (),\n-\t\t\t     out_file_str.get ());\n-      assert_file_size (out_file.get (), filename_temp.data (), total_len);\n-\n-      /* We want to keep the file .debug_str file too.  */\n-      unlink_file_str->keep ();\n-\n-      /* Close and move the str file in place.  */\n-      out_file_str.reset ();\n-      if (rename (filename_str_temp.data (), filename_str.c_str ()) != 0)\n-\tperror_with_name ((\"rename\"));\n+      index_wip_file str_wip_file (dir, basename, DEBUG_STR_SUFFIX);\n+\n+      write_debug_names (dwarf2_per_objfile, objfile_index_wip.out_file.get (),\n+\t\t\t str_wip_file.out_file.get ());\n+\n+      str_wip_file.finalize ();\n     }\n   else\n-    {\n-      const size_t total_len\n-\t= write_gdbindex (dwarf2_per_objfile, out_file.get ());\n-      assert_file_size (out_file.get (), filename_temp.data (), total_len);\n-    }\n+    write_gdbindex (dwarf2_per_objfile, objfile_index_wip.out_file.get (),\n+\t\t    (dwz_index_wip.has_value ()\n+\t\t     ? dwz_index_wip->out_file.get () : NULL));\n \n-  /* We want to keep the file.  */\n-  unlink_file->keep ();\n+  objfile_index_wip.finalize ();\n \n-  /* Close and move the file in place.  */\n-  out_file.reset ();\n-  if (rename (filename_temp.data (), filename.c_str ()) != 0)\n-\tperror_with_name ((\"rename\"));\n+  if (dwz_index_wip.has_value ())\n+    dwz_index_wip->finalize ();\n }\n \n /* Implementation of the `save gdb-index' command.\n@@ -1678,8 +1720,14 @@ save_gdb_index_command (const char *arg, int from_tty)\n \t  try\n \t    {\n \t      const char *basename = lbasename (objfile_name (objfile));\n+\t      const dwz_file *dwz = dwarf2_get_dwz_file (dwarf2_per_objfile);\n+\t      const char *dwz_basename = NULL;\n+\n+\t      if (dwz != NULL)\n+\t\tdwz_basename = lbasename (dwz->filename ());\n+\n \t      write_psymtabs_to_index (dwarf2_per_objfile, arg, basename,\n-\t\t\t\t       index_kind);\n+\t\t\t\t       dwz_basename, index_kind);\n \t    }\n \t  catch (const gdb_exception_error &except)\n \t    {"
+    },
+    {
+      "sha": "a8874c864385b1ee89022c2f425e83f87ed4cc37",
+      "filename": "gdb/dwarf-index-write.h",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 4,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c4973306879b6079bdfc997474a2cbbd89f49bd2/gdb/dwarf-index-write.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c4973306879b6079bdfc997474a2cbbd89f49bd2/gdb/dwarf-index-write.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf-index-write.h?ref=c4973306879b6079bdfc997474a2cbbd89f49bd2",
+      "patch": "@@ -23,12 +23,17 @@\n #include \"symfile.h\"\n #include \"dwarf2read.h\"\n \n-/* Create an index file for OBJFILE in the directory DIR.  BASENAME is the\n-   desired filename, minus the extension, which gets added by this function\n-   based on INDEX_KIND.  */\n+/* Create index files for OBJFILE in the directory DIR.\n+\n+   An index file is created for OBJFILE itself, and is created for its\n+   associated dwz file, if it has one.\n+\n+   BASENAME is the desired filename base for OBJFILE's index.  An extension\n+   derived from INDEX_KIND is added to this base name.  DWZ_BASENAME is the\n+   same, but for the dwz file's index.  */\n \n extern void write_psymtabs_to_index\n   (struct dwarf2_per_objfile *dwarf2_per_objfile, const char *dir,\n-   const char *basename, dw_index_kind index_kind);\n+   const char *basename, const char *dwz_basename, dw_index_kind index_kind);\n \n #endif /* DWARF_INDEX_WRITE_H */"
+    },
+    {
+      "sha": "a51ae49e87026bb0681f26527b38f41cdca21c12",
+      "filename": "gdb/dwarf2read.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 30,
+      "changes": 32,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c4973306879b6079bdfc997474a2cbbd89f49bd2/gdb/dwarf2read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c4973306879b6079bdfc997474a2cbbd89f49bd2/gdb/dwarf2read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2read.c?ref=c4973306879b6079bdfc997474a2cbbd89f49bd2",
+      "patch": "@@ -875,32 +875,6 @@ struct dwp_file\n   asection **elf_sections = nullptr;\n };\n \n-/* This represents a '.dwz' file.  */\n-\n-struct dwz_file\n-{\n-  dwz_file (gdb_bfd_ref_ptr &&bfd)\n-    : dwz_bfd (std::move (bfd))\n-  {\n-  }\n-\n-  /* A dwz file can only contain a few sections.  */\n-  struct dwarf2_section_info abbrev {};\n-  struct dwarf2_section_info info {};\n-  struct dwarf2_section_info str {};\n-  struct dwarf2_section_info line {};\n-  struct dwarf2_section_info macro {};\n-  struct dwarf2_section_info gdb_index {};\n-  struct dwarf2_section_info debug_names {};\n-\n-  /* The dwz's BFD.  */\n-  gdb_bfd_ref_ptr dwz_bfd;\n-\n-  /* If we loaded the index from an external file, this contains the\n-     resources associated to the open file, memory mapping, etc.  */\n-  std::unique_ptr<index_cache_resource> index_cache_res;\n-};\n-\n /* Struct used to pass misc. parameters to read_die_and_children, et\n    al.  which are used for both .debug_info and .debug_types dies.\n    All parameters here are unchanging for the life of the call.  This\n@@ -2668,11 +2642,9 @@ locate_dwz_sections (bfd *abfd, asection *sectp, void *arg)\n     }\n }\n \n-/* Open the separate '.dwz' debug file, if needed.  Return NULL if\n-   there is no .gnu_debugaltlink section in the file.  Error if there\n-   is such a section but the file cannot be found.  */\n+/* See dwarf2read.h.  */\n \n-static struct dwz_file *\n+struct dwz_file *\n dwarf2_get_dwz_file (struct dwarf2_per_objfile *dwarf2_per_objfile)\n {\n   const char *filename;"
+    },
+    {
+      "sha": "e8658950e362473fa70c3db76b1b9f0de74c42c6",
+      "filename": "gdb/dwarf2read.h",
+      "status": "modified",
+      "additions": 38,
+      "deletions": 0,
+      "changes": 38,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c4973306879b6079bdfc997474a2cbbd89f49bd2/gdb/dwarf2read.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c4973306879b6079bdfc997474a2cbbd89f49bd2/gdb/dwarf2read.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2read.h?ref=c4973306879b6079bdfc997474a2cbbd89f49bd2",
+      "patch": "@@ -405,4 +405,42 @@ DEF_VEC_P (sig_type_ptr);\n \n ULONGEST read_unsigned_leb128 (bfd *, const gdb_byte *, unsigned int *);\n \n+/* This represents a '.dwz' file.  */\n+\n+struct dwz_file\n+{\n+  dwz_file (gdb_bfd_ref_ptr &&bfd)\n+    : dwz_bfd (std::move (bfd))\n+  {\n+  }\n+\n+  const char *filename () const\n+  {\n+    return bfd_get_filename (this->dwz_bfd);\n+  }\n+\n+  /* A dwz file can only contain a few sections.  */\n+  struct dwarf2_section_info abbrev {};\n+  struct dwarf2_section_info info {};\n+  struct dwarf2_section_info str {};\n+  struct dwarf2_section_info line {};\n+  struct dwarf2_section_info macro {};\n+  struct dwarf2_section_info gdb_index {};\n+  struct dwarf2_section_info debug_names {};\n+\n+  /* The dwz's BFD.  */\n+  gdb_bfd_ref_ptr dwz_bfd;\n+\n+  /* If we loaded the index from an external file, this contains the\n+     resources associated to the open file, memory mapping, etc.  */\n+  std::unique_ptr<index_cache_resource> index_cache_res;\n+};\n+\n+/* Open the separate '.dwz' debug file, if needed.  Return NULL if\n+   there is no .gnu_debugaltlink section in the file.  Error if there\n+   is such a section but the file cannot be found.  */\n+\n+extern struct dwz_file *dwarf2_get_dwz_file\n+    (struct dwarf2_per_objfile *dwarf2_per_objfile);\n+\n #endif /* DWARF2READ_H */"
+    },
+    {
+      "sha": "d1558f37894b5e7b5e2c4216a99dd6c9aa93035f",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c4973306879b6079bdfc997474a2cbbd89f49bd2/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c4973306879b6079bdfc997474a2cbbd89f49bd2/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=c4973306879b6079bdfc997474a2cbbd89f49bd2",
+      "patch": "@@ -1,3 +1,9 @@\n+2019-06-16  Tom de Vries  <tdevries@suse.de>\n+\n+\tPR gdb/24445\n+\t* gdb.dwarf2/gdb-index.exp (add_gdb_index): Update dwz file with\n+\tgenerated index.\n+\n 2019-06-16  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \tPR gdb/24686"
+    },
+    {
+      "sha": "6fca3c6129924faf3af60b5e412726428de35cef",
+      "filename": "gdb/testsuite/gdb.dwarf2/gdb-index.exp",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c4973306879b6079bdfc997474a2cbbd89f49bd2/gdb/testsuite/gdb.dwarf2/gdb-index.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c4973306879b6079bdfc997474a2cbbd89f49bd2/gdb/testsuite/gdb.dwarf2/gdb-index.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.dwarf2/gdb-index.exp?ref=c4973306879b6079bdfc997474a2cbbd89f49bd2",
+      "patch": "@@ -34,8 +34,11 @@ if { [prepare_for_testing \"failed to prepare\" \"${testfile}\" \\\n \n proc add_gdb_index { program } {\n     set index_file ${program}.gdb-index\n+    set dwz ${program}.dwz\n+    set dwz_index_file ${dwz}.gdb-index\n     verbose -log \"index_file: ${index_file}\"\n     remote_file host delete ${index_file}\n+    remote_file host delete ${dwz_index_file}\n     gdb_test_no_output \"save gdb-index [file dirname ${index_file}]\" \\\n \t\"save gdb-index for file [file tail ${program}]\"\n \n@@ -55,6 +58,18 @@ proc add_gdb_index { program } {\n     if {[run_on_host \"objcopy\" [gdb_find_objcopy] \"--remove-section .gdb_index --add-section .gdb_index=$index_file --set-section-flags .gdb_index=readonly ${program} ${program_with_index}\"]} {\n \treturn \"\"\n     }\n+\n+    if { [remote_file host exists ${dwz_index_file}] } {\n+\t# We're modifying $dwz in place, otherwise we'd have to update\n+\t# .gnu_debugaltlink in $program.\n+\tset args [join [list \"--remove-section .gdb_index\" \\\n+\t\t\t    \" --add-section .gdb_index=$dwz_index_file\" \\\n+\t\t\t    \" --set-section-flags .gdb_index=readonly $dwz\"]]\n+\tif {[run_on_host \"objcopy\" [gdb_find_objcopy] \"$args\"]} {\n+\t    return \"\"\n+\t}\n+    }\n+\n     return ${program_with_index}\n }\n "
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "sha": "54b2aec10df9ad032184c556ec9cc3f611a91830",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NTRiMmFlYzEwZGY5YWQwMzIxODRjNTU2ZWM5Y2MzZjYxMWE5MTgzMA==",
+  "commit": {
+    "author": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2020-02-12T10:18:51Z"
+    },
+    "committer": {
+      "name": "Jim Wilson",
+      "email": "jimw@sifive.com",
+      "date": "2020-02-21T00:49:09Z"
+    },
+    "message": "RISC-V: Support the read-only CSR checking.\n\nCSRRW and CSRRWI always write CSR.  CSRRS, CSRRC, CSRRSI and CSRRCI write CSR\nwhen RS1 isn't zero.  The CSR is read only if the [11:10] bits of CSR address\nis 0x3.  The read-only CSR can not be written by the CSR instructions.\n\n\tgas/\n\t* config/tc-riscv.c (riscv_ip): New boolean insn_with_csr to indicate\n\twe are assembling instruction with CSR.  Call riscv_csr_read_only_check\n\tafter parsing all arguments.\n\t(enum csr_insn_type): New enum is used to classify the CSR instruction.\n\t(riscv_csr_insn_type, riscv_csr_read_only_check): New functions.  These\n\tare used to check if we write a read-only CSR by the CSR instruction.\n\n\t* testsuite/gas/riscv/priv-reg-fail-read-only-01.s: New testcase.  Test\n\tall CSR for the read-only CSR checking.\n\t* testsuite/gas/riscv/priv-reg-fail-read-only-01.d: Likewise.\n\t* testsuite/gas/riscv/priv-reg-fail-read-only-01.l: Likewise.\n\t* testsuite/gas/riscv/priv-reg-fail-read-only-02.s: New testcase.  Test\n\tall CSR instructions for the read-only CSR checking.\n\t* testsuite/gas/riscv/priv-reg-fail-read-only-02.d: Likewise.\n\t* testsuite/gas/riscv/priv-reg-fail-read-only-02.l: Likewise.",
+    "tree": {
+      "sha": "b8a42a4500cd3a7faf247ab0ef07789ab2b4628f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/b8a42a4500cd3a7faf247ab0ef07789ab2b4628f"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/54b2aec10df9ad032184c556ec9cc3f611a91830",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/54b2aec10df9ad032184c556ec9cc3f611a91830",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/54b2aec10df9ad032184c556ec9cc3f611a91830",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/54b2aec10df9ad032184c556ec9cc3f611a91830/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "2ca89224b1ce2cf170bb891b211bede4f6eda473",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2ca89224b1ce2cf170bb891b211bede4f6eda473",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/2ca89224b1ce2cf170bb891b211bede4f6eda473"
+    }
+  ],
+  "stats": {
+    "total": 543,
+    "additions": 543,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "d47235320185770089f3e38c166cc249db5e399f",
+      "filename": "gas/ChangeLog",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/54b2aec10df9ad032184c556ec9cc3f611a91830/gas/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/54b2aec10df9ad032184c556ec9cc3f611a91830/gas/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/ChangeLog?ref=54b2aec10df9ad032184c556ec9cc3f611a91830",
+      "patch": "@@ -1,5 +1,20 @@\n 2020-02-20  Nelson Chu  <nelson.chu@sifive.com>\n \n+\t* config/tc-riscv.c (riscv_ip): New boolean insn_with_csr to indicate\n+\twe are assembling instruction with CSR.  Call riscv_csr_read_only_check\n+\tafter parsing all arguments.\n+\t(enum csr_insn_type): New enum is used to classify the CSR instruction.\n+\t(riscv_csr_insn_type, riscv_csr_read_only_check): New functions.  These\n+\tare used to check if we write a read-only CSR by the CSR instruction.\n+\t* testsuite/gas/riscv/priv-reg-fail-read-only-01.s: New testcase.  Test\n+\tall CSR for the read-only CSR checking.\n+\t* testsuite/gas/riscv/priv-reg-fail-read-only-01.d: Likewise.\n+\t* testsuite/gas/riscv/priv-reg-fail-read-only-01.l: Likewise.\n+\t* testsuite/gas/riscv/priv-reg-fail-read-only-02.s: New testcase.  Test\n+\tall CSR instructions for the read-only CSR checking.\n+\t* testsuite/gas/riscv/priv-reg-fail-read-only-02.d: Likewise.\n+\t* testsuite/gas/riscv/priv-reg-fail-read-only-02.l: Likewise.\n+\n \t* config/tc-riscv.c (struct riscv_set_options): New field csr_check.\n \t(riscv_opts): Initialize it.\n \t(reg_lookup_internal): Check the `riscv_opts.csr_check`"
+    },
+    {
+      "sha": "1559b08402a05f0953d2c6ad264f0ed63982c6e5",
+      "filename": "gas/config/tc-riscv.c",
+      "status": "modified",
+      "additions": 69,
+      "deletions": 0,
+      "changes": 69,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/54b2aec10df9ad032184c556ec9cc3f611a91830/gas/config/tc-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/54b2aec10df9ad032184c556ec9cc3f611a91830/gas/config/tc-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-riscv.c?ref=54b2aec10df9ad032184c556ec9cc3f611a91830",
+      "patch": "@@ -1486,6 +1486,56 @@ riscv_handle_implicit_zero_offset (expressionS *ep, const char *s)\n   return FALSE;\n }\n \n+/* All RISC-V CSR instructions belong to one of these classes.  */\n+\n+enum csr_insn_type\n+{\n+  INSN_NOT_CSR,\n+  INSN_CSRRW,\n+  INSN_CSRRS,\n+  INSN_CSRRC\n+};\n+\n+/* Return which CSR instruction is checking.  */\n+\n+static enum csr_insn_type\n+riscv_csr_insn_type (insn_t insn)\n+{\n+  if (((insn ^ MATCH_CSRRW) & MASK_CSRRW) == 0\n+      || ((insn ^ MATCH_CSRRWI) & MASK_CSRRWI) == 0)\n+    return INSN_CSRRW;\n+  else if (((insn ^ MATCH_CSRRS) & MASK_CSRRS) == 0\n+\t   || ((insn ^ MATCH_CSRRSI) & MASK_CSRRSI) == 0)\n+    return INSN_CSRRS;\n+  else if (((insn ^ MATCH_CSRRC) & MASK_CSRRC) == 0\n+\t   || ((insn ^ MATCH_CSRRCI) & MASK_CSRRCI) == 0)\n+    return INSN_CSRRC;\n+  else\n+    return INSN_NOT_CSR;\n+}\n+\n+/* CSRRW and CSRRWI always write CSR.  CSRRS, CSRRC, CSRRSI and CSRRCI write\n+   CSR when RS1 isn't zero.  The CSR is read only if the [11:10] bits of\n+   CSR address is 0x3.  */\n+\n+static bfd_boolean\n+riscv_csr_read_only_check (insn_t insn)\n+{\n+  int csr = (insn & (OP_MASK_CSR << OP_SH_CSR)) >> OP_SH_CSR;\n+  int rs1 = (insn & (OP_MASK_RS1 << OP_SH_RS1)) >> OP_SH_RS1;\n+  int readonly = (((csr & (0x3 << 10)) >> 10) == 0x3);\n+  enum csr_insn_type csr_insn = riscv_csr_insn_type (insn);\n+\n+  if (readonly\n+      && (((csr_insn == INSN_CSRRS\n+\t    || csr_insn == INSN_CSRRC)\n+\t   && rs1 != 0)\n+\t  || csr_insn == INSN_CSRRW))\n+    return FALSE;\n+\n+  return TRUE;\n+}\n+\n /* This routine assembles an instruction into its binary format.  As a\n    side effect, it sets the global variable imm_reloc to the type of\n    relocation to do if one of the operands is an address expression.  */\n@@ -1504,6 +1554,8 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,\n   int argnum;\n   const struct percent_op_match *p;\n   const char *error = \"unrecognized opcode\";\n+  /* Indicate we are assembling instruction with CSR.  */\n+  bfd_boolean insn_with_csr = FALSE;\n \n   /* Parse the name of the instruction.  Terminate the string if whitespace\n      is found so that hash_find only sees the name part of the string.  */\n@@ -1550,11 +1602,26 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,\n \t\t\t\t\t : insn->match) == 2\n \t\t      && !riscv_opts.rvc)\n \t\t    break;\n+\n+\t\t  /* Check if we write a read-only CSR by the CSR\n+\t\t     instruction.  */\n+\t\t  if (insn_with_csr\n+\t\t      && riscv_opts.csr_check\n+\t\t      && !riscv_csr_read_only_check (ip->insn_opcode))\n+\t\t    {\n+\t\t      /* Restore the character in advance, since we want to\n+\t\t\t report the detailed warning message here.  */\n+\t\t      if (save_c)\n+\t\t\t*(argsStart - 1) = save_c;\n+\t\t      as_warn (_(\"Read-only CSR is written `%s'\"), str);\n+\t\t      insn_with_csr = FALSE;\n+\t\t    }\n \t\t}\n \t      if (*s != '\\0')\n \t\tbreak;\n \t      /* Successful assembly.  */\n \t      error = NULL;\n+\t      insn_with_csr = FALSE;\n \t      goto out;\n \n \t    case 'C': /* RVC */\n@@ -1899,6 +1966,7 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,\n \t      continue;\n \n \t    case 'E':\t\t/* Control register.  */\n+\t      insn_with_csr = TRUE;\n \t      if (reg_lookup (&s, RCLASS_CSR, &regno))\n \t\tINSERT_OPERAND (CSR, *ip, regno);\n \t      else\n@@ -2219,6 +2287,7 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,\n \t}\n       s = argsStart;\n       error = _(\"illegal operands\");\n+      insn_with_csr = FALSE;\n     }\n \n out:"
+    },
+    {
+      "sha": "ae190c053c6b44a7e01ec7019df13be6b29dd927",
+      "filename": "gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.d",
+      "status": "added",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/54b2aec10df9ad032184c556ec9cc3f611a91830/gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/54b2aec10df9ad032184c556ec9cc3f611a91830/gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.d?ref=54b2aec10df9ad032184c556ec9cc3f611a91830",
+      "patch": "@@ -0,0 +1,3 @@\n+#as: -march=rv32if -mcsr-check\n+#source: priv-reg-fail-read-only-01.s\n+#warning_output: priv-reg-fail-read-only-01.l"
+    },
+    {
+      "sha": "7e52bd7bea362be9500eca13f8cddbdf479ab576",
+      "filename": "gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.l",
+      "status": "added",
+      "additions": 69,
+      "deletions": 0,
+      "changes": 69,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/54b2aec10df9ad032184c556ec9cc3f611a91830/gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/54b2aec10df9ad032184c556ec9cc3f611a91830/gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.l?ref=54b2aec10df9ad032184c556ec9cc3f611a91830",
+      "patch": "@@ -0,0 +1,69 @@\n+.*Assembler messages:\n+.*Warning: Read-only CSR is written `csrw cycle,a1'\n+.*Warning: Read-only CSR is written `csrw time,a1'\n+.*Warning: Read-only CSR is written `csrw instret,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter3,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter4,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter5,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter6,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter7,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter8,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter9,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter10,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter11,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter12,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter13,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter14,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter15,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter16,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter17,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter18,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter19,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter20,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter21,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter22,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter23,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter24,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter25,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter26,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter27,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter28,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter29,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter30,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter31,a1'\n+.*Warning: Read-only CSR is written `csrw cycleh,a1'\n+.*Warning: Read-only CSR is written `csrw timeh,a1'\n+.*Warning: Read-only CSR is written `csrw instreth,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter3h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter4h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter5h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter6h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter7h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter8h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter9h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter10h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter11h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter12h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter13h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter14h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter15h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter16h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter17h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter18h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter19h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter20h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter21h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter22h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter23h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter24h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter25h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter26h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter27h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter28h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter29h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter30h,a1'\n+.*Warning: Read-only CSR is written `csrw hpmcounter31h,a1'\n+.*Warning: Read-only CSR is written `csrw mvendorid,a1'\n+.*Warning: Read-only CSR is written `csrw marchid,a1'\n+.*Warning: Read-only CSR is written `csrw mimpid,a1'\n+.*Warning: Read-only CSR is written `csrw mhartid,a1'"
+    },
+    {
+      "sha": "501a52ef518533a993c2e86883d074de4b815c0d",
+      "filename": "gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.s",
+      "status": "added",
+      "additions": 269,
+      "deletions": 0,
+      "changes": 269,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/54b2aec10df9ad032184c556ec9cc3f611a91830/gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/54b2aec10df9ad032184c556ec9cc3f611a91830/gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/priv-reg-fail-read-only-01.s?ref=54b2aec10df9ad032184c556ec9cc3f611a91830",
+      "patch": "@@ -0,0 +1,269 @@\n+\t.macro csr val\n+\tcsrw \\val, a1\n+\t.endm\n+# 1.9.1 registers\n+\tcsr ustatus\n+\tcsr uie\n+\tcsr utvec\n+\n+\tcsr uscratch\n+\tcsr uepc\n+\tcsr ucause\n+\tcsr ubadaddr\n+\tcsr uip\n+\n+\tcsr fflags\n+\tcsr frm\n+\tcsr fcsr\n+\n+\tcsr cycle\n+\tcsr time\n+\tcsr instret\n+\tcsr hpmcounter3\n+\tcsr hpmcounter4\n+\tcsr hpmcounter5\n+\tcsr hpmcounter6\n+\tcsr hpmcounter7\n+\tcsr hpmcounter8\n+\tcsr hpmcounter9\n+\tcsr hpmcounter10\n+\tcsr hpmcounter11\n+\tcsr hpmcounter12\n+\tcsr hpmcounter13\n+\tcsr hpmcounter14\n+\tcsr hpmcounter15\n+\tcsr hpmcounter16\n+\tcsr hpmcounter17\n+\tcsr hpmcounter18\n+\tcsr hpmcounter19\n+\tcsr hpmcounter20\n+\tcsr hpmcounter21\n+\tcsr hpmcounter22\n+\tcsr hpmcounter23\n+\tcsr hpmcounter24\n+\tcsr hpmcounter25\n+\tcsr hpmcounter26\n+\tcsr hpmcounter27\n+\tcsr hpmcounter28\n+\tcsr hpmcounter29\n+\tcsr hpmcounter30\n+\tcsr hpmcounter31\n+\tcsr cycleh\n+\tcsr timeh\n+\tcsr instreth\n+\tcsr hpmcounter3h\n+\tcsr hpmcounter4h\n+\tcsr hpmcounter5h\n+\tcsr hpmcounter6h\n+\tcsr hpmcounter7h\n+\tcsr hpmcounter8h\n+\tcsr hpmcounter9h\n+\tcsr hpmcounter10h\n+\tcsr hpmcounter11h\n+\tcsr hpmcounter12h\n+\tcsr hpmcounter13h\n+\tcsr hpmcounter14h\n+\tcsr hpmcounter15h\n+\tcsr hpmcounter16h\n+\tcsr hpmcounter17h\n+\tcsr hpmcounter18h\n+\tcsr hpmcounter19h\n+\tcsr hpmcounter20h\n+\tcsr hpmcounter21h\n+\tcsr hpmcounter22h\n+\tcsr hpmcounter23h\n+\tcsr hpmcounter24h\n+\tcsr hpmcounter25h\n+\tcsr hpmcounter26h\n+\tcsr hpmcounter27h\n+\tcsr hpmcounter28h\n+\tcsr hpmcounter29h\n+\tcsr hpmcounter30h\n+\tcsr hpmcounter31h\n+\n+\tcsr sstatus\n+\tcsr sedeleg\n+\tcsr sideleg\n+\tcsr sie\n+\tcsr stvec\n+\n+\tcsr sscratch\n+\tcsr sepc\n+\tcsr scause\n+\tcsr sbadaddr\n+\tcsr sip\n+\n+\tcsr sptbr\n+\n+\tcsr hstatus\n+\tcsr hedeleg\n+\tcsr hideleg\n+\tcsr hie\n+\tcsr htvec\n+\n+\tcsr hscratch\n+\tcsr hepc\n+\tcsr hcause\n+\tcsr hbadaddr\n+\tcsr hip\n+\n+\tcsr mvendorid\n+\tcsr marchid\n+\tcsr mimpid\n+\tcsr mhartid\n+\n+\tcsr mstatus\n+\tcsr misa\n+\tcsr medeleg\n+\tcsr mideleg\n+\tcsr mie\n+\tcsr mtvec\n+\n+\tcsr mscratch\n+\tcsr mepc\n+\tcsr mcause\n+\tcsr mbadaddr\n+\tcsr mip\n+\n+\tcsr mbase\n+\tcsr mbound\n+\tcsr mibase\n+\tcsr mibound\n+\tcsr mdbase\n+\tcsr mdbound\n+\n+\tcsr mcycle\n+\tcsr minstret\n+\tcsr mhpmcounter3\n+\tcsr mhpmcounter4\n+\tcsr mhpmcounter5\n+\tcsr mhpmcounter6\n+\tcsr mhpmcounter7\n+\tcsr mhpmcounter8\n+\tcsr mhpmcounter9\n+\tcsr mhpmcounter10\n+\tcsr mhpmcounter11\n+\tcsr mhpmcounter12\n+\tcsr mhpmcounter13\n+\tcsr mhpmcounter14\n+\tcsr mhpmcounter15\n+\tcsr mhpmcounter16\n+\tcsr mhpmcounter17\n+\tcsr mhpmcounter18\n+\tcsr mhpmcounter19\n+\tcsr mhpmcounter20\n+\tcsr mhpmcounter21\n+\tcsr mhpmcounter22\n+\tcsr mhpmcounter23\n+\tcsr mhpmcounter24\n+\tcsr mhpmcounter25\n+\tcsr mhpmcounter26\n+\tcsr mhpmcounter27\n+\tcsr mhpmcounter28\n+\tcsr mhpmcounter29\n+\tcsr mhpmcounter30\n+\tcsr mhpmcounter31\n+\tcsr mcycleh\n+\tcsr minstreth\n+\tcsr mhpmcounter3h\n+\tcsr mhpmcounter4h\n+\tcsr mhpmcounter5h\n+\tcsr mhpmcounter6h\n+\tcsr mhpmcounter7h\n+\tcsr mhpmcounter8h\n+\tcsr mhpmcounter9h\n+\tcsr mhpmcounter10h\n+\tcsr mhpmcounter11h\n+\tcsr mhpmcounter12h\n+\tcsr mhpmcounter13h\n+\tcsr mhpmcounter14h\n+\tcsr mhpmcounter15h\n+\tcsr mhpmcounter16h\n+\tcsr mhpmcounter17h\n+\tcsr mhpmcounter18h\n+\tcsr mhpmcounter19h\n+\tcsr mhpmcounter20h\n+\tcsr mhpmcounter21h\n+\tcsr mhpmcounter22h\n+\tcsr mhpmcounter23h\n+\tcsr mhpmcounter24h\n+\tcsr mhpmcounter25h\n+\tcsr mhpmcounter26h\n+\tcsr mhpmcounter27h\n+\tcsr mhpmcounter28h\n+\tcsr mhpmcounter29h\n+\tcsr mhpmcounter30h\n+\tcsr mhpmcounter31h\n+\n+\tcsr mucounteren\n+\tcsr mscounteren\n+\tcsr mhcounteren\n+\n+\tcsr mhpmevent3\n+\tcsr mhpmevent4\n+\tcsr mhpmevent5\n+\tcsr mhpmevent6\n+\tcsr mhpmevent7\n+\tcsr mhpmevent8\n+\tcsr mhpmevent9\n+\tcsr mhpmevent10\n+\tcsr mhpmevent11\n+\tcsr mhpmevent12\n+\tcsr mhpmevent13\n+\tcsr mhpmevent14\n+\tcsr mhpmevent15\n+\tcsr mhpmevent16\n+\tcsr mhpmevent17\n+\tcsr mhpmevent18\n+\tcsr mhpmevent19\n+\tcsr mhpmevent20\n+\tcsr mhpmevent21\n+\tcsr mhpmevent22\n+\tcsr mhpmevent23\n+\tcsr mhpmevent24\n+\tcsr mhpmevent25\n+\tcsr mhpmevent26\n+\tcsr mhpmevent27\n+\tcsr mhpmevent28\n+\tcsr mhpmevent29\n+\tcsr mhpmevent30\n+\tcsr mhpmevent31\n+\n+\tcsr tselect\n+\tcsr tdata1\n+\tcsr tdata2\n+\tcsr tdata3\n+\n+\tcsr dcsr\n+\tcsr dpc\n+\tcsr dscratch\n+# 1.10 registers\n+\tcsr utval\n+\n+\tcsr scounteren\n+\tcsr stval\n+\tcsr satp\n+\n+\tcsr mcounteren\n+\tcsr mtval\n+\n+\tcsr pmpcfg0\n+\tcsr pmpcfg1\n+\tcsr pmpcfg2\n+\tcsr pmpcfg3\n+\tcsr pmpaddr0\n+\tcsr pmpaddr1\n+\tcsr pmpaddr2\n+\tcsr pmpaddr3\n+\tcsr pmpaddr4\n+\tcsr pmpaddr5\n+\tcsr pmpaddr6\n+\tcsr pmpaddr7\n+\tcsr pmpaddr8\n+\tcsr pmpaddr9\n+\tcsr pmpaddr10\n+\tcsr pmpaddr11\n+\tcsr pmpaddr12\n+\tcsr pmpaddr13\n+\tcsr pmpaddr14\n+\tcsr pmpaddr15"
+    },
+    {
+      "sha": "3c4715f04829cc892a30ab4881e5e3f3f03a8140",
+      "filename": "gas/testsuite/gas/riscv/priv-reg-fail-read-only-02.d",
+      "status": "added",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/54b2aec10df9ad032184c556ec9cc3f611a91830/gas/testsuite/gas/riscv/priv-reg-fail-read-only-02.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/54b2aec10df9ad032184c556ec9cc3f611a91830/gas/testsuite/gas/riscv/priv-reg-fail-read-only-02.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/priv-reg-fail-read-only-02.d?ref=54b2aec10df9ad032184c556ec9cc3f611a91830",
+      "patch": "@@ -0,0 +1,3 @@\n+#as: -march=rv32if -mcsr-check\n+#source: priv-reg-fail-read-only-02.s\n+#warning_output: priv-reg-fail-read-only-02.l"
+    },
+    {
+      "sha": "660f19d3815197d6da5ec6d51aea851220d78884",
+      "filename": "gas/testsuite/gas/riscv/priv-reg-fail-read-only-02.l",
+      "status": "added",
+      "additions": 25,
+      "deletions": 0,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/54b2aec10df9ad032184c556ec9cc3f611a91830/gas/testsuite/gas/riscv/priv-reg-fail-read-only-02.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/54b2aec10df9ad032184c556ec9cc3f611a91830/gas/testsuite/gas/riscv/priv-reg-fail-read-only-02.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/priv-reg-fail-read-only-02.l?ref=54b2aec10df9ad032184c556ec9cc3f611a91830",
+      "patch": "@@ -0,0 +1,25 @@\n+.*Assembler messages:\n+.*Warning: Read-only CSR is written `csrrw a0,cycle,a1'\n+.*Warning: Read-only CSR is written `csrrw a0,cycle,zero'\n+.*Warning: Read-only CSR is written `csrrw zero,cycle,a1'\n+.*Warning: Read-only CSR is written `csrrw zero,cycle,zero'\n+.*Warning: Read-only CSR is written `csrw cycle,a1'\n+.*Warning: Read-only CSR is written `csrw cycle,zero'\n+.*Warning: Read-only CSR is written `csrrwi a0,cycle,0xb'\n+.*Warning: Read-only CSR is written `csrrwi a0,cycle,0x0'\n+.*Warning: Read-only CSR is written `csrrwi zero,cycle,0xb'\n+.*Warning: Read-only CSR is written `csrrwi zero,cycle,0x0'\n+.*Warning: Read-only CSR is written `csrwi cycle,0xb'\n+.*Warning: Read-only CSR is written `csrwi cycle,0x0'\n+.*Warning: Read-only CSR is written `csrrs a0,cycle,a1'\n+.*Warning: Read-only CSR is written `csrrs zero,cycle,a1'\n+.*Warning: Read-only CSR is written `csrs cycle,a0'\n+.*Warning: Read-only CSR is written `csrrsi a0,cycle,0xb'\n+.*Warning: Read-only CSR is written `csrrsi zero,cycle,0xb'\n+.*Warning: Read-only CSR is written `csrsi cycle,0xb'\n+.*Warning: Read-only CSR is written `csrrc a0,cycle,a1'\n+.*Warning: Read-only CSR is written `csrrc zero,cycle,a1'\n+.*Warning: Read-only CSR is written `csrc cycle,a0'\n+.*Warning: Read-only CSR is written `csrrci a0,cycle,0xb'\n+.*Warning: Read-only CSR is written `csrrci zero,cycle,0xb'\n+.*Warning: Read-only CSR is written `csrci cycle,0xb'"
+    },
+    {
+      "sha": "7afb26e0720f4808f066ab0d52ead36397016285",
+      "filename": "gas/testsuite/gas/riscv/priv-reg-fail-read-only-02.s",
+      "status": "added",
+      "additions": 90,
+      "deletions": 0,
+      "changes": 90,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/54b2aec10df9ad032184c556ec9cc3f611a91830/gas/testsuite/gas/riscv/priv-reg-fail-read-only-02.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/54b2aec10df9ad032184c556ec9cc3f611a91830/gas/testsuite/gas/riscv/priv-reg-fail-read-only-02.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/priv-reg-fail-read-only-02.s?ref=54b2aec10df9ad032184c556ec9cc3f611a91830",
+      "patch": "@@ -0,0 +1,90 @@\n+# CSRRW and CSRRWI always write CSR\n+# CSRRS, CSRRC, CSRRSI and CSRRCI write CSR when rs isn't zero.\n+\n+# csrrw rd, csr, rs\n+\tcsrrw\ta0, ustatus, a1\n+\tcsrrw\ta0, cycle, a1\n+\tcsrrw\ta0, cycle, zero\n+\tcsrrw\tzero, cycle, a1\n+\tcsrrw\tzero, cycle, zero\n+\tfscsr\ta0, a1\n+\tfsrm\ta0, a1\n+\tfsflags a0, a1\n+# csrrw zero, csr, rs\n+\tcsrw\tustatus, a1\n+\tcsrw\tcycle, a1\n+\tcsrw\tcycle, zero\n+\tfscsr\ta1\n+\tfsrm\ta1\n+\tfsflags a1\n+# csrrwi rd, csr, imm\n+\tcsrrwi\ta0, ustatus, 0xb\n+\tcsrrwi\ta0, cycle, 0xb\n+\tcsrrwi\ta0, cycle, 0x0\n+\tcsrrwi\tzero, cycle, 0xb\n+\tcsrrwi\tzero, cycle, 0x0\n+# csrrwi zero, csr, imm\n+\tcsrwi   ustatus, 0xb\n+\tcsrwi   cycle, 0xb\n+\tcsrwi   cycle, 0x0\n+\n+# csrrs rd, csr, rs\n+\tcsrrs\ta0, ustatus, a1\n+\tcsrrs\ta0, cycle, a1\n+\tcsrrs\ta0, cycle, zero\n+\tcsrrs\tzero, cycle, a1\n+\tcsrrs\tzero, cycle, zero\n+# csrrs rd, csr, zero\n+\tcsrr\ta0, ustatus\n+\tcsrr\ta0, cycle\n+\tcsrr\tzero, cycle\n+\trdinstret  a0\n+\trdinstret  zero\n+\trdinstreth a0\n+\trdinstreth zero\n+\trdcycle\t   a0\n+\trdcycle    zero\n+\trdcycleh   a0\n+\trdcycleh   zero\n+\trdtime\ta0\n+\trdtime  zero\n+\trdtimeh\ta0\n+\trdtimeh zero\n+\tfrcsr\ta0\n+\tfrrm\ta0\n+\tfrflags a0\n+# csrrs zero, csr, rs\n+\tcsrs\tustatus, a0\n+\tcsrs\tcycle, a0\n+\tcsrs\tcycle, zero\n+# csrrsi rd, csr, imm\n+\tcsrrsi\ta0, ustatus, 0xb\n+\tcsrrsi\ta0, cycle, 0xb\n+\tcsrrsi\ta0, cycle, 0x0\n+\tcsrrsi\tzero, cycle, 0xb\n+\tcsrrsi\tzero, cycle, 0x0\n+# csrrsi zero, csr, imm\n+\tcsrsi\tustatus, 0xb\n+\tcsrsi\tcycle, 0xb\n+\tcsrsi\tcycle, 0x0\n+\n+# csrrc a0, csr, a1\n+\tcsrrc\ta0, ustatus, a1\n+\tcsrrc\ta0, cycle, a1\n+\tcsrrc\ta0, cycle, zero\n+\tcsrrc\tzero, cycle, a1\n+\tcsrrc\tzero, cycle, zero\n+# csrrc zero, csr, rs\n+\tcsrc\tustatus, a0\n+\tcsrc\tcycle, a0\n+\tcsrc\tcycle, zero\n+# csrrci rd, csr, imm\n+\tcsrrci\ta0, ustatus, 0xb\n+\tcsrrci\ta0, cycle, 0xb\n+\tcsrrci\ta0, cycle, 0x0\n+\tcsrrci\tzero, cycle, 0xb\n+\tcsrrci\tzero, cycle, 0x0\n+# csrrci zero, csr, imm\n+\tcsrci\tustatus, 0xb\n+\tcsrci\tcycle, 0xb\n+\tcsrci\tcycle, 0x0"
+    }
+  ]
+}

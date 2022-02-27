@@ -1,0 +1,134 @@
+{
+  "sha": "a4c50be3d68b4f857fee29a45f799755a6862c22",
+  "node_id": "C_kwDOANOeidoAKGE0YzUwYmUzZDY4YjRmODU3ZmVlMjlhNDVmNzk5NzU1YTY4NjJjMjI",
+  "commit": {
+    "author": {
+      "name": "Tom Tromey",
+      "email": "tom@tromey.com",
+      "date": "2021-10-02T22:49:54Z"
+    },
+    "committer": {
+      "name": "Tom Tromey",
+      "email": "tom@tromey.com",
+      "date": "2021-10-20T17:00:31Z"
+    },
+    "message": "Use unique_xmalloc_ptr in watchpoint\n\nThis changes struct watchpoint to use unique_xmalloc_ptr in a couple\nof places, removing a bit of manual memory management.",
+    "tree": {
+      "sha": "ac80ecdb956bab3ac99030587aec154545f96ad1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/ac80ecdb956bab3ac99030587aec154545f96ad1"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/a4c50be3d68b4f857fee29a45f799755a6862c22",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a4c50be3d68b4f857fee29a45f799755a6862c22",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/a4c50be3d68b4f857fee29a45f799755a6862c22",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a4c50be3d68b4f857fee29a45f799755a6862c22/comments",
+  "author": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "5c1146d2dec3d6f2ca56456f215084b910938b92",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5c1146d2dec3d6f2ca56456f215084b910938b92",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/5c1146d2dec3d6f2ca56456f215084b910938b92"
+    }
+  ],
+  "stats": {
+    "total": 43,
+    "additions": 18,
+    "deletions": 25
+  },
+  "files": [
+    {
+      "sha": "477c03b7de38cc7b38b0b9b1dbe5255c0b54189c",
+      "filename": "gdb/breakpoint.c",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 19,
+      "changes": 33,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a4c50be3d68b4f857fee29a45f799755a6862c22/gdb/breakpoint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a4c50be3d68b4f857fee29a45f799755a6862c22/gdb/breakpoint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/breakpoint.c?ref=a4c50be3d68b4f857fee29a45f799755a6862c22",
+      "patch": "@@ -1844,7 +1844,9 @@ update_watchpoint (struct watchpoint *b, int reparse)\n       const char *s;\n \n       b->exp.reset ();\n-      s = b->exp_string_reparse ? b->exp_string_reparse : b->exp_string;\n+      s = (b->exp_string_reparse\n+\t   ? b->exp_string_reparse.get ()\n+\t   : b->exp_string.get ());\n       b->exp = parse_exp_1 (&s, 0, b->exp_valid_block, 0);\n       /* If the meaning of expression itself changed, the old value is\n \t no longer relevant.  We don't want to report a watchpoint hit\n@@ -6131,7 +6133,7 @@ print_one_breakpoint_location (struct breakpoint *b,\n \t  if (opts.addressprint)\n \t    uiout->field_skip (\"addr\");\n \t  annotate_field (5);\n-\t  uiout->field_string (\"what\", w->exp_string);\n+\t  uiout->field_string (\"what\", w->exp_string.get ());\n \t}\n       else if (!is_catchpoint (b) || is_exception_catchpoint (b)\n \t       || is_ada_exception_catchpoint (b))\n@@ -6358,7 +6360,7 @@ print_one_breakpoint_location (struct breakpoint *b,\n \t{\n \t  struct watchpoint *w = (struct watchpoint *) b;\n \n-\t  uiout->field_string (\"original-location\", w->exp_string);\n+\t  uiout->field_string (\"original-location\", w->exp_string.get ());\n \t}\n       else if (b->location != NULL\n \t       && event_location_to_string (b->location.get ()) != NULL)\n@@ -10053,14 +10055,6 @@ watchpoint_exp_is_const (const struct expression *exp)\n   return exp->op->constant_p ();\n }\n \n-/* Watchpoint destructor.  */\n-\n-watchpoint::~watchpoint ()\n-{\n-  xfree (this->exp_string);\n-  xfree (this->exp_string_reparse);\n-}\n-\n /* Implement the \"re_set\" breakpoint_ops method for watchpoints.  */\n \n static void\n@@ -10295,7 +10289,7 @@ print_mention_watchpoint (struct breakpoint *b)\n   ui_out_emit_tuple tuple_emitter (uiout, tuple_name);\n   uiout->field_signed (\"number\", b->number);\n   uiout->text (\": \");\n-  uiout->field_string (\"exp\", w->exp_string);\n+  uiout->field_string (\"exp\", w->exp_string.get ());\n }\n \n /* Implement the \"print_recreate\" breakpoint_ops method for\n@@ -10323,7 +10317,7 @@ print_recreate_watchpoint (struct breakpoint *b, struct ui_file *fp)\n \t\t      _(\"Invalid watchpoint type.\"));\n     }\n \n-  fprintf_unfiltered (fp, \" %s\", w->exp_string);\n+  fprintf_unfiltered (fp, \" %s\", w->exp_string.get ());\n   print_recreate_thread (b, fp);\n }\n \n@@ -10488,7 +10482,7 @@ print_mention_masked_watchpoint (struct breakpoint *b)\n   ui_out_emit_tuple tuple_emitter (uiout, tuple_name);\n   uiout->field_signed (\"number\", b->number);\n   uiout->text (\": \");\n-  uiout->field_string (\"exp\", w->exp_string);\n+  uiout->field_string (\"exp\", w->exp_string.get ());\n }\n \n /* Implement the \"print_recreate\" breakpoint_ops method for\n@@ -10515,7 +10509,7 @@ print_recreate_masked_watchpoint (struct breakpoint *b, struct ui_file *fp)\n \t\t      _(\"Invalid hardware watchpoint type.\"));\n     }\n \n-  fprintf_unfiltered (fp, \" %s mask 0x%s\", w->exp_string,\n+  fprintf_unfiltered (fp, \" %s mask 0x%s\", w->exp_string.get (),\n \t\t      phex (w->hw_wp_mask, sizeof (CORE_ADDR)));\n   print_recreate_thread (b, fp);\n }\n@@ -10794,13 +10788,14 @@ watch_command_1 (const char *arg, int accessflag, int from_tty,\n       CORE_ADDR addr = value_as_address (val.get ());\n \n       w->exp_string_reparse\n-\t= current_language->watch_location_expression (t, addr).release ();\n+\t= current_language->watch_location_expression (t, addr);\n \n-      w->exp_string = xstrprintf (\"-location %.*s\",\n-\t\t\t\t  (int) (exp_end - exp_start), exp_start);\n+      w->exp_string.reset (xstrprintf (\"-location %.*s\",\n+\t\t\t\t       (int) (exp_end - exp_start),\n+\t\t\t\t       exp_start));\n     }\n   else\n-    w->exp_string = savestring (exp_start, exp_end - exp_start);\n+    w->exp_string.reset (savestring (exp_start, exp_end - exp_start));\n \n   if (use_mask)\n     {"
+    },
+    {
+      "sha": "ad64f8320e9cc048d2f24f839892e3fcea0dd2cc",
+      "filename": "gdb/breakpoint.h",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 4,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a4c50be3d68b4f857fee29a45f799755a6862c22/gdb/breakpoint.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a4c50be3d68b4f857fee29a45f799755a6862c22/gdb/breakpoint.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/breakpoint.h?ref=a4c50be3d68b4f857fee29a45f799755a6862c22",
+      "patch": "@@ -831,13 +831,11 @@ struct breakpoint\n \n struct watchpoint : public breakpoint\n {\n-  ~watchpoint () override;\n-\n   /* String form of exp to use for displaying to the user (malloc'd),\n      or NULL if none.  */\n-  char *exp_string;\n+  gdb::unique_xmalloc_ptr<char> exp_string;\n   /* String form to use for reparsing of EXP (malloc'd) or NULL.  */\n-  char *exp_string_reparse;\n+  gdb::unique_xmalloc_ptr<char> exp_string_reparse;\n \n   /* The expression we are watching, or NULL if not a watchpoint.  */\n   expression_up exp;"
+    },
+    {
+      "sha": "f48671f0ea98d9e4a0e796d50bb5a4c205e7654f",
+      "filename": "gdb/guile/scm-breakpoint.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a4c50be3d68b4f857fee29a45f799755a6862c22/gdb/guile/scm-breakpoint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a4c50be3d68b4f857fee29a45f799755a6862c22/gdb/guile/scm-breakpoint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/guile/scm-breakpoint.c?ref=a4c50be3d68b4f857fee29a45f799755a6862c22",
+      "patch": "@@ -883,7 +883,7 @@ gdbscm_breakpoint_expression (SCM self)\n \n   wp = (struct watchpoint *) bp_smob->bp;\n \n-  const char *str = wp->exp_string;\n+  const char *str = wp->exp_string.get ();\n   if (! str)\n     str = \"\";\n "
+    },
+    {
+      "sha": "7ec73af016b5ca683dace292ff02fc0394bfd71a",
+      "filename": "gdb/python/py-breakpoint.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a4c50be3d68b4f857fee29a45f799755a6862c22/gdb/python/py-breakpoint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a4c50be3d68b4f857fee29a45f799755a6862c22/gdb/python/py-breakpoint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/py-breakpoint.c?ref=a4c50be3d68b4f857fee29a45f799755a6862c22",
+      "patch": "@@ -433,7 +433,7 @@ bppy_get_expression (PyObject *self, void *closure)\n \n   wp = (struct watchpoint *) obj->bp;\n \n-  str = wp->exp_string;\n+  str = wp->exp_string.get ();\n   if (! str)\n     str = \"\";\n "
+    }
+  ]
+}

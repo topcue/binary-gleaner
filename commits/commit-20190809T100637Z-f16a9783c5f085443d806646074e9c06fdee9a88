@@ -1,0 +1,355 @@
+{
+  "sha": "f16a9783c5f085443d806646074e9c06fdee9a88",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZjE2YTk3ODNjNWYwODU0NDNkODA2NjQ2MDc0ZTljMDZmZGVlOWE4OA==",
+  "commit": {
+    "author": {
+      "name": "Mihailo Stojanovic",
+      "email": "mihailo.stojanovic@rt-rk.com",
+      "date": "2019-08-09T10:06:37Z"
+    },
+    "committer": {
+      "name": "Nick Clifton",
+      "email": "nickc@redhat.com",
+      "date": "2019-08-09T10:06:37Z"
+    },
+    "message": "Add support for a MIPS specific .MIPS.xhash section.\n\n  This patch is a reimplementation of [1] which was submitted in 2015 by\nNeil Schellenberger. Copyright issue was sorted out [2] last year.\nIt proposed a new section (.gnu.xhash) and related dynamic tag\n(DT_GNU_XHASH). The new section would be virtually identical to the\nexisting .gnu.hash except for the translation table (xlat) which would\ncontain correct MIPS .dynsym indexes corresponding to the hashvals in\nchains. This is because MIPS ABI imposes a different ordering on the\ndynsyms than the one expected by the .gnu.hash section. Another addition\nwould be a leading word (ngnusyms) which would contain the number of\nentries in the translation table.\n\n  In this patch, the new section name and dynamic tag are changed to\nreflect the fact that the section should be treated as MIPS-specific\n(.MIPS.xhash and DT_MIPS_XHASH).\n\n  This patch addresses the alignment issue as reported in [3], which is\ncaused by the leading word added to the .MIPS.xhash section. Leading word\nis removed in this patch, and the number of entries in the translation\ntable is now calculated using DT_MIPS_SYMTABNO dynamic tag (this is\naddressed by the corresponding glibc patch).\n\n  Suggestions on coding style in [4] were taken into account. Existing\nGNU hash testcase was covered, and another one was added in the MIPS\npart of the testsuite.\n\n  The other major change is reserving MIPS ABI version 5 for .MIPS.xhash,\nmarking the need of support for .MIPS.xhash in the dynamic linker (again,\naddressed in the corresponding glibc patch). This is something which I\nam not sure of, especially after reading [5]. I am confused on whether\nthis ABI version is reserved for IFUNC, or it can be used for this\npurpose.\n\nAlready mentioned glibc patch is submitted at:\nhttps://sourceware.org/ml/libc-alpha/2019-06/msg00456.html\n\n[1] https://sourceware.org/ml/binutils/2015-10/msg00057.html\n[2] https://sourceware.org/ml/binutils/2018-03/msg00025.html\n[3] https://sourceware.org/ml/binutils/2016-01/msg00006.html\n[4] https://sourceware.org/ml/binutils/2016-02/msg00097.html\n[5] https://sourceware.org/ml/libc-alpha/2016-12/msg00853.html\n\nld      * emulparams/elf32bmip.sh: Add .MIPS.xhash section.\n        * emulparams/elf32bmipn32-defs.sh: Add .MIPS.xhash section.\n        * emulparams/elf64bmip-defs.sh: Add .MIPS.xhash section.\n        * emultempl/mipself.em: Remove mips_after_parse function.\n        * testsuite/ld-elf/hash.d: Update comment.\n        * testsuite/ld-mips-elf/hash1.d: New test.\n        * testsuite/ld-mips-elf/hash1.s: Ditto.\n        * testsuite/ld-mips-elf/hash1a.d: Remove.\n        * testsuite/ld-mips-elf/hash1b.d: Ditto.\n        * testsuite/ld-mips-elf/hash1c.d: Ditto\n        * testsuite/ld-mips-elf/hash2.d: New test.\n        * testsuite/ld-mips-elf/mips-elf.exp: New tests.\n        * testsuite/ld-mips-elf/start.s: New test.\n\nbfd     * elf-bfd.h (struct elf_backend_data): New members.\n        * elflink.c (_bfd_elf_link_create_dynamic_sections): Create\n        .gnu.hash section if necessary.\n        (struct collect_gnu_hash_codes): New member.\n        (elf_gnu_hash_process_symidx): New function name.\n        (elf_renumber_gnu_hash_syms): Ignore local and undefined\n        symbols. Record xlat location for every symbol which should have\n        a .MIPS.xhash entry.\n        (bfd_elf_size_dynamic_sections): Add DT_GNU_HASH dynamic tag to\n        dynamic section if necessary.\n        (GNU_HASH_SECTION_NAME): New define.\n        (bfd_elf_size_dynsym_hash_dynstr): Get .MIPS.xhash section.\n        Update the section size info.\n        * elfxx-mips.c (struct mips_elf_hash_sort_data): New members.\n        (struct mips_elf_link_hash_entry): New member.\n        (mips_elf_link_hash_newfunc): Initialize .MIPS.xhash translation\n        table location.\n        (mips_elf_sort_hash_table): Initialize the pointer to the\n        .MIPS.xhash section.\n        (mips_elf_sort_hash_table_f): Populate the .MIPS.xhash\n        translation table entry with the symbol dynindx.\n        (_bfd_mips_elf_section_from_shdr): Add SHT_MIPS_XHASH.\n        (_bfd_mips_elf_fake_sections): Initialize .MIPS.xhash section\n        info.\n        (_bfd_mips_elf_create_dynamic_sections): Create .MIPS.xhash\n        section.\n        (_bfd_mips_elf_size_dynamic_sections): Add DT_MIPS_XHASH tag to\n        dynamic section.\n        (_bfd_mips_elf_finish_synamic_sections): Add DT_MIPS_XHASH.\n        (_bfd_mips_elf_final_write_processing): Set .MIPS.xhash section\n        sh_link info.\n        (_bfd_mips_elf_get_target_dtag): Get DT_MIPS_XHASH tag.\n        (MIPS_LIBC_ABI_XHASH): New ABI version enum value.\n        (_bfd_mips_post_process_headers): Mark the ABI version as\n        MIPS_LIBC_ABI_XHASH if there exists a .MIPS.xhash section,\n        but not a .hash section.\n        (_bfd_mips_elf_record_xhash_symbol): New function. Record a\n        position in the translation table, associated with the hash\n        entry.\n        * elfxx-mips.h (literal_reloc_p): Define\n        elf_backend_record_xhash_symbol backend hook.\n        * elfxx-target.h: Initialize elf_backend_record_xhash_symbol\n        backend hook.\n\ninclude * elf/mips.h (SHT_GNU_XHASH): New define.\n        (DT_GNU_XHASH): New define.\n\nbinutils * readelf.c (get_mips_dynamic_type): Return MIPS_XHASH dynamic type.\n        (get_mips_section_type_name): Return MI{S_XHASH name string.\n        (dynamic_section_mips_val): Initialize the .MIPS.xhash dynamic\n        info.\n        (process_symbol_table): Initialize the .MIPS.xhash section\n        pointer. Adjust the readelf output to support the new section.\n        (process_object): Set the .MIPS.xhash dynamic info to zero.",
+    "tree": {
+      "sha": "98daf0fca4cd2a572ee12f1d6b895739b235b008",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/98daf0fca4cd2a572ee12f1d6b895739b235b008"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/f16a9783c5f085443d806646074e9c06fdee9a88",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f16a9783c5f085443d806646074e9c06fdee9a88",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/f16a9783c5f085443d806646074e9c06fdee9a88",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f16a9783c5f085443d806646074e9c06fdee9a88/comments",
+  "author": null,
+  "committer": {
+    "login": "nickclifton",
+    "id": 31441682,
+    "node_id": "MDQ6VXNlcjMxNDQxNjgy",
+    "avatar_url": "https://avatars.githubusercontent.com/u/31441682?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nickclifton",
+    "html_url": "https://github.com/nickclifton",
+    "followers_url": "https://api.github.com/users/nickclifton/followers",
+    "following_url": "https://api.github.com/users/nickclifton/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nickclifton/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nickclifton/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nickclifton/subscriptions",
+    "organizations_url": "https://api.github.com/users/nickclifton/orgs",
+    "repos_url": "https://api.github.com/users/nickclifton/repos",
+    "events_url": "https://api.github.com/users/nickclifton/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nickclifton/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "1ba7cdcd931ddf672e4a8a6483593f9b94e55965",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1ba7cdcd931ddf672e4a8a6483593f9b94e55965",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/1ba7cdcd931ddf672e4a8a6483593f9b94e55965"
+    }
+  ],
+  "stats": {
+    "total": 362,
+    "additions": 314,
+    "deletions": 48
+  },
+  "files": [
+    {
+      "sha": "cf2fec78810e97567ce4ec6c6d09deb9b82d897f",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 46,
+      "deletions": 0,
+      "changes": 46,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -1,3 +1,49 @@\n+2019-08-09  Mihailo Stojanovic  <mihailo.stojanovic@rt-rk.com>\n+\n+\t* elf-bfd.h (struct elf_backend_data): New members.\n+\t* elflink.c (_bfd_elf_link_create_dynamic_sections): Create\n+\t.gnu.hash section if necessary.\n+\t(struct collect_gnu_hash_codes): New member.\n+\t(elf_gnu_hash_process_symidx): New function name.\n+\t(elf_renumber_gnu_hash_syms): Ignore local and undefined\n+\tsymbols. Record xlat location for every symbol which should have\n+\ta .MIPS.xhash entry.\n+\t(bfd_elf_size_dynamic_sections): Add DT_GNU_HASH dynamic tag to\n+\tdynamic section if necessary.\n+\t(GNU_HASH_SECTION_NAME): New define.\n+\t(bfd_elf_size_dynsym_hash_dynstr): Get .MIPS.xhash section.\n+\tUpdate the section size info.\n+\t* elfxx-mips.c (struct mips_elf_hash_sort_data): New members.\n+\t(struct mips_elf_link_hash_entry): New member.\n+\t(mips_elf_link_hash_newfunc): Initialize .MIPS.xhash translation\n+\ttable location.\n+\t(mips_elf_sort_hash_table): Initialize the pointer to the\n+\t.MIPS.xhash section.\n+\t(mips_elf_sort_hash_table_f): Populate the .MIPS.xhash\n+\ttranslation table entry with the symbol dynindx.\n+\t(_bfd_mips_elf_section_from_shdr): Add SHT_MIPS_XHASH.\n+\t(_bfd_mips_elf_fake_sections): Initialize .MIPS.xhash section\n+\tinfo.\n+\t(_bfd_mips_elf_create_dynamic_sections): Create .MIPS.xhash\n+\tsection.\n+\t(_bfd_mips_elf_size_dynamic_sections): Add DT_MIPS_XHASH tag to\n+\tdynamic section.\n+\t(_bfd_mips_elf_finish_synamic_sections): Add DT_MIPS_XHASH.\n+\t(_bfd_mips_elf_final_write_processing): Set .MIPS.xhash section\n+\tsh_link info.\n+\t(_bfd_mips_elf_get_target_dtag): Get DT_MIPS_XHASH tag.\n+\t(MIPS_LIBC_ABI_XHASH): New ABI version enum value.\n+\t(_bfd_mips_post_process_headers): Mark the ABI version as\n+\tMIPS_LIBC_ABI_XHASH if there exists a .MIPS.xhash section,\n+\tbut not a .hash section.\n+\t(_bfd_mips_elf_record_xhash_symbol): New function. Record a\n+\tposition in the translation table, associated with the hash\n+\tentry.\n+\t* elfxx-mips.h (literal_reloc_p): Define\n+\telf_backend_record_xhash_symbol backend hook.\n+\t* elfxx-target.h: Initialize elf_backend_record_xhash_symbol\n+\tbackend hook.\n+\n 2019-08-07  Jose E. Marchesi  <jose.marchesi@oracle.com>\n \n \t* elf64-bpf.c (bpf_elf_relocate_section): New function."
+    },
+    {
+      "sha": "521d35debb05009b9a818b01626b743acd0c022b",
+      "filename": "bfd/elf-bfd.h",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/bfd/elf-bfd.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/bfd/elf-bfd.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf-bfd.h?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -1392,6 +1392,13 @@ struct elf_backend_data\n   /* Return TRUE if symbol should be hashed in the `.gnu.hash' section.  */\n   bfd_boolean (*elf_hash_symbol) (struct elf_link_hash_entry *);\n \n+  /* If non-NULL, called to register the location of XLAT_LOC within\n+     .MIPS.xhash at which real final dynindx for H will be written.\n+     If XLAT_LOC is zero, the symbol is not included in\n+     .MIPS.xhash and no dynindx will be written.  */\n+  void (*record_xhash_symbol)\n+    (struct elf_link_hash_entry *h, bfd_vma xlat_loc);\n+\n   /* Return TRUE if type is a function symbol type.  */\n   bfd_boolean (*is_function_type) (unsigned int type);\n "
+    },
+    {
+      "sha": "c7440d19ff0f82bf14e01a398d010bc1ff22e840",
+      "filename": "bfd/elflink.c",
+      "status": "modified",
+      "additions": 36,
+      "deletions": 10,
+      "changes": 46,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/bfd/elflink.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/bfd/elflink.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elflink.c?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -339,7 +339,7 @@ _bfd_elf_link_create_dynamic_sections (bfd *abfd, struct bfd_link_info *info)\n       elf_section_data (s)->this_hdr.sh_entsize = bed->s->sizeof_hash_entry;\n     }\n \n-  if (info->emit_gnu_hash)\n+  if (info->emit_gnu_hash && bed->record_xhash_symbol == NULL)\n     {\n       s = bfd_make_section_anyway_with_flags (abfd, \".gnu.hash\",\n \t\t\t\t\t      flags | SEC_READONLY);\n@@ -5853,6 +5853,7 @@ struct collect_gnu_hash_codes\n   unsigned long int *counts;\n   bfd_vma *bitmask;\n   bfd_byte *contents;\n+  bfd_size_type xlat;\n   long int min_dynindx;\n   unsigned long int bucketcount;\n   unsigned long int symindx;\n@@ -5917,10 +5918,12 @@ elf_collect_gnu_hash_codes (struct elf_link_hash_entry *h, void *data)\n }\n \n /* This function will be called though elf_link_hash_traverse to do\n-   final dynaminc symbol renumbering.  */\n+   final dynamic symbol renumbering in case of .gnu.hash.\n+   If using .MIPS.xhash, invoke record_xhash_symbol to add symbol index\n+   to the translation table.  */\n \n static bfd_boolean\n-elf_renumber_gnu_hash_syms (struct elf_link_hash_entry *h, void *data)\n+elf_gnu_hash_process_symidx (struct elf_link_hash_entry *h, void *data)\n {\n   struct collect_gnu_hash_codes *s = (struct collect_gnu_hash_codes *) data;\n   unsigned long int bucket;\n@@ -5934,7 +5937,15 @@ elf_renumber_gnu_hash_syms (struct elf_link_hash_entry *h, void *data)\n   if (! (*s->bed->elf_hash_symbol) (h))\n     {\n       if (h->dynindx >= s->min_dynindx)\n-\th->dynindx = s->local_indx++;\n+\t{\n+\t  if (s->bed->record_xhash_symbol != NULL)\n+\t    {\n+\t      (*s->bed->record_xhash_symbol) (h, 0);\n+\t      s->local_indx++;\n+\t    }\n+\t  else\n+\t    h->dynindx = s->local_indx++;\n+\t}\n       return TRUE;\n     }\n \n@@ -5951,7 +5962,14 @@ elf_renumber_gnu_hash_syms (struct elf_link_hash_entry *h, void *data)\n   bfd_put_32 (s->output_bfd, val,\n \t      s->contents + (s->indx[bucket] - s->symindx) * 4);\n   --s->counts[bucket];\n-  h->dynindx = s->indx[bucket]++;\n+  if (s->bed->record_xhash_symbol != NULL)\n+    {\n+      bfd_vma xlat_loc = s->xlat + (s->indx[bucket]++ - s->symindx) * 4;\n+\n+      (*s->bed->record_xhash_symbol) (h, xlat_loc);\n+    }\n+  else\n+    h->dynindx = s->indx[bucket]++;\n   return TRUE;\n }\n \n@@ -6980,7 +6998,8 @@ bfd_elf_size_dynamic_sections (bfd *output_bfd,\n \t  if ((info->emit_hash\n \t       && !_bfd_elf_add_dynamic_entry (info, DT_HASH, 0))\n \t      || (info->emit_gnu_hash\n-\t\t  && !_bfd_elf_add_dynamic_entry (info, DT_GNU_HASH, 0))\n+\t\t  && (bed->record_xhash_symbol == NULL\n+\t\t      && !_bfd_elf_add_dynamic_entry (info, DT_GNU_HASH, 0)))\n \t      || !_bfd_elf_add_dynamic_entry (info, DT_STRTAB, 0)\n \t      || !_bfd_elf_add_dynamic_entry (info, DT_SYMTAB, 0)\n \t      || !_bfd_elf_add_dynamic_entry (info, DT_STRSZ, strsize)\n@@ -7105,6 +7124,9 @@ _bfd_elf_init_2_index_sections (bfd *output_bfd, struct bfd_link_info *info)\n   elf_hash_table (info)->text_index_section = found;\n }\n \n+#define GNU_HASH_SECTION_NAME(bed)\t\t\t    \\\n+  (bed)->record_xhash_symbol != NULL ? \".MIPS.xhash\" : \".gnu.hash\"\n+\n bfd_boolean\n bfd_elf_size_dynsym_hash_dynstr (bfd *output_bfd, struct bfd_link_info *info)\n {\n@@ -7271,12 +7293,12 @@ bfd_elf_size_dynsym_hash_dynstr (bfd *output_bfd, struct bfd_link_info *info)\n \t      return FALSE;\n \t    }\n \n-\t  s = bfd_get_linker_section (dynobj, \".gnu.hash\");\n+\t  s = bfd_get_linker_section (dynobj, GNU_HASH_SECTION_NAME (bed));\n \t  BFD_ASSERT (s != NULL);\n \n \t  if (cinfo.nsyms == 0)\n \t    {\n-\t      /* Empty .gnu.hash section is special.  */\n+\t      /* Empty .gnu.hash or .MIPS.xhash section is special.  */\n \t      BFD_ASSERT (cinfo.min_dynindx == -1);\n \t      free (cinfo.hashcodes);\n \t      s->size = 5 * 4 + bed->s->arch_size / 8;\n@@ -7356,6 +7378,8 @@ bfd_elf_size_dynsym_hash_dynstr (bfd *output_bfd, struct bfd_link_info *info)\n \n \t      s->size = (4 + bucketcount + cinfo.nsyms) * 4;\n \t      s->size += cinfo.maskbits / 8;\n+\t      if (bed->record_xhash_symbol != NULL)\n+\t\ts->size += cinfo.nsyms * 4;\n \t      contents = (unsigned char *) bfd_zalloc (output_bfd, s->size);\n \t      if (contents == NULL)\n \t\t{\n@@ -7382,9 +7406,11 @@ bfd_elf_size_dynsym_hash_dynstr (bfd *output_bfd, struct bfd_link_info *info)\n \n \t      cinfo.contents = contents;\n \n-\t      /* Renumber dynamic symbols, populate .gnu.hash section.  */\n+\t      cinfo.xlat = contents + cinfo.nsyms * 4 - s->contents;\n+\t      /* Renumber dynamic symbols, if populating .gnu.hash section.\n+\t\t If using .MIPS.xhash, populate the translation table.  */\n \t      elf_link_hash_traverse (elf_hash_table (info),\n-\t\t\t\t      elf_renumber_gnu_hash_syms, &cinfo);\n+\t\t\t\t      elf_gnu_hash_process_symidx, &cinfo);\n \n \t      contents = s->contents + 16;\n \t      for (i = 0; i < maskwords; ++i)"
+    },
+    {
+      "sha": "e845c90ee410f7e7bcbd7e2b148d288cd7605a7f",
+      "filename": "bfd/elfxx-mips.c",
+      "status": "modified",
+      "additions": 78,
+      "deletions": 0,
+      "changes": 78,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/bfd/elfxx-mips.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/bfd/elfxx-mips.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfxx-mips.c?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -322,6 +322,11 @@ struct mips_elf_hash_sort_data\n   /* The greatest dynamic symbol table index corresponding to an external\n      symbol without a GOT entry.  */\n   bfd_size_type max_non_got_dynindx;\n+  /* If non-NULL, output BFD for .MIPS.xhash finalization.  */\n+  bfd *output_bfd;\n+  /* If non-NULL, pointer to contents of .MIPS.xhash for filling in\n+     real final dynindx.  */\n+  bfd_byte *mipsxhash;\n };\n \n /* We make up to two PLT entries if needed, one for standard MIPS code\n@@ -379,6 +384,9 @@ struct mips_elf_link_hash_entry\n      being called returns a floating point value.  */\n   asection *call_fp_stub;\n \n+  /* If non-zero, location in .MIPS.xhash to write real final dynindx.  */\n+  bfd_vma mipsxhash_loc;\n+\n   /* The highest GGA_* value that satisfies all references to this symbol.  */\n   unsigned int global_got_area : 2;\n \n@@ -1335,6 +1343,7 @@ mips_elf_link_hash_newfunc (struct bfd_hash_entry *entry,\n       ret->fn_stub = NULL;\n       ret->call_stub = NULL;\n       ret->call_fp_stub = NULL;\n+      ret->mipsxhash_loc = 0;\n       ret->global_got_area = GGA_NONE;\n       ret->got_only_for_calls = TRUE;\n       ret->readonly_reloc = FALSE;\n@@ -3907,6 +3916,18 @@ mips_elf_sort_hash_table (bfd *abfd, struct bfd_link_info *info)\n      at the head of the table; see `_bfd_elf_link_renumber_dynsyms'.  */\n   hsd.max_local_dynindx = count_section_dynsyms (abfd, info) + 1;\n   hsd.max_non_got_dynindx = htab->root.local_dynsymcount + 1;\n+  hsd.output_bfd = abfd;\n+  if (htab->root.dynobj != NULL\n+      && htab->root.dynamic_sections_created\n+      && info->emit_gnu_hash)\n+    {\n+      asection *s = bfd_get_linker_section (htab->root.dynobj, \".MIPS.xhash\");\n+      BFD_ASSERT (s != NULL);\n+      hsd.mipsxhash = s->contents;\n+      BFD_ASSERT (hsd.mipsxhash != NULL);\n+    }\n+  else\n+    hsd.mipsxhash = NULL;\n   mips_elf_link_hash_traverse (htab, mips_elf_sort_hash_table_f, &hsd);\n \n   /* There should have been enough room in the symbol table to\n@@ -3958,6 +3979,12 @@ mips_elf_sort_hash_table_f (struct mips_elf_link_hash_entry *h, void *data)\n       break;\n     }\n \n+  /* Populate the .MIPS.xhash translation table entry with\n+     the symbol dynindx.  */\n+  if (h->mipsxhash_loc != 0 && hsd->mipsxhash != NULL)\n+    bfd_put_32 (hsd->output_bfd, h->root.dynindx,\n+\t\thsd->mipsxhash + h->mipsxhash_loc);\n+\n   return TRUE;\n }\n \n@@ -7475,6 +7502,9 @@ _bfd_mips_elf_section_from_shdr (bfd *abfd,\n \t  && ! CONST_STRNEQ (name, \".MIPS.post_rel\"))\n \treturn FALSE;\n       break;\n+    case SHT_MIPS_XHASH:\n+      if (strcmp (name, \".MIPS.xhash\") != 0)\n+\treturn FALSE;\n     default:\n       break;\n     }\n@@ -7708,6 +7738,12 @@ _bfd_mips_elf_fake_sections (bfd *abfd, Elf_Internal_Shdr *hdr, asection *sec)\n       hdr->sh_flags |= SHF_ALLOC;\n       hdr->sh_entsize = 8;\n     }\n+  else if (strcmp (name, \".MIPS.xhash\") == 0)\n+    {\n+      hdr->sh_type = SHT_MIPS_XHASH;\n+      hdr->sh_flags |= SHF_ALLOC;\n+      hdr->sh_entsize = get_elf_backend_data(abfd)->s->arch_size == 64 ? 0 : 4;\n+    }\n \n   /* The generic elf_fake_sections will set up REL_HDR using the default\n    kind of relocations.  We used to set up a second header for the\n@@ -7994,6 +8030,11 @@ _bfd_mips_elf_create_dynamic_sections (bfd *abfd, struct bfd_link_info *info)\n \treturn FALSE;\n     }\n \n+  /* Create .MIPS.xhash section.  */\n+  if (info->emit_gnu_hash)\n+    s = bfd_make_section_anyway_with_flags (abfd, \".MIPS.xhash\",\n+\t\t\t\t\t    flags | SEC_READONLY);\n+\n   /* On IRIX5, we adjust add some additional symbols and change the\n      alignments of several sections.  There is no ABI documentation\n      indicating that this is necessary on IRIX6, nor any evidence that\n@@ -10176,6 +10217,10 @@ _bfd_mips_elf_size_dynamic_sections (bfd *output_bfd,\n \t  if (! MIPS_ELF_ADD_DYNAMIC_ENTRY (info, DT_MIPS_GOTSYM, 0))\n \t    return FALSE;\n \n+\t  if (info->emit_gnu_hash\n+\t      && ! MIPS_ELF_ADD_DYNAMIC_ENTRY (info, DT_MIPS_XHASH, 0))\n+\t    return FALSE;\n+\n \t  if (IRIX_COMPAT (dynobj) == ict_irix5\n \t      && ! MIPS_ELF_ADD_DYNAMIC_ENTRY (info, DT_MIPS_HIPAGENO, 0))\n \t    return FALSE;\n@@ -11953,6 +11998,12 @@ _bfd_mips_elf_finish_dynamic_sections (bfd *output_bfd,\n \t\tswap_out_p = FALSE;\n \t      break;\n \n+\t    case DT_MIPS_XHASH:\n+\t      name = \".MIPS.xhash\";\n+\t      s = bfd_get_linker_section (dynobj, name);\n+\t      dyn.d_un.d_ptr = s->output_section->vma + s->output_offset;\n+\t      break;\n+\n \t    default:\n \t      swap_out_p = FALSE;\n \t      if (htab->is_vxworks\n@@ -12440,6 +12491,10 @@ _bfd_mips_final_write_processing (bfd *abfd)\n \t  (*hdrpp)->sh_link = elf_section_data (sec)->this_idx;\n \t  break;\n \n+\tcase SHT_MIPS_XHASH:\n+\t  sec = bfd_get_section_by_name (abfd, \".dynsym\");\n+\t  if (sec != NULL)\n+\t    (*hdrpp)->sh_link = elf_section_data (sec)->this_idx;\n \t}\n     }\n }\n@@ -15943,6 +15998,8 @@ _bfd_mips_elf_get_target_dtag (bfd_vma dtag)\n       return \"DT_MIPS_PLTGOT\";\n     case DT_MIPS_RWPLT:\n       return \"DT_MIPS_RWPLT\";\n+    case DT_MIPS_XHASH:\n+      return \"DT_MIPS_XHASH\";\n     }\n }\n \n@@ -16276,6 +16333,7 @@ const struct bfd_elf_special_section _bfd_mips_elf_special_sections[] =\n   { STRING_COMMA_LEN (\".sbss\"),\t -2, SHT_NOBITS,     SHF_ALLOC + SHF_WRITE + SHF_MIPS_GPREL },\n   { STRING_COMMA_LEN (\".sdata\"), -2, SHT_PROGBITS,   SHF_ALLOC + SHF_WRITE + SHF_MIPS_GPREL },\n   { STRING_COMMA_LEN (\".ucode\"),  0, SHT_MIPS_UCODE, 0 },\n+  { STRING_COMMA_LEN (\".MIPS.xhash\"),  0, SHT_MIPS_XHASH,   SHF_ALLOC },\n   { NULL,\t\t      0,  0, 0,\t\t     0 }\n };\n \n@@ -16590,6 +16648,7 @@ enum\n   MIPS_LIBC_ABI_UNIQUE,\n   MIPS_LIBC_ABI_MIPS_O32_FP64,\n   MIPS_LIBC_ABI_ABSOLUTE,\n+  MIPS_LIBC_ABI_XHASH,\n   MIPS_LIBC_ABI_MAX\n };\n \n@@ -16617,6 +16676,11 @@ _bfd_mips_post_process_headers (bfd *abfd, struct bfd_link_info *link_info)\n   if (htab != NULL && htab->use_absolute_zero && htab->gnu_target)\n     i_ehdrp->e_ident[EI_ABIVERSION] = MIPS_LIBC_ABI_ABSOLUTE;\n \n+  /* Mark that we need support for .MIPS.xhash in the dynamic linker,\n+     if it is the only hash section that will be created.  */\n+  if (link_info && link_info->emit_gnu_hash && !link_info->emit_hash)\n+    i_ehdrp->e_ident[EI_ABIVERSION] = MIPS_LIBC_ABI_XHASH;\n+\n   _bfd_elf_post_process_headers (abfd, link_info);\n }\n \n@@ -16635,3 +16699,17 @@ _bfd_mips_elf_cant_unwind_opcode\n {\n   return COMPACT_EH_CANT_UNWIND_OPCODE;\n }\n+\n+/* Record a position XLAT_LOC in the xlat translation table, associated with\n+   the hash entry H.  The entry in the translation table will later be\n+   populated with the real symbol dynindx.  */\n+\n+void\n+_bfd_mips_elf_record_xhash_symbol (struct elf_link_hash_entry *h,\n+\t\t\t\t   bfd_vma xlat_loc)\n+{\n+  struct mips_elf_link_hash_entry *hmips;\n+\n+  hmips = (struct mips_elf_link_hash_entry *) h;\n+  hmips->mipsxhash_loc = xlat_loc;\n+}"
+    },
+    {
+      "sha": "8e796a99d9d485781a13e1218463c01062af4047",
+      "filename": "bfd/elfxx-mips.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/bfd/elfxx-mips.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/bfd/elfxx-mips.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfxx-mips.h?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -173,6 +173,9 @@ extern bfd_boolean _bfd_mips_elf_common_definition (Elf_Internal_Sym *);\n extern int _bfd_mips_elf_compact_eh_encoding (struct bfd_link_info *);\n extern int _bfd_mips_elf_cant_unwind_opcode (struct bfd_link_info *);\n \n+extern void _bfd_mips_elf_record_xhash_symbol\n+  (struct elf_link_hash_entry *h, bfd_vma xlat_loc);\n+\n static inline bfd_boolean\n gprel16_reloc_p (unsigned int r_type)\n {\n@@ -198,4 +201,5 @@ literal_reloc_p (int r_type)\n #define elf_backend_post_process_headers _bfd_mips_post_process_headers\n #define elf_backend_compact_eh_encoding _bfd_mips_elf_compact_eh_encoding\n #define elf_backend_cant_unwind_opcode _bfd_mips_elf_cant_unwind_opcode\n+#define elf_backend_record_xhash_symbol _bfd_mips_elf_record_xhash_symbol\n #define elf_backend_always_renumber_dynsyms TRUE"
+    },
+    {
+      "sha": "0b737a4ffa9061e1f58e2e96239cf9901c9fbf2b",
+      "filename": "bfd/elfxx-target.h",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/bfd/elfxx-target.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/bfd/elfxx-target.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfxx-target.h?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -734,6 +734,10 @@\n #define elf_backend_hash_symbol _bfd_elf_hash_symbol\n #endif\n \n+#ifndef elf_backend_record_xhash_symbol\n+#define elf_backend_record_xhash_symbol NULL\n+#endif\n+\n #ifndef elf_backend_is_function_type\n #define elf_backend_is_function_type _bfd_elf_is_function_type\n #endif\n@@ -858,6 +862,7 @@ static struct elf_backend_data elfNN_bed =\n   elf_backend_common_section,\n   elf_backend_merge_symbol,\n   elf_backend_hash_symbol,\n+  elf_backend_record_xhash_symbol,\n   elf_backend_is_function_type,\n   elf_backend_maybe_function_sym,\n   elf_backend_get_reloc_section,"
+    },
+    {
+      "sha": "54dbf9a81dc9eaf7622a10c433a5ff57684f9544",
+      "filename": "binutils/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/binutils/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/binutils/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/ChangeLog?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -1,3 +1,13 @@\n+2019-08-09  Mihailo Stojanovic  <mihailo.stojanovic@rt-rk.com>\n+\n+\t* readelf.c (get_mips_dynamic_type): Return MIPS_XHASH dynamic type.\n+\t(get_mips_section_type_name): Return MI{S_XHASH name string.\n+\t(dynamic_section_mips_val): Initialize the .MIPS.xhash dynamic\n+\tinfo.\n+\t(process_symbol_table): Initialize the .MIPS.xhash section\n+\tpointer. Adjust the readelf output to support the new section.\n+\t(process_object): Set the .MIPS.xhash dynamic info to zero.\n+\n 2019-08-09  Tamar Christina  <tamar.christina@arm.com>\n \n \t* testsuite/binutils-all/arm/in-order-all.d: Skip on pe, wince, coff."
+    },
+    {
+      "sha": "b90d3bc885cec18ba2fa6effde4df278d1f0ecf1",
+      "filename": "binutils/readelf.c",
+      "status": "modified",
+      "additions": 48,
+      "deletions": 4,
+      "changes": 52,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/binutils/readelf.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/binutils/readelf.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/readelf.c?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -232,6 +232,7 @@ static unsigned int dynamic_syminfo_nent;\n static char program_interpreter[PATH_MAX];\n static bfd_vma dynamic_info[DT_ENCODING];\n static bfd_vma dynamic_info_DT_GNU_HASH;\n+static bfd_vma dynamic_info_DT_MIPS_XHASH;\n static bfd_vma version_info[16];\n static Elf_Internal_Dyn *  dynamic_section;\n static elf_section_list * symtab_shndx_list;\n@@ -335,6 +336,10 @@ static const char * get_symbol_version_string\n \t(ADDR) &= ~1;\t\t\t\t\\\n     }\t\t\t\t\t\t\\\n   while (0)\n+\n+/* Get the correct GNU hash section name.  */\n+#define GNU_HASH_SECTION_NAME\t\t\t\\\n+  dynamic_info_DT_MIPS_XHASH ? \".MIPS.xhash\" : \".gnu.hash\"\n \f\n /* Print a BFD_VMA to an internal buffer, for use in error messages.\n    BFD_FMA_FMT can't be used in translated strings.  */\n@@ -1872,6 +1877,7 @@ get_mips_dynamic_type (unsigned long type)\n     case DT_MIPS_AUX_DYNAMIC: return \"MIPS_AUX_DYNAMIC\";\n     case DT_MIPS_PLTGOT: return \"MIPS_PLTGOT\";\n     case DT_MIPS_RWPLT: return \"MIPS_RWPLT\";\n+    case DT_MIPS_XHASH: return \"MIPS_XHASH\";\n     default:\n       return NULL;\n     }\n@@ -4113,6 +4119,7 @@ get_mips_section_type_name (unsigned int sh_type)\n     case SHT_MIPS_XLATE_OLD:\t return \"MIPS_XLATE_OLD\";\n     case SHT_MIPS_PDR_EXCEPTION: return \"MIPS_PDR_EXCEPTION\";\n     case SHT_MIPS_ABIFLAGS:\t return \"MIPS_ABIFLAGS\";\n+    case SHT_MIPS_XHASH:\t return \"MIPS_XHASH\";\n     default:\n       break;\n     }\n@@ -9525,6 +9532,11 @@ dynamic_section_mips_val (Elf_Internal_Dyn * entry)\n       print_vma (entry->d_un.d_val, DEC);\n       break;\n \n+    case DT_MIPS_XHASH:\n+      dynamic_info_DT_MIPS_XHASH = entry->d_un.d_val;\n+      dynamic_info_DT_GNU_HASH = entry->d_un.d_val;\n+      /* Falls through.  */\n+\n     default:\n       print_vma (entry->d_un.d_ptr, PREFIX_HEX);\n     }\n@@ -11673,6 +11685,7 @@ process_symbol_table (Filedata * filedata)\n   bfd_vma ngnubuckets = 0;\n   bfd_vma * gnubuckets = NULL;\n   bfd_vma * gnuchains = NULL;\n+  bfd_vma * mipsxlat = NULL;\n   bfd_vma gnusymidx = 0;\n   bfd_size_type ngnuchains = 0;\n \n@@ -11838,7 +11851,31 @@ process_symbol_table (Filedata * filedata)\n       gnuchains = get_dynamic_data (filedata, maxchain, 4);\n       ngnuchains = maxchain;\n \n+      if (gnuchains == NULL)\n+\tgoto no_gnu_hash;\n+\n+      if (dynamic_info_DT_MIPS_XHASH)\n+\t{\n+\t  if (fseek (filedata->handle,\n+\t\t     (archive_file_offset\n+\t\t      + offset_from_vma (filedata, (buckets_vma\n+\t\t\t\t\t\t    + 4 * (ngnubuckets\n+\t\t\t\t\t\t\t   + maxchain)), 4)),\n+\t\t     SEEK_SET))\n+\t    {\n+\t      error (_(\"Unable to seek to start of dynamic information\\n\"));\n+\t      goto no_gnu_hash;\n+\t    }\n+\n+\t  mipsxlat = get_dynamic_data (filedata, maxchain, 4);\n+\t}\n+\n     no_gnu_hash:\n+      if (dynamic_info_DT_MIPS_XHASH && mipsxlat == NULL)\n+\t{\n+\t  free (gnuchains);\n+\t  gnuchains = NULL;\n+\t}\n       if (gnuchains == NULL)\n \t{\n \t  free (gnubuckets);\n@@ -11888,7 +11925,8 @@ process_symbol_table (Filedata * filedata)\n \n       if (dynamic_info_DT_GNU_HASH)\n \t{\n-\t  printf (_(\"\\nSymbol table of `.gnu.hash' for image:\\n\"));\n+\t  printf (_(\"\\nSymbol table of `%s' for image:\\n\"),\n+\t\t  GNU_HASH_SECTION_NAME);\n \t  if (is_32bit_elf)\n \t    printf (_(\"  Num Buc:    Value  Size   Type   Bind Vis      Ndx Name\\n\"));\n \t  else\n@@ -11902,7 +11940,10 @@ process_symbol_table (Filedata * filedata)\n \n \t\tdo\n \t\t  {\n-\t\t    print_dynamic_symbol (filedata, si, hn);\n+\t\t    if (dynamic_info_DT_MIPS_XHASH)\n+\t\t      print_dynamic_symbol (filedata, mipsxlat[off], hn);\n+\t\t    else\n+\t\t      print_dynamic_symbol (filedata, si, hn);\n \t\t    si++;\n \t\t  }\n \t\twhile (off < ngnuchains && (gnuchains[off++] & 1) == 0);\n@@ -12125,11 +12166,12 @@ process_symbol_table (Filedata * filedata)\n       unsigned long nzero_counts = 0;\n       unsigned long nsyms = 0;\n \n-      printf (ngettext (\"\\nHistogram for `.gnu.hash' bucket list length \"\n+      printf (ngettext (\"\\nHistogram for `%s' bucket list length \"\n \t\t\t\"(total of %lu bucket):\\n\",\n-\t\t\t\"\\nHistogram for `.gnu.hash' bucket list length \"\n+\t\t\t\"\\nHistogram for `%s' bucket list length \"\n \t\t\t\"(total of %lu buckets):\\n\",\n \t\t\t(unsigned long) ngnubuckets),\n+\t      GNU_HASH_SECTION_NAME,\n \t      (unsigned long) ngnubuckets);\n \n       lengths = (unsigned long *) calloc (ngnubuckets, sizeof (*lengths));\n@@ -12186,6 +12228,7 @@ process_symbol_table (Filedata * filedata)\n       free (lengths);\n       free (gnubuckets);\n       free (gnuchains);\n+      free (mipsxlat);\n     }\n \n   return TRUE;\n@@ -19744,6 +19787,7 @@ process_object (Filedata * filedata)\n   for (i = ARRAY_SIZE (dynamic_info); i--;)\n     dynamic_info[i] = 0;\n   dynamic_info_DT_GNU_HASH = 0;\n+  dynamic_info_DT_MIPS_XHASH = 0;\n \n   /* Process the file.  */\n   if (show_name)"
+    },
+    {
+      "sha": "1813cb38d8e290e74a9a1a3ac61491375da11cc2",
+      "filename": "include/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/include/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/include/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ChangeLog?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-08-09  Mihailo Stojanovic  <mihailo.stojanovic@rt-rk.com>\n+\n+\t* elf/mips.h (SHT_GNU_XHASH): New define.\n+\t(DT_GNU_XHASH): New define.\n+\n 2019-08-08  Yoshinori Sato  <ysato@users.sourceforge.jp>\n \n \t* opcode/h8300.h (EXPAND_UNOP_EXTENDED_B): Add MODEL."
+    },
+    {
+      "sha": "cd6779f22c991c77b5d5aa08931c7e9cb363abc0",
+      "filename": "include/elf/mips.h",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/include/elf/mips.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/include/elf/mips.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/elf/mips.h?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -452,6 +452,9 @@ END_RELOC_NUMBERS (R_MIPS_maxext)\n /* ABI related flags section.  */\n #define SHT_MIPS_ABIFLAGS\t0x7000002a\n \n+/* GNU style symbol hash table with xlat.  */\n+#define SHT_MIPS_XHASH\t\t0x7000002b\n+\n /* A section of type SHT_MIPS_LIBLIST contains an array of the\n    following structure.  The sh_link field is the section index of the\n    string table.  The sh_info field is the number of entries in the\n@@ -759,6 +762,9 @@ extern void bfd_mips_elf32_swap_reginfo_out\n \n /* Relative offset of run time loader map, used for debugging.  */\n #define DT_MIPS_RLD_MAP_REL    0x70000035\n+\n+/* Address of .MIPS.xhash section.  */\n+#define DT_MIPS_XHASH\t       0x70000036\n \f\n /* Flags which may appear in a DT_MIPS_FLAGS entry.  */\n "
+    },
+    {
+      "sha": "6ff1a4727a41727ceb9877f4d81434144f48161f",
+      "filename": "ld/ChangeLog",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 0,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/ld/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/ld/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/ChangeLog?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -1,3 +1,19 @@\n+2019-08-09  Mihailo Stojanovic  <mihailo.stojanovic@rt-rk.com>\n+\n+\t* emulparams/elf32bmip.sh: Add .MIPS.xhash section.\n+\t* emulparams/elf32bmipn32-defs.sh: Add .MIPS.xhash section.\n+\t* emulparams/elf64bmip-defs.sh: Add .MIPS.xhash section.\n+\t* emultempl/mipself.em: Remove mips_after_parse function.\n+\t* testsuite/ld-elf/hash.d: Update comment.\n+\t* testsuite/ld-mips-elf/hash1.d: New test.\n+\t* testsuite/ld-mips-elf/hash1.s: Ditto.\n+\t* testsuite/ld-mips-elf/hash1a.d: Remove.\n+\t* testsuite/ld-mips-elf/hash1b.d: Ditto.\n+\t* testsuite/ld-mips-elf/hash1c.d: Ditto\n+\t* testsuite/ld-mips-elf/hash2.d: New test.\n+\t* testsuite/ld-mips-elf/mips-elf.exp: New tests.\n+\t* testsuite/ld-mips-elf/start.s: New test.\n+\n 2019-08-08  Nick Clifton  <nickc@redhat.com>\n \n \tPR 24887"
+    },
+    {
+      "sha": "1e0200a73b6ff062b2412d713c254800e1d24b4d",
+      "filename": "ld/emulparams/elf32bmip.sh",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/ld/emulparams/elf32bmip.sh",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/ld/emulparams/elf32bmip.sh",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/emulparams/elf32bmip.sh?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -19,6 +19,7 @@ fi\n INITIAL_READONLY_SECTIONS=\"${INITIAL_READONLY_SECTIONS}\n   .MIPS.abiflags ${RELOCATING-0} : { *(.MIPS.abiflags) }\n   .reginfo       ${RELOCATING-0} : { *(.reginfo) }\n+  .MIPS.xhash    ${RELOCATING-0} : { *(.MIPS.xhash) }\n \"\n OTHER_TEXT_SECTIONS='*(.mips16.fn.*) *(.mips16.call.*)'\n # Unlike most targets, the MIPS backend puts all dynamic relocations"
+    },
+    {
+      "sha": "80dce8fbeae9b2ae12217424a6843c26f846cfac",
+      "filename": "ld/emulparams/elf32bmipn32-defs.sh",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/ld/emulparams/elf32bmipn32-defs.sh",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/ld/emulparams/elf32bmipn32-defs.sh",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/emulparams/elf32bmipn32-defs.sh?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -87,6 +87,7 @@ if test -z \"${CREATE_SHLIB}\"; then\n fi\n INITIAL_READONLY_SECTIONS=\"${INITIAL_READONLY_SECTIONS}\n   .MIPS.abiflags      ${RELOCATING-0} : { *(.MIPS.abiflags) }\n+  .MIPS.xhash      ${RELOCATING-0} : { *(.MIPS.xhash) }\n   .reginfo      ${RELOCATING-0} : { *(.reginfo) }\"\n # Discard any .MIPS.content* or .MIPS.events* sections.  The linker\n # doesn't know how to adjust them."
+    },
+    {
+      "sha": "4165f51e9e5db40af8e9342ebe82df2bdefc985d",
+      "filename": "ld/emulparams/elf64bmip-defs.sh",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/ld/emulparams/elf64bmip-defs.sh",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/ld/emulparams/elf64bmip-defs.sh",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/emulparams/elf64bmip-defs.sh?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -2,5 +2,6 @@ source_sh ${srcdir}/emulparams/elf32bmipn32-defs.sh\n COMMONPAGESIZE=\"CONSTANT (COMMONPAGESIZE)\"\n INITIAL_READONLY_SECTIONS=\"\n   .MIPS.abiflags      ${RELOCATING-0} : { *(.MIPS.abiflags) }\n+  .MIPS.xhash      ${RELOCATING-0} : { *(.MIPS.xhash) }\n   .MIPS.options : { *(.MIPS.options) }\n \""
+    },
+    {
+      "sha": "fe46e0d8a898fb1bc7c9fb8b07e90ebcd4f8697f",
+      "filename": "ld/emultempl/mipself.em",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 16,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/ld/emultempl/mipself.em",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/ld/emultempl/mipself.em",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/emultempl/mipself.em?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -46,21 +46,6 @@ static bfd_boolean insn32;\n static bfd_boolean ignore_branch_isa;\n static bfd_boolean compact_branches;\n \n-static void\n-mips_after_parse (void)\n-{\n-  /* .gnu.hash and the MIPS ABI require .dynsym to be sorted in different\n-     ways.  .gnu.hash needs symbols to be grouped by hash code whereas the\n-     MIPS ABI requires a mapping between the GOT and the symbol table.  */\n-  if (link_info.emit_gnu_hash)\n-    {\n-      einfo (_(\"%X%P: .gnu.hash is incompatible with the MIPS ABI\\n\"));\n-      link_info.emit_hash = TRUE;\n-      link_info.emit_gnu_hash = FALSE;\n-    }\n-  gld${EMULATION_NAME}_after_parse ();\n-}\n-\n struct hook_stub_info\n {\n   lang_statement_list_type add;\n@@ -337,6 +322,5 @@ PARSE_AND_LIST_ARGS_CASES='\n       break;\n '\n \n-LDEMUL_AFTER_PARSE=mips_after_parse\n LDEMUL_BEFORE_ALLOCATION=mips_before_allocation\n LDEMUL_CREATE_OUTPUT_SECTION_STATEMENTS=mips_create_output_section_statements"
+    },
+    {
+      "sha": "efe675e0c7fffef8076077290b7a2750904e22e6",
+      "filename": "ld/testsuite/ld-elf/hash.d",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/ld/testsuite/ld-elf/hash.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/ld/testsuite/ld-elf/hash.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-elf/hash.d?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -3,7 +3,7 @@\n #ld: -shared --hash-style=gnu\n #target: *-*-linux* *-*-gnu* arm*-*-uclinuxfdpiceabi\n #xfail: mips*-*-*\n-# GNU hash is not supported for MIPS targets due to psABI restrictions\n+# MIPS uses a different style of GNU hash due to psABI restrictions\n # on dynsym table ordering.\n \n #..."
+    },
+    {
+      "sha": "3b9725dbe5890f2ce394eb6659a7369f9235660c",
+      "filename": "ld/testsuite/ld-mips-elf/hash1.d",
+      "status": "added",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/ld/testsuite/ld-mips-elf/hash1.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/ld/testsuite/ld-mips-elf/hash1.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-mips-elf/hash1.d?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -0,0 +1,11 @@\n+#source: hash1.s\n+#readelf: -d -I\n+#ld: -nostdlib -shared --hash-style=gnu\n+#target: [check_shared_lib_support]\n+#xfail: mips*-*-irix*\n+\n+#...\n+ +0x[0-9a-z]+ +\\(MIPS_XHASH\\) +0x[0-9a-z]+\n+#...\n+ +1 +1 +\\( 50.0%\\) +100.0%\n+#..."
+    },
+    {
+      "sha": "587cef1d761a49599be2195986ab24e4920660a9",
+      "filename": "ld/testsuite/ld-mips-elf/hash1.s",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 1,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/ld/testsuite/ld-mips-elf/hash1.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/ld/testsuite/ld-mips-elf/hash1.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-mips-elf/hash1.s?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -1 +1,7 @@\n-\tnop\n+.globl foo\n+\n+.text\n+\n+foo:\n+    jr $ra\n+    nop"
+    },
+    {
+      "sha": "c189c93acd0660eca8a0142e2d23511477eadb49",
+      "filename": "ld/testsuite/ld-mips-elf/hash1a.d",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 5,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1ba7cdcd931ddf672e4a8a6483593f9b94e55965/ld/testsuite/ld-mips-elf/hash1a.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1ba7cdcd931ddf672e4a8a6483593f9b94e55965/ld/testsuite/ld-mips-elf/hash1a.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-mips-elf/hash1a.d?ref=1ba7cdcd931ddf672e4a8a6483593f9b94e55965",
+      "patch": "@@ -1,5 +0,0 @@\n-#source: hash1.s\n-#ld: -shared --hash-style=sysv\n-#objdump: -dr\n-#target: [check_shared_lib_support]\n-#pass"
+    },
+    {
+      "sha": "5cafede5ebd2e6cf3b43a9a1d49e0a50c015f7bf",
+      "filename": "ld/testsuite/ld-mips-elf/hash1b.d",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 4,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1ba7cdcd931ddf672e4a8a6483593f9b94e55965/ld/testsuite/ld-mips-elf/hash1b.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1ba7cdcd931ddf672e4a8a6483593f9b94e55965/ld/testsuite/ld-mips-elf/hash1b.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-mips-elf/hash1b.d?ref=1ba7cdcd931ddf672e4a8a6483593f9b94e55965",
+      "patch": "@@ -1,4 +0,0 @@\n-#source: hash1.s\n-#ld: -shared --hash-style=both\n-#target: [check_shared_lib_support]\n-#error: .gnu.hash is incompatible with the MIPS ABI"
+    },
+    {
+      "sha": "379620af20b13f134fae4b2ef98cfe5b2a2c3999",
+      "filename": "ld/testsuite/ld-mips-elf/hash1c.d",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 4,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1ba7cdcd931ddf672e4a8a6483593f9b94e55965/ld/testsuite/ld-mips-elf/hash1c.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1ba7cdcd931ddf672e4a8a6483593f9b94e55965/ld/testsuite/ld-mips-elf/hash1c.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-mips-elf/hash1c.d?ref=1ba7cdcd931ddf672e4a8a6483593f9b94e55965",
+      "patch": "@@ -1,4 +0,0 @@\n-#source: hash1.s\n-#ld: -shared --hash-style=gnu\n-#target: [check_shared_lib_support]\n-#error: .gnu.hash is incompatible with the MIPS ABI"
+    },
+    {
+      "sha": "79fda3c621c01ccd98bb562443ac9c195ca0471f",
+      "filename": "ld/testsuite/ld-mips-elf/hash2.d",
+      "status": "added",
+      "additions": 17,
+      "deletions": 0,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/ld/testsuite/ld-mips-elf/hash2.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/ld/testsuite/ld-mips-elf/hash2.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-mips-elf/hash2.d?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -0,0 +1,17 @@\n+#source: start.s\n+#readelf: -d -s -D\n+#ld: -shared --hash-style=gnu\n+#target: [check_shared_lib_support] \n+#xfail: mips*-*-irix*\n+\n+#...\n+ +0x[0-9a-z]+ +\\(MIPS_XHASH\\) +0x[0-9a-z]+\n+#...\n+ +[0-9]+ +[0-9]+: +[0-9a-f]+ +[0-9]+ +NOTYPE +GLOBAL +DEFAULT +[1-9] _start\n+#...\n+ +[0-9]+ +[0-9]+: +[0-9a-f]+ +[0-9]+ +NOTYPE +GLOBAL +DEFAULT +[1-9] main\n+#...\n+ +[0-9]+ +[0-9]+: +[0-9a-f]+ +[0-9]+ +NOTYPE +GLOBAL +DEFAULT +[1-9] start\n+#...\n+ +[0-9]+ +[0-9]+: +[0-9a-f]+ +[0-9]+ +NOTYPE +GLOBAL +DEFAULT +[1-9] __start\n+#..."
+    },
+    {
+      "sha": "3c7ce6af14bcd8c4e2ed9c7aa4549308a0a20dc7",
+      "filename": "ld/testsuite/ld-mips-elf/mips-elf.exp",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 3,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/ld/testsuite/ld-mips-elf/mips-elf.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/ld/testsuite/ld-mips-elf/mips-elf.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-mips-elf/mips-elf.exp?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -854,9 +854,8 @@ if { $linux_gnu } {\n \n run_dump_test_n32 \"emit-relocs-1\" {{as -EB} {ld -EB}}\n \n-run_dump_test \"hash1a\"\n-run_dump_test \"hash1b\"\n-run_dump_test \"hash1c\"\n+run_dump_test \"hash1\"\n+run_dump_test \"hash2\"\n \n if { $linux_gnu && $has_abi(o32) } {\n     # The number of symbols that are always included in the symbol table"
+    },
+    {
+      "sha": "ee26ab30ac673d80a26e361dd14cd1e34cbf759b",
+      "filename": "ld/testsuite/ld-mips-elf/start.s",
+      "status": "added",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/f16a9783c5f085443d806646074e9c06fdee9a88/ld/testsuite/ld-mips-elf/start.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/f16a9783c5f085443d806646074e9c06fdee9a88/ld/testsuite/ld-mips-elf/start.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/ld/testsuite/ld-mips-elf/start.s?ref=f16a9783c5f085443d806646074e9c06fdee9a88",
+      "patch": "@@ -0,0 +1,12 @@\n+\t.text\n+\t.globl start\n+start:\n+\t.globl _start\n+_start:\n+\t.globl __start\n+__start:\n+\t.globl main\n+main:\n+\t.globl\t_main\n+_main:\n+\t.dc.a 0"
+    }
+  ]
+}

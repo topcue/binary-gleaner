@@ -1,0 +1,206 @@
+{
+  "sha": "8c803a2dd7d3d742a3d0071914f557ef465afe71",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OGM4MDNhMmRkN2QzZDc0MmEzZDAwNzE5MTRmNTU3ZWY0NjVhZmU3MQ==",
+  "commit": {
+    "author": {
+      "name": "Alan Modra",
+      "email": "amodra@gmail.com",
+      "date": "2020-03-01T23:46:02Z"
+    },
+    "committer": {
+      "name": "Alan Modra",
+      "email": "amodra@gmail.com",
+      "date": "2020-03-02T01:06:19Z"
+    },
+    "message": "elf_backend_section_flags and _bfd_elf_init_private_section_data\n\nI was looking at elf_backend_section_flags as a means of setting\nSEC_SMALL_DATA for .sdata, .sbss and the like, and condidered adding\nan asection* parameter to access the section name easily before\nrealising that hdr->bfd_section of course makes the section\navailable.  So no new parameter needed.  In fact the flagword*\nparameter isn't needed either, so out it goes.\n\nThe patch also tidies some horrible code in _bfd_elf_new_section_hook\nthat can change whether known ABI sections have sh_type and sh_flags\nset up depending on which of the bfd_make_section functions is used.\n(Some of those set section flags before _bfd_elf_new_section_hook is\ncalled, others leave the flags zero.)  The function also had some\nhacks for .init_array and .fini_array to affect how\n_bfd_elf_init_private_section_data behaved for those sections.  It's\ncleaner to do that in _bfd_elf_init_private_section_data.  So that all\ngoes and we now init sh_type and sh_flags for all known ABI sections\nin _bfd_elf_new_section_hook.  _bfd_elf_init_private_section_data is\nchanged to suit, and now doesn't just single out SHT_INIT_ARRAY and\nSHT_FINI_ARRAY but rather any of the special section types.\n\nThe _bfd_elf_new_section_hook change resulting in\n+FAIL: ld-aarch64/erratum835769-843419\nexposing some errors in the aarch64 backend.  elfNN_aarch64_size_stubs\nshould not be looking at linker created sections in the stub bfd.  Nor\nshould code like \"symtab_hdr = &elf_tdata (input_bfd)->symtab_hdr\" be\nrun without first checking that input_bfd is ELF.\n\n\t* elf-bfd.h (elf_backend_section_flags): Remove flagword* param.\n\t* elf.c (_bfd_elf_make_section_from_shdr): Set section flags before\n\tcalling elf_backend_section_flags with adjusted params.  Use\n\tnewsect->flags past that point.\n\t(_bfd_elf_new_section_hook): Always set sh_type and sh_flags for\n\tspecial sections.\n\t(_bfd_elf_init_private_section_data): Allow normal sh_type sections\n\tto have their type overridden, and all sh_flags but processor and\n\tos specific.\n\t* elf32-arm.c (elf32_arm_section_flags): Adjust for changed params.\n\t* elf32-mep.c (mep_elf_section_flags): Likewise.\n\t* elf32-nios2.c (nios2_elf32_section_flags): Likewise.\n\t* elf64-alpha.c (elf64_alpha_section_flags): Likewise.\n\t* elf64-ia64-vms.c (elf64_ia64_section_flags): Likewise.\n\t* elfnn-ia64.c (elfNN_ia64_section_flags): Likewise.\n\t* elfnn-aarch64.c (elfNN_aarch64_size_stubs): Exclude the linker\n\tstub BFD and non-aarch64 input files when scanning for stubs.",
+    "tree": {
+      "sha": "36ded7fa02019a59d7edab5009212ad354d61959",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/36ded7fa02019a59d7edab5009212ad354d61959"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/8c803a2dd7d3d742a3d0071914f557ef465afe71",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8c803a2dd7d3d742a3d0071914f557ef465afe71",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/8c803a2dd7d3d742a3d0071914f557ef465afe71",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8c803a2dd7d3d742a3d0071914f557ef465afe71/comments",
+  "author": {
+    "login": "amodra",
+    "id": 6006325,
+    "node_id": "MDQ6VXNlcjYwMDYzMjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6006325?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/amodra",
+    "html_url": "https://github.com/amodra",
+    "followers_url": "https://api.github.com/users/amodra/followers",
+    "following_url": "https://api.github.com/users/amodra/following{/other_user}",
+    "gists_url": "https://api.github.com/users/amodra/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/amodra/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/amodra/subscriptions",
+    "organizations_url": "https://api.github.com/users/amodra/orgs",
+    "repos_url": "https://api.github.com/users/amodra/repos",
+    "events_url": "https://api.github.com/users/amodra/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/amodra/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "amodra",
+    "id": 6006325,
+    "node_id": "MDQ6VXNlcjYwMDYzMjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6006325?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/amodra",
+    "html_url": "https://github.com/amodra",
+    "followers_url": "https://api.github.com/users/amodra/followers",
+    "following_url": "https://api.github.com/users/amodra/following{/other_user}",
+    "gists_url": "https://api.github.com/users/amodra/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/amodra/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/amodra/subscriptions",
+    "organizations_url": "https://api.github.com/users/amodra/orgs",
+    "repos_url": "https://api.github.com/users/amodra/repos",
+    "events_url": "https://api.github.com/users/amodra/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/amodra/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "7d4b2d2d29e2fc3af14d14412845615cc994cf91",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7d4b2d2d29e2fc3af14d14412845615cc994cf91",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/7d4b2d2d29e2fc3af14d14412845615cc994cf91"
+    }
+  ],
+  "stats": {
+    "total": 130,
+    "additions": 78,
+    "deletions": 52
+  },
+  "files": [
+    {
+      "sha": "4bbd048c91456ed496e410951d45b9d507ac5bb8",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 0,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=8c803a2dd7d3d742a3d0071914f557ef465afe71",
+      "patch": "@@ -1,3 +1,23 @@\n+2020-03-02  Alan Modra  <amodra@gmail.com>\n+\n+\t* elf-bfd.h (elf_backend_section_flags): Remove flagword* param.\n+\t* elf.c (_bfd_elf_make_section_from_shdr): Set section flags before\n+\tcalling elf_backend_section_flags with adjusted params.  Use\n+\tnewsect->flags past that point.\n+\t(_bfd_elf_new_section_hook): Always set sh_type and sh_flags for\n+\tspecial sections.\n+\t(_bfd_elf_init_private_section_data): Allow normal sh_type sections\n+\tto have their type overridden, and all sh_flags but processor and\n+\tos specific.\n+\t* elf32-arm.c (elf32_arm_section_flags): Adjust for changed params.\n+\t* elf32-mep.c (mep_elf_section_flags): Likewise.\n+\t* elf32-nios2.c (nios2_elf32_section_flags): Likewise.\n+\t* elf64-alpha.c (elf64_alpha_section_flags): Likewise.\n+\t* elf64-ia64-vms.c (elf64_ia64_section_flags): Likewise.\n+\t* elfnn-ia64.c (elfNN_ia64_section_flags): Likewise.\n+\t* elfnn-aarch64.c (elfNN_aarch64_size_stubs): Exclude the linker\n+\tstub BFD and non-aarch64 input files when scanning for stubs.\n+\n 2020-03-02  Alan Modra  <amodra@gmail.com>\n \n \t* coff-alpha.c (alpha_ecoff_get_elt_at_filepos): Provide an upper"
+    },
+    {
+      "sha": "61e733f068deecc046a4656c581dfd5dd6f5ad12",
+      "filename": "bfd/elf-bfd.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/elf-bfd.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/elf-bfd.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf-bfd.h?ref=8c803a2dd7d3d742a3d0071914f557ef465afe71",
+      "patch": "@@ -955,7 +955,7 @@ struct elf_backend_data\n   /* A function to convert machine dependent ELF section header flags to\n      BFD internal section header flags.  */\n   bfd_boolean (*elf_backend_section_flags)\n-    (flagword *, const Elf_Internal_Shdr *);\n+    (const Elf_Internal_Shdr *);\n \n   /* A function that returns a struct containing ELF section flags and\n      type for the given BFD section.   */"
+    },
+    {
+      "sha": "fcd84d2d17bce0d2abb2a48a12857c4a2a532fbb",
+      "filename": "bfd/elf.c",
+      "status": "modified",
+      "additions": 28,
+      "deletions": 34,
+      "changes": 62,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/elf.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/elf.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf.c?ref=8c803a2dd7d3d742a3d0071914f557ef465afe71",
+      "patch": "@@ -1114,14 +1114,14 @@ _bfd_elf_make_section_from_shdr (bfd *abfd,\n       && elf_next_in_group (newsect) == NULL)\n     flags |= SEC_LINK_ONCE | SEC_LINK_DUPLICATES_DISCARD;\n \n+  if (!bfd_set_section_flags (newsect, flags))\n+    return FALSE;\n+\n   bed = get_elf_backend_data (abfd);\n   if (bed->elf_backend_section_flags)\n-    if (! bed->elf_backend_section_flags (&flags, hdr))\n+    if (!bed->elf_backend_section_flags (hdr))\n       return FALSE;\n \n-  if (!bfd_set_section_flags (newsect, flags))\n-    return FALSE;\n-\n   /* We do not parse the PT_NOTE segments as we are interested even in the\n      separate debug info files which may have the segments offsets corrupted.\n      PT_NOTEs from the core files are currently not parsed using BFD.  */\n@@ -1137,7 +1137,7 @@ _bfd_elf_make_section_from_shdr (bfd *abfd,\n       free (contents);\n     }\n \n-  if ((flags & SEC_ALLOC) != 0)\n+  if ((newsect->flags & SEC_ALLOC) != 0)\n     {\n       Elf_Internal_Phdr *phdr;\n       unsigned int i, nload;\n@@ -1163,7 +1163,7 @@ _bfd_elf_make_section_from_shdr (bfd *abfd,\n \t       || phdr->p_type == PT_TLS)\n \t      && ELF_SECTION_IN_SEGMENT (hdr, phdr))\n \t    {\n-\t      if ((flags & SEC_LOAD) == 0)\n+\t      if ((newsect->flags & SEC_LOAD) == 0)\n \t\tnewsect->lma = (phdr->p_paddr\n \t\t\t\t+ hdr->sh_addr - phdr->p_vaddr);\n \t      else\n@@ -1191,7 +1191,7 @@ _bfd_elf_make_section_from_shdr (bfd *abfd,\n \n   /* Compress/decompress DWARF debug sections with names: .debug_* and\n      .zdebug_*, after the section flags is set.  */\n-  if ((flags & SEC_DEBUGGING)\n+  if ((newsect->flags & SEC_DEBUGGING)\n       && ((name[1] == 'd' && name[6] == '_')\n \t  || (name[1] == 'z' && name[7] == '_')))\n     {\n@@ -2900,28 +2900,13 @@ _bfd_elf_new_section_hook (bfd *abfd, asection *sec)\n   bed = get_elf_backend_data (abfd);\n   sec->use_rela_p = bed->default_use_rela_p;\n \n-  /* When we read a file, we don't need to set ELF section type and\n-     flags.  They will be overridden in _bfd_elf_make_section_from_shdr\n-     anyway.  We will set ELF section type and flags for all linker\n-     created sections.  If user specifies BFD section flags, we will\n-     set ELF section type and flags based on BFD section flags in\n-     elf_fake_sections.  Special handling for .init_array/.fini_array\n-     output sections since they may contain .ctors/.dtors input\n-     sections.  We don't want _bfd_elf_init_private_section_data to\n-     copy ELF section type from .ctors/.dtors input sections.  */\n-  if (abfd->direction != read_direction\n-      || (sec->flags & SEC_LINKER_CREATED) != 0)\n+  /* Set up ELF section type and flags for newly created sections, if\n+     there is an ABI mandated section.  */\n+  ssect = (*bed->get_sec_type_attr) (abfd, sec);\n+  if (ssect != NULL)\n     {\n-      ssect = (*bed->get_sec_type_attr) (abfd, sec);\n-      if (ssect != NULL\n-\t  && (!sec->flags\n-\t      || (sec->flags & SEC_LINKER_CREATED) != 0\n-\t      || ssect->type == SHT_INIT_ARRAY\n-\t      || ssect->type == SHT_FINI_ARRAY))\n-\t{\n-\t  elf_section_type (sec) = ssect->type;\n-\t  elf_section_flags (sec) = ssect->attr;\n-\t}\n+      elf_section_type (sec) = ssect->type;\n+      elf_section_flags (sec) = ssect->attr;\n     }\n \n   return _bfd_generic_new_section_hook (abfd, sec);\n@@ -7757,10 +7742,19 @@ _bfd_elf_init_private_section_data (bfd *ibfd,\n \n   BFD_ASSERT (elf_section_data (osec) != NULL);\n \n-  /* For objcopy and relocatable link, don't copy the output ELF\n-     section type from input if the output BFD section flags have been\n-     set to something different.  For a final link allow some flags\n-     that the linker clears to differ.  */\n+  /* If this is a known ABI section, ELF section type and flags may\n+     have been set up when OSEC was created.  For normal sections we\n+     allow the user to override the type and flags other than\n+     SHF_MASKOS and SHF_MASKPROC.  */\n+  if (elf_section_type (osec) == SHT_PROGBITS\n+      || elf_section_type (osec) == SHT_NOTE\n+      || elf_section_type (osec) == SHT_NOBITS)\n+    elf_section_type (osec) = SHT_NULL;\n+  /* For objcopy and relocatable link, copy the ELF section type from\n+     the input file if the BFD section flags are the same.  (If they\n+     are different the user may be doing something like\n+     \"objcopy --set-section-flags .text=alloc,data\".)  For a final\n+     link allow some flags that the linker clears to differ.  */\n   if (elf_section_type (osec) == SHT_NULL\n       && (osec->flags == isec->flags\n \t  || (final_link\n@@ -7769,8 +7763,8 @@ _bfd_elf_init_private_section_data (bfd *ibfd,\n     elf_section_type (osec) = elf_section_type (isec);\n \n   /* FIXME: Is this correct for all OS/PROC specific flags?  */\n-  elf_section_flags (osec) |= (elf_section_flags (isec)\n-\t\t\t       & (SHF_MASKOS | SHF_MASKPROC));\n+  elf_section_flags (osec) = (elf_section_flags (isec)\n+\t\t\t      & (SHF_MASKOS | SHF_MASKPROC));\n \n   /* Copy sh_info from input for mbind section.  */\n   if ((elf_tdata (ibfd)->has_gnu_osabi & elf_gnu_osabi_mbind) != 0"
+    },
+    {
+      "sha": "c899aeb8f6b3874eed404956ad882097bb16de01",
+      "filename": "bfd/elf32-arm.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/elf32-arm.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/elf32-arm.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf32-arm.c?ref=8c803a2dd7d3d742a3d0071914f557ef465afe71",
+      "patch": "@@ -20230,10 +20230,10 @@ elf32_arm_get_synthetic_symtab (bfd *abfd,\n }\n \n static bfd_boolean\n-elf32_arm_section_flags (flagword *flags, const Elf_Internal_Shdr * hdr)\n+elf32_arm_section_flags (const Elf_Internal_Shdr *hdr)\n {\n   if (hdr->sh_flags & SHF_ARM_PURECODE)\n-    *flags |= SEC_ELF_PURECODE;\n+    hdr->bfd_section->flags |= SEC_ELF_PURECODE;\n   return TRUE;\n }\n "
+    },
+    {
+      "sha": "c5775de6496dfbf63d76d1f48134a4e6bff6f395",
+      "filename": "bfd/elf32-mep.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/elf32-mep.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/elf32-mep.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf32-mep.c?ref=8c803a2dd7d3d742a3d0071914f557ef465afe71",
+      "patch": "@@ -717,10 +717,10 @@ mep_elf_object_p (bfd * abfd)\n }\n \n static bfd_boolean\n-mep_elf_section_flags (flagword * flags, const Elf_Internal_Shdr * hdr)\n+mep_elf_section_flags (const Elf_Internal_Shdr *hdr)\n {\n   if (hdr->sh_flags & SHF_MEP_VLIW)\n-    * flags |= SEC_MEP_VLIW;\n+    hdr->bfd_section->flags |= SEC_MEP_VLIW;\n   return TRUE;\n }\n "
+    },
+    {
+      "sha": "2fcfe6fd6c1957fcf04a1e8fc18e92ad6dd8ce6c",
+      "filename": "bfd/elf32-nios2.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/elf32-nios2.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/elf32-nios2.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf32-nios2.c?ref=8c803a2dd7d3d742a3d0071914f557ef465afe71",
+      "patch": "@@ -4539,10 +4539,10 @@ nios2_elf32_relocate_section (bfd *output_bfd,\n /* Implement elf-backend_section_flags:\n    Convert NIOS2 specific section flags to bfd internal section flags.  */\n static bfd_boolean\n-nios2_elf32_section_flags (flagword *flags, const Elf_Internal_Shdr *hdr)\n+nios2_elf32_section_flags (const Elf_Internal_Shdr *hdr)\n {\n   if (hdr->sh_flags & SHF_NIOS2_GPREL)\n-    *flags |= SEC_SMALL_DATA;\n+    hdr->bfd_section->flags |= SEC_SMALL_DATA;\n \n   return TRUE;\n }"
+    },
+    {
+      "sha": "9d2d7f1d4dd18fb9e386054dc452d45b97a6f9a5",
+      "filename": "bfd/elf64-alpha.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/elf64-alpha.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/elf64-alpha.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf64-alpha.c?ref=8c803a2dd7d3d742a3d0071914f557ef465afe71",
+      "patch": "@@ -1180,10 +1180,10 @@ elf64_alpha_section_from_shdr (bfd *abfd,\n /* Convert Alpha specific section flags to bfd internal section flags.  */\n \n static bfd_boolean\n-elf64_alpha_section_flags (flagword *flags, const Elf_Internal_Shdr *hdr)\n+elf64_alpha_section_flags (const Elf_Internal_Shdr *hdr)\n {\n   if (hdr->sh_flags & SHF_ALPHA_GPREL)\n-    *flags |= SEC_SMALL_DATA;\n+    hdr->bfd_section->flags |= SEC_SMALL_DATA;\n \n   return TRUE;\n }"
+    },
+    {
+      "sha": "d40fa4277a24dc85e34f368e58ef7e72f33d6a46",
+      "filename": "bfd/elf64-ia64-vms.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 3,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/elf64-ia64-vms.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/elf64-ia64-vms.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf64-ia64-vms.c?ref=8c803a2dd7d3d742a3d0071914f557ef465afe71",
+      "patch": "@@ -822,11 +822,10 @@ is_unwind_section_name (bfd *abfd ATTRIBUTE_UNUSED, const char *name)\n    flag.  */\n \n static bfd_boolean\n-elf64_ia64_section_flags (flagword *flags,\n-\t\t\t  const Elf_Internal_Shdr *hdr)\n+elf64_ia64_section_flags (const Elf_Internal_Shdr *hdr)\n {\n   if (hdr->sh_flags & SHF_IA_64_SHORT)\n-    *flags |= SEC_SMALL_DATA;\n+    hdr->bfd_section->flags |= SEC_SMALL_DATA;\n \n   return TRUE;\n }"
+    },
+    {
+      "sha": "ba3ad4546828feabc43f663dca0f6c6fbc90b3e1",
+      "filename": "bfd/elfnn-aarch64.c",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 3,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/elfnn-aarch64.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/elfnn-aarch64.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfnn-aarch64.c?ref=8c803a2dd7d3d742a3d0071914f557ef465afe71",
+      "patch": "@@ -4313,9 +4313,15 @@ elfNN_aarch64_size_stubs (bfd *output_bfd,\n \n       for (input_bfd = info->input_bfds;\n \t   input_bfd != NULL; input_bfd = input_bfd->link.next)\n-\tif (!_bfd_aarch64_erratum_835769_scan (input_bfd, info,\n-\t\t\t\t\t       &num_erratum_835769_fixes))\n-\t  return FALSE;\n+\t{\n+\t  if (!is_aarch64_elf (input_bfd)\n+\t      || (input_bfd->flags & BFD_LINKER_CREATED) != 0)\n+\t    continue;\n+\n+\t  if (!_bfd_aarch64_erratum_835769_scan (input_bfd, info,\n+\t\t\t\t\t\t &num_erratum_835769_fixes))\n+\t    return FALSE;\n+\t}\n \n       _bfd_aarch64_resize_stubs (htab);\n       (*htab->layout_sections_again) ();\n@@ -4331,6 +4337,10 @@ elfNN_aarch64_size_stubs (bfd *output_bfd,\n \t{\n \t  asection *section;\n \n+\t  if (!is_aarch64_elf (input_bfd)\n+\t      || (input_bfd->flags & BFD_LINKER_CREATED) != 0)\n+\t    continue;\n+\n \t  for (section = input_bfd->sections;\n \t       section != NULL;\n \t       section = section->next)\n@@ -4353,6 +4363,10 @@ elfNN_aarch64_size_stubs (bfd *output_bfd,\n \t  asection *section;\n \t  Elf_Internal_Sym *local_syms = NULL;\n \n+\t  if (!is_aarch64_elf (input_bfd)\n+\t      || (input_bfd->flags & BFD_LINKER_CREATED) != 0)\n+\t    continue;\n+\n \t  /* We'll need the symbol table in a second.  */\n \t  symtab_hdr = &elf_tdata (input_bfd)->symtab_hdr;\n \t  if (symtab_hdr->sh_info == 0)"
+    },
+    {
+      "sha": "208b85df903606143e06dd8727e016b41aa69011",
+      "filename": "bfd/elfnn-ia64.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 3,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/elfnn-ia64.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8c803a2dd7d3d742a3d0071914f557ef465afe71/bfd/elfnn-ia64.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfnn-ia64.c?ref=8c803a2dd7d3d742a3d0071914f557ef465afe71",
+      "patch": "@@ -942,11 +942,10 @@ elfNN_ia64_section_from_shdr (bfd *abfd,\n    flag.  */\n \n static bfd_boolean\n-elfNN_ia64_section_flags (flagword *flags,\n-\t\t\t  const Elf_Internal_Shdr *hdr)\n+elfNN_ia64_section_flags (const Elf_Internal_Shdr *hdr)\n {\n   if (hdr->sh_flags & SHF_IA_64_SHORT)\n-    *flags |= SEC_SMALL_DATA;\n+    hdr->bfd_section->flags |= SEC_SMALL_DATA;\n \n   return TRUE;\n }"
+    }
+  ]
+}

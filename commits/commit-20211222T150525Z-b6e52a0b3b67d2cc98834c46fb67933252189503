@@ -1,0 +1,60 @@
+{
+  "sha": "b6e52a0b3b67d2cc98834c46fb67933252189503",
+  "node_id": "C_kwDOANOeidoAKGI2ZTUyYTBiM2I2N2QyY2M5ODgzNGM0NmZiNjc5MzMyNTIxODk1MDM",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-12-11T10:35:36Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "aburgess@redhat.com",
+      "date": "2021-12-22T15:05:25Z"
+    },
+    "message": "gdb: convert 'set debug lin-lwp' to a boolean command\n\nConvert the 'set debug lin-lwp' command to a boolean.  Adds a new\nLINUX_NAT_SCOPED_DEBUG_ENTER_EXIT macro, and makes use of it in one\nplace (linux_nat_target::stop).\n\nThe manual entry for 'set debug lin-lwp' is already vague about\nexactly what arguments this command takes, and the description talks\nabout turning debug on and off, so I don't think there's any updates\nrequired there.\n\nI have updated the doc strings shown when the users enters 'help show\ndebug lin-lwp' or 'help show debug lin-lwp'.  The old title lines used\nto talk about the 'GNU/Linux lwp module', but this debug flag is now\nused for any native linux target debug, so we now talk about\n'GNU/Linux native target'.  The body string for this setting has been\nchanged from 'Enables printf debugging output.' to 'When on, print\ndebug messages relating to the GNU/Linux native target.', the old\nvalue looks like a cut&paste error to me.",
+    "tree": {
+      "sha": "eaa15ebcfa17707b38e235f3d423011248194237",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/eaa15ebcfa17707b38e235f3d423011248194237"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/b6e52a0b3b67d2cc98834c46fb67933252189503",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b6e52a0b3b67d2cc98834c46fb67933252189503",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/b6e52a0b3b67d2cc98834c46fb67933252189503",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b6e52a0b3b67d2cc98834c46fb67933252189503/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "5b0a3d62423236100bac1e77f7cc084ad9ce0271",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5b0a3d62423236100bac1e77f7cc084ad9ce0271",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/5b0a3d62423236100bac1e77f7cc084ad9ce0271"
+    }
+  ],
+  "stats": {
+    "total": 29,
+    "additions": 20,
+    "deletions": 9
+  },
+  "files": [
+    {
+      "sha": "59924873915c6f39d7b64b6705fd817641282eda",
+      "filename": "gdb/linux-nat.c",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 9,
+      "changes": 29,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b6e52a0b3b67d2cc98834c46fb67933252189503/gdb/linux-nat.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b6e52a0b3b67d2cc98834c46fb67933252189503/gdb/linux-nat.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/linux-nat.c?ref=b6e52a0b3b67d2cc98834c46fb67933252189503",
+      "patch": "@@ -191,7 +191,12 @@ struct linux_nat_target *linux_target;\n /* Does the current host support PTRACE_GETREGSET?  */\n enum tribool have_ptrace_getregset = TRIBOOL_UNKNOWN;\n \n-static unsigned int debug_linux_nat;\n+/* When true, print debug messages relating to the linux native target.  */\n+\n+static bool debug_linux_nat;\n+\n+/* Implement 'show debug lin-lwp'.  */\n+\n static void\n show_debug_linux_nat (struct ui_file *file, int from_tty,\n \t\t      struct cmd_list_element *c, const char *value)\n@@ -205,6 +210,11 @@ show_debug_linux_nat (struct ui_file *file, int from_tty,\n #define linux_nat_debug_printf(fmt, ...) \\\n   debug_prefixed_printf_cond (debug_linux_nat, \"linux-nat\", fmt, ##__VA_ARGS__)\n \n+/* Print \"linux-nat\" enter/exit debug statements.  */\n+\n+#define LINUX_NAT_SCOPED_DEBUG_ENTER_EXIT \\\n+  scoped_debug_enter_exit (debug_linux_nat, \"linux-nat\")\n+\n struct simple_pid_list\n {\n   int pid;\n@@ -4318,6 +4328,7 @@ linux_nat_stop_lwp (struct lwp_info *lwp)\n void\n linux_nat_target::stop (ptid_t ptid)\n {\n+  LINUX_NAT_SCOPED_DEBUG_ENTER_EXIT;\n   iterate_over_lwps (ptid, linux_nat_stop_lwp);\n }\n \n@@ -4518,14 +4529,14 @@ void _initialize_linux_nat ();\n void\n _initialize_linux_nat ()\n {\n-  add_setshow_zuinteger_cmd (\"lin-lwp\", class_maintenance,\n-\t\t\t     &debug_linux_nat, _(\"\\\n-Set debugging of GNU/Linux lwp module.\"), _(\"\\\n-Show debugging of GNU/Linux lwp module.\"), _(\"\\\n-Enables printf debugging output.\"),\n-\t\t\t     NULL,\n-\t\t\t     show_debug_linux_nat,\n-\t\t\t     &setdebuglist, &showdebuglist);\n+  add_setshow_boolean_cmd (\"lin-lwp\", class_maintenance,\n+\t\t\t   &debug_linux_nat, _(\"\\\n+Set debugging of GNU/Linux native target.\"), _(\"\t\\\n+Show debugging of GNU/Linux native target.\"), _(\"\t\\\n+When on, print debug messages relating to the GNU/Linux native target.\"),\n+\t\t\t   nullptr,\n+\t\t\t   show_debug_linux_nat,\n+\t\t\t   &setdebuglist, &showdebuglist);\n \n   add_setshow_boolean_cmd (\"linux-namespaces\", class_maintenance,\n \t\t\t   &debug_linux_namespaces, _(\"\\"
+    }
+  ]
+}

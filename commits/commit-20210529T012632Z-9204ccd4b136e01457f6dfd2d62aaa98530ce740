@@ -1,0 +1,180 @@
+{
+  "sha": "9204ccd4b136e01457f6dfd2d62aaa98530ce740",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OTIwNGNjZDRiMTM2ZTAxNDU3ZjZkZmQyZDYyYWFhOTg1MzBjZTc0MA==",
+  "commit": {
+    "author": {
+      "name": "Maciej W. Rozycki",
+      "email": "macro@orcam.me.uk",
+      "date": "2021-05-29T01:26:32Z"
+    },
+    "committer": {
+      "name": "Maciej W. Rozycki",
+      "email": "macro@orcam.me.uk",
+      "date": "2021-05-29T01:26:32Z"
+    },
+    "message": "MIPS/opcodes: Do not use CP0 register names for control registers\n\nThe CP0 control register set has never been defined, however encodings\nfor the CFC0 and CTC0 instructions remained available for implementers\nup until the MIPS32 ISA declared them invalid and causing the Reserved\nInstruction exception[1].  Therefore we handle them for both assembly\nand disassembly, however in the latter case the names of CP0 registers\nfrom the regular set are incorrectly printed if named registers are\nrequested.  This is because we do not define separate operand classes\nfor coprocessor regular and control registers respectively, which means\nthe disassembler has no way to tell the two cases apart.  Consequently\nnonsensical disassembly is produced like:\n\n\tcfc0\tv0,c0_random\n\nLater the MIPSr5 ISA reused the encodings for XPA ASE MFHC0 and MTHC0\ninstructions[2] although it failed to document them in the relevant\nopcode table until MIPSr6 only.\n\nCorrect the issue then by defining a new register class, OP_REG_CONTROL,\nand corresponding operand codes, `g' and `y' for the two positions in\nthe machine instruction a control register operand can take.  Adjust the\ntest cases affected accordingly.\n\nWhile at it swap the regular MIPS opcode table \"cfc0\" and \"ctc0\" entries\nwith each other so that they come in the alphabetical order.\n\nReferences:\n\n[1] \"MIPS32 Architecture For Programmers, Volume II: The MIPS32\n    Instruction Set\", MIPS Technologies, Inc., Document Number: MD00086,\n    Revision 1.00, August 29, 2002, Table A-9 \"MIPS32 COP0 Encoding of\n    rs Field\", p. 242\n\n[2] \"MIPS Architecture For Programmers, Volume II-A: The MIPS32\n    Instruction Set\", MIPS Technologies, Inc., Document Number: MD00086,\n    Revision 5.04, December 11, 2013, Section 3.2 \"Alphabetical List of\n    Instructions\", pp. 195, 216\n\n\tinclude/\n\t* opcode/mips.h: Document `g' and `y' operand codes.\n\t(mips_reg_operand_type): Add OP_REG_CONTROL enumeration\n\tconstant.\n\n\tgas/\n\t* tc-mips.c (convert_reg_type) <OP_REG_CONTROL>: New case.\n\t(macro) <M_TRUNCWS, M_TRUNCWD>: Use the `g' rather than `G'\n\toperand code.\n\n\topcodes/\n\t* mips-dis.c (print_reg) <OP_REG_COPRO>: Move control register\n\thandling code over to...\n\t<OP_REG_CONTROL>: ... this new case.\n\t* mips-opc.c (decode_mips_operand) <'g', 'y'>: New cases.\n\t(mips_builtin_opcodes): Update \"cfc1\", \"ctc1\", \"cttc1\", \"cttc2\",\n\t\"cfc0\", \"ctc0\", \"cfc2\", \"ctc2\", \"cfc3\", and \"ctc3\" entries\n\treplacing the `G' operand code with `g'.  Update \"cftc1\" and\n\t\"cftc2\" entries replacing the `E' operand code with `y'.\n\t* micromips-opc.c (decode_micromips_operand) <'g'>: New case.\n\t(micromips_opcodes): Update \"cfc1\", \"cfc2\", \"ctc1\", and \"ctc2\"\n\tentries replacing the `G' operand code with `g'.\n\n\tbinutils/\n\t* testsuite/binutils-all/mips/mips-xpa-virt-1.d: Correct CFC0\n\toperand disassembly.\n\t* testsuite/binutils-all/mips/mips-xpa-virt-3.d: Likewise.",
+    "tree": {
+      "sha": "1e0bb744bfe15b40a4fc368be826232eae55ad85",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/1e0bb744bfe15b40a4fc368be826232eae55ad85"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/9204ccd4b136e01457f6dfd2d62aaa98530ce740",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9204ccd4b136e01457f6dfd2d62aaa98530ce740",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/9204ccd4b136e01457f6dfd2d62aaa98530ce740",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/9204ccd4b136e01457f6dfd2d62aaa98530ce740/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "a3fb396f2dc57f585a49091e12ec6c588c45e681",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a3fb396f2dc57f585a49091e12ec6c588c45e681",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/a3fb396f2dc57f585a49091e12ec6c588c45e681"
+    }
+  ],
+  "stats": {
+    "total": 98,
+    "additions": 73,
+    "deletions": 25
+  },
+  "files": [
+    {
+      "sha": "a0f77e97e0105cb641cf928b206c8a0a7208eb09",
+      "filename": "binutils/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9204ccd4b136e01457f6dfd2d62aaa98530ce740/binutils/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9204ccd4b136e01457f6dfd2d62aaa98530ce740/binutils/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/ChangeLog?ref=9204ccd4b136e01457f6dfd2d62aaa98530ce740",
+      "patch": "@@ -1,3 +1,9 @@\n+2021-05-29  Maciej W. Rozycki  <macro@orcam.me.uk>\n+\n+\t* testsuite/binutils-all/mips/mips-xpa-virt-1.d: Correct CFC0\n+\toperand disassembly.\n+\t* testsuite/binutils-all/mips/mips-xpa-virt-3.d: Likewise.\n+\n 2021-05-29  Maciej W. Rozycki  <macro@orcam.me.uk>\n \n \t* testsuite/binutils-all/mips/mips-xpa-virt-1.d: Use `mips:3000'"
+    },
+    {
+      "sha": "1fe1c2faa757f530b0dae0d31da5abe2461060eb",
+      "filename": "binutils/testsuite/binutils-all/mips/mips-xpa-virt-1.d",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9204ccd4b136e01457f6dfd2d62aaa98530ce740/binutils/testsuite/binutils-all/mips/mips-xpa-virt-1.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9204ccd4b136e01457f6dfd2d62aaa98530ce740/binutils/testsuite/binutils-all/mips/mips-xpa-virt-1.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/testsuite/binutils-all/mips/mips-xpa-virt-1.d?ref=9204ccd4b136e01457f6dfd2d62aaa98530ce740",
+      "patch": "@@ -7,7 +7,7 @@\n \n Disassembly of section \\.text:\n [0-9a-f]+ <[^>]*> 40020800 \tmfc0\tv0,c0_random\n-[0-9a-f]+ <[^>]*> 40420800 \tcfc0\tv0,c0_random\n+[0-9a-f]+ <[^>]*> 40420800 \tcfc0\tv0,\\$1\n [0-9a-f]+ <[^>]*> 40620800 \t0x40620800\n [0-9a-f]+ <[^>]*> 40620c00 \t0x40620c00\n \t\\.\\.\\."
+    },
+    {
+      "sha": "cc4b34c3853bc4187b326f957afac61ddfd97a73",
+      "filename": "binutils/testsuite/binutils-all/mips/mips-xpa-virt-3.d",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9204ccd4b136e01457f6dfd2d62aaa98530ce740/binutils/testsuite/binutils-all/mips/mips-xpa-virt-3.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9204ccd4b136e01457f6dfd2d62aaa98530ce740/binutils/testsuite/binutils-all/mips/mips-xpa-virt-3.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/testsuite/binutils-all/mips/mips-xpa-virt-3.d?ref=9204ccd4b136e01457f6dfd2d62aaa98530ce740",
+      "patch": "@@ -7,7 +7,7 @@\n \n Disassembly of section \\.text:\n [0-9a-f]+ <[^>]*> 40020800 \tmfc0\tv0,c0_random\n-[0-9a-f]+ <[^>]*> 40420800 \tcfc0\tv0,c0_random\n+[0-9a-f]+ <[^>]*> 40420800 \tcfc0\tv0,\\$1\n [0-9a-f]+ <[^>]*> 40620800 \tmfgc0\tv0,c0_random\n [0-9a-f]+ <[^>]*> 40620c00 \t0x40620c00\n \t\\.\\.\\."
+    },
+    {
+      "sha": "0d5f7a85a961f97f645d1d56e7855224e3a2b220",
+      "filename": "gas/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9204ccd4b136e01457f6dfd2d62aaa98530ce740/gas/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9204ccd4b136e01457f6dfd2d62aaa98530ce740/gas/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/ChangeLog?ref=9204ccd4b136e01457f6dfd2d62aaa98530ce740",
+      "patch": "@@ -1,3 +1,9 @@\n+2021-05-29  Maciej W. Rozycki  <macro@orcam.me.uk>\n+\n+\t* tc-mips.c (convert_reg_type) <OP_REG_CONTROL>: New case.\n+\t(macro) <M_TRUNCWS, M_TRUNCWD>: Use the `g' rather than `G'\n+\toperand code.\n+\n 2021-05-29  Maciej W. Rozycki  <macro@orcam.me.uk>\n \n \t* testsuite/gas/mips/cp0-names-r3900.d: New test."
+    },
+    {
+      "sha": "0201f8168147a2985b06a5ee9542b35307719b7e",
+      "filename": "gas/config/tc-mips.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 4,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9204ccd4b136e01457f6dfd2d62aaa98530ce740/gas/config/tc-mips.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9204ccd4b136e01457f6dfd2d62aaa98530ce740/gas/config/tc-mips.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-mips.c?ref=9204ccd4b136e01457f6dfd2d62aaa98530ce740",
+      "patch": "@@ -5050,6 +5050,7 @@ convert_reg_type (const struct mips_opcode *opcode,\n       return RTYPE_ACC;\n \n     case OP_REG_COPRO:\n+    case OP_REG_CONTROL:\n       if (opcode->name[strlen (opcode->name) - 1] == '0')\n \treturn RTYPE_NUM | RTYPE_CP0;\n       return RTYPE_NUM;\n@@ -13837,18 +13838,18 @@ macro (struct mips_cl_insn *ip, char *str)\n        * or is there a reason for it?\n        */\n       start_noreorder ();\n-      macro_build (NULL, \"cfc1\", \"t,G\", op[2], FCSR);\n-      macro_build (NULL, \"cfc1\", \"t,G\", op[2], FCSR);\n+      macro_build (NULL, \"cfc1\", \"t,g\", op[2], FCSR);\n+      macro_build (NULL, \"cfc1\", \"t,g\", op[2], FCSR);\n       macro_build (NULL, \"nop\", \"\");\n       expr1.X_add_number = 3;\n       macro_build (&expr1, \"ori\", \"t,r,i\", AT, op[2], BFD_RELOC_LO16);\n       expr1.X_add_number = 2;\n       macro_build (&expr1, \"xori\", \"t,r,i\", AT, AT, BFD_RELOC_LO16);\n-      macro_build (NULL, \"ctc1\", \"t,G\", AT, FCSR);\n+      macro_build (NULL, \"ctc1\", \"t,g\", AT, FCSR);\n       macro_build (NULL, \"nop\", \"\");\n       macro_build (NULL, mask == M_TRUNCWD ? \"cvt.w.d\" : \"cvt.w.s\", \"D,S\",\n \t\t   op[0], op[1]);\n-      macro_build (NULL, \"ctc1\", \"t,G\", op[2], FCSR);\n+      macro_build (NULL, \"ctc1\", \"t,g\", op[2], FCSR);\n       macro_build (NULL, \"nop\", \"\");\n       end_noreorder ();\n       break;"
+    },
+    {
+      "sha": "d0cc5c419ec525bd6aa23b198903387b8697156b",
+      "filename": "include/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9204ccd4b136e01457f6dfd2d62aaa98530ce740/include/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9204ccd4b136e01457f6dfd2d62aaa98530ce740/include/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/ChangeLog?ref=9204ccd4b136e01457f6dfd2d62aaa98530ce740",
+      "patch": "@@ -1,3 +1,9 @@\n+2021-05-29  Maciej W. Rozycki  <macro@orcam.me.uk>\n+\n+\t* opcode/mips.h: Document `g' and `y' operand codes.\n+\t(mips_reg_operand_type): Add OP_REG_CONTROL enumeration\n+\tconstant.\n+\n 2021-05-29  Maciej W. Rozycki  <macro@orcam.me.uk>\n \n \t* opcode/mips.h: Complement change made to opcodes and remove"
+    },
+    {
+      "sha": "e0a644734441a1af217e93c412f41b9f7636d40c",
+      "filename": "include/opcode/mips.h",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 2,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9204ccd4b136e01457f6dfd2d62aaa98530ce740/include/opcode/mips.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9204ccd4b136e01457f6dfd2d62aaa98530ce740/include/opcode/mips.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/include/opcode/mips.h?ref=9204ccd4b136e01457f6dfd2d62aaa98530ce740",
+      "patch": "@@ -461,6 +461,10 @@ enum mips_reg_operand_type {\n      also be used in some contexts.  */\n   OP_REG_COPRO,\n \n+  /* Coprocessor control registers $0-$31.  Mnemonic names like c1_fcsr can\n+     also be used in some contexts.  */\n+  OP_REG_CONTROL,\n+\n   /* Hardware registers $0-$31.  Mnemonic names like hwr_cpunum can\n      also be used in some contexts.  */\n   OP_REG_HW,\n@@ -841,6 +845,7 @@ mips_opcode_32bit_p (const struct mips_opcode *mo)\n    \"H\" 3 bit sel field for (d)mtc* and (d)mfc* (OP_*_SEL)\n    \"P\" 5 bit performance-monitor register (OP_*_PERFREG)\n    \"e\" 5 bit vector register byte specifier (OP_*_VECBYTE)\n+   \"g\" 5 bit control destination register (OP_*_RD)\n    \"%\" 3 bit immediate vr5400 vector alignment operand (OP_*_VECALIGN)\n \n    Macro instructions:\n@@ -899,6 +904,7 @@ mips_opcode_32bit_p (const struct mips_opcode *mo)\n    \"$\" 1 bit load high flag (OP_*_MT_H)\n    \"*\" 2 bit dsp/smartmips accumulator register (OP_*_MTACC_T)\n    \"&\" 2 bit dsp/smartmips accumulator register (OP_*_MTACC_D)\n+   \"y\" 5 bit control target register (OP_*_RT)\n    \"+t\" 5 bit coprocessor 0 destination register (OP_*_RT)\n \n    MCU ASE usage:\n@@ -1000,7 +1006,7 @@ mips_opcode_32bit_p (const struct mips_opcode *mo)\n    \"1234567890\"\n    \"%[]<>(),+-:'@!#$*&\\~\"\n    \"ABCDEFGHIJKLMNOPQRSTUVWXYZ\"\n-   \"abcdef hijkl  opqrstuvwx z\"\n+   \"abcdef hijkl  opqrstuvwxyz\"\n \n    Extension character sequences used so far (\"+\" followed by the\n    following), for quick reference when adding more:\n@@ -2277,6 +2283,7 @@ extern const int bfd_mips16_num_opcodes;\n    \"E\" 5-bit target register (MICROMIPSOP_*_RT)\n    \"G\" 5-bit source register (MICROMIPSOP_*_RS)\n    \"H\" 3-bit sel field for (D)MTC* and (D)MFC* (MICROMIPSOP_*_SEL)\n+   \"g\" 5-bit control source register (MICROMIPSOP_*_RS)\n \n    Macro instructions:\n    \"A\" general 32 bit expression\n@@ -2338,7 +2345,7 @@ extern const int bfd_mips16_num_opcodes;\n    \"12345678 0\"\n    \"<>(),+-.@\\^|~\"\n    \"ABCDEFGHI KLMN   RST V    \"\n-   \"abcd f hijklmnopqrstuvw yz\"\n+   \"abcd fghijklmnopqrstuvw yz\"\n \n    Extension character sequences used so far (\"+\" followed by the\n    following), for quick reference when adding more:"
+    },
+    {
+      "sha": "2151bb6a8bc5fd0134729fdc2bd5bc589c90a189",
+      "filename": "opcodes/ChangeLog",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9204ccd4b136e01457f6dfd2d62aaa98530ce740/opcodes/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9204ccd4b136e01457f6dfd2d62aaa98530ce740/opcodes/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/ChangeLog?ref=9204ccd4b136e01457f6dfd2d62aaa98530ce740",
+      "patch": "@@ -1,3 +1,17 @@\n+2021-05-29  Maciej W. Rozycki  <macro@orcam.me.uk>\n+\n+\t* mips-dis.c (print_reg) <OP_REG_COPRO>: Move control register\n+\thandling code over to...\n+\t<OP_REG_CONTROL>: ... this new case.\n+\t* mips-opc.c (decode_mips_operand) <'g', 'y'>: New cases.\n+\t(mips_builtin_opcodes): Update \"cfc1\", \"ctc1\", \"cttc1\", \"cttc2\",\n+\t\"cfc0\", \"ctc0\", \"cfc2\", \"ctc2\", \"cfc3\", and \"ctc3\" entries\n+\treplacing the `G' operand code with `g'.  Update \"cftc1\" and\n+\t\"cftc2\" entries replacing the `E' operand code with `y'.\n+\t* micromips-opc.c (decode_micromips_operand) <'g'>: New case.\n+\t(micromips_opcodes): Update \"cfc1\", \"cfc2\", \"ctc1\", and \"ctc2\"\n+\tentries replacing the `G' operand code with `g'.\n+\n 2021-05-29  Maciej W. Rozycki  <macro@orcam.me.uk>\n \n \t* mips-dis.c (mips_cp0_names_r3900): New variable."
+    },
+    {
+      "sha": "19f5bf464f89444bce251b45f7ba7c1d18380090",
+      "filename": "opcodes/micromips-opc.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 4,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9204ccd4b136e01457f6dfd2d62aaa98530ce740/opcodes/micromips-opc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9204ccd4b136e01457f6dfd2d62aaa98530ce740/opcodes/micromips-opc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/micromips-opc.c?ref=9204ccd4b136e01457f6dfd2d62aaa98530ce740",
+      "patch": "@@ -176,6 +176,7 @@ decode_micromips_operand (const char *p)\n     case 'b': REG (5, 16, GP);\n     case 'c': HINT (10, 16);\n     case 'd': REG (5, 11, GP);\n+    case 'g': REG (5, 16, CONTROL);\n     case 'h': HINT (5, 11);\n     case 'i': HINT (16, 0);\n     case 'j': SINT (16, 0);\n@@ -548,15 +549,15 @@ const struct mips_opcode micromips_opcodes[] =\n {\"ceil.l.s\",\t\t\"T,S\",\t\t0x5400133b, 0xfc00ffff,\tWR_1|RD_2|FP_S|FP_D,\t0,\t\tI1,\t\t0,\t0 },\n {\"ceil.w.d\",\t\t\"T,S\",\t\t0x54005b3b, 0xfc00ffff,\tWR_1|RD_2|FP_S|FP_D,\t0,\t\tI1,\t\t0,\t0 },\n {\"ceil.w.s\",\t\t\"T,S\",\t\t0x54001b3b, 0xfc00ffff,\tWR_1|RD_2|FP_S,\t\t0,\t\tI1,\t\t0,\t0 },\n-{\"cfc1\",\t\t\"t,G\",\t\t0x5400103b, 0xfc00ffff,\tWR_1|RD_C1,\t\t0,\t\tI1,\t\t0,\t0 },\n+{\"cfc1\",\t\t\"t,g\",\t\t0x5400103b, 0xfc00ffff,\tWR_1|RD_C1,\t\t0,\t\tI1,\t\t0,\t0 },\n {\"cfc1\",\t\t\"t,S\",\t\t0x5400103b, 0xfc00ffff,\tWR_1|RD_C1,\t\t0,\t\tI1,\t\t0,\t0 },\n-{\"cfc2\",\t\t\"t,G\",\t\t0x0000cd3c, 0xfc00ffff,\tWR_1|RD_C2,\t\t0,\t\tI1,\t\t0,\t0 },\n+{\"cfc2\",\t\t\"t,g\",\t\t0x0000cd3c, 0xfc00ffff,\tWR_1|RD_C2,\t\t0,\t\tI1,\t\t0,\t0 },\n {\"clo\",\t\t\t\"t,s\",\t\t0x00004b3c, 0xfc00ffff,\tWR_1|RD_2,\t\t0,\t\tI1,\t\t0,\t0 },\n {\"clz\",\t\t\t\"t,s\",\t\t0x00005b3c, 0xfc00ffff,\tWR_1|RD_2,\t\t0,\t\tI1,\t\t0,\t0 },\n {\"cop2\",\t\t\"C\",\t\t0x00000002, 0xfc000007,\tCP,\t\t\t0,\t\tI1,\t\t0,\t0 },\n-{\"ctc1\",\t\t\"t,G\",\t\t0x5400183b, 0xfc00ffff,\tRD_1|WR_CC,\t\t0,\t\tI1,\t\t0,\t0 },\n+{\"ctc1\",\t\t\"t,g\",\t\t0x5400183b, 0xfc00ffff,\tRD_1|WR_CC,\t\t0,\t\tI1,\t\t0,\t0 },\n {\"ctc1\",\t\t\"t,S\",\t\t0x5400183b, 0xfc00ffff,\tRD_1|WR_CC,\t\t0,\t\tI1,\t\t0,\t0 },\n-{\"ctc2\",\t\t\"t,G\",\t\t0x0000dd3c, 0xfc00ffff,\tRD_1|WR_C2|WR_CC,\t0,\t\tI1,\t\t0,\t0 },\n+{\"ctc2\",\t\t\"t,g\",\t\t0x0000dd3c, 0xfc00ffff,\tRD_1|WR_C2|WR_CC,\t0,\t\tI1,\t\t0,\t0 },\n {\"cvt.d.l\",\t\t\"T,S\",\t\t0x5400537b, 0xfc00ffff,\tWR_1|RD_2|FP_D,\t\t0,\t\tI1,\t\t0,\t0 },\n {\"cvt.d.s\",\t\t\"T,S\",\t\t0x5400137b, 0xfc00ffff,\tWR_1|RD_2|FP_S|FP_D,\t0,\t\tI1,\t\t0,\t0 },\n {\"cvt.d.w\",\t\t\"T,S\",\t\t0x5400337b, 0xfc00ffff,\tWR_1|RD_2|FP_S|FP_D,\t0,\t\tI1,\t\t0,\t0 },"
+    },
+    {
+      "sha": "75231ae0a83a0d1501e0b6269382ab1b81e58c70",
+      "filename": "opcodes/mips-dis.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 1,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9204ccd4b136e01457f6dfd2d62aaa98530ce740/opcodes/mips-dis.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9204ccd4b136e01457f6dfd2d62aaa98530ce740/opcodes/mips-dis.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/mips-dis.c?ref=9204ccd4b136e01457f6dfd2d62aaa98530ce740",
+      "patch": "@@ -1192,7 +1192,12 @@ print_reg (struct disassemble_info *info, const struct mips_opcode *opcode,\n     case OP_REG_COPRO:\n       if (opcode->name[strlen (opcode->name) - 1] == '0')\n \tinfo->fprintf_func (info->stream, \"%s\", mips_cp0_names[regno]);\n-      else if (opcode->name[strlen (opcode->name) - 1] == '1')\n+      else\n+\tinfo->fprintf_func (info->stream, \"$%d\", regno);\n+      break;\n+\n+    case OP_REG_CONTROL:\n+      if (opcode->name[strlen (opcode->name) - 1] == '1')\n \tinfo->fprintf_func (info->stream, \"%s\", mips_cp1_names[regno]);\n       else\n \tinfo->fprintf_func (info->stream, \"$%d\", regno);"
+    },
+    {
+      "sha": "812fcc6da87c22fa3cf8dae2d874ef9b084dd348",
+      "filename": "opcodes/mips-opc.c",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 12,
+      "changes": 26,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/9204ccd4b136e01457f6dfd2d62aaa98530ce740/opcodes/mips-opc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/9204ccd4b136e01457f6dfd2d62aaa98530ce740/opcodes/mips-opc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/mips-opc.c?ref=9204ccd4b136e01457f6dfd2d62aaa98530ce740",
+      "patch": "@@ -195,6 +195,7 @@ decode_mips_operand (const char *p)\n     case 'c': HINT (10, 16);\n     case 'd': REG (5, 11, GP);\n     case 'e': UINT (3, 22)\n+    case 'g': REG (5, 11, CONTROL);\n     case 'h': HINT (5, 11);\n     case 'i': HINT (16, 0);\n     case 'j': SINT (16, 0);\n@@ -209,6 +210,7 @@ decode_mips_operand (const char *p)\n     case 'v': OPTIONAL_REG (5, 21, GP);\n     case 'w': OPTIONAL_REG (5, 16, GP);\n     case 'x': REG (0, 0, GP);\n+    case 'y': REG (5, 16, CONTROL);\n     case 'z': MAPPED_REG (0, 0, GP, reg_0_map);\n     }\n   return 0;\n@@ -975,13 +977,13 @@ const struct mips_opcode mips_builtin_opcodes[] =\n {\"ceil.w.d\",\t\t\"D,S\",\t\t0x4620000e, 0xffff003f, WR_1|RD_2|FP_S|FP_D,\t0,\t\tI2,\t\t0,\tSF },\n {\"ceil.w.s\",\t\t\"D,S\",\t\t0x4600000e, 0xffff003f, WR_1|RD_2|FP_S,\t\t0,\t\tI2,\t\t0,\tEE },\n /* cfc0 is at the bottom of the table.  */\n-{\"cfc1\",\t\t\"t,G\",\t\t0x44400000, 0xffe007ff,\tWR_1|RD_C1|LC,\t\t0,\t\tI1,\t\t0,\t0 },\n+{\"cfc1\",\t\t\"t,g\",\t\t0x44400000, 0xffe007ff,\tWR_1|RD_C1|LC,\t\t0,\t\tI1,\t\t0,\t0 },\n {\"cfc1\",\t\t\"t,S\",\t\t0x44400000, 0xffe007ff,\tWR_1|RD_C1|LC,\t\t0,\t\tI1,\t\t0,\t0 },\n /* cfc2 is at the bottom of the table.  */\n /* cfc3 is at the bottom of the table.  */\n-{\"cftc1\",\t\t\"d,E\",\t\t0x41000023, 0xffe007ff, WR_1|RD_C1|TRAP|LC,\t0,\t\t0,\t\tMT32,\t0 },\n+{\"cftc1\",\t\t\"d,y\",\t\t0x41000023, 0xffe007ff, WR_1|RD_C1|TRAP|LC,\t0,\t\t0,\t\tMT32,\t0 },\n {\"cftc1\",\t\t\"d,T\",\t\t0x41000023, 0xffe007ff, WR_1|RD_C1|TRAP|LC,\t0,\t\t0,\t\tMT32,\t0 },\n-{\"cftc2\",\t\t\"d,E\",\t\t0x41000025, 0xffe007ff,\tWR_1|RD_C2|TRAP|LC,\t0,\t\t0,\t\tMT32,\tIOCT|IOCTP|IOCT2 },\n+{\"cftc2\",\t\t\"d,y\",\t\t0x41000025, 0xffe007ff,\tWR_1|RD_C2|TRAP|LC,\t0,\t\t0,\t\tMT32,\tIOCT|IOCTP|IOCT2 },\n {\"cins32\",\t\t\"t,r,+p,+s\",\t0x70000033, 0xfc00003f, WR_1|RD_2,\t\t0,\t\tIOCT,\t\t0,\t0 },\n {\"cins\",\t\t\"t,r,+P,+S\",\t0x70000033, 0xfc00003f, WR_1|RD_2,\t\t0,\t\tIOCT,\t\t0,\t0 }, /* cins32 */\n {\"cins\",\t\t\"t,r,+p,+S\",\t0x70000032, 0xfc00003f, WR_1|RD_2,\t\t0,\t\tIOCT,\t\t0,\t0 },\n@@ -990,13 +992,13 @@ const struct mips_opcode mips_builtin_opcodes[] =\n {\"clz\",\t\t\t\"d,s\",\t\t0x00000050, 0xfc1f07ff, WR_1|RD_2,\t\t0,\t\tI37,\t\t0,\t0 },\n {\"clz\",\t\t\t\"U,s\",\t\t0x70000020, 0xfc0007ff, WR_1|RD_2,\t\t0,\t\tI32|N55,\t0,\tI37 },\n /* ctc0 is at the bottom of the table.  */\n-{\"ctc1\",\t\t\"t,G\",\t\t0x44c00000, 0xffe007ff,\tRD_1|WR_CC|CM,\t\t0,\t\tI1,\t\t0,\t0 },\n+{\"ctc1\",\t\t\"t,g\",\t\t0x44c00000, 0xffe007ff,\tRD_1|WR_CC|CM,\t\t0,\t\tI1,\t\t0,\t0 },\n {\"ctc1\",\t\t\"t,S\",\t\t0x44c00000, 0xffe007ff,\tRD_1|WR_CC|CM,\t\t0,\t\tI1,\t\t0,\t0 },\n /* ctc2 is at the bottom of the table.  */\n /* ctc3 is at the bottom of the table.  */\n-{\"cttc1\",\t\t\"t,G\",\t\t0x41800023, 0xffe007ff, RD_1|WR_CC|TRAP|CM,\t0,\t\t0,\t\tMT32,\t0 },\n+{\"cttc1\",\t\t\"t,g\",\t\t0x41800023, 0xffe007ff, RD_1|WR_CC|TRAP|CM,\t0,\t\t0,\t\tMT32,\t0 },\n {\"cttc1\",\t\t\"t,S\",\t\t0x41800023, 0xffe007ff, RD_1|WR_CC|TRAP|CM,\t0,\t\t0,\t\tMT32,\t0 },\n-{\"cttc2\",\t\t\"t,G\",\t\t0x41800025, 0xffe007ff,\tRD_1|WR_CC|TRAP|CM,\t0,\t\t0,\t\tMT32,\tIOCT|IOCTP|IOCT2 },\n+{\"cttc2\",\t\t\"t,g\",\t\t0x41800025, 0xffe007ff,\tRD_1|WR_CC|TRAP|CM,\t0,\t\t0,\t\tMT32,\tIOCT|IOCTP|IOCT2 },\n {\"cvt.d.l\",\t\t\"D,S\",\t\t0x46a00021, 0xffff003f,\tWR_1|RD_2|FP_D,\t\t0,\t\tI3_33,\t\t0,\t0 },\n {\"cvt.d.s\",\t\t\"D,S\",\t\t0x46000021, 0xffff003f,\tWR_1|RD_2|FP_S|FP_D,\t0,\t\tI1,\t\t0,\tSF },\n {\"cvt.d.w\",\t\t\"D,S\",\t\t0x46800021, 0xffff003f,\tWR_1|RD_2|FP_S|FP_D,\t0,\t\tI1,\t\t0,\tSF },\n@@ -2106,8 +2108,8 @@ const struct mips_opcode mips_builtin_opcodes[] =\n /* Coprocessor 0 move instructions cfc0 and ctc0 conflict with the\n    mfhc0 and mthc0 XPA instructions, so they have been placed here\n    to allow the XPA instructions to take precedence.  */\n-{\"ctc0\",\t\t\"t,G\",\t\t0x40c00000, 0xffe007ff,\tRD_1|WR_CC|CM,\t\t0,\t\tI1,\t\t0,\tIOCT|IOCTP|IOCT2 },\n-{\"cfc0\",\t\t\"t,G\",\t\t0x40400000, 0xffe007ff,\tWR_1|RD_C0|LC,\t\t0,\t\tI1,\t\t0,\tIOCT|IOCTP|IOCT2 },\n+{\"cfc0\",\t\t\"t,g\",\t\t0x40400000, 0xffe007ff,\tWR_1|RD_C0|LC,\t\t0,\t\tI1,\t\t0,\tIOCT|IOCTP|IOCT2 },\n+{\"ctc0\",\t\t\"t,g\",\t\t0x40c00000, 0xffe007ff,\tRD_1|WR_CC|CM,\t\t0,\t\tI1,\t\t0,\tIOCT|IOCTP|IOCT2 },\n \n /* Coprocessor 2 move/branch operations overlap with VR5400 .ob format\n    instructions so they are here for the latters to take precedence.  */\n@@ -2121,11 +2123,11 @@ const struct mips_opcode mips_builtin_opcodes[] =\n {\"bc2t\",\t\t\"N,p\",\t\t0x49010000, 0xffe30000,\tRD_CC|CBD,\t\t0,\t\tI32,\t\t0,\tIOCT|IOCTP|IOCT2|I37 },\n {\"bc2tl\",\t\t\"p\",\t\t0x49030000, 0xffff0000,\tRD_CC|CBL,\t\t0,\t\tI2|T3,\t\t0,\tIOCT|IOCTP|IOCT2|I37 },\n {\"bc2tl\",\t\t\"N,p\",\t\t0x49030000, 0xffe30000,\tRD_CC|CBL,\t\t0,\t\tI32,\t\t0,\tIOCT|IOCTP|IOCT2|I37 },\n-{\"cfc2\",\t\t\"t,G\",\t\t0x48400000, 0xffe007ff,\tWR_1|RD_C2|LC,\t\t0,\t\tI1,\t\t0,\tIOCT|IOCTP|IOCT2|EE },\n+{\"cfc2\",\t\t\"t,g\",\t\t0x48400000, 0xffe007ff,\tWR_1|RD_C2|LC,\t\t0,\t\tI1,\t\t0,\tIOCT|IOCTP|IOCT2|EE },\n {\"cfc2\",\t\t\"t,+9\",\t\t0x48400000, 0xffe007ff,\tWR_1|RD_C2|LC,\t\t0,\t\tEE,\t\t0,\t0 },\n {\"cfc2.i\",\t\t\"t,+9\",\t\t0x48400001, 0xffe007ff, WR_1|RD_C2|LC,\t\t0,\t\tEE,\t\t0,\t0 },\n {\"cfc2.ni\",\t\t\"t,+9\",\t\t0x48400000, 0xffe007ff, WR_1|RD_C2|LC,\t\t0,\t\tEE,\t\t0,\t0 },\n-{\"ctc2\",\t\t\"t,G\",\t\t0x48c00000, 0xffe007ff,\tRD_1|WR_CC|CM,\t\t0,\t\tI1,\t\t0,\tIOCT|IOCTP|IOCT2|EE },\n+{\"ctc2\",\t\t\"t,g\",\t\t0x48c00000, 0xffe007ff,\tRD_1|WR_CC|CM,\t\t0,\t\tI1,\t\t0,\tIOCT|IOCTP|IOCT2|EE },\n {\"ctc2\",\t\t\"t,+9\",\t\t0x48c00000, 0xffe007ff,\tRD_1|WR_CC|CM,\t\t0,\t\tEE,\t\t0,\t0 },\n {\"ctc2.i\",\t\t\"t,+9\",\t\t0x48c00001, 0xffe007ff, RD_1|WR_CC|CM,\t\t0,\t\tEE,\t\t0,\t0 },\n {\"ctc2.ni\",\t\t\"t,+9\",\t\t0x48c00000, 0xffe007ff, RD_1|WR_CC|CM,\t\t0,\t\tEE,\t\t0,\t0 },\n@@ -2157,8 +2159,8 @@ const struct mips_opcode mips_builtin_opcodes[] =\n {\"bc3fl\",\t\t\"p\",\t\t0x4d020000, 0xffff0000,\tRD_CC|CBL,\t\t0,\t\tI2|T3,\t\t0,\tIOCT|IOCTP|IOCT2|EE|I37 },\n {\"bc3t\",\t\t\"p\",\t\t0x4d010000, 0xffff0000,\tRD_CC|CBD,\t\t0,\t\tI1,\t\t0,\tIOCT|IOCTP|IOCT2|EE|I37 },\n {\"bc3tl\",\t\t\"p\",\t\t0x4d030000, 0xffff0000,\tRD_CC|CBL,\t\t0,\t\tI2|T3,\t\t0,\tIOCT|IOCTP|IOCT2|EE|I37 },\n-{\"cfc3\",\t\t\"t,G\",\t\t0x4c400000, 0xffe007ff,\tWR_1|RD_C3|LC,\t\t0,\t\tI1,\t\t0,\tIOCT|IOCTP|IOCT2|EE|I37 },\n-{\"ctc3\",\t\t\"t,G\",\t\t0x4cc00000, 0xffe007ff,\tRD_1|WR_CC|CM,\t\t0,\t\tI1,\t\t0,\tIOCT|IOCTP|IOCT2|EE|I37 },\n+{\"cfc3\",\t\t\"t,g\",\t\t0x4c400000, 0xffe007ff,\tWR_1|RD_C3|LC,\t\t0,\t\tI1,\t\t0,\tIOCT|IOCTP|IOCT2|EE|I37 },\n+{\"ctc3\",\t\t\"t,g\",\t\t0x4cc00000, 0xffe007ff,\tRD_1|WR_CC|CM,\t\t0,\t\tI1,\t\t0,\tIOCT|IOCTP|IOCT2|EE|I37 },\n {\"dmfc3\",\t\t\"t,G\",\t\t0x4c200000, 0xffe007ff,\tWR_1|RD_C3|LC,\t\t0,\t\tI3,\t\t0,\tIOCT|IOCTP|IOCT2|EE|I37 },\n {\"dmtc3\",\t\t\"t,G\",\t\t0x4ca00000, 0xffe007ff,\tRD_1|WR_C3|WR_CC|CM,\t0,\t\tI3,\t\t0,\tIOCT|IOCTP|IOCT2|EE|I37 },\n {\"mfc3\",\t\t\"t,G\",\t\t0x4c000000, 0xffe007ff,\tWR_1|RD_C3|LC,\t\t0,\t\tI1,\t\t0,\tIOCT|IOCTP|IOCT2|EE|I37 },"
+    }
+  ]
+}

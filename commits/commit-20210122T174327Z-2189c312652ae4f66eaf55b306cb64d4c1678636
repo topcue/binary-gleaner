@@ -1,0 +1,182 @@
+{
+  "sha": "2189c312652ae4f66eaf55b306cb64d4c1678636",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MjE4OWMzMTI2NTJhZTRmNjZlYWY1NWIzMDZjYjY0ZDRjMTY3ODYzNg==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-01-22T17:43:27Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-01-22T17:43:27Z"
+    },
+    "message": "gdb: add remote_debug_printf\n\nThis is the next in the new-style debug macro series.\n\nFor this one, I decided to omit the function name from the \"Sending packet\" /\n\"Packet received\" kind of prints, just because it's not very useful in that\ncontext and hinders readability more than anything else.  This is completely\narbitrary.\n\nThis is with:\n\n  [remote] putpkt_binary: Sending packet: $qTStatus#49...\n  [remote] getpkt_or_notif_sane_1: Packet received: T0;tnotrun:0;tframes:0;tcreated:0;tfree:500000;tsize:500000;circular:0;disconn:0;starttime:0;stoptime:0;username:;notes::\n\nand without:\n\n  [remote] Sending packet: $qTStatus#49...\n  [remote] Packet received: T0;tnotrun:0;tframes:0;tcreated:0;tfree:500000;tsize:500000;circular:0;disconn:0;starttime:0;stoptime:0;username:;notes::\n\nA difference is that previously, the query packet and its reply would be\nprinted on the same line, like this:\n\n  Sending packet: $qTStatus#49...Packet received: T0;tnotrun:0;tframes:0;tcreated:0;tfree:500000;tsize:500000;circular:0;disconn:0;starttime:0;stoptime:0;username:;notes::\n\nNow, they are printed on two lines, since each remote_debug_printf{,_nofunc}\nprints its own complete message including an end of line.  It's probably\na matter of taste, but I prefer the two-line version, it's easier to\nfollow, especially when the query packet is long.\n\nAs a result, lib/range-stepping-support.exp needs to be updated, as it\ncurrently expects the vCont packet and the reply to be on the same line.\nI think it's sufficient in that context to just expect the vCont packet\nand not the reply, since the goal is just to count how many vCont;r GDB\nsends.\n\ngdb/ChangeLog:\n\n\t* remote.h (remote_debug_printf): New.\n\t(remote_debug_printf_nofunc): New.\n\t(REMOTE_SCOPED_DEBUG_ENTER_EXIT): New.\n\t* remote.c: Use above macros throughout file.\n\ngdbsupport/ChangeLog:\n\n\t* common-debug.h (debug_prefixed_printf_cond_nofunc): New.\n\t* common-debug.c (debug_prefixed_vprintf): Handle a nullptr\n\tfunc.\n\ngdb/testsuite/ChangeLog:\n\n\t* lib/range-stepping-support.exp (exec_cmd_expect_vCont_count):\n\tAdjust to \"set debug remote\" changes.\n\nChange-Id: Ica6dead50d3f82e855c7d763f707cef74bed9fee",
+    "tree": {
+      "sha": "ca983ba85c1fff86eac62e83883f3b55c4f49cab",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/ca983ba85c1fff86eac62e83883f3b55c4f49cab"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/2189c312652ae4f66eaf55b306cb64d4c1678636",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2189c312652ae4f66eaf55b306cb64d4c1678636",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/2189c312652ae4f66eaf55b306cb64d4c1678636",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2189c312652ae4f66eaf55b306cb64d4c1678636/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "02349803fc5a7941b4e23d1580bd8b600d6be1bd",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/02349803fc5a7941b4e23d1580bd8b600d6be1bd",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/02349803fc5a7941b4e23d1580bd8b600d6be1bd"
+    }
+  ],
+  "stats": {
+    "total": 264,
+    "additions": 113,
+    "deletions": 151
+  },
+  "files": [
+    {
+      "sha": "2ee34c6a2cbe87b876fdde4a842110a4d38fae34",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2189c312652ae4f66eaf55b306cb64d4c1678636/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2189c312652ae4f66eaf55b306cb64d4c1678636/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=2189c312652ae4f66eaf55b306cb64d4c1678636",
+      "patch": "@@ -1,3 +1,10 @@\n+2021-01-22  Simon Marchi  <simon.marchi@polymtl.ca>\n+\n+\t* remote.h (remote_debug_printf): New.\n+\t(remote_debug_printf_nofunc): New.\n+\t(REMOTE_SCOPED_DEBUG_ENTER_EXIT): New.\n+\t* remote.c: Use above macros throughout file.\n+\n 2021-01-22  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* remote.h (remote_debug): Change to bool."
+    },
+    {
+      "sha": "bc995edc5387ec8c529e77391e98d0867ee80468",
+      "filename": "gdb/remote.c",
+      "status": "modified",
+      "additions": 63,
+      "deletions": 145,
+      "changes": 208,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2189c312652ae4f66eaf55b306cb64d4c1678636/gdb/remote.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2189c312652ae4f66eaf55b306cb64d4c1678636/gdb/remote.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/remote.c?ref=2189c312652ae4f66eaf55b306cb64d4c1678636",
+      "patch": "@@ -1990,10 +1990,8 @@ packet_ok (const char *buf, struct packet_config *config)\n       /* The stub recognized the packet request.  */\n       if (config->support == PACKET_SUPPORT_UNKNOWN)\n \t{\n-\t  if (remote_debug)\n-\t    fprintf_unfiltered (gdb_stdlog,\n-\t\t\t\t\"Packet %s (%s) is supported\\n\",\n-\t\t\t\tconfig->name, config->title);\n+\t  remote_debug_printf (\"Packet %s (%s) is supported\",\n+\t\t\t       config->name, config->title);\n \t  config->support = PACKET_ENABLE;\n \t}\n       break;\n@@ -2014,10 +2012,8 @@ packet_ok (const char *buf, struct packet_config *config)\n \t\t config->name, config->title);\n \t}\n \n-      if (remote_debug)\n-\tfprintf_unfiltered (gdb_stdlog,\n-\t\t\t    \"Packet %s (%s) is NOT supported\\n\",\n-\t\t\t    config->name, config->title);\n+      remote_debug_printf (\"Packet %s (%s) is NOT supported\",\n+\t\t\t   config->name, config->title);\n       config->support = PACKET_DISABLE;\n       break;\n     }\n@@ -2732,13 +2728,8 @@ remote_target::set_syscall_catchpoint (int pid, bool needed, int any_count,\n \t}\n     }\n \n-  if (remote_debug)\n-    {\n-      fprintf_unfiltered (gdb_stdlog,\n-\t\t\t  \"remote_set_syscall_catchpoint \"\n-\t\t\t  \"pid %d needed %d any_count %d n_sysno %d\\n\",\n-\t\t\t  pid, needed, any_count, n_sysno);\n-    }\n+  remote_debug_printf (\"pid %d needed %d any_count %d n_sysno %d\",\n+\t\t       pid, needed, any_count, n_sysno);\n \n   std::string built_packet;\n   if (needed)\n@@ -3709,9 +3700,8 @@ remote_target::remote_current_thread (ptid_t oldpid)\n       ptid_t result;\n \n       result = read_ptid (&rs->buf[2], &obuf);\n-      if (*obuf != '\\0' && remote_debug)\n-\tfprintf_unfiltered (gdb_stdlog,\n-\t\t\t    \"warning: garbage in qC reply\\n\");\n+      if (*obuf != '\\0')\n+\tremote_debug_printf (\"warning: garbage in qC reply\");\n \n       return result;\n     }\n@@ -4514,8 +4504,7 @@ remote_target::process_initial_stop_replies (int from_tty)\n \tcase TARGET_WAITKIND_SIGNALLED:\n \tcase TARGET_WAITKIND_EXITED:\n \t  /* We shouldn't see these, but if we do, just ignore.  */\n-\t  if (remote_debug)\n-\t    fprintf_unfiltered (gdb_stdlog, \"remote: event ignored\\n\");\n+\t  remote_debug_printf (\"event ignored\");\n \t  ignore_event = 1;\n \t  break;\n \n@@ -4638,6 +4627,8 @@ remote_target::process_initial_stop_replies (int from_tty)\n void\n remote_target::start_remote (int from_tty, int extended_p)\n {\n+  REMOTE_SCOPED_DEBUG_ENTER_EXIT;\n+\n   struct remote_state *rs = get_remote_state ();\n   struct packet_config *noack_config;\n \n@@ -4824,11 +4815,9 @@ remote_target::start_remote (int from_tty, int extended_p)\n \t\t tell us which thread was current (no \"thread\"\n \t\t register in T stop reply?).  Just pick the first\n \t\t thread in the thread list then.  */\n-\t      \n-\t      if (remote_debug)\n-\t\tfprintf_unfiltered (gdb_stdlog,\n-\t\t\t\t    \"warning: couldn't determine remote \"\n-\t\t\t\t    \"current thread; picking first in list.\\n\");\n+\n+\t      remote_debug_printf (\"warning: couldn't determine remote \"\n+\t\t\t\t   \"current thread; picking first in list.\");\n \n \t      for (thread_info *tp : all_non_exited_threads (this,\n \t\t\t\t\t\t\t     minus_one_ptid))\n@@ -6851,8 +6840,7 @@ remote_target::remote_interrupt_ns ()\n void\n remote_target::stop (ptid_t ptid)\n {\n-  if (remote_debug)\n-    fprintf_unfiltered (gdb_stdlog, \"remote_stop called\\n\");\n+  REMOTE_SCOPED_DEBUG_ENTER_EXIT;\n \n   if (target_is_non_stop_p ())\n     remote_stop_ns (ptid);\n@@ -6869,8 +6857,7 @@ remote_target::stop (ptid_t ptid)\n void\n remote_target::interrupt ()\n {\n-  if (remote_debug)\n-    fprintf_unfiltered (gdb_stdlog, \"remote_interrupt called\\n\");\n+  REMOTE_SCOPED_DEBUG_ENTER_EXIT;\n \n   if (target_is_non_stop_p ())\n     remote_interrupt_ns ();\n@@ -6883,10 +6870,9 @@ remote_target::interrupt ()\n void\n remote_target::pass_ctrlc ()\n {\n-  struct remote_state *rs = get_remote_state ();\n+  REMOTE_SCOPED_DEBUG_ENTER_EXIT;\n \n-  if (remote_debug)\n-    fprintf_unfiltered (gdb_stdlog, \"remote_pass_ctrlc called\\n\");\n+  struct remote_state *rs = get_remote_state ();\n \n   /* If we're starting up, we're not fully synced yet.  Quit\n      immediately.  */\n@@ -8148,6 +8134,8 @@ ptid_t\n remote_target::wait (ptid_t ptid, struct target_waitstatus *status,\n \t\t     target_wait_flags options)\n {\n+  REMOTE_SCOPED_DEBUG_ENTER_EXIT;\n+\n   ptid_t event_ptid;\n \n   if (target_is_non_stop_p ())\n@@ -8253,9 +8241,7 @@ remote_target::send_g_packet ()\n \t && (rs->buf[0] < 'a' || rs->buf[0] > 'f')\n \t && rs->buf[0] != 'x')\t/* New: unavailable register value.  */\n     {\n-      if (remote_debug)\n-\tfprintf_unfiltered (gdb_stdlog,\n-\t\t\t    \"Bad register packet; fetching a new packet\\n\");\n+      remote_debug_printf (\"Bad register packet; fetching a new packet\");\n       getpkt (&rs->buf, 0);\n     }\n \n@@ -8711,17 +8697,12 @@ remote_target::check_binary_download (CORE_ADDR addr)\n \n \tif (rs->buf[0] == '\\0')\n \t  {\n-\t    if (remote_debug)\n-\t      fprintf_unfiltered (gdb_stdlog,\n-\t\t\t\t  \"binary downloading NOT \"\n-\t\t\t\t  \"supported by target\\n\");\n+\t    remote_debug_printf (\"binary downloading NOT supported by target\");\n \t    remote_protocol_packets[PACKET_X].support = PACKET_DISABLE;\n \t  }\n \telse\n \t  {\n-\t    if (remote_debug)\n-\t      fprintf_unfiltered (gdb_stdlog,\n-\t\t\t\t  \"binary downloading supported by target\\n\");\n+\t    remote_debug_printf (\"binary downloading supported by target\");\n \t    remote_protocol_packets[PACKET_X].support = PACKET_ENABLE;\n \t  }\n \tbreak;\n@@ -9422,8 +9403,6 @@ remote_target::putpkt_binary (const char *buf, int cnt)\n \n   while (1)\n     {\n-      int started_error_output = 0;\n-\n       if (remote_debug)\n \t{\n \t  *p = '\\0';\n@@ -9439,15 +9418,12 @@ remote_target::putpkt_binary (const char *buf, int cnt)\n \t  std::string str\n \t    = escape_buffer (buf2, std::min (len, max_chars));\n \n-\t  fprintf_unfiltered (gdb_stdlog, \"Sending packet: %s\", str.c_str ());\n-\n \t  if (len > max_chars)\n-\t    fprintf_unfiltered (gdb_stdlog, \"[%d bytes omitted]\",\n-\t\t\t\tlen - max_chars);\n-\n-\t  fprintf_unfiltered (gdb_stdlog, \"...\");\n-\n-\t  gdb_flush (gdb_stdlog);\n+\t    remote_debug_printf_nofunc\n+\t      (\"Sending packet: %s [%d bytes omitted]\", str.c_str (),\n+\t       len - max_chars);\n+\t  else\n+\t    remote_debug_printf_nofunc (\"Sending packet: %s\", str.c_str ());\n \t}\n       remote_serial_write (buf2, p - buf2);\n \n@@ -9462,32 +9438,13 @@ remote_target::putpkt_binary (const char *buf, int cnt)\n \t{\n \t  ch = readchar (remote_timeout);\n \n-\t  if (remote_debug)\n-\t    {\n-\t      switch (ch)\n-\t\t{\n-\t\tcase '+':\n-\t\tcase '-':\n-\t\tcase SERIAL_TIMEOUT:\n-\t\tcase '$':\n-\t\tcase '%':\n-\t\t  if (started_error_output)\n-\t\t    {\n-\t\t      putchar_unfiltered ('\\n');\n-\t\t      started_error_output = 0;\n-\t\t    }\n-\t\t}\n-\t    }\n-\n \t  switch (ch)\n \t    {\n \t    case '+':\n-\t      if (remote_debug)\n-\t\tfprintf_unfiltered (gdb_stdlog, \"Ack\\n\");\n+\t      remote_debug_printf_nofunc (\"Received Ack\");\n \t      return 1;\n \t    case '-':\n-\t      if (remote_debug)\n-\t\tfprintf_unfiltered (gdb_stdlog, \"Nak\\n\");\n+\t      remote_debug_printf_nofunc (\"Received Nak\");\n \t      /* FALLTHROUGH */\n \t    case SERIAL_TIMEOUT:\n \t      tcount++;\n@@ -9496,9 +9453,7 @@ remote_target::putpkt_binary (const char *buf, int cnt)\n \t      break;\t\t/* Retransmit buffer.  */\n \t    case '$':\n \t      {\n-\t\tif (remote_debug)\n-\t\t  fprintf_unfiltered (gdb_stdlog,\n-\t\t\t\t      \"Packet instead of Ack, ignoring it\\n\");\n+\t\tremote_debug_printf (\"Packet instead of Ack, ignoring it\");\n \t\t/* It's probably an old response sent because an ACK\n \t\t   was lost.  Gobble up the packet and ack it so it\n \t\t   doesn't get retransmitted when we resend this\n@@ -9519,44 +9474,23 @@ remote_target::putpkt_binary (const char *buf, int cnt)\n \t\tval = read_frame (&rs->buf);\n \t\tif (val >= 0)\n \t\t  {\n-\t\t    if (remote_debug)\n-\t\t      {\n-\t\t\tstd::string str = escape_buffer (rs->buf.data (), val);\n+\t\t    remote_debug_printf_nofunc\n+\t\t      (\"  Notification received: %s\",\n+\t\t       escape_buffer (rs->buf.data (), val).c_str ());\n \n-\t\t\tfprintf_unfiltered (gdb_stdlog,\n-\t\t\t\t\t    \"  Notification received: %s\\n\",\n-\t\t\t\t\t    str.c_str ());\n-\t\t      }\n \t\t    handle_notification (rs->notif_state, rs->buf.data ());\n \t\t    /* We're in sync now, rewait for the ack.  */\n \t\t    tcount = 0;\n \t\t  }\n \t\telse\n-\t\t  {\n-\t\t    if (remote_debug)\n-\t\t      {\n-\t\t\tif (!started_error_output)\n-\t\t\t  {\n-\t\t\t    started_error_output = 1;\n-\t\t\t    fprintf_unfiltered (gdb_stdlog, \"putpkt: Junk: \");\n-\t\t\t  }\n-\t\t\tfputc_unfiltered (ch & 0177, gdb_stdlog);\n-\t\t\tfprintf_unfiltered (gdb_stdlog, \"%s\", rs->buf.data ());\n-\t\t      }\n-\t\t  }\n+\t\t  remote_debug_printf_nofunc (\"Junk: %c%s\", ch & 0177,\n+\t\t\t\t\t      rs->buf.data ());\n \t\tcontinue;\n \t      }\n \t      /* fall-through */\n \t    default:\n-\t      if (remote_debug)\n-\t\t{\n-\t\t  if (!started_error_output)\n-\t\t    {\n-\t\t      started_error_output = 1;\n-\t\t      fprintf_unfiltered (gdb_stdlog, \"putpkt: Junk: \");\n-\t\t    }\n-\t\t  fputc_unfiltered (ch & 0177, gdb_stdlog);\n-\t\t}\n+\t      remote_debug_printf_nofunc (\"Junk: %c%s\", ch & 0177,\n+\t\t\t\t\t  rs->buf.data ());\n \t      continue;\n \t    }\n \t  break;\t\t/* Here to retransmit.  */\n@@ -9642,14 +9576,13 @@ remote_target::read_frame (gdb::char_vector *buf_p)\n       switch (c)\n \t{\n \tcase SERIAL_TIMEOUT:\n-\t  if (remote_debug)\n-\t    fputs_filtered (\"Timeout in mid-packet, retrying\\n\", gdb_stdlog);\n+\t  remote_debug_printf (\"Timeout in mid-packet, retrying\");\n \t  return -1;\n+\n \tcase '$':\n-\t  if (remote_debug)\n-\t    fputs_filtered (\"Saw new packet start in middle of old one\\n\",\n-\t\t\t    gdb_stdlog);\n+\t  remote_debug_printf (\"Saw new packet start in middle of old one\");\n \t  return -1;\t\t/* Start a new packet, count retries.  */\n+\n \tcase '#':\n \t  {\n \t    unsigned char pktcsum;\n@@ -9664,16 +9597,12 @@ remote_target::read_frame (gdb::char_vector *buf_p)\n \n \t    if (check_0 == SERIAL_TIMEOUT || check_1 == SERIAL_TIMEOUT)\n \t      {\n-\t\tif (remote_debug)\n-\t\t  fputs_filtered (\"Timeout in checksum, retrying\\n\",\n-\t\t\t\t  gdb_stdlog);\n+\t\tremote_debug_printf (\"Timeout in checksum, retrying\");\n \t\treturn -1;\n \t      }\n \t    else if (check_0 < 0 || check_1 < 0)\n \t      {\n-\t\tif (remote_debug)\n-\t\t  fputs_filtered (\"Communication error in checksum\\n\",\n-\t\t\t\t  gdb_stdlog);\n+\t\tremote_debug_printf (\"Communication error in checksum\");\n \t\treturn -1;\n \t      }\n \n@@ -9687,15 +9616,10 @@ remote_target::read_frame (gdb::char_vector *buf_p)\n \t    if (csum == pktcsum)\n \t      return bc;\n \n-\t    if (remote_debug)\n-\t      {\n-\t\tstd::string str = escape_buffer (buf, bc);\n+\t    remote_debug_printf\n+\t      (\"Bad checksum, sentsum=0x%x, csum=0x%x, buf=%s\",\n+\t       pktcsum, csum, escape_buffer (buf, bc).c_str ());\n \n-\t\tfprintf_unfiltered (gdb_stdlog,\n-\t\t\t\t    \"Bad checksum, sentsum=0x%x, \"\n-\t\t\t\t    \"csum=0x%x, buf=%s\\n\",\n-\t\t\t\t    pktcsum, csum, str.c_str ());\n-\t      }\n \t    /* Number of characters in buffer ignoring trailing\n \t       NULL.  */\n \t    return -1;\n@@ -9847,8 +9771,8 @@ remote_target::getpkt_or_notif_sane_1 (gdb::char_vector *buf,\n \t\t\t       _(\"Watchdog timeout has expired.  \"\n \t\t\t\t \"Target detached.\"));\n \t\t}\n-\t      if (remote_debug)\n-\t\tfputs_filtered (\"Timed out.\\n\", gdb_stdlog);\n+\n+\t      remote_debug_printf (\"Timed out.\");\n \t    }\n \t  else\n \t    {\n@@ -9890,14 +9814,13 @@ remote_target::getpkt_or_notif_sane_1 (gdb::char_vector *buf,\n \t\t= escape_buffer (buf->data (),\n \t\t\t\t std::min (val, max_chars));\n \n-\t      fprintf_unfiltered (gdb_stdlog, \"Packet received: %s\",\n-\t\t\t\t  str.c_str ());\n-\n \t      if (val > max_chars)\n-\t\tfprintf_unfiltered (gdb_stdlog, \"[%d bytes omitted]\",\n-\t\t\t\t    val - max_chars);\n-\n-\t      fprintf_unfiltered (gdb_stdlog, \"\\n\");\n+\t\tremote_debug_printf_nofunc\n+\t\t  (\"Packet received: %s [%d bytes omitted]\", str.c_str (),\n+\t\t   val - max_chars);\n+\t      else\n+\t\tremote_debug_printf_nofunc (\"Packet received: %s\",\n+\t\t\t\t\t    str.c_str ());\n \t    }\n \n \t  /* Skip the ack char if we're in no-ack mode.  */\n@@ -9914,14 +9837,10 @@ remote_target::getpkt_or_notif_sane_1 (gdb::char_vector *buf,\n \t{\n \t  gdb_assert (c == '%');\n \n-\t  if (remote_debug)\n-\t    {\n-\t      std::string str = escape_buffer (buf->data (), val);\n+\t  remote_debug_printf_nofunc\n+\t    (\"  Notification received: %s\",\n+\t     escape_buffer (buf->data (), val).c_str ());\n \n-\t      fprintf_unfiltered (gdb_stdlog,\n-\t\t\t\t  \"  Notification received: %s\\n\",\n-\t\t\t\t  str.c_str ());\n-\t    }\n \t  if (is_notif != NULL)\n \t    *is_notif = 1;\n \n@@ -12313,16 +12232,15 @@ remote_target::remote_hostio_pread (int fd, gdb_byte *read_buf, int len,\n     {\n       cache->hit_count++;\n \n-      if (remote_debug)\n-\tfprintf_unfiltered (gdb_stdlog, \"readahead cache hit %s\\n\",\n-\t\t\t    pulongest (cache->hit_count));\n+      remote_debug_printf (\"readahead cache hit %s\",\n+\t\t\t   pulongest (cache->hit_count));\n       return ret;\n     }\n \n   cache->miss_count++;\n-  if (remote_debug)\n-    fprintf_unfiltered (gdb_stdlog, \"readahead cache miss %s\\n\",\n-\t\t\tpulongest (cache->miss_count));\n+\n+  remote_debug_printf (\"readahead cache miss %s\",\n+\t\t       pulongest (cache->miss_count));\n \n   cache->fd = fd;\n   cache->offset = offset;"
+    },
+    {
+      "sha": "18352ddb866f438c546f2033d46248a3f3289d9d",
+      "filename": "gdb/remote.h",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 0,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2189c312652ae4f66eaf55b306cb64d4c1678636/gdb/remote.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2189c312652ae4f66eaf55b306cb64d4c1678636/gdb/remote.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/remote.h?ref=2189c312652ae4f66eaf55b306cb64d4c1678636",
+      "patch": "@@ -28,6 +28,22 @@ struct remote_target;\n \n extern bool remote_debug;\n \n+/* Print a \"remote\" debug statement.  */\n+\n+#define remote_debug_printf(fmt, ...) \\\n+  debug_prefixed_printf_cond (remote_debug, \"remote\", fmt, ##__VA_ARGS__)\n+\n+/* Same as the above, but don't include the function name.  */\n+\n+#define remote_debug_printf_nofunc(fmt, ...) \\\n+\t\tdebug_prefixed_printf_cond_nofunc (remote_debug, \"remote\", \\\n+\t\t\t\t\t\t   fmt, ##__VA_ARGS__)\n+\n+/* Print \"remote\" enter/exit debug statements.  */\n+\n+#define REMOTE_SCOPED_DEBUG_ENTER_EXIT \\\n+  scoped_debug_enter_exit (remote_debug, \"remote\")\n+\n /* Read a packet from the remote machine, with error checking, and\n    store it in *BUF.  Resize *BUF using xrealloc if necessary to hold\n    the result, and update *SIZEOF_BUF.  If FOREVER, wait forever"
+    },
+    {
+      "sha": "5c22505e07d210c5dfcec3af2a0f520691a45144",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2189c312652ae4f66eaf55b306cb64d4c1678636/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2189c312652ae4f66eaf55b306cb64d4c1678636/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=2189c312652ae4f66eaf55b306cb64d4c1678636",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-01-22  Simon Marchi  <simon.marchi@polymtl.ca>\n+\n+\t* lib/range-stepping-support.exp (exec_cmd_expect_vCont_count):\n+\tAdjust to \"set debug remote\" changes.\n+\n 2021-01-21  Luis Machado  <luis.machado@linaro.org>\n \n \t* lib/gdbserver-support.exp (gdb_target_cmd_ext): Handle a new error"
+    },
+    {
+      "sha": "c9708361f3b1d7901ba29c520bae0d1bfca6e2b4",
+      "filename": "gdb/testsuite/lib/range-stepping-support.exp",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 5,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2189c312652ae4f66eaf55b306cb64d4c1678636/gdb/testsuite/lib/range-stepping-support.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2189c312652ae4f66eaf55b306cb64d4c1678636/gdb/testsuite/lib/range-stepping-support.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/lib/range-stepping-support.exp?ref=2189c312652ae4f66eaf55b306cb64d4c1678636",
+      "patch": "@@ -25,15 +25,13 @@ proc exec_cmd_expect_vCont_count { cmd exp_vCont_r } {\n     set r_counter 0\n     set s_counter 0\n     set ret 1\n-    # We either get a stop reply in all-stop mode, or an OK in\n-    # non-stop mode.\n-    set vcont_reply \"(T\\[\\[:xdigit:\\]\\]\\[\\[:xdigit:\\]\\]|OK)\"\n+    set any {[^\\r\\n]*}\n     gdb_test_multiple $cmd $test {\n-\t-re \"vCont;s\\[^\\r\\n\\]*Packet received: $vcont_reply\" {\n+\t-re \"vCont;s${any}\\r\\n\" {\n \t    incr s_counter\n \t    exp_continue\n \t}\n-\t-re \"vCont;r\\[^\\r\\n\\]*Packet received: $vcont_reply\" {\n+\t-re \"vCont;r${any}\\r\\n\" {\n \t    incr r_counter\n \t    exp_continue\n \t}"
+    },
+    {
+      "sha": "487107e3b146c2911adcbeada572022c8c672997",
+      "filename": "gdbsupport/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2189c312652ae4f66eaf55b306cb64d4c1678636/gdbsupport/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2189c312652ae4f66eaf55b306cb64d4c1678636/gdbsupport/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/ChangeLog?ref=2189c312652ae4f66eaf55b306cb64d4c1678636",
+      "patch": "@@ -1,3 +1,9 @@\n+2021-01-22  Simon Marchi  <simon.marchi@polymtl.ca>\n+\n+\t* common-debug.h (debug_prefixed_printf_cond_nofunc): New.\n+\t* common-debug.c (debug_prefixed_vprintf): Handle a nullptr\n+\tfunc.\n+\n 2021-01-08  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \tPR gdb/27157"
+    },
+    {
+      "sha": "39474c2c8603aea30573778375e49b10f0f2c46f",
+      "filename": "gdbsupport/common-debug.cc",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 1,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2189c312652ae4f66eaf55b306cb64d4c1678636/gdbsupport/common-debug.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2189c312652ae4f66eaf55b306cb64d4c1678636/gdbsupport/common-debug.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/common-debug.cc?ref=2189c312652ae4f66eaf55b306cb64d4c1678636",
+      "patch": "@@ -55,7 +55,11 @@ void\n debug_prefixed_vprintf (const char *module, const char *func,\n \t\t\tconst char *format, va_list args)\n {\n-  debug_printf (\"%*s[%s] %s: \", debug_print_depth * 2, \"\", module, func);\n+  if (func != nullptr)\n+    debug_printf (\"%*s[%s] %s: \", debug_print_depth * 2, \"\", module, func);\n+  else\n+    debug_printf (\"%*s[%s] \", debug_print_depth * 2, \"\", module);\n+\n   debug_vprintf (format, args);\n   debug_printf (\"\\n\");\n }"
+    },
+    {
+      "sha": "05367401a7d2ac05a1284a4f15ca0d766f53c989",
+      "filename": "gdbsupport/common-debug.h",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2189c312652ae4f66eaf55b306cb64d4c1678636/gdbsupport/common-debug.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2189c312652ae4f66eaf55b306cb64d4c1678636/gdbsupport/common-debug.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/common-debug.h?ref=2189c312652ae4f66eaf55b306cb64d4c1678636",
+      "patch": "@@ -66,6 +66,14 @@ extern void ATTRIBUTE_PRINTF (3, 0) debug_prefixed_vprintf\n     } \\\n   while (0)\n \n+#define debug_prefixed_printf_cond_nofunc(debug_enabled_cond, module, fmt, ...) \\\n+  do \\\n+    { \\\n+      if (debug_enabled_cond) \\\n+\tdebug_prefixed_printf (module, nullptr, fmt, ##__VA_ARGS__); \\\n+    } \\\n+  while (0)\n+\n /* Nesting depth of scoped_debug_start_end objects.  */\n \n extern int debug_print_depth;"
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "sha": "de146e1946ee45f2552c6b56714793a2eba9b823",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZGUxNDZlMTk0NmVlNDVmMjU1MmM2YjU2NzE0NzkzYTJlYmE5YjgyMw==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-02-22T16:41:32Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2021-02-22T16:41:32Z"
+    },
+    "message": "gdb: push target earlier in procfs_target::attach (PR 27435)\n\nSince this is a GDB 9 -> 10 regression, I would like to push it to\ngdb-10-branch.\n\nThis is a follow-up to:\n\n  https://sourceware.org/pipermail/gdb-patches/2021-February/176202.html\n\nThis patch fixes a segfault seen when attaching to a process on Solaris.\nThe steps leading to the segfault are:\n\n - procfs_target::attach calls do_attach, at this point the inferior's\n   process slot in the target stack is empty.\n - do_attach adds a thread with `add_thread (&the_procfs_target, ptid)`\n - in add_thread_silent, the passed target (&the_procfs_target) is\n   passed to find_inferior_ptid\n - find_inferior_ptid returns nullptr, as there is no inferior with this\n   ptid that has &the_procfs_target as its process target\n - the nullptr `inf` is passed to find_thread_ptid, which dereferences\n   it, causing a segfault\n - back in procfs_target::attach, after do_attach, we push the\n   the_procfs_target on the inferior's target stack, although we never\n   reach this because the segfault happens before.\n\nTo fix this, I think we need to do the same as is done in\ninf_ptrace_target::attach: push the target early and unpush it in case\nthe attach fails (and keep it if the attach succeeds).\n\nImplement it by moving target_unpush_up to target.h, so it can be\nre-used here.  Make procfs_target::attach use it.  Note that just like\nis mentioned in inf_ptrace_target::attach, we should push the target\nbefore calling target_pid_to_str, so that calling target_pid_to_str ends\nup in procfs_target::pid_to_str.\n\nTested by trying to attach on a process on gcc211 on the gcc compile\nfarm.\n\ngdb/ChangeLog:\n\n\tPR gdb/27435\n\t* inf-ptrace.c (struct target_unpusher): Move to target.h.\n\t(target_unpush_up): Likewise.\n\t* procfs.c (procfs_target::attach): Push target early.  Use\n\ttarget_unpush_up to unpush target in case of error.\n\t* target.h (struct target_unpusher): Move here.\n\t(target_unpush_up): Likewise.\n\nChange-Id: I88aff8b20204e1ca1d792e27ac6bc34fc1aa0d52",
+    "tree": {
+      "sha": "1811fc36f8bbb5e772aefdbab83816e3eb755c28",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/1811fc36f8bbb5e772aefdbab83816e3eb755c28"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/de146e1946ee45f2552c6b56714793a2eba9b823",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/de146e1946ee45f2552c6b56714793a2eba9b823",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/de146e1946ee45f2552c6b56714793a2eba9b823",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/de146e1946ee45f2552c6b56714793a2eba9b823/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "e9d18e0649ae83fcfafd325a2366973efde43b38",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e9d18e0649ae83fcfafd325a2366973efde43b38",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/e9d18e0649ae83fcfafd325a2366973efde43b38"
+    }
+  ],
+  "stats": {
+    "total": 54,
+    "additions": 36,
+    "deletions": 18
+  },
+  "files": [
+    {
+      "sha": "c2c86705e0c3b3d9f4987bdb87c7b974bcc705fa",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de146e1946ee45f2552c6b56714793a2eba9b823/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de146e1946ee45f2552c6b56714793a2eba9b823/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=de146e1946ee45f2552c6b56714793a2eba9b823",
+      "patch": "@@ -1,3 +1,13 @@\n+2021-02-22  Simon Marchi  <simon.marchi@polymtl.ca>\n+\n+\tPR gdb/27435\n+\t* inf-ptrace.c (struct target_unpusher): Move to target.h.\n+\t(target_unpush_up): Likewise.\n+\t* procfs.c (procfs_target::attach): Push target early.  Use\n+\ttarget_unpush_up to unpush target in case of error.\n+\t* target.h (struct target_unpusher): Move here.\n+\t(target_unpush_up): Likewise.\n+\n 2021-02-19  Kevin Buettner  <kevinb@redhat.com>\n \n \t* nat/amd64-linux-siginfo.c: Include \"gdbsupport/common-defs.h\""
+    },
+    {
+      "sha": "7ca02dfd87643efa227b52c8c070a03b4abba3f5",
+      "filename": "gdb/inf-ptrace.c",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 16,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de146e1946ee45f2552c6b56714793a2eba9b823/gdb/inf-ptrace.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de146e1946ee45f2552c6b56714793a2eba9b823/gdb/inf-ptrace.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/inf-ptrace.c?ref=de146e1946ee45f2552c6b56714793a2eba9b823",
+      "patch": "@@ -49,22 +49,6 @@ gdb_ptrace (PTRACE_TYPE_ARG1 request, ptid_t ptid, PTRACE_TYPE_ARG3 addr,\n #endif\n }\n \n-/* A unique_ptr helper to unpush a target.  */\n-\n-struct target_unpusher\n-{\n-  void operator() (struct target_ops *ops) const\n-  {\n-    unpush_target (ops);\n-  }\n-};\n-\n-/* A unique_ptr that unpushes a target on destruction.  */\n-\n-typedef std::unique_ptr<struct target_ops, target_unpusher> target_unpush_up;\n-\n-\f\n-\n inf_ptrace_target::~inf_ptrace_target ()\n {}\n "
+    },
+    {
+      "sha": "cab29c3cbbcb57ef577684b8f14d625e45a2487b",
+      "filename": "gdb/procfs.c",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 2,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de146e1946ee45f2552c6b56714793a2eba9b823/gdb/procfs.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de146e1946ee45f2552c6b56714793a2eba9b823/gdb/procfs.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/procfs.c?ref=de146e1946ee45f2552c6b56714793a2eba9b823",
+      "patch": "@@ -1767,6 +1767,14 @@ procfs_target::attach (const char *args, int from_tty)\n   if (pid == getpid ())\n     error (_(\"Attaching GDB to itself is not a good idea...\"));\n \n+  /* Push the target if needed, ensure it gets un-pushed it if attach fails.  */\n+  target_unpush_up unpusher;\n+  if (!target_is_pushed (this))\n+    {\n+      push_target (this);\n+      unpusher.reset (this);\n+    }\n+\n   if (from_tty)\n     {\n       const char *exec_file = get_exec_file (0);\n@@ -1780,9 +1788,11 @@ procfs_target::attach (const char *args, int from_tty)\n \n       fflush (stdout);\n     }\n+\n   do_attach (ptid_t (pid));\n-  if (!target_is_pushed (this))\n-    push_target (this);\n+\n+  /* Everything went fine, keep the target pushed.  */\n+  unpusher.release ();\n }\n \n void"
+    },
+    {
+      "sha": "52e23b05ffd81a9d6a5890cf991ebbef30345715",
+      "filename": "gdb/target.h",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/de146e1946ee45f2552c6b56714793a2eba9b823/gdb/target.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/de146e1946ee45f2552c6b56714793a2eba9b823/gdb/target.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/target.h?ref=de146e1946ee45f2552c6b56714793a2eba9b823",
+      "patch": "@@ -2392,6 +2392,20 @@ extern void push_target (target_ops_up &&);\n \n extern int unpush_target (struct target_ops *);\n \n+/* A unique_ptr helper to unpush a target.  */\n+\n+struct target_unpusher\n+{\n+  void operator() (struct target_ops *ops) const\n+  {\n+    unpush_target (ops);\n+  }\n+};\n+\n+/* A unique_ptr that unpushes a target on destruction.  */\n+\n+typedef std::unique_ptr<struct target_ops, target_unpusher> target_unpush_up;\n+\n extern void target_pre_inferior (int);\n \n extern void target_preopen (int);"
+    }
+  ]
+}

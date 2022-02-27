@@ -1,0 +1,110 @@
+{
+  "sha": "ea57e509a23223556c5aede50da8a2aa23a95912",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZWE1N2U1MDlhMjMyMjM1NTZjNWFlZGU1MGRhOGEyYWEyM2E5NTkxMg==",
+  "commit": {
+    "author": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2020-03-05T00:42:40Z"
+    },
+    "committer": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2020-07-22T19:32:24Z"
+    },
+    "message": "Remove hack for GDB which sets the section size to 0\n\nThis commit removes a hack for GDB which was introduced in 2007.\nSee:\n\n    https://sourceware.org/ml/binutils/2007-08/msg00044.html\n\nThat hack mostly allowed GDB's handling of core files to continue to\nwork without any changes to GDB.\n\nThe problem with setting the section size to zero is that GDB won't\nknow how big that section is/was.  Often, this doesn't matter because\nthe data in question are found in the exec file.  But it can happen\nthat the section describes memory that had been allocated, but never\nwritten to.  In this instance, the contents of that memory region are\nnot written to the core file.  Also, since the region in question was\ndynamically allocated, it won't appear in the exec file.  We don't\nwant these regions to appear as inaccessible to GDB (since they *were*\naccessible when the process was live), so it's important that GDB know\nthe size of the region.\n\nI've made changes to GDB which correctly handles this case.  When\nattempting to access memory, GDB will first consider core file data\nfor which both SEC_ALLOC and SEC_HAS_CONTENTS is set.  Next, if that\nfails, GDB will attempt to find the data in the exec file.  Finally,\nif that also fails, GDB will attempt to access memory in the sections\nwhich are flagged as SEC_ALLOC, but not SEC_HAS_CONTENTS.\n\nbfd/ChangeLog:\n\n\t* elf.c (_bfd_elf_make_section_from_phdr): Remove hack for GDB.",
+    "tree": {
+      "sha": "dcef4a7e243bcbd6f2391501726a8f0c01f2b3c4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/dcef4a7e243bcbd6f2391501726a8f0c01f2b3c4"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ea57e509a23223556c5aede50da8a2aa23a95912",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ea57e509a23223556c5aede50da8a2aa23a95912",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ea57e509a23223556c5aede50da8a2aa23a95912",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ea57e509a23223556c5aede50da8a2aa23a95912/comments",
+  "author": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "32fa152e3bfcf021ce49767be547fae5129d922b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/32fa152e3bfcf021ce49767be547fae5129d922b",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/32fa152e3bfcf021ce49767be547fae5129d922b"
+    }
+  ],
+  "stats": {
+    "total": 12,
+    "additions": 4,
+    "deletions": 8
+  },
+  "files": [
+    {
+      "sha": "adbf6f3b20bce3988daae30ca52c9c5cf69816cf",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ea57e509a23223556c5aede50da8a2aa23a95912/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ea57e509a23223556c5aede50da8a2aa23a95912/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=ea57e509a23223556c5aede50da8a2aa23a95912",
+      "patch": "@@ -1,3 +1,7 @@\n+2020-07-22  Kevin Buettner  <kevinb@redhat.com>\n+\n+\t* elf.c (_bfd_elf_make_section_from_phdr): Remove hack for GDB.\n+\t\n 2020-07-22  Max Filippov  <jcmvbkbc@gmail.com>\n \n \tPR 26246"
+    },
+    {
+      "sha": "991a71ca32a5107fff2b6f3863cdd2ad9b9d256d",
+      "filename": "bfd/elf.c",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 8,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ea57e509a23223556c5aede50da8a2aa23a95912/bfd/elf.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ea57e509a23223556c5aede50da8a2aa23a95912/bfd/elf.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf.c?ref=ea57e509a23223556c5aede50da8a2aa23a95912",
+      "patch": "@@ -3026,14 +3026,6 @@ _bfd_elf_make_section_from_phdr (bfd *abfd,\n       newsect->alignment_power = bfd_log2 (align);\n       if (hdr->p_type == PT_LOAD)\n \t{\n-\t  /* Hack for gdb.  Segments that have not been modified do\n-\t     not have their contents written to a core file, on the\n-\t     assumption that a debugger can find the contents in the\n-\t     executable.  We flag this case by setting the fake\n-\t     section size to zero.  Note that \"real\" bss sections will\n-\t     always have their contents dumped to the core file.  */\n-\t  if (bfd_get_format (abfd) == bfd_core)\n-\t    newsect->size = 0;\n \t  newsect->flags |= SEC_ALLOC;\n \t  if (hdr->p_flags & PF_X)\n \t    newsect->flags |= SEC_CODE;"
+    }
+  ]
+}

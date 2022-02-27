@@ -1,0 +1,170 @@
+{
+  "sha": "bf3386f0c13f52cf379440b4d06ed849a9f5706b",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YmYzMzg2ZjBjMTNmNTJjZjM3OTQ0MGI0ZDA2ZWQ4NDlhOWY1NzA2Yg==",
+  "commit": {
+    "author": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-02-05T13:51:34Z"
+    },
+    "committer": {
+      "name": "Andrew Burgess",
+      "email": "andrew.burgess@embecosm.com",
+      "date": "2021-02-11T10:26:19Z"
+    },
+    "message": "gdb: change 'maint info section' to use command options\n\nThe 'maintenance info sections' command currently takes a list of\nfilters on the command line.  It can also accept the magic string\n'ALLOBJ' which acts more like a command line flag, telling the command\nto print information about all objfiles.\n\nThe manual has this to say about the options and filters:\n\n  ... In addition, 'maint info sections' provides the following\n  command options (which may be arbitrarily combined): ...\n\nImplying (to me at least) that I can do this:\n\n  (gdb) maint info sections ALLOBJ READONLY\n\nto list all the read-only sections from all currently loaded object\nfiles.\n\nUnfortunately, this doesn't work.  The READONLY filter will work, but\nALLOBJ will not be detected correctly.\n\nIt would be fairly simple to fix the ALLOBJ detection.  However, I\ndislike this mixing of command options (ALLOBJ) with command data (the\nfilters, e.g. READONLY, etc).\n\nAs this is a maintenance command, so not really intended for end\nusers, I think we can be a little more aggressive in \"fixing\" the\noption parsing.  So that's what I do in this commit.\n\nThe ALLOBJ mechanism is replaced with a real command\noption (-all-objects).  The rest of the command operates just as\nbefore.  The example above would now become:\n\n  (gdb) maint info sections -all-objects READONLY\n\nThe manual has been updated, and I added a NEWS entry to document the\nchange.\n\ngdb/ChangeLog:\n\n\t* NEWS: Mention changes to 'maint info sections'.\n\t* maint.c (match_substring): Return a bool, fix whitespace issue.\n\t(struct single_bfd_flag_info): New struct.\n\t(bfd_flag_info): New static global.\n\t(match_bfd_flags): Return a bool, use bfd_flag_info.\n\t(print_bfd_flags): Use bfd_flag_info.\n\t(maint_print_section_info): Delete trailing whitespace.\n\t(struct maint_info_sections_opts): New struct.\n\t(maint_info_sections_option_defs): New static global.\n\t(maint_info_sections_completer): New function.\n\t(maintenance_info_sections): Use option parsing mechanism.\n\t(_initialize_maint_cmds): Register command completer.\n\ngdb/doc/ChangeLog:\n\n\t* gdb.texinfo (Files): Update documentation for 'maint info\n\tsections'.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.base/maint-info-sections.exp: Update expected output, and\n\tadd additional tests. Again.",
+    "tree": {
+      "sha": "26cd23b8e3508cc80be1aa2e823dd778ac96f368",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/26cd23b8e3508cc80be1aa2e823dd778ac96f368"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/bf3386f0c13f52cf379440b4d06ed849a9f5706b",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bf3386f0c13f52cf379440b4d06ed849a9f5706b",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/bf3386f0c13f52cf379440b4d06ed849a9f5706b",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/bf3386f0c13f52cf379440b4d06ed849a9f5706b/comments",
+  "author": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "T-J-Teru",
+    "id": 475372,
+    "node_id": "MDQ6VXNlcjQ3NTM3Mg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/475372?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/T-J-Teru",
+    "html_url": "https://github.com/T-J-Teru",
+    "followers_url": "https://api.github.com/users/T-J-Teru/followers",
+    "following_url": "https://api.github.com/users/T-J-Teru/following{/other_user}",
+    "gists_url": "https://api.github.com/users/T-J-Teru/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/T-J-Teru/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/T-J-Teru/subscriptions",
+    "organizations_url": "https://api.github.com/users/T-J-Teru/orgs",
+    "repos_url": "https://api.github.com/users/T-J-Teru/repos",
+    "events_url": "https://api.github.com/users/T-J-Teru/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/T-J-Teru/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "4790db149699b21113c566b8b9249953038fd3a7",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/4790db149699b21113c566b8b9249953038fd3a7",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/4790db149699b21113c566b8b9249953038fd3a7"
+    }
+  ],
+  "stats": {
+    "total": 320,
+    "additions": 213,
+    "deletions": 107
+  },
+  "files": [
+    {
+      "sha": "10f391e5ea531437890faba2d6fd9d4f322ba10c",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 0,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bf3386f0c13f52cf379440b4d06ed849a9f5706b/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bf3386f0c13f52cf379440b4d06ed849a9f5706b/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=bf3386f0c13f52cf379440b4d06ed849a9f5706b",
+      "patch": "@@ -1,3 +1,19 @@\n+2021-02-11  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* NEWS: Mention changes to 'maint info sections'.\n+\t* maint.c (match_substring): Return a bool, fix whitespace issue.\n+\t(struct single_bfd_flag_info): New struct.\n+\t(bfd_flag_info): New static global.\n+\t(match_bfd_flags): Return a bool, use bfd_flag_info.\n+\t(print_bfd_flags): Use bfd_flag_info.\n+\t(maint_print_section_info): Delete trailing whitespace.\n+\t(struct maint_info_sections_opts): New struct.\n+\t(maint_info_sections_option_defs): New static global.\n+\t(maint_info_sections_completer): New function.\n+\t(maintenance_info_sections): Use option parsing mechanism.\n+\t(_initialize_maint_cmds): Update command help text for 'maint info\n+\tsections' and register a command completer.\n+\n 2021-02-11  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* maint.c (print_bfd_section_info_maybe_relocated): Delete,"
+    },
+    {
+      "sha": "1dfbbc648eb62f30ef2cfb249b12c9acd5364f36",
+      "filename": "gdb/NEWS",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bf3386f0c13f52cf379440b4d06ed849a9f5706b/gdb/NEWS",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bf3386f0c13f52cf379440b4d06ed849a9f5706b/gdb/NEWS",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/NEWS?ref=bf3386f0c13f52cf379440b4d06ed849a9f5706b",
+      "patch": "@@ -86,6 +86,11 @@ inferior [ID]\n   behavior of the command is unchanged and have the inferior ID become\n   the current inferior.\n \n+maintenance info sections\n+  The ALLOBJ keyword has been replaced with an -all-objects command\n+  line flag.  It is now possible to filter which sections are printed\n+  even when -all-objects is passed.\n+\n * Removed targets and native configurations\n \n ARM Symbian\t\t\tarm*-*-symbianelf*"
+    },
+    {
+      "sha": "bc5a2ea0d93056491646e86e60eff7a759bc5752",
+      "filename": "gdb/doc/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bf3386f0c13f52cf379440b4d06ed849a9f5706b/gdb/doc/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bf3386f0c13f52cf379440b4d06ed849a9f5706b/gdb/doc/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/ChangeLog?ref=bf3386f0c13f52cf379440b4d06ed849a9f5706b",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-02-11  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.texinfo (Files): Update documentation for 'maint info\n+\tsections'.\n+\n 2021-02-08  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* python.texinfo (TUI Windows In Python): Extend description of"
+    },
+    {
+      "sha": "0b1deba96671c5ccee99a04e4725fee7614237b8",
+      "filename": "gdb/doc/gdb.texinfo",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 13,
+      "changes": 29,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bf3386f0c13f52cf379440b4d06ed849a9f5706b/gdb/doc/gdb.texinfo",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bf3386f0c13f52cf379440b4d06ed849a9f5706b/gdb/doc/gdb.texinfo",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/gdb.texinfo?ref=bf3386f0c13f52cf379440b4d06ed849a9f5706b",
+      "patch": "@@ -20619,22 +20619,25 @@ command @code{help target} lists all possible targets rather than\n current ones.\n \n @kindex maint info sections\n-@item maint info sections\n+@item maint info sections @r{[}-all-objects@r{]} @r{[}@var{filter-list}@r{]}\n Another command that can give you extra information about program sections\n is @code{maint info sections}.  In addition to the section information\n displayed by @code{info files}, this command displays the flags and file\n-offset of each section in the executable and core dump files.  In addition,\n-@code{maint info sections} provides the following command options (which\n-may be arbitrarily combined):\n-\n-@table @code\n-@item ALLOBJ\n-Display sections for all loaded object files, including shared libraries.\n-@item @var{sections}\n-Display info only for named @var{sections}.\n-@item @var{section-flags}\n-Display info only for sections for which @var{section-flags} are true.\n-The section flags that @value{GDBN} currently knows about are:\n+offset of each section in the executable and core dump files.\n+\n+When @samp{-all-objects} is passed then sections from all loaded object\n+files, including shared libraries, are printed.\n+\n+The optional @var{filter-list} is a space separated list of filter\n+keywords.  Sections that match any one of the filter criteria will be\n+printed.  There are two types of filter:\n+\n+@table @code\n+@item @var{section-name}\n+Display information about any section named @var{section-name}.\n+@item @var{section-flag}\n+Display information for any section with @var{section-flag}.  The\n+section flags that @value{GDBN} currently knows about are:\n @table @code\n @item ALLOC\n Section will have space allocated in the process when loaded."
+    },
+    {
+      "sha": "707d156ec2afd3975f2358310162b3633bfa7cff",
+      "filename": "gdb/maint.c",
+      "status": "modified",
+      "additions": 138,
+      "deletions": 90,
+      "changes": 228,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bf3386f0c13f52cf379440b4d06ed849a9f5706b/gdb/maint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bf3386f0c13f52cf379440b4d06ed849a9f5706b/gdb/maint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/maint.c?ref=bf3386f0c13f52cf379440b4d06ed849a9f5706b",
+      "patch": "@@ -131,10 +131,10 @@ maintenance_space_display (const char *args, int from_tty)\n \n /* Mini tokenizing lexer for 'maint info sections' command.  */\n \n-static int\n+static bool\n match_substring (const char *string, const char *substr)\n {\n-  int substr_len = strlen(substr);\n+  int substr_len = strlen (substr);\n   const char *tok;\n \n   while ((tok = strstr (string, substr)) != NULL)\n@@ -150,90 +150,82 @@ match_substring (const char *string, const char *substr)\n \t    || tok[substr_len] == '\\0')\n \t{\n \t  /* Token is delimited at the rear.  Got a whole-word match.  */\n-\t  return 1;\n+\t  return true;\n \t}\n       }\n       /* Token didn't match as a whole word.  Advance and try again.  */\n       string = tok + 1;\n     }\n-  return 0;\n+  return false;\n }\n \n-static int \n+/* Structure holding information about a single bfd section flag.  This is\n+   used by the \"maintenance info sections\" command to print the sections,\n+   and for filtering which sections are printed.  */\n+\n+struct single_bfd_flag_info\n+{\n+  /* The name of the section.  This is what is printed for the flag, and\n+     what the user enter in order to filter by flag.  */\n+  const char *name;\n+\n+  /* The bfd defined SEC_* flagword value for this flag.  */\n+  flagword value;\n+};\n+\n+/* Vector of all the known bfd flags.  */\n+\n+static const single_bfd_flag_info bfd_flag_info[] =\n+  {\n+    { \"ALLOC\", SEC_ALLOC },\n+    { \"LOAD\", SEC_LOAD },\n+    { \"RELOC\", SEC_RELOC },\n+    { \"READONLY\", SEC_READONLY },\n+    { \"CODE\", SEC_CODE },\n+    { \"DATA\", SEC_DATA },\n+    { \"ROM\", SEC_ROM },\n+    { \"CONSTRUCTOR\", SEC_CONSTRUCTOR },\n+    { \"HAS_CONTENTS\", SEC_HAS_CONTENTS },\n+    { \"NEVER_LOAD\", SEC_NEVER_LOAD },\n+    { \"COFF_SHARED_LIBRARY\", SEC_COFF_SHARED_LIBRARY },\n+    { \"IS_COMMON\", SEC_IS_COMMON }\n+  };\n+\n+/* For each flag in the global BFD_FLAG_INFO list, if FLAGS has a flag's\n+   flagword value set, and STRING contains the flag's name then return\n+   true, otherwise return false.  STRING is never nullptr.  */\n+\n+static bool\n match_bfd_flags (const char *string, flagword flags)\n {\n-  if (flags & SEC_ALLOC)\n-    if (match_substring (string, \"ALLOC\"))\n-      return 1;\n-  if (flags & SEC_LOAD)\n-    if (match_substring (string, \"LOAD\"))\n-      return 1;\n-  if (flags & SEC_RELOC)\n-    if (match_substring (string, \"RELOC\"))\n-      return 1;\n-  if (flags & SEC_READONLY)\n-    if (match_substring (string, \"READONLY\"))\n-      return 1;\n-  if (flags & SEC_CODE)\n-    if (match_substring (string, \"CODE\"))\n-      return 1;\n-  if (flags & SEC_DATA)\n-    if (match_substring (string, \"DATA\"))\n-      return 1;\n-  if (flags & SEC_ROM)\n-    if (match_substring (string, \"ROM\"))\n-      return 1;\n-  if (flags & SEC_CONSTRUCTOR)\n-    if (match_substring (string, \"CONSTRUCTOR\"))\n-      return 1;\n-  if (flags & SEC_HAS_CONTENTS)\n-    if (match_substring (string, \"HAS_CONTENTS\"))\n-      return 1;\n-  if (flags & SEC_NEVER_LOAD)\n-    if (match_substring (string, \"NEVER_LOAD\"))\n-      return 1;\n-  if (flags & SEC_COFF_SHARED_LIBRARY)\n-    if (match_substring (string, \"COFF_SHARED_LIBRARY\"))\n-      return 1;\n-  if (flags & SEC_IS_COMMON)\n-    if (match_substring (string, \"IS_COMMON\"))\n-      return 1;\n-\n-  return 0;\n+  gdb_assert (string != nullptr);\n+\n+  for (const auto &f : bfd_flag_info)\n+    {\n+      if (flags & f.value\n+\t  && match_substring (string, f.name))\n+\treturn true;\n+    }\n+\n+  return false;\n }\n \n+/* Print the names of all flags set in FLAGS.  The names are taken from the\n+   BFD_FLAG_INFO global.  */\n+\n static void\n print_bfd_flags (flagword flags)\n {\n-  if (flags & SEC_ALLOC)\n-    printf_filtered (\" ALLOC\");\n-  if (flags & SEC_LOAD)\n-    printf_filtered (\" LOAD\");\n-  if (flags & SEC_RELOC)\n-    printf_filtered (\" RELOC\");\n-  if (flags & SEC_READONLY)\n-    printf_filtered (\" READONLY\");\n-  if (flags & SEC_CODE)\n-    printf_filtered (\" CODE\");\n-  if (flags & SEC_DATA)\n-    printf_filtered (\" DATA\");\n-  if (flags & SEC_ROM)\n-    printf_filtered (\" ROM\");\n-  if (flags & SEC_CONSTRUCTOR)\n-    printf_filtered (\" CONSTRUCTOR\");\n-  if (flags & SEC_HAS_CONTENTS)\n-    printf_filtered (\" HAS_CONTENTS\");\n-  if (flags & SEC_NEVER_LOAD)\n-    printf_filtered (\" NEVER_LOAD\");\n-  if (flags & SEC_COFF_SHARED_LIBRARY)\n-    printf_filtered (\" COFF_SHARED_LIBRARY\");\n-  if (flags & SEC_IS_COMMON)\n-    printf_filtered (\" IS_COMMON\");\n+  for (const auto &f : bfd_flag_info)\n+    {\n+      if (flags & f.value)\n+\tprintf_filtered (\" %s\", f.name);\n+    }\n }\n \n static void\n-maint_print_section_info (const char *name, flagword flags, \n-\t\t\t  CORE_ADDR addr, CORE_ADDR endaddr, \n+maint_print_section_info (const char *name, flagword flags,\n+\t\t\t  CORE_ADDR addr, CORE_ADDR endaddr,\n \t\t\t  unsigned long filepos, int addr_size)\n {\n   printf_filtered (\"    %s\", hex_string_custom (addr, addr_size));\n@@ -400,27 +392,71 @@ maint_print_all_sections (const char *header, bfd *abfd, objfile *objfile,\n     }\n }\n \n+/* The options for the \"maintenance info sections\" command.  */\n+\n+struct maint_info_sections_opts\n+{\n+  /* For \"-all-objects\".  */\n+  bool all_objects = false;\n+};\n+\n+static const gdb::option::option_def maint_info_sections_option_defs[] = {\n+\n+  gdb::option::flag_option_def<maint_info_sections_opts> {\n+    \"all-objects\",\n+    [] (maint_info_sections_opts *opts) { return &opts->all_objects; },\n+    N_(\"Display information from all loaded object files.\"),\n+  },\n+};\n+\n+/* Create an option_def_group for the \"maintenance info sections\" options,\n+   with CC_OPTS as context.  */\n+\n+static inline gdb::option::option_def_group\n+make_maint_info_sections_options_def_group (maint_info_sections_opts *cc_opts)\n+{\n+  return {{maint_info_sections_option_defs}, cc_opts};\n+}\n+\n+/* Completion for the \"maintenance info sections\" command.  */\n+\n+static void\n+maint_info_sections_completer (struct cmd_list_element *cmd,\n+\t\t\t       completion_tracker &tracker,\n+\t\t\t       const char *text, const char * /* word */)\n+{\n+  /* Complete command options.  */\n+  const auto group = make_maint_info_sections_options_def_group (nullptr);\n+  if (gdb::option::complete_options\n+      (tracker, &text, gdb::option::PROCESS_OPTIONS_UNKNOWN_IS_ERROR, group))\n+    return;\n+  const char *word = advance_to_expression_complete_word_point (tracker, text);\n+\n+  /* Offer completion for section flags, but not section names.  This is\n+     only a maintenance command after all, no point going over the top.  */\n+  std::vector<const char *> flags;\n+  for (const auto &f : bfd_flag_info)\n+    flags.push_back (f.name);\n+  flags.push_back (nullptr);\n+  complete_on_enum (tracker, flags.data (), text, word);\n+}\n+\n /* Implement the \"maintenance info sections\" command.  */\n \n static void\n maintenance_info_sections (const char *arg, int from_tty)\n {\n-  bool allobj = false;\n-\n-  /* Only this function cares about the 'ALLOBJ' argument; if 'ALLOBJ' is\n-     the only argument, discard it rather than passing it down to\n-     print_objfile_section_info (which wouldn't know how to handle it).  */\n-  if (arg != nullptr && strcmp (arg, \"ALLOBJ\") == 0)\n-    {\n-      arg = nullptr;\n-      allobj = true;\n-    }\n+  /* Check if the \"-all-objects\" flag was passed.  */\n+  maint_info_sections_opts opts;\n+  const auto group = make_maint_info_sections_options_def_group (&opts);\n+  gdb::option::process_options\n+    (&arg, gdb::option::PROCESS_OPTIONS_UNKNOWN_IS_ERROR, group);\n \n   for (objfile *ofile : current_program_space->objfiles ())\n     {\n       if (ofile->obfd == current_program_space->exec_bfd ())\n \tmaint_print_all_sections (_(\"Exec file: \"), ofile->obfd, ofile, arg);\n-      else if (allobj)\n+      else if (opts.all_objects)\n \tmaint_print_all_sections (_(\"Object file: \"), ofile->obfd, ofile, arg);\n     }\n \n@@ -1062,17 +1098,29 @@ Commands for showing internal info about the program being debugged.\"),\n \t\t\t&maintenancelist);\n   add_alias_cmd (\"i\", \"info\", class_maintenance, 1, &maintenancelist);\n \n-  add_cmd (\"sections\", class_maintenance, maintenance_info_sections, _(\"\\\n+  const auto opts = make_maint_info_sections_options_def_group (nullptr);\n+  static std::string maint_info_sections_command_help\n+    = gdb::option::build_help (_(\"\\\n List the BFD sections of the exec and core files.\\n\\\n-Arguments may be any combination of:\\n\\\n-\t[one or more section names]\\n\\\n-\tALLOC LOAD RELOC READONLY CODE DATA ROM CONSTRUCTOR\\n\\\n-\tHAS_CONTENTS NEVER_LOAD COFF_SHARED_LIBRARY IS_COMMON\\n\\\n-Sections matching any argument will be listed (no argument\\n\\\n-implies all sections).  In addition, the special argument\\n\\\n-\tALLOBJ\\n\\\n-lists all sections from all object files, including shared libraries.\"),\n-\t   &maintenanceinfolist);\n+\\n\\\n+Usage: maintenance info sections [-all-objects] [FILTERS]\\n\\\n+\\n\\\n+FILTERS is a list of words, each word is either:\\n\\\n+  + A section name - any section with this name will be printed, or\\n\\\n+  + A section flag - any section with this flag will be printed.  The\\n\\\n+        known flags are:\\n\\\n+\t  ALLOC LOAD RELOC READONLY CODE DATA ROM CONSTRUCTOR\\n\\\n+\t  HAS_CONTENTS NEVER_LOAD COFF_SHARED_LIBRARY IS_COMMON\\n\\\n+\\n\\\n+Sections matching any of the FILTERS will be listed (no FILTERS implies\\n\\\n+all sections should be printed).\\n\\\n+\\n\\\n+Options:\\n\\\n+%OPTIONS%\"), opts);\n+  cmd = add_cmd (\"sections\", class_maintenance, maintenance_info_sections,\n+\t\t maint_info_sections_command_help.c_str (),\n+\t\t &maintenanceinfolist);\n+  set_cmd_completer_handle_brkchars (cmd, maint_info_sections_completer);\n \n   add_basic_prefix_cmd (\"print\", class_maintenance,\n \t\t\t_(\"Maintenance command for printing GDB internal state.\"),"
+    },
+    {
+      "sha": "f4c4ebf5dc59234f6227ba780fbf7d792b656e2f",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bf3386f0c13f52cf379440b4d06ed849a9f5706b/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bf3386f0c13f52cf379440b4d06ed849a9f5706b/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=bf3386f0c13f52cf379440b4d06ed849a9f5706b",
+      "patch": "@@ -1,3 +1,8 @@\n+2021-02-11  Andrew Burgess  <andrew.burgess@embecosm.com>\n+\n+\t* gdb.base/maint-info-sections.exp: Update expected output, and\n+\tadd additional tests. Again.\n+\n 2021-02-11  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.base/maint-info-sections.exp: Update expected output, and"
+    },
+    {
+      "sha": "07c53b16177363312f19da273bbbbadb525da474",
+      "filename": "gdb/testsuite/gdb.base/maint-info-sections.exp",
+      "status": "modified",
+      "additions": 28,
+      "deletions": 4,
+      "changes": 32,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/bf3386f0c13f52cf379440b4d06ed849a9f5706b/gdb/testsuite/gdb.base/maint-info-sections.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/bf3386f0c13f52cf379440b4d06ed849a9f5706b/gdb/testsuite/gdb.base/maint-info-sections.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/maint-info-sections.exp?ref=bf3386f0c13f52cf379440b4d06ed849a9f5706b",
+      "patch": "@@ -15,6 +15,8 @@\n \n # Test just for the 'maintenance info sections' command.\n \n+load_lib completion-support.exp\n+\n standard_testfile break.c break1.c\n \n if {[prepare_for_testing \"failed to prepare\" $testfile \\\n@@ -139,11 +141,11 @@ gdb_test \"add-symbol-file ${binfile}\" \".*\" \\\n gdb_test_no_output \"maint info sections\" \\\n     \"no output when no executable is set\"\n \n-# Check that the executable shows up as an object file when ALLOBJ is\n-# used.\n+# Check that the executable shows up as an object file when\n+# -all-objects is used.\n set seen_header false\n set seen_a_section false\n-gdb_test_multiple \"maint info sections ALLOBJ\" \"\" {\n+gdb_test_multiple \"maint info sections -all-objects\" \"\" {\n     -re \"Object file: `${binfile}', file type \\[^.\\]+\\.\\r\\n\" {\n \tset seen_header true\n \texp_continue\n@@ -154,7 +156,29 @@ gdb_test_multiple \"maint info sections ALLOBJ\" \"\" {\n     }\n     -re \"^$gdb_prompt $\" {\n \tgdb_assert { $seen_header && $seen_a_section } \\\n-\t    \"ensure header and section seen in ALLOBJ case\"\n+\t    \"ensure header and section seen in -all-objects case\"\n \tpass $gdb_test_name\n     }\n }\n+\n+# Test the command line completion on 'maint info sections'.  First\n+# the command line flag.\n+test_gdb_complete_unique \\\n+    \"maintenance info sections -\" \\\n+    \"maintenance info sections -all-objects\"\n+\n+# Now check the section flags complete.\n+test_gdb_complete_multiple \"maintenance info sections \" \"\" \"\" {\n+    \"ALLOC\"\n+    \"CODE\"\n+    \"COFF_SHARED_LIBRARY\"\n+    \"CONSTRUCTOR\"\n+    \"DATA\"\n+    \"HAS_CONTENTS\"\n+    \"IS_COMMON\"\n+    \"LOAD\"\n+    \"NEVER_LOAD\"\n+    \"READONLY\"\n+    \"RELOC\"\n+    \"ROM\"\n+}"
+    }
+  ]
+}

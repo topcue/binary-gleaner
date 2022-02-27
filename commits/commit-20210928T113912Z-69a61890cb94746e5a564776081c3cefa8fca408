@@ -1,0 +1,156 @@
+{
+  "sha": "69a61890cb94746e5a564776081c3cefa8fca408",
+  "node_id": "C_kwDOANOeidoAKDY5YTYxODkwY2I5NDc0NmU1YTU2NDc3NjA4MWMzY2VmYThmY2E0MDg",
+  "commit": {
+    "author": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2021-09-28T08:47:23Z"
+    },
+    "committer": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2021-09-28T11:39:12Z"
+    },
+    "message": "RISC-V: Allow to add numbers in the prefixed extension names.\n\nWe need to allow adding numbers in the prefixed extension names, since\nthe zve<32,64><d,f,x> extensions are included in the forzen rvv v1.0 spec\nrecently.  But there are two restrictions as follows,\n\n* The extension name ends with <number>p is invalid, since this may\nbe confused with extension with <number>.0 version.  We report errors\nfor this case.\n\nInvalid format: [z|h|s|zvm|x][0-9a-z]+[0-9]+p\n\n* The extension name ends with numbers is valid, but the numbers will\nbe parsed as major version, so try to avoid naming extensions like this.\n\nbfd/\n\t* elfxx-riscv.c (riscv_recognized_prefixed_ext): Renamed from\n\triscv_valid_prefixed_ext/\n\t(riscv_parsing_subset_version): The extensions end with <number>p\n\tis forbidden, we already report the detailed errors in the\n\triscv_parse_prefixed_ext, so clean the code and unused parameters.\n\t(riscv_parse_std_ext): Updated.\n\t(riscv_parse_prefixed_ext): Rewrite the parser to allow numbers\n\tin the prefixed extension names.\ngas/\n\t* testsuite/gas/riscv/march-fail-invalid-x-01.d: New testcases.\n\t* testsuite/gas/riscv/march-fail-invalid-x-02.d: Likewise.\n\t* testsuite/gas/riscv/march-fail-invalid-z-01.d: Likewise.\n\t* testsuite/gas/riscv/march-fail-invalid-z-02.d: Likewise.\n\t* testsuite/gas/riscv/march-fail-invalid.l: Likewise.\n\t* testsuite/gas/riscv/march-fail-version-x.d: Removed.\n\t* testsuite/gas/riscv/march-fail-version-z.d: Likewise.\n\t* testsuite/gas/riscv/march-fail-version.l: Likewise.",
+    "tree": {
+      "sha": "ed6d38097517c5b08a1af465815426a3733fc2e9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/ed6d38097517c5b08a1af465815426a3733fc2e9"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/69a61890cb94746e5a564776081c3cefa8fca408",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/69a61890cb94746e5a564776081c3cefa8fca408",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/69a61890cb94746e5a564776081c3cefa8fca408",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/69a61890cb94746e5a564776081c3cefa8fca408/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "91f2597bd24d171c1337a4629f8237aa47c59082",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/91f2597bd24d171c1337a4629f8237aa47c59082",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/91f2597bd24d171c1337a4629f8237aa47c59082"
+    }
+  ],
+  "stats": {
+    "total": 105,
+    "additions": 58,
+    "deletions": 47
+  },
+  "files": [
+    {
+      "sha": "c3d019c03a6a57fb44d2d275e976bfa9b04ac5fc",
+      "filename": "bfd/elfxx-riscv.c",
+      "status": "modified",
+      "additions": 44,
+      "deletions": 38,
+      "changes": 82,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/69a61890cb94746e5a564776081c3cefa8fca408/bfd/elfxx-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/69a61890cb94746e5a564776081c3cefa8fca408/bfd/elfxx-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfxx-riscv.c?ref=69a61890cb94746e5a564776081c3cefa8fca408",
+      "patch": "@@ -1236,11 +1236,11 @@ riscv_known_prefixed_ext (const char *ext,\n   return false;\n }\n \n-/* Check whether the prefixed extension is valid or not.  Return\n-   true if valid, otehrwise return false.  */\n+/* Check whether the prefixed extension is recognized or not.  Return\n+   true if recognized, otehrwise return false.  */\n \n static bool\n-riscv_valid_prefixed_ext (const char *ext)\n+riscv_recognized_prefixed_ext (const char *ext)\n {\n   enum riscv_prefix_ext_class class = riscv_get_prefix_class (ext);\n   switch (class)\n@@ -1254,7 +1254,7 @@ riscv_valid_prefixed_ext (const char *ext)\n   case RV_ISA_CLASS_H:\n     return riscv_known_prefixed_ext (ext, riscv_supported_std_h_ext);\n   case RV_ISA_CLASS_X:\n-    /* Only the single x is invalid.  */\n+    /* Only the single x is unrecognized.  */\n     if (strcmp (ext, \"x\") != 0)\n       return true;\n   default:\n@@ -1515,20 +1515,14 @@ riscv_release_subset_list (riscv_subset_list_t *subset_list)\n      Points to the end of version\n \n    Arguments:\n-     `rps`: Hooks and status for parsing extensions.\n-     `arch`: Full ISA string.\n      `p`: Curent parsing position.\n      `major_version`: Parsed major version.\n-     `minor_version`: Parsed minor version.\n-     `std_ext_p`: True if parsing standard extension.  */\n+     `minor_version`: Parsed minor version.  */\n \n static const char *\n-riscv_parsing_subset_version (riscv_parse_subset_t *rps,\n-\t\t\t      const char *arch,\n-\t\t\t      const char *p,\n+riscv_parsing_subset_version (const char *p,\n \t\t\t      int *major_version,\n-\t\t\t      int *minor_version,\n-\t\t\t      bool std_ext_p)\n+\t\t\t      int *minor_version)\n {\n   bool major_p = true;\n   int version = 0;\n@@ -1545,19 +1539,9 @@ riscv_parsing_subset_version (riscv_parse_subset_t *rps,\n \t  if (!ISDIGIT (np))\n \t    {\n \t      /* Might be beginning of `p` extension.  */\n-\t      if (std_ext_p)\n-\t\t{\n-\t\t  *major_version = version;\n-\t\t  *minor_version = 0;\n-\t\t  return p;\n-\t\t}\n-\t      else\n-\t\t{\n-\t\t  rps->error_handler\n-\t\t    (_(\"%s: expect number after `%dp'\"),\n-\t\t     arch, version);\n-\t\t  return NULL;\n-\t\t}\n+\t      *major_version = version;\n+\t      *minor_version = 0;\n+\t      return p;\n \t    }\n \n \t  *major_version = version;\n@@ -1648,7 +1632,7 @@ riscv_parse_std_ext (riscv_parse_subset_t *rps,\n \t  return NULL;\n \t}\n \n-      p = riscv_parsing_subset_version (rps, arch, ++p, &major, &minor, true);\n+      p = riscv_parsing_subset_version (++p, &major, &minor);\n       /* Added g as an implicit extension.  */\n       if (subset[0] == 'g')\n \t{\n@@ -1703,29 +1687,51 @@ riscv_parse_prefixed_ext (riscv_parse_subset_t *rps,\n       char *q = subset;\n       const char *end_of_version;\n \n-      while (*++q != '\\0' && *q != '_' && !ISDIGIT (*q))\n+      /* Extract the whole prefixed extension by '_'.  */\n+      while (*++q != '\\0' && *q != '_')\n \t;\n+      /* Look forward to the first letter which is not <major>p<minor>.  */\n+      bool find_any_version = false;\n+      bool find_minor_version = false;\n+      while (1)\n+\t{\n+\t  q--;\n+\t  if (ISDIGIT (*q))\n+\t    find_any_version = true;\n+\t  else if (find_any_version\n+\t\t   && !find_minor_version\n+\t\t   && *q == 'p'\n+\t\t   && ISDIGIT (*(q - 1)))\n+\t    find_minor_version = true;\n+\t  else\n+\t    break;\n+\t}\n+      q++;\n+\n+      /* Check if the end of extension is 'p' or not.  If yes, then\n+\t the second letter from the end cannot be number.  */\n+      if (*(q - 1) == 'p' && ISDIGIT (*(q - 2)))\n+\t{\n+\t  *q = '\\0';\n+\t  rps->error_handler\n+\t    (_(\"%s: invalid prefixed ISA extension `%s' ends with <number>p\"),\n+\t     arch, subset);\n+\t  free (subset);\n+\t  return NULL;\n+\t}\n \n       end_of_version =\n-\triscv_parsing_subset_version (rps, arch, q,\n-\t\t\t\t      &major_version,\n-\t\t\t\t      &minor_version, false);\n+\triscv_parsing_subset_version (q, &major_version, &minor_version);\n       *q = '\\0';\n-\n       if (end_of_version == NULL)\n \t{\n \t  free (subset);\n \t  return NULL;\n \t}\n \n-      /* Check if the prefix extension is known.\n-\t For 'x', anything goes but it cannot simply be 'x'.\n-\t For other prefixed extensions, it must be known from a list\n-\t and cannot simply be the prefixed name.  */\n-\n       /* Check that the extension name is well-formed.  */\n       if (rps->check_unknown_prefixed_ext\n-\t  && !riscv_valid_prefixed_ext (subset))\n+\t  && !riscv_recognized_prefixed_ext (subset))\n \t{\n \t  rps->error_handler\n \t    (_(\"%s: unknown prefixed ISA extension `%s'\"),"
+    },
+    {
+      "sha": "929cfac7a741f4a837b759bd0820aea2a7e6293b",
+      "filename": "gas/testsuite/gas/riscv/march-fail-invalid-x-01.d",
+      "status": "added",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/69a61890cb94746e5a564776081c3cefa8fca408/gas/testsuite/gas/riscv/march-fail-invalid-x-01.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/69a61890cb94746e5a564776081c3cefa8fca408/gas/testsuite/gas/riscv/march-fail-invalid-x-01.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-invalid-x-01.d?ref=69a61890cb94746e5a564776081c3cefa8fca408",
+      "patch": "@@ -0,0 +1,3 @@\n+#as: -march=rv32i_zicsr2p0_xargle2p\n+#source: empty.s\n+#error_output: march-fail-invalid.l"
+    },
+    {
+      "sha": "d85f16a42fa9c0a190abc88faa6108586690b9e8",
+      "filename": "gas/testsuite/gas/riscv/march-fail-invalid-x-02.d",
+      "status": "added",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/69a61890cb94746e5a564776081c3cefa8fca408/gas/testsuite/gas/riscv/march-fail-invalid-x-02.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/69a61890cb94746e5a564776081c3cefa8fca408/gas/testsuite/gas/riscv/march-fail-invalid-x-02.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-invalid-x-02.d?ref=69a61890cb94746e5a564776081c3cefa8fca408",
+      "patch": "@@ -0,0 +1,3 @@\n+#as: -march=rv32i_zicsr2p0_xargle2p3p0\n+#source: empty.s\n+#error_output: march-fail-invalid.l"
+    },
+    {
+      "sha": "5ecc72aa312912c8a61092ef05160b65e7def490",
+      "filename": "gas/testsuite/gas/riscv/march-fail-invalid-z-01.d",
+      "status": "added",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/69a61890cb94746e5a564776081c3cefa8fca408/gas/testsuite/gas/riscv/march-fail-invalid-z-01.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/69a61890cb94746e5a564776081c3cefa8fca408/gas/testsuite/gas/riscv/march-fail-invalid-z-01.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-invalid-z-01.d?ref=69a61890cb94746e5a564776081c3cefa8fca408",
+      "patch": "@@ -0,0 +1,3 @@\n+#as: -march=rv32i_zicsr2p\n+#source: empty.s\n+#error_output: march-fail-invalid.l"
+    },
+    {
+      "sha": "38e8def0eb65a084abea598b901a0d94a08a38b3",
+      "filename": "gas/testsuite/gas/riscv/march-fail-invalid-z-02.d",
+      "status": "added",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/69a61890cb94746e5a564776081c3cefa8fca408/gas/testsuite/gas/riscv/march-fail-invalid-z-02.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/69a61890cb94746e5a564776081c3cefa8fca408/gas/testsuite/gas/riscv/march-fail-invalid-z-02.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-invalid-z-02.d?ref=69a61890cb94746e5a564776081c3cefa8fca408",
+      "patch": "@@ -0,0 +1,3 @@\n+#as: -march=rv32i_zicsr2p4p0\n+#source: empty.s\n+#error_output: march-fail-invalid.l"
+    },
+    {
+      "sha": "804c3617f6f7b56b8dd87f687d560124d33d7cb3",
+      "filename": "gas/testsuite/gas/riscv/march-fail-invalid.l",
+      "status": "added",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/69a61890cb94746e5a564776081c3cefa8fca408/gas/testsuite/gas/riscv/march-fail-invalid.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/69a61890cb94746e5a564776081c3cefa8fca408/gas/testsuite/gas/riscv/march-fail-invalid.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-invalid.l?ref=69a61890cb94746e5a564776081c3cefa8fca408",
+      "patch": "@@ -0,0 +1,2 @@\n+.*Assembler messages:\n+.*Error: .*invalid prefixed ISA extension `[0-9a-z]+' ends with <number>p"
+    },
+    {
+      "sha": "8e140e3d5f3eb7a7b4bd57fb3efa23658948d2a8",
+      "filename": "gas/testsuite/gas/riscv/march-fail-version-x.d",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/91f2597bd24d171c1337a4629f8237aa47c59082/gas/testsuite/gas/riscv/march-fail-version-x.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/91f2597bd24d171c1337a4629f8237aa47c59082/gas/testsuite/gas/riscv/march-fail-version-x.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-version-x.d?ref=91f2597bd24d171c1337a4629f8237aa47c59082",
+      "patch": "@@ -1,3 +0,0 @@\n-#as: -march=rv32i2p_zicsr2p0_xargle2p\n-#source: empty.s\n-#error_output: march-fail-version.l"
+    },
+    {
+      "sha": "73ca5794bfe2469b4ca390a901b921a887fd873a",
+      "filename": "gas/testsuite/gas/riscv/march-fail-version-z.d",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/91f2597bd24d171c1337a4629f8237aa47c59082/gas/testsuite/gas/riscv/march-fail-version-z.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/91f2597bd24d171c1337a4629f8237aa47c59082/gas/testsuite/gas/riscv/march-fail-version-z.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-version-z.d?ref=91f2597bd24d171c1337a4629f8237aa47c59082",
+      "patch": "@@ -1,3 +0,0 @@\n-#as: -march=rv32i2p_zicsr2p\n-#source: empty.s\n-#error_output: march-fail-version.l"
+    },
+    {
+      "sha": "c7f8a4d5487ce89e126d14a39f253682dda3e405",
+      "filename": "gas/testsuite/gas/riscv/march-fail-version.l",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/91f2597bd24d171c1337a4629f8237aa47c59082/gas/testsuite/gas/riscv/march-fail-version.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/91f2597bd24d171c1337a4629f8237aa47c59082/gas/testsuite/gas/riscv/march-fail-version.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/riscv/march-fail-version.l?ref=91f2597bd24d171c1337a4629f8237aa47c59082",
+      "patch": "@@ -1,3 +0,0 @@\n-.*Assembler messages:\n-.*Error: cannot find default versions of the ISA extension `p'\n-.*Error: .*expect number after `2p'"
+    }
+  ]
+}

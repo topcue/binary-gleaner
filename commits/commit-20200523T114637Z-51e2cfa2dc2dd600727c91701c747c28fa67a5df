@@ -1,0 +1,134 @@
+{
+  "sha": "51e2cfa2dc2dd600727c91701c747c28fa67a5df",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NTFlMmNmYTJkYzJkZDYwMDcyN2M5MTcwMWM3NDdjMjhmYTY3YTVkZg==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "palves@redhat.com",
+      "date": "2020-05-23T11:46:37Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "palves@redhat.com",
+      "date": "2020-05-23T11:46:37Z"
+    },
+    "message": "Use safe-ctype.h (ISSPACE etc.) in symbol parsing & comparison\n\nThis patch avoids depending on the current locale when parsing &\ncomparing symbol names, by using libiberty's safe-ctype.h uppercase\nTOLOWER, ISXDIGIT, etc. macros instead of the standard ctype.h\ntolower, isxdigit, etc. macros/functions.\n\nThis commit:\n\n commit b1b60145aedb8adcb0b9dcf43a5ae735c2f03b51\n Author:     Pedro Alves <palves@redhat.com>\n AuthorDate: Tue May 22 17:35:38 2018 +0100\n\n    Support UTF-8 identifiers in C/C++ expressions (PR gdb/22973)\n\ndid something similar, except in the expression parser.\n\nThis can improve GDB's symbol loading performance significantly.\nCurrently strcmp_iw_ordered can show up high on profiles (called from\nsort_pst_symbols -> std::sort) because of the isspace and tolower\nfunctions.  Hannes mentions seeing it as high as in ~24% of the\nprofiling samples on Windows\n(https://sourceware.org/pipermail/gdb-patches/2020-May/168858.html).\n\nI tested GDB's performance (built with \"-g -O2\") loading a \"-g -O0\"\nbuild of gdb.\n\nI ran GDB 10 times like:\n\n\t  /bin/time -f %e \\\n\t\t    ./gdb/gdb --data-directory ./gdb/data-directory -nx \\\n\t\t    -batch /tmp/gdb-g-O0\n\nThen I computed the mean time.\n\nThe baseline mean time was\n\n gdb    2.515\n\nThis patch brings the number down to\n\n gdb    2.096\n\nWhich is an around 16% improvement.\n\ngdb/ChangeLog:\n2020-05-23  Pedro Alves  <palves@redhat.com>\n\n\t* utils.c: Include \"gdbsupport/gdb-safe-ctype.h\".\n\t(parse_escape): Use ISDIGIT instead of isdigit.\n\t(puts_debug): Use gdb_isprint instead of isprint.\n\t(fprintf_symbol_filtered): Use ISALNUM instead of isalnum.\n\t(cp_skip_operator_token, skip_ws, strncmp_iw_with_mode): Use\n\tISSPACE instead of isspace.\n\t(strncmp_iw_with_mode): Use TOLOWER instead of tolower and ISSPACE\n\tinstead of isspace.\n\t(strcmp_iw_ordered): Use ISSPACE instead of isspace.\n\t(string_to_core_addr): Use TOLOWER instead of tolower, ISXDIGIT\n\tinstead of isxdigit and ISDIGIT instead of isdigit.\n\ngdbsupport/ChangeLog:\n2020-05-23  Pedro Alves  <palves@redhat.com>\n\n\t* gdb-safe-ctype.h: New.",
+    "tree": {
+      "sha": "5b3affafd078666406b81aab732e84be1cd58c36",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/5b3affafd078666406b81aab732e84be1cd58c36"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/51e2cfa2dc2dd600727c91701c747c28fa67a5df",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/51e2cfa2dc2dd600727c91701c747c28fa67a5df",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/51e2cfa2dc2dd600727c91701c747c28fa67a5df",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/51e2cfa2dc2dd600727c91701c747c28fa67a5df/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "c892b44730bb1a66d614fd47fabe47555ca83b3b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c892b44730bb1a66d614fd47fabe47555ca83b3b",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/c892b44730bb1a66d614fd47fabe47555ca83b3b"
+    }
+  ],
+  "stats": {
+    "total": 111,
+    "additions": 88,
+    "deletions": 23
+  },
+  "files": [
+    {
+      "sha": "0dce256b6a427e695d62c781805a2b10aa89f92b",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/51e2cfa2dc2dd600727c91701c747c28fa67a5df/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/51e2cfa2dc2dd600727c91701c747c28fa67a5df/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=51e2cfa2dc2dd600727c91701c747c28fa67a5df",
+      "patch": "@@ -1,3 +1,17 @@\n+2020-05-23  Pedro Alves  <palves@redhat.com>\n+\n+\t* utils.c: Include \"gdbsupport/gdb-safe-ctype.h\".\n+\t(parse_escape): Use ISDIGIT instead of isdigit.\n+\t(puts_debug): Use gdb_isprint instead of isprint.\n+\t(fprintf_symbol_filtered): Use ISALNUM instead of isalnum.\n+\t(cp_skip_operator_token, skip_ws, strncmp_iw_with_mode): Use\n+\tISSPACE instead of isspace.\n+\t(strncmp_iw_with_mode): Use TOLOWER instead of tolower and ISSPACE\n+\tinstead of isspace.\n+\t(strcmp_iw_ordered): Use ISSPACE instead of isspace.\n+\t(string_to_core_addr): Use TOLOWER instead of tolower, ISXDIGIT\n+\tinstead of isxdigit and ISDIGIT instead of isdigit.\n+\n 2020-05-22  Simon Marchi  <simon.marchi@efficios.com>\n \n \t* gdbtypes.h (struct type) <field>: New method."
+    },
+    {
+      "sha": "102db28787fb66e55183d036714d596c370149df",
+      "filename": "gdb/utils.c",
+      "status": "modified",
+      "additions": 24,
+      "deletions": 23,
+      "changes": 47,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/51e2cfa2dc2dd600727c91701c747c28fa67a5df/gdb/utils.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/51e2cfa2dc2dd600727c91701c747c28fa67a5df/gdb/utils.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/utils.c?ref=51e2cfa2dc2dd600727c91701c747c28fa67a5df",
+      "patch": "@@ -74,6 +74,7 @@\n #include \"gdbsupport/scope-exit.h\"\n #include \"gdbarch.h\"\n #include \"cli-out.h\"\n+#include \"gdbsupport/gdb-safe-ctype.h\"\n \n void (*deprecated_error_begin_hook) (void);\n \n@@ -1025,7 +1026,7 @@ parse_escape (struct gdbarch *gdbarch, const char **string_ptr)\n \t  while (++count < 3)\n \t    {\n \t      c = (**string_ptr);\n-\t      if (isdigit (c) && c != '8' && c != '9')\n+\t      if (ISDIGIT (c) && c != '8' && c != '9')\n \t\t{\n \t\t  (*string_ptr)++;\n \t\t  i *= 8;\n@@ -1995,7 +1996,7 @@ puts_debug (char *prefix, char *string, char *suffix)\n       switch (ch)\n \t{\n \tdefault:\n-\t  if (isprint (ch))\n+\t  if (gdb_isprint (ch))\n \t    fputc_unfiltered (ch, gdb_stdlog);\n \n \t  else\n@@ -2316,7 +2317,7 @@ fprintf_symbol_filtered (struct ui_file *stream, const char *name,\n static bool\n valid_identifier_name_char (int ch)\n {\n-  return (isalnum (ch) || ch == '_');\n+  return (ISALNUM (ch) || ch == '_');\n }\n \n /* Skip to end of token, or to END, whatever comes first.  Input is\n@@ -2326,7 +2327,7 @@ static const char *\n cp_skip_operator_token (const char *token, const char *end)\n {\n   const char *p = token;\n-  while (p != end && !isspace (*p) && *p != '(')\n+  while (p != end && !ISSPACE (*p) && *p != '(')\n     {\n       if (valid_identifier_name_char (*p))\n \t{\n@@ -2380,9 +2381,9 @@ cp_skip_operator_token (const char *token, const char *end)\n static void\n skip_ws (const char *&string1, const char *&string2, const char *end_str2)\n {\n-  while (isspace (*string1))\n+  while (ISSPACE (*string1))\n     string1++;\n-  while (string2 < end_str2 && isspace (*string2))\n+  while (string2 < end_str2 && ISSPACE (*string2))\n     string2++;\n }\n \n@@ -2444,8 +2445,8 @@ strncmp_iw_with_mode (const char *string1, const char *string2,\n   while (1)\n     {\n       if (skip_spaces\n-\t  || ((isspace (*string1) && !valid_identifier_name_char (*string2))\n-\t      || (isspace (*string2) && !valid_identifier_name_char (*string1))))\n+\t  || ((ISSPACE (*string1) && !valid_identifier_name_char (*string2))\n+\t      || (ISSPACE (*string2) && !valid_identifier_name_char (*string1))))\n \t{\n \t  skip_ws (string1, string2, end_str2);\n \t  skip_spaces = false;\n@@ -2478,7 +2479,7 @@ strncmp_iw_with_mode (const char *string1, const char *string2,\n \t  if (match_for_lcd != NULL && abi_start != string1)\n \t    match_for_lcd->mark_ignored_range (abi_start, string1);\n \n-\t  while (isspace (*string1))\n+\t  while (ISSPACE (*string1))\n \t    string1++;\n \t}\n \n@@ -2503,9 +2504,9 @@ strncmp_iw_with_mode (const char *string1, const char *string2,\n \t  string1++;\n \t  string2++;\n \n-\t  while (isspace (*string1))\n+\t  while (ISSPACE (*string1))\n \t    string1++;\n-\t  while (string2 < end_str2 && isspace (*string2))\n+\t  while (string2 < end_str2 && ISSPACE (*string2))\n \t    string2++;\n \t  continue;\n \t}\n@@ -2599,14 +2600,14 @@ strncmp_iw_with_mode (const char *string1, const char *string2,\n       if (case_sensitivity == case_sensitive_on && *string1 != *string2)\n \tbreak;\n       if (case_sensitivity == case_sensitive_off\n-\t  && (tolower ((unsigned char) *string1)\n-\t      != tolower ((unsigned char) *string2)))\n+\t  && (TOLOWER ((unsigned char) *string1)\n+\t      != TOLOWER ((unsigned char) *string2)))\n \tbreak;\n \n       /* If we see any non-whitespace, non-identifier-name character\n \t (any of \"()<>*&\" etc.), then skip spaces the next time\n \t around.  */\n-      if (!isspace (*string1) && !valid_identifier_name_char (*string1))\n+      if (!ISSPACE (*string1) && !valid_identifier_name_char (*string1))\n \tskip_spaces = true;\n \n       string1++;\n@@ -2727,16 +2728,16 @@ strcmp_iw_ordered (const char *string1, const char *string2)\n \n       while (*string1 != '\\0' && *string2 != '\\0')\n \t{\n-\t  while (isspace (*string1))\n+\t  while (ISSPACE (*string1))\n \t    string1++;\n-\t  while (isspace (*string2))\n+\t  while (ISSPACE (*string2))\n \t    string2++;\n \n \t  switch (case_pass)\n \t  {\n \t    case case_sensitive_off:\n-\t      c1 = tolower ((unsigned char) *string1);\n-\t      c2 = tolower ((unsigned char) *string2);\n+\t      c1 = TOLOWER ((unsigned char) *string1);\n+\t      c2 = TOLOWER ((unsigned char) *string2);\n \t      break;\n \t    case case_sensitive_on:\n \t      c1 = *string1;\n@@ -2924,17 +2925,17 @@ string_to_core_addr (const char *my_string)\n {\n   CORE_ADDR addr = 0;\n \n-  if (my_string[0] == '0' && tolower (my_string[1]) == 'x')\n+  if (my_string[0] == '0' && TOLOWER (my_string[1]) == 'x')\n     {\n       /* Assume that it is in hex.  */\n       int i;\n \n       for (i = 2; my_string[i] != '\\0'; i++)\n \t{\n-\t  if (isdigit (my_string[i]))\n+\t  if (ISDIGIT (my_string[i]))\n \t    addr = (my_string[i] - '0') + (addr * 16);\n-\t  else if (isxdigit (my_string[i]))\n-\t    addr = (tolower (my_string[i]) - 'a' + 0xa) + (addr * 16);\n+\t  else if (ISXDIGIT (my_string[i]))\n+\t    addr = (TOLOWER (my_string[i]) - 'a' + 0xa) + (addr * 16);\n \t  else\n \t    error (_(\"invalid hex \\\"%s\\\"\"), my_string);\n \t}\n@@ -2946,7 +2947,7 @@ string_to_core_addr (const char *my_string)\n \n       for (i = 0; my_string[i] != '\\0'; i++)\n \t{\n-\t  if (isdigit (my_string[i]))\n+\t  if (ISDIGIT (my_string[i]))\n \t    addr = (my_string[i] - '0') + (addr * 10);\n \t  else\n \t    error (_(\"invalid decimal \\\"%s\\\"\"), my_string);"
+    },
+    {
+      "sha": "0bf2bb97635fbbb77fa65bf7d997ceae81602348",
+      "filename": "gdbserver/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/51e2cfa2dc2dd600727c91701c747c28fa67a5df/gdbserver/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/51e2cfa2dc2dd600727c91701c747c28fa67a5df/gdbserver/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbserver/ChangeLog?ref=51e2cfa2dc2dd600727c91701c747c28fa67a5df",
+      "patch": "@@ -1,3 +1,7 @@\n+2020-05-23  Pedro Alves  <palves@redhat.com>\n+\n+\t* gdb-safe-ctype.h: New.\n+\n 2020-05-16  Tankut Baris Aktemur  <tankut.baris.aktemur@intel.com>\n \n \t* linux-ia64-low.cc (ia64_target::sw_breakpoint_from_kind):"
+    },
+    {
+      "sha": "b8e3bb43e96e039802d9eba10aac011863d68b12",
+      "filename": "gdbsupport/gdb-safe-ctype.h",
+      "status": "added",
+      "additions": 46,
+      "deletions": 0,
+      "changes": 46,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/51e2cfa2dc2dd600727c91701c747c28fa67a5df/gdbsupport/gdb-safe-ctype.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/51e2cfa2dc2dd600727c91701c747c28fa67a5df/gdbsupport/gdb-safe-ctype.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdbsupport/gdb-safe-ctype.h?ref=51e2cfa2dc2dd600727c91701c747c28fa67a5df",
+      "patch": "@@ -0,0 +1,46 @@\n+/* Wrapper around libiberty's safe-ctype.h for GDB, the GNU debugger.\n+\n+   Copyright (C) 2019-2020 Free Software Foundation, Inc.\n+\n+   This file is part of GDB.\n+\n+   This program is free software; you can redistribute it and/or modify\n+   it under the terms of the GNU General Public License as published by\n+   the Free Software Foundation; either version 3 of the License, or\n+   (at your option) any later version.\n+\n+   This program is distributed in the hope that it will be useful,\n+   but WITHOUT ANY WARRANTY; without even the implied warranty of\n+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+   GNU General Public License for more details.\n+\n+   You should have received a copy of the GNU General Public License\n+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */\n+\n+#ifndef GDB_SAFE_CTYPE_H\n+#define GDB_SAFE_CTYPE_H\n+\n+/* After safe-ctype.h is included, we can no longer use the host's\n+   ctype routines.  Trying to do so results in compile errors.  Code\n+   that uses safe-ctype.h that wants to refer to the locale-dependent\n+   ctype functions must call these wrapper versions instead.  */\n+\n+static inline int\n+gdb_isprint (int ch)\n+{\n+  return isprint (ch);\n+}\n+\n+/* readline.h defines these symbols too, but we want libiberty's\n+   versions.  */\n+#undef ISALPHA\n+#undef ISALNUM\n+#undef ISDIGIT\n+#undef ISLOWER\n+#undef ISPRINT\n+#undef ISUPPER\n+#undef ISXDIGIT\n+\n+#include \"safe-ctype.h\"\n+\n+#endif"
+    }
+  ]
+}

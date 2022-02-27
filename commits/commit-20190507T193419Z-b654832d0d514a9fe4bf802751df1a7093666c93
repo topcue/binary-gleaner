@@ -1,0 +1,84 @@
+{
+  "sha": "b654832d0d514a9fe4bf802751df1a7093666c93",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YjY1NDgzMmQwZDUxNGE5ZmU0YmY4MDI3NTFkZjFhNzA5MzY2NmM5Mw==",
+  "commit": {
+    "author": {
+      "name": "Alexandre Oliva",
+      "email": "aoliva@redhat.com",
+      "date": "2019-05-07T19:34:19Z"
+    },
+    "committer": {
+      "name": "Alexandre Oliva",
+      "email": "aoliva@redhat.com",
+      "date": "2019-05-07T19:34:19Z"
+    },
+    "message": "xfail locview tests on mep that use complex relocs for view numbers\n\nExpressions that compute view numbers that aren't simplified early\nenough to a constant end up being selected for representation as\ncomplex relocations, enabled on mep-* targets.\n\nIt would be possible to recognize such expressions, that can resolve\nto constants, but this problem was hit before, in preexisting tests,\nso xfail the new hits similarly.\n\nThe new hits were caused by yesterday's patch to dwarf2dbg.c: views in\nthe beginning of subsections are now computed later, based on the\nfinal views or previous subsections in the same section.\n\nfor  gas/ChangeLog\n\n\t* testsuite/gas/elf/dwarf2-18.d: Xfail mep-*.\n\t* testsuite/gas/elf/dwarf2-19.d: Likewise.",
+    "tree": {
+      "sha": "b72ec4433801037845bdac216532ed08df908501",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/b72ec4433801037845bdac216532ed08df908501"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/b654832d0d514a9fe4bf802751df1a7093666c93",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b654832d0d514a9fe4bf802751df1a7093666c93",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/b654832d0d514a9fe4bf802751df1a7093666c93",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b654832d0d514a9fe4bf802751df1a7093666c93/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "7bd55dac80c2faced875119b60acfb51741e397e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7bd55dac80c2faced875119b60acfb51741e397e",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/7bd55dac80c2faced875119b60acfb51741e397e"
+    }
+  ],
+  "stats": {
+    "total": 11,
+    "additions": 9,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "9ba89180744c086c93800bdde49b38bf48621325",
+      "filename": "gas/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b654832d0d514a9fe4bf802751df1a7093666c93/gas/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b654832d0d514a9fe4bf802751df1a7093666c93/gas/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/ChangeLog?ref=b654832d0d514a9fe4bf802751df1a7093666c93",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-05-07  Alexandre Oliva <aoliva@redhat.com>\n+\n+\t* testsuite/gas/elf/dwarf2-18.d: Xfail mep-*.\n+\t* testsuite/gas/elf/dwarf2-19.d: Likewise.\n+\n 2019-05-07  Alan Modra  <amodra@gmail.com>\n \n \t* symbols.c (use_complex_relocs_for): Formatting.  Factor out"
+    },
+    {
+      "sha": "8d47aaee501f74316daa32342d818792e489cab3",
+      "filename": "gas/testsuite/gas/elf/dwarf2-18.d",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b654832d0d514a9fe4bf802751df1a7093666c93/gas/testsuite/gas/elf/dwarf2-18.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b654832d0d514a9fe4bf802751df1a7093666c93/gas/testsuite/gas/elf/dwarf2-18.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/elf/dwarf2-18.d?ref=b654832d0d514a9fe4bf802751df1a7093666c93",
+      "patch": "@@ -2,9 +2,10 @@\n #readelf: -x.rodata -wL\n #name: DWARF2 18\n # The am33 avr cr16 crx ft32 mn10 msp430 nds32 pru rl78 and xtensa targets do not evaluate the subtraction of symbols at assembly time.\n+# The mep targets turns some view computations into complex relocations.\n # The riscv targets do not support the subtraction of symbols.\n # The tile targets require 8-byte instructions, but the test only simulates 4-byte instructions.\n-#notarget: am3*-* avr-* cr16-* crx-* ft32*-* mn10*-* msp430-* nds32*-* pru-* riscv*-* rl78-* tile*-* xtensa-*\n+#notarget: am3*-* avr-* cr16-* crx-* ft32*-* mep-* mn10*-* msp430-* nds32*-* pru-* riscv*-* rl78-* tile*-* xtensa-*\n \n Hex dump of section '\\.rodata':\n   0x00000000 0100 *.*"
+    },
+    {
+      "sha": "2c38e4e07aef47065747b9fe96b51ec4d8bc7ce6",
+      "filename": "gas/testsuite/gas/elf/dwarf2-19.d",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b654832d0d514a9fe4bf802751df1a7093666c93/gas/testsuite/gas/elf/dwarf2-19.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b654832d0d514a9fe4bf802751df1a7093666c93/gas/testsuite/gas/elf/dwarf2-19.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/elf/dwarf2-19.d?ref=b654832d0d514a9fe4bf802751df1a7093666c93",
+      "patch": "@@ -2,9 +2,10 @@\n #readelf: -x.rodata -wL\n #name: DWARF2 19\n # The am33 avr cr16 crx ft32 mn10 msp430 nds32 pru rl78 and xtensa targets do not evaluate the subtraction of symbols at assembly time.\n+# The mep targets turns some view computations into complex relocations.\n # The riscv targets do not support the subtraction of symbols.\n # The tile targets require 8-byte instructions, but the test only simulates 4-byte instructions.\n-#notarget: am3*-* avr-* cr16-* crx-* ft32*-* mn10*-* msp430-* nds32*-* pru-* riscv*-* rl78-* tile*-* xtensa-*\n+#notarget: am3*-* avr-* cr16-* crx-* ft32*-* mep-* mn10*-* msp430-* nds32*-* pru-* riscv*-* rl78-* tile*-* xtensa-*\n \n Hex dump of section '\\.rodata':\n   0x00000000 01000102 *.*"
+    }
+  ]
+}

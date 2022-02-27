@@ -1,0 +1,98 @@
+{
+  "sha": "dbf98db6f073cc646b20b5dcfabfadeec61b4ea3",
+  "node_id": "C_kwDOANOeidoAKGRiZjk4ZGI2ZjA3M2NjNjQ2YjIwYjVkY2ZhYmZhZGVlYzYxYjRlYTM",
+  "commit": {
+    "author": {
+      "name": "Jeff Law",
+      "email": "jeffreyalaw@gmail.com",
+      "date": "2021-11-20T18:06:15Z"
+    },
+    "committer": {
+      "name": "Jeff Law",
+      "email": "jeffreyalaw@gmail.com",
+      "date": "2021-11-20T18:06:15Z"
+    },
+    "message": "    Fix intermittent failures on the H8, particularly H8/SX tests.\n\n    The upstream GCC tester has  showed spurious execution failures on the\n    H8 target for the H8/SX multilibs. I suspected memory corruption or an\n    uninitialized variable early as the same binary would sometimes work and\n    sometimes it got the wrong result. Worse yet, the point where the test\n    determined it was getting the wrong result would change.\n\n    Because it only happened on the H8/SX variant I was able to zero in on\n    the \"mova\" support and the \"short form\" of those instructions in particular.\n\n    As the code stands it checks if code->op3.type == 0 to try and identify cases\n    where op3 wasn't filled in and thus we've got the short form of the mova\n    instruction.\n\n    But for the short-form of those instructions we never set any of the \"op3\"\n    data structure. We get whatever was lying around -- it's usually zero and\n     thus things usually work, but if the stale data was nonzero, then we'd\n    fail to recognize the instruction as a short-form and fail to set up the\n    various fields appropriately.\n\n    I initially initialized the op3.type field to zero, but didn't like that\n     because it was inconsistent with how other operands were initialized.\n    Bringing consistency meant using -1 as the initializer value and adjusting\n    the check for short form mova appropriately.\n\n    I've had this in the upstream GCC tester for perhaps a year at this point\n    and haven't seen any of the intermittent failures again.",
+    "tree": {
+      "sha": "cc62c4f639bcad7f76248e9ecb534b6a178c7c9f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/cc62c4f639bcad7f76248e9ecb534b6a178c7c9f"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/dbf98db6f073cc646b20b5dcfabfadeec61b4ea3",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/dbf98db6f073cc646b20b5dcfabfadeec61b4ea3",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/dbf98db6f073cc646b20b5dcfabfadeec61b4ea3",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/dbf98db6f073cc646b20b5dcfabfadeec61b4ea3/comments",
+  "author": {
+    "login": "JeffreyALaw",
+    "id": 14062506,
+    "node_id": "MDQ6VXNlcjE0MDYyNTA2",
+    "avatar_url": "https://avatars.githubusercontent.com/u/14062506?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/JeffreyALaw",
+    "html_url": "https://github.com/JeffreyALaw",
+    "followers_url": "https://api.github.com/users/JeffreyALaw/followers",
+    "following_url": "https://api.github.com/users/JeffreyALaw/following{/other_user}",
+    "gists_url": "https://api.github.com/users/JeffreyALaw/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/JeffreyALaw/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/JeffreyALaw/subscriptions",
+    "organizations_url": "https://api.github.com/users/JeffreyALaw/orgs",
+    "repos_url": "https://api.github.com/users/JeffreyALaw/repos",
+    "events_url": "https://api.github.com/users/JeffreyALaw/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/JeffreyALaw/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "JeffreyALaw",
+    "id": 14062506,
+    "node_id": "MDQ6VXNlcjE0MDYyNTA2",
+    "avatar_url": "https://avatars.githubusercontent.com/u/14062506?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/JeffreyALaw",
+    "html_url": "https://github.com/JeffreyALaw",
+    "followers_url": "https://api.github.com/users/JeffreyALaw/followers",
+    "following_url": "https://api.github.com/users/JeffreyALaw/following{/other_user}",
+    "gists_url": "https://api.github.com/users/JeffreyALaw/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/JeffreyALaw/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/JeffreyALaw/subscriptions",
+    "organizations_url": "https://api.github.com/users/JeffreyALaw/orgs",
+    "repos_url": "https://api.github.com/users/JeffreyALaw/repos",
+    "events_url": "https://api.github.com/users/JeffreyALaw/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/JeffreyALaw/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "911438f9f4516f2c5c3fc4eaecc47571aef98d1d",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/911438f9f4516f2c5c3fc4eaecc47571aef98d1d",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/911438f9f4516f2c5c3fc4eaecc47571aef98d1d"
+    }
+  ],
+  "stats": {
+    "total": 3,
+    "additions": 2,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "9be7dd565a922466cede1fae3fea94f5f5bab809",
+      "filename": "sim/h8300/compile.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/dbf98db6f073cc646b20b5dcfabfadeec61b4ea3/sim/h8300/compile.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/dbf98db6f073cc646b20b5dcfabfadeec61b4ea3/sim/h8300/compile.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/sim/h8300/compile.c?ref=dbf98db6f073cc646b20b5dcfabfadeec61b4ea3",
+      "patch": "@@ -492,6 +492,7 @@ decode (SIM_DESC sd, int addr, unsigned char *data, decoded_inst *dst)\n \n   dst->dst.type = -1;\n   dst->src.type = -1;\n+  dst->op3.type = -1;\n \n   /* Find the exact opcode/arg combo.  */\n   for (q = h8_opcodes; q->name; q++)\n@@ -1853,7 +1854,7 @@ step_once (SIM_DESC sd, SIM_CPU *cpu)\n \t\tof the same register.\n \t  */\n \n-\t  if (code->op3.type == 0)\n+\t  if (code->op3.type == -1)\n \t    {\n \t      /* Short form: src == INDEXB/INDEXW, dst == op3 == 0.\n \t\t We get to compose dst and op3 as follows:"
+    }
+  ]
+}

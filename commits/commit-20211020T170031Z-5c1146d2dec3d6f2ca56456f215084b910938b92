@@ -1,0 +1,98 @@
+{
+  "sha": "5c1146d2dec3d6f2ca56456f215084b910938b92",
+  "node_id": "C_kwDOANOeidoAKDVjMTE0NmQyZGVjM2Q2ZjJjYTU2NDU2ZjIxNTA4NGI5MTA5MzhiOTI",
+  "commit": {
+    "author": {
+      "name": "Tom Tromey",
+      "email": "tom@tromey.com",
+      "date": "2021-10-02T22:43:49Z"
+    },
+    "committer": {
+      "name": "Tom Tromey",
+      "email": "tom@tromey.com",
+      "date": "2021-10-20T17:00:31Z"
+    },
+    "message": "Use unique_xmalloc_ptr in exec_catchpoint\n\nThis changes struct exec_catchpoint to use a unique_xmalloc_ptr,\nremoving a bit of manual memory management.",
+    "tree": {
+      "sha": "af4ec50d2a16dbd09bb71f67ddc11c783c4f9b00",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/af4ec50d2a16dbd09bb71f67ddc11c783c4f9b00"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/5c1146d2dec3d6f2ca56456f215084b910938b92",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5c1146d2dec3d6f2ca56456f215084b910938b92",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/5c1146d2dec3d6f2ca56456f215084b910938b92",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5c1146d2dec3d6f2ca56456f215084b910938b92/comments",
+  "author": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "b00577cd7bbcd77af96b14d3993430c076a87d17",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b00577cd7bbcd77af96b14d3993430c076a87d17",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b00577cd7bbcd77af96b14d3993430c076a87d17"
+    }
+  ],
+  "stats": {
+    "total": 19,
+    "additions": 5,
+    "deletions": 14
+  },
+  "files": [
+    {
+      "sha": "8016dd3b83f559357515912ae75ff607b10de5b5",
+      "filename": "gdb/breakpoint.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 14,
+      "changes": 19,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5c1146d2dec3d6f2ca56456f215084b910938b92/gdb/breakpoint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5c1146d2dec3d6f2ca56456f215084b910938b92/gdb/breakpoint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/breakpoint.c?ref=5c1146d2dec3d6f2ca56456f215084b910938b92",
+      "patch": "@@ -8250,21 +8250,12 @@ create_fork_vfork_event_catchpoint (struct gdbarch *gdbarch,\n \n struct exec_catchpoint : public breakpoint\n {\n-  ~exec_catchpoint () override;\n-\n   /* Filename of a program whose exec triggered this catchpoint.\n      This field is only valid immediately after this catchpoint has\n      triggered.  */\n-  char *exec_pathname;\n+  gdb::unique_xmalloc_ptr<char> exec_pathname;\n };\n \n-/* Exec catchpoint destructor.  */\n-\n-exec_catchpoint::~exec_catchpoint ()\n-{\n-  xfree (this->exec_pathname);\n-}\n-\n static int\n insert_catch_exec (struct bp_location *bl)\n {\n@@ -8287,7 +8278,7 @@ breakpoint_hit_catch_exec (const struct bp_location *bl,\n   if (ws->kind != TARGET_WAITKIND_EXECD)\n     return 0;\n \n-  c->exec_pathname = xstrdup (ws->value.execd_pathname);\n+  c->exec_pathname = make_unique_xstrdup (ws->value.execd_pathname);\n   return 1;\n }\n \n@@ -8311,7 +8302,7 @@ print_it_catch_exec (bpstat bs)\n     }\n   uiout->field_signed (\"bkptno\", b->number);\n   uiout->text (\" (exec'd \");\n-  uiout->field_string (\"new-exec\", c->exec_pathname);\n+  uiout->field_string (\"new-exec\", c->exec_pathname.get ());\n   uiout->text (\"), \");\n \n   return PRINT_SRC_AND_LOC;\n@@ -8336,7 +8327,7 @@ print_one_catch_exec (struct breakpoint *b, struct bp_location **last_loc)\n   if (c->exec_pathname != NULL)\n     {\n       uiout->text (\", program \\\"\");\n-      uiout->field_string (\"what\", c->exec_pathname);\n+      uiout->field_string (\"what\", c->exec_pathname.get ());\n       uiout->text (\"\\\" \");\n     }\n \n@@ -11324,7 +11315,7 @@ catch_exec_command_1 (const char *arg, int from_tty,\n   std::unique_ptr<exec_catchpoint> c (new exec_catchpoint ());\n   init_catchpoint (c.get (), gdbarch, temp, cond_string,\n \t\t   &catch_exec_breakpoint_ops);\n-  c->exec_pathname = NULL;\n+  c->exec_pathname.reset ();\n \n   install_breakpoint (0, std::move (c), 1);\n }"
+    }
+  ]
+}

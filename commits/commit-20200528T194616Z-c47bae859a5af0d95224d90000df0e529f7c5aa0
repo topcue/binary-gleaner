@@ -1,0 +1,110 @@
+{
+  "sha": "c47bae859a5af0d95224d90000df0e529f7c5aa0",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YzQ3YmFlODU5YTVhZjBkOTUyMjRkOTAwMDBkZjBlNTI5ZjdjNWFhMA==",
+  "commit": {
+    "author": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2020-05-28T03:05:40Z"
+    },
+    "committer": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2020-05-28T19:46:16Z"
+    },
+    "message": "Fix Python3.9 related runtime problems\n\nPython3.9b1 is now available on Rawhide.  GDB w/ Python 3.9 support\ncan be built using the configure switch -with-python=/usr/bin/python3.9.\n\nAttempting to run gdb/Python3.9 segfaults on startup:\n\n    #0  0x00007ffff7b0582c in PyEval_ReleaseLock () from /lib64/libpython3.9.so.1.0\n    #1  0x000000000069ccbf in do_start_initialization ()\n\tat worktree-test1/gdb/python/python.c:1789\n    #2  _initialize_python ()\n\tat worktree-test1/gdb/python/python.c:1877\n    #3  0x00000000007afb0a in initialize_all_files () at init.c:237\n    ...\n\nConsulting the the documentation...\n\nhttps://docs.python.org/3/c-api/init.html\n\n...we find that PyEval_ReleaseLock() has been deprecated since version\n3.2.  It recommends using PyEval_SaveThread or PyEval_ReleaseThread()\ninstead.  In do_start_initialization, in gdb/python/python.c, we\ncan replace the calls to PyThreadState_Swap() and PyEval_ReleaseLock()\nwith a single call to PyEval_SaveThread.   (Thanks to Keith Seitz\nfor working this out.)\n\nWith that in place, GDB gets a little bit further.  It still dies\non startup, but the backtrace is different:\n\n    #0  0x00007ffff7b04306 in PyOS_InterruptOccurred ()\n       from /lib64/libpython3.9.so.1.0\n    #1  0x0000000000576e86 in check_quit_flag ()\n\tat worktree-test1/gdb/extension.c:776\n    #2  0x0000000000576f8a in set_active_ext_lang (now_active=now_active@entry=0x983c00 <extension_language_python>)\n\tat worktree-test1/gdb/extension.c:705\n    #3  0x000000000069d399 in gdbpy_enter::gdbpy_enter (this=0x7fffffffd2d0,\n\tgdbarch=0x0, language=0x0)\n\tat worktree-test1/gdb/python/python.c:211\n    #4  0x0000000000686e00 in python_new_inferior (inf=0xddeb10)\n\tat worktree-test1/gdb/python/py-inferior.c:251\n    #5  0x00000000005d9fb9 in std::function<void (inferior*)>::operator()(inferior*) const (__args#0=<optimized out>, this=0xccad20)\n\tat /usr/include/c++/10/bits/std_function.h:617\n    #6  gdb::observers::observable<inferior*>::notify (args#0=0xddeb10,\n\tthis=<optimized out>)\n\tat worktree-test1/gdb/../gdbsupport/observable.h:106\n    #7  add_inferior_silent (pid=0)\n\tat worktree-test1/gdb/inferior.c:113\n    #8  0x00000000005dbcb8 in initialize_inferiors ()\n\tat worktree-test1/gdb/inferior.c:947\n    ...\n\nWe checked with some Python Developers and were told that we should\nacquire the GIL prior to calling any Python C API function.  We\ndefinitely don't have the GIL for calls of PyOS_InterruptOccurred().\n\nI moved class_gdbpy_gil earlier in the file and use it in\ngdbpy_check_quit_flag() to acquire (and automatically release) the\nGIL.\n\nWith those changes in place, I was able to run to a GDB prompt.  But,\nwhen trying to quit, it segfaulted again due to due to some other\nproblems with gdbpy_check_quit_flag():\n\n    Thread 1 \"gdb\" received signal SIGSEGV, Segmentation fault.\n    0x00007ffff7bbab0c in new_threadstate () from /lib64/libpython3.9.so.1.0\n    (top-gdb) bt 8\n    #0  0x00007ffff7bbab0c in new_threadstate () from /lib64/libpython3.9.so.1.0\n    #1  0x00007ffff7afa5ea in PyGILState_Ensure.cold ()\n       from /lib64/libpython3.9.so.1.0\n    #2  0x000000000069b58c in gdbpy_gil::gdbpy_gil (this=<synthetic pointer>)\n\tat worktree-test1/gdb/python/python.c:278\n    #3  gdbpy_check_quit_flag (extlang=<optimized out>)\n\tat worktree-test1/gdb/python/python.c:278\n    #4  0x0000000000576e96 in check_quit_flag ()\n\tat worktree-test1/gdb/extension.c:776\n    #5  0x000000000057700c in restore_active_ext_lang (previous=0xe9c050)\n\tat worktree-test1/gdb/extension.c:729\n    #6  0x000000000088913a in do_my_cleanups (\n\tpmy_chain=0xc31870 <final_cleanup_chain>,\n\told_chain=0xae5720 <sentinel_cleanup>)\n\tat worktree-test1/gdbsupport/cleanups.cc:131\n    #7  do_final_cleanups ()\n\tat worktree-test1/gdbsupport/cleanups.cc:143\n\nIn this case, we're trying to call a Python C API function after\nPy_Finalize() has been called from finalize_python().  I made\nfinalize_python set gdb_python_initialized to false and then cause\ncheck_quit_flag() to return early when it's false.\n\nWith these changes in place, GDB seems to be working again with\nPython3.9b1.  I think it likely that there are other problems lurking.\nI wouldn't be surprised to find that there are other calls into Python\nwhere we don't first make sure that we have the GIL.  Further changes\nmay well be needed.\n\nI see no regressions testing on Rawhide using a GDB built with the\ndefault Python version (3.8.3) versus one built using Python 3.9b1.\n\nI've also tested on Fedora 28, 29, 30, 31, and 32 (all x86_64) using\nthe default (though updated) system installed versions of Python on\nthose OSes.  This means that I've tested against Python versions\n2.7.15, 2.7.17, 2.7.18, 3.7.7, 3.8.2, and 3.8.3.  In each case GDB\nstill builds without problem and shows no regressions after applying\nthis patch.\n\ngdb/ChangeLog:\n\n2020-MM-DD  Kevin Buettner  <kevinb@redhat.com>\n\t    Keith Seitz  <keiths@redhat.com>\n\n\t* python/python.c (do_start_initialization): For Python 3.9 and\n\tlater, call PyEval_SaveThread instead of PyEval_ReleaseLock.\n\t(class gdbpy_gil): Move to earlier in file.\n\t(finalize_python): Set gdb_python_initialized.\n\t(gdbpy_check_quit_flag): Acquire GIL via gdbpy_gil.  Return early\n\twhen not initialized.",
+    "tree": {
+      "sha": "4073a61c1ca5aa65bb7fdb9e40b46b28a941a0a9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/4073a61c1ca5aa65bb7fdb9e40b46b28a941a0a9"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/c47bae859a5af0d95224d90000df0e529f7c5aa0",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c47bae859a5af0d95224d90000df0e529f7c5aa0",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/c47bae859a5af0d95224d90000df0e529f7c5aa0",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c47bae859a5af0d95224d90000df0e529f7c5aa0/comments",
+  "author": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "66e3eb08a52ba20d3fb468cef04952aafdf534d4",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/66e3eb08a52ba20d3fb468cef04952aafdf534d4",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/66e3eb08a52ba20d3fb468cef04952aafdf534d4"
+    }
+  ],
+  "stats": {
+    "total": 66,
+    "additions": 40,
+    "deletions": 26
+  },
+  "files": [
+    {
+      "sha": "cf46c4e92bdd64b4dd3fb62df8cb7a6b5250486a",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c47bae859a5af0d95224d90000df0e529f7c5aa0/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c47bae859a5af0d95224d90000df0e529f7c5aa0/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=c47bae859a5af0d95224d90000df0e529f7c5aa0",
+      "patch": "@@ -1,3 +1,13 @@\n+2020-05-28  Kevin Buettner  <kevinb@redhat.com>\n+\t    Keith Seitz  <keiths@redhat.com>\n+\n+\t* python/python.c (do_start_initialization): Call PyEval_SaveThread\n+\tinstead of PyEval_ReleaseLock.\n+\t(class gdbpy_gil): Move to earlier in file.\n+\t(finalize_python): Set gdb_python_initialized.\n+\t(gdbpy_check_quit_flag): Acquire GIL via gdbpy_gil.  Return early\n+\twhen not initialized.\n+\n 2020-05-28  Simon Marchi  <simon.marchi@efficios.com>\n \n \t* dwarf2/loc.c (class dwarf_evaluate_loc_desc)"
+    },
+    {
+      "sha": "4bdd2201abc37f54f797938bc5b56e5c462793ad",
+      "filename": "gdb/python/python.c",
+      "status": "modified",
+      "additions": 30,
+      "deletions": 26,
+      "changes": 56,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c47bae859a5af0d95224d90000df0e529f7c5aa0/gdb/python/python.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c47bae859a5af0d95224d90000df0e529f7c5aa0/gdb/python/python.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/python.c?ref=c47bae859a5af0d95224d90000df0e529f7c5aa0",
+      "patch": "@@ -238,6 +238,30 @@ gdbpy_enter::~gdbpy_enter ()\n   PyGILState_Release (m_state);\n }\n \n+/* A helper class to save and restore the GIL, but without touching\n+   the other globals that are handled by gdbpy_enter.  */\n+\n+class gdbpy_gil\n+{\n+public:\n+\n+  gdbpy_gil ()\n+    : m_state (PyGILState_Ensure ())\n+  {\n+  }\n+\n+  ~gdbpy_gil ()\n+  {\n+    PyGILState_Release (m_state);\n+  }\n+\n+  DISABLE_COPY_AND_ASSIGN (gdbpy_gil);\n+\n+private:\n+\n+  PyGILState_STATE m_state;\n+};\n+\n /* Set the quit flag.  */\n \n static void\n@@ -251,6 +275,10 @@ gdbpy_set_quit_flag (const struct extension_language_defn *extlang)\n static int\n gdbpy_check_quit_flag (const struct extension_language_defn *extlang)\n {\n+  if (!gdb_python_initialized)\n+    return 0;\n+\n+  gdbpy_gil gil;\n   return PyOS_InterruptOccurred ();\n }\n \n@@ -943,30 +971,6 @@ gdbpy_source_script (const struct extension_language_defn *extlang,\n \n /* Posting and handling events.  */\n \n-/* A helper class to save and restore the GIL, but without touching\n-   the other globals that are handled by gdbpy_enter.  */\n-\n-class gdbpy_gil\n-{\n-public:\n-\n-  gdbpy_gil ()\n-    : m_state (PyGILState_Ensure ())\n-  {\n-  }\n-\n-  ~gdbpy_gil ()\n-  {\n-    PyGILState_Release (m_state);\n-  }\n-\n-  DISABLE_COPY_AND_ASSIGN (gdbpy_gil);\n-\n-private:\n-\n-  PyGILState_STATE m_state;\n-};\n-\n /* A single event.  */\n struct gdbpy_event\n {\n@@ -1616,6 +1620,7 @@ finalize_python (void *ignore)\n \n   Py_Finalize ();\n \n+  gdb_python_initialized = false;\n   restore_active_ext_lang (previous_active);\n }\n \n@@ -1785,8 +1790,7 @@ do_start_initialization ()\n     return false;\n \n   /* Release the GIL while gdb runs.  */\n-  PyThreadState_Swap (NULL);\n-  PyEval_ReleaseLock ();\n+  PyEval_SaveThread ();\n \n   make_final_cleanup (finalize_python, NULL);\n "
+    }
+  ]
+}

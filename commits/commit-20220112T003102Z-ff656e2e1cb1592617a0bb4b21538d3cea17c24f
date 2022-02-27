@@ -1,0 +1,60 @@
+{
+  "sha": "ff656e2e1cb1592617a0bb4b21538d3cea17c24f",
+  "node_id": "C_kwDOANOeidoAKGZmNjU2ZTJlMWNiMTU5MjYxN2EwYmI0YjIxNTM4ZDNjZWExN2MyNGY",
+  "commit": {
+    "author": {
+      "name": "Tiezhu Yang",
+      "email": "yangtiezhu@loongson.cn",
+      "date": "2022-01-12T00:31:02Z"
+    },
+    "committer": {
+      "name": "Tiezhu Yang",
+      "email": "yangtiezhu@loongson.cn",
+      "date": "2022-01-12T00:31:02Z"
+    },
+    "message": "gdb: testsuite: fix failed testcases in gdb.base/charset.exp\n\nIn gdb/testsuite/gdb.base/charset.c, the last argument is greater than 127\nwhen call fill_run() in EBCDIC-US and IBM1047, but the type of string[] is\nchar, this will change the value due to sign extension.\n\nFor example, ebcdic_us_string[7] will be -63 instead of the original 193 in\nEBCDIC-US.\n\nMake the type of string[] as unsigned char to fix the following six failed\ntestcases:\n\n  $ grep FAIL gdb/testsuite/gdb.sum\n  FAIL: gdb.base/charset.exp: check value of parsed character literal in EBCDIC-US\n  FAIL: gdb.base/charset.exp: check value of parsed string literal in EBCDIC-US\n  FAIL: gdb.base/charset.exp: check value of escape that doesn't exist in EBCDIC-US\n  FAIL: gdb.base/charset.exp: check value of parsed character literal in IBM1047\n  FAIL: gdb.base/charset.exp: check value of parsed string literal in IBM1047\n  FAIL: gdb.base/charset.exp: check value of escape that doesn't exist in IBM1047\n\nSigned-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>",
+    "tree": {
+      "sha": "424a98771925f86407c10504ad52f40aa5dbf7f9",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/424a98771925f86407c10504ad52f40aa5dbf7f9"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ff656e2e1cb1592617a0bb4b21538d3cea17c24f",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ff656e2e1cb1592617a0bb4b21538d3cea17c24f",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ff656e2e1cb1592617a0bb4b21538d3cea17c24f",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ff656e2e1cb1592617a0bb4b21538d3cea17c24f/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "e66b7536b7ffbbe1eb77c6679d558114cd3f5893",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/e66b7536b7ffbbe1eb77c6679d558114cd3f5893",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/e66b7536b7ffbbe1eb77c6679d558114cd3f5893"
+    }
+  ],
+  "stats": {
+    "total": 12,
+    "additions": 6,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "98aa100f291d58146ac27446fed534a8ba880f88",
+      "filename": "gdb/testsuite/gdb.base/charset.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 6,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ff656e2e1cb1592617a0bb4b21538d3cea17c24f/gdb/testsuite/gdb.base/charset.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ff656e2e1cb1592617a0bb4b21538d3cea17c24f/gdb/testsuite/gdb.base/charset.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/charset.c?ref=ff656e2e1cb1592617a0bb4b21538d3cea17c24f",
+      "patch": "@@ -44,10 +44,10 @@\n \n #define NUM_CHARS (71)\n \n-char ascii_string[NUM_CHARS];\n-char iso_8859_1_string[NUM_CHARS];\n-char ebcdic_us_string[NUM_CHARS];\n-char ibm1047_string[NUM_CHARS];\n+unsigned char ascii_string[NUM_CHARS];\n+unsigned char iso_8859_1_string[NUM_CHARS];\n+unsigned char ebcdic_us_string[NUM_CHARS];\n+unsigned char ibm1047_string[NUM_CHARS];\n \n #ifndef __cplusplus\n \n@@ -86,7 +86,7 @@ long long_array[3];\n    explicit casts or warnings.  */\n \n void\n-init_string (char string[],\n+init_string (unsigned char string[],\n \t     unsigned char x,\n \t     unsigned char alert,\n \t     unsigned char backspace,\n@@ -115,7 +115,7 @@ init_string (char string[],\n \n \n void\n-fill_run (char string[], int start, int len, int first)\n+fill_run (unsigned char string[], int start, int len, int first)\n {\n   int i;\n "
+    }
+  ]
+}

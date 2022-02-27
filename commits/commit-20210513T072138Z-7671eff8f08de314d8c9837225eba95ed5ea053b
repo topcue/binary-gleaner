@@ -1,0 +1,72 @@
+{
+  "sha": "7671eff8f08de314d8c9837225eba95ed5ea053b",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NzY3MWVmZjhmMDhkZTMxNGQ4Yzk4MzcyMjVlYmE5NWVkNWVhMDUzYg==",
+  "commit": {
+    "author": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2021-05-13T03:48:26Z"
+    },
+    "committer": {
+      "name": "Nelson Chu",
+      "email": "nelson.chu@sifive.com",
+      "date": "2021-05-13T07:21:38Z"
+    },
+    "message": "RISC-V: Record implicit subsets in a table, to avoid repeated codes.\n\nAdd a new table, riscv_implicit_subsets, to record all implicit information.\nSo that we add all implicit subsets according to the table, to avoid too\nmany repeated codes in the riscv_parse_add_implicit_subsets.  Besides, the\ncheck_func is used to check whether we should add this implicit subset.\nFor example, check_implicit_for_i checks the version of i, and we only add\nzicsr and zifencei implicitly only when the version less than 2.1.\n\nbfd/\n    * elfxx-riscv.c (check_implicit_always): The check_func, always add\n    the implicit subset without checking.\n    (check_implicit_for_i): The check_func for i, only add zicsr and\n    zifencei when the version of i less than 2.1.\n    (struct riscv_implicit_subset): Record the subsets and their\n    corresponding implicit subsets.\n    (riscv_implicit_subsets): Table records all implicit informations.\n    (riscv_parse_add_implicit_subsets): Updated and add implicit subsets\n    according to riscv_implicit_subsets.  Remove the redundant codes.",
+    "tree": {
+      "sha": "4bfdac07f53e9d347866344421f5a85c2e7d8e6e",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/4bfdac07f53e9d347866344421f5a85c2e7d8e6e"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/7671eff8f08de314d8c9837225eba95ed5ea053b",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7671eff8f08de314d8c9837225eba95ed5ea053b",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/7671eff8f08de314d8c9837225eba95ed5ea053b",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7671eff8f08de314d8c9837225eba95ed5ea053b/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "cf893b0ef7482ec11df3787772f35e820ef2592a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cf893b0ef7482ec11df3787772f35e820ef2592a",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/cf893b0ef7482ec11df3787772f35e820ef2592a"
+    }
+  ],
+  "stats": {
+    "total": 115,
+    "additions": 61,
+    "deletions": 54
+  },
+  "files": [
+    {
+      "sha": "8dbe40c474d406706e4126c0c69d63d5912b7f42",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7671eff8f08de314d8c9837225eba95ed5ea053b/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7671eff8f08de314d8c9837225eba95ed5ea053b/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=7671eff8f08de314d8c9837225eba95ed5ea053b",
+      "patch": "@@ -1,3 +1,15 @@\n+2021-05-13  Nelson Chu  <nelson.chu@sifive.com>\n+\n+\t* elfxx-riscv.c (check_implicit_always): The check_func, always add\n+\tthe implicit subset without checking.\n+\t(check_implicit_for_i): The check_func for i, only add zicsr and\n+\tzifencei when the version of i less than 2.1.\n+\t(struct riscv_implicit_subset): Record the subsets and their\n+\tcorresponding implicit subsets.\n+\t(riscv_implicit_subsets): Table records all implicit informations.\n+\t(riscv_parse_add_implicit_subsets): Updated and add implicit subsets\n+\taccording to riscv_implicit_subsets.  Remove the redundant codes.\n+\n 2021-05-13  Alan Modra  <amodra@gmail.com>\n \n \tPR 27858"
+    },
+    {
+      "sha": "7206ec8573bdef6bada4e54fea20195d6c4ea118",
+      "filename": "bfd/elfxx-riscv.c",
+      "status": "modified",
+      "additions": 49,
+      "deletions": 54,
+      "changes": 103,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7671eff8f08de314d8c9837225eba95ed5ea053b/bfd/elfxx-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7671eff8f08de314d8c9837225eba95ed5ea053b/bfd/elfxx-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfxx-riscv.c?ref=7671eff8f08de314d8c9837225eba95ed5ea053b",
+      "patch": "@@ -1026,6 +1026,47 @@ riscv_elf_add_sub_reloc (bfd *abfd,\n   return bfd_reloc_ok;\n }\n \n+/* Always add the IMPLICIT for the SUBSET.  */\n+\n+static bool\n+check_implicit_always (const char *implicit ATTRIBUTE_UNUSED,\n+\t\t       riscv_subset_t *subset ATTRIBUTE_UNUSED)\n+{\n+  return true;\n+}\n+\n+/* Add the IMPLICIT only when the version of SUBSET less than 2.1.  */\n+\n+static bool\n+check_implicit_for_i (const char *implicit ATTRIBUTE_UNUSED,\n+\t\t      riscv_subset_t *subset)\n+{\n+  return (subset->major_version < 2\n+\t  || (subset->major_version == 2\n+\t      && subset->minor_version < 1));\n+}\n+\n+/* Record all implicit information for the subsets.  */\n+struct riscv_implicit_subset\n+{\n+  const char *subset_name;\n+  const char *implicit_name;\n+  /* A function to determine if we need to add the implicit subset.  */\n+  bool (*check_func) (const char *, riscv_subset_t *);\n+};\n+static struct riscv_implicit_subset riscv_implicit_subsets[] =\n+{\n+  {\"e\", \"i\",\t\tcheck_implicit_always},\n+  {\"i\", \"zicsr\",\tcheck_implicit_for_i},\n+  {\"i\", \"zifencei\",\tcheck_implicit_for_i},\n+  {\"g\", \"zicsr\",\tcheck_implicit_always},\n+  {\"g\", \"zifencei\",\tcheck_implicit_always},\n+  {\"q\", \"d\",\t\tcheck_implicit_always},\n+  {\"d\", \"f\",\t\tcheck_implicit_always},\n+  {\"f\", \"zicsr\",\tcheck_implicit_always},\n+  {NULL, NULL, NULL}\n+};\n+\n /* Lists of prefixed class extensions that binutils should know about.\n    Whether or not a particular entry is in these lists will dictate if\n    gas/ld will accept its presence in the architecture string.\n@@ -1694,61 +1735,15 @@ riscv_parse_prefixed_ext (riscv_parse_subset_t *rps,\n static void\n riscv_parse_add_implicit_subsets (riscv_parse_subset_t *rps)\n {\n-  riscv_subset_t *subset = NULL;\n-\n-  if (riscv_lookup_subset (rps->subset_list, \"e\", &subset))\n-    riscv_parse_add_subset (rps, \"i\",\n-\t\t\t    RISCV_UNKNOWN_VERSION,\n-\t\t\t    RISCV_UNKNOWN_VERSION, true);\n-\n-  /* Add the zicsr and zifencei only when the i's version less than 2.1.  */\n-  if (riscv_lookup_subset (rps->subset_list, \"i\", &subset)\n-      && (subset->major_version < 2\n-\t  || (subset->major_version == 2\n-\t      && subset->minor_version < 1)))\n-    {\n-      riscv_parse_add_subset (rps, \"zicsr\",\n-\t\t\t      RISCV_UNKNOWN_VERSION,\n-\t\t\t      RISCV_UNKNOWN_VERSION, true);\n-      riscv_parse_add_subset (rps, \"zifencei\",\n-\t\t\t      RISCV_UNKNOWN_VERSION,\n-\t\t\t      RISCV_UNKNOWN_VERSION, true);\n-    }\n-\n-  if (riscv_lookup_subset (rps->subset_list, \"q\", &subset))\n+  struct riscv_implicit_subset *t = riscv_implicit_subsets;\n+  for (; t->subset_name; t++)\n     {\n-      riscv_parse_add_subset (rps, \"d\",\n-\t\t\t      RISCV_UNKNOWN_VERSION,\n-\t\t\t      RISCV_UNKNOWN_VERSION, true);\n-      riscv_parse_add_subset (rps, \"f\",\n-\t\t\t      RISCV_UNKNOWN_VERSION,\n-\t\t\t      RISCV_UNKNOWN_VERSION, true);\n-      riscv_parse_add_subset (rps, \"zicsr\",\n-\t\t\t      RISCV_UNKNOWN_VERSION,\n-\t\t\t      RISCV_UNKNOWN_VERSION, true);\n-    }\n-  else if (riscv_lookup_subset (rps->subset_list, \"d\", &subset))\n-    {\n-      riscv_parse_add_subset (rps, \"f\",\n-\t\t\t      RISCV_UNKNOWN_VERSION,\n-\t\t\t      RISCV_UNKNOWN_VERSION, true);\n-      riscv_parse_add_subset (rps, \"zicsr\",\n-\t\t\t      RISCV_UNKNOWN_VERSION,\n-\t\t\t      RISCV_UNKNOWN_VERSION, true);\n-    }\n-  else if (riscv_lookup_subset (rps->subset_list, \"f\", &subset))\n-    riscv_parse_add_subset (rps, \"zicsr\",\n-\t\t\t    RISCV_UNKNOWN_VERSION,\n-\t\t\t    RISCV_UNKNOWN_VERSION, true);\n-\n-  if (riscv_lookup_subset (rps->subset_list, \"g\", &subset))\n-    {\n-      riscv_parse_add_subset (rps, \"zicsr\",\n-\t\t\t      RISCV_UNKNOWN_VERSION,\n-\t\t\t      RISCV_UNKNOWN_VERSION, true);\n-      riscv_parse_add_subset (rps, \"zifencei\",\n-\t\t\t      RISCV_UNKNOWN_VERSION,\n-\t\t\t      RISCV_UNKNOWN_VERSION, true);\n+      riscv_subset_t *subset = NULL;\n+      if (riscv_lookup_subset (rps->subset_list, t->subset_name, &subset)\n+\t  && t->check_func (t->implicit_name, subset))\n+\triscv_parse_add_subset (rps, t->implicit_name,\n+\t\t\t\tRISCV_UNKNOWN_VERSION,\n+\t\t\t\tRISCV_UNKNOWN_VERSION, true);\n     }\n }\n "
+    }
+  ]
+}

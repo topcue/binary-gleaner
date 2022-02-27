@@ -1,0 +1,122 @@
+{
+  "sha": "2b3cb4006a2e80743eb78f263bd4d6c4f67833f9",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MmIzY2I0MDA2YTJlODA3NDNlYjc4ZjI2M2JkNGQ2YzRmNjc4MzNmOQ==",
+  "commit": {
+    "author": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-10-31T00:27:18Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "pedro@palves.net",
+      "date": "2020-11-16T14:54:43Z"
+    },
+    "message": "Fix frame cycle detection\n\nThe recent commit to make scoped_restore_current_thread's cdtors\nexception free regressed gdb.base/eh_return.exp:\n\n  Breakpoint 1, 0x00000000004012bb in eh2 (gdb/frame.c:641: internal-error: frame_id get_frame_id(frame_info*): Assertion `stashed' failed.\n  A problem internal to GDB has been detected,\n  further debugging may prove unreliable.\n  Quit this debugging session? (y or n) FAIL: gdb.base/eh_return.exp: hit breakpoint (GDB internal error)\n\nThat testcase uses __builtin_eh_return and, before the regression, the\nbacktrace at eh2 looked like this:\n\n (gdb) bt\n #0  0x00000000004006eb in eh2 (p=0x4006ec <continuation>) at src/gdb/testsuite/gdb.base/eh_return.c:54\n Backtrace stopped: previous frame identical to this frame (corrupt stack?)\n\nThat \"previous frame identical to this frame\" is caught by the cycle\ndetection based on frame id.\n\nThe assertion failing is this one:\n\n 638           /* Since this is the first frame in the chain, this should\n 639              always succeed.  */\n 640           bool stashed = frame_stash_add (fi);\n 641           gdb_assert (stashed);\n\noriginally added by\n\n  commit f245535cf583ae4ca13b10d47b3c7d3334593ece\n  Author:     Pedro Alves <palves@redhat.com>\n  AuthorDate: Mon Sep 5 18:41:38 2016 +0100\n\n      Fix PR19927: Avoid unwinder recursion if sniffer uses calls parse_and_eval\n\nThe assertion is failing because frame #1's frame id was stashed\nbefore the id of frame #0 is stashed.  The frame id of frame #1 was\nstashed here:\n\n (top-gdb) bt\n #0  frame_stash_add (frame=0x1e24c90) at src/gdb/frame.c:276\n #1  0x0000000000669c1b in get_prev_frame_if_no_cycle (this_frame=0x19f8370) at src/gdb/frame.c:2120\n #2  0x000000000066a339 in get_prev_frame_always_1 (this_frame=0x19f8370) at src/gdb/frame.c:2303\n #3  0x000000000066a360 in get_prev_frame_always (this_frame=0x19f8370) at src/gdb/frame.c:2319\n #4  0x000000000066b56c in get_frame_unwind_stop_reason (frame=0x19f8370) at src/gdb/frame.c:3028\n #5  0x000000000059f929 in dwarf2_frame_cfa (this_frame=0x19f8370) at src/gdb/dwarf2/frame.c:1462\n #6  0x00000000005ce434 in dwarf_evaluate_loc_desc::get_frame_cfa (this=0x7fffffffc070) at src/gdb/dwarf2/loc.c:666\n #7  0x00000000005989a9 in dwarf_expr_context::execute_stack_op (this=0x7fffffffc070, op_ptr=0x1b2a053 \"\\364\\003\", op_end=0x1b2a053 \"\\364\\003\") at src/gdb/dwarf2/expr.c:1161\n #8  0x0000000000596af6 in dwarf_expr_context::eval (this=0x7fffffffc070, addr=0x1b2a052 \"\\234\\364\\003\", len=1) at src/gdb/dwarf2/expr.c:303\n #9  0x0000000000597b4e in dwarf_expr_context::execute_stack_op (this=0x7fffffffc070, op_ptr=0x1b2a063 \"\", op_end=0x1b2a063 \"\") at src/gdb/dwarf2/expr.c:865\n #10 0x0000000000596af6 in dwarf_expr_context::eval (this=0x7fffffffc070, addr=0x1b2a061 \"\\221X\", len=2) at src/gdb/dwarf2/expr.c:303\n #11 0x00000000005c8b5a in dwarf2_evaluate_loc_desc_full (type=0x1b564d0, frame=0x19f8370, data=0x1b2a061 \"\\221X\", size=2, per_cu=0x1b28760, per_objfile=0x1a84930, subobj_type=0x1b564d0, subobj_byte_offset=0) at src/gdb/dwarf2/loc.c:2260\n #12 0x00000000005c9243 in dwarf2_evaluate_loc_desc (type=0x1b564d0, frame=0x19f8370, data=0x1b2a061 \"\\221X\", size=2, per_cu=0x1b28760, per_objfile=0x1a84930) at src/gdb/dwarf2/loc.c:2444\n #13 0x00000000005cb769 in locexpr_read_variable (symbol=0x1b59840, frame=0x19f8370) at src/gdb/dwarf2/loc.c:3687\n #14 0x0000000000663137 in language_defn::read_var_value (this=0x122ea60 <c_language_defn>, var=0x1b59840, var_block=0x0, frame=0x19f8370) at src/gdb/findvar.c:618\n #15 0x0000000000663c3b in read_var_value (var=0x1b59840, var_block=0x0, frame=0x19f8370) at src/gdb/findvar.c:822\n #16 0x00000000008c7d9f in read_frame_arg (fp_opts=..., sym=0x1b59840, frame=0x19f8370, argp=0x7fffffffc470, entryargp=0x7fffffffc490) at src/gdb/stack.c:542\n #17 0x00000000008c89cd in print_frame_args (fp_opts=..., func=0x1b597c0, frame=0x19f8370, num=-1, stream=0x1aba860) at src/gdb/stack.c:890\n #18 0x00000000008c9bf8 in print_frame (fp_opts=..., frame=0x19f8370, print_level=0, print_what=SRC_AND_LOC, print_args=1, sal=...) at src/gdb/stack.c:1394\n #19 0x00000000008c92b9 in print_frame_info (fp_opts=..., frame=0x19f8370, print_level=0, print_what=SRC_AND_LOC, print_args=1, set_current_sal=1) at src/gdb/stack.c:1119\n #20 0x00000000008c75f0 in print_stack_frame (frame=0x19f8370, print_level=0, print_what=SRC_AND_LOC, set_current_sal=1) at src/gdb/stack.c:366\n #21 0x000000000070250b in print_stop_location (ws=0x7fffffffc9e0) at src/gdb/infrun.c:8110\n #22 0x0000000000702569 in print_stop_event (uiout=0x1a8b9e0, displays=true) at src/gdb/infrun.c:8126\n #23 0x000000000096d04b in tui_on_normal_stop (bs=0x1bcd1c0, print_frame=1) at src/gdb/tui/tui-interp.c:98\n ...\n\nBefore the commit to make scoped_restore_current_thread's cdtors\nexception free, scoped_restore_current_thread's dtor would call\nget_frame_id on the selected frame, and we use\nscoped_restore_current_thread pervasively.  That had the side effect\nof stashing the frame id of frame #0 before reaching the path shown in\nthe backtrace.  I.e., the frame id of frame #0 happened to be stashed\nbefore the frame id of frame #1.  But that was by chance, not by\ndesign.\n\nThis commit:\n\n  commit 256ae5dbc73d1348850f86ee77a0dc3b04bc7cc0\n  Author:     Kevin Buettner <kevinb@redhat.com>\n  AuthorDate: Mon Oct 31 12:47:42 2016 -0700\n\n      Stash frame id of current frame before stashing frame id for previous frame\n\nFixed a similar problem, by making sure get_prev_frame computes the\nframe id of the current frame before unwinding the previous frame, so\nthat the cycle detection works properly.  That fix misses the scenario\nwe're now running against, because if you notice, the backtrace above\nshows that frame #4 calls get_prev_frame_always, not get_prev_frame.\nI.e., nothing is calling get_frame_id on the current frame.\n\nThe fix here is to move Kevin's fix down from get_prev_frame to\nget_prev_frame_always.  Or actually, a bit further down to\nget_prev_frame_always_1 -- note that inline_frame_this_id calls\nget_prev_frame_always, so we need to be careful to avoid recursion in\nthat scenario.\n\ngdb/ChangeLog:\n\n\t* frame.c (get_prev_frame): Move get_frame_id call from here ...\n\t(get_prev_frame_always_1): ... to here.\n\t* inline-frame.c (inline_frame_this_id): Mention\n\tget_prev_frame_always_1 in comment.\n\nChange-Id: Id960c98ab2d072c48a436c3eb160cc4b2a5cfd1d",
+    "tree": {
+      "sha": "343326e5a399af40be7d14fae2d8fdd753b27913",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/343326e5a399af40be7d14fae2d8fdd753b27913"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/2b3cb4006a2e80743eb78f263bd4d6c4f67833f9",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2b3cb4006a2e80743eb78f263bd4d6c4f67833f9",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/2b3cb4006a2e80743eb78f263bd4d6c4f67833f9",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2b3cb4006a2e80743eb78f263bd4d6c4f67833f9/comments",
+  "author": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "10c9f4e584d174e40b2c2c0c7d8d7f6e6eb665e5",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/10c9f4e584d174e40b2c2c0c7d8d7f6e6eb665e5",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/10c9f4e584d174e40b2c2c0c7d8d7f6e6eb665e5"
+    }
+  ],
+  "stats": {
+    "total": 37,
+    "additions": 26,
+    "deletions": 11
+  },
+  "files": [
+    {
+      "sha": "16daed77ff10b6d930197d7201b25da2ad204226",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2b3cb4006a2e80743eb78f263bd4d6c4f67833f9/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2b3cb4006a2e80743eb78f263bd4d6c4f67833f9/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=2b3cb4006a2e80743eb78f263bd4d6c4f67833f9",
+      "patch": "@@ -1,3 +1,10 @@\n+2020-11-16  Pedro Alves  <pedro@palves.net>\n+\n+\t* frame.c (get_prev_frame): Move get_frame_id call from here ...\n+\t(get_prev_frame_always_1): ... to here.\n+\t* inline-frame.c (inline_frame_this_id): Mention\n+\tget_prev_frame_always_1 in comment.\n+\n 2020-11-15  Joel Brobecker  <brobecker@adacore.com>\n \n \t* valarith.c (fixed_point_binop): Add BINOP_EQUAL and BINOP_LESS"
+    },
+    {
+      "sha": "4618da6c81e2d8dd3b08424ec684f86bd211394f",
+      "filename": "gdb/frame.c",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 10,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2b3cb4006a2e80743eb78f263bd4d6c4f67833f9/gdb/frame.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2b3cb4006a2e80743eb78f263bd4d6c4f67833f9/gdb/frame.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/frame.c?ref=2b3cb4006a2e80743eb78f263bd4d6c4f67833f9",
+      "patch": "@@ -2200,6 +2200,23 @@ get_prev_frame_always_1 (struct frame_info *this_frame)\n   if (get_frame_type (this_frame) == INLINE_FRAME)\n     return get_prev_frame_if_no_cycle (this_frame);\n \n+  /* If this_frame is the current frame, then compute and stash its\n+     frame id prior to fetching and computing the frame id of the\n+     previous frame.  Otherwise, the cycle detection code in\n+     get_prev_frame_if_no_cycle() will not work correctly.  When\n+     get_frame_id() is called later on, an assertion error will be\n+     triggered in the event of a cycle between the current frame and\n+     its previous frame.\n+\n+     Note we do this after the INLINE_FRAME check above.  That is\n+     because the inline frame's frame id computation needs to fetch\n+     the frame id of its previous real stack frame.  I.e., we need to\n+     avoid recursion in that case.  This is OK since we're sure the\n+     inline frame won't create a cycle with the real stack frame.  See\n+     inline_frame_this_id.  */\n+  if (this_frame->level == 0)\n+    get_frame_id (this_frame);\n+\n   /* Check that this frame is unwindable.  If it isn't, don't try to\n      unwind to the prev frame.  */\n   this_frame->stop_reason\n@@ -2492,16 +2509,6 @@ get_prev_frame (struct frame_info *this_frame)\n      something should be calling get_selected_frame() or\n      get_current_frame().  */\n   gdb_assert (this_frame != NULL);\n-  \n-  /* If this_frame is the current frame, then compute and stash\n-     its frame id prior to fetching and computing the frame id of the\n-     previous frame.  Otherwise, the cycle detection code in\n-     get_prev_frame_if_no_cycle() will not work correctly.  When\n-     get_frame_id() is called later on, an assertion error will\n-     be triggered in the event of a cycle between the current\n-     frame and its previous frame.  */\n-  if (this_frame->level == 0)\n-    get_frame_id (this_frame);\n \n   frame_pc_p = get_frame_pc_if_available (this_frame, &frame_pc);\n "
+    },
+    {
+      "sha": "92a7d562eaf0dac47cbc8bbfe0003e6d53562f90",
+      "filename": "gdb/inline-frame.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2b3cb4006a2e80743eb78f263bd4d6c4f67833f9/gdb/inline-frame.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2b3cb4006a2e80743eb78f263bd4d6c4f67833f9/gdb/inline-frame.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/inline-frame.c?ref=2b3cb4006a2e80743eb78f263bd4d6c4f67833f9",
+      "patch": "@@ -161,7 +161,8 @@ inline_frame_this_id (struct frame_info *this_frame,\n      real frame's this_id method.  So we must call\n      get_prev_frame_always.  Because we are inlined into some\n      function, there must be previous frames, so this is safe - as\n-     long as we're careful not to create any cycles.  */\n+     long as we're careful not to create any cycles.  See related\n+     comments in get_prev_frame_always_1.  */\n   *this_id = get_frame_id (get_prev_frame_always (this_frame));\n \n   /* We need a valid frame ID, so we need to be based on a valid"
+    }
+  ]
+}

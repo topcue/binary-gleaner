@@ -1,0 +1,103 @@
+{
+  "sha": "a5fd13a91534b1c79a4b61995894a5bb4f08d3b0",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YTVmZDEzYTkxNTM0YjFjNzlhNGI2MTk5NTg5NGE1YmI0ZjA4ZDNiMA==",
+  "commit": {
+    "author": {
+      "name": "Bernhard Heckel",
+      "email": "bernhard.heckel@intel.com",
+      "date": "2019-02-27T14:21:12Z"
+    },
+    "committer": {
+      "name": "Pedro Alves",
+      "email": "palves@redhat.com",
+      "date": "2019-06-11T18:20:09Z"
+    },
+    "message": "Dwarf: Don't add nameless modules to partial symbol table\n\nA name for BLOCK DATA in Fortran is optional.  If no name has been\nassigned, GDB crashes during read-in of DWARF when BLOCK DATA is\nrepresented via DW_TAG_module.  BLOCK DATA is used for one-time\ninitialization of non-pointer variables in named common blocks.\n\nAs of now there is no issue when gfortran is used as DW_TAG_module is\nnot emitted.  However, with Intel ifort the nameless DW_TAG_module is\npresent and has the following form:\n\n ...\n  <1><dd>: Abbrev Number: 7 (DW_TAG_module)\n     <de>   DW_AT_decl_line   : 46\n     <df>   DW_AT_decl_file   : 1\n     <e0>   DW_AT_description : (indirect string, offset: 0x110): block\n data\n     <e4>   DW_AT_high_pc     : 0x402bb7\n     <ec>   DW_AT_low_pc      : 0x402bb7\n ...\n\nThe missing name leads to a crash in add_partial_symbol, during length\ncalculation.\n\ngdb/ChangeLog:\n2019-06-11  Bernhard Heckel  <bernhard.heckel@intel.com>\n\n\t* dwarf2read.c (add_partial_symbol): Skip nameless modules.\n\ngdb/testsuite/Changelog:\n2019-06-11  Bernhard Heckel  <bernhard.heckel@intel.com>\n\n\t* gdb.fortran/block-data.f: New.\n\t* gdb.fortran/block-data.exp: New.",
+    "tree": {
+      "sha": "ccca118c9784175d6a3a5f27f9f26c9c16079eb0",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/ccca118c9784175d6a3a5f27f9f26c9c16079eb0"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/a5fd13a91534b1c79a4b61995894a5bb4f08d3b0",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a5fd13a91534b1c79a4b61995894a5bb4f08d3b0",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/a5fd13a91534b1c79a4b61995894a5bb4f08d3b0",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a5fd13a91534b1c79a4b61995894a5bb4f08d3b0/comments",
+  "author": null,
+  "committer": {
+    "login": "palves",
+    "id": 1202913,
+    "node_id": "MDQ6VXNlcjEyMDI5MTM=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1202913?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/palves",
+    "html_url": "https://github.com/palves",
+    "followers_url": "https://api.github.com/users/palves/followers",
+    "following_url": "https://api.github.com/users/palves/following{/other_user}",
+    "gists_url": "https://api.github.com/users/palves/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/palves/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/palves/subscriptions",
+    "organizations_url": "https://api.github.com/users/palves/orgs",
+    "repos_url": "https://api.github.com/users/palves/repos",
+    "events_url": "https://api.github.com/users/palves/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/palves/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "2057d69dccf36206be3bec5d48ff165621e9a06c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2057d69dccf36206be3bec5d48ff165621e9a06c",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/2057d69dccf36206be3bec5d48ff165621e9a06c"
+    }
+  ],
+  "stats": {
+    "total": 136,
+    "additions": 128,
+    "deletions": 8
+  },
+  "files": [
+    {
+      "sha": "4cf9fcfa2189c5ecbe373a02fc2c37bedc4e400f",
+      "filename": "gdb/dwarf2read.c",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 8,
+      "changes": 17,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a5fd13a91534b1c79a4b61995894a5bb4f08d3b0/gdb/dwarf2read.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a5fd13a91534b1c79a4b61995894a5bb4f08d3b0/gdb/dwarf2read.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/dwarf2read.c?ref=a5fd13a91534b1c79a4b61995894a5bb4f08d3b0",
+      "patch": "@@ -9018,11 +9018,15 @@ add_partial_symbol (struct partial_die_info *pdi, struct dwarf2_cu *cu)\n \t\t\t   0, cu->language, objfile);\n       break;\n     case DW_TAG_module:\n-      add_psymbol_to_list (actual_name, strlen (actual_name),\n-\t\t\t   built_actual_name != NULL,\n-\t\t\t   MODULE_DOMAIN, LOC_TYPEDEF, -1,\n-\t\t\t   psymbol_placement::GLOBAL,\n-\t\t\t   0, cu->language, objfile);\n+      /* With Fortran 77 there might be a \"BLOCK DATA\" module\n+         available without any name.  If so, we skip the module as it\n+         doesn't bring any value.  */\n+      if (actual_name != nullptr)\n+\tadd_psymbol_to_list (actual_name, strlen (actual_name),\n+\t\t\t     built_actual_name != NULL,\n+\t\t\t     MODULE_DOMAIN, LOC_TYPEDEF, -1,\n+\t\t\t     psymbol_placement::GLOBAL,\n+\t\t\t     0, cu->language, objfile);\n       break;\n     case DW_TAG_class_type:\n     case DW_TAG_interface_type:\n@@ -16955,9 +16959,6 @@ read_module_type (struct die_info *die, struct dwarf2_cu *cu)\n   struct type *type;\n \n   module_name = dwarf2_name (die, cu);\n-  if (!module_name)\n-    complaint (_(\"DW_TAG_module has no name, offset %s\"),\n-               sect_offset_str (die->sect_off));\n   type = init_type (objfile, TYPE_CODE_MODULE, 0, module_name);\n \n   return set_die_type (die, type, cu);"
+    },
+    {
+      "sha": "8da8c8824c8e8dac26ccb7e10ae8ba2986f579e9",
+      "filename": "gdb/testsuite/gdb.fortran/block-data.exp",
+      "status": "added",
+      "additions": 63,
+      "deletions": 0,
+      "changes": 63,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a5fd13a91534b1c79a4b61995894a5bb4f08d3b0/gdb/testsuite/gdb.fortran/block-data.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a5fd13a91534b1c79a4b61995894a5bb4f08d3b0/gdb/testsuite/gdb.fortran/block-data.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.fortran/block-data.exp?ref=a5fd13a91534b1c79a4b61995894a5bb4f08d3b0",
+      "patch": "@@ -0,0 +1,63 @@\n+# Copyright 2016-2019 Free Software Foundation, Inc.\n+#\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test anonymous block-data statements.\n+\n+# A name for BLOCK DATA in Fortran is optional.  BLOCK DATA is used\n+# for one-time initialization of non-pointer variables in named common\n+# blocks.  GDB used to crash with 'Intel ifort'-generated code, which\n+# outputs nameless DW_TAG_module, unlike with gfortran which just\n+# doesn't emit DW_TAG_module in this case.\n+\n+if { [skip_fortran_tests] } { return -1 }\n+\n+standard_testfile .f\n+load_lib \"fortran.exp\"\n+\n+if {[prepare_for_testing $testfile.exp $testfile $srcfile {debug f90}]} {\n+    return -1\n+}\n+\n+if ![runto MAIN__] then {\n+    untested \"couldn't run to breakpoint MAIN__\"\n+    return -1\n+}\n+\n+with_test_prefix \"default values\" {\n+    gdb_test \"print doub1\" \"= 1\\.11\\\\d+\"\n+    gdb_test \"print doub2\" \"= 2\\.22\\\\d+\"\n+    gdb_test \"print char1\" \"= 'abcdef'\"\n+    gdb_test \"print char2\" \"= 'ghijkl'\"\n+}\n+\n+gdb_breakpoint [gdb_get_line_number \"! BP_BEFORE_SUB\"]\n+gdb_continue_to_breakpoint \"! BP_BEFORE_SUB\" \".*! BP_BEFORE_SUB.*\"\n+\n+with_test_prefix \"before sub\" {\n+    gdb_test \"print doub1\" \"= 11\\.11\\\\d+\"\n+    gdb_test \"print doub2\" \"= 22\\.22\\\\d+\"\n+    gdb_test \"print char1\" \"= 'ABCDEF'\"\n+    gdb_test \"print char2\" \"= 'GHIJKL'\"\n+}\n+\n+gdb_breakpoint [gdb_get_line_number \"! BP_SUB\"]\n+gdb_continue_to_breakpoint \"! BP_SUB\" \".*! BP_SUB.*\"\n+\n+with_test_prefix \"in sub\" {\n+    gdb_test \"print doub1\" \"= 11\\.11\\\\d+\"\n+    gdb_test \"print doub2\" \"= 22\\.22\\\\d+\"\n+    gdb_test \"print char1\" \"= 'ABCDEF'\"\n+    gdb_test \"print char2\" \"= 'GHIJKL'\"\n+}"
+    },
+    {
+      "sha": "acb2c5a85918bfe330619d19fc3bcb38da597e01",
+      "filename": "gdb/testsuite/gdb.fortran/block-data.f",
+      "status": "added",
+      "additions": 56,
+      "deletions": 0,
+      "changes": 56,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a5fd13a91534b1c79a4b61995894a5bb4f08d3b0/gdb/testsuite/gdb.fortran/block-data.f",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a5fd13a91534b1c79a4b61995894a5bb4f08d3b0/gdb/testsuite/gdb.fortran/block-data.f",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.fortran/block-data.f?ref=a5fd13a91534b1c79a4b61995894a5bb4f08d3b0",
+      "patch": "@@ -0,0 +1,56 @@\n+! Copyright 2016-2019 Free Software Foundation, Inc.\n+!\n+! This program is free software; you can redistribute it and/or modify\n+! it under the terms of the GNU General Public License as published by\n+! the Free Software Foundation; either version 3 of the License, or\n+! (at your option) any later version.\n+!\n+! This program is distributed in the hope that it will be useful,\n+! but WITHOUT ANY WARRANTY; without even the implied warranty of\n+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+! GNU General Public License for more details.\n+!\n+! You should have received a copy of the GNU General Public License\n+! along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+!\n+! Check that GDB can handle block data with no global name.\n+!\n+! MAIN\n+        PROGRAM bdata\n+        DOUBLE PRECISION doub1, doub2\n+        CHARACTER*6 char1, char2\n+\n+        COMMON /BLK1/ doub1, char1\n+        COMMON /BLK2/ doub2, char2\n+\n+        doub1 = 11.111\n+        doub2 = 22.222\n+        char1 = 'ABCDEF'\n+        char2 = 'GHIJKL'\n+        CALL sub_block_data      ! BP_BEFORE_SUB\n+        STOP\n+        END\n+\n+! BLOCK DATA\n+        BLOCK DATA\n+\n+        DOUBLE PRECISION doub1, doub2\n+        CHARACTER*6 char1, char2\n+\n+        COMMON /BLK1/ doub1, char1\n+        COMMON /BLK2/ doub2, char2\n+        DATA doub1, doub2 /1.111, 2.222/\n+        DATA char1, char2 /'abcdef', 'ghijkl'/\n+        END\n+\n+! SUBROUTINE\n+        SUBROUTINE sub_block_data\n+\n+        DOUBLE PRECISION doub1, doub2\n+        CHARACTER*6 char1, char2\n+\n+        COMMON /BLK1/ doub1, char1\n+        COMMON /BLK2/ doub2, char2\n+\n+        char1 = char2;    ! BP_SUB\n+        END"
+    }
+  ]
+}
