@@ -1,0 +1,144 @@
+{
+  "sha": "d5dcaf1b59e77047e10a1f246095d6b21f7d9772",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ZDVkY2FmMWI1OWU3NzA0N2UxMGExZjI0NjA5NWQ2YjIxZjdkOTc3Mg==",
+  "commit": {
+    "author": {
+      "name": "John Darrington",
+      "email": "john@darrington.wattle.id.au",
+      "date": "2019-01-16T13:34:50Z"
+    },
+    "committer": {
+      "name": "John Darrington",
+      "email": "john@darrington.wattle.id.au",
+      "date": "2019-01-16T13:39:04Z"
+    },
+    "message": "S12Z: Emit RELOC_S12Z_OPR instead of RELOC_EXT24 where appropriate.\n\nWhen assembling instructions which involve OPR references, emit\nRELOC_S12Z_OPR instead of RELOC_EXT24.\n\nbfd/\n\t* bfd-in2.h [BFD_RELOC_S12Z_OPR]: New reloc.\n\t* libbfd.h: regen.\n\t* elf32-s12z.c (eld_s12z_howto_table): R_S12Z_OPR takes non zero\n\tsource field.  (md_apply_fix): Apply final fix\n\tto BFD_RELOC_S12Z_OPR.\n\t* reloc.c[BFD_RELOC_S12Z_OPR]: New reloc.\n\ngas/\n\t* config/tc-s12z.c (emit_opr): Emit BFD_RELOC_S12Z_OPR instead of\n\tBFD_RELOC_24.\n\t* testsuite/gas/s12z/opr-indirect-expr.d: Expect R_S12Z_OPR instead\n\tof R_S12Z_EXT24.",
+    "tree": {
+      "sha": "f0849cbdc103770465bd83bf4905515b0191b270",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f0849cbdc103770465bd83bf4905515b0191b270"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/d5dcaf1b59e77047e10a1f246095d6b21f7d9772",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d5dcaf1b59e77047e10a1f246095d6b21f7d9772",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/d5dcaf1b59e77047e10a1f246095d6b21f7d9772",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/d5dcaf1b59e77047e10a1f246095d6b21f7d9772/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "338c923d26fa86f695fcdc4b659a5f0772768093",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/338c923d26fa86f695fcdc4b659a5f0772768093",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/338c923d26fa86f695fcdc4b659a5f0772768093"
+    }
+  ],
+  "stats": {
+    "total": 58,
+    "additions": 45,
+    "deletions": 13
+  },
+  "files": [
+    {
+      "sha": "5e943a1e809a85657c212b5c1956fb2f1185023f",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d5dcaf1b59e77047e10a1f246095d6b21f7d9772/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d5dcaf1b59e77047e10a1f246095d6b21f7d9772/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=d5dcaf1b59e77047e10a1f246095d6b21f7d9772",
+      "patch": "@@ -1,3 +1,12 @@\n+2019-01-14  John Darrington <john@darrington.wattle.id.au>\n+\n+\t* bfd-in2.h [BFD_RELOC_S12Z_OPR]: New reloc.\n+\t* libbfd.h: regen.\n+\t* elf32-s12z.c (eld_s12z_howto_table): R_S12Z_OPR takes non zero\n+\tsource field.  (md_apply_fix): Apply final fix\n+\tto BFD_RELOC_S12Z_OPR.\n+\t* reloc.c[BFD_RELOC_S12Z_OPR]: New reloc.\n+\n 2019-01-14  Maamoun Tarsha  <maamountk@hotmail.com>\n \n \tPR 20113"
+    },
+    {
+      "sha": "e25da50aafbf4fe14b7220bb2d0791ac7899b4f6",
+      "filename": "bfd/bfd-in2.h",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 0,
+      "changes": 3,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d5dcaf1b59e77047e10a1f246095d6b21f7d9772/bfd/bfd-in2.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d5dcaf1b59e77047e10a1f246095d6b21f7d9772/bfd/bfd-in2.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/bfd-in2.h?ref=d5dcaf1b59e77047e10a1f246095d6b21f7d9772",
+      "patch": "@@ -6696,6 +6696,9 @@ assembler and not (currently) written to any object files.  */\n   BFD_RELOC_CKCORE_IRELATIVE,\n   BFD_RELOC_CKCORE_PCREL_BLOOP_IMM4BY4,\n   BFD_RELOC_CKCORE_PCREL_BLOOP_IMM12BY4,\n+\n+/* S12Z relocations.  */\n+  BFD_RELOC_S12Z_OPR,\n   BFD_RELOC_UNUSED };\n \n typedef enum bfd_reloc_code_real bfd_reloc_code_real_type;"
+    },
+    {
+      "sha": "a8f9b4aae1c7f828a2292b901285e6d3cfea79ae",
+      "filename": "bfd/elf32-s12z.c",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 6,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d5dcaf1b59e77047e10a1f246095d6b21f7d9772/bfd/elf32-s12z.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d5dcaf1b59e77047e10a1f246095d6b21f7d9772/bfd/elf32-s12z.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf32-s12z.c?ref=d5dcaf1b59e77047e10a1f246095d6b21f7d9772",
+      "patch": "@@ -119,7 +119,7 @@ static reloc_howto_type elf_s12z_howto_table[] =\n \t shift_addend_reloc,\n \t \"R_S12Z_OPR\",\t/* name */\n \t FALSE,\t\t\t/* partial_inplace */\n-\t 0x00000000,            /* src_mask */\n+\t 0x00ffffff,            /* src_mask */\n \t 0x00ffffff,\t\t/* dst_mask */\n \t FALSE),\t\t/* pcrel_offset */\n \n@@ -232,11 +232,12 @@ struct s12z_reloc_map\n \n static const struct s12z_reloc_map s12z_reloc_map[] =\n {\n-  /* bfd reloc val */ /* elf reloc val */\n-  {BFD_RELOC_NONE, R_S12Z_NONE},\n-  {BFD_RELOC_32, R_S12Z_EXT32},\n-  {BFD_RELOC_24, R_S12Z_EXT24},\n-  {BFD_RELOC_16_PCREL, R_S12Z_PCREL_7_15}\n+  /* bfd reloc val */  /* elf reloc val */\n+  {BFD_RELOC_NONE,     R_S12Z_NONE},\n+  {BFD_RELOC_32,       R_S12Z_EXT32},\n+  {BFD_RELOC_24,       R_S12Z_EXT24},\n+  {BFD_RELOC_16_PCREL, R_S12Z_PCREL_7_15},\n+  {BFD_RELOC_S12Z_OPR, R_S12Z_OPR}\n };\n \n static reloc_howto_type *"
+    },
+    {
+      "sha": "36284d71a9bdb0237ad678027441ccf0fe880430",
+      "filename": "bfd/libbfd.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d5dcaf1b59e77047e10a1f246095d6b21f7d9772/bfd/libbfd.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d5dcaf1b59e77047e10a1f246095d6b21f7d9772/bfd/libbfd.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/libbfd.h?ref=d5dcaf1b59e77047e10a1f246095d6b21f7d9772",
+      "patch": "@@ -3320,6 +3320,7 @@ static const char *const bfd_reloc_code_real_names[] = { \"@@uninitialized@@\",\n   \"BFD_RELOC_CKCORE_IRELATIVE\",\n   \"BFD_RELOC_CKCORE_PCREL_BLOOP_IMM4BY4\",\n   \"BFD_RELOC_CKCORE_PCREL_BLOOP_IMM12BY4\",\n+  \"BFD_RELOC_S12Z_OPR\",\n  \"@@overflow: BFD_RELOC_UNUSED@@\",\n };\n #endif"
+    },
+    {
+      "sha": "e6446a78098602d91d3c7f4a0b20807b805bb829",
+      "filename": "bfd/reloc.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d5dcaf1b59e77047e10a1f246095d6b21f7d9772/bfd/reloc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d5dcaf1b59e77047e10a1f246095d6b21f7d9772/bfd/reloc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/reloc.c?ref=d5dcaf1b59e77047e10a1f246095d6b21f7d9772",
+      "patch": "@@ -8052,6 +8052,11 @@ ENUMX\n ENUMDOC\n   C-SKY relocations.\n \n+ENUM\n+  BFD_RELOC_S12Z_OPR\n+ENUMDOC\n+  S12Z relocations.\n+\n ENDSENUM\n   BFD_RELOC_UNUSED\n CODE_FRAGMENT"
+    },
+    {
+      "sha": "986af8495a9a3f203448c928d2a4ae47810fc54a",
+      "filename": "gas/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d5dcaf1b59e77047e10a1f246095d6b21f7d9772/gas/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d5dcaf1b59e77047e10a1f246095d6b21f7d9772/gas/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/ChangeLog?ref=d5dcaf1b59e77047e10a1f246095d6b21f7d9772",
+      "patch": "@@ -1,3 +1,10 @@\n+2019-01-16  John Darrington <john@darrington.wattle.id.au>\n+\n+        * config/tc-s12z.c (emit_opr): Emit BFD_RELOC_S12Z_OPR instead of\n+\tBFD_RELOC_24.\n+\t* testsuite/gas/s12z/opr-indirect-expr.d: Expect R_S12Z_OPR instead\n+\tof R_S12Z_EXT24.\n+\n 2019-01-14  Srinath Parvathaneni  <srinath.parvathaneni@arm.com>\n \n \t* config/tc-arm.c (arm_ext_v6k_v6t2): Define."
+    },
+    {
+      "sha": "7d1ddf66435fe1f3683d21280027710dad61e56c",
+      "filename": "gas/config/tc-s12z.c",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 6,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d5dcaf1b59e77047e10a1f246095d6b21f7d9772/gas/config/tc-s12z.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d5dcaf1b59e77047e10a1f246095d6b21f7d9772/gas/config/tc-s12z.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-s12z.c?ref=d5dcaf1b59e77047e10a1f246095d6b21f7d9772",
+      "patch": "@@ -732,12 +732,17 @@ emit_opr (char *f, const uint8_t *buffer, int n_bytes, expressionS *exp)\n   number_to_chars_bigendian (f++, buffer[0], 1);\n   if (exp->X_op != O_absent && exp->X_op != O_constant)\n     {\n-      fix_new_exp (frag_now,\n-\t\t   f - frag_now->fr_literal,\n-\t\t   3,\n-\t\t   exp,\n-\t\t   FALSE,\n-\t\t   BFD_RELOC_24);\n+      fixS *fix = fix_new_exp (frag_now,\n+\t\t\t       f - frag_now->fr_literal,\n+\t\t\t       3,\n+\t\t\t       exp,\n+\t\t\t       FALSE,\n+\t\t\t       BFD_RELOC_S12Z_OPR);\n+      /* Some third party tools seem to use the lower bits\n+\tof this addend for flags.   They don't get added\n+\tto the final location.   The purpose of these flags\n+\tis not known.  We simply set it to zero.  */\n+      fix->fx_addnumber = 0x00;\n     }\n   for (i = 1; i < n_bytes; ++i)\n     number_to_chars_bigendian (f++,  buffer[i], 1);\n@@ -3821,6 +3826,7 @@ md_apply_fix (fixS *fixP, valueT *valP, segT seg ATTRIBUTE_UNUSED)\n       bfd_putb16 ((bfd_vma) value, (unsigned char *) where);\n       break;\n     case BFD_RELOC_24:\n+    case BFD_RELOC_S12Z_OPR:\n       bfd_putb24 ((bfd_vma) value, (unsigned char *) where);\n       break;\n     case BFD_RELOC_32:"
+    },
+    {
+      "sha": "8facde578e401cd5348f9d82ae9990b42deaaba5",
+      "filename": "gas/testsuite/gas/s12z/opr-indirect-expr.d",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/d5dcaf1b59e77047e10a1f246095d6b21f7d9772/gas/testsuite/gas/s12z/opr-indirect-expr.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/d5dcaf1b59e77047e10a1f246095d6b21f7d9772/gas/testsuite/gas/s12z/opr-indirect-expr.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/s12z/opr-indirect-expr.d?ref=d5dcaf1b59e77047e10a1f246095d6b21f7d9772",
+      "patch": "@@ -11,4 +11,4 @@ Disassembly of section .text:\n 00000000 <.text>:\n    0:\ta7 fe 00 00 \tld d7, \\[1\\]\n    4:\t01 \n-\t\t\t2: R_S12Z_EXT24\tFOO\n+\t\t\t2: R_S12Z_OPR\tFOO"
+    }
+  ]
+}

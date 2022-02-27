@@ -1,0 +1,132 @@
+{
+  "sha": "2880242dd0b8538b68aece7d9e8b1678dcdfd0ab",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6Mjg4MDI0MmRkMGI4NTM4YjY4YWVjZTdkOWU4YjE2NzhkY2RmZDBhYg==",
+  "commit": {
+    "author": {
+      "name": "Keith Seitz",
+      "email": "keiths@redhat.com",
+      "date": "2019-03-29T17:15:38Z"
+    },
+    "committer": {
+      "name": "Keith Seitz",
+      "email": "keiths@redhat.com",
+      "date": "2019-03-29T17:35:19Z"
+    },
+    "message": "Allow really large fortran array bounds: fortran type/value printers\n\nThis is the fortran part of the patch, including tests, which\nare essentially unchanged from Siddhesh's original 2012 submission:\n\n  https://sourceware.org/ml/gdb-patches/2012-08/msg00562.html\n\nThere is, however, one large departure.  In the above thread,\nJan pointed out problems with GCC debuginfo for -m32 builds\n(filed usptream as gcc/54934).  After investigating the issue,\nI am dropping the hand-tweaked assembler source file to workaround\nthis case.\n\nWhile I would normally do something to accommodate this, in\nthis case, given the ubiquity of 64-bit systems today (where\nthe tests pass) and the apparent lack of urgency on the compiler\nside (by users), I don't think the additional complexity and\nmaintenance costs are worth it. It will be very routinely tested\non 64-bit systems. [For example, at Red Hat, we always\ntest -m64 and -m32 configurations for all GDB releases.]\n\ngdb/ChangeLog:\n\n\tFrom Siddhesh Poyarekar:\n\t* f-lang.h (f77_get_upperbound): Return LONGEST.\n\t(f77_get_lowerbound): Likewise.\n\t* f-typeprint.c (f_type_print_varspec_suffix): Expand\n\tUPPER_BOUND and LOWER_BOUND to LONGEST.  Use plongest to format\n\tprint them.\n\t(f_type_print_base): Expand UPPER_BOUND to LONGEST.  Use\n\tplongest to format print it.\n\t* f-valprint.c (f77_get_lowerbound): Return LONGEST.\n\t(f77_get_upperbound): Likewise.\n\t(f77_get_dynamic_length_of_aggregate): Expand UPPER_BOUND,\n\tLOWER_BOUND to LONGEST.\n\t(f77_create_arrayprint_offset_tbl): Likewise.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.fortran/array-bounds.exp: New file.\n\t* gdb.fortran/array-bounds.f90: New file.",
+    "tree": {
+      "sha": "2014f6a0ef950c8dada827fb19ab7001f029ae01",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/2014f6a0ef950c8dada827fb19ab7001f029ae01"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/2880242dd0b8538b68aece7d9e8b1678dcdfd0ab",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2880242dd0b8538b68aece7d9e8b1678dcdfd0ab",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/2880242dd0b8538b68aece7d9e8b1678dcdfd0ab",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2880242dd0b8538b68aece7d9e8b1678dcdfd0ab/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "cc1defb1dcb5f1ca23a82bca233a48ab2657de6c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/cc1defb1dcb5f1ca23a82bca233a48ab2657de6c",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/cc1defb1dcb5f1ca23a82bca233a48ab2657de6c"
+    }
+  ],
+  "stats": {
+    "total": 123,
+    "additions": 110,
+    "deletions": 13
+  },
+  "files": [
+    {
+      "sha": "53923503c79c764a8e1a8b70df3ec8681e180eb1",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 0,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2880242dd0b8538b68aece7d9e8b1678dcdfd0ab/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2880242dd0b8538b68aece7d9e8b1678dcdfd0ab/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=2880242dd0b8538b68aece7d9e8b1678dcdfd0ab",
+      "patch": "@@ -1,3 +1,19 @@\n+2019-03-29  Keith Seitz  <keiths@redhat.com>\n+\n+\tFrom Siddhesh Poyarekar:\n+\t* f-lang.h (f77_get_upperbound): Return LONGEST.\n+\t(f77_get_lowerbound): Likewise.\n+\t* f-typeprint.c (f_type_print_varspec_suffix): Expand\n+\tUPPER_BOUND and LOWER_BOUND to LONGEST.  Use plongest to format\n+\tprint them.\n+\t(f_type_print_base): Expand UPPER_BOUND to LONGEST.  Use\n+\tplongest to format print it.\n+\t* f-valprint.c (f77_get_lowerbound): Return LONGEST.\n+\t(f77_get_upperbound): Likewise.\n+\t(f77_get_dynamic_length_of_aggregate): Expand UPPER_BOUND,\n+\tLOWER_BOUND to LONGEST.\n+\t(f77_create_arrayprint_offset_tbl): Likewise.\n+\n 2019-03-29  Keith Seitz  <keiths@redhat.com>\n \n \t* ada-lang.c (ada_template_to_fixed_record_type_1): Use"
+    },
+    {
+      "sha": "1ba529d76c518225e66462f5d69f5cc98c9900a1",
+      "filename": "gdb/f-lang.h",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2880242dd0b8538b68aece7d9e8b1678dcdfd0ab/gdb/f-lang.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2880242dd0b8538b68aece7d9e8b1678dcdfd0ab/gdb/f-lang.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/f-lang.h?ref=2880242dd0b8538b68aece7d9e8b1678dcdfd0ab",
+      "patch": "@@ -50,9 +50,9 @@ struct common_block\n   struct symbol *contents[1];\n };\n \n-extern int f77_get_upperbound (struct type *);\n+extern LONGEST f77_get_upperbound (struct type *);\n \n-extern int f77_get_lowerbound (struct type *);\n+extern LONGEST f77_get_lowerbound (struct type *);\n \n extern void f77_get_dynamic_array_length (struct type *);\n "
+    },
+    {
+      "sha": "a0e34b3058ddcc6b67560999b19b19cfaf221f70",
+      "filename": "gdb/f-typeprint.c",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 9,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2880242dd0b8538b68aece7d9e8b1678dcdfd0ab/gdb/f-typeprint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2880242dd0b8538b68aece7d9e8b1678dcdfd0ab/gdb/f-typeprint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/f-typeprint.c?ref=2880242dd0b8538b68aece7d9e8b1678dcdfd0ab",
+      "patch": "@@ -161,8 +161,6 @@ f_type_print_varspec_suffix (struct type *type, struct ui_file *stream,\n \t\t\t     int show, int passed_a_ptr, int demangled_args,\n \t\t\t     int arrayprint_recurse_level)\n {\n-  int upper_bound, lower_bound;\n-\n   /* No static variables are permitted as an error call may occur during\n      execution of this function.  */\n \n@@ -192,9 +190,10 @@ f_type_print_varspec_suffix (struct type *type, struct ui_file *stream,\n             f_type_print_varspec_suffix (TYPE_TARGET_TYPE (type), stream, 0,\n                                         0, 0, arrayprint_recurse_level);\n \n-          lower_bound = f77_get_lowerbound (type);\n+          LONGEST lower_bound = f77_get_lowerbound (type);\n+\n           if (lower_bound != 1)\t/* Not the default.  */\n-            fprintf_filtered (stream, \"%d:\", lower_bound);\n+            fprintf_filtered (stream, \"%s:\", plongest (lower_bound));\n \n           /* Make sure that, if we have an assumed size array, we\n              print out a warning and print the upperbound as '*'.  */\n@@ -203,8 +202,9 @@ f_type_print_varspec_suffix (struct type *type, struct ui_file *stream,\n             fprintf_filtered (stream, \"*\");\n           else\n             {\n-              upper_bound = f77_get_upperbound (type);\n-              fprintf_filtered (stream, \"%d\", upper_bound);\n+              LONGEST upper_bound = f77_get_upperbound (type);\n+\n+              fputs_filtered (plongest (upper_bound), stream);\n             }\n \n           if (TYPE_CODE (TYPE_TARGET_TYPE (type)) != TYPE_CODE_ARRAY)\n@@ -273,7 +273,6 @@ void\n f_type_print_base (struct type *type, struct ui_file *stream, int show,\n \t\t   int level)\n {\n-  int upper_bound;\n   int index;\n \n   QUIT;\n@@ -364,8 +363,9 @@ f_type_print_base (struct type *type, struct ui_file *stream, int show,\n \tfprintfi_filtered (level, stream, \"character*(*)\");\n       else\n \t{\n-\t  upper_bound = f77_get_upperbound (type);\n-\t  fprintf_filtered (stream, \"character*%d\", upper_bound);\n+\t  LONGEST upper_bound = f77_get_upperbound (type);\n+\n+\t  fprintf_filtered (stream, \"character*%s\", pulongest (upper_bound));\n \t}\n       break;\n "
+    },
+    {
+      "sha": "5f9dd4dedb8453ce2a6b66bf5a3271ba1304d5c1",
+      "filename": "gdb/f-valprint.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2880242dd0b8538b68aece7d9e8b1678dcdfd0ab/gdb/f-valprint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2880242dd0b8538b68aece7d9e8b1678dcdfd0ab/gdb/f-valprint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/f-valprint.c?ref=2880242dd0b8538b68aece7d9e8b1678dcdfd0ab",
+      "patch": "@@ -41,7 +41,7 @@ int f77_array_offset_tbl[MAX_FORTRAN_DIMS + 1][2];\n /* Array which holds offsets to be applied to get a row's elements\n    for a given array.  Array also holds the size of each subarray.  */\n \n-int\n+LONGEST\n f77_get_lowerbound (struct type *type)\n {\n   if (TYPE_ARRAY_LOWER_BOUND_IS_UNDEFINED (type))\n@@ -50,7 +50,7 @@ f77_get_lowerbound (struct type *type)\n   return TYPE_ARRAY_LOWER_BOUND_VALUE (type);\n }\n \n-int\n+LONGEST\n f77_get_upperbound (struct type *type)\n {\n   if (TYPE_ARRAY_UPPER_BOUND_IS_UNDEFINED (type))"
+    },
+    {
+      "sha": "57f53b5388334f10fd31ef8a4313b2a2c2f76642",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2880242dd0b8538b68aece7d9e8b1678dcdfd0ab/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2880242dd0b8538b68aece7d9e8b1678dcdfd0ab/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=2880242dd0b8538b68aece7d9e8b1678dcdfd0ab",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-03-29  Keith Seitz  <keiths@redhat.com>\n+\n+\t* gdb.fortran/array-bounds.exp: New file.\n+\t* gdb.fortran/array-bounds.f90: New file.\n+\n 2019-03-28  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n \n \t* gdb.multi/multi-term-settings.c (main): Increase alarm timer."
+    },
+    {
+      "sha": "e18530c75edc42b5c55bf59eb82d2482f88f50be",
+      "filename": "gdb/testsuite/gdb.fortran/array-bounds.exp",
+      "status": "added",
+      "additions": 50,
+      "deletions": 0,
+      "changes": 50,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2880242dd0b8538b68aece7d9e8b1678dcdfd0ab/gdb/testsuite/gdb.fortran/array-bounds.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2880242dd0b8538b68aece7d9e8b1678dcdfd0ab/gdb/testsuite/gdb.fortran/array-bounds.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.fortran/array-bounds.exp?ref=2880242dd0b8538b68aece7d9e8b1678dcdfd0ab",
+      "patch": "@@ -0,0 +1,50 @@\n+# Copyright 2012-2019 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# This file is part of the gdb testsuite.  It contains test to ensure that\n+# array bounds accept LONGEST.\n+\n+if { [skip_fortran_tests] } { return -1 }\n+\n+set testfile \"array-bounds\"\n+standard_testfile .f90\n+\n+if {[prepare_for_testing $testfile.exp $testfile $srcfile {f90 debug}]} {\n+    return -1\n+}\n+\n+if {![runto MAIN__]} {\n+    perror \"Could not run to breakpoint `MAIN__'.\"\n+    continue\n+}\n+\n+# Convenience proc to setup for KFAIL\n+proc kfail_if {exp bugid triplet} {\n+    if {$exp} {\n+\tsetup_kfail $bugid $triplet\n+    }\n+}\n+\n+# GCC outputs incorrect range debug info for -m32.\n+set expect_fail false\n+if {[is_ilp32_target] && ([istarget \"i\\[34567\\]86-*-linux*\"]\n+\t\t\t  || [istarget \"x86_64-*-linux*\"])} {\n+    set expect_fail true\n+}\n+\n+kfail_if $expect_fail \"gcc/54934\" \"*-*-*\"\n+gdb_test \"print &foo\" {.*\\(4294967296:4294967297\\).*}\n+kfail_if $expect_fail \"gcc/54934\" \"*-*-*\"\n+gdb_test \"print &bar\" {.*\\(-4294967297:-4294967296\\).*}"
+    },
+    {
+      "sha": "ec3c4691ace0802bdca93bf11ad58d9c50343a1e",
+      "filename": "gdb/testsuite/gdb.fortran/array-bounds.f90",
+      "status": "added",
+      "additions": 26,
+      "deletions": 0,
+      "changes": 26,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/2880242dd0b8538b68aece7d9e8b1678dcdfd0ab/gdb/testsuite/gdb.fortran/array-bounds.f90",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/2880242dd0b8538b68aece7d9e8b1678dcdfd0ab/gdb/testsuite/gdb.fortran/array-bounds.f90",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.fortran/array-bounds.f90?ref=2880242dd0b8538b68aece7d9e8b1678dcdfd0ab",
+      "patch": "@@ -0,0 +1,26 @@\n+! Copyright 2012-2019 Free Software Foundation, Inc.\n+\n+! This program is free software; you can redistribute it and/or modify\n+! it under the terms of the GNU General Public License as published by\n+! the Free Software Foundation; either version 3 of the License, or\n+! (at your option) any later version.\n+!\n+! This program is distributed in the hope that it will be useful,\n+! but WITHOUT ANY WARRANTY; without even the implied warranty of\n+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+! GNU General Public License for more details.\n+!\n+! You should have received a copy of the GNU General Public License\n+! along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+      dimension foo(4294967296_8:4294967297_8)\n+      dimension bar(-4294967297_8:-4294967296_8)\n+      integer(8) :: lb, ub\n+      bar = 42\n+      foo = bar\n+      lb = lbound (foo, dim = 1, kind = 8)\n+      ub = ubound (foo, dim = 1, kind = 8)\n+      print *, 'bounds of foo - ', lb, ':', ub\n+      stop\n+      end\n+"
+    }
+  ]
+}

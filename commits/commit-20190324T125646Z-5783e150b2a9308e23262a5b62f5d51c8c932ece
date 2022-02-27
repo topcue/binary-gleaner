@@ -1,0 +1,60 @@
+{
+  "sha": "5783e150b2a9308e23262a5b62f5d51c8c932ece",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NTc4M2UxNTBiMmE5MzA4ZTIzMjYyYTViNjJmNWQ1MWM4YzkzMmVjZQ==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-03-24T10:44:00Z"
+    },
+    "committer": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-03-24T12:56:46Z"
+    },
+    "message": "(re-)fix the regcache leaks when detaching from an executable.\n\nCommit 799efbe8e01ab8292c01f46ac59a6fb2349d4535 was supposed to fix\nthe below leak.  However, for this fix to work, it is critical to\nsave the ptid before detach.\n\nThis commit (pushed as OBVIOUS, as the change was already reviewed/approved)\nsaves the ptid before the detach, as in the original reviewed patch\n(see https://sourceware.org/ml/gdb-patches/2019-02/msg00263.html).\n\nRe-tested on debian/amd64, natively and under valgrind.\n\n==7426== 1,123 (72 direct, 1,051 indirect) bytes in 1 blocks are definitely lost in loss record 2,872 of 3,020\n==7426==    at 0x4C2C4CC: operator new(unsigned long) (vg_replace_malloc.c:344)\n==7426==    by 0x5BD1E1: get_thread_arch_aspace_regcache(ptid_t, gdbarch*, address_space*) (regcache.c:330)\n==7426==    by 0x5BD39A: get_thread_regcache (regcache.c:366)\n==7426==    by 0x5BD39A: get_current_regcache() (regcache.c:372)\n==7426==    by 0x4B1EB4: get_current_frame() (frame.c:1588)\n...",
+    "tree": {
+      "sha": "cfa98366ac130a422bf33e7c0b9a7e380f21c0e6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/cfa98366ac130a422bf33e7c0b9a7e380f21c0e6"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/5783e150b2a9308e23262a5b62f5d51c8c932ece",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5783e150b2a9308e23262a5b62f5d51c8c932ece",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/5783e150b2a9308e23262a5b62f5d51c8c932ece",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5783e150b2a9308e23262a5b62f5d51c8c932ece/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "83bfc77ff537667989bd375b991d379ee4dda350",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/83bfc77ff537667989bd375b991d379ee4dda350",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/83bfc77ff537667989bd375b991d379ee4dda350"
+    }
+  ],
+  "stats": {
+    "total": 14,
+    "additions": 8,
+    "deletions": 6
+  },
+  "files": [
+    {
+      "sha": "6c05b6b83ef8a70550616e50d5a0316fdff756bb",
+      "filename": "gdb/target.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 6,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/5783e150b2a9308e23262a5b62f5d51c8c932ece/gdb/target.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/5783e150b2a9308e23262a5b62f5d51c8c932ece/gdb/target.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/target.c?ref=5783e150b2a9308e23262a5b62f5d51c8c932ece",
+      "patch": "@@ -2013,6 +2013,11 @@ target_preopen (int from_tty)\n void\n target_detach (inferior *inf, int from_tty)\n {\n+  /* After we have detached, we will clear the register cache for this inferior\n+     by calling registers_changed_ptid.  We must save the pid_ptid before\n+     detaching, as the target detach method will clear inf->pid.  */\n+  ptid_t save_pid_ptid = ptid_t (inf->pid);\n+\n   /* As long as some to_detach implementations rely on the current_inferior\n      (either directly, or indirectly, like through target_gdbarch or by\n      reading memory), INF needs to be the current inferior.  When that\n@@ -2033,14 +2038,11 @@ target_detach (inferior *inf, int from_tty)\n \n   current_top_target ()->detach (inf, from_tty);\n \n-  /* After we have detached, clear the register cache for this inferior.  */\n-  ptid_t pid_ptid = ptid_t (inf->pid);\n-\n-  registers_changed_ptid (pid_ptid);\n+  registers_changed_ptid (save_pid_ptid);\n \n   /* We have to ensure we have no frame cache left.  Normally,\n-     registers_changed_ptid (pid_ptid) calls reinit_frame_cache when\n-     inferior_ptid matches pid_ptid, but in our case, it does not\n+     registers_changed_ptid (save_pid_ptid) calls reinit_frame_cache when\n+     inferior_ptid matches save_pid_ptid, but in our case, it does not\n      call it, as inferior_ptid has been reset.  */\n   reinit_frame_cache ();\n }"
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "sha": "20dc7e9b059edff1d0fab3bd197c460c11cc7a06",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MjBkYzdlOWIwNTllZGZmMWQwZmFiM2JkMTk3YzQ2MGMxMWNjN2EwNg==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-03-27T15:38:34Z"
+    },
+    "committer": {
+      "name": "Tom Tromey",
+      "email": "tromey@adacore.com",
+      "date": "2019-03-27T15:41:33Z"
+    },
+    "message": "Fix buffer overflow regression due to minsym malloc-ed instead of obstack-ed.\n\nValgrind detects the following error in a bunch of tests,\ne.g. in gdb.base/foll-fork.exp.\n\n==15155== VALGRIND_GDB_ERROR_BEGIN\n==15155== Invalid read of size 8\n==15155==    at 0x55BE04: minimal_symbol_upper_bound(bound_minimal_symbol) (minsyms.c:1504)\n==15155==    by 0x3B2E9C: find_pc_partial_function(unsigned long, char const**, unsigned long*, unsigned long*, block const**) (blockframe.c:340)\n==15155==    by 0x3B3135: find_function_entry_range_from_pc(unsigned long, char const**, unsigned long*, unsigned long*) (blockframe.c:385)\n==15155==    by 0x4F5597: fill_in_stop_func(gdbarch*, execution_control_state*) [clone .part.16] (infrun.c:4124)\n==15155==    by 0x4FBE01: fill_in_stop_func (infrun.c:7636)\n==15155==    by 0x4FBE01: process_event_stop_test(execution_control_state*) (infrun.c:6279)\n...\n==15155==  Address 0x715bec8 is 0 bytes after a block of size 2,952 alloc'd\n==15155==    at 0x4C2E2B3: realloc (vg_replace_malloc.c:836)\n==15155==    by 0x405F2C: xrealloc (common-utils.c:62)\n==15155==    by 0x55BA4E: xresizevec<minimal_symbol> (poison.h:170)\n==15155==    by 0x55BA4E: minimal_symbol_reader::install() (minsyms.c:1399)\n==15155==    by 0x4981C7: elf_read_minimal_symbols (elfread.c:1165)\n...\n\nThis seems to be a regression created by:\n    commit 042d75e42c5572f333e0e06dabd3c5c4afab486c\n    Author:     Tom Tromey <tom@tromey.com>\n    AuthorDate: Sat Mar 2 12:29:48 2019 -0700\n    Commit:     Tom Tromey <tom@tromey.com>\n    CommitDate: Fri Mar 15 16:02:10 2019 -0600\n\n        Allocate minimal symbols with malloc\n\nBefore this commit, the array of 'struct minimal_symbol'\ncontained a last element that was a \"null symbol\".  The comment in\nminimal_symbol_reader::install was:\n      /* We also terminate the minimal symbol table with a \"null symbol\",\n         which is *not* included in the size of the table.  This makes it\n         easier to find the end of the table when we are handed a pointer\n         to some symbol in the middle of it.  Zero out the fields in the\n         \"null symbol\" allocated at the end of the array.  Note that the\n         symbol count does *not* include this null symbol, which is why it\n         is indexed by mcount and not mcount-1.  */\n\n      memset (&msymbols[mcount], 0, sizeof (struct minimal_symbol));\n\nHowever, minimal_symbol_upper_bound was still based on the assumption\nthat the array of minsym is terminated by a minsym with a null symbol:\nit is looping with:\n  for (i = 1; MSYMBOL_LINKAGE_NAME (msymbol + i) != NULL; i++)\n\nReplace this NULL comparison by a logic that calculates how\nmany msymbol are following the msymbols from which we are starting from.\n\n(Re-)tested on debian/amd64, natively and under valgrind.\n\ngdb/ChangeLog\n2019-03-24  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n\t    Tom Tromey  <tromey@adacore.com>\n\n\t* minsyms.c (minimal_symbol_upper_bound): Fix buffer overflow.",
+    "tree": {
+      "sha": "4d7cfeda9740f6c642197a76113733cc3775f270",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/4d7cfeda9740f6c642197a76113733cc3775f270"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/20dc7e9b059edff1d0fab3bd197c460c11cc7a06",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/20dc7e9b059edff1d0fab3bd197c460c11cc7a06",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/20dc7e9b059edff1d0fab3bd197c460c11cc7a06",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/20dc7e9b059edff1d0fab3bd197c460c11cc7a06/comments",
+  "author": null,
+  "committer": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "933aebfae6b1a2b83c3eb958ebf6e43fc7fdaed1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/933aebfae6b1a2b83c3eb958ebf6e43fc7fdaed1",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/933aebfae6b1a2b83c3eb958ebf6e43fc7fdaed1"
+    }
+  ],
+  "stats": {
+    "total": 23,
+    "additions": 15,
+    "deletions": 8
+  },
+  "files": [
+    {
+      "sha": "0c658e2cfe80bd266cff6216f5fad69593ac48ca",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/20dc7e9b059edff1d0fab3bd197c460c11cc7a06/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/20dc7e9b059edff1d0fab3bd197c460c11cc7a06/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=20dc7e9b059edff1d0fab3bd197c460c11cc7a06",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-03-24  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n+\t    Tom Tromey  <tromey@adacore.com>\n+\n+\t* minsyms.c (minimal_symbol_upper_bound): Fix buffer overflow.\n+\n 2019-03-26  Joel Brobecker  <brobecker@adacore.com>\n \n \t* gdb-gdb.py.in (StructMainTypePrettyPrinter.bound_img): New method."
+    },
+    {
+      "sha": "51b65f51421f734d6264f382d1652b82800457c1",
+      "filename": "gdb/minsyms.c",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 8,
+      "changes": 18,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/20dc7e9b059edff1d0fab3bd197c460c11cc7a06/gdb/minsyms.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/20dc7e9b059edff1d0fab3bd197c460c11cc7a06/gdb/minsyms.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/minsyms.c?ref=20dc7e9b059edff1d0fab3bd197c460c11cc7a06",
+      "patch": "@@ -1445,11 +1445,10 @@ find_solib_trampoline_target (struct frame_info *frame, CORE_ADDR pc)\n CORE_ADDR\n minimal_symbol_upper_bound (struct bound_minimal_symbol minsym)\n {\n-  int i;\n   short section;\n   struct obj_section *obj_section;\n   CORE_ADDR result;\n-  struct minimal_symbol *msymbol;\n+  struct minimal_symbol *iter, *msymbol;\n \n   gdb_assert (minsym.minsym != NULL);\n \n@@ -1464,21 +1463,24 @@ minimal_symbol_upper_bound (struct bound_minimal_symbol minsym)\n      other sections, to find the next symbol in this section with a\n      different address.  */\n \n+  struct minimal_symbol *past_the_end\n+    = (minsym.objfile->per_bfd->msymbols.get ()\n+       + minsym.objfile->per_bfd->minimal_symbol_count);\n   msymbol = minsym.minsym;\n   section = MSYMBOL_SECTION (msymbol);\n-  for (i = 1; MSYMBOL_LINKAGE_NAME (msymbol + i) != NULL; i++)\n+  for (iter = msymbol + 1; iter != past_the_end; ++iter)\n     {\n-      if ((MSYMBOL_VALUE_RAW_ADDRESS (msymbol + i)\n+      if ((MSYMBOL_VALUE_RAW_ADDRESS (iter)\n \t   != MSYMBOL_VALUE_RAW_ADDRESS (msymbol))\n-\t  && MSYMBOL_SECTION (msymbol + i) == section)\n+\t  && MSYMBOL_SECTION (iter) == section)\n \tbreak;\n     }\n \n   obj_section = MSYMBOL_OBJ_SECTION (minsym.objfile, minsym.minsym);\n-  if (MSYMBOL_LINKAGE_NAME (msymbol + i) != NULL\n-      && (MSYMBOL_VALUE_ADDRESS (minsym.objfile, msymbol + i)\n+  if (iter != past_the_end\n+      && (MSYMBOL_VALUE_ADDRESS (minsym.objfile, iter)\n \t  < obj_section_endaddr (obj_section)))\n-    result = MSYMBOL_VALUE_ADDRESS (minsym.objfile, msymbol + i);\n+    result = MSYMBOL_VALUE_ADDRESS (minsym.objfile, iter);\n   else\n     /* We got the start address from the last msymbol in the objfile.\n        So the end address is the end of the section.  */"
+    }
+  ]
+}

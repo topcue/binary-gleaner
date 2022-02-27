@@ -1,0 +1,146 @@
+{
+  "sha": "8d7bcccb82d9a7efccd75d9552d007c62031e855",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OGQ3YmNjY2I4MmQ5YTdlZmNjZDc1ZDk1NTJkMDA3YzYyMDMxZTg1NQ==",
+  "commit": {
+    "author": {
+      "name": "Tom Tromey",
+      "email": "tom@tromey.com",
+      "date": "2018-05-10T22:23:57Z"
+    },
+    "committer": {
+      "name": "Tom Tromey",
+      "email": "tom@tromey.com",
+      "date": "2019-01-10T14:08:15Z"
+    },
+    "message": "Move psymtabs to their own obstack\n\nPreviously, the psymtab obstack was just a pointer to the objfile\nobstack.  This patch changes psymtabs to use their own obstack,\ninstead.  A gdb::optional is used to avoid unnecessary allocation when\nthe obstack is not needed.\n\nAfter this patch, the psymtab code lifetime model is that, in the core\npsymtab code, objects allocated on the psymtab obstack may point to\nother such objects, or to objects on the per-BFD obstack -- but never\nto the objfile obstack.\n\nNote however that this invariant is only obeyed the core psymtab code,\nand even there not quite fully: there is still a link from the psymtab\nto the full symtab.\n\nSymbol readers are free to work however they like; and in particular,\neven after this patch, in practice all symbol readers violate this\ninvariant via the read_symtab_private field.\n\ngdb/ChangeLog\n2019-01-10  Tom Tromey  <tom@tromey.com>\n\n\t* objfiles.h (objfile::reset_psymtabs): Update.\n\t* objfiles.c (objfile::objfile): Update.\n\t* psymtab.h (psymtab_storage::obstack): Update.\n\t(psymtab_storage::m_obstack): Use gdb::optional.\n\t(class psymtab_storage): Update comment.  Remove objfile\n\tparameter.\n\t* psymtab.c (psymtab_storage::psymtab_storage): Update.",
+    "tree": {
+      "sha": "3092374c65dc9b2cbc2e30d561c0579b3aa2d61a",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/3092374c65dc9b2cbc2e30d561c0579b3aa2d61a"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/8d7bcccb82d9a7efccd75d9552d007c62031e855",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8d7bcccb82d9a7efccd75d9552d007c62031e855",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/8d7bcccb82d9a7efccd75d9552d007c62031e855",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8d7bcccb82d9a7efccd75d9552d007c62031e855/comments",
+  "author": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "tromey",
+    "id": 1557670,
+    "node_id": "MDQ6VXNlcjE1NTc2NzA=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1557670?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tromey",
+    "html_url": "https://github.com/tromey",
+    "followers_url": "https://api.github.com/users/tromey/followers",
+    "following_url": "https://api.github.com/users/tromey/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tromey/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tromey/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tromey/subscriptions",
+    "organizations_url": "https://api.github.com/users/tromey/orgs",
+    "repos_url": "https://api.github.com/users/tromey/repos",
+    "events_url": "https://api.github.com/users/tromey/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tromey/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "b596a3c77da2387d7e5a3855717d65ce33bdfb58",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b596a3c77da2387d7e5a3855717d65ce33bdfb58",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/b596a3c77da2387d7e5a3855717d65ce33bdfb58"
+    }
+  ],
+  "stats": {
+    "total": 45,
+    "additions": 35,
+    "deletions": 10
+  },
+  "files": [
+    {
+      "sha": "32fe0bbe8147d3a3fe0df528bd9e4f8815970bf7",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8d7bcccb82d9a7efccd75d9552d007c62031e855/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8d7bcccb82d9a7efccd75d9552d007c62031e855/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=8d7bcccb82d9a7efccd75d9552d007c62031e855",
+      "patch": "@@ -1,3 +1,13 @@\n+2019-01-10  Tom Tromey  <tom@tromey.com>\n+\n+\t* objfiles.h (objfile::reset_psymtabs): Update.\n+\t* objfiles.c (objfile::objfile): Update.\n+\t* psymtab.h (psymtab_storage::obstack): Update.\n+\t(psymtab_storage::m_obstack): Use gdb::optional.\n+\t(class psymtab_storage): Update comment.  Remove objfile\n+\tparameter.\n+\t* psymtab.c (psymtab_storage::psymtab_storage): Update.\n+\n 2019-01-10  Tom Tromey  <tom@tromey.com>\n \n \t* psymtab.h (psymtab_storage::allocate_psymtab): New method."
+    },
+    {
+      "sha": "255a3d636d15fa35f43ddc2d81c7786b0542b9b1",
+      "filename": "gdb/objfiles.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8d7bcccb82d9a7efccd75d9552d007c62031e855/gdb/objfiles.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8d7bcccb82d9a7efccd75d9552d007c62031e855/gdb/objfiles.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/objfiles.c?ref=8d7bcccb82d9a7efccd75d9552d007c62031e855",
+      "patch": "@@ -369,7 +369,7 @@ build_objfile_section_table (struct objfile *objfile)\n objfile::objfile (bfd *abfd, const char *name, objfile_flags flags_)\n   : flags (flags_),\n     pspace (current_program_space),\n-    partial_symtabs (new psymtab_storage (this)),\n+    partial_symtabs (new psymtab_storage ()),\n     obfd (abfd)\n {\n   const char *expanded_name;"
+    },
+    {
+      "sha": "f7d08c43b3b351b10fb3cf71b58b7641d41601ed",
+      "filename": "gdb/objfiles.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8d7bcccb82d9a7efccd75d9552d007c62031e855/gdb/objfiles.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8d7bcccb82d9a7efccd75d9552d007c62031e855/gdb/objfiles.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/objfiles.h?ref=8d7bcccb82d9a7efccd75d9552d007c62031e855",
+      "patch": "@@ -298,7 +298,7 @@ struct objfile\n   void reset_psymtabs ()\n   {\n     psymbol_map.clear ();\n-    partial_symtabs.reset (new psymtab_storage (this));\n+    partial_symtabs.reset (new psymtab_storage ());\n   }\n \n "
+    },
+    {
+      "sha": "e034fda3402654207592e54d420fc2fb82223301",
+      "filename": "gdb/psymtab.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 3,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8d7bcccb82d9a7efccd75d9552d007c62031e855/gdb/psymtab.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8d7bcccb82d9a7efccd75d9552d007c62031e855/gdb/psymtab.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/psymtab.c?ref=8d7bcccb82d9a7efccd75d9552d007c62031e855",
+      "patch": "@@ -67,9 +67,8 @@ static struct compunit_symtab *psymtab_to_symtab (struct objfile *objfile,\n \n \f\n \n-psymtab_storage::psymtab_storage (struct objfile *objfile)\n-  : psymbol_cache (psymbol_bcache_init ()),\n-    m_obstack (&objfile->objfile_obstack)\n+psymtab_storage::psymtab_storage ()\n+  : psymbol_cache (psymbol_bcache_init ())\n {\n }\n "
+    },
+    {
+      "sha": "26aeb29646ebf65fae2b77b2421df91fcc8076ce",
+      "filename": "gdb/psymtab.h",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 5,
+      "changes": 26,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8d7bcccb82d9a7efccd75d9552d007c62031e855/gdb/psymtab.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8d7bcccb82d9a7efccd75d9552d007c62031e855/gdb/psymtab.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/psymtab.h?ref=8d7bcccb82d9a7efccd75d9552d007c62031e855",
+      "patch": "@@ -31,13 +31,26 @@ struct partial_symbol;\n struct psymbol_bcache;\n \n /* An instance of this class manages the partial symbol tables and\n-   partial symbols for a given objfile.  */\n+   partial symbols for a given objfile.\n+\n+   The core psymtab functions -- those in psymtab.c -- arrange for\n+   nearly all psymtab- and psymbol-related allocations to happen\n+   either in the psymtab_storage object (either on its obstack or in\n+   other memory managed by this class), or on the per-BFD object.  The\n+   only link from the psymtab storage object back to the objfile (or\n+   objfile_obstack) that is made by the core psymtab code is the\n+   compunit_symtab member in the psymtab.\n+\n+   However, it is up to each symbol reader to maintain this invariant\n+   in other ways, if it wants to reuse psymtabs across multiple\n+   objfiles.  The main issue here is ensuring that read_symtab_private\n+   does not point into objfile_obstack.  */\n \n class psymtab_storage\n {\n public:\n \n-  explicit psymtab_storage (struct objfile *objfile);\n+  psymtab_storage ();\n \n   ~psymtab_storage ();\n \n@@ -60,7 +73,9 @@ class psymtab_storage\n \n   struct obstack *obstack ()\n   {\n-    return m_obstack;\n+    if (!m_obstack.has_value ())\n+      m_obstack.emplace ();\n+    return &*m_obstack;\n   }\n \n   /* Allocate storage for the \"dependencies\" field of a psymtab.\n@@ -108,9 +123,10 @@ class psymtab_storage\n \n   struct partial_symtab *free_psymtabs = nullptr;\n \n-  /* The obstack where allocations are made.  */\n+  /* The obstack where allocations are made.  This is lazily allocated\n+     so that we don't waste memory when there are no psymtabs.  */\n \n-  struct obstack *m_obstack;\n+  gdb::optional<auto_obstack> m_obstack;\n };\n \n "
+    }
+  ]
+}

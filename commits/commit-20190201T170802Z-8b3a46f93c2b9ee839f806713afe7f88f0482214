@@ -1,0 +1,120 @@
+{
+  "sha": "8b3a46f93c2b9ee839f806713afe7f88f0482214",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6OGIzYTQ2ZjkzYzJiOWVlODM5ZjgwNjcxM2FmZTdmODhmMDQ4MjIxNA==",
+  "commit": {
+    "author": {
+      "name": "John Darrington",
+      "email": "john@darrington.wattle.id.au",
+      "date": "2019-02-01T16:42:54Z"
+    },
+    "committer": {
+      "name": "John Darrington",
+      "email": "john@darrington.wattle.id.au",
+      "date": "2019-02-01T17:08:02Z"
+    },
+    "message": "S12Z: GAS: Disallow immediate destination operands\n\nThe assembler permitted instructions which attempted to assign to an immediate\noperand.  Bizarrely there is a valid machine code for such operations (although\nthe documentation says it's \"inappropriate\").  This change causes such attempts\nto fail with  an error message.\n\ngas/\n\n\t* config/tc-s12z.c (lex_opr): Add a parameter to indicate whether\n\timmediate mode operands should be permitted.\n\t* testsuite/s12z/imm-dest.d: New file.\n\t* testsuite/s12z/imm-dest.l: New file.\n\t* testsuite/s12z/imm-dest.s: New file.\n\t* testsuite/s12z/s12z.exp: Add them.",
+    "tree": {
+      "sha": "7e0311d430b1f446d4577bf54f94d1e3753db396",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/7e0311d430b1f446d4577bf54f94d1e3753db396"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/8b3a46f93c2b9ee839f806713afe7f88f0482214",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8b3a46f93c2b9ee839f806713afe7f88f0482214",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/8b3a46f93c2b9ee839f806713afe7f88f0482214",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8b3a46f93c2b9ee839f806713afe7f88f0482214/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "c75eca848b682c20dcd3ef850f67491295c116b1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c75eca848b682c20dcd3ef850f67491295c116b1",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/c75eca848b682c20dcd3ef850f67491295c116b1"
+    }
+  ],
+  "stats": {
+    "total": 143,
+    "additions": 107,
+    "deletions": 36
+  },
+  "files": [
+    {
+      "sha": "7905717272acbe49dbbafed01b1bc5456bd67c7f",
+      "filename": "gas/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8b3a46f93c2b9ee839f806713afe7f88f0482214/gas/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8b3a46f93c2b9ee839f806713afe7f88f0482214/gas/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/ChangeLog?ref=8b3a46f93c2b9ee839f806713afe7f88f0482214",
+      "patch": "@@ -1,3 +1,12 @@\n+2019-01-31  John Darrington <john@darrington.wattle.id.au>\n+\n+\t* config/tc-s12z.c (lex_opr): Add a parameter to indicate whether\n+\timmediate mode operands should be permitted.\n+\t* testsuite/s12z/imm-dest.d: New file.\n+\t* testsuite/s12z/imm-dest.l: New file.\n+\t* testsuite/s12z/imm-dest.s: New file.\n+\t* testsuite/s12z/s12z.exp: Add them.\n+\n 2019-01-31  Andreas Krebbel  <krebbel@linux.ibm.com>\n \n \t* config/tc-s390.c (s390_parse_cpu): New entry for arch13."
+    },
+    {
+      "sha": "2bd536aca3e826b5973ff367df22ba763a63d83b",
+      "filename": "gas/config/tc-s12z.c",
+      "status": "modified",
+      "additions": 58,
+      "deletions": 36,
+      "changes": 94,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8b3a46f93c2b9ee839f806713afe7f88f0482214/gas/config/tc-s12z.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8b3a46f93c2b9ee839f806713afe7f88f0482214/gas/config/tc-s12z.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-s12z.c?ref=8b3a46f93c2b9ee839f806713afe7f88f0482214",
+      "patch": "@@ -348,7 +348,8 @@ lex_force_match (char x)\n }\n \n static int\n-lex_opr (uint8_t *buffer, int *n_bytes, expressionS *exp)\n+lex_opr (uint8_t *buffer, int *n_bytes, expressionS *exp,\n+\t bool immediate_ok)\n {\n   char *ilp = input_line_pointer;\n   uint8_t *xb = buffer;\n@@ -359,6 +360,11 @@ lex_opr (uint8_t *buffer, int *n_bytes, expressionS *exp)\n   *xb = 0;\n   if (lex_imm_e4 (&imm))\n     {\n+      if (!immediate_ok)\n+\t{\n+\t  as_bad (_(\"An immediate value in a source operand is inappropriate\"));\n+\t  return 0;\n+\t}\n       if (imm > 0)\n \t*xb = imm;\n       else\n@@ -766,7 +772,7 @@ opr (const struct instruction *insn)\n   uint8_t buffer[4];\n   int n_bytes;\n   expressionS exp;\n-  if (lex_opr (buffer, &n_bytes, &exp))\n+  if (lex_opr (buffer, &n_bytes, &exp, false))\n     {\n       /* Large constant direct values are more efficiently encoded as ext24 mode.\n \t Otherwise a decision has to be deferred to a relax. */\n@@ -1094,7 +1100,7 @@ mul_reg_reg_opr (const struct instruction *insn)\n   uint8_t buffer[4];\n   int n_bytes;\n   expressionS exp;\n-  if (!lex_opr (buffer, &n_bytes, &exp))\n+  if (!lex_opr (buffer, &n_bytes, &exp, true))\n     goto fail;\n \n   int size = size_from_suffix (insn, 0);\n@@ -1149,7 +1155,7 @@ mul_reg_opr_opr (const struct instruction *insn)\n   uint8_t buffer1[4];\n   int n_bytes1;\n   expressionS exp1;\n-  if (!lex_opr (buffer1, &n_bytes1, &exp1))\n+  if (!lex_opr (buffer1, &n_bytes1, &exp1, false))\n     goto fail;\n \n   if (!lex_match (','))\n@@ -1158,7 +1164,7 @@ mul_reg_opr_opr (const struct instruction *insn)\n   uint8_t buffer2[4];\n   int n_bytes2;\n   expressionS exp2;\n-  if (!lex_opr (buffer2, &n_bytes2, &exp2))\n+  if (!lex_opr (buffer2, &n_bytes2, &exp2, false))\n     goto fail;\n \n   int size1 = size_from_suffix (insn, 0);\n@@ -1519,7 +1525,8 @@ regd6_regy_regx (const struct instruction *insn)\n }\n \n static int\n-reg_opr (const struct instruction *insn, int allowed_regs)\n+reg_opr (const struct instruction *insn, int allowed_regs,\n+\t bool immediate_ok)\n {\n   char *ilp = input_line_pointer;\n   int reg;\n@@ -1531,7 +1538,7 @@ reg_opr (const struct instruction *insn, int allowed_regs)\n       uint8_t buffer[4];\n       int n_bytes;\n       expressionS exp;\n-      if (lex_opr (buffer, &n_bytes, &exp))\n+      if (lex_opr (buffer, &n_bytes, &exp, immediate_ok))\n \t{\n \t  /* Large constant direct values are more efficiently encoded as ext24 mode.\n \t     Otherwise a decision has to be deferred to a relax. */\n@@ -1572,22 +1579,37 @@ reg_opr (const struct instruction *insn, int allowed_regs)\n \n \n static int\n-regdxy_opr (const struct instruction *insn)\n+regdxy_opr_dest (const struct instruction *insn)\n {\n-  return reg_opr (insn, REG_BIT_Dn | REG_BIT_XY);\n+  return reg_opr (insn, REG_BIT_Dn | REG_BIT_XY, false);\n }\n \n+static int\n+regdxy_opr_src (const struct instruction *insn)\n+{\n+  return reg_opr (insn, REG_BIT_Dn | REG_BIT_XY, true);\n+}\n+\n+\n static int\n regd_opr (const struct instruction *insn)\n {\n-  return reg_opr (insn, REG_BIT_Dn);\n+  return reg_opr (insn, REG_BIT_Dn, true);\n }\n \n \n+/* OP0: S; OP1: destination OPR */\n+static int\n+regs_opr_dest (const struct instruction *insn)\n+{\n+  return reg_opr (insn, 0x1U << REG_S, false);\n+}\n+\n+/* OP0: S; OP1: source OPR */\n static int\n-regs_opr (const struct instruction *insn)\n+regs_opr_src (const struct instruction *insn)\n {\n-  return reg_opr (insn, 0x1U << REG_S);\n+  return reg_opr (insn, 0x1U << REG_S, true);\n }\n \n static int\n@@ -1604,7 +1626,7 @@ imm_opr  (const struct instruction *insn)\n   uint8_t buffer[4];\n   int n_bytes;\n   expressionS exp;\n-  if (!lex_opr (buffer, &n_bytes, &exp))\n+  if (!lex_opr (buffer, &n_bytes, &exp, false))\n     goto fail;\n \n   int size = size_from_suffix (insn, 0);\n@@ -1633,7 +1655,7 @@ opr_opr  (const struct instruction *insn)\n   uint8_t buffer1[4];\n   int n_bytes1;\n   expressionS exp1;\n-  if (!lex_opr (buffer1, &n_bytes1, &exp1))\n+  if (!lex_opr (buffer1, &n_bytes1, &exp1, false))\n     goto fail;\n \n \n@@ -1643,7 +1665,7 @@ opr_opr  (const struct instruction *insn)\n   uint8_t buffer2[4];\n   int n_bytes2;\n   expressionS exp2;\n-  if (!lex_opr (buffer2, &n_bytes2, &exp2))\n+  if (!lex_opr (buffer2, &n_bytes2, &exp2, false))\n     goto fail;\n \n   char *f = s12z_new_insn (1 + n_bytes1 + n_bytes2);\n@@ -1673,7 +1695,7 @@ reg67sxy_opr  (const struct instruction *insn)\n   uint8_t buffer[4];\n   int n_bytes;\n   expressionS exp;\n-  if (!lex_opr (buffer, &n_bytes, &exp))\n+  if (!lex_opr (buffer, &n_bytes, &exp, false))\n     return 0;\n \n   char *f = s12z_new_insn (1 + n_bytes);\n@@ -1689,7 +1711,7 @@ rotate  (const struct instruction *insn, short dir)\n   uint8_t buffer[4];\n   int n_bytes;\n   expressionS exp;\n-  if (lex_opr (buffer, &n_bytes, &exp))\n+  if (lex_opr (buffer, &n_bytes, &exp, false))\n     {\n       char *f = s12z_new_insn (n_bytes + 2);\n       number_to_chars_bigendian (f++, insn->opc, 1);\n@@ -1760,7 +1782,7 @@ lex_shift_reg_imm1  (const struct instruction *insn, short type, short dir)\n   int n_bytes;\n \n   expressionS exp;\n-  if (!lex_opr (buffer, &n_bytes, &exp))\n+  if (!lex_opr (buffer, &n_bytes, &exp, false))\n     goto fail;\n \n   gas_assert (n_bytes == 1);\n@@ -1911,7 +1933,7 @@ shift_two_operand  (const struct instruction *insn)\n   uint8_t buffer[4];\n   int n_opr_bytes;\n   expressionS exp;\n-  if (!lex_opr (buffer, &n_opr_bytes, &exp))\n+  if (!lex_opr (buffer, &n_opr_bytes, &exp, false))\n     goto fail;\n \n   if (!lex_match (','))\n@@ -1963,7 +1985,7 @@ shift_opr_imm  (const struct instruction *insn)\n   int n_opr_bytes1;\n \n   expressionS exp1;\n-  if (!lex_opr (buffer1, &n_opr_bytes1, &exp1))\n+  if (!lex_opr (buffer1, &n_opr_bytes1, &exp1, false))\n     goto fail;\n \n   n_bytes += n_opr_bytes1;\n@@ -1979,7 +2001,7 @@ shift_opr_imm  (const struct instruction *insn)\n     {\n       immediate = true;\n     }\n-  else if (!lex_opr (buffer2, &n_opr_bytes2, &exp2))\n+  else if (!lex_opr (buffer2, &n_opr_bytes2, &exp2, false))\n     goto fail;\n \n   uint8_t sb = 0x20;\n@@ -2091,7 +2113,7 @@ bm_opr_reg  (const struct instruction *insn)\n   int n_opr_bytes;\n \n   expressionS exp;\n-  if (!lex_opr (buffer, &n_opr_bytes,  &exp))\n+  if (!lex_opr (buffer, &n_opr_bytes,  &exp, false))\n     goto fail;\n \n   if (!lex_match (','))\n@@ -2130,7 +2152,7 @@ bm_opr_imm  (const struct instruction *insn)\n   int n_opr_bytes;\n \n   expressionS exp;\n-  if (!lex_opr (buffer, &n_opr_bytes, &exp))\n+  if (!lex_opr (buffer, &n_opr_bytes, &exp, false))\n     goto fail;\n \n   if (!lex_match (','))\n@@ -2224,7 +2246,7 @@ bf_reg_opr_imm  (const struct instruction *insn, short ie)\n   int n_bytes;\n \n   expressionS exp;\n-  if (!lex_opr (buffer, &n_bytes, &exp))\n+  if (!lex_opr (buffer, &n_bytes, &exp, false))\n     goto fail;\n \n   if (!lex_match (','))\n@@ -2286,7 +2308,7 @@ bf_opr_reg_imm  (const struct instruction *insn, short ie)\n   uint8_t buffer[4];\n   int n_bytes;\n   expressionS exp;\n-  if (!lex_opr (buffer, &n_bytes, &exp))\n+  if (!lex_opr (buffer, &n_bytes, &exp, false))\n     goto fail;\n \n   if (!lex_match (','))\n@@ -2463,7 +2485,7 @@ bf_opr_reg_reg  (const struct instruction *insn, short ie)\n   uint8_t buffer[4];\n   int n_bytes;\n   expressionS exp;\n-  if (!lex_opr (buffer, &n_bytes, &exp))\n+  if (!lex_opr (buffer, &n_bytes, &exp, false))\n     goto fail;\n \n   if (!lex_match (','))\n@@ -2523,7 +2545,7 @@ bf_reg_opr_reg  (const struct instruction *insn, short ie)\n   uint8_t buffer[4];\n   int n_bytes;\n   expressionS exp;\n-  if (!lex_opr (buffer, &n_bytes, &exp))\n+  if (!lex_opr (buffer, &n_bytes, &exp, false))\n     goto fail;\n \n   if (!lex_match (','))\n@@ -2714,7 +2736,7 @@ tb_opr_rel  (const struct instruction *insn)\n   uint8_t buffer[4];\n   int n_bytes;\n   expressionS exp;\n-  if (!lex_opr (buffer, &n_bytes, &exp))\n+  if (!lex_opr (buffer, &n_bytes, &exp, false))\n     goto fail;\n \n   if (!lex_match (','))\n@@ -2829,7 +2851,7 @@ test_br_opr_reg_rel  (const struct instruction *insn)\n   uint8_t buffer[4];\n   int n_bytes;\n   expressionS exp;\n-  if (!lex_opr (buffer, &n_bytes,  &exp))\n+  if (!lex_opr (buffer, &n_bytes,  &exp, false))\n     goto fail;\n \n   if (!lex_match (','))\n@@ -2878,7 +2900,7 @@ test_br_opr_imm_rel  (const struct instruction *insn)\n   uint8_t buffer[4];\n   int n_bytes;\n   expressionS exp;\n-  if (!lex_opr (buffer, &n_bytes, &exp))\n+  if (!lex_opr (buffer, &n_bytes, &exp, false))\n     goto fail;\n \n   if (!lex_match (','))\n@@ -3238,15 +3260,15 @@ static const struct instruction opcodes[] = {\n   {\"tfr\", 1,   0x9e,  tfr, 0},\n   {\"zex\", 1,   0x9e,  tfr, 0},\n \n-  {\"ld\",  1,   0xa0,  regdxy_opr, 0xb0},\n+  {\"ld\",  1,   0xa0,  regdxy_opr_src, 0xb0},\n \n   {\"jmp\", 1,   0xaa,  opr, 0xba},\n   {\"jsr\", 1,   0xab,  opr, 0xbb},\n \n   {\"exg\", 1,   0xae,  tfr, 0},\n   {\"sex\", 1,   0xae,  tfr, 0},\n \n-  {\"st\", 1,    0xc0,  regdxy_opr, 0xd0},\n+  {\"st\", 1,    0xc0,  regdxy_opr_dest, 0xd0},\n \n   {\"andcc\", 1, 0xce,  imm8, 0},\n   {\"orcc\", 1,  0xde,  imm8, 0},\n@@ -3305,7 +3327,7 @@ static const struct instruction opcodes[] = {\n   {\"btgl.l\",  1, 0xee, bm_opr_reg, 0},\n \n   {\"cmp\", 1,   0xe0,  regdxy_imm, 0},\n-  {\"cmp\", 1,   0xf0,  regdxy_opr, 0},\n+  {\"cmp\", 1,   0xf0,  regdxy_opr_src, 0},\n \n   {\"cmp\", 1,   0xfc,  regx_regy, 0},\n   {\"sub\", 1,   0xfd,  regd6_regx_regy, 0},\n@@ -3316,13 +3338,13 @@ static const struct instruction opcodes[] = {\n   /* Page 2 */\n \n   /* The -10 below is a kludge.  The opcode is in fact 0x00 */\n-  {\"ld\",    2,  -10,  regs_opr, 0},\n+  {\"ld\",    2,  -10,  regs_opr_src, 0},\n \n   /* The -9 below is a kludge.  The opcode is in fact 0x01 */\n-  {\"st\",    2,  -9,  regs_opr, 0},\n+  {\"st\",    2,  -9,  regs_opr_dest, 0},\n \n   /* The -8 below is a kludge.  The opcode is in fact 0x02 */\n-  {\"cmp\",    2,  -8,  regs_opr, 0},\n+  {\"cmp\",    2,  -8,  regs_opr_src, 0},\n \n   /* The -7 below is a kludge.  The opcode is in fact 0x03 */\n   {\"ld\",    2,  -7,  regs_imm, 0},"
+    },
+    {
+      "sha": "37c4ed79e9252689e76ce0d34b85aff1a8ace86d",
+      "filename": "gas/testsuite/gas/s12z/imm-dest.d",
+      "status": "added",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8b3a46f93c2b9ee839f806713afe7f88f0482214/gas/testsuite/gas/s12z/imm-dest.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8b3a46f93c2b9ee839f806713afe7f88f0482214/gas/testsuite/gas/s12z/imm-dest.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/s12z/imm-dest.d?ref=8b3a46f93c2b9ee839f806713afe7f88f0482214",
+      "patch": "@@ -0,0 +1,4 @@\n+# Check that opr destinations which are short immediates fail with an error\n+#name: invalid immediate destination operands\n+#source: imm-dest.s\n+#error_output: imm-dest.l"
+    },
+    {
+      "sha": "14d614d93ecd1722e80ff3e7cf17419d71e5de32",
+      "filename": "gas/testsuite/gas/s12z/imm-dest.l",
+      "status": "added",
+      "additions": 25,
+      "deletions": 0,
+      "changes": 25,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8b3a46f93c2b9ee839f806713afe7f88f0482214/gas/testsuite/gas/s12z/imm-dest.l",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8b3a46f93c2b9ee839f806713afe7f88f0482214/gas/testsuite/gas/s12z/imm-dest.l",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/s12z/imm-dest.l?ref=8b3a46f93c2b9ee839f806713afe7f88f0482214",
+      "patch": "@@ -0,0 +1,25 @@\n+.*: Assembler messages:\n+.*:2: Error: An immediate value in a source operand is inappropriate\n+.*:2: Error: Invalid instruction: \"st d0,#2\"\n+.*:2: Error: First invalid token: \"d0,#2\"\n+.*:3: Error: An immediate value in a source operand is inappropriate\n+.*:3: Error: Invalid instruction: \"st s,#4\"\n+.*:3: Error: First invalid token: \"\"\n+.*:4: Error: An immediate value in a source operand is inappropriate\n+.*:4: Error: Invalid instruction: \"mov.b d0,#4\"\n+.*:4: Error: First invalid token: \"\"\n+.*:5: Error: An immediate value in a source operand is inappropriate\n+.*:5: Error: Invalid instruction: \"inc.b #1\"\n+.*:5: Error: First invalid token: \"\\(null\\)\"\n+.*:6: Error: An immediate value in a source operand is inappropriate\n+.*:6: Error: Invalid instruction: \"dec.b #12\"\n+.*:6: Error: First invalid token: \"\\(null\\)\"\n+.*:7: Error: An immediate value in a source operand is inappropriate\n+.*:7: Error: Invalid instruction: \"com.w #1\"\n+.*:7: Error: First invalid token: \"\\(null\\)\"\n+.*:8: Error: An immediate value in a source operand is inappropriate\n+.*:8: Error: Invalid instruction: \"neg.l #-1\"\n+.*:8: Error: First invalid token: \"\\(null\\)\"\n+.*:9: Error: An immediate value in a source operand is inappropriate\n+.*:9: Error: Invalid instruction: \"ror.b #3\"\n+.*:9: Error: First invalid token: \"\\(null\\)\""
+    },
+    {
+      "sha": "136326816aa417b7fd9df51808bf92d2d2f4d6c6",
+      "filename": "gas/testsuite/gas/s12z/imm-dest.s",
+      "status": "added",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8b3a46f93c2b9ee839f806713afe7f88f0482214/gas/testsuite/gas/s12z/imm-dest.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8b3a46f93c2b9ee839f806713afe7f88f0482214/gas/testsuite/gas/s12z/imm-dest.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/s12z/imm-dest.s?ref=8b3a46f93c2b9ee839f806713afe7f88f0482214",
+      "patch": "@@ -0,0 +1,9 @@\n+;;; All these are invalid instructions and should provoke an error\n+\tst d0, #2\n+\tst s,  #4\n+\tmov.b d0, #4\n+\tinc.b #1\n+\tdec.b #12\n+\tcom.w  #1\n+\tneg.l  #-1\n+\tror.b  #3"
+    },
+    {
+      "sha": "a6546d76ac35c33ec3d055c656fe30f0aa3375c3",
+      "filename": "gas/testsuite/gas/s12z/s12z.exp",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8b3a46f93c2b9ee839f806713afe7f88f0482214/gas/testsuite/gas/s12z/s12z.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8b3a46f93c2b9ee839f806713afe7f88f0482214/gas/testsuite/gas/s12z/s12z.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/s12z/s12z.exp?ref=8b3a46f93c2b9ee839f806713afe7f88f0482214",
+      "patch": "@@ -132,3 +132,5 @@ run_dump_test ld-large-direct\n run_dump_test ld-small-direct\n run_dump_test st-large-direct\n run_dump_test st-small-direct\n+\n+run_dump_test imm-dest"
+    }
+  ]
+}

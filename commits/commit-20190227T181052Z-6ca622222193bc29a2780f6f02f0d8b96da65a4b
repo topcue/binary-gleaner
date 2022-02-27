@@ -1,0 +1,110 @@
+{
+  "sha": "6ca622222193bc29a2780f6f02f0d8b96da65a4b",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NmNhNjIyMjIyMTkzYmMyOWEyNzgwZjZmMDJmMGQ4Yjk2ZGE2NWE0Yg==",
+  "commit": {
+    "author": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2019-02-19T20:18:17Z"
+    },
+    "committer": {
+      "name": "Kevin Buettner",
+      "email": "kevinb@redhat.com",
+      "date": "2019-02-27T18:10:52Z"
+    },
+    "message": "Use Python 2.[67] / 3.X / PEP 3118 buffer protocol\n\nThis patch removes the non-IS_PY3K code in infpy_write_memory()\nand infpy_search_memory().  In both cases, the remaining code\nfrom these ifdefs is related to use of the PEP 3118 buffer protocol.\n(Deleted code is either due to simplification or related to use of the\nold buffer protocol.)  PEP 3118 is sometimes referred to as the \"new\"\nbuffer protocol, though it's not that new anymore.\n\nThe link below describes new features in Python 2.6.  In particular,\nit says that the buffer protocol described by PEP 3118 is in Python\n2.6.  It also says (at the top of the page) that Python 2.6 was\nreleased on Oct 1, 2008.\n\nhttps://docs.python.org/3/whatsnew/2.6.html#pep-3118-revised-buffer-protocol\n\nThe last security release for the Python 2.6 series was 2.6.9.  It was\nreleased on Oct 29, 2013.  According to this document...\n\nhttps://www.python.org/download/releases/2.6.9/\n\n...support for the 2.6 series has ended:\n\n    With the 2.6.9 release, and five years after its first release,\n    the Python 2.6 series is now officially retired.  All official\n    maintenance for Python 2.6, including security patches, has ended.\n    For ongoing maintenance releases, please see the Python 2.7\n    series.\n\nAs noted earlier, Python 2.6, Python 2.7, and Python 3.X all have\nsupport for the PEP 3118 buffer protocol.  Python releases prior\nto 2.6 use an older buffer protocol.  Since Python 2.6 has been\nretired for a good while now, it seems reasonable to me to remove\ncode using the older buffer protocol from GDB.\n\nI have also simplified some of the code via use of the Py_buffer\nunique_ptr specialization which I introduced in the two argument\ngdb.Value constructor patch series.  Therefore, there is a dependency\non patch #1 from that series.\n\nI have tested against both Python 2.7.15 and 3.7.2.  I see no\nregressions among the non-racy tests.  I've also verified that\nPyBuffer_Release is being called when the affected functions exit\nwhile running the tests in gdb.python/py-inferior.exp by hand.  I've\nalso tried running valgrind on GDB while running this test, but I'm\npuzzled by the results that I'm seeing - I'm seeing no additional\nleaks when I comment out the Py_buffer_up lines that I introduced.\nThat said, I'm not seeing any leaks that obviously originate from\neither infpy_write_memory() or infpy_search_memory().\n\ngdb/ChangeLog:\n\n\t* python/py-inferior.c (infpy_write_memory): Remove non-IS_PY3K\n\tcode from these functions.  Remove corresponding ifdefs.  Use\n\tPy_buffer_up instead of explicit calls to PyBuffer_Release.\n\tRemove gotos and target of gotos.\n\t(infpy_search_memory): Likewise.",
+    "tree": {
+      "sha": "f12a3cdb5179f3fc1e3b8ac24129c36d0f289b5f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/f12a3cdb5179f3fc1e3b8ac24129c36d0f289b5f"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/6ca622222193bc29a2780f6f02f0d8b96da65a4b",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6ca622222193bc29a2780f6f02f0d8b96da65a4b",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/6ca622222193bc29a2780f6f02f0d8b96da65a4b",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6ca622222193bc29a2780f6f02f0d8b96da65a4b/comments",
+  "author": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "KevinBuettner",
+    "id": 65747518,
+    "node_id": "MDQ6VXNlcjY1NzQ3NTE4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/65747518?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/KevinBuettner",
+    "html_url": "https://github.com/KevinBuettner",
+    "followers_url": "https://api.github.com/users/KevinBuettner/followers",
+    "following_url": "https://api.github.com/users/KevinBuettner/following{/other_user}",
+    "gists_url": "https://api.github.com/users/KevinBuettner/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/KevinBuettner/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/KevinBuettner/subscriptions",
+    "organizations_url": "https://api.github.com/users/KevinBuettner/orgs",
+    "repos_url": "https://api.github.com/users/KevinBuettner/repos",
+    "events_url": "https://api.github.com/users/KevinBuettner/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/KevinBuettner/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "f4bc7d2cde9189249d41ac9c63235c128da4d2f2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f4bc7d2cde9189249d41ac9c63235c128da4d2f2",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/f4bc7d2cde9189249d41ac9c63235c128da4d2f2"
+    }
+  ],
+  "stats": {
+    "total": 72,
+    "additions": 16,
+    "deletions": 56
+  },
+  "files": [
+    {
+      "sha": "fe44394330e2c21f2fcab8422c4baa4737f59efc",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6ca622222193bc29a2780f6f02f0d8b96da65a4b/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6ca622222193bc29a2780f6f02f0d8b96da65a4b/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=6ca622222193bc29a2780f6f02f0d8b96da65a4b",
+      "patch": "@@ -1,3 +1,11 @@\n+2019-02-27  Kevin Buettner  <kevinb@redhat.com>\n+\n+\t* python/py-inferior.c (infpy_write_memory): Remove non-IS_PY3K\n+\tcode from these functions.  Remove corresponding ifdefs.  Use\n+\tPy_buffer_up instead of explicit calls to PyBuffer_Release.\n+\tRemove gotos and target of gotos.\n+\t(infpy_search_memory): Likewise.\n+\n 2019-02-27  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb/hppa-tdep.c (hppa_dummy_id): Delete."
+    },
+    {
+      "sha": "ba769b31c735f2230da156875c12d9151fa0fb1e",
+      "filename": "gdb/python/py-inferior.c",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 56,
+      "changes": 64,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6ca622222193bc29a2780f6f02f0d8b96da65a4b/gdb/python/py-inferior.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6ca622222193bc29a2780f6f02f0d8b96da65a4b/gdb/python/py-inferior.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/python/py-inferior.c?ref=6ca622222193bc29a2780f6f02f0d8b96da65a4b",
+      "patch": "@@ -554,31 +554,23 @@ infpy_write_memory (PyObject *self, PyObject *args, PyObject *kw)\n   CORE_ADDR addr, length;\n   PyObject *addr_obj, *length_obj = NULL;\n   static const char *keywords[] = { \"address\", \"buffer\", \"length\", NULL };\n-#ifdef IS_PY3K\n   Py_buffer pybuf;\n \n   if (!gdb_PyArg_ParseTupleAndKeywords (args, kw, \"Os*|O\", keywords,\n \t\t\t\t\t&addr_obj, &pybuf, &length_obj))\n     return NULL;\n \n+  Py_buffer_up buffer_up (&pybuf);\n   buffer = (const gdb_byte *) pybuf.buf;\n   buf_len = pybuf.len;\n-#else\n-  if (!gdb_PyArg_ParseTupleAndKeywords (args, kw, \"Os#|O\", keywords,\n-\t\t\t\t\t&addr_obj, &buffer, &buf_len,\n-\t\t\t\t\t&length_obj))\n-    return NULL;\n-\n-  buffer = (const gdb_byte *) buffer;\n-#endif\n \n   if (get_addr_from_python (addr_obj, &addr) < 0)\n-    goto fail;\n+    return nullptr;\n \n   if (!length_obj)\n     length = buf_len;\n   else if (get_addr_from_python (length_obj, &length) < 0)\n-    goto fail;\n+    return nullptr;\n \n   TRY\n     {\n@@ -590,18 +582,9 @@ infpy_write_memory (PyObject *self, PyObject *args, PyObject *kw)\n     }\n   END_CATCH\n \n-#ifdef IS_PY3K\n-  PyBuffer_Release (&pybuf);\n-#endif\n   GDB_PY_HANDLE_EXCEPTION (except);\n \n   Py_RETURN_NONE;\n-\n- fail:\n-#ifdef IS_PY3K\n-  PyBuffer_Release (&pybuf);\n-#endif\n-  return NULL;\n }\n \n /* Destructor of Membuf objects.  */\n@@ -710,58 +693,36 @@ infpy_search_memory (PyObject *self, PyObject *args, PyObject *kw)\n   const gdb_byte *buffer;\n   CORE_ADDR found_addr;\n   int found = 0;\n-#ifdef IS_PY3K\n   Py_buffer pybuf;\n \n   if (!gdb_PyArg_ParseTupleAndKeywords (args, kw, \"OOs*\", keywords,\n \t\t\t\t\t&start_addr_obj, &length_obj,\n \t\t\t\t\t&pybuf))\n     return NULL;\n \n+  Py_buffer_up buffer_up (&pybuf);\n   buffer = (const gdb_byte *) pybuf.buf;\n   pattern_size = pybuf.len;\n-#else\n-  PyObject *pattern;\n-  const void *vbuffer;\n-\n-  if (!gdb_PyArg_ParseTupleAndKeywords (args, kw, \"OOO\", keywords,\n-\t\t\t\t\t&start_addr_obj, &length_obj,\n-\t\t\t\t\t&pattern))\n-     return NULL;\n-\n-  if (!PyObject_CheckReadBuffer (pattern))\n-    {\n-      PyErr_SetString (PyExc_RuntimeError,\n-\t\t       _(\"The pattern is not a Python buffer.\"));\n-\n-      return NULL;\n-    }\n-\n-  if (PyObject_AsReadBuffer (pattern, &vbuffer, &pattern_size) == -1)\n-    return NULL;\n-\n-  buffer = (const gdb_byte *) vbuffer;\n-#endif\n \n   if (get_addr_from_python (start_addr_obj, &start_addr) < 0)\n-    goto fail;\n+    return nullptr;\n \n   if (get_addr_from_python (length_obj, &length) < 0)\n-    goto fail;\n+    return nullptr;\n \n   if (!length)\n     {\n       PyErr_SetString (PyExc_ValueError,\n \t\t       _(\"Search range is empty.\"));\n-      goto fail;\n+      return nullptr;\n     }\n   /* Watch for overflows.  */\n   else if (length > CORE_ADDR_MAX\n \t   || (start_addr + length - 1) < start_addr)\n     {\n       PyErr_SetString (PyExc_ValueError,\n \t\t       _(\"The search range is too large.\"));\n-      goto fail;\n+      return nullptr;\n     }\n \n   TRY\n@@ -776,21 +737,12 @@ infpy_search_memory (PyObject *self, PyObject *args, PyObject *kw)\n     }\n   END_CATCH\n \n-#ifdef IS_PY3K\n-  PyBuffer_Release (&pybuf);\n-#endif\n   GDB_PY_HANDLE_EXCEPTION (except);\n \n   if (found)\n     return PyLong_FromLong (found_addr);\n   else\n     Py_RETURN_NONE;\n-\n- fail:\n-#ifdef IS_PY3K\n-  PyBuffer_Release (&pybuf);\n-#endif\n-  return NULL;\n }\n \n /* Implementation of gdb.Inferior.is_valid (self) -> Boolean."
+    }
+  ]
+}

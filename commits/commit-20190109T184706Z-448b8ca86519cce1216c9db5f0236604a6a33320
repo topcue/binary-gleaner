@@ -1,0 +1,72 @@
+{
+  "sha": "448b8ca86519cce1216c9db5f0236604a6a33320",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NDQ4YjhjYTg2NTE5Y2NlMTIxNmM5ZGI1ZjAyMzY2MDRhNmEzMzMyMA==",
+  "commit": {
+    "author": {
+      "name": "John Darrington",
+      "email": "john@darrington.wattle.id.au",
+      "date": "2019-01-04T08:44:58Z"
+    },
+    "committer": {
+      "name": "John Darrington",
+      "email": "john@darrington.wattle.id.au",
+      "date": "2019-01-09T18:47:06Z"
+    },
+    "message": "S12Z: Don't crash when disassembling invalid instructions.\n\nCheck for null before dereferencing an operand pointer.  Normally\nthis situation should never arise, but could happen if a \"partial\"\ninstruction is encountered at the end of a file or section.\n\nopcodes/\n\t* s12z-dis.c (print_insn_s12z):  Do not dereference an\n\toperand if it is null.",
+    "tree": {
+      "sha": "bff31676ee1c6972f2c87ff582a2ca7844494531",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/bff31676ee1c6972f2c87ff582a2ca7844494531"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/448b8ca86519cce1216c9db5f0236604a6a33320",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/448b8ca86519cce1216c9db5f0236604a6a33320",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/448b8ca86519cce1216c9db5f0236604a6a33320",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/448b8ca86519cce1216c9db5f0236604a6a33320/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "39f286cd585226ad98c2cd94ee0f96988b3696ce",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/39f286cd585226ad98c2cd94ee0f96988b3696ce",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/39f286cd585226ad98c2cd94ee0f96988b3696ce"
+    }
+  ],
+  "stats": {
+    "total": 8,
+    "additions": 5,
+    "deletions": 3
+  },
+  "files": [
+    {
+      "sha": "cf7d55eb3f24ddfb2d259de41acaa9ea10e687d6",
+      "filename": "opcodes/ChangeLog",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 1,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/448b8ca86519cce1216c9db5f0236604a6a33320/opcodes/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/448b8ca86519cce1216c9db5f0236604a6a33320/opcodes/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/ChangeLog?ref=448b8ca86519cce1216c9db5f0236604a6a33320",
+      "patch": "@@ -1,6 +1,8 @@\n 2019-01-09  John Darrington <john@darrington.wattle.id.au>\n \n-        * s12z-dis.c (opr_emit_disassembly): Do not omit an index if it is\n+\t* s12z-dis.c (print_insn_s12z):  Do not dereference an operand\n+\tif it is null.\n+\t-dis.c (opr_emit_disassembly): Do not omit an index if it is\n \tzero.\n \n 2019-01-09  Andrew Paprocki  <andrew@ishiboo.com>"
+    },
+    {
+      "sha": "d4d5fd7217f03523d2f4a21c8a0998cd768d98e9",
+      "filename": "opcodes/s12z-dis.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/448b8ca86519cce1216c9db5f0236604a6a33320/opcodes/s12z-dis.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/448b8ca86519cce1216c9db5f0236604a6a33320/opcodes/s12z-dis.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/s12z-dis.c?ref=448b8ca86519cce1216c9db5f0236604a6a33320",
+      "patch": "@@ -351,15 +351,15 @@ print_insn_s12z (bfd_vma memaddr, struct disassemble_info* info)\n \t\t (struct mem_read_abstraction_base *) &mra);\n \n   (info->fprintf_func) (info->stream, \"%s\", mnemonics[(long)operator]);\n-  \n+\n   /* Ship out size sufficies for those instructions which\n      need them.  */\n   if (osize == -1)\n     {\n       bool suffix = false;\n       for (o = 0; o < n_operands; ++o)\n \t{\n-\t  if (operands[o]->osize != -1)\n+\t  if (operands[o] && operands[o]->osize != -1)\n \t    {\n \t      if (!suffix)\n \t\t{"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "sha": "ae2b14c73cd42b067e9687219155ed044210f0c1",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YWUyYjE0YzczY2Q0MmIwNjdlOTY4NzIxOTE1NWVkMDQ0MjEwZjBjMQ==",
+  "commit": {
+    "author": {
+      "name": "Jim Wilson",
+      "email": "jimw@sifive.com",
+      "date": "2019-03-30T17:12:12Z"
+    },
+    "committer": {
+      "name": "Jim Wilson",
+      "email": "jimw@sifive.com",
+      "date": "2019-03-30T17:12:12Z"
+    },
+    "message": "RISC-V: Relax tail/j to c.j for RV64.\n\n\t2019-03-30  Andrew Waterman  <andrew@sifive.com>\n\tbfd/\n\t* elfnn-riscv.c (_bfd_riscv_relax_call): Only check ARCH_SIZE for\n\trd == X_RA case.",
+    "tree": {
+      "sha": "c92a4bbd4bdb671014ddd4a117f780c6aa458114",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c92a4bbd4bdb671014ddd4a117f780c6aa458114"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ae2b14c73cd42b067e9687219155ed044210f0c1",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ae2b14c73cd42b067e9687219155ed044210f0c1",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ae2b14c73cd42b067e9687219155ed044210f0c1",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ae2b14c73cd42b067e9687219155ed044210f0c1/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "7734102d6d8b5a0ccea166f8e944f84dc896b9ae",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7734102d6d8b5a0ccea166f8e944f84dc896b9ae",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/7734102d6d8b5a0ccea166f8e944f84dc896b9ae"
+    }
+  ],
+  "stats": {
+    "total": 12,
+    "additions": 10,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "2c630be735fa888432855ff296f10076a7109a64",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae2b14c73cd42b067e9687219155ed044210f0c1/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae2b14c73cd42b067e9687219155ed044210f0c1/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=ae2b14c73cd42b067e9687219155ed044210f0c1",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-03-30  Andrew Waterman  <andrew@sifive.com>\n+\n+\t* elfnn-riscv.c (_bfd_riscv_relax_call): Only check ARCH_SIZE for\n+\trd == X_RA case.\n+\n 2019-03-29  Max Filippov  <jcmvbkbc@gmail.com>\n \n \t* elf32-xtensa.c (shrink_dynamic_reloc_sections): Add"
+    },
+    {
+      "sha": "dba1025994fbc2d5e37d4ac6b2feba181dd8de1c",
+      "filename": "bfd/elfnn-riscv.c",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 2,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ae2b14c73cd42b067e9687219155ed044210f0c1/bfd/elfnn-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ae2b14c73cd42b067e9687219155ed044210f0c1/bfd/elfnn-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfnn-riscv.c?ref=ae2b14c73cd42b067e9687219155ed044210f0c1",
+      "patch": "@@ -3416,9 +3416,12 @@ _bfd_riscv_relax_call (bfd *abfd, asection *sec, asection *sym_sec,\n   auipc = bfd_get_32 (abfd, contents + rel->r_offset);\n   jalr = bfd_get_32 (abfd, contents + rel->r_offset + 4);\n   rd = (jalr >> OP_SH_RD) & OP_MASK_RD;\n-  rvc = rvc && VALID_RVC_J_IMM (foff) && ARCH_SIZE == 32;\n+  rvc = rvc && VALID_RVC_J_IMM (foff);\n \n-  if (rvc && (rd == 0 || rd == X_RA))\n+  /* C.J exists on RV32 and RV64, but C.JAL is RV32-only.  */\n+  rvc = rvc && (rd == 0 || (rd == X_RA && ARCH_SIZE == 32));\n+\n+  if (rvc)\n     {\n       /* Relax to C.J[AL] rd, addr.  */\n       r_type = R_RISCV_RVC_JUMP;"
+    }
+  ]
+}

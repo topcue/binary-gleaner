@@ -1,0 +1,72 @@
+{
+  "sha": "ab759ca8db37ffd3e32df5226e0b4ea16a81c849",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YWI3NTljYThkYjM3ZmZkM2UzMmRmNTIyNmUwYjRlYTE2YTgxYzg0OQ==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-02-09T14:02:25Z"
+    },
+    "committer": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-02-10T12:01:35Z"
+    },
+    "message": "Fix type_stack leaks in c expression parsing.\n\nValgrind detects a bunch of leaks in several tests, such as:\n\n==22905== 40 (24 direct, 16 indirect) bytes in 1 blocks are definitely lost in loss record 531 of 3,268\n==22905==    at 0x4C2C4CC: operator new(unsigned long) (vg_replace_malloc.c:344)\n==22905==    by 0x5893AD: get_type_stack() (parse.c:1509)\n==22905==    by 0x3F4EAD: c_yyparse() (c-exp.y:1223)\n==22905==    by 0x3F71BC: c_parse(parser_state*) (c-exp.y:3308)\n==22905==    by 0x588CEA: parse_exp_in_context_1(char const**, unsigned long, block const*, int, int, int*) [clone .constprop.89] (parse.c:1205)\n==22905==    by 0x588FA1: parse_exp_in_context (parse.c:1108)\n==22905==    by 0x588FA1: parse_exp_1 (parse.c:1099)\n==22905==    by 0x588FA1: parse_expression(char const*) (parse.c:1247)\n...\n\n==22395== 456 (168 direct, 288 indirect) bytes in 7 blocks are definitely lost in loss record 2,658 of 2,978\n==22395==    at 0x4C2C4CC: operator new(unsigned long) (vg_replace_malloc.c:344)\n==22395==    by 0x5893AD: get_type_stack() (parse.c:1509)\n==22395==    by 0x3F4ECF: c_yyparse() (c-exp.y:1230)\n==22395==    by 0x3F71BC: c_parse(parser_state*) (c-exp.y:3308)\n==22395==    by 0x588CEA: parse_exp_in_context_1(char const**, unsigned long, block const*, int, int, int*) [clone .constprop.89] (parse.c:1205)\n==22395==    by 0x588FA1: parse_exp_in_context (parse.c:1108)\n==22395==    by 0x588FA1: parse_exp_1 (parse.c:1099)\n==22395==    by 0x588FA1: parse_expression(char const*) (parse.c:1247)\n==22395==    by 0x67BB9D: whatis_exp(char const*, int) (typeprint.c:515)\n...\n\n==22395== VALGRIND_GDB_ERROR_BEGIN\n==22395== 144 (24 direct, 120 indirect) bytes in 1 blocks are definitely lost in loss record 1,016 of 2,978\n==22395==    at 0x4C2C4CC: operator new(unsigned long) (vg_replace_malloc.c:344)\n==22395==    by 0x5893AD: get_type_stack() (parse.c:1509)\n==22395==    by 0x3F4E8A: c_yyparse() (c-exp.y:1217)\n==22395==    by 0x3F71BC: c_parse(parser_state*) (c-exp.y:3308)\n==22395==    by 0x588CEA: parse_exp_in_context_1(char const**, unsigned long, block const*, int, int, int*) [clone .constprop.89] (parse.c:1205)\n==22395==    by 0x588FA1: parse_exp_in_context (parse.c:1108)\n==22395==    by 0x588FA1: parse_exp_1 (parse.c:1099)\n==22395==    by 0x588FA1: parse_expression(char const*) (parse.c:1247)\n==22395==    by 0x67BB9D: whatis_exp(char const*, int) (typeprint.c:515)\n...\n\nFix these by storing the allocated type_stack in the cpstate->type_stacks\nvector.\n\nTested on debian/amd64, natively and under valgrind.\n\ngdb/ChangeLog\n2019-02-10  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n\n\t* c-exp.y (direct_abs_decl): Use emplace_back to record the\n\ttype_stack.",
+    "tree": {
+      "sha": "7ae1998c3678c7981c1e9fa6893072cbaeb00595",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/7ae1998c3678c7981c1e9fa6893072cbaeb00595"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ab759ca8db37ffd3e32df5226e0b4ea16a81c849",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ab759ca8db37ffd3e32df5226e0b4ea16a81c849",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ab759ca8db37ffd3e32df5226e0b4ea16a81c849",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ab759ca8db37ffd3e32df5226e0b4ea16a81c849/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "aff29d1c738c0327e7b40ba9f6885279b75e3eca",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/aff29d1c738c0327e7b40ba9f6885279b75e3eca",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/aff29d1c738c0327e7b40ba9f6885279b75e3eca"
+    }
+  ],
+  "stats": {
+    "total": 9,
+    "additions": 9,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "f4f0c0c939672115404d1638f4246cb206ad392c",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ab759ca8db37ffd3e32df5226e0b4ea16a81c849/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ab759ca8db37ffd3e32df5226e0b4ea16a81c849/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=ab759ca8db37ffd3e32df5226e0b4ea16a81c849",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-02-10  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n+\n+\t* c-exp.y (direct_abs_decl): Use emplace_back to record the\n+\ttype_stack.\n+\n 2019-02-10  Joel Brobecker  <brobecker@adacore.com>\n \n \t* ada-varobj.c (ada_value_is_changeable_p): Add handling of"
+    },
+    {
+      "sha": "508e9ef28ddc96267da047e93774518314519686",
+      "filename": "gdb/c-exp.y",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ab759ca8db37ffd3e32df5226e0b4ea16a81c849/gdb/c-exp.y",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ab759ca8db37ffd3e32df5226e0b4ea16a81c849/gdb/c-exp.y",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/c-exp.y?ref=ab759ca8db37ffd3e32df5226e0b4ea16a81c849",
+      "patch": "@@ -1215,24 +1215,28 @@ direct_abs_decl: '(' abs_decl ')'\n \t\t\t  push_type_int ($2);\n \t\t\t  push_type (tp_array);\n \t\t\t  $$ = get_type_stack ();\n+\t\t\t  cpstate->type_stacks.emplace_back ($$);\n \t\t\t}\n \t|\tarray_mod\n \t\t\t{\n \t\t\t  push_type_int ($1);\n \t\t\t  push_type (tp_array);\n \t\t\t  $$ = get_type_stack ();\n+\t\t\t  cpstate->type_stacks.emplace_back ($$);\n \t\t\t}\n \n \t| \tdirect_abs_decl func_mod\n \t\t\t{\n \t\t\t  push_type_stack ($1);\n \t\t\t  push_typelist ($2);\n \t\t\t  $$ = get_type_stack ();\n+\t\t\t  cpstate->type_stacks.emplace_back ($$);\n \t\t\t}\n \t|\tfunc_mod\n \t\t\t{\n \t\t\t  push_typelist ($1);\n \t\t\t  $$ = get_type_stack ();\n+\t\t\t  cpstate->type_stacks.emplace_back ($$);\n \t\t\t}\n \t;\n "
+    }
+  ]
+}

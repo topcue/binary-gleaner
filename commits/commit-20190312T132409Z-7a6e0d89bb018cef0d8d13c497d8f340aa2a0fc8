@@ -1,0 +1,206 @@
+{
+  "sha": "7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6N2E2ZTBkODliYjAxOGNlZjBkOGQxM2M0OTdkOGYzNDBhYTJhMGZjOA==",
+  "commit": {
+    "author": {
+      "name": "Alan Modra",
+      "email": "amodra@gmail.com",
+      "date": "2019-03-12T05:49:25Z"
+    },
+    "committer": {
+      "name": "Alan Modra",
+      "email": "amodra@gmail.com",
+      "date": "2019-03-12T13:24:09Z"
+    },
+    "message": "Don't use bfd_get_file_size in objdump\n\nCompressed debug sections can have uncompressed sizes that exceed the\noriginal file size, so we can't use bfd_get_file_size.  objdump also\nused bfd_get_file_size to limit reloc section size, but I believe the\nunderlying bug causing the PR22508 out of bounds buffer access was\nthat we had an integer overflow when calculating the reloc buffer\nsize.  I've fixed that instead in most of the backends, som and\nvms-alpha being the exceptions.  SOM and vmd-alpha have rather more\nserious bugs in their slurp_relocs routines that would need fixing\nfirst if we want to fuss about making them safe against fuzzed object\nfiles.\n\nThe patch also fixes a number of other potential overflows by using\nthe bfd_alloc2/malloc2/zalloc2 memory allocation functions.\n\nbfd/\n\t* coffcode.h (buy_and_read): Delete unnecessary forward decl.  Add\n\tnmemb parameter.  Use bfd_alloc2.\n\t(coff_slurp_line_table): Use bfd_alloc2.  Update buy_and_read calls.\n\tDelete assertion.\n\t(coff_slurp_symbol_table): Use bfd_alloc2 and bfd_zalloc2.\n\t(coff_slurp_reloc_table): Use bfd_alloc2.  Update buy_and_read calls.\n\t* coffgen.c (coff_get_reloc_upper_bound): Ensure size calculation\n\tdoesn't overflow.\n\t* elf.c (bfd_section_from_shdr): Use bfd_zalloc2.  Style fix.\n\t(assign_section_numbers): Style fix.\n\t(swap_out_syms): Use bfd_malloc2.\n\t(_bfd_elf_get_reloc_upper_bound): Ensure size calculation doesn't\n\toverflow.\n\t(_bfd_elf_make_empty_symbol): Style fix.\n\t(elfobj_grok_stapsdt_note_1): Formatting.\n\t* elfcode.h (elf_object_p): Use bfd_alloc2.\n\t(elf_write_relocs, elf_write_shdrs_and_ehdr): Likewise.\n\t(elf_slurp_symbol_table): Use bfd_zalloc2.\n\t(elf_slurp_reloc_table): Use bfd_alloc2.\n\t(_bfd_elf_bfd_from_remote_memory): Use bfd_malloc2.\n\t* elf64-sparc (elf64_sparc_get_reloc_upper_bound): Ensure\n\tsize calculation doesn't overflow.\n\t(elf64_sparc_get_dynamic_reloc_upper_bound): Likewise.\n\t* mach-o.c (bfd_mach_o_get_reloc_upper_bound): Likewise.\n\t* pdp11.c (get_reloc_upper_bound): Copy aoutx.h version.\nbinutils/\n\t* objdump.c (load_specific_debug_section): Don't compare section\n\tsize against file size.\n\t(dump_relocs_in_section): Don't compare reloc size against file size.\n\tPrint \"failed to read relocs\" on bfd_get_reloc_upper_bound error.",
+    "tree": {
+      "sha": "651ca43c71bbdac13aba4be8a5a106e23ac494e5",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/651ca43c71bbdac13aba4be8a5a106e23ac494e5"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/comments",
+  "author": {
+    "login": "amodra",
+    "id": 6006325,
+    "node_id": "MDQ6VXNlcjYwMDYzMjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6006325?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/amodra",
+    "html_url": "https://github.com/amodra",
+    "followers_url": "https://api.github.com/users/amodra/followers",
+    "following_url": "https://api.github.com/users/amodra/following{/other_user}",
+    "gists_url": "https://api.github.com/users/amodra/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/amodra/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/amodra/subscriptions",
+    "organizations_url": "https://api.github.com/users/amodra/orgs",
+    "repos_url": "https://api.github.com/users/amodra/repos",
+    "events_url": "https://api.github.com/users/amodra/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/amodra/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "amodra",
+    "id": 6006325,
+    "node_id": "MDQ6VXNlcjYwMDYzMjU=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/6006325?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/amodra",
+    "html_url": "https://github.com/amodra",
+    "followers_url": "https://api.github.com/users/amodra/followers",
+    "following_url": "https://api.github.com/users/amodra/following{/other_user}",
+    "gists_url": "https://api.github.com/users/amodra/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/amodra/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/amodra/subscriptions",
+    "organizations_url": "https://api.github.com/users/amodra/orgs",
+    "repos_url": "https://api.github.com/users/amodra/repos",
+    "events_url": "https://api.github.com/users/amodra/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/amodra/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "0919bfe915906382611011f123b5ae68a0bafbb2",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/0919bfe915906382611011f123b5ae68a0bafbb2",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/0919bfe915906382611011f123b5ae68a0bafbb2"
+    }
+  ],
+  "stats": {
+    "total": 287,
+    "additions": 180,
+    "deletions": 107
+  },
+  "files": [
+    {
+      "sha": "3e7d68343aa918c78bd162603cce219a1e5c33f7",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 28,
+      "deletions": 0,
+      "changes": 28,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8",
+      "patch": "@@ -1,3 +1,31 @@\n+2019-03-12  Alan Modra  <amodra@gmail.com>\n+\n+\t* coffcode.h (buy_and_read): Delete unnecessary forward decl.  Add\n+\tnmemb parameter.  Use bfd_alloc2.\n+\t(coff_slurp_line_table): Use bfd_alloc2.  Update buy_and_read calls.\n+\tDelete assertion.\n+\t(coff_slurp_symbol_table): Use bfd_alloc2 and bfd_zalloc2.\n+\t(coff_slurp_reloc_table): Use bfd_alloc2.  Update buy_and_read calls.\n+\t* coffgen.c (coff_get_reloc_upper_bound): Ensure size calculation\n+\tdoesn't overflow.\n+\t* elf.c (bfd_section_from_shdr): Use bfd_zalloc2.  Style fix.\n+\t(assign_section_numbers): Style fix.\n+\t(swap_out_syms): Use bfd_malloc2.\n+\t(_bfd_elf_get_reloc_upper_bound): Ensure size calculation doesn't\n+\toverflow.\n+\t(_bfd_elf_make_empty_symbol): Style fix.\n+\t(elfobj_grok_stapsdt_note_1): Formatting.\n+\t* elfcode.h (elf_object_p): Use bfd_alloc2.\n+\t(elf_write_relocs, elf_write_shdrs_and_ehdr): Likewise.\n+\t(elf_slurp_symbol_table): Use bfd_zalloc2.\n+\t(elf_slurp_reloc_table): Use bfd_alloc2.\n+\t(_bfd_elf_bfd_from_remote_memory): Use bfd_malloc2.\n+\t* elf64-sparc (elf64_sparc_get_reloc_upper_bound): Ensure\n+\tsize calculation doesn't overflow.\n+\t(elf64_sparc_get_dynamic_reloc_upper_bound): Likewise.\n+\t* mach-o.c (bfd_mach_o_get_reloc_upper_bound): Likewise.\n+\t* pdp11.c (get_reloc_upper_bound): Copy aoutx.h version.\n+\n 2019-03-08  Alan Modra  <amodra@gmail.com>\n \n \tPR 24311"
+    },
+    {
+      "sha": "f4bfea0ceb706b20c33600b36a32c8c89b810d03",
+      "filename": "bfd/coffcode.h",
+      "status": "modified",
+      "additions": 25,
+      "deletions": 26,
+      "changes": 51,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/bfd/coffcode.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/bfd/coffcode.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/coffcode.h?ref=7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8",
+      "patch": "@@ -423,8 +423,6 @@ static bfd_boolean coff_write_object_contents\n   (bfd *) ATTRIBUTE_UNUSED;\n static bfd_boolean coff_set_section_contents\n   (bfd *, asection *, const void *, file_ptr, bfd_size_type);\n-static void * buy_and_read\n-  (bfd *, file_ptr, bfd_size_type);\n static bfd_boolean coff_slurp_line_table\n   (bfd *, asection *);\n static bfd_boolean coff_slurp_symbol_table\n@@ -4197,12 +4195,14 @@ coff_set_section_contents (bfd * abfd,\n }\n \n static void *\n-buy_and_read (bfd *abfd, file_ptr where, bfd_size_type size)\n+buy_and_read (bfd *abfd, file_ptr where,\n+\t      bfd_size_type nmemb, bfd_size_type size)\n {\n-  void * area = bfd_alloc (abfd, size);\n+  void *area = bfd_alloc2 (abfd, nmemb, size);\n \n   if (!area)\n     return NULL;\n+  size *= nmemb;\n   if (bfd_seek (abfd, where, SEEK_SET) != 0\n       || bfd_bread (area, size, abfd) != size)\n     return NULL;\n@@ -4255,7 +4255,6 @@ coff_slurp_line_table (bfd *abfd, asection *asect)\n {\n   LINENO *native_lineno;\n   alent *lineno_cache;\n-  bfd_size_type amt;\n   unsigned int counter;\n   alent *cache_ptr;\n   bfd_vma prev_offset = 0;\n@@ -4278,13 +4277,15 @@ coff_slurp_line_table (bfd *abfd, asection *asect)\n       return FALSE;\n     }\n \n-  amt = ((bfd_size_type) asect->lineno_count + 1) * sizeof (alent);\n-  lineno_cache = (alent *) bfd_alloc (abfd, amt);\n+  lineno_cache = (alent *) bfd_alloc2 (abfd,\n+\t\t\t\t       (bfd_size_type) asect->lineno_count + 1,\n+\t\t\t\t       sizeof (alent));\n   if (lineno_cache == NULL)\n     return FALSE;\n \n-  amt = (bfd_size_type) bfd_coff_linesz (abfd) * asect->lineno_count;\n-  native_lineno = (LINENO *) buy_and_read (abfd, asect->line_filepos, amt);\n+  native_lineno = (LINENO *) buy_and_read (abfd, asect->line_filepos,\n+\t\t\t\t\t   asect->lineno_count,\n+\t\t\t\t\t   bfd_coff_linesz (abfd));\n   if (native_lineno == NULL)\n     {\n       _bfd_error_handler\n@@ -4393,7 +4394,7 @@ coff_slurp_line_table (bfd *abfd, asection *asect)\n       alent *n_lineno_cache;\n \n       /* Create a table of functions.  */\n-      func_table = (alent **) bfd_alloc (abfd, nbr_func * sizeof (alent *));\n+      func_table = (alent **) bfd_alloc2 (abfd, nbr_func, sizeof (alent *));\n       if (func_table != NULL)\n \t{\n \t  alent **p = func_table;\n@@ -4409,8 +4410,8 @@ coff_slurp_line_table (bfd *abfd, asection *asect)\n \t  qsort (func_table, nbr_func, sizeof (alent *), coff_sort_func_alent);\n \n \t  /* Create the new sorted table.  */\n-\t  amt = (bfd_size_type) asect->lineno_count * sizeof (alent);\n-\t  n_lineno_cache = (alent *) bfd_alloc (abfd, amt);\n+\t  n_lineno_cache = (alent *) bfd_alloc2 (abfd, asect->lineno_count,\n+\t\t\t\t\t\t sizeof (alent));\n \t  if (n_lineno_cache != NULL)\n \t    {\n \t      alent *n_cache_ptr = n_lineno_cache;\n@@ -4430,9 +4431,9 @@ coff_slurp_line_table (bfd *abfd, asection *asect)\n \t\t    *n_cache_ptr++ = *old_ptr++;\n \t\t  while (old_ptr->line_number != 0);\n \t\t}\n-\t      BFD_ASSERT ((bfd_size_type) (n_cache_ptr - n_lineno_cache) == (amt / sizeof (alent)));\n \n-\t      memcpy (lineno_cache, n_lineno_cache, amt);\n+\t      memcpy (lineno_cache, n_lineno_cache,\n+\t\t      asect->lineno_count * sizeof (alent));\n \t    }\n \t  else\n \t    ret = FALSE;\n@@ -4455,7 +4456,6 @@ coff_slurp_symbol_table (bfd * abfd)\n   combined_entry_type *native_symbols;\n   coff_symbol_type *cached_area;\n   unsigned int *table_ptr;\n-  bfd_size_type amt;\n   unsigned int number_of_symbols = 0;\n   bfd_boolean ret = TRUE;\n \n@@ -4467,15 +4467,14 @@ coff_slurp_symbol_table (bfd * abfd)\n     return FALSE;\n \n   /* Allocate enough room for all the symbols in cached form.  */\n-  amt = obj_raw_syment_count (abfd);\n-  amt *= sizeof (coff_symbol_type);\n-  cached_area = (coff_symbol_type *) bfd_alloc (abfd, amt);\n+  cached_area = (coff_symbol_type *) bfd_alloc2 (abfd,\n+\t\t\t\t\t\t obj_raw_syment_count (abfd),\n+\t\t\t\t\t\t sizeof (coff_symbol_type));\n   if (cached_area == NULL)\n     return FALSE;\n \n-  amt = obj_raw_syment_count (abfd);\n-  amt *= sizeof (unsigned int);\n-  table_ptr = (unsigned int *) bfd_zalloc (abfd, amt);\n+  table_ptr = (unsigned int *) bfd_zalloc2 (abfd, obj_raw_syment_count (abfd),\n+\t\t\t\t\t    sizeof (unsigned int));\n \n   if (table_ptr == NULL)\n     return FALSE;\n@@ -4963,7 +4962,6 @@ coff_slurp_reloc_table (bfd * abfd, sec_ptr asect, asymbol ** symbols)\n   arelent *reloc_cache;\n   arelent *cache_ptr;\n   unsigned int idx;\n-  bfd_size_type amt;\n \n   if (asect->relocation)\n     return TRUE;\n@@ -4974,10 +4972,11 @@ coff_slurp_reloc_table (bfd * abfd, sec_ptr asect, asymbol ** symbols)\n   if (!coff_slurp_symbol_table (abfd))\n     return FALSE;\n \n-  amt = (bfd_size_type) bfd_coff_relsz (abfd) * asect->reloc_count;\n-  native_relocs = (RELOC *) buy_and_read (abfd, asect->rel_filepos, amt);\n-  amt = (bfd_size_type) asect->reloc_count * sizeof (arelent);\n-  reloc_cache = (arelent *) bfd_alloc (abfd, amt);\n+  native_relocs = (RELOC *) buy_and_read (abfd, asect->rel_filepos,\n+\t\t\t\t\t  asect->reloc_count,\n+\t\t\t\t\t  bfd_coff_relsz (abfd));\n+  reloc_cache = (arelent *) bfd_alloc2 (abfd, asect->reloc_count,\n+\t\t\t\t\tsizeof (arelent));\n \n   if (reloc_cache == NULL || native_relocs == NULL)\n     return FALSE;"
+    },
+    {
+      "sha": "5db35c7ddf13bdfa9b05883e0aa783c2e53a1e92",
+      "filename": "bfd/coffgen.c",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/bfd/coffgen.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/bfd/coffgen.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/coffgen.c?ref=7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8",
+      "patch": "@@ -37,6 +37,7 @@\n    coff_data (abfd).  */\n \n #include \"sysdep.h\"\n+#include <limits.h>\n #include \"bfd.h\"\n #include \"libbfd.h\"\n #include \"coff/internal.h\"\n@@ -2006,6 +2007,10 @@ coff_get_normalized_symtab (bfd *abfd)\n   return internal;\n }\n \n+#if GCC_VERSION >= 4003\n+# pragma GCC diagnostic push\n+# pragma GCC diagnostic ignored \"-Wtype-limits\"\n+#endif\n long\n coff_get_reloc_upper_bound (bfd *abfd, sec_ptr asect)\n {\n@@ -2014,8 +2019,16 @@ coff_get_reloc_upper_bound (bfd *abfd, sec_ptr asect)\n       bfd_set_error (bfd_error_invalid_operation);\n       return -1;\n     }\n+  if (asect->reloc_count >= LONG_MAX / sizeof (arelent *))\n+    {\n+      bfd_set_error (bfd_error_file_too_big);\n+      return -1;\n+    }\n   return (asect->reloc_count + 1) * sizeof (arelent *);\n }\n+#if GCC_VERSION >= 4003\n+# pragma GCC diagnostic pop\n+#endif\n \n asymbol *\n coff_make_empty_symbol (bfd *abfd)"
+    },
+    {
+      "sha": "73fb86971f3dcc0461ba17d5d24d3cf7add41761",
+      "filename": "bfd/elf.c",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 10,
+      "changes": 32,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/bfd/elf.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/bfd/elf.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf.c?ref=7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8",
+      "patch": "@@ -2036,9 +2036,8 @@ bfd_section_from_shdr (bfd *abfd, unsigned int shindex)\n \tsections_being_created = NULL;\n       if (sections_being_created == NULL)\n \t{\n-\t  /* FIXME: It would be more efficient to attach this array to the bfd somehow.  */\n \t  sections_being_created = (bfd_boolean *)\n-\t    bfd_zalloc (abfd, elf_numsections (abfd) * sizeof (bfd_boolean));\n+\t    bfd_zalloc2 (abfd, elf_numsections (abfd), sizeof (bfd_boolean));\n \t  sections_being_created_abfd = abfd;\n \t}\n       if (sections_being_created [shindex])\n@@ -2259,7 +2258,7 @@ bfd_section_from_shdr (bfd *abfd, unsigned int shindex)\n \t  if (entry->ndx == shindex)\n \t    goto success;\n \n-\tentry = bfd_alloc (abfd, sizeof * entry);\n+\tentry = bfd_alloc (abfd, sizeof (*entry));\n \tif (entry == NULL)\n \t  goto fail;\n \tentry->ndx = shindex;\n@@ -3737,11 +3736,11 @@ assign_section_numbers (bfd *abfd, struct bfd_link_info *link_info)\n       _bfd_elf_strtab_addref (elf_shstrtab (abfd), t->symtab_hdr.sh_name);\n       if (section_number > ((SHN_LORESERVE - 2) & 0xFFFF))\n \t{\n-\t  elf_section_list * entry;\n+\t  elf_section_list *entry;\n \n \t  BFD_ASSERT (elf_symtab_shndx_list (abfd) == NULL);\n \n-\t  entry = bfd_zalloc (abfd, sizeof * entry);\n+\t  entry = bfd_zalloc (abfd, sizeof (*entry));\n \t  entry->ndx = section_number++;\n \t  elf_symtab_shndx_list (abfd) = entry;\n \t  entry->hdr.sh_name\n@@ -7901,8 +7900,8 @@ swap_out_syms (bfd *abfd,\n   symstrtab_hdr->sh_type = SHT_STRTAB;\n \n   /* Allocate buffer to swap out the .strtab section.  */\n-  symstrtab = (struct elf_sym_strtab *) bfd_malloc ((symcount + 1)\n-\t\t\t\t\t\t    * sizeof (*symstrtab));\n+  symstrtab = (struct elf_sym_strtab *) bfd_malloc2 (symcount + 1,\n+\t\t\t\t\t\t     sizeof (*symstrtab));\n   if (symstrtab == NULL)\n     {\n       _bfd_elf_strtab_free (stt);\n@@ -8269,12 +8268,25 @@ _bfd_elf_get_dynamic_symtab_upper_bound (bfd *abfd)\n   return symtab_size;\n }\n \n+#if GCC_VERSION >= 4003\n+# pragma GCC diagnostic push\n+# pragma GCC diagnostic ignored \"-Wtype-limits\"\n+#endif\n long\n _bfd_elf_get_reloc_upper_bound (bfd *abfd ATTRIBUTE_UNUSED,\n \t\t\t\tsec_ptr asect)\n {\n+\n+  if (asect->reloc_count >= LONG_MAX / sizeof (arelent *))\n+    {\n+      bfd_set_error (bfd_error_file_too_big);\n+      return -1;\n+    }\n   return (asect->reloc_count + 1) * sizeof (arelent *);\n }\n+#if GCC_VERSION >= 4003\n+# pragma GCC diagnostic pop\n+#endif\n \n /* Canonicalize the relocs.  */\n \n@@ -8753,7 +8765,7 @@ _bfd_elf_make_empty_symbol (bfd *abfd)\n {\n   elf_symbol_type *newsym;\n \n-  newsym = (elf_symbol_type *) bfd_zalloc (abfd, sizeof * newsym);\n+  newsym = (elf_symbol_type *) bfd_zalloc (abfd, sizeof (*newsym));\n   if (!newsym)\n     return NULL;\n   newsym->symbol.the_bfd = abfd;\n@@ -10233,8 +10245,8 @@ static bfd_boolean\n elfobj_grok_stapsdt_note_1 (bfd *abfd, Elf_Internal_Note *note)\n {\n   struct sdt_note *cur =\n-    (struct sdt_note *) bfd_alloc (abfd, sizeof (struct sdt_note)\n-\t\t\t\t   + note->descsz);\n+    (struct sdt_note *) bfd_alloc (abfd,\n+\t\t\t\t   sizeof (struct sdt_note) + note->descsz);\n \n   cur->next = (struct sdt_note *) (elf_tdata (abfd))->sdt_note_head;\n   cur->size = (bfd_size_type) note->descsz;"
+    },
+    {
+      "sha": "f523ce7f84688b5cfb74150bd1c8643bc335e0a9",
+      "filename": "bfd/elf64-sparc.c",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 1,
+      "changes": 23,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/bfd/elf64-sparc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/bfd/elf64-sparc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf64-sparc.c?ref=7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8",
+      "patch": "@@ -19,6 +19,7 @@\n    MA 02110-1301, USA.  */\n \n #include \"sysdep.h\"\n+#include <limits.h>\n #include \"bfd.h\"\n #include \"libbfd.h\"\n #include \"elf-bfd.h\"\n@@ -33,16 +34,36 @@\n    section can represent up to two relocs, we must tell the user to allocate\n    more space.  */\n \n+#if GCC_VERSION >= 4003\n+# pragma GCC diagnostic push\n+# pragma GCC diagnostic ignored \"-Wtype-limits\"\n+#endif\n static long\n elf64_sparc_get_reloc_upper_bound (bfd *abfd ATTRIBUTE_UNUSED, asection *sec)\n {\n+  if (sec->reloc_count >= LONG_MAX / 2 / sizeof (arelent *))\n+    {\n+      bfd_set_error (bfd_error_file_too_big);\n+      return -1;\n+    }\n   return (sec->reloc_count * 2 + 1) * sizeof (arelent *);\n }\n+#if GCC_VERSION >= 4003\n+# pragma GCC diagnostic pop\n+#endif\n \n static long\n elf64_sparc_get_dynamic_reloc_upper_bound (bfd *abfd)\n {\n-  return _bfd_elf_get_dynamic_reloc_upper_bound (abfd) * 2;\n+  long ret = _bfd_elf_get_dynamic_reloc_upper_bound (abfd);\n+  if (ret > LONG_MAX / 2)\n+    {\n+      bfd_set_error (bfd_error_file_too_big);\n+      ret = -1;\n+    }\n+  else if (ret > 0)\n+    ret *= 2;\n+  return ret;\n }\n \n /* Read  relocations for ASECT from REL_HDR.  There are RELOC_COUNT of"
+    },
+    {
+      "sha": "a0487b0843cdbdbe640de536e6caefc7a2e5cbae",
+      "filename": "bfd/elfcode.h",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 20,
+      "changes": 39,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/bfd/elfcode.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/bfd/elfcode.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elfcode.h?ref=7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8",
+      "patch": "@@ -503,7 +503,6 @@ elf_object_p (bfd *abfd)\n   unsigned int shindex;\n   const struct elf_backend_data *ebd;\n   asection *s;\n-  bfd_size_type amt;\n   const bfd_target *target;\n \n   /* Read in the ELF header in external format.  */\n@@ -688,14 +687,14 @@ elf_object_p (bfd *abfd)\n       if (i_ehdrp->e_shnum > ((bfd_size_type) -1) / sizeof (*i_shdrp))\n \tgoto got_wrong_format_error;\n #endif\n-      amt = sizeof (*i_shdrp) * (bfd_size_type) i_ehdrp->e_shnum;\n-      i_shdrp = (Elf_Internal_Shdr *) bfd_alloc (abfd, amt);\n+      i_shdrp = (Elf_Internal_Shdr *) bfd_alloc2 (abfd, i_ehdrp->e_shnum,\n+\t\t\t\t\t\t  sizeof (*i_shdrp));\n       if (!i_shdrp)\n \tgoto got_no_match;\n       num_sec = i_ehdrp->e_shnum;\n       elf_numsections (abfd) = num_sec;\n-      amt = sizeof (i_shdrp) * num_sec;\n-      elf_elfsections (abfd) = (Elf_Internal_Shdr **) bfd_alloc (abfd, amt);\n+      elf_elfsections (abfd)\n+\t= (Elf_Internal_Shdr **) bfd_alloc2 (abfd, num_sec, sizeof (i_shdrp));\n       if (!elf_elfsections (abfd))\n \tgoto got_no_match;\n \n@@ -789,8 +788,9 @@ elf_object_p (bfd *abfd)\n       if (bfd_get_file_size (abfd) > 0\n \t  && i_ehdrp->e_phnum > bfd_get_file_size (abfd))\n \tgoto got_no_match;\n-      amt = (bfd_size_type) i_ehdrp->e_phnum * sizeof (*i_phdr);\n-      elf_tdata (abfd)->phdr = (Elf_Internal_Phdr *) bfd_alloc (abfd, amt);\n+      elf_tdata (abfd)->phdr\n+\t= (Elf_Internal_Phdr *) bfd_alloc2 (abfd, i_ehdrp->e_phnum,\n+\t\t\t\t\t    sizeof (*i_phdr));\n       if (elf_tdata (abfd)->phdr == NULL)\n \tgoto got_no_match;\n       if (bfd_seek (abfd, (file_ptr) i_ehdrp->e_phoff, SEEK_SET) != 0)\n@@ -903,7 +903,8 @@ elf_write_relocs (bfd *abfd, asection *sec, void *data)\n     rela_hdr = elf_section_data (sec)->rel.hdr;\n \n   rela_hdr->sh_size = rela_hdr->sh_entsize * sec->reloc_count;\n-  rela_hdr->contents = (unsigned char *) bfd_alloc (abfd, rela_hdr->sh_size);\n+  rela_hdr->contents = (unsigned char *) bfd_alloc2 (abfd, sec->reloc_count,\n+\t\t\t\t\t\t     rela_hdr->sh_entsize);\n   if (rela_hdr->contents == NULL)\n     {\n       *failedp = TRUE;\n@@ -1040,9 +1041,8 @@ elf_write_shdrs_and_ehdr (bfd *abfd)\n     i_shdrp[0]->sh_link = i_ehdrp->e_shstrndx;\n \n   /* at this point we've concocted all the ELF sections...  */\n-  amt = i_ehdrp->e_shnum;\n-  amt *= sizeof (*x_shdrp);\n-  x_shdrp = (Elf_External_Shdr *) bfd_alloc (abfd, amt);\n+  x_shdrp = (Elf_External_Shdr *) bfd_alloc2 (abfd, i_ehdrp->e_shnum,\n+\t\t\t\t\t      sizeof (*x_shdrp));\n   if (!x_shdrp)\n     return FALSE;\n \n@@ -1053,6 +1053,7 @@ elf_write_shdrs_and_ehdr (bfd *abfd)\n #endif\n       elf_swap_shdr_out (abfd, *i_shdrp, x_shdrp + count);\n     }\n+  amt = (bfd_size_type) i_ehdrp->e_shnum * sizeof (*x_shdrp);\n   if (bfd_seek (abfd, (file_ptr) i_ehdrp->e_shoff, SEEK_SET) != 0\n       || bfd_bwrite (x_shdrp, amt, abfd) != amt)\n     return FALSE;\n@@ -1152,7 +1153,6 @@ elf_slurp_symbol_table (bfd *abfd, asymbol **symptrs, bfd_boolean dynamic)\n   Elf_External_Versym *xver;\n   Elf_External_Versym *xverbuf = NULL;\n   const struct elf_backend_data *ebd;\n-  bfd_size_type amt;\n \n   /* Read each raw ELF symbol, converting from external ELF form to\n      internal ELF form, and then using the information to create a\n@@ -1197,9 +1197,8 @@ elf_slurp_symbol_table (bfd *abfd, asymbol **symptrs, bfd_boolean dynamic)\n       if (isymbuf == NULL)\n \treturn -1;\n \n-      amt = symcount;\n-      amt *= sizeof (elf_symbol_type);\n-      symbase = (elf_symbol_type *) bfd_zalloc (abfd, amt);\n+      symbase = (elf_symbol_type *) bfd_zalloc2 (abfd, symcount,\n+\t\t\t\t\t\t sizeof (elf_symbol_type));\n       if (symbase == (elf_symbol_type *) NULL)\n \tgoto error_return;\n \n@@ -1519,7 +1518,6 @@ elf_slurp_reloc_table (bfd *abfd,\n   bfd_size_type reloc_count;\n   bfd_size_type reloc_count2;\n   arelent *relents;\n-  bfd_size_type amt;\n \n   if (asect->relocation != NULL)\n     return TRUE;\n@@ -1557,8 +1555,8 @@ elf_slurp_reloc_table (bfd *abfd,\n       reloc_count2 = 0;\n     }\n \n-  amt = (reloc_count + reloc_count2) * sizeof (arelent);\n-  relents = (arelent *) bfd_alloc (abfd, amt);\n+  relents = (arelent *) bfd_alloc2 (abfd, reloc_count + reloc_count2,\n+\t\t\t\t    sizeof (arelent));\n   if (relents == NULL)\n     return FALSE;\n \n@@ -1713,8 +1711,9 @@ NAME(_bfd_elf,bfd_from_remote_memory)\n       return NULL;\n     }\n \n-  x_phdrs = (Elf_External_Phdr *)\n-      bfd_malloc (i_ehdr.e_phnum * (sizeof *x_phdrs + sizeof *i_phdrs));\n+  x_phdrs\n+    = (Elf_External_Phdr *) bfd_malloc2 (i_ehdr.e_phnum,\n+\t\t\t\t\t sizeof (*x_phdrs) + sizeof (*i_phdrs));\n   if (x_phdrs == NULL)\n     return NULL;\n   err = target_read_memory (ehdr_vma + i_ehdr.e_phoff, (bfd_byte *) x_phdrs,"
+    },
+    {
+      "sha": "a9ca313501e5f447ef99e79950d6a7a72b8b36d4",
+      "filename": "bfd/mach-o.c",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 1,
+      "changes": 15,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/bfd/mach-o.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/bfd/mach-o.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/mach-o.c?ref=7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8",
+      "patch": "@@ -19,6 +19,7 @@\n    MA 02110-1301, USA.  */\n \n #include \"sysdep.h\"\n+#include <limits.h>\n #include \"bfd.h\"\n #include \"libbfd.h\"\n #include \"libiberty.h\"\n@@ -1416,12 +1417,24 @@ bfd_mach_o_write_dyld_info (bfd *abfd, bfd_mach_o_load_command *command)\n   return TRUE;\n }\n \n+#if GCC_VERSION >= 4003\n+# pragma GCC diagnostic push\n+# pragma GCC diagnostic ignored \"-Wtype-limits\"\n+#endif\n long\n bfd_mach_o_get_reloc_upper_bound (bfd *abfd ATTRIBUTE_UNUSED,\n \t\t\t\t  asection *asect)\n {\n-  return (asect->reloc_count + 1) * sizeof (arelent *);\n+   if (asect->reloc_count >= LONG_MAX / sizeof (arelent *))\n+    {\n+      bfd_set_error (bfd_error_file_too_big);\n+      return -1;\n+    }\n+ return (asect->reloc_count + 1) * sizeof (arelent *);\n }\n+#if GCC_VERSION >= 4003\n+# pragma GCC diagnostic pop\n+#endif\n \n /* In addition to the need to byte-swap the symbol number, the bit positions\n    of the fields in the relocation information vary per target endian-ness.  */"
+    },
+    {
+      "sha": "1d34047fdc06ebe3a4bdbc5eabe5be7ed40ea0f8",
+      "filename": "bfd/pdp11.c",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 21,
+      "changes": 42,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/bfd/pdp11.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/bfd/pdp11.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/pdp11.c?ref=7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8",
+      "patch": "@@ -66,6 +66,7 @@\n \t\t     && N_MAGIC(x) != ZMAGIC)\n \n #include \"sysdep.h\"\n+#include <limits.h>\n #include \"bfd.h\"\n \n #define external_exec pdp11_external_exec\n@@ -1980,35 +1981,34 @@ NAME (aout, canonicalize_reloc) (bfd *abfd,\n long\n NAME (aout, get_reloc_upper_bound) (bfd *abfd, sec_ptr asect)\n {\n+  bfd_size_type count;\n+\n   if (bfd_get_format (abfd) != bfd_object)\n     {\n       bfd_set_error (bfd_error_invalid_operation);\n       return -1;\n     }\n \n   if (asect->flags & SEC_CONSTRUCTOR)\n-    return (sizeof (arelent *) * (asect->reloc_count + 1));\n-\n-  if (asect == obj_datasec (abfd))\n-    return (sizeof (arelent *)\n-\t    * ((exec_hdr (abfd)->a_drsize / obj_reloc_entry_size (abfd))\n-\t       + 1));\n-\n-  if (asect == obj_textsec (abfd))\n-    return (sizeof (arelent *)\n-\t    * ((exec_hdr (abfd)->a_trsize / obj_reloc_entry_size (abfd))\n-\t       + 1));\n-\n-  /* TODO: why are there two if statements for obj_bsssec()? */\n-\n-  if (asect == obj_bsssec (abfd))\n-    return sizeof (arelent *);\n-\n-  if (asect == obj_bsssec (abfd))\n-    return 0;\n+    count = asect->reloc_count;\n+  else if (asect == obj_datasec (abfd))\n+    count = exec_hdr (abfd)->a_drsize / obj_reloc_entry_size (abfd);\n+  else if (asect == obj_textsec (abfd))\n+    count = exec_hdr (abfd)->a_trsize / obj_reloc_entry_size (abfd);\n+  else if (asect == obj_bsssec (abfd))\n+    count = 0;\n+  else\n+    {\n+      bfd_set_error (bfd_error_invalid_operation);\n+      return -1;\n+    }\n \n-  bfd_set_error (bfd_error_invalid_operation);\n-  return -1;\n+  if (count >= LONG_MAX / sizeof (arelent *))\n+    {\n+      bfd_set_error (bfd_error_file_too_big);\n+      return -1;\n+    }\n+  return (count + 1) * sizeof (arelent *);\n }\n \n \f"
+    },
+    {
+      "sha": "d62f94a47cc6a8208c24fdd996c23b0c3e26f68b",
+      "filename": "binutils/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/binutils/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/binutils/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/ChangeLog?ref=7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8",
+      "patch": "@@ -1,3 +1,10 @@\n+2019-03-12  Alan Modra  <amodra@gmail.com>\n+\n+\t* objdump.c (load_specific_debug_section): Don't compare section\n+\tsize against file size.\n+\t(dump_relocs_in_section): Don't compare reloc size against file size.\n+\tPrint \"failed to read relocs\" on bfd_get_reloc_upper_bound error.\n+\n 2019-03-05  Nick Clifton  <nickc@redhat.com>\n \n \tPR 24295"
+    },
+    {
+      "sha": "3ef2716b198b7cb5da5d2c65a4c9012248ca5b6f",
+      "filename": "binutils/objdump.c",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 28,
+      "changes": 37,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/binutils/objdump.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8/binutils/objdump.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/binutils/objdump.c?ref=7a6e0d89bb018cef0d8d13c497d8f340aa2a0fc8",
+      "patch": "@@ -2695,7 +2695,7 @@ load_specific_debug_section (enum dwarf_section_display_enum debug,\n   section->user_data = sec;\n   section->size = bfd_get_section_size (sec);\n   amt = section->size + 1;\n-  if (amt == 0 || amt > bfd_get_file_size (abfd))\n+  if (amt == 0)\n     {\n       section->start = NULL;\n       free_debug_section (debug);\n@@ -3640,47 +3640,28 @@ dump_relocs_in_section (bfd *abfd,\n       || ((section->flags & SEC_RELOC) == 0))\n     return;\n \n-  relsize = bfd_get_reloc_upper_bound (abfd, section);\n-  if (relsize < 0)\n-    bfd_fatal (bfd_get_filename (abfd));\n-\n   printf (\"RELOCATION RECORDS FOR [%s]:\", sanitize_string (section->name));\n \n+  relsize = bfd_get_reloc_upper_bound (abfd, section);\n   if (relsize == 0)\n     {\n       printf (\" (none)\\n\\n\");\n       return;\n     }\n \n-  if ((bfd_get_file_flags (abfd) & (BFD_IN_MEMORY | BFD_LINKER_CREATED)) == 0\n-      && (/* Check that the size of the relocs is reasonable.  Note that some\n-\t     file formats, eg aout, can have relocs whose internal size is\n-\t     larger than their external size, thus we check the size divided\n-\t     by four against the file size.  See PR 23931 for an example of\n-\t     this.  */\n-\t  ((ufile_ptr) (relsize / 4) > bfd_get_file_size (abfd))\n-\t  /* Also check the section's reloc count since if this is negative\n-\t     (or very large) the computation in bfd_get_reloc_upper_bound\n-\t     may have resulted in returning a small, positive integer.\n-\t     See PR 22508 for a reproducer.\n-\n-\t     Note - we check against file size rather than section size as\n-\t     it is possible for there to be more relocs that apply to a\n-\t     section than there are bytes in that section.  */\n-\t  || (section->reloc_count > bfd_get_file_size (abfd))))\n+  if (relsize < 0)\n+    relcount = relsize;\n+  else\n     {\n-      printf (\" (too many: %#x relocs)\\n\", section->reloc_count);\n-      bfd_set_error (bfd_error_file_truncated);\n-      bfd_fatal (bfd_get_filename (abfd));\n+      relpp = (arelent **) xmalloc (relsize);\n+      relcount = bfd_canonicalize_reloc (abfd, section, relpp, syms);\n     }\n \n-  relpp = (arelent **) xmalloc (relsize);\n-  relcount = bfd_canonicalize_reloc (abfd, section, relpp, syms);\n-\n   if (relcount < 0)\n     {\n       printf (\"\\n\");\n-      non_fatal (_(\"failed to read relocs in: %s\"), sanitize_string (bfd_get_filename (abfd)));\n+      non_fatal (_(\"failed to read relocs in: %s\"),\n+\t\t sanitize_string (bfd_get_filename (abfd)));\n       bfd_fatal (_(\"error message was\"));\n     }\n   else if (relcount == 0)"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "sha": "80047cfc27459d4d31fe275ddd02231d812ddb61",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6ODAwNDdjZmMyNzQ1OWQ0ZDMxZmUyNzVkZGQwMjIzMWQ4MTJkZGI2MQ==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-02-09T10:43:35Z"
+    },
+    "committer": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-03-28T20:15:20Z"
+    },
+    "message": "Fix gdb.multi/multi-arch-exec.exp blocking under high load/slow gdb\n\nWhen running multi-arch-exec.exp under valgrind, the test succeeds\nwhen the machine is not loaded, but blocks when the machine is highly\nloaded (e.g. when running the testsuite with valgrind with -j X\nwhere X is one more than the nr of available cores).\n\nThe problem is that the hello program dies too early due to the alarm (30).\n\nSo, increase the alarm timer.\nNote that this does not make the test take longer (it takes about\n3.5 seconds on my system).  As I understand, the alarm is just there\nto avoid hello staying there forever in case of another problem.\n\n2019-03-28  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n\n\t* gdb.multi/hello.c (main): Increase alarm timer.",
+    "tree": {
+      "sha": "7ebbd593912e9142e1c2b3e2e332c00f14da04c3",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/7ebbd593912e9142e1c2b3e2e332c00f14da04c3"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/80047cfc27459d4d31fe275ddd02231d812ddb61",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/80047cfc27459d4d31fe275ddd02231d812ddb61",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/80047cfc27459d4d31fe275ddd02231d812ddb61",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/80047cfc27459d4d31fe275ddd02231d812ddb61/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "65d2b333a830b3f36c8b7ae9d9ed6c77f8be9270",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/65d2b333a830b3f36c8b7ae9d9ed6c77f8be9270",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/65d2b333a830b3f36c8b7ae9d9ed6c77f8be9270"
+    }
+  ],
+  "stats": {
+    "total": 6,
+    "additions": 5,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "4a4a87cf1cc1ec9c067b8e07c628fe66a704b1f9",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/80047cfc27459d4d31fe275ddd02231d812ddb61/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/80047cfc27459d4d31fe275ddd02231d812ddb61/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=80047cfc27459d4d31fe275ddd02231d812ddb61",
+      "patch": "@@ -1,3 +1,7 @@\n+2019-03-28  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n+\n+\t* gdb.multi/hello.c (main): Increase alarm timer.\n+\n 2019-03-28  Sandra Loosemore  <sandra@codesourcery.com>\n \n \t* gdb.threads/watchpoint-fork.exp (test): Use large timeout"
+    },
+    {
+      "sha": "b742a7345f0d9912eaf07267738c42edb50c685f",
+      "filename": "gdb/testsuite/gdb.multi/hello.c",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/80047cfc27459d4d31fe275ddd02231d812ddb61/gdb/testsuite/gdb.multi/hello.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/80047cfc27459d4d31fe275ddd02231d812ddb61/gdb/testsuite/gdb.multi/hello.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.multi/hello.c?ref=80047cfc27459d4d31fe275ddd02231d812ddb61",
+      "patch": "@@ -48,7 +48,7 @@ main()\n {\n   int tmpx;\n \n-  alarm (30);\n+  alarm (240);\n \n   bar();\n   tmpx = hello(glob);"
+    }
+  ]
+}

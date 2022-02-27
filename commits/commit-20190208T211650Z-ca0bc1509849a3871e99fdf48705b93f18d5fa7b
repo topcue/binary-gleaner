@@ -1,0 +1,72 @@
+{
+  "sha": "ca0bc1509849a3871e99fdf48705b93f18d5fa7b",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6Y2EwYmMxNTA5ODQ5YTM4NzFlOTlmZGY0ODcwNWI5M2YxOGQ1ZmE3Yg==",
+  "commit": {
+    "author": {
+      "name": "Jim Wilson",
+      "email": "jimw@sifive.com",
+      "date": "2019-02-08T20:57:12Z"
+    },
+    "committer": {
+      "name": "Jim Wilson",
+      "email": "jimw@sifive.com",
+      "date": "2019-02-08T21:16:50Z"
+    },
+    "message": "RISC-V: Compress 3-operand beq/bne against x0.\n\nThis lets us accept an instruction like\n\tbeq a2,x0,.Label\nand generate a compressed beqz.  This will allow some future simplications\nto the gcc support, e.g. eliminating some duplicate patterns, and avoiding\nadding new duplicate patterns, since currently we have to handle signed\nand equality compares against zero specially.\n\nTested with rv{32,64}-{elf,linux} cross builds and make checks for binutils\nand gcc.  There were no regressions.\n\n\tgas/\n\t* config/tc-riscv.c (validate_riscv_insn) <'C'>: Add 'z' support.\n\t(riscv_ip) <'C'>: Add 'z' support.\n\topcodes/\n\t* riscv-opc.c (riscv_opcodes) <beq>: Use Cz to compress 3 operand form.\n\t<bne>: Likewise.",
+    "tree": {
+      "sha": "843a43250dfbfecb21abe4c3ba215e37544a9983",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/843a43250dfbfecb21abe4c3ba215e37544a9983"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/ca0bc1509849a3871e99fdf48705b93f18d5fa7b",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ca0bc1509849a3871e99fdf48705b93f18d5fa7b",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/ca0bc1509849a3871e99fdf48705b93f18d5fa7b",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/ca0bc1509849a3871e99fdf48705b93f18d5fa7b/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "46cbf38dc3a7c6d0e339f95d56590711b06427a1",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/46cbf38dc3a7c6d0e339f95d56590711b06427a1",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/46cbf38dc3a7c6d0e339f95d56590711b06427a1"
+    }
+  ],
+  "stats": {
+    "total": 8,
+    "additions": 8,
+    "deletions": 0
+  },
+  "files": [
+    {
+      "sha": "99b007f59f19d0d79a49384d991a288ce544862a",
+      "filename": "gas/config/tc-riscv.c",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ca0bc1509849a3871e99fdf48705b93f18d5fa7b/gas/config/tc-riscv.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ca0bc1509849a3871e99fdf48705b93f18d5fa7b/gas/config/tc-riscv.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-riscv.c?ref=ca0bc1509849a3871e99fdf48705b93f18d5fa7b",
+      "patch": "@@ -586,6 +586,7 @@ validate_riscv_insn (const struct riscv_opcode *opc, int length)\n \t  case 'v': used_bits |= ENCODE_RVC_IMM (-1U); break;\n \t  case 'w': break; /* RS1S, constrained to equal RD */\n \t  case 'x': break; /* RS2S, constrained to equal RD */\n+\t  case 'z': break; /* RS2S, contrained to be x0 */\n \t  case 'K': used_bits |= ENCODE_RVC_ADDI4SPN_IMM (-1U); break;\n \t  case 'L': used_bits |= ENCODE_RVC_ADDI16SP_IMM (-1U); break;\n \t  case 'M': used_bits |= ENCODE_RVC_SWSP_IMM (-1U); break;\n@@ -1472,6 +1473,11 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,\n \t\t      || regno != X_SP)\n \t\t    break;\n \t\t  continue;\n+\t\tcase 'z': /* RS2, contrained to equal x0.  */\n+\t\t  if (!reg_lookup (&s, RCLASS_GPR, &regno)\n+\t\t      || regno != 0)\n+\t\t    break;\n+\t\t  continue;\n \t\tcase '>':\n \t\t  if (my_getSmallExpression (imm_expr, imm_reloc, s, p)\n \t\t      || imm_expr->X_op != O_constant"
+    },
+    {
+      "sha": "bd652590b5823af9aa0e18d134893360b9902b77",
+      "filename": "opcodes/riscv-opc.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/ca0bc1509849a3871e99fdf48705b93f18d5fa7b/opcodes/riscv-opc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/ca0bc1509849a3871e99fdf48705b93f18d5fa7b/opcodes/riscv-opc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/opcodes/riscv-opc.c?ref=ca0bc1509849a3871e99fdf48705b93f18d5fa7b",
+      "patch": "@@ -247,6 +247,7 @@ const struct riscv_opcode riscv_opcodes[] =\n {\"and\",         0, {\"I\", 0},   \"d,s,j\",  MATCH_ANDI, MASK_ANDI, match_opcode, INSN_ALIAS },\n {\"beqz\",        0, {\"C\", 0},   \"Cs,Cp\",  MATCH_C_BEQZ, MASK_C_BEQZ, match_opcode, INSN_ALIAS|INSN_CONDBRANCH },\n {\"beqz\",        0, {\"I\", 0},   \"s,p\",  MATCH_BEQ, MASK_BEQ | MASK_RS2, match_opcode, INSN_ALIAS|INSN_CONDBRANCH },\n+{\"beq\",         0, {\"C\", 0},   \"Cs,Cz,Cp\",  MATCH_C_BEQZ, MASK_C_BEQZ, match_opcode, INSN_ALIAS|INSN_CONDBRANCH },\n {\"beq\",         0, {\"I\", 0},   \"s,t,p\",  MATCH_BEQ, MASK_BEQ, match_opcode, INSN_CONDBRANCH },\n {\"blez\",        0, {\"I\", 0},   \"t,p\",  MATCH_BGE, MASK_BGE | MASK_RS1, match_opcode, INSN_ALIAS|INSN_CONDBRANCH },\n {\"bgez\",        0, {\"I\", 0},   \"s,p\",  MATCH_BGE, MASK_BGE | MASK_RS2, match_opcode, INSN_ALIAS|INSN_CONDBRANCH },\n@@ -262,6 +263,7 @@ const struct riscv_opcode riscv_opcodes[] =\n {\"bgtu\",        0, {\"I\", 0},   \"t,s,p\",  MATCH_BLTU, MASK_BLTU, match_opcode, INSN_ALIAS|INSN_CONDBRANCH },\n {\"bnez\",        0, {\"C\", 0},   \"Cs,Cp\",  MATCH_C_BNEZ, MASK_C_BNEZ, match_opcode, INSN_ALIAS|INSN_CONDBRANCH },\n {\"bnez\",        0, {\"I\", 0},   \"s,p\",  MATCH_BNE, MASK_BNE | MASK_RS2, match_opcode, INSN_ALIAS|INSN_CONDBRANCH },\n+{\"bne\",         0, {\"C\", 0},   \"Cs,Cz,Cp\",  MATCH_C_BNEZ, MASK_C_BNEZ, match_opcode, INSN_ALIAS|INSN_CONDBRANCH },\n {\"bne\",         0, {\"I\", 0},   \"s,t,p\",  MATCH_BNE, MASK_BNE, match_opcode, INSN_CONDBRANCH },\n {\"addi\",        0, {\"C\", 0},   \"Ct,Cc,CK\", MATCH_C_ADDI4SPN, MASK_C_ADDI4SPN, match_c_addi4spn, INSN_ALIAS },\n {\"addi\",        0, {\"C\", 0},   \"d,CU,Cj\",  MATCH_C_ADDI, MASK_C_ADDI, match_rd_nonzero, INSN_ALIAS },"
+    }
+  ]
+}

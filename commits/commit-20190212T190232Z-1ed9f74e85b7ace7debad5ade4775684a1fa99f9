@@ -1,0 +1,84 @@
+{
+  "sha": "1ed9f74e85b7ace7debad5ade4775684a1fa99f9",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6MWVkOWY3NGU4NWI3YWNlN2RlYmFkNWFkZTQ3NzU2ODRhMWZhOTlmOQ==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-01-10T21:34:23Z"
+    },
+    "committer": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-02-12T19:02:32Z"
+    },
+    "message": "Make symtab.c better styled.\n\nNote that print_msymbol_info does not (yet?) print data msymbol\nusing variable_name_style, as otherwise 'info variables'\nwould show the non debugging symbols in variable name style,\nbut 'real' variables would be not styled.\n\n2019-02-12  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n\n\t* symtab.h (struct minimal_symbol data_p): New const method.\n\t(struct minimal_symbol text_p): Likewise.\n\t* symtab.c (output_source_filename): Use file name style\n\tto print file name.\n\t(print_symbol_info): Likewise.\n\t(print_msymbol_info): Use address style to print addresses.\n\tUse function name style to print executable text symbols.\n\t(expand_symtab_containing_pc): Use data_p.\n\t(find_pc_sect_compunit_symtab): Likewise.",
+    "tree": {
+      "sha": "2bfb77198769d27eb1b557f66199d7ca5f98d7b6",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/2bfb77198769d27eb1b557f66199d7ca5f98d7b6"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/1ed9f74e85b7ace7debad5ade4775684a1fa99f9",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1ed9f74e85b7ace7debad5ade4775684a1fa99f9",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/1ed9f74e85b7ace7debad5ade4775684a1fa99f9",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/1ed9f74e85b7ace7debad5ade4775684a1fa99f9/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "2636d81d80ad34653d05d0d94207d62720bfd6aa",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/2636d81d80ad34653d05d0d94207d62720bfd6aa",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/2636d81d80ad34653d05d0d94207d62720bfd6aa"
+    }
+  ],
+  "stats": {
+    "total": 75,
+    "additions": 59,
+    "deletions": 16
+  },
+  "files": [
+    {
+      "sha": "194ae4657692f40d96e64c539ef91822cc725b4f",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 0,
+      "changes": 12,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1ed9f74e85b7ace7debad5ade4775684a1fa99f9/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1ed9f74e85b7ace7debad5ade4775684a1fa99f9/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=1ed9f74e85b7ace7debad5ade4775684a1fa99f9",
+      "patch": "@@ -1,3 +1,15 @@\n+2019-02-12  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n+\n+\t* symtab.h (struct minimal_symbol data_p): New const method.\n+\t(struct minimal_symbol text_p): Likewise.\n+\t* symtab.c (output_source_filename): Use file name style\n+\tto print file name.\n+\t(print_symbol_info): Likewise.\n+\t(print_msymbol_info): Use address style to print addresses.\n+\tUse function name style to print executable text symbols.\n+\t(expand_symtab_containing_pc): Use data_p.\n+\t(find_pc_sect_compunit_symtab): Likewise.\n+\n 2019-02-12  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n \n \t* breakpoint.c (describe_other_breakpoints): Use address style"
+    },
+    {
+      "sha": "ad2a1599a3dd91cb587bcd20f02098c6299041b0",
+      "filename": "gdb/symtab.c",
+      "status": "modified",
+      "additions": 39,
+      "deletions": 16,
+      "changes": 55,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1ed9f74e85b7ace7debad5ade4775684a1fa99f9/gdb/symtab.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1ed9f74e85b7ace7debad5ade4775684a1fa99f9/gdb/symtab.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/symtab.c?ref=1ed9f74e85b7ace7debad5ade4775684a1fa99f9",
+      "patch": "@@ -41,6 +41,7 @@\n #include \"p-lang.h\"\n #include \"addrmap.h\"\n #include \"cli/cli-utils.h\"\n+#include \"cli/cli-style.h\"\n #include \"fnmatch.h\"\n #include \"hashtab.h\"\n #include \"typeprint.h\"\n@@ -311,6 +312,31 @@ compunit_language (const struct compunit_symtab *cust)\n   return SYMTAB_LANGUAGE (symtab);\n }\n \n+/* See symtab.h.  */\n+\n+bool\n+minimal_symbol::data_p () const\n+{\n+  return type == mst_data\n+    || type == mst_bss\n+    || type == mst_abs\n+    || type == mst_file_data\n+    || type == mst_file_bss;\n+}\n+\n+/* See symtab.h.  */\n+\n+bool\n+minimal_symbol::text_p () const\n+{\n+  return type == mst_text\n+    || type == mst_text_gnu_ifunc\n+    || type == mst_data_gnu_ifunc\n+    || type == mst_slot_got_plt\n+    || type == mst_solib_trampoline\n+    || type == mst_file_text;\n+}\n+\n /* See whether FILENAME matches SEARCH_NAME using the rule that we\n    advertise to the user.  (The manual's description of linespecs\n    describes what we advertise).  Returns true if they match, false\n@@ -1039,12 +1065,7 @@ expand_symtab_containing_pc (CORE_ADDR pc, struct obj_section *section)\n      necessary because we loop based on texthigh and textlow, which do\n      not include the data ranges.  */\n   msymbol = lookup_minimal_symbol_by_pc_section (pc, section);\n-  if (msymbol.minsym\n-      && (MSYMBOL_TYPE (msymbol.minsym) == mst_data\n-\t  || MSYMBOL_TYPE (msymbol.minsym) == mst_bss\n-\t  || MSYMBOL_TYPE (msymbol.minsym) == mst_abs\n-\t  || MSYMBOL_TYPE (msymbol.minsym) == mst_file_data\n-\t  || MSYMBOL_TYPE (msymbol.minsym) == mst_file_bss))\n+  if (msymbol.minsym && msymbol.minsym->data_p ())\n     return;\n \n   for (objfile *objfile : current_program_space->objfiles ())\n@@ -2879,12 +2900,7 @@ find_pc_sect_compunit_symtab (CORE_ADDR pc, struct obj_section *section)\n      we call find_pc_sect_psymtab which has a similar restriction based\n      on the partial_symtab's texthigh and textlow.  */\n   msymbol = lookup_minimal_symbol_by_pc_section (pc, section);\n-  if (msymbol.minsym\n-      && (MSYMBOL_TYPE (msymbol.minsym) == mst_data\n-\t  || MSYMBOL_TYPE (msymbol.minsym) == mst_bss\n-\t  || MSYMBOL_TYPE (msymbol.minsym) == mst_abs\n-\t  || MSYMBOL_TYPE (msymbol.minsym) == mst_file_data\n-\t  || MSYMBOL_TYPE (msymbol.minsym) == mst_file_bss))\n+  if (msymbol.minsym && msymbol.minsym->data_p ())\n     return NULL;\n \n   /* Search all symtabs for the one whose file contains our address, and which\n@@ -4168,7 +4184,7 @@ output_source_filename (const char *name,\n   data->first = 0;\n \n   wrap_here (\"\");\n-  fputs_filtered (name, gdb_stdout);\n+  fputs_styled (name, file_name_style.style (), gdb_stdout);\n }\n \n /* A callback for map_partial_symbol_filenames.  */\n@@ -4620,7 +4636,7 @@ print_symbol_info (enum search_domain kind,\n       if (filename_cmp (last, s_filename) != 0)\n \t{\n \t  fputs_filtered (\"\\nFile \", gdb_stdout);\n-\t  fputs_filtered (s_filename, gdb_stdout);\n+\t  fputs_styled (s_filename, file_name_style.style (), gdb_stdout);\n \t  fputs_filtered (\":\\n\", gdb_stdout);\n \t}\n \n@@ -4667,8 +4683,15 @@ print_msymbol_info (struct bound_minimal_symbol msymbol)\n   else\n     tmp = hex_string_custom (BMSYMBOL_VALUE_ADDRESS (msymbol),\n \t\t\t     16);\n-  printf_filtered (\"%s  %s\\n\",\n-\t\t   tmp, MSYMBOL_PRINT_NAME (msymbol.minsym));\n+  fputs_styled (tmp, address_style.style (), gdb_stdout);\n+  fputs_filtered (\"  \", gdb_stdout);\n+  if (msymbol.minsym->text_p ())\n+    fputs_styled (MSYMBOL_PRINT_NAME (msymbol.minsym),\n+\t\t  function_name_style.style (),\n+\t\t  gdb_stdout);\n+  else\n+    fputs_filtered (MSYMBOL_PRINT_NAME (msymbol.minsym), gdb_stdout);\n+  fputs_filtered (\"\\n\", gdb_stdout);\n }\n \n /* This is the guts of the commands \"info functions\", \"info types\", and"
+    },
+    {
+      "sha": "d354c95800dbaa77b8e9f5584f0d19a6f8158d23",
+      "filename": "gdb/symtab.h",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/1ed9f74e85b7ace7debad5ade4775684a1fa99f9/gdb/symtab.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/1ed9f74e85b7ace7debad5ade4775684a1fa99f9/gdb/symtab.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/symtab.h?ref=1ed9f74e85b7ace7debad5ade4775684a1fa99f9",
+      "patch": "@@ -686,6 +686,14 @@ struct minimal_symbol\n      the `next' pointer for the demangled hash table.  */\n \n   struct minimal_symbol *demangled_hash_next;\n+\n+/* True if this symbol is of some data type.  */\n+\n+  bool data_p () const;\n+\n+  /* True if MSYMBOL is of some text type.  */\n+\n+  bool text_p () const;\n };\n \n #define MSYMBOL_TARGET_FLAG_1(msymbol)  (msymbol)->target_flag_1"
+    }
+  ]
+}

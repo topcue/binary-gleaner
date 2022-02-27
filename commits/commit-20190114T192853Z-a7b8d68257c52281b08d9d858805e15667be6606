@@ -1,0 +1,72 @@
+{
+  "sha": "a7b8d68257c52281b08d9d858805e15667be6606",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YTdiOGQ2ODI1N2M1MjI4MWIwOGQ5ZDg1ODgwNWUxNTY2N2JlNjYwNg==",
+  "commit": {
+    "author": {
+      "name": "Pedro Franco de Carvalho",
+      "email": "pedromfc@linux.ibm.com",
+      "date": "2019-01-14T19:28:53Z"
+    },
+    "committer": {
+      "name": "Pedro Franco de Carvalho",
+      "email": "pedromfc@linux.ibm.com",
+      "date": "2019-01-14T19:28:53Z"
+    },
+    "message": "[PowerPC] Fix \"info vector\" test in gdb.arch/altivec-regs.exp\n\nThis patch fixes one of the tests in gdb.arch/altivec-regs.exp that\nwas passing an incorrect list to gdb_expect_list, which always\nmatched.\n\ngdb/testsuite/ChangeLog:\n2019-01-14  Pedro Franco de Carvalho  <pedromfc@linux.ibm.com>\n\n\t* gdb.arch/altivec-regs.exp: Fix the list passed to\n\tgdb_expect_list when testing \"info vector\".",
+    "tree": {
+      "sha": "72b9552845b87161d87584a638794366336108d8",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/72b9552845b87161d87584a638794366336108d8"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/a7b8d68257c52281b08d9d858805e15667be6606",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a7b8d68257c52281b08d9d858805e15667be6606",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/a7b8d68257c52281b08d9d858805e15667be6606",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/a7b8d68257c52281b08d9d858805e15667be6606/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "f466c3053db1e075a8dd2583baa729c4edbbec0f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/f466c3053db1e075a8dd2583baa729c4edbbec0f",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/f466c3053db1e075a8dd2583baa729c4edbbec0f"
+    }
+  ],
+  "stats": {
+    "total": 48,
+    "additions": 10,
+    "deletions": 38
+  },
+  "files": [
+    {
+      "sha": "621362f7f01226c1e2339a83f330722d6e23507e",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a7b8d68257c52281b08d9d858805e15667be6606/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a7b8d68257c52281b08d9d858805e15667be6606/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=a7b8d68257c52281b08d9d858805e15667be6606",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-01-14  Pedro Franco de Carvalho  <pedromfc@linux.ibm.com>\n+\n+\t* gdb.arch/altivec-regs.exp: Fix the list passed to\n+\tgdb_expect_list when testing \"info vector\".\n+\n 2019-01-12  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* gdb.base/style.exp: Don't include path in testname."
+    },
+    {
+      "sha": "d23039244f99af095d35793aa621cb91daef776e",
+      "filename": "gdb/testsuite/gdb.arch/altivec-regs.exp",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 38,
+      "changes": 43,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/a7b8d68257c52281b08d9d858805e15667be6606/gdb/testsuite/gdb.arch/altivec-regs.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/a7b8d68257c52281b08d9d858805e15667be6606/gdb/testsuite/gdb.arch/altivec-regs.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.arch/altivec-regs.exp?ref=a7b8d68257c52281b08d9d858805e15667be6606",
+      "patch": "@@ -117,47 +117,14 @@ gdb_test \"print \\$vrsave\" \".* = 1\" \"print vrsave\"\n gdb_test \"print \\$vscr\" \".* = 1\" \"print vscr\"\n \n for {set i 0} {$i < 32} {incr i 1} {\n-         set pattern$i \".*vr$i.*\"\n-         append pattern$i $vector_register\n+    lappend pattern_list \"vr$i\\[ \\t\\]+$vector_register\"\n }\n \n+lappend pattern_list \"vscr\\[ \\t\\]+0x1\"\n+lappend pattern_list \"vrsave\\[ \\t\\]+0x1\"\n+\n send_gdb \"info vector\\n\"\n-gdb_expect_list \"info vector\" \".*$gdb_prompt $\" {\n-[$pattern0]\n-[$pattern1]\n-[$pattern2]\n-[$pattern3]\n-[$pattern4]\n-[$pattern5]\n-[$pattern6]\n-[$pattern7]\n-[$pattern8]\n-[$pattern9]\n-[$pattern10]\n-[$pattern11]\n-[$pattern12]\n-[$pattern13]\n-[$pattern14]\n-[$pattern15]\n-[$pattern16]\n-[$pattern17]\n-[$pattern18]\n-[$pattern19]\n-[$pattern20]\n-[$pattern21]\n-[$pattern22]\n-[$pattern23]\n-[$pattern24]\n-[$pattern25]\n-[$pattern26]\n-[$pattern27]\n-[$pattern28]\n-[$pattern29]\n-[$pattern30]\n-[$pattern31]\n-\"\\[ \\t\\n\\r\\]+vscr\\[ \\t\\]+0x1\"\n-\"\\[ \\t\\n\\r\\]+vrsave\\[ \\t\\]+0x1\"\n-}\n+gdb_expect_list \"info vector\" \".*$gdb_prompt $\" $pattern_list\n \n gdb_test \"break vector_fun\" \\\n  \"Breakpoint 2 at.*altivec-regs.c, line \\[0-9\\]+\\\\.\" \\"
+    }
+  ]
+}

@@ -1,0 +1,223 @@
+{
+  "sha": "b4be1b0648608a2578bbed39841c8ee411773edd",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YjRiZTFiMDY0ODYwOGEyNTc4YmJlZDM5ODQxYzhlZTQxMTc3M2VkZA==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@ericsson.com",
+      "date": "2019-03-13T19:13:03Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@efficios.com",
+      "date": "2019-03-13T19:14:36Z"
+    },
+    "message": "Fix MI output for multi-location breakpoints\n\nNew in v2:\n\n- Addressed comments about doc, updated the MI version table\n- New doc for the Breakpoint information format\n- New -fix-multi-location-breakpoint-output command, with associated\n  doc, test and NEWS updated accordingly\n- Fixed the output, the locations list is now actually in the tuple\n  representing the breakpoint.\n\nVarious MI commands or events related to breakpoints output invalid MI\nrecords when printing information about a multi-location breakpoint.\nFor example:\n\n    -break-insert allo\n    ^done,bkpt={...,addr=\"<MULTIPLE>\",...},{number=\"1.1\",...},{number=\"1.2\",...}\n\nThe problem is that according to the syntax [1], the top-level elements\nare of type \"result\" and should be of the form \"variable=value\".\n\nThis patch changes the output to wrap the locations in a list:\n\n    ^done,bkpt={...,addr=\"<MULTIPLE>\",locations=[{number=\"1.1\",...},{number=\"1.2\",...}]}\n\nThe events =breakpoint-created, =breakpoint-modified, as well as the\n-break-info command also suffer from this (and maybe others I didn't\nfind).\n\nSince this is a breaking change for MI, we have to deal somehow with\nbackwards compatibility.  The approach taken by this patch is to bump\nthe MI version, use the new syntax in MI3 while retaining the old syntax\nin MI2.  Frontends are expected to use a precise MI version (-i=mi2), so\nif they do that they should be unaffected.\n\nThe patch also adds the command -fix-multi-location-breakpoint-output,\nwhich front ends can use to enable this behavior with MI <= 2.\n\n[1] https://sourceware.org/gdb/onlinedocs/gdb/GDB_002fMI-Output-Syntax.html#GDB_002fMI-Output-Syntax\n\ngdb/ChangeLog:\n\n\t* NEWS: Mention that the new default MI version is 3.  Mention\n\tchanges to the output of commands and events that deal with\n\tmulti-location breakpoints.\n\t* breakpoint.c: Include \"mi/mi-out.h\".\n\t(print_one_breakpoint): Change output syntax if using MI version\n\t>= 3.\n\t* mi/mi-main.h (mi_cmd_fix_multi_location_breakpoint_output):\n\tNew.\n\t(mi_multi_location_breakpoint_output_fixed): New.\n\t* mi/mi-main.c (fix_multi_location_breakpoint_output): New.\n\t(mi_cmd_fix_multi_location_breakpoint_output): New.\n\t(mi_multi_location_breakpoint_output_fixed): New.\n\t* mi/mi-cmds.c (mi_cmds): Register command\n\t-fix-multi-location-breakpoint-output.\n\t* mi/mi-out.c (mi_out_new): Instantiate version 3 when using\n\tinterpreter \"mi\".\n\ngdb/testsuite/ChangeLog:\n\n\t* mi-breakpoint-location-ena-dis.exp: Rename to ...\n\t* mi-breakpoint-multiple-locations.exp: ... this.\n\t(make_breakpoints_pattern): New proc.\n\t(do_test): Add mi_version parameter, test -break-insert,\n\t-break-info and\t=breakpoint-created.\n\ngdb/doc/ChangeLog:\n\n\t* gdb.texinfo (Mode Options): Mention mi3.\n\t(Interpreters): Likewise.\n\t(GDB/MI Development and Front Ends): Add entry for MI 3 in\n\tversion table.  Document -fix-multi-location-breakpoint-output.\n\t(GDB/MI Breakpoint Information): Document format of breakpoint\n\tlocation output.",
+    "tree": {
+      "sha": "e1ed7575ff16e451a9076c7cabcf057c17d43b51",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/e1ed7575ff16e451a9076c7cabcf057c17d43b51"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/b4be1b0648608a2578bbed39841c8ee411773edd",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b4be1b0648608a2578bbed39841c8ee411773edd",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/b4be1b0648608a2578bbed39841c8ee411773edd",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b4be1b0648608a2578bbed39841c8ee411773edd/comments",
+  "author": null,
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "8e5e5494f8653dd83ce1413d141e26c09dddab7b",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8e5e5494f8653dd83ce1413d141e26c09dddab7b",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/8e5e5494f8653dd83ce1413d141e26c09dddab7b"
+    }
+  ],
+  "stats": {
+    "total": 409,
+    "additions": 331,
+    "deletions": 78
+  },
+  "files": [
+    {
+      "sha": "85bf5a96bab238d9973b65dcabb16ca8b2fadfd3",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 0,
+      "changes": 19,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=b4be1b0648608a2578bbed39841c8ee411773edd",
+      "patch": "@@ -1,3 +1,22 @@\n+2019-03-13  Simon Marchi  <simon.marchi@ericsson.com>\n+\n+\t* NEWS: Mention that the new default MI version is 3.  Mention\n+\tchanges to the output of commands and events that deal with\n+\tmulti-location breakpoints.\n+\t* breakpoint.c: Include \"mi/mi-out.h\".\n+\t(print_one_breakpoint): Change output syntax if using MI version\n+\t>= 3.\n+\t* mi/mi-main.h (mi_cmd_fix_multi_location_breakpoint_output):\n+\tNew.\n+\t(mi_multi_location_breakpoint_output_fixed): New.\n+\t* mi/mi-main.c (fix_multi_location_breakpoint_output): New.\n+\t(mi_cmd_fix_multi_location_breakpoint_output): New.\n+\t(mi_multi_location_breakpoint_output_fixed): New.\n+\t* mi/mi-cmds.c (mi_cmds): Register command\n+\t-fix-multi-location-breakpoint-output.\n+\t* mi/mi-out.c (mi_out_new): Instantiate version 3 when using\n+\tinterpreter \"mi\".\n+\n 2019-03-13  Simon Marchi  <simon.marchi@polymtl.ca>\n \n \t* mi/mi-out.h (mi_out_new): Change parameter to const char *."
+    },
+    {
+      "sha": "53d1c6e2486dfb7af64ff2419bef52e42daacdd2",
+      "filename": "gdb/NEWS",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "changes": 14,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/NEWS",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/NEWS",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/NEWS?ref=b4be1b0648608a2578bbed39841c8ee411773edd",
+      "patch": "@@ -162,6 +162,8 @@ set style address intensity VALUE\n \n * MI changes\n \n+  ** The default version of the MI interpreter is now 3 (-i=mi3).\n+\n   ** The '-data-disassemble' MI command now accepts an '-a' option to\n      disassemble the whole function surrounding the given program\n      counter value or function name.  Support for this feature can be\n@@ -171,6 +173,18 @@ set style address intensity VALUE\n   ** Command responses and notifications that include a frame now include\n      the frame's architecture in a new \"arch\" attribute.\n \n+  ** The output of information about multi-location breakpoints (which is\n+     syntactically incorrect in MI 2) has changed in MI 3.  This affects\n+     the following commands and events:\n+\n+\t- -break-insert\n+\t- -break-info\n+\t- =breakpoint-created\n+\t- =breakpoint-modified\n+\n+     The -fix-multi-location-breakpoint-output command can be used to enable\n+     this behavior with previous MI versions.\n+\n * New native configurations\n \n GNU/Linux/RISC-V\t\triscv*-*-linux*"
+    },
+    {
+      "sha": "dd122be35bf3ba3efb4e9ee4bb53733643d364f9",
+      "filename": "gdb/breakpoint.c",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 8,
+      "changes": 26,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/breakpoint.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/breakpoint.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/breakpoint.c?ref=b4be1b0648608a2578bbed39841c8ee411773edd",
+      "patch": "@@ -69,6 +69,7 @@\n #include \"thread-fsm.h\"\n #include \"tid-parse.h\"\n #include \"cli/cli-style.h\"\n+#include \"mi/mi-main.h\"\n \n /* readline include files */\n #include \"readline/readline.h\"\n@@ -6361,12 +6362,15 @@ print_one_breakpoint (struct breakpoint *b,\n \t\t      int allflag)\n {\n   struct ui_out *uiout = current_uiout;\n+  bool use_fixed_output = mi_multi_location_breakpoint_output_fixed (uiout);\n \n-  {\n-    ui_out_emit_tuple tuple_emitter (uiout, \"bkpt\");\n+  gdb::optional<ui_out_emit_tuple> bkpt_tuple_emitter (gdb::in_place, uiout, \"bkpt\");\n+  print_one_breakpoint_location (b, NULL, 0, last_loc, allflag);\n \n-    print_one_breakpoint_location (b, NULL, 0, last_loc, allflag);\n-  }\n+  /* The mi2 broken format: the main breakpoint tuple ends here, the locations\n+     are outside.  */\n+  if (!use_fixed_output)\n+    bkpt_tuple_emitter.reset ();\n \n   /* If this breakpoint has custom print function,\n      it's already printed.  Otherwise, print individual\n@@ -6384,12 +6388,18 @@ print_one_breakpoint (struct breakpoint *b,\n \t  && !is_hardware_watchpoint (b)\n \t  && (b->loc->next || !b->loc->enabled))\n \t{\n-\t  struct bp_location *loc;\n-\t  int n = 1;\n+\t  gdb::optional<ui_out_emit_list> locations_list;\n+\n+\t  /* For MI version <= 2, keep the behavior where GDB outputs an invalid\n+\t     MI record.  For later versions, place breakpoint locations in a\n+\t     list.  */\n+\t  if (uiout->is_mi_like_p () && use_fixed_output)\n+\t    locations_list.emplace (uiout, \"locations\");\n \n-\t  for (loc = b->loc; loc; loc = loc->next, ++n)\n+\t  int n = 1;\n+\t  for (bp_location *loc = b->loc; loc != NULL; loc = loc->next, ++n)\n \t    {\n-\t      ui_out_emit_tuple tuple_emitter (uiout, NULL);\n+\t      ui_out_emit_tuple loc_tuple_emitter (uiout, NULL);\n \t      print_one_breakpoint_location (b, loc, n, last_loc, allflag);\n \t    }\n \t}"
+    },
+    {
+      "sha": "81512fa98c9d26cb36ed335a5d73f1ae9cd89b50",
+      "filename": "gdb/doc/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/doc/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/doc/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/ChangeLog?ref=b4be1b0648608a2578bbed39841c8ee411773edd",
+      "patch": "@@ -1,3 +1,12 @@\n+2019-03-13  Simon Marchi  <simon.marchi@ericsson.com>\n+\n+\t* gdb.texinfo (Mode Options): Mention mi3.\n+\t(Interpreters): Likewise.\n+\t(GDB/MI Development and Front Ends): Add entry for MI 3 in\n+\tversion table.  Document -fix-multi-location-breakpoint-output.\n+\t(GDB/MI Breakpoint Information): Document format of breakpoint\n+\tlocation output.\n+\n 2019-03-05  Simon Marchi  <simon.marchi@efficios.com>\n \n \t* python.texi (Values From Inferior): Change synopsys of the"
+    },
+    {
+      "sha": "20f6122ce1b0a1745d9a305570c588e670ed9b0c",
+      "filename": "gdb/doc/gdb.texinfo",
+      "status": "modified",
+      "additions": 88,
+      "deletions": 12,
+      "changes": 100,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/doc/gdb.texinfo",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/doc/gdb.texinfo",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/doc/gdb.texinfo?ref=b4be1b0648608a2578bbed39841c8ee411773edd",
+      "patch": "@@ -1268,12 +1268,12 @@ program or device.  This option is meant to be set by programs which\n communicate with @value{GDBN} using it as a back end.\n @xref{Interpreters, , Command Interpreters}.\n \n-@samp{--interpreter=mi} (or @samp{--interpreter=mi2}) causes\n-@value{GDBN} to use the @dfn{@sc{gdb/mi} interface} (@pxref{GDB/MI, ,\n-The @sc{gdb/mi} Interface}) included since @value{GDBN} version 6.0.  The\n-previous @sc{gdb/mi} interface, included in @value{GDBN} version 5.3 and\n-selected with @samp{--interpreter=mi1}, is deprecated.  Earlier\n-@sc{gdb/mi} interfaces are no longer supported.\n+@samp{--interpreter=mi} (or @samp{--interpreter=mi3}) causes\n+@value{GDBN} to use the @dfn{@sc{gdb/mi} interface} version 3 (@pxref{GDB/MI, ,\n+The @sc{gdb/mi} Interface}) included since @value{GDBN} version 9.1.  @sc{gdb/mi}\n+version 2 (@code{mi2}), included in @value{GDBN} 6.0 and version 1 (@code{mi1}),\n+included in @value{GDBN} 5.3, are also available.  Earlier @sc{gdb/mi}\n+interfaces are no longer supported.\n \n @item -write\n @cindex @code{--write}\n@@ -26506,18 +26506,22 @@ used interpreter with @value{GDBN}. With no interpreter specified at runtime,\n \n @item mi\n @cindex mi interpreter\n-The newest @sc{gdb/mi} interface (currently @code{mi2}).  Used primarily\n+The newest @sc{gdb/mi} interface (currently @code{mi3}).  Used primarily\n by programs wishing to use @value{GDBN} as a backend for a debugger GUI\n or an IDE.  For more information, see @ref{GDB/MI, ,The @sc{gdb/mi}\n Interface}.\n \n+@item mi3\n+@cindex mi3 interpreter\n+The @sc{gdb/mi} interface introduced in @value{GDBN} 9.1.\n+\n @item mi2\n @cindex mi2 interpreter\n-The current @sc{gdb/mi} interface.\n+The @sc{gdb/mi} interface introduced in @value{GDBN} 6.0.\n \n @item mi1\n @cindex mi1 interpreter\n-The @sc{gdb/mi} interface included in @value{GDBN} 5.1, 5.2, and 5.3.\n+The @sc{gdb/mi} interface introduced in @value{GDBN} 5.1.\n \n @end table\n \n@@ -27839,8 +27843,36 @@ than a tuple.\n a tuple.\n @end itemize\n \n+@item\n+@center 3\n+@tab\n+@center 9.1\n+@tab\n+\n+@itemize\n+@item\n+The output of information about multi-location breakpoints has changed in the\n+responses to the @code{-break-insert} and @code{-break-info} commands, as well\n+as in the @code{=breakpoint-created} and @code{=breakpoint-modified} events.\n+The multiple locations are now placed in a @code{locations} field, whose value\n+is a list.\n+@end itemize\n+\n @end multitable\n \n+If your front end cannot yet migrate to a more recent version of the\n+MI protocol, you can nevertheless selectively enable specific features\n+available in those recent MI versions, using the following commands:\n+\n+@table @code\n+\n+@item -fix-multi-location-breakpoint-output\n+Use the output for multi-location breakpoints which was introduced by\n+MI 3, even when using MI versions 2 or 1.  This command has no\n+effect when using MI version 3 or later.\n+\n+@end @table\n+\n The best way to avoid unexpected changes in MI that might break your front\n end is to make your project known to @value{GDBN} developers and\n follow development on @email{gdb@@sourceware.org} and\n@@ -28169,9 +28201,7 @@ following fields:\n \n @table @code\n @item number\n-The breakpoint number.  For a breakpoint that represents one location\n-of a multi-location breakpoint, this will be a dotted pair, like\n-@samp{1.2}.\n+The breakpoint number.\n \n @item type\n The type of the breakpoint.  For ordinary breakpoints this will be\n@@ -28271,6 +28301,52 @@ is not.\n @item what\n Some extra data, the exact contents of which are type-dependent.\n \n+@item locations\n+This field is present if the breakpoint has multiple locations.  It is also\n+exceptionally present if the breakpoint is enabled and has a single, disabled\n+location.\n+\n+The value is a list of locations.  The format of a location is decribed below.\n+\n+@end table\n+\n+A location in a multi-location breakpoint is represented as a tuple with the\n+following fields:\n+\n+@table @code\n+\n+@item number\n+The location number as a dotted pair, like @samp{1.2}.  The first digit is the\n+number of the parent breakpoint.  The second digit is the number of the\n+location within that breakpoint.\n+\n+@item enabled\n+This indicates whether the location is enabled, in which case the\n+value is @samp{y}, or disabled, in which case the value is @samp{n}.\n+Note that this is not the same as the field @code{enable}.\n+\n+@item addr\n+The address of this location as an hexidecimal number.\n+\n+@item func\n+If known, the function in which the location appears.\n+If not known, this field is not present.\n+\n+@item file\n+The name of the source file which contains this location, if known.\n+If not known, this field is not present.\n+\n+@item fullname\n+The full file name of the source file which contains this location, if\n+known.  If not known, this field is not present.\n+\n+@item line\n+The line number at which this location appears, if known.\n+If not known, this field is not present.\n+\n+@item thread-groups\n+The thread groups this location is in.\n+\n @end table\n \n For example, here is what the output of @code{-break-insert}"
+    },
+    {
+      "sha": "fe30ac2e8222e923aa834be2a3dee8f7e2ef2635",
+      "filename": "gdb/mi/mi-cmds.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/mi/mi-cmds.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/mi/mi-cmds.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/mi/mi-cmds.c?ref=b4be1b0648608a2578bbed39841c8ee411773edd",
+      "patch": "@@ -118,6 +118,8 @@ static struct mi_cmd mi_cmds[] =\n   DEF_MI_CMD_MI (\"file-list-shared-libraries\",\n \t\t mi_cmd_file_list_shared_libraries),\n   DEF_MI_CMD_CLI (\"file-symbol-file\", \"symbol-file\", 1),\n+  DEF_MI_CMD_MI (\"fix-multi-location-breakpoint-output\",\n+\t\t mi_cmd_fix_multi_location_breakpoint_output),\n   DEF_MI_CMD_MI (\"gdb-exit\", mi_cmd_gdb_exit),\n   DEF_MI_CMD_CLI_1 (\"gdb-set\", \"set\", 1,\n \t\t    &mi_suppress_notification.cmd_param_changed),"
+    },
+    {
+      "sha": "065598517459fbffbba69a4662249e6500dafbc5",
+      "filename": "gdb/mi/mi-main.c",
+      "status": "modified",
+      "additions": 27,
+      "deletions": 0,
+      "changes": 27,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/mi/mi-main.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/mi/mi-main.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/mi/mi-main.c?ref=b4be1b0648608a2578bbed39841c8ee411773edd",
+      "patch": "@@ -2701,6 +2701,33 @@ mi_cmd_trace_frame_collected (const char *command, char **argv, int argc)\n   }\n }\n \n+/* Whether to use the fixed output when printing information about a\n+   multi-location breakpoint (see PR 9659).  */\n+\n+static bool fix_multi_location_breakpoint_output = false;\n+\n+/* See mi/mi-main.h.  */\n+\n+void\n+mi_cmd_fix_multi_location_breakpoint_output (const char *command, char **argv,\n+\t\t\t\t\t     int argc)\n+{\n+  fix_multi_location_breakpoint_output = true;\n+}\n+\n+/* See mi/mi-main.h.  */\n+\n+bool\n+mi_multi_location_breakpoint_output_fixed (ui_out *uiout)\n+{\n+  mi_ui_out *mi_uiout = dynamic_cast<mi_ui_out *> (uiout);\n+\n+  if (mi_uiout == nullptr)\n+    return false;\n+\n+  return mi_uiout->version () >= 3 || fix_multi_location_breakpoint_output;\n+}\n+\n void\n _initialize_mi_main (void)\n {"
+    },
+    {
+      "sha": "72c4e594287aad7f7ff59bb13253f204a3267044",
+      "filename": "gdb/mi/mi-main.h",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "changes": 13,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/mi/mi-main.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/mi/mi-main.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/mi/mi-main.h?ref=b4be1b0648608a2578bbed39841c8ee411773edd",
+      "patch": "@@ -54,4 +54,17 @@ struct mi_suppress_notification\n };\n extern struct mi_suppress_notification mi_suppress_notification;\n \n+/* Implementation of -fix-multi-location-breakpoint-output.  */\n+\n+extern void mi_cmd_fix_multi_location_breakpoint_output (const char *command,\n+\t\t\t\t\t\t\t char **argv, int argc);\n+\n+/* Return whether -break-list, -break-insert, =breakpoint-created and\n+   =breakpoint-modified should use the \"fixed\" output format (see PR\n+   9659).\n+\n+   Return false if UIOUT is not an MI UI.  */\n+\n+extern bool mi_multi_location_breakpoint_output_fixed (ui_out *uiout);\n+\n #endif /* MI_MI_MAIN_H */"
+    },
+    {
+      "sha": "e485beef69cd7c3bd34882a47a564bd3f25b1fbe",
+      "filename": "gdb/mi/mi-out.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/mi/mi-out.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/mi/mi-out.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/mi/mi-out.c?ref=b4be1b0648608a2578bbed39841c8ee411773edd",
+      "patch": "@@ -297,10 +297,10 @@ mi_ui_out::~mi_ui_out ()\n mi_ui_out *\n mi_out_new (const char *mi_version)\n {\n-  if (streq (mi_version, INTERP_MI3))\n+  if (streq (mi_version, INTERP_MI3) ||  streq (mi_version, INTERP_MI))\n     return new mi_ui_out (3);\n \n-  if (streq (mi_version, INTERP_MI2) || streq (mi_version, INTERP_MI))\n+  if (streq (mi_version, INTERP_MI2))\n     return new mi_ui_out (2);\n \n   if (streq (mi_version, INTERP_MI1))"
+    },
+    {
+      "sha": "037f561595ac52c934e4659291c80b79f90c07cd",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=b4be1b0648608a2578bbed39841c8ee411773edd",
+      "patch": "@@ -1,3 +1,11 @@\n+2019-03-13  Simon Marchi  <simon.marchi@ericsson.com>\n+\n+\t* mi-breakpoint-location-ena-dis.exp: Rename to ...\n+\t* mi-breakpoint-multiple-locations.exp: ... this.\n+\t(make_breakpoints_pattern): New proc.\n+\t(do_test): Add mi_version parameter, test -break-insert,\n+\t-break-info and\t=breakpoint-created.\n+\n 2019-03-12  Andrew Burgess  <andrew.burgess@embecosm.com>\n \n \t* config/default.exp: Remove 'load_lib gdb.exp'."
+    },
+    {
+      "sha": "eb781490fe767193264291c94285937fd5e37c8c",
+      "filename": "gdb/testsuite/gdb.mi/mi-breakpoint-location-ena-dis.exp",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 56,
+      "changes": 56,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/8e5e5494f8653dd83ce1413d141e26c09dddab7b/gdb/testsuite/gdb.mi/mi-breakpoint-location-ena-dis.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/8e5e5494f8653dd83ce1413d141e26c09dddab7b/gdb/testsuite/gdb.mi/mi-breakpoint-location-ena-dis.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.mi/mi-breakpoint-location-ena-dis.exp?ref=8e5e5494f8653dd83ce1413d141e26c09dddab7b",
+      "patch": "@@ -1,56 +0,0 @@\n-# Copyright 2018-2019 Free Software Foundation, Inc.\n-\n-# This program is free software; you can redistribute it and/or modify\n-# it under the terms of the GNU General Public License as published by\n-# the Free Software Foundation; either version 3 of the License, or\n-# (at your option) any later version.\n-#\n-# This program is distributed in the hope that it will be useful,\n-# but WITHOUT ANY WARRANTY; without even the implied warranty of\n-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n-# GNU General Public License for more details.\n-#\n-# You should have received a copy of the GNU General Public License\n-# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n-\n-# Tests whether =breakpoint=modified notification is sent when a single\n-# breakpoint location is enabled or disabled via CLI.\n-\n-load_lib mi-support.exp\n-set MIFLAGS \"-i=mi\"\n-\n-gdb_exit\n-if {[mi_gdb_start]} {\n-    continue\n-}\n-\n-#\n-# Start here\n-#\n-standard_testfile .cc\n-\n-if {[gdb_compile \"$srcdir/$subdir/$srcfile\" $binfile executable {debug c++}] != \"\" } {\n-    return -1\n-}\n-\n-mi_run_to_main\n-\n-mi_gdb_test \"break add\" \\\n-\t{(&.*)*.*~\"Breakpoint 2 at.*\\\\n\".*=breakpoint-created,bkpt=\\{number=\"2\",type=\"breakpoint\".*\\},\\{number=\"2.1\",enabled=\"y\".*\\}.*\\n\\^done} \\\n-\t\"break add\"\n-\n-# Modify enableness through MI commands shouldn't trigger MI\n-# notification.\n-mi_gdb_test \"-break-disable 2.2\" \"\\\\^done\" \"-break-disable 2.2\"\n-mi_gdb_test \"-break-enable 2.2\"  \"\\\\^done\" \"-break-enable 2.2\"\n-\n-# Modify enableness through CLI commands should trigger MI\n-# notification.\n-mi_gdb_test \"dis 2.2\" \\\n-\t{.*=breakpoint-modified,bkpt=\\{number=\"2\",type=\"breakpoint\".*\\},\\{number=\"2.1\",enabled=\"y\".*\\},\\{number=\"2.2\",enabled=\"n\".*\\}.*\\n\\^done} \\\n-\t\"dis 2.2\"\n-mi_gdb_test \"en 2.2\" \\\n-\t{.*=breakpoint-modified,bkpt=\\{number=\"2\",type=\"breakpoint\".*\\},\\{number=\"2.1\",enabled=\"y\".*\\},\\{number=\"2.2\",enabled=\"y\".*\\}.*\\n\\^done} \\\n-\t\"en 2.2\"\n-\n-mi_gdb_exit"
+    },
+    {
+      "sha": "4f216b447ff2efd2ff82501912ba7ca949594198",
+      "filename": "gdb/testsuite/gdb.mi/mi-breakpoint-multiple-locations.cc",
+      "status": "renamed",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/testsuite/gdb.mi/mi-breakpoint-multiple-locations.cc",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/testsuite/gdb.mi/mi-breakpoint-multiple-locations.cc",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.mi/mi-breakpoint-multiple-locations.cc?ref=b4be1b0648608a2578bbed39841c8ee411773edd",
+      "previous_filename": "gdb/testsuite/gdb.mi/mi-breakpoint-location-ena-dis.cc"
+    },
+    {
+      "sha": "4fb89488010caac4f5f985d4ea2721abcda6ee30",
+      "filename": "gdb/testsuite/gdb.mi/mi-breakpoint-multiple-locations.exp",
+      "status": "added",
+      "additions": 131,
+      "deletions": 0,
+      "changes": 131,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/testsuite/gdb.mi/mi-breakpoint-multiple-locations.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b4be1b0648608a2578bbed39841c8ee411773edd/gdb/testsuite/gdb.mi/mi-breakpoint-multiple-locations.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.mi/mi-breakpoint-multiple-locations.exp?ref=b4be1b0648608a2578bbed39841c8ee411773edd",
+      "patch": "@@ -0,0 +1,131 @@\n+# Copyright 2018-2019 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Tests various things related to breakpoints with multiple locations.\n+\n+load_lib mi-support.exp\n+standard_testfile .cc\n+\n+if {[gdb_compile \"$srcdir/$subdir/$srcfile\" $binfile executable {debug c++}] != \"\" } {\n+    return -1\n+}\n+\n+# Generate the regexp pattern used to match the breakpoint description emitted\n+# in the various breakpoint command results/events.\n+#\n+# - EXPECT_FIXED_OUTPUT: If true (non-zero), we expect GDB to output the fixed\n+#   output for multi-locations breakpoint, else we expect it to output the\n+#   broken pre-mi3 format.\n+# - BP_NUM is the expected breakpoint number\n+# - LOC1_EN and LOC2_EN are the expected value of the enabled field, for the\n+#   two locations.\n+\n+\n+proc make_breakpoints_pattern { expect_fixed_output bp_num loc1_en loc2_en } {\n+    if $expect_fixed_output {\n+\treturn \"bkpt=\\{number=\\\"${bp_num}\\\",type=\\\"breakpoint\\\",.*,locations=\\\\\\[\\{number=\\\"${bp_num}\\\\.1\\\",enabled=\\\"${loc1_en}\\\",.*\\},\\{number=\\\"${bp_num}\\\\.2\\\",enabled=\\\"${loc2_en}\\\",.*\\}\\\\\\]\\}\"\n+    } else {\n+\treturn \"bkpt=\\{number=\\\"${bp_num}\\\",type=\\\"breakpoint\\\",.*\\},\\{number=\\\"${bp_num}\\\\.1\\\",enabled=\\\"${loc1_en}\\\",.*\\},\\{number=\\\"${bp_num}\\\\.2\\\",enabled=\\\"${loc2_en}\\\",.*\\}\"\n+    }\n+}\n+\n+# Run the test with the following parameters:\n+#\n+# - MI_VERSION: the version of the MI interpreter to use (e.g. \"2\")\n+# - USE_FIX_FLAG: Whether to issue the -fix-multi-location-breakpoint-output\n+#   command after starting GDB\n+# - EXPECT_FIXED_OUTPUT: If true (non-zero), we expect GDB to output the fixed\n+#   output for multi-locations breakpoint, else we expect it to output the\n+#   broken pre-mi3 format.\n+\n+proc do_test { mi_version use_fix_flag expect_fixed_output } {\n+    with_test_prefix \"mi_version=${mi_version}\" {\n+\twith_test_prefix \"use_fix_flag=${use_fix_flag}\" {\n+\t    global MIFLAGS decimal\n+\t    set MIFLAGS \"-i=mi${mi_version}\"\n+\n+\t    gdb_exit\n+\t    if {[mi_gdb_start]} {\n+\t\treturn\n+\t    }\n+\n+\t    mi_run_to_main\n+\n+\t    if $use_fix_flag {\n+\t\tmi_gdb_test \"-fix-multi-location-breakpoint-output\" \"\\\\^done\" \\\n+\t\t    \"send -fix-multi-location-breakpoint-output\"\n+\t    }\n+\n+\t    # Check the breakpoint-created event.\n+\t    set pattern [make_breakpoints_pattern $expect_fixed_output 2 y y]\n+\t    mi_gdb_test \"break add\" \\\n+\t\t[multi_line \"&\\\"break add\\\\\\\\n\\\"\" \\\n+\t\t\t    \"~\\\"Breakpoint ${decimal} at.*\\\\(2 locations\\\\)\\\\\\\\n\\\"\" \\\n+\t\t\t    \"=breakpoint-created,${pattern}\" \\\n+\t\t\t    \"\\\\^done\" ] \\\n+\t\t\"break add\"\n+\n+\t    # Check the -break-info output.\n+\t    mi_gdb_test \"-break-info\" \\\n+\t\t\"\\\\^done,BreakpointTable=\\{.*,body=\\\\\\[${pattern}\\\\\\]\\}\" \\\n+\t\t\"-break-info\"\n+\n+\t    # Check the -break-insert response.\n+\t    set pattern [make_breakpoints_pattern $expect_fixed_output 3 y y]\n+\t    mi_gdb_test \"-break-insert add\" \"\\\\^done,${pattern}\" \"insert breakpoint with MI command\"\n+\n+\t    # Modify enableness through MI commands shouldn't trigger MI\n+\t    # notification.\n+\t    mi_gdb_test \"-break-disable 2.2\" \"\\\\^done\" \"-break-disable 2.2\"\n+\t    mi_gdb_test \"-break-enable 2.2\"  \"\\\\^done\" \"-break-enable 2.2\"\n+\n+\t    # Modify enableness through CLI commands should trigger MI\n+\t    # notification.\n+\t    set pattern [make_breakpoints_pattern $expect_fixed_output 2 y n]\n+\t    mi_gdb_test \"dis 2.2\" \\\n+\t\t[multi_line \"&\\\"dis 2.2\\\\\\\\n\\\"\" \\\n+\t\t\t    \"=breakpoint-modified,${pattern}\" \\\n+\t\t\t    \"\\\\^done\" ] \\\n+\t\t\"dis 2.2\"\n+\t    set pattern [make_breakpoints_pattern $expect_fixed_output 2 y y]\n+\t    mi_gdb_test \"en 2.2\" \\\n+\t\t[multi_line \"&\\\"en 2.2\\\\\\\\n\\\"\" \\\n+\t\t\t    \"=breakpoint-modified,${pattern}\" \\\n+\t\t\t    \"\\\\^done\" ] \\\n+\t\t\"en 2.2\"\n+\n+\t    mi_gdb_exit\n+\t}\n+    }\n+}\n+\n+# Vanilla mi2\n+do_test 2 0 0\n+\n+# mi2 with -fix-multi-location-breakpoint-output\n+do_test 2 1 1\n+\n+# Vanilla mi3\n+do_test 3 0 1\n+\n+# mi3 with -fix-multi-location-breakpoint-output\n+do_test 3 1 1\n+\n+# Whatever MI version is currently the default one, vanilla\n+do_test \"\" 0 1\n+\n+# Whatever MI version is currently the default one, with\n+# -fix-multi-location-breakpoint-output\n+do_test \"\" 1 1"
+    }
+  ]
+}

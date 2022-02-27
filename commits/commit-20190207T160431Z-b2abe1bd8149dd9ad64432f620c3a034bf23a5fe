@@ -1,0 +1,84 @@
+{
+  "sha": "b2abe1bd8149dd9ad64432f620c3a034bf23a5fe",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YjJhYmUxYmQ4MTQ5ZGQ5YWQ2NDQzMmY2MjBjM2EwMzRiZjIzYTVmZQ==",
+  "commit": {
+    "author": {
+      "name": "Eric Botcazou",
+      "email": "ebotcazou@gcc.gnu.org",
+      "date": "2019-02-07T16:04:31Z"
+    },
+    "committer": {
+      "name": "Eric Botcazou",
+      "email": "ebotcazou@gcc.gnu.org",
+      "date": "2019-02-07T16:04:31Z"
+    },
+    "message": "SPARC: fix PR ld/18841\n\nThis fixes the last ld failures on SPARC64/Linux:\n\nFAIL: Run pr18841 with libpr18841b.so\nFAIL: Run pr18841 with libpr18841c.so\nFAIL: Run pr18841 with libpr18841bn.so (-z now)\nFAIL: Run pr18841 with libpr18841cn.so (-z now)\n\nby mimicing what has been done on x86-64 and Aarch64 to fix the PR.\n\nbfd/\n\tPR ld/18841\n        * elf32-sparc.c (elf32_sparc_reloc_type_class): Return\n        reloc_class_ifunc for ifunc symbols.\n        * elf64-sparc.c (elf64_sparc_reloc_type_class): Likewise.",
+    "tree": {
+      "sha": "0e8ab9fa20f8319b7a2fff77200f3c797c17a608",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/0e8ab9fa20f8319b7a2fff77200f3c797c17a608"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/b2abe1bd8149dd9ad64432f620c3a034bf23a5fe",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b2abe1bd8149dd9ad64432f620c3a034bf23a5fe",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/b2abe1bd8149dd9ad64432f620c3a034bf23a5fe",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/b2abe1bd8149dd9ad64432f620c3a034bf23a5fe/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "68a091326f6ac25005c49c4cbda1855080ba1d5f",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/68a091326f6ac25005c49c4cbda1855080ba1d5f",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/68a091326f6ac25005c49c4cbda1855080ba1d5f"
+    }
+  ],
+  "stats": {
+    "total": 73,
+    "additions": 71,
+    "deletions": 2
+  },
+  "files": [
+    {
+      "sha": "9656c50febfb024f440cc04905861584059aca18",
+      "filename": "bfd/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b2abe1bd8149dd9ad64432f620c3a034bf23a5fe/bfd/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b2abe1bd8149dd9ad64432f620c3a034bf23a5fe/bfd/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/ChangeLog?ref=b2abe1bd8149dd9ad64432f620c3a034bf23a5fe",
+      "patch": "@@ -1,3 +1,10 @@\n+2019-02-07  Eric Botcazou  <ebotcazou@adacore.com>\n+\n+\tPR ld/18841\n+\t* elf32-sparc.c (elf32_sparc_reloc_type_class): Return\n+\treloc_class_ifunc for ifunc symbols.\n+\t* elf64-sparc.c (elf64_sparc_reloc_type_class): Likewise.\n+\n 2019-02-07  Eric Botcazou  <ebotcazou@adacore.com>\n \n \t* elf32-visium.c (visium_elf_howto_parity_reloc): Minor tweak."
+    },
+    {
+      "sha": "f5c58630686a2a38d0ccb01fe5e5810f98a1d282",
+      "filename": "bfd/elf32-sparc.c",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 1,
+      "changes": 33,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b2abe1bd8149dd9ad64432f620c3a034bf23a5fe/bfd/elf32-sparc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b2abe1bd8149dd9ad64432f620c3a034bf23a5fe/bfd/elf32-sparc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf32-sparc.c?ref=b2abe1bd8149dd9ad64432f620c3a034bf23a5fe",
+      "patch": "@@ -157,13 +157,44 @@ elf32_sparc_final_write_processing (bfd *abfd,\n     }\n }\n \n+/* Used to decide how to sort relocs in an optimal manner for the\n+   dynamic linker, before writing them out.  */\n+\n static enum elf_reloc_type_class\n-elf32_sparc_reloc_type_class (const struct bfd_link_info *info ATTRIBUTE_UNUSED,\n+elf32_sparc_reloc_type_class (const struct bfd_link_info *info,\n \t\t\t      const asection *rel_sec ATTRIBUTE_UNUSED,\n \t\t\t      const Elf_Internal_Rela *rela)\n {\n+  bfd *abfd = info->output_bfd;\n+  const struct elf_backend_data *bed = get_elf_backend_data (abfd);\n+  struct _bfd_sparc_elf_link_hash_table *htab\n+    = _bfd_sparc_elf_hash_table (info);\n+  BFD_ASSERT (htab != NULL);\n+\n+  if (htab->elf.dynsym != NULL\n+      && htab->elf.dynsym->contents != NULL)\n+    {\n+      /* Check relocation against STT_GNU_IFUNC symbol if there are\n+\t dynamic symbols.  */\n+      unsigned long r_symndx = htab->r_symndx (rela->r_info);\n+      if (r_symndx != STN_UNDEF)\n+\t{\n+\t  Elf_Internal_Sym sym;\n+\t  if (!bed->s->swap_symbol_in (abfd,\n+\t\t\t\t       (htab->elf.dynsym->contents\n+\t\t\t\t\t+ r_symndx * bed->s->sizeof_sym),\n+\t\t\t\t       0, &sym))\n+\t    abort ();\n+\n+\t  if (ELF_ST_TYPE (sym.st_info) == STT_GNU_IFUNC)\n+\t    return reloc_class_ifunc;\n+\t}\n+    }\n+\n   switch ((int) ELF32_R_TYPE (rela->r_info))\n     {\n+    case R_SPARC_IRELATIVE:\n+      return reloc_class_ifunc;\n     case R_SPARC_RELATIVE:\n       return reloc_class_relative;\n     case R_SPARC_JMP_SLOT:"
+    },
+    {
+      "sha": "bd29be3a93cde357cb2106846df2615e373230c5",
+      "filename": "bfd/elf64-sparc.c",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 1,
+      "changes": 33,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/b2abe1bd8149dd9ad64432f620c3a034bf23a5fe/bfd/elf64-sparc.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/b2abe1bd8149dd9ad64432f620c3a034bf23a5fe/bfd/elf64-sparc.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/bfd/elf64-sparc.c?ref=b2abe1bd8149dd9ad64432f620c3a034bf23a5fe",
+      "patch": "@@ -769,13 +769,44 @@ elf64_sparc_print_symbol_all (bfd *abfd ATTRIBUTE_UNUSED, void * filep,\n     return symbol->name;\n }\n \f\n+/* Used to decide how to sort relocs in an optimal manner for the\n+   dynamic linker, before writing them out.  */\n+\n static enum elf_reloc_type_class\n-elf64_sparc_reloc_type_class (const struct bfd_link_info *info ATTRIBUTE_UNUSED,\n+elf64_sparc_reloc_type_class (const struct bfd_link_info *info,\n \t\t\t      const asection *rel_sec ATTRIBUTE_UNUSED,\n \t\t\t      const Elf_Internal_Rela *rela)\n {\n+  bfd *abfd = info->output_bfd;\n+  const struct elf_backend_data *bed = get_elf_backend_data (abfd);\n+  struct _bfd_sparc_elf_link_hash_table *htab\n+    = _bfd_sparc_elf_hash_table (info);\n+  BFD_ASSERT (htab != NULL);\n+\n+  if (htab->elf.dynsym != NULL\n+      && htab->elf.dynsym->contents != NULL)\n+    {\n+      /* Check relocation against STT_GNU_IFUNC symbol if there are\n+\t dynamic symbols.  */\n+      unsigned long r_symndx = htab->r_symndx (rela->r_info);\n+      if (r_symndx != STN_UNDEF)\n+\t{\n+\t  Elf_Internal_Sym sym;\n+\t  if (!bed->s->swap_symbol_in (abfd,\n+\t\t\t\t       (htab->elf.dynsym->contents\n+\t\t\t\t\t+ r_symndx * bed->s->sizeof_sym),\n+\t\t\t\t       0, &sym))\n+\t    abort ();\n+\n+\t  if (ELF_ST_TYPE (sym.st_info) == STT_GNU_IFUNC)\n+\t    return reloc_class_ifunc;\n+\t}\n+    }\n+\n   switch ((int) ELF64_R_TYPE (rela->r_info))\n     {\n+    case R_SPARC_IRELATIVE:\n+      return reloc_class_ifunc;\n     case R_SPARC_RELATIVE:\n       return reloc_class_relative;\n     case R_SPARC_JMP_SLOT:"
+    }
+  ]
+}

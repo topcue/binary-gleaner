@@ -1,0 +1,182 @@
+{
+  "sha": "6caa91b6e58a563be7eeb2844fd2622158d78354",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6NmNhYTkxYjZlNThhNTYzYmU3ZWViMjg0NGZkMjYyMjE1OGQ3ODM1NA==",
+  "commit": {
+    "author": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2019-02-20T02:10:18Z"
+    },
+    "committer": {
+      "name": "Simon Marchi",
+      "email": "simon.marchi@polymtl.ca",
+      "date": "2019-02-20T02:13:21Z"
+    },
+    "message": "Fix error message and use-after-free on errors in nested sourced files\n\nErrors that happen in nested sourced files (when a sourced file sources\nanother file) lead to a wrong error message, or use-after-free.\n\nFor example, if I put this in \"a.gdb\":\n\n    command_that_doesnt_exist\n\nand this in \"b.gdb\":\n\n   source a.gdb\n\nand try to \"source b.gdb\" in GDB, the result may look like this:\n\n    (gdb) source b.gdb\n    b.gdb:1: Error in sourced command file:\n    _that_doesnt_exist:1: Error in sourced command file:\n    Undefined command: \"command_that_doesnt_exist\".  Try \"help\".\n\nNotice the wrong file name where \"a.gdb\" should be.  The exact result\nmay differ, depending on the feelings of the memory allocator.\n\nWhat happens is:\n\n- The \"source a.gdb\" command is saved by command_line_append_input_line\n  in command_line_input's static buffer.\n- Since we are sourcing a file, the script_from_file function stores the\n  script name (a.gdb) in the source_file_name global.  However, it doesn't\n  do a copy, it just saves a pointer to command_line_input's static buffer.\n- The \"command_that_doesnt_exist\" command is saved by\n  command_line_append_input_line in command_line_input's static buffer.\n  Depending on what xrealloc does, source_file_name may now point to\n  freed memory, or at the minimum the data it was pointing to was\n  overwritten.\n- When the error is handled in script_from_file, we dererence\n  source_file_name to print the name of the file in which the error\n  occured.\n\nTo fix it, I made source_file_name an std::string, so that keeps a copy of\nthe file name instead of pointing to a buffer with a too small\nlifetime.\n\nWith this patch, the expected filename is printed, and no use-after-free\noccurs:\n\n    (gdb) source b.gdb\n    b.gdb:1: Error in sourced command file:\n    a.gdb:1: Error in sourced command file:\n    Undefined command: \"command_that_doesnt_exist\".  Try \"help\".\n\nI passed explicit template parameters to make_scoped_restore\n(<std::string, const std::string &>), so that the second parameter is\npassed by reference and avoid a copy.\n\nIt was not as obvious as I first thought to change gdb.base/source.exp\nto test this, because source commands inside sourced files are\ninterpreted relative to GDB's current working directory, not the\ndirectory of the currently sourced file.  As a workaround, I moved the\nsnippet that tests errors after the snippet that adds the source\ndirectory to the search path.  This way, the \"source source-error-1.gdb\"\nline in source-error.exp manages to find the file.\n\nFor reference, here is what ASAN reports when use-after-free occurs:\n\n(gdb) source b.gdb\n=================================================================\n==18498==ERROR: AddressSanitizer: heap-use-after-free on address 0x60c000019847 at pc 0x7f1d3645de8e bp 0x7ffdcb892e50 sp 0x7ffdcb8925c8\nREAD of size 6 at 0x60c000019847 thread T0\n    #0 0x7f1d3645de8d in printf_common /build/gcc/src/gcc/libsanitizer/sanitizer_common/sanitizer_common_interceptors_format.inc:546\n    #1 0x7f1d36477175 in __interceptor_vasprintf /build/gcc/src/gcc/libsanitizer/sanitizer_common/sanitizer_common_interceptors.inc:1525\n    #2 0x5632eaffa277 in xstrvprintf(char const*, __va_list_tag*) /home/simark/src/binutils-gdb/gdb/common/common-utils.c:122\n    #3 0x5632eaff96d1 in throw_it /home/simark/src/binutils-gdb/gdb/common/common-exceptions.c:351\n    #4 0x5632eaff98df in throw_verror(errors, char const*, __va_list_tag*) /home/simark/src/binutils-gdb/gdb/common/common-exceptions.c:379\n    #5 0x5632eaff9a2a in throw_error(errors, char const*, ...) /home/simark/src/binutils-gdb/gdb/common/common-exceptions.c:394\n    #6 0x5632eafca21a in script_from_file(_IO_FILE*, char const*) /home/simark/src/binutils-gdb/gdb/cli/cli-script.c:1553\n    #7 0x5632eaf8a500 in source_script_from_stream /home/simark/src/binutils-gdb/gdb/cli/cli-cmds.c:569\n    #8 0x5632eaf8a735 in source_script_with_search /home/simark/src/binutils-gdb/gdb/cli/cli-cmds.c:605\n    #9 0x5632eaf8ab20 in source_command /home/simark/src/binutils-gdb/gdb/cli/cli-cmds.c:664\n    #10 0x5632eafa8b4a in do_const_cfunc /home/simark/src/binutils-gdb/gdb/cli/cli-decode.c:106\n    #11 0x5632eafb0687 in cmd_func(cmd_list_element*, char const*, int) /home/simark/src/binutils-gdb/gdb/cli/cli-decode.c:1892\n    #12 0x5632ebf3dd87 in execute_command(char const*, int) /home/simark/src/binutils-gdb/gdb/top.c:630\n    #13 0x5632eb3b25d3 in command_handler(char const*) /home/simark/src/binutils-gdb/gdb/event-top.c:583\n    #14 0x5632ebf3cf09 in read_command_file(_IO_FILE*) /home/simark/src/binutils-gdb/gdb/top.c:425\n    #15 0x5632eafca054 in script_from_file(_IO_FILE*, char const*) /home/simark/src/binutils-gdb/gdb/cli/cli-script.c:1547\n    #16 0x5632eaf8a500 in source_script_from_stream /home/simark/src/binutils-gdb/gdb/cli/cli-cmds.c:569\n    #17 0x5632eaf8a735 in source_script_with_search /home/simark/src/binutils-gdb/gdb/cli/cli-cmds.c:605\n    #18 0x5632eaf8ab20 in source_command /home/simark/src/binutils-gdb/gdb/cli/cli-cmds.c:664\n    #19 0x5632eafa8b4a in do_const_cfunc /home/simark/src/binutils-gdb/gdb/cli/cli-decode.c:106\n    #20 0x5632eafb0687 in cmd_func(cmd_list_element*, char const*, int) /home/simark/src/binutils-gdb/gdb/cli/cli-decode.c:1892\n    #21 0x5632ebf3dd87 in execute_command(char const*, int) /home/simark/src/binutils-gdb/gdb/top.c:630\n    #22 0x5632eb3b25d3 in command_handler(char const*) /home/simark/src/binutils-gdb/gdb/event-top.c:583\n    #23 0x5632eb3b2f87 in command_line_handler(std::unique_ptr<char, gdb::xfree_deleter<char> >&&) /home/simark/src/binutils-gdb/gdb/event-top.c:770\n    #24 0x5632eb3b0fe1 in gdb_rl_callback_handler /home/simark/src/binutils-gdb/gdb/event-top.c:213\n    #25 0x5632ec1c8729 in rl_callback_read_char /home/simark/src/binutils-gdb/readline/callback.c:220\n    #26 0x5632eb3b0b8f in gdb_rl_callback_read_char_wrapper_noexcept /home/simark/src/binutils-gdb/gdb/event-top.c:175\n    #27 0x5632eb3b0da1 in gdb_rl_callback_read_char_wrapper /home/simark/src/binutils-gdb/gdb/event-top.c:192\n    #28 0x5632eb3b2186 in stdin_event_handler(int, void*) /home/simark/src/binutils-gdb/gdb/event-top.c:511\n    #29 0x5632eb3aa6a9 in handle_file_event /home/simark/src/binutils-gdb/gdb/event-loop.c:733\n    #30 0x5632eb3aaf41 in gdb_wait_for_event /home/simark/src/binutils-gdb/gdb/event-loop.c:859\n    #31 0x5632eb3a88ea in gdb_do_one_event() /home/simark/src/binutils-gdb/gdb/event-loop.c:347\n    #32 0x5632eb3a89bf in start_event_loop() /home/simark/src/binutils-gdb/gdb/event-loop.c:371\n    #33 0x5632eb76fbfc in captured_command_loop /home/simark/src/binutils-gdb/gdb/main.c:330\n    #34 0x5632eb772ea8 in captured_main /home/simark/src/binutils-gdb/gdb/main.c:1176\n    #35 0x5632eb773071 in gdb_main(captured_main_args*) /home/simark/src/binutils-gdb/gdb/main.c:1192\n    #36 0x5632eabfe7f9 in main /home/simark/src/binutils-gdb/gdb/gdb.c:32\n    #37 0x7f1d3554f222 in __libc_start_main (/usr/lib/libc.so.6+0x24222)\n    #38 0x5632eabfe5dd in _start (/home/simark/build/binutils-gdb/gdb/gdb+0x195d5dd)\n\n0x60c000019847 is located 7 bytes inside of 128-byte region [0x60c000019840,0x60c0000198c0)\nfreed by thread T0 here:\n    #0 0x7f1d36502491 in __interceptor_realloc /build/gcc/src/gcc/libsanitizer/asan/asan_malloc_linux.cc:105\n    #1 0x5632eaff9f47 in xrealloc /home/simark/src/binutils-gdb/gdb/common/common-utils.c:62\n    #2 0x5632eaff6b44 in buffer_grow(buffer*, char const*, unsigned long) /home/simark/src/binutils-gdb/gdb/common/buffer.c:40\n    #3 0x5632eb3b271d in command_line_append_input_line /home/simark/src/binutils-gdb/gdb/event-top.c:614\n    #4 0x5632eb3b28c6 in handle_line_of_input(buffer*, char const*, int, char const*) /home/simark/src/binutils-gdb/gdb/event-top.c:654\n    #5 0x5632ebf402a6 in command_line_input(char const*, char const*) /home/simark/src/binutils-gdb/gdb/top.c:1252\n    #6 0x5632ebf3cee9 in read_command_file(_IO_FILE*) /home/simark/src/binutils-gdb/gdb/top.c:422\n    #7 0x5632eafca054 in script_from_file(_IO_FILE*, char const*) /home/simark/src/binutils-gdb/gdb/cli/cli-script.c:1547\n    #8 0x5632eaf8a500 in source_script_from_stream /home/simark/src/binutils-gdb/gdb/cli/cli-cmds.c:569\n    #9 0x5632eaf8a735 in source_script_with_search /home/simark/src/binutils-gdb/gdb/cli/cli-cmds.c:605\n    #10 0x5632eaf8ab20 in source_command /home/simark/src/binutils-gdb/gdb/cli/cli-cmds.c:664\n    #11 0x5632eafa8b4a in do_const_cfunc /home/simark/src/binutils-gdb/gdb/cli/cli-decode.c:106\n    #12 0x5632eafb0687 in cmd_func(cmd_list_element*, char const*, int) /home/simark/src/binutils-gdb/gdb/cli/cli-decode.c:1892\n    #13 0x5632ebf3dd87 in execute_command(char const*, int) /home/simark/src/binutils-gdb/gdb/top.c:630\n    #14 0x5632eb3b25d3 in command_handler(char const*) /home/simark/src/binutils-gdb/gdb/event-top.c:583\n    #15 0x5632ebf3cf09 in read_command_file(_IO_FILE*) /home/simark/src/binutils-gdb/gdb/top.c:425\n    #16 0x5632eafca054 in script_from_file(_IO_FILE*, char const*) /home/simark/src/binutils-gdb/gdb/cli/cli-script.c:1547\n    #17 0x5632eaf8a500 in source_script_from_stream /home/simark/src/binutils-gdb/gdb/cli/cli-cmds.c:569\n    #18 0x5632eaf8a735 in source_script_with_search /home/simark/src/binutils-gdb/gdb/cli/cli-cmds.c:605\n    #19 0x5632eaf8ab20 in source_command /home/simark/src/binutils-gdb/gdb/cli/cli-cmds.c:664\n    #20 0x5632eafa8b4a in do_const_cfunc /home/simark/src/binutils-gdb/gdb/cli/cli-decode.c:106\n    #21 0x5632eafb0687 in cmd_func(cmd_list_element*, char const*, int) /home/simark/src/binutils-gdb/gdb/cli/cli-decode.c:1892\n    #22 0x5632ebf3dd87 in execute_command(char const*, int) /home/simark/src/binutils-gdb/gdb/top.c:630\n    #23 0x5632eb3b25d3 in command_handler(char const*) /home/simark/src/binutils-gdb/gdb/event-top.c:583\n    #24 0x5632eb3b2f87 in command_line_handler(std::unique_ptr<char, gdb::xfree_deleter<char> >&&) /home/simark/src/binutils-gdb/gdb/event-top.c:770\n    #25 0x5632eb3b0fe1 in gdb_rl_callback_handler /home/simark/src/binutils-gdb/gdb/event-top.c:213\n    #26 0x5632ec1c8729 in rl_callback_read_char /home/simark/src/binutils-gdb/readline/callback.c:220\n    #27 0x5632eb3b0b8f in gdb_rl_callback_read_char_wrapper_noexcept /home/simark/src/binutils-gdb/gdb/event-top.c:175\n    #28 0x5632eb3b0da1 in gdb_rl_callback_read_char_wrapper /home/simark/src/binutils-gdb/gdb/event-top.c:192\n    #29 0x5632eb3b2186 in stdin_event_handler(int, void*) /home/simark/src/binutils-gdb/gdb/event-top.c:511\n\npreviously allocated by thread T0 here:\n    #0 0x7f1d36502491 in __interceptor_realloc /build/gcc/src/gcc/libsanitizer/asan/asan_malloc_linux.cc:105\n    #1 0x5632eaff9f47 in xrealloc /home/simark/src/binutils-gdb/gdb/common/common-utils.c:62\n    #2 0x5632eaff6b44 in buffer_grow(buffer*, char const*, unsigned long) /home/simark/src/binutils-gdb/gdb/common/buffer.c:40\n    #3 0x5632eb3b271d in command_line_append_input_line /home/simark/src/binutils-gdb/gdb/event-top.c:614\n    #4 0x5632eb3b28c6 in handle_line_of_input(buffer*, char const*, int, char const*) /home/simark/src/binutils-gdb/gdb/event-top.c:654\n    #5 0x5632ebf402a6 in command_line_input(char const*, char const*) /home/simark/src/binutils-gdb/gdb/top.c:1252\n    #6 0x5632ebf3cee9 in read_command_file(_IO_FILE*) /home/simark/src/binutils-gdb/gdb/top.c:422\n    #7 0x5632eafca054 in script_from_file(_IO_FILE*, char const*) /home/simark/src/binutils-gdb/gdb/cli/cli-script.c:1547\n    #8 0x5632eaf8a500 in source_script_from_stream /home/simark/src/binutils-gdb/gdb/cli/cli-cmds.c:569\n    #9 0x5632eaf8a735 in source_script_with_search /home/simark/src/binutils-gdb/gdb/cli/cli-cmds.c:605\n    #10 0x5632eaf8ab20 in source_command /home/simark/src/binutils-gdb/gdb/cli/cli-cmds.c:664\n    #11 0x5632eafa8b4a in do_const_cfunc /home/simark/src/binutils-gdb/gdb/cli/cli-decode.c:106\n    #12 0x5632eafb0687 in cmd_func(cmd_list_element*, char const*, int) /home/simark/src/binutils-gdb/gdb/cli/cli-decode.c:1892\n    #13 0x5632ebf3dd87 in execute_command(char const*, int) /home/simark/src/binutils-gdb/gdb/top.c:630\n    #14 0x5632eb3b25d3 in command_handler(char const*) /home/simark/src/binutils-gdb/gdb/event-top.c:583\n    #15 0x5632eb3b2f87 in command_line_handler(std::unique_ptr<char, gdb::xfree_deleter<char> >&&) /home/simark/src/binutils-gdb/gdb/event-top.c:770\n    #16 0x5632eb3b0fe1 in gdb_rl_callback_handler /home/simark/src/binutils-gdb/gdb/event-top.c:213\n    #17 0x5632ec1c8729 in rl_callback_read_char /home/simark/src/binutils-gdb/readline/callback.c:220\n    #18 0x5632eb3b0b8f in gdb_rl_callback_read_char_wrapper_noexcept /home/simark/src/binutils-gdb/gdb/event-top.c:175\n    #19 0x5632eb3b0da1 in gdb_rl_callback_read_char_wrapper /home/simark/src/binutils-gdb/gdb/event-top.c:192\n    #20 0x5632eb3b2186 in stdin_event_handler(int, void*) /home/simark/src/binutils-gdb/gdb/event-top.c:511\n    #21 0x5632eb3aa6a9 in handle_file_event /home/simark/src/binutils-gdb/gdb/event-loop.c:733\n    #22 0x5632eb3aaf41 in gdb_wait_for_event /home/simark/src/binutils-gdb/gdb/event-loop.c:859\n    #23 0x5632eb3a88ea in gdb_do_one_event() /home/simark/src/binutils-gdb/gdb/event-loop.c:347\n    #24 0x5632eb3a89bf in start_event_loop() /home/simark/src/binutils-gdb/gdb/event-loop.c:371\n    #25 0x5632eb76fbfc in captured_command_loop /home/simark/src/binutils-gdb/gdb/main.c:330\n    #26 0x5632eb772ea8 in captured_main /home/simark/src/binutils-gdb/gdb/main.c:1176\n    #27 0x5632eb773071 in gdb_main(captured_main_args*) /home/simark/src/binutils-gdb/gdb/main.c:1192\n    #28 0x5632eabfe7f9 in main /home/simark/src/binutils-gdb/gdb/gdb.c:32\n    #29 0x7f1d3554f222 in __libc_start_main (/usr/lib/libc.so.6+0x24222)\n\nSUMMARY: AddressSanitizer: heap-use-after-free /build/gcc/src/gcc/libsanitizer/sanitizer_common/sanitizer_common_interceptors_format.inc:546 in printf_common\n\ngdb/ChangeLog:\n\n\t* top.h (source_file_name): Change to std::string.\n\t* top.c (source_file_name): Likewise.\n\t(command_line_input): Adjust.\n\t* cli/cli-script.c (script_from_file): Adjust.\n\ngdb/testsuite/ChangeLog:\n\n\t* gdb.base/source.exp: Move \"error in sourced script\" code to\n\tthe end.\n\t* gdb.base/source-error.gdb: Move contents to\n\tsource-error-1.gdb.  Add new code to source source-error-1.gdb.\n\t* gdb.base/source-error-1.gdb: New file, from previous\n\tsource-error.gdb.",
+    "tree": {
+      "sha": "c12dfa40beede1cab9819e31e4d903388b79a382",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c12dfa40beede1cab9819e31e4d903388b79a382"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/6caa91b6e58a563be7eeb2844fd2622158d78354",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6caa91b6e58a563be7eeb2844fd2622158d78354",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/6caa91b6e58a563be7eeb2844fd2622158d78354",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/6caa91b6e58a563be7eeb2844fd2622158d78354/comments",
+  "author": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "simark",
+    "id": 1758287,
+    "node_id": "MDQ6VXNlcjE3NTgyODc=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1758287?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/simark",
+    "html_url": "https://github.com/simark",
+    "followers_url": "https://api.github.com/users/simark/followers",
+    "following_url": "https://api.github.com/users/simark/following{/other_user}",
+    "gists_url": "https://api.github.com/users/simark/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/simark/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/simark/subscriptions",
+    "organizations_url": "https://api.github.com/users/simark/orgs",
+    "repos_url": "https://api.github.com/users/simark/repos",
+    "events_url": "https://api.github.com/users/simark/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/simark/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "8abac8031ed369a2734b1cdb7df28a39a54b4b49",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/8abac8031ed369a2734b1cdb7df28a39a54b4b49",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/8abac8031ed369a2734b1cdb7df28a39a54b4b49"
+    }
+  ],
+  "stats": {
+    "total": 73,
+    "additions": 58,
+    "deletions": 15
+  },
+  "files": [
+    {
+      "sha": "eb855819e7c86aa1fb77ed3d0134d67960db6177",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6caa91b6e58a563be7eeb2844fd2622158d78354/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6caa91b6e58a563be7eeb2844fd2622158d78354/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=6caa91b6e58a563be7eeb2844fd2622158d78354",
+      "patch": "@@ -1,3 +1,10 @@\n+2019-02-19  Simon Marchi  <simon.marchi@polymtl.ca>\n+\n+\t* top.h (source_file_name): Change to std::string.\n+\t* top.c (source_file_name): Likewise.\n+\t(command_line_input): Adjust.\n+\t* cli/cli-script.c (script_from_file): Adjust.\n+\n 2019-02-19  Tom Tromey  <tromey@adacore.com>\n \n \t* ravenscar-thread.c"
+    },
+    {
+      "sha": "85f00c75b3ff28f039e429382a78efdffd31bfe1",
+      "filename": "gdb/cli/cli-script.c",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 3,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6caa91b6e58a563be7eeb2844fd2622158d78354/gdb/cli/cli-script.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6caa91b6e58a563be7eeb2844fd2622158d78354/gdb/cli/cli-script.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/cli/cli-script.c?ref=6caa91b6e58a563be7eeb2844fd2622158d78354",
+      "patch": "@@ -1537,8 +1537,9 @@ script_from_file (FILE *stream, const char *file)\n \n   scoped_restore restore_line_number\n     = make_scoped_restore (&source_line_number, 0);\n-  scoped_restore resotre_file\n-    = make_scoped_restore (&source_file_name, file);\n+  scoped_restore restore_file\n+    = make_scoped_restore<std::string, const std::string &> (&source_file_name,\n+\t\t\t\t\t\t\t     file);\n \n   scoped_restore save_async = make_scoped_restore (&current_ui->async, 0);\n \n@@ -1552,7 +1553,7 @@ script_from_file (FILE *stream, const char *file)\n \t prepended.  */\n       throw_error (e.error,\n \t\t   _(\"%s:%d: Error in sourced command file:\\n%s\"),\n-\t\t   source_file_name, source_line_number, e.message);\n+\t\t   source_file_name.c_str (), source_line_number, e.message);\n     }\n   END_CATCH\n }"
+    },
+    {
+      "sha": "cd2a654ca588e7f51793c06ba3e8e34867b05ca2",
+      "filename": "gdb/testsuite/ChangeLog",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "changes": 9,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6caa91b6e58a563be7eeb2844fd2622158d78354/gdb/testsuite/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6caa91b6e58a563be7eeb2844fd2622158d78354/gdb/testsuite/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/ChangeLog?ref=6caa91b6e58a563be7eeb2844fd2622158d78354",
+      "patch": "@@ -1,3 +1,12 @@\n+2019-02-19  Simon Marchi  <simon.marchi@polymtl.ca>\n+\n+\t* gdb.base/source.exp: Move \"error in sourced script\" code to\n+\tthe end.\n+\t* gdb.base/source-error.gdb: Move contents to\n+\tsource-error-1.gdb.  Add new code to source source-error-1.gdb.\n+\t* gdb.base/source-error-1.gdb: New file, from previous\n+\tsource-error.gdb.\n+\n 2019-02-17  Tom Tromey  <tom@tromey.com>\n \n \t* gdb.base/style.exp: Use -g3 to compile when possible.  Add test"
+    },
+    {
+      "sha": "c879fd2af6f0806d58c5e016f2ac30acd0e10a79",
+      "filename": "gdb/testsuite/gdb.base/source-error-1.gdb",
+      "status": "added",
+      "additions": 22,
+      "deletions": 0,
+      "changes": 22,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6caa91b6e58a563be7eeb2844fd2622158d78354/gdb/testsuite/gdb.base/source-error-1.gdb",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6caa91b6e58a563be7eeb2844fd2622158d78354/gdb/testsuite/gdb.base/source-error-1.gdb",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/source-error-1.gdb?ref=6caa91b6e58a563be7eeb2844fd2622158d78354",
+      "patch": "@@ -0,0 +1,22 @@\n+# This testcase is part of GDB, the GNU debugger.\n+\n+# Copyright 2005-2019 Free Software Foundation, Inc.\n+\n+# This program is free software; you can redistribute it and/or modify\n+# it under the terms of the GNU General Public License as published by\n+# the Free Software Foundation; either version 3 of the License, or\n+# (at your option) any later version.\n+#\n+# This program is distributed in the hope that it will be useful,\n+# but WITHOUT ANY WARRANTY; without even the implied warranty of\n+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n+# GNU General Public License for more details.\n+#\n+# You should have received a copy of the GNU General Public License\n+# along with this program.  If not, see <http://www.gnu.org/licenses/>.\n+\n+# Test GDB's \"source\" command - reads in a GDB script.\n+\n+echo working line\\n\n+x 0\n+echo should not reach this line\\n"
+    },
+    {
+      "sha": "85e0d9f8cf110c5d0ac0774302fd19c7b92c99cb",
+      "filename": "gdb/testsuite/gdb.base/source-error.gdb",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 4,
+      "changes": 6,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6caa91b6e58a563be7eeb2844fd2622158d78354/gdb/testsuite/gdb.base/source-error.gdb",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6caa91b6e58a563be7eeb2844fd2622158d78354/gdb/testsuite/gdb.base/source-error.gdb",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/source-error.gdb?ref=6caa91b6e58a563be7eeb2844fd2622158d78354",
+      "patch": "@@ -1,6 +1,6 @@\n # This testcase is part of GDB, the GNU debugger.\n \n-# Copyright 2005-2019 Free Software Foundation, Inc.\n+# Copyright 2019 Free Software Foundation, Inc.\n \n # This program is free software; you can redistribute it and/or modify\n # it under the terms of the GNU General Public License as published by\n@@ -17,6 +17,4 @@\n \n # Test GDB's \"source\" command - reads in a GDB script.\n \n-echo working line\\n\n-x 0\n-echo should not reach this line\\n\n+source source-error-1.gdb"
+    },
+    {
+      "sha": "a8fef098f10027be386f5fb2c01495a8b74a8e2a",
+      "filename": "gdb/testsuite/gdb.base/source.exp",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 5,
+      "changes": 16,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6caa91b6e58a563be7eeb2844fd2622158d78354/gdb/testsuite/gdb.base/source.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6caa91b6e58a563be7eeb2844fd2622158d78354/gdb/testsuite/gdb.base/source.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/testsuite/gdb.base/source.exp?ref=6caa91b6e58a563be7eeb2844fd2622158d78354",
+      "patch": "@@ -23,10 +23,6 @@ standard_testfile structs.c\n \n gdb_start\n \n-gdb_test \"source ${srcdir}/${subdir}/source-error.gdb\" \\\n-    \"source-error.gdb:21: Error in sourced command file:\\[\\r\\n\\]*Cannot access memory at address 0x0.*\" \\\n-    \"script contains error\"\n-\n gdb_test \"source -v ${srcdir}/${subdir}/source-test.gdb\" \\\n     \"echo test source options.*\" \\\n     \"source -v\"\n@@ -66,4 +62,14 @@ gdb_test \"source for-sure-nonexistant-file\" \\\n gdb_test \"source source-nofile.gdb\" \\\n          \"warning: for-sure-nonexistant-file: No such file or directory\\.\\[\\r\\n\\]*source error not fatal\"\n \n-gdb_exit\n+\n+# Test commands that error out in sourced files, including in nested sourced\n+# files.\n+#\n+# This needs to come after the \"dir\" command tested above for source-error.gdb\n+# to find source-error-1.gdb.\n+gdb_test \"source ${srcdir}/${subdir}/source-error.gdb\" \\\n+    [multi_line \".*source-error.gdb:20: Error in sourced command file:\" \\\n+\t\t\"source-error-1.gdb:21: Error in sourced command file:\" \\\n+\t\t\"Cannot access memory at address 0x0\" ] \\\n+    \"script contains error\""
+    },
+    {
+      "sha": "22e6f7e29ab9421906bc17d7a17e56e35636372b",
+      "filename": "gdb/top.c",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6caa91b6e58a563be7eeb2844fd2622158d78354/gdb/top.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6caa91b6e58a563be7eeb2844fd2622158d78354/gdb/top.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/top.c?ref=6caa91b6e58a563be7eeb2844fd2622158d78354",
+      "patch": "@@ -400,7 +400,7 @@ quit_cover (void)\n /* NOTE 1999-04-29: This variable will be static again, once we modify\n    gdb to use the event loop as the default command loop and we merge\n    event-top.c into this file, top.c.  */\n-/* static */ const char *source_file_name;\n+/* static */ std::string source_file_name;\n \n /* Read commands from STREAM.  */\n void\n@@ -1221,7 +1221,7 @@ command_line_input (const char *prompt_arg, const char *annotation_suffix)\n       gdb_flush (gdb_stdout);\n       gdb_flush (gdb_stderr);\n \n-      if (source_file_name != NULL)\n+      if (!source_file_name.empty ())\n \t++source_line_number;\n \n       if (from_tty && annotation_level > 1)"
+    },
+    {
+      "sha": "025d9389d601cd3c19f839a470178e48b5172f26",
+      "filename": "gdb/top.h",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/6caa91b6e58a563be7eeb2844fd2622158d78354/gdb/top.h",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/6caa91b6e58a563be7eeb2844fd2622158d78354/gdb/top.h",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/top.h?ref=6caa91b6e58a563be7eeb2844fd2622158d78354",
+      "patch": "@@ -281,7 +281,7 @@ extern void gdb_init (char *);\n /* For use by event-top.c.  */\n /* Variables from top.c.  */\n extern int source_line_number;\n-extern const char *source_file_name;\n+extern std::string source_file_name;\n extern int history_expansion_p;\n extern int server_command;\n extern char *lim_at_start;"
+    }
+  ]
+}

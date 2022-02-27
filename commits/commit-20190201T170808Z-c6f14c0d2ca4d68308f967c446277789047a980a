@@ -1,0 +1,108 @@
+{
+  "sha": "c6f14c0d2ca4d68308f967c446277789047a980a",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6YzZmMTRjMGQyY2E0ZDY4MzA4Zjk2N2M0NDYyNzc3ODkwNDdhOTgwYQ==",
+  "commit": {
+    "author": {
+      "name": "John Darrington",
+      "email": "john@darrington.wattle.id.au",
+      "date": "2019-02-01T16:42:54Z"
+    },
+    "committer": {
+      "name": "John Darrington",
+      "email": "john@darrington.wattle.id.au",
+      "date": "2019-02-01T17:08:08Z"
+    },
+    "message": "S12Z: GAS: Allow #_symbol operands as mov source\n\nmov.l, mov.p and mov.w (but not mov.b) when called with an immediate source\noperand should be accepted a relocatable expression.  This change makes that\npossible.\n\ngas/\n\t* config/tc-s12z.c (lex_imm): Add new argument exp_o.\n\t(emit_reloc): New function.\n\t(md_apply_fix): [BFD_RELOC_S12Z_OPR] Recognise that it\n\tcan be either 2 bytes or 3 bytes long.\n\t* testsuite/gas/s12z/mov-imm-reloc.d: New file.\n\t* testsuite/gas/s12z/mov-imm-reloc.s: New file.\n\t* testsuite/gas/s12z/s12z.exp: Add them.",
+    "tree": {
+      "sha": "c07f41f2cd76f9b11458e80f73568fca72a06b2c",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/c07f41f2cd76f9b11458e80f73568fca72a06b2c"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/c6f14c0d2ca4d68308f967c446277789047a980a",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c6f14c0d2ca4d68308f967c446277789047a980a",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/c6f14c0d2ca4d68308f967c446277789047a980a",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/c6f14c0d2ca4d68308f967c446277789047a980a/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "91bae99160e9d81cfe340b937f9613d43dc90293",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/91bae99160e9d81cfe340b937f9613d43dc90293",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/91bae99160e9d81cfe340b937f9613d43dc90293"
+    }
+  ],
+  "stats": {
+    "total": 150,
+    "additions": 115,
+    "deletions": 35
+  },
+  "files": [
+    {
+      "sha": "02596670033a8fde75f09413ca74e7242376e594",
+      "filename": "gas/ChangeLog",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c6f14c0d2ca4d68308f967c446277789047a980a/gas/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c6f14c0d2ca4d68308f967c446277789047a980a/gas/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/ChangeLog?ref=c6f14c0d2ca4d68308f967c446277789047a980a",
+      "patch": "@@ -1,3 +1,13 @@\n+2019-01-31  John Darrington <john@darrington.wattle.id.au>\n+\n+        * config/tc-s12z.c (lex_imm): Add new argument exp_o.\n+\t(emit_reloc): New function.\n+\t(md_apply_fix): [BFD_RELOC_S12Z_OPR] Recognise that it\n+\tcan be either 2 bytes or 3 bytes long.\n+\t* testsuite/gas/s12z/mov-imm-reloc.d: New file.\n+\t* testsuite/gas/s12z/mov-imm-reloc.s: New file.\n+\t* testsuite/gas/s12z/s12z.exp: Add them.\n+\n 2019-01-31  John Darrington <john@darrington.wattle.id.au>\n \n \t* config/tc-s12z.c (md_apply_fix): Fix incorrect limits."
+    },
+    {
+      "sha": "bc1bb5c382744fb0f760b75ac4532e179db62b3e",
+      "filename": "gas/config/tc-s12z.c",
+      "status": "modified",
+      "additions": 79,
+      "deletions": 35,
+      "changes": 114,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c6f14c0d2ca4d68308f967c446277789047a980a/gas/config/tc-s12z.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c6f14c0d2ca4d68308f967c446277789047a980a/gas/config/tc-s12z.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/config/tc-s12z.c?ref=c6f14c0d2ca4d68308f967c446277789047a980a",
+      "patch": "@@ -227,9 +227,12 @@ lex_expression (expressionS *exp)\n   return 0;\n }\n \n-/* immediate operand */\n+/* Immediate operand.\n+   If EXP_O is non-null, then a symbolic expression is permitted,\n+   in which case, EXP_O will be populated with the parsed expression.\n+ */\n static int\n-lex_imm (long *v)\n+lex_imm (long *v, expressionS *exp_o)\n {\n   char *ilp = input_line_pointer;\n \n@@ -242,7 +245,12 @@ lex_imm (long *v)\n     goto fail;\n \n   if (exp.X_op != O_constant)\n-    goto fail;\n+    {\n+      if (!exp_o)\n+        as_bad (_(\"A non-constant expression is not permitted here\"));\n+      else\n+        *exp_o = exp;\n+    }\n \n   *v = exp.X_add_number;\n   return 1;\n@@ -258,7 +266,7 @@ static int\n lex_imm_e4 (long *val)\n {\n   char *ilp = input_line_pointer;\n-  if ((lex_imm (val)))\n+  if ((lex_imm (val, NULL)))\n     {\n       if ((*val == -1) || (*val > 0 && *val <= 15))\n \t{\n@@ -731,26 +739,35 @@ no_operands (const struct instruction *insn)\n   return 1;\n }\n \n-/* Emit the code for an OPR address mode operand */\n-static char *\n-emit_opr (char *f, const uint8_t *buffer, int n_bytes, expressionS *exp)\n+\n+static void\n+emit_reloc (expressionS *exp, char *f, int size, enum bfd_reloc_code_real reloc)\n {\n-  int i;\n-  number_to_chars_bigendian (f++, buffer[0], 1);\n   if (exp->X_op != O_absent && exp->X_op != O_constant)\n     {\n       fixS *fix = fix_new_exp (frag_now,\n \t\t\t       f - frag_now->fr_literal,\n-\t\t\t       3,\n+\t\t\t       size,\n \t\t\t       exp,\n \t\t\t       FALSE,\n-\t\t\t       BFD_RELOC_S12Z_OPR);\n+                               reloc);\n       /* Some third party tools seem to use the lower bits\n-\tof this addend for flags.   They don't get added\n-\tto the final location.   The purpose of these flags\n-\tis not known.  We simply set it to zero.  */\n+         of this addend for flags.   They don't get added\n+         to the final location.   The purpose of these flags\n+         is not known.  We simply set it to zero.  */\n       fix->fx_addnumber = 0x00;\n     }\n+}\n+\n+/* Emit the code for an OPR address mode operand */\n+static char *\n+emit_opr (char *f, const uint8_t *buffer, int n_bytes, expressionS *exp)\n+{\n+  int i;\n+  number_to_chars_bigendian (f++, buffer[0], 1);\n+\n+  emit_reloc (exp, f, 3, BFD_RELOC_S12Z_OPR);\n+\n   for (i = 1; i < n_bytes; ++i)\n     number_to_chars_bigendian (f++,  buffer[i], 1);\n \n@@ -1037,7 +1054,7 @@ mul_reg_reg_imm (const struct instruction *insn)\n     goto fail;\n \n   long imm;\n-  if (!lex_imm (&imm))\n+  if (!lex_imm (&imm, NULL))\n     goto fail;\n \n \n@@ -1349,7 +1366,7 @@ static int\n imm8 (const struct instruction *insn)\n {\n   long imm;\n-  if (! lex_imm (&imm))\n+  if (! lex_imm (&imm, NULL))\n     return 0;\n   if (imm > 127 || imm < -128)\n     {\n@@ -1374,7 +1391,7 @@ reg_imm (const struct instruction *insn, int allowed_reg)\n       if (!lex_force_match (','))\n \tgoto fail;\n       long imm;\n-      if (! lex_imm (&imm))\n+      if (! lex_imm (&imm, NULL))\n \tgoto fail;\n \n       short size = registers[reg].bytes;\n@@ -1417,7 +1434,7 @@ static int\n trap_imm (const struct instruction *insn ATTRIBUTE_UNUSED)\n {\n   long imm = -1;\n-  if (! lex_imm (&imm))\n+  if (! lex_imm (&imm, NULL))\n     goto fail;\n \n   if (imm < 0x92 || imm > 0xFF ||\n@@ -1619,27 +1636,40 @@ imm_opr  (const struct instruction *insn)\n {\n   char *ilp = input_line_pointer;\n   long imm;\n-  if (!lex_imm (&imm))\n+  expressionS exp0;\n+  int size = size_from_suffix (insn, 0);\n+  exp0.X_op = O_absent;\n+\n+  /* Note:  The ternary expression below means that \"MOV.x #symbol,\n+     mem-expr\"  is accepted when x is a member of {'w', 'p', 'l'} but\n+     not when it is 'b'.\n+     The Freescale assembler accepts \"MOV.b #symbol, mem-expr\" but\n+     produces obviously incorrect code.    Since such an instruction\n+     would require an 8-bit reloc (which we don't have) and some\n+     non-optimal kludges in the OPR encoding, it seems sensible that\n+     such instructions should be rejected.  */\n+  if (!lex_imm (&imm, size > 1 ? &exp0 : NULL))\n     goto fail;\n \n   if (!lex_match (','))\n     goto fail;\n \n   uint8_t buffer[4];\n   int n_bytes;\n-  expressionS exp;\n-  if (!lex_opr (buffer, &n_bytes, &exp, false))\n+  expressionS exp1;\n+  if (!lex_opr (buffer, &n_bytes, &exp1, false))\n     goto fail;\n \n-  int size = size_from_suffix (insn, 0);\n   char *f = s12z_new_insn (1 + n_bytes + size);\n   number_to_chars_bigendian (f++, insn->opc, 1);\n \n+  emit_reloc (&exp0, f, size, size == 4 ? BFD_RELOC_32 : BFD_RELOC_S12Z_OPR);\n+\n   int i;\n   for (i = 0; i < size; ++i)\n     number_to_chars_bigendian (f++, imm >> (CHAR_BIT * (size - i - 1)), 1);\n \n-  emit_opr (f, buffer, n_bytes, &exp);\n+  emit_opr (f, buffer, n_bytes, &exp1);\n \n   return 1;\n \n@@ -1771,7 +1801,7 @@ lex_shift_reg_imm1  (const struct instruction *insn, short type, short dir)\n     goto fail;\n \n   long imm = -1;\n-  if (!lex_imm (&imm))\n+  if (!lex_imm (&imm, NULL))\n     goto fail;\n \n   if (imm != 1 && imm != 2)\n@@ -1847,7 +1877,7 @@ lex_shift_reg  (const struct instruction *insn, short type, short dir)\n \n       return 1;\n     }\n-  else if (lex_imm (&imm))\n+  else if (lex_imm (&imm, NULL))\n     {\n       if (imm < 0 || imm > 31)\n \t{\n@@ -1942,7 +1972,7 @@ shift_two_operand  (const struct instruction *insn)\n     goto fail;\n \n   long imm = -1;\n-  if (!lex_imm (&imm))\n+  if (!lex_imm (&imm, NULL))\n     goto fail;\n \n   if (imm != 1 && imm != 2)\n@@ -1999,7 +2029,7 @@ shift_opr_imm  (const struct instruction *insn)\n   expressionS exp2;\n   long imm;\n   bool immediate = false;\n-  if (lex_imm (&imm))\n+  if (lex_imm (&imm, NULL))\n     {\n       immediate = true;\n     }\n@@ -2087,7 +2117,7 @@ bm_regd_imm  (const struct instruction *insn)\n     goto fail;\n \n   long imm;\n-  if (!lex_imm (&imm))\n+  if (!lex_imm (&imm, NULL))\n     goto fail;\n \n \n@@ -2162,7 +2192,7 @@ bm_opr_imm  (const struct instruction *insn)\n \n \n   long imm;\n-  if (!lex_imm (&imm))\n+  if (!lex_imm (&imm, NULL))\n     goto fail;\n \n   int size = size_from_suffix (insn, 0);\n@@ -2255,7 +2285,7 @@ bf_reg_opr_imm  (const struct instruction *insn, short ie)\n     goto fail;\n \n   long width;\n-  if (!lex_imm (&width))\n+  if (!lex_imm (&width, NULL))\n     goto fail;\n \n   if (width < 0 || width > 31)\n@@ -2324,7 +2354,7 @@ bf_opr_reg_imm  (const struct instruction *insn, short ie)\n     goto fail;\n \n   long width;\n-  if (!lex_imm (&width))\n+  if (!lex_imm (&width, NULL))\n     goto fail;\n \n   if (width < 0 || width > 31)\n@@ -2392,7 +2422,7 @@ bf_reg_reg_imm  (const struct instruction *insn, short ie)\n     goto fail;\n \n   long width;\n-  if (!lex_imm (&width))\n+  if (!lex_imm (&width, NULL))\n     goto fail;\n \n   if (width < 0 || width > 31)\n@@ -2909,7 +2939,7 @@ test_br_opr_imm_rel  (const struct instruction *insn)\n     goto fail;\n \n   long imm;\n-  if (!lex_imm (&imm))\n+  if (!lex_imm (&imm, NULL))\n     goto fail;\n \n   if (imm < 0 || imm > 31)\n@@ -2962,7 +2992,7 @@ test_br_reg_imm_rel  (const struct instruction *insn)\n     goto fail;\n \n   long imm;\n-  if (!lex_imm (&imm))\n+  if (!lex_imm (&imm, NULL))\n     goto fail;\n \n   if (imm < 0 || imm > 31)\n@@ -3846,9 +3876,23 @@ md_apply_fix (fixS *fixP, valueT *valP, segT seg ATTRIBUTE_UNUSED)\n       bfd_putb16 ((bfd_vma) value, (unsigned char *) where);\n       break;\n     case BFD_RELOC_24:\n-    case BFD_RELOC_S12Z_OPR:\n       bfd_putb24 ((bfd_vma) value, (unsigned char *) where);\n       break;\n+    case BFD_RELOC_S12Z_OPR:\n+      {\n+        switch (fixP->fx_size)\n+          {\n+          case 3:\n+            bfd_putb24 ((bfd_vma) value, (unsigned char *) where);\n+            break;\n+          case 2:\n+            bfd_putb16 ((bfd_vma) value, (unsigned char *) where);\n+            break;\n+          default:\n+            abort ();\n+          }\n+      }\n+      break;\n     case BFD_RELOC_32:\n       bfd_putb32 ((bfd_vma) value, (unsigned char *) where);\n       break;"
+    },
+    {
+      "sha": "76048ec96bca0ba6502c8f8892719ba99e67822a",
+      "filename": "gas/testsuite/gas/s12z/mov-imm-reloc.d",
+      "status": "added",
+      "additions": 20,
+      "deletions": 0,
+      "changes": 20,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c6f14c0d2ca4d68308f967c446277789047a980a/gas/testsuite/gas/s12z/mov-imm-reloc.d",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c6f14c0d2ca4d68308f967c446277789047a980a/gas/testsuite/gas/s12z/mov-imm-reloc.d",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/s12z/mov-imm-reloc.d?ref=c6f14c0d2ca4d68308f967c446277789047a980a",
+      "patch": "@@ -0,0 +1,20 @@\n+#objdump: -d -r\n+#name:    MOV instructions involving immediate operands which are relocatable expressions\n+#source:  mov-imm-reloc.s\n+\n+\n+.*:     file format elf32-s12z\n+\n+\n+Disassembly of section .text:\n+\n+00000000 <.text>:\n+   0:\t0e 00 00 03 \tmov.p #3, \\(0,s\\)\n+   4:\t60 \n+\t\t\t1: R_S12Z_OPR\txxx\n+   5:\t0d 00 02 60 \tmov.w #2, \\(0,s\\)\n+\t\t\t6: R_S12Z_OPR\txxx\n+   9:\t0f 00 00 00 \tmov.l #1, \\(0,s\\)\n+   d:\t01 60 \n+\t\t\ta: R_S12Z_EXT32\txxx\n+"
+    },
+    {
+      "sha": "ec9f7affd076a04851dae7a779fa3b2bedc12d1e",
+      "filename": "gas/testsuite/gas/s12z/mov-imm-reloc.s",
+      "status": "added",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c6f14c0d2ca4d68308f967c446277789047a980a/gas/testsuite/gas/s12z/mov-imm-reloc.s",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c6f14c0d2ca4d68308f967c446277789047a980a/gas/testsuite/gas/s12z/mov-imm-reloc.s",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/s12z/mov-imm-reloc.s?ref=c6f14c0d2ca4d68308f967c446277789047a980a",
+      "patch": "@@ -0,0 +1,5 @@\n+\t.extern xxx\n+\n+\tmov.p #xxx+3, (0,s)\n+\tmov.w #xxx+2, (0,s)\n+\tmov.l #xxx+1, (0,s)"
+    },
+    {
+      "sha": "612fda765be5468e2347516a93b98718e47f94a9",
+      "filename": "gas/testsuite/gas/s12z/s12z.exp",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/c6f14c0d2ca4d68308f967c446277789047a980a/gas/testsuite/gas/s12z/s12z.exp",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/c6f14c0d2ca4d68308f967c446277789047a980a/gas/testsuite/gas/s12z/s12z.exp",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gas/testsuite/gas/s12z/s12z.exp?ref=c6f14c0d2ca4d68308f967c446277789047a980a",
+      "patch": "@@ -75,6 +75,7 @@ run_dump_test mac\n run_dump_test min-max\n run_dump_test mod\n run_dump_test mov\n+run_dump_test mov-imm-reloc\n run_dump_test p2-mul\n run_dump_test mul-imm\n run_dump_test mul-opr-opr"
+    }
+  ]
+}

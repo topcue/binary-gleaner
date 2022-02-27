@@ -1,0 +1,72 @@
+{
+  "sha": "799efbe8e01ab8292c01f46ac59a6fb2349d4535",
+  "node_id": "MDY6Q29tbWl0MTM4Njg2ODE6Nzk5ZWZiZThlMDFhYjgyOTJjMDFmNDZhYzU5YTZmYjIzNDlkNDUzNQ==",
+  "commit": {
+    "author": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-02-16T13:11:38Z"
+    },
+    "committer": {
+      "name": "Philippe Waroquiers",
+      "email": "philippe.waroquiers@skynet.be",
+      "date": "2019-02-27T21:41:16Z"
+    },
+    "message": "Fix regcache leak, and avoid possible regcache access after detach.\n\nValgrind reports leaks like the below in various tests,\ne.g. gdb.threads/attach-slow-waitpid.exp, gdb.ada/task_switch_in_core.exp, ...\n\nFix the leak by clearing the regcache when detaching from an inferior.\nNote that these leaks are 'created' when GDB exits,\nwhen the regcache::current_regcache is destroyed : the elements\nof the forward_list are pointers, and the 'pointed to' memory is not\ndeleted by the forward_list destructor.\n\nNevertheless, fixing this leak is good as it makes a bunch of\ntests 'leak clean'.\n\nAlso, it seems strange to keep a register cache for a process from\nwhich GDB detached : it is not clear if this cache is still valid\nafter detach.  And effectively, when clearing only the regcache,\n(and not the frame cache), then the frame cache was still 'pointing'\nat this regcache and was used when switching to the child process\nin the test gdb.threads/watchpoint-fork.exp, which seems strange.\n\nSo, we solve the leak and avoid possible accesses to the regcache\nand frame cache of the detached inferior, by clearing both the\nregcache and the frame cache.\n\nTested on debian/amd64, natively, under Valgrind,\nand with make check RUNTESTFLAGS=\"--target_board=native-gdbserver\".\n\n==27679== VALGRIND_GDB_ERROR_BEGIN\n==27679== 1,123 (72 direct, 1,051 indirect) bytes in 1 blocks are definitely lost in loss record 2,942 of 3,400\n==27679==    at 0x4C2C4CC: operator new(unsigned long) (vg_replace_malloc.c:344)\n==27679==    by 0x5CDF71: get_thread_arch_aspace_regcache(ptid_t, gdbarch*, address_space*) (regcache.c:330)\n==27679==    by 0x5CE12A: get_thread_regcache (regcache.c:366)\n==27679==    by 0x5CE12A: get_current_regcache() (regcache.c:372)\n==27679==    by 0x4FF63D: post_create_inferior(target_ops*, int) (infcmd.c:452)\n==27679==    by 0x43AF62: core_target_open(char const*, int) (corelow.c:458)\n==27679==    by 0x408B68: cmd_func(cmd_list_element*, char const*, int) (cli-decode.c:1892)\n...\n\ngdb/ChangeLog\n2019-02-27  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n\n\t* target.c (target_detach): Clear the regcache and the\n\tframe cache.",
+    "tree": {
+      "sha": "2bb77b524297f336afc0047a5e8339fdbdf747ba",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/git/trees/2bb77b524297f336afc0047a5e8339fdbdf747ba"
+    },
+    "url": "https://api.github.com/repos/bminor/binutils-gdb/git/commits/799efbe8e01ab8292c01f46ac59a6fb2349d4535",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null
+    }
+  },
+  "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/799efbe8e01ab8292c01f46ac59a6fb2349d4535",
+  "html_url": "https://github.com/bminor/binutils-gdb/commit/799efbe8e01ab8292c01f46ac59a6fb2349d4535",
+  "comments_url": "https://api.github.com/repos/bminor/binutils-gdb/commits/799efbe8e01ab8292c01f46ac59a6fb2349d4535/comments",
+  "author": null,
+  "committer": null,
+  "parents": [
+    {
+      "sha": "5cfe428cd1788be52a0af540f02b8f2705354d50",
+      "url": "https://api.github.com/repos/bminor/binutils-gdb/commits/5cfe428cd1788be52a0af540f02b8f2705354d50",
+      "html_url": "https://github.com/bminor/binutils-gdb/commit/5cfe428cd1788be52a0af540f02b8f2705354d50"
+    }
+  ],
+  "stats": {
+    "total": 18,
+    "additions": 17,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "f259763a45d0471d2d0dd1a0acf2246186d61705",
+      "filename": "gdb/ChangeLog",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 1,
+      "changes": 7,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/799efbe8e01ab8292c01f46ac59a6fb2349d4535/gdb/ChangeLog",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/799efbe8e01ab8292c01f46ac59a6fb2349d4535/gdb/ChangeLog",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/ChangeLog?ref=799efbe8e01ab8292c01f46ac59a6fb2349d4535",
+      "patch": "@@ -1,3 +1,8 @@\n+2019-02-27  Philippe Waroquiers  <philippe.waroquiers@skynet.be>\n+\n+\t* target.c (target_detach): Clear the regcache and the\n+\tframe cache.\n+\n 2019-02-27  Pedro Alves  <palves@redhat.com>\n \n \t* utils.c (set_screen_size): When we cap the height/width sizes,\n@@ -35,7 +40,7 @@\n \tPython 2.4 workaround.\n \n 2019-02-27  Kevin Buettner  <kevinb@redhat.com>\n-    \n+\n \t* NEWS: Note minimum Python version.\n \n 2019-02-27  Kevin Buettner  <kevinb@redhat.com>"
+    },
+    {
+      "sha": "d5ff932c7483d70fe27a337ef58441864977d99b",
+      "filename": "gdb/target.c",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "blob_url": "https://github.com/bminor/binutils-gdb/blob/799efbe8e01ab8292c01f46ac59a6fb2349d4535/gdb/target.c",
+      "raw_url": "https://github.com/bminor/binutils-gdb/raw/799efbe8e01ab8292c01f46ac59a6fb2349d4535/gdb/target.c",
+      "contents_url": "https://api.github.com/repos/bminor/binutils-gdb/contents/gdb/target.c?ref=799efbe8e01ab8292c01f46ac59a6fb2349d4535",
+      "patch": "@@ -2029,6 +2029,17 @@ target_detach (inferior *inf, int from_tty)\n   prepare_for_detach ();\n \n   current_top_target ()->detach (inf, from_tty);\n+\n+  /* After we have detached, clear the register cache for this inferior.  */\n+  ptid_t pid_ptid = ptid_t (inf->pid);\n+\n+  registers_changed_ptid (pid_ptid);\n+\n+  /* We have to ensure we have no frame cache left.  Normally,\n+     registers_changed_ptid (pid_ptid) calls reinit_frame_cache when\n+     inferior_ptid matches pid_ptid, but in our case, it does not\n+     call it, as inferior_ptid has been reset.  */\n+  reinit_frame_cache ();\n }\n \n void"
+    }
+  ]
+}
