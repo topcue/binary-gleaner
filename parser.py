@@ -71,8 +71,6 @@ def parse_commit(json_data):
   #### get file detail
   files = json_data["files"]
   changed_file_names = parse_files_change(files) # select file and binary here
-
-  
   
   if not changed_file_names:
     return 0
@@ -82,7 +80,7 @@ def parse_commit(json_data):
     print("[*] child_sha: ", child_sha)
     print("[*] parent_sha:", parent_sha)
 
-    base_path = "/home/topcue/bincollector"
+    base_path = os.getcwd()
     origin_path = base_path + "/" + "origin"
     bin_path = base_path + "/" + "bins/bin-" + datetime + "-" + child_sha
     child_path = bin_path + "/" + "child"
