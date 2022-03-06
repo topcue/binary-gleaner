@@ -15,7 +15,7 @@ dict_repos = {
   # etc.
 }
 
-DATETIME_FORMAT = "%Y-%m-%dT%H-%M-%S"
+DATETIME_FORMAT = "%Y%m%dT%H%M%S"
 EMPTY_TREE_SHA = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 
 # ================================================
@@ -67,15 +67,12 @@ def is_git_repo(path):
   return ret
 
 ## check if modified
-def is_pure_repo(repo: Repo):
-  return (not repo.untracked_files and not repo.is_dirty())
-  
-## check if modified
-def is_path_pure_repo(path: str):
+def is_pure_repo(path: str): 
   if is_git_repo(path):
-    return is_pure_repo(Repo(path))
-  else:
-    False
+    repo = Repo(path)
+    return (not repo.untracked_files and not repo.is_dirty())
+  else:    
+    return False
 
 ## get status w/o input check
 def get_status(repo, path):
@@ -98,17 +95,19 @@ def force_clone(git_url, path):
 
 ## create base dir
 def create_base(git_url, base_path):
-  print("[*] Is '{}' pure repo?:".format(base_path), is_path_pure_repo(base_path))
-  if is_path_pure_repo(base_path):
+  print("[DEBUG] Is '{}' pure repo?:".format(base_path), is_pure_repo(base_path))
+  if is_pure_repo(base_path):
     repo = Repo(base_path)
   else:
-    print("[*] call force_clone()")
     repo = force_clone(git_url, base_path)
+  repo.remotes.origin.pull("master")
   return repo
 
 ## clone repo locally w/o input check
 def clone_repo(base_path, new_repo_path):
   repo = Repo(base_path)
+  os.system("rm -rf " + new_repo_path)
+  os.system("mkdir " + new_repo_path)
   cloned_repo = repo.clone(os.path.join(base_path, new_repo_path))
   assert cloned_repo.__class__ is Repo     # clone an existing repository
   assert Repo.init(os.path.join(base_path, new_repo_path)).__class__ is Repo
@@ -119,7 +118,7 @@ def try_clone_repo(base_path, new_repo_path):
   print("[*] try_clone_repo()")
   print("[*] base_path:", base_path)
   print("[*] new_repo_path:", new_repo_path)
-  if is_path_pure_repo(new_repo_path):
+  if is_pure_repo(new_repo_path):
     repo = Repo(new_repo_path)
   else:
     repo = clone_repo(base_path, new_repo_path)
