@@ -94,34 +94,31 @@ def force_clone(git_url, path):
   return repo
 
 ## create base dir
-def create_base(git_url, base_path):
-  print("[DEBUG] Is '{}' pure repo?:".format(base_path), is_pure_repo(base_path))
-  if is_pure_repo(base_path):
-    repo = Repo(base_path)
+def git_clone_with_url(git_url, src_path):
+  print("[DEBUG] Is '{}' pure repo?:".format(src_path), is_pure_repo(src_path))
+  if is_pure_repo(src_path):
+    repo = Repo(src_path)
   else:
-    repo = force_clone(git_url, base_path)
+    repo = force_clone(git_url, src_path)
   repo.remotes.origin.pull("master")
   return repo
 
 ## clone repo locally w/o input check
-def clone_repo(base_path, new_repo_path):
-  repo = Repo(base_path)
-  os.system("rm -rf " + new_repo_path)
-  os.system("mkdir " + new_repo_path)
-  cloned_repo = repo.clone(os.path.join(base_path, new_repo_path))
+def clone_repo(src_path, dst_path):
+  repo = Repo(src_path)
+  os.system("rm -rf " + dst_path)
+  os.system("mkdir " + dst_path)
+  cloned_repo = repo.clone(os.path.join(src_path, dst_path))
   assert cloned_repo.__class__ is Repo     # clone an existing repository
-  assert Repo.init(os.path.join(base_path, new_repo_path)).__class__ is Repo
+  assert Repo.init(os.path.join(src_path, dst_path)).__class__ is Repo
   return cloned_repo
 
 ## reflect base paths checkout
-def try_clone_repo(base_path, new_repo_path):
-  print("[*] try_clone_repo()")
-  print("[*] base_path:", base_path)
-  print("[*] new_repo_path:", new_repo_path)
-  if is_pure_repo(new_repo_path):
-    repo = Repo(new_repo_path)
+def try_clone_repo(src_path, dst_path):
+  if is_pure_repo(dst_path):
+    repo = Repo(dst_path)
   else:
-    repo = clone_repo(base_path, new_repo_path)
+    repo = clone_repo(src_path, dst_path)
   return repo
 
 

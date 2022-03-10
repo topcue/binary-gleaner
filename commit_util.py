@@ -32,7 +32,7 @@ def get_commits_with_datetime_range(commits, start, end):
   end_datetime = end.strftime(DATETIME_FORMAT)
   result = []
   for commit in commits:
-    authored_datetime = get_authored_datetime(commit)
+    authored_datetime = get_committed_datetime(commit)
     if start_datetime < authored_datetime < end_datetime:
       result.append(commit)
   
@@ -49,12 +49,32 @@ def get_diff_files(diff: Diff):
   fileB = diff.b_blob.data_stream.read().decode('utf-8')
   return fileA, fileB
 
+# def get_diff_type(commit: Commit):
+#   parent = get_commit_parent(commit)
+#   diff_index = parent.diff(commit, create_patch=True)
+  
+#   for diff_idx in diff_index:
+#     if diff_idx.new_file:
+#       print("[*] Added")
+#     elif diff_idx.deleted_file:
+#       print("[*] Deleted")
+#     elif diff_idx.renamed:
+#       print("[*] Renamed")
+#     elif diff_idx.a_blob and diff_idx.b_blob and diff_idx.a_blob != diff_idx.b_blob:
+#       print("[*] Modified")
+#     elif diff_idx.copied_file:
+#       print("[*] Copied")
+#     else:
+#       print("[*] ???")
+    
+#     return diff_idx
+
 def get_files_info(commit: Commit):
   parent = commit.parents[0] if commit.parents else EMPTY_TREE_SHA
   diffs  = {
-    diff.a_path: diff for diff in commit.diff(parent)    
+    diff.a_path: diff for diff in commit.diff(parent, create_patch=True)    
   }
-
+  
   files_info = []
   for objpath, stats in commit.stats.files.items(): 
     diff = diffs.get(objpath)
@@ -64,37 +84,22 @@ def get_files_info(commit: Commit):
           break
     files_info.append({
       'filename': objpath,
-      'type': diff_type(diff),
-      'stats' : stats,
+      'type'    : diff_type(diff),
+      'stats'   : stats,
+      'patch'   : str(diff)
     })
   
   return files_info
 
-def test():
-  ## config path params
-  home_path = "/Users/topcue"
-  project_path = home_path + "/binary-gleaner"
-  base_path = "/Users/topcue/binary-gleaner/base"
+def get_commit_info(commit: Commit):
+  parent = get_commit_parent(commit)
+  commit_info = {
+    "hash"       : get_commit_hash(commit),
+    "parent_hash": get_commit_hash(parent),
+    "timestamp"  : get_authored_datetime(commit),
+    "msg"        : get_commit_message(commit),
+  }
   
-  ## creat base dir
-  binutils_url = get_git_repo_url_with_package_name("binutils")
-  base_repo = create_base(binutils_url, base_path)
-  print("[*] Base repo status:", get_status(base_repo, base_path))
-  print()
-  
-  ## create test dir
-  test_path = project_path + "/test"
-  test_repo = try_clone_repo(base_path, test_path)
-  repo = test_repo
-
-  ## get commits
-  commits = get_commits_with_cnt(repo, 15000)
-
-  start_datetime = datetime.datetime(2021, 1, 1)
-  end_datetime = datetime.datetime.now()
-  commits = get_commits_with_datetime_range(commits, start_datetime, end_datetime)
-  
-if __name__ == "__main__":
-  test()
+  return commit_info
 
 # EOF
