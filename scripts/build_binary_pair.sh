@@ -12,7 +12,7 @@ mkdir -p $BIN_PATH
 cd $BASE_PATH && git checkout $PARENT_HASH -q
 rm -rf $BASE_PATH/build && mkdir -p $BASE_PATH/build
 rm -rf $BASE_PATH/install && mkdir -p $BASE_PATH/install
-cd $BASE_PATH/build && $BASE_PATH/configure $CONFIG_OPT -q 2>/dev/null
+cd $BASE_PATH/build && CFLAGS="-I/home/topcue/dep/gmp/install/include -L/home/topcue/dep/gmp/install/lib" CXXFLAGS="-I/home/topcue/dep/gmp/install/include -L/home/topcue/dep/gmp/install/lib" $BASE_PATH/configure $CONFIG_OPT -q 2>/dev/null
 cd $BASE_PATH/build && make -j 8 >/dev/null 2>&1 && make install >/dev/null
 cp -r $BASE_PATH/install $BIN_PATH/tmp_parent
 

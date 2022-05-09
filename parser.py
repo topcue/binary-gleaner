@@ -37,7 +37,8 @@ def foo(commit: Commit):
   base_path = curr_path + "/" + "base"
   scripts_path = curr_path + "/" + "scripts"
   bin_path = "/ext/bins/bin-" + timestamp + "-" + patched_hash
-  config_opt = "--disable-gdb --disable-gdbserver --disable-sim --prefix={}"
+  # config_opt = "--disable-gdb --disable-gdbserver --disable-sim --prefix={}"
+  config_opt = "--prefix={}"
   
   ## ============================================
   ## call builder
@@ -88,8 +89,10 @@ def main():
 
   ## get commits
   commits = get_commits_with_cnt(repo, 5000)
-  start = datetime.datetime(2021, 3, 1)
+  start = datetime.datetime(2021, 11, 1)
   end = datetime.datetime.now()
+  # start = datetime.datetime(2021, 11, 1)
+  # end = datetime.datetime(2022, 1, 1)
   commits = get_commits_with_datetime_range(commits, start, end)
   
   ## parse commits
