@@ -1,15 +1,8 @@
 import os
-import sys
-import re
-import datetime
-import urllib.parse
-import urllib.request
 import json
 from git import *
 
-commit_per_page = 30  # set by api
-
-dict_repos = {
+PACKAGES = {
   "binutils": "bminor/binutils-gdb"
   # coreutils..
   # etc.
@@ -34,23 +27,14 @@ def load_json(file_path: str):
 
 # ================================================
 
-def get_git_repo_url_with_package_name(package: str):
-  return "https://github.com/" + dict_repos[package]
+def get_repo_url(package: str):
+  return "https://github.com/" + PACKAGES[package]
 
-def get_git_commit_url_with_package_name(package: str):
-  return "https://api.github.com/repos/" + dict_repos[package] + "/commits"
+def get_commit_url(package: str):
+  return "https://api.github.com/repos/" + PACKAGES[package] + "/commits"
 
 def add_commit_url_to_page(url: str, page: int):
   return url + "?page=" + str(page)
-
-# def read_json_from_url_with_token(url):
-#   # get git_token manually
-#   git_token = os.popen('cat $HOME/.git_token').read()[:-1]
-#   headers = {"Authorization": "token " + git_token}
-#   req = urllib.request.Request(url, headers = headers)
-#   json_url = urllib.request.urlopen(req)
-#   json_data = json.loads(json_url.read())
-#   return json_data
 
 # ================================================
 
@@ -120,7 +104,5 @@ def try_clone_repo(src_path, dst_path):
   else:
     repo = clone_repo(src_path, dst_path)
   return repo
-
-
 
 # EOF

@@ -1,4 +1,4 @@
-from datetime import date
+import datetime
 from util import *
 from commit_util import *
 
@@ -14,13 +14,9 @@ def get_changed_files_name(files_info):
   return ret
 
 
-def foo(commit: Commit):
+def build_pair(commit: Commit):
   commit_info = get_commit_info(commit)
   files_info = get_files_info(commit)
-  
-  ## TODO: Remove me after debugging
-  # if commit_info["hash"] != "84a9f1953047dee70f45ae8ac276ea3d8293351d":
-  #   return 0
 
   changed_files_name = get_changed_files_name(files_info)
   patched_hash = commit_info["hash"]
@@ -37,12 +33,9 @@ def foo(commit: Commit):
   base_path = curr_path + "/" + "base"
   scripts_path = curr_path + "/" + "scripts"
   bin_path = "/ext/bins/bin-" + timestamp + "-" + patched_hash
-  # config_opt = "--disable-gdb --disable-gdbserver --disable-sim --prefix={}"
   config_opt = "--prefix={}"
-  
-  ## ============================================
+ 
   ## call builder
-
   os.environ["PARENT_HASH"] = parent_hash
   os.environ["PATCHED_HASH"] = patched_hash
   os.environ["BASE_PATH"] = base_path
@@ -53,22 +46,17 @@ def foo(commit: Commit):
   print("\n[*] build_binary_pair.sh")
   os.system(cmd)
 
-  ## ============================================
-  ## call gleaner
-  
+  ## call gleaner  
   os.environ["BIN_PATH"] = bin_path
   cmd = scripts_path + "/glean_binary_pair.sh"
   print("\n[*] glean_binary_pair.sh")
   os.system(cmd)
   
-  ## ============================================
   ## save files
-
   store_json(bin_path + "/commit_info", commit_info)
   store_json(bin_path + "/files_info", files_info)
-  
+
   pass
-  # exit(0)
 
 
 def main():
@@ -77,7 +65,7 @@ def main():
   pure_base_path = project_path + "/pure_base"
   
   ## creat pure_base dir
-  binutils_url = get_git_repo_url_with_package_name("binutils")
+  binutils_url = get_repo_url("binutils")
   pure_base_repo = git_clone_with_url(binutils_url, pure_base_path)
   print("[*] Base repo status:", get_status(pure_base_repo, pure_base_path))
 
@@ -89,15 +77,16 @@ def main():
 
   ## get commits
   commits = get_commits_with_cnt(repo, 5000)
-  start = datetime.datetime(2021, 11, 1)
+  start = datetime.datetime(2022, 1, 1)
   end = datetime.datetime.now()
-  # start = datetime.datetime(2021, 11, 1)
-  # end = datetime.datetime(2022, 1, 1)
   commits = get_commits_with_datetime_range(commits, start, end)
   
-  ## parse commits
+  ## TODO: Remove me after debugging!
+  return
+
+  ## build every pairs
   for commit in commits:
-    foo(commit)
+    build_pair(commit)
 
 
 if __name__ == "__main__":

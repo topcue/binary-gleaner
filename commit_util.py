@@ -52,7 +52,7 @@ def get_diff_files(diff: Diff):
 # def get_diff_type(commit: Commit):
 #   parent = get_commit_parent(commit)
 #   diff_index = parent.diff(commit, create_patch=True)
-  
+#
 #   for diff_idx in diff_index:
 #     if diff_idx.new_file:
 #       print("[*] Added")
