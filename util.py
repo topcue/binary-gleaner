@@ -1,5 +1,6 @@
 import os
 import json
+
 from git import *
 
 PACKAGES = {
@@ -16,27 +17,10 @@ EMPTY_TREE_SHA = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 def print_json(json_data):
   print(json.dumps(json_data, indent=2))
 
-def store_json(file_path: str, json_data):
-  with open(file_path, 'w') as outfile:
-    json.dump(json_data, outfile, indent=2)
-
-def load_json(file_path: str):
-  with open(file_path, "r") as json_file:
-    json_data = json.load(json_file)
-  return json_data
-
 # ================================================
 
 def get_repo_url(package: str):
   return "https://github.com/" + PACKAGES[package]
-
-def get_commit_url(package: str):
-  return "https://api.github.com/repos/" + PACKAGES[package] + "/commits"
-
-def add_commit_url_to_page(url: str, page: int):
-  return url + "?page=" + str(page)
-
-# ================================================
 
 ## check if path is git repo
 def is_git_repo(path):
@@ -58,16 +42,6 @@ def is_pure_repo(path: str):
   else:    
     return False
 
-## get status w/o input check
-def get_status(repo, path):
-  changed = [ item.a_path for item in repo.index.diff(None) ]
-  if path in repo.untracked_files:
-    status = "untracked"
-  elif path in changed:
-    status = "modified"
-  else:
-    status = "pure"
-  return status
 
 ## rm path and clone from git_url to path
 def force_clone(git_url, path):
@@ -83,7 +57,7 @@ def git_clone_with_url(git_url, src_path):
   if is_pure_repo(src_path):
     repo = Repo(src_path)
   else:
-    repo = force_clone(git_url, src_path)
+    repo = force_clone(git_url, src_path)  
   repo.remotes.origin.pull("master")
   return repo
 
@@ -93,7 +67,7 @@ def clone_repo(src_path, dst_path):
   os.system("rm -rf " + dst_path)
   os.system("mkdir " + dst_path)
   cloned_repo = repo.clone(os.path.join(src_path, dst_path))
-  assert cloned_repo.__class__ is Repo     # clone an existing repository
+  assert cloned_repo.__class__ is Repo
   assert Repo.init(os.path.join(src_path, dst_path)).__class__ is Repo
   return cloned_repo
 
@@ -103,6 +77,11 @@ def try_clone_repo(src_path, dst_path):
     repo = Repo(dst_path)
   else:
     repo = clone_repo(src_path, dst_path)
+  
+  ## TODO: Fix me
+  cmd = "cd {path}; git checkout origin/master".format(path=dst_path)
+  os.system(cmd)
+
   return repo
 
 # EOF

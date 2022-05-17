@@ -1,16 +1,7 @@
 from util import *
 
-def get_commit_hash(commit):
-  return commit.hexsha
-
 def get_commit_parent(commit):
   return commit.parents[0] if commit.parents else EMPTY_TREE_SHA
-
-def get_committer(commit):
-  return commit.committer
-
-def get_committed_date(commit):
-  return commit.committed_date
 
 def get_committed_datetime(commit):
   return commit.committed_datetime.strftime(DATETIME_FORMAT)
@@ -18,14 +9,12 @@ def get_committed_datetime(commit):
 def get_authored_datetime(commit):
   return commit.authored_datetime.strftime(DATETIME_FORMAT)
 
-def get_commit_message(commit):
-  return commit.message
-
+## TODO: master vs origin/master
 def get_all_commits(repo):
   return list(repo.iter_commits('master'))
 
 def get_commits_with_cnt(repo, cnt):
-  return list(repo.iter_commits('master', max_count=cnt, skip=0)) 
+  return list(repo.iter_commits('origin/master', max_count=cnt, skip=0)) 
 
 def get_commits_with_datetime_range(commits, start, end):
   start_datetime = start.strftime(DATETIME_FORMAT)
@@ -35,14 +24,13 @@ def get_commits_with_datetime_range(commits, start, end):
     authored_datetime = get_committed_datetime(commit)
     if start_datetime < authored_datetime < end_datetime:
       result.append(commit)
-  
   return result
 
 def diff_type(diff: Diff):
-  if diff.renamed: return 'Renamed'
-  if diff.deleted_file: return 'Deleted'
-  if diff.new_file: return 'Added'
-  return 'Modified'
+  if diff.renamed: return 'R'
+  if diff.deleted_file: return 'D'
+  if diff.new_file: return 'A'
+  return 'M'
 
 def get_diff_files(diff: Diff):
   fileA = diff.a_blob.data_stream.read().decode('utf-8')
@@ -69,37 +57,46 @@ def get_diff_files(diff: Diff):
     
 #     return diff_idx
 
-def get_files_info(commit: Commit):
-  parent = commit.parents[0] if commit.parents else EMPTY_TREE_SHA
-  diffs  = {
-    diff.a_path: diff for diff in commit.diff(parent, create_patch=True)    
-  }
+# def get_files_info(commit: Commit):
+#   parent = commit.parents[0] if commit.parents else EMPTY_TREE_SHA
+#   diffs  = {
+#     diff.a_path: diff for diff in commit.diff(parent, create_patch=True)    
+#   }
   
-  files_info = []
-  for objpath, stats in commit.stats.files.items(): 
-    diff = diffs.get(objpath)
-    if not diff:
-      for diff in diffs.values():
-        if diff.renamed:
-          break
-    files_info.append({
-      'filename': objpath,
-      'type'    : diff_type(diff),
-      'stats'   : stats,
-      'patch'   : str(diff)
-    })
+#   files_info = []
+#   for objpath, stats in commit.stats.files.items(): 
+#     diff = diffs.get(objpath)
+#     if not diff:
+#       for diff in diffs.values():
+#         if diff.renamed:
+#           break
+    
+#     files_info.append({
+#       'filename': objpath,
+#       'type'    : diff_type(diff),
+#       'stats'   : stats,
+#       'patch'   : "" #str(diff)
+#     })
   
-  return files_info
+#   return files_info
 
-def get_commit_info(commit: Commit):
-  parent = get_commit_parent(commit)
-  commit_info = {
-    "hash"       : get_commit_hash(commit),
-    "parent_hash": get_commit_hash(parent),
-    "timestamp"  : get_authored_datetime(commit),
-    "msg"        : get_commit_message(commit),
-  }
+# def get_commit_info(commit: Commit):
+#   parent = get_commit_parent(commit)
+#   commit_info = {
+#     "hash"       : get_commit_hash(commit),
+#     "parent_hash": get_commit_hash(parent),
+#     "timestamp"  : get_authored_datetime(commit),
+#     "msg"        : get_commit_message(commit),
+#   }
   
-  return commit_info
+#   return commit_info
+
+
+def get_changed_files_name(files_info):
+  ret = []
+  for file_info in files_info:
+    ret.append(file_info["filename"])
+
+  return ret
 
 # EOF
