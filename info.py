@@ -1,6 +1,6 @@
-from xml.etree.ElementTree import Element, SubElement, ElementTree
-
 from util import *
+
+from xml.etree.ElementTree import Element, SubElement, ElementTree
 
 def _pretty_print(current, parent=None, index=-1, depth=0):
   for i, node in enumerate(current):
