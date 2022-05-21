@@ -1,6 +1,6 @@
-from xml.etree.ElementTree import Element, SubElement, ElementTree
-
 from util import *
+
+from xml.etree.ElementTree import Element, SubElement, ElementTree
 
 def _pretty_print(current, parent=None, index=-1, depth=0):
   for i, node in enumerate(current):
@@ -74,13 +74,16 @@ def build_xml_files_info(root, repo, curr_comm:Commit, prev_comm:Commit, files_i
     e_d.text = str(file_info["stats"]["deletions"])
     e_l = SubElement(e_stats, "lines")
     e_l.text = str(file_info["stats"]["lines"])
-    
+
     if file_info["type"] == "M":
-      e_curr_contents = SubElement(e_file, "curr_contents")
-      e_curr_contents.text = repo.git.show("{}:{}".format(curr_comm.hexsha, file_info["path"]))
-    
-      e_prev_contents = SubElement(e_file, "prev_contents")
-      e_prev_contents.text = repo.git.show("{}:{}".format(prev_comm.hexsha, file_info["path"]))
+      try:
+        e_curr_contents = SubElement(e_file, "curr_contents")
+        e_curr_contents.text = repo.git.show("{}:{}".format(curr_comm.hexsha, file_info["path"]))
+      
+        e_prev_contents = SubElement(e_file, "prev_contents")
+        e_prev_contents.text = repo.git.show("{}:{}".format(prev_comm.hexsha, file_info["path"]))
+      except:
+        print("[-] File not exist!")
   
   return root
   

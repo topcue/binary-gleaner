@@ -7,9 +7,9 @@ if ls $BIN_PATH/tmp_parent 1> /dev/null 2>&1; then
   mkdir -p $BIN_PATH/parent
   mkdir -p $BIN_PATH/patched
   for file in `find $BIN_PATH/tmp_parent -type f -printf '%P\n' $1`; do
-    parent_hash=`md5sum $BIN_PATH/tmp_parent/$file $1 | awk '{print $1}'`
-    patched_hash=`md5sum $BIN_PATH/tmp_patched/$file $1 | awk '{print $1}'`
-    if test $parent_hash != $patched_hash; then
+    parentHash=`md5sum $BIN_PATH/tmp_parent/$file $1 | awk '{print $1}'`
+    patchedHash=`md5sum $BIN_PATH/tmp_patched/$file $1 | awk '{print $1}'`
+    if test $parentHash != $patchedHash; then
       ## parent
       src=$BIN_PATH/tmp_parent/$file
       dst=$BIN_PATH/parent/$file
