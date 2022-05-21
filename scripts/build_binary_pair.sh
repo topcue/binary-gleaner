@@ -1,11 +1,11 @@
 #!/bin/bash
 
 echo "[*] build_binar_pair.sh info"
-echo "  [*] PARENT_HASH:" $PARENT_HASH
-echo "  [*] PATCHED_HASH :" $PATCHED_HASH
-echo "  [*] BASE_PATH  :" $BASE_PATH
-echo "  [*] BIN_PATH   :" $BIN_PATH
-echo "  [*] CONFIG_OPT :" $CONFIG_OPT
+echo "  [*] PARENT_HASH: " $PARENT_HASH
+echo "  [*] PATCHED_HASH:" $PATCHED_HASH
+echo "  [*] BASE_PATH:   " $BASE_PATH
+echo "  [*] BIN_PATH:    " $BIN_PATH
+echo "  [*] CONFIG_OPT:  " $CONFIG_OPT
 
 mkdir -p $BIN_PATH
 

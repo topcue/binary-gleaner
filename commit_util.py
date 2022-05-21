@@ -37,61 +37,6 @@ def get_diff_files(diff: Diff):
   fileB = diff.b_blob.data_stream.read().decode('utf-8')
   return fileA, fileB
 
-# def get_diff_type(commit: Commit):
-#   parent = get_commit_parent(commit)
-#   diff_index = parent.diff(commit, create_patch=True)
-#
-#   for diff_idx in diff_index:
-#     if diff_idx.new_file:
-#       print("[*] Added")
-#     elif diff_idx.deleted_file:
-#       print("[*] Deleted")
-#     elif diff_idx.renamed:
-#       print("[*] Renamed")
-#     elif diff_idx.a_blob and diff_idx.b_blob and diff_idx.a_blob != diff_idx.b_blob:
-#       print("[*] Modified")
-#     elif diff_idx.copied_file:
-#       print("[*] Copied")
-#     else:
-#       print("[*] ???")
-    
-#     return diff_idx
-
-# def get_files_info(commit: Commit):
-#   parent = commit.parents[0] if commit.parents else EMPTY_TREE_SHA
-#   diffs  = {
-#     diff.a_path: diff for diff in commit.diff(parent, create_patch=True)    
-#   }
-  
-#   files_info = []
-#   for objpath, stats in commit.stats.files.items(): 
-#     diff = diffs.get(objpath)
-#     if not diff:
-#       for diff in diffs.values():
-#         if diff.renamed:
-#           break
-    
-#     files_info.append({
-#       'filename': objpath,
-#       'type'    : diff_type(diff),
-#       'stats'   : stats,
-#       'patch'   : "" #str(diff)
-#     })
-  
-#   return files_info
-
-# def get_commit_info(commit: Commit):
-#   parent = get_commit_parent(commit)
-#   commit_info = {
-#     "hash"       : get_commit_hash(commit),
-#     "parent_hash": get_commit_hash(parent),
-#     "timestamp"  : get_authored_datetime(commit),
-#     "msg"        : get_commit_message(commit),
-#   }
-  
-#   return commit_info
-
-
 def get_changed_files_name(files_info):
   ret = []
   for file_info in files_info:

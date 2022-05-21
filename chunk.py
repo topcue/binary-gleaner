@@ -1,6 +1,3 @@
-## This is an experimental step.
-## It may not work properly.
-
 from util import *
 from commit_util import *
 from difflib import *
@@ -245,26 +242,26 @@ def build_histogram2(A, B):
 
   pass
 
-def pattern_mathcing(curr_comm: Commit, prev_comm: Commit, repo: Repo):
-  diffs = prev_comm.diff(curr_comm)
+def pattern_mathcing(currComm: Commit, prevComm: Commit, repo: Repo):
+  diffs = prevComm.diff(currComm)
 
   for diff in diffs:
-    if diff_type(diff) != 'M':
+    if diffType(diff) != 'M':
       continue
 
-    path_A = diff.a_blob.path if diff.a_blob else None
-    path_B = diff.b_blob.path if diff.b_blob else None
+    pathA = diff.a_blob.path if diff.a_blob else None
+    pathB = diff.b_blob.path if diff.b_blob else None
     
-    if not path_A or not path_B:
+    if not pathA or not pathB:
       continue
     
-    assert path_A == path_B
+    assert pathA == pathB
 
-    path = path_A
+    path = pathA
 
     
     try:
-      delta = repo.git.diff(prev_comm, curr_comm, path)
+      delta = repo.git.diff(prevComm, currComm, path)
     except:
       print("[-] repo.git.diff() Error!")
       return
@@ -272,8 +269,8 @@ def pattern_mathcing(curr_comm: Commit, prev_comm: Commit, repo: Repo):
     chunks_data = parse_delta(delta)
     if not chunks_data:
       return
-    file_data_A = repo.git.show('{}:{}'.format(prev_comm.hexsha, path))
-    file_data_B = repo.git.show('{}:{}'.format(curr_comm.hexsha, path))
+    file_data_A = repo.git.show('{}:{}'.format(prevComm.hexsha, path))
+    file_data_B = repo.git.show('{}:{}'.format(currComm.hexsha, path))
 
     try:
       for chunk in chunks_data:
