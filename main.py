@@ -11,18 +11,16 @@ def main():
   commits = pkg_hdl.get_commits()
   
   for commit in commits:
+    ## get commit info
     comm_hdl = CommitHandler(commit)
     comm_hdl.get_diff_fils()
     comm_hdl.show_brief()
 
     ## save as xml file
     comm_hdl.save_info(pkg_hdl.repo)
-
-    ## pattern matching
-    # pattern_mathcing(curr_comm, prev_comm, repo)
     
-    # comm_hdl.build_binary_pair()
-    builder = Builder(comm_hdl)
+    ## build binary pair
+    builder = Builder(pkg_hdl, comm_hdl)
     builder.build_binary_pair()
 
     pass

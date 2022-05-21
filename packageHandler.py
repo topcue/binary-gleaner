@@ -14,6 +14,7 @@ class PackageHandler:
     self.package = package
     self.pure = pure
     self.base = base
+    self.dataset = "dataset"
     self.repo = None
     self.commits = []
 
@@ -42,8 +43,8 @@ class PackageHandler:
 
   def get_commits(self):
     commits = get_commits_with_cnt(self.repo, 5000)
-    start = datetime.datetime(2022, 5, 1)
-    end = datetime.datetime(2022, 5, 2)
+    start = datetime.datetime(2022, 1, 1)
+    end = datetime.datetime.now()
     self.commits = get_commits_with_datetime_range(commits, start, end)
     
     return iter(self.commits)

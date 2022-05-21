@@ -36,6 +36,8 @@ class CommitHandler:
         path_A = diff.a_blob.path if diff.a_blob else None
         path_B = diff.b_blob.path if diff.b_blob else None
         assert path_A == path_B
+      else:
+        continue
 
       self.files_info.append({
         'path'     : objpath,
