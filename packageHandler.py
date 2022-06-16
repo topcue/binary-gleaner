@@ -1,6 +1,10 @@
 from util import *
 from commit_util import *
 
+from commitHandler import *
+from builder import *
+
+
 import datetime
 
 class PackageHandler:
@@ -43,10 +47,28 @@ class PackageHandler:
 
   def get_commits(self):
     commits = get_commits_with_cnt(self.repo, 5000)
-    start = datetime.datetime(2022, 1, 1)
+    start = datetime.datetime(2022, 6, 15)
     end = datetime.datetime.now()
     self.commits = get_commits_with_datetime_range(commits, start, end)
     
     return iter(self.commits)
+
+  
+  def collect_dataset(self):
+    commits = self.get_commits()
+    
+    for commit in commits:
+      ## get commit info
+      comm_hdl = CommitHandler(commit)
+      comm_hdl.get_diff_fils()
+      comm_hdl.show_brief()
+
+      ## save as xml file
+      comm_hdl.save_info(self.repo)
+      
+      ## build binary pair
+      build_helper = BuildHelper(comm_hdl, self.base, self.dataset)
+      build_helper.configure()
+      build_helper.get_binary_pairs()
 
 # EOF

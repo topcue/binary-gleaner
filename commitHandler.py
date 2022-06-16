@@ -49,9 +49,10 @@ class CommitHandler:
   
 
   def save_info(self, repo: Repo):
-    root = build_xml_info(repo, self.curr_comm, self.prev_comm, self.files_info)
+    xml_helper = XMLHelper()
+    root = xml_helper.build_xml_info(repo, self.curr_comm, self.prev_comm, self.files_info)
     file_path = "dataset/info-" + get_committed_datetime(self.curr_comm) + "-" + self.curr_comm.hexsha
-    store_xml(root, file_path)
+    xml_helper.store_xml(root, file_path)
 
 
 # EOF
